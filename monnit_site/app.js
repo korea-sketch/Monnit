@@ -18,6 +18,11 @@ const GAS_ENDPOINT = "";   // 예: "https://script.google.com/macros/s/AKfy.../e
    각 서비스 가입 후 발급받은 "폼 엔드포인트 URL" 을 아래에 붙여넣기 (이 한 줄만). 활성화 클릭·OAuth 불필요. */
 const FORM_POST_URL = "";  // 예: "https://formspree.io/f/xxxx" / "https://api.staticforms.dev/submit/xxxx"
 
+/* ★★ StaticForms (현재 활성 백엔드) — staticforms.dev 가입 후 발급받은 apiKey.
+   서버·활성화 클릭·OAuth 불필요. 키만 바꾸면 됩니다. */
+const STATICFORMS_URL = "https://api.staticforms.dev/submit";
+const STATICFORMS_KEY = "sf_e026c9ef91b8eaeba9d1d472";
+
 /* (대안) Web3Forms — 월 250건 무료. web3forms.com 에서 키 발급 후 붙여넣기 */
 const WEB3FORMS_KEY = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
 
@@ -39,6 +44,19 @@ async function sendLead(payload, btn){
   const restore = () => { if (btn){ btn.disabled = false; btn.textContent = btn.dataset._t || prevText; } };
   const mailto = () => { restore(); try { window.location.href = buildMailto(payload); } catch(e){} return 'mailto'; };
   try {
+    // 0) StaticForms (현재 활성 백엔드)
+    if (STATICFORMS_KEY) {
+      const res = await fetch(STATICFORMS_URL, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify(Object.assign({
+          apiKey: STATICFORMS_KEY,
+          subject: payload._subject || '모닛코리아 웹사이트 접수',
+          email: payload['이메일'] || payload.email || '',
+          replyTo: '@',
+          honeypot: ''
+        }, payload)) });
+      let ok = res.ok; try { const j = await res.json(); ok = ok && !!j.success; } catch(e){}
+      return ok ? (restore(), true) : mailto();
+    }
     // 1) Google Apps Script (시트 저장 + 메일)
     if (GAS_ENDPOINT) {
       try {
