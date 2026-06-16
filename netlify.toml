@@ -1,2 +1,14 @@
 [build]
   publish = "monnit_site"
+
+[[redirects]]
+  from = "https://monnit.co.kr/*"
+  to = "https://monnit.ai/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.monnit.co.kr/*"
+  to = "https://monnit.ai/:splat"
+  status = 301
+  force = true
