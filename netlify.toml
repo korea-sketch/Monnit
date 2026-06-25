@@ -1,5 +1,5 @@
 [build]
-  publish = "monnit_site"
+  publish = "Monnit_Korea_Final_Build"
 
 [[redirects]]
   from = "https://monnit.co.kr/*"
