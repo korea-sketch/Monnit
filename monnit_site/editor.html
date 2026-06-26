@@ -684,7 +684,7 @@ $('#seoSave').onclick=async()=>{
 };
 /* --- 메인페이지 쉬운 편집 (data-sc 슬롯 자동 발견 + 카탈로그 링크) --- */
 const HOME_EXTRA = [
-  { key:'product#catalog', label:'📄 카탈로그 PDF 링크 (다운로드 버튼 — 메인/제품 공통)', type:'url' }
+  { key:'product#catalog', label:'📄 카탈로그 링크 (메인·제품 버튼 공통 · linktr.ee / 구글드라이브 공유주소)', type:'url' }
 ];
 let HOME_SLOTS=[];
 async function fetchSiteHtml(){
@@ -750,8 +750,8 @@ async function loadHome(){
       const i=fld('이미지 URL', row.image||'', 'img', 'https:// 또는 비워두면 기본값');
       if(typeof attachUploader==='function') attachUploader(i);
     } else if(s.type==='url'){
-      fld('링크(국문)', row.ko||'', 'ko', 'https:// 카탈로그 PDF 주소');
-      fld('링크(영문)', row.en||'', 'en', '(선택) 영문 카탈로그 — 비우면 국문 사용');
+      fld('링크(국문)', row.ko||'', 'ko', '예: https://linktr.ee/monnithvac');
+      fld('링크(영문)', row.en||'', 'en', '(선택) 영문 카탈로그 — 비우면 국문 링크 사용');
     } else {
       // 핵심 개선: 시트에 저장된 값이 있으면 그 값을, 없으면 '현재 사이트에 보이는 문구'를 채워 넣음
       const koVal = (row.ko && row.ko.trim()) ? row.ko : (s.cur||'');

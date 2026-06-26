@@ -952,8 +952,10 @@ function applySiteContent(){
     const sd=SITE_CONTENT['seo#description']; if(sd){ const v=(lang==='en'&&sd.en&&sd.en.trim())?sd.en:sd.ko; if(v&&v.trim()){ let m=document.querySelector('meta[name="description"]'); if(!m){ m=document.createElement('meta'); m.setAttribute('name','description'); document.head.appendChild(m); } m.setAttribute('content', v.trim()); } }
   })();
   (function(){
-    const c=SITE_CONTENT['product#catalog']; if(!c) return;
-    const url=(lang==='en'&&c.en&&c.en.trim())?c.en.trim():(c.ko||'').trim();
+    const c=SITE_CONTENT['product#catalog'];
+    const url = c ? ((lang==='en'&&c.en&&c.en.trim())?c.en.trim():(c.ko||'').trim()) : '';
+    // 시트(product#catalog)에 주소가 있으면 그 값으로 교체.
+    // 없으면 HTML 기본 링크(linktr.ee)를 그대로 유지.
     if(url){ document.querySelectorAll('.cta-download').forEach(a=>{ a.setAttribute('href',url); }); }
   })();
   if(!_siteToggleHooked){
