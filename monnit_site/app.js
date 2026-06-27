@@ -860,30 +860,32 @@ function mapNews(rows){
 }
 
 /* ====== 프로모션 (Promotions 탭) ======
-   운영 방식: 프로모션 페이지를 별도 HTML로 만들어 두고,
-   시트에는 그 HTML 경로(file)와 제목(title) 정도만 등록하면
-   목록 카드가 자동 생성되고, 클릭 시 그 HTML이 오버레이로 표시됩니다.
+   운영 방식: 에디터에서 프로모션 HTML을 직접 작성/붙여넣어 시트에 저장합니다.
+   파일 업로드·재배포 없이, 시트의 html 셀 내용을 그대로 오버레이에 렌더링합니다.
 
-   열: id, title, file, desc, period, badge, ended, image, order
+   열: id, title, html, file, desc, period, badge, ended, image, order
    - id     : 고유 식별자 (영문/숫자, 비우면 자동 생성). URL 해시 #promo/{id}
    - title  : 카드 제목 (필수)
-   - file   : 프로모션 HTML 경로 (필수). 예) promotions/2026-spring.html
+   - html   : 프로모션 페이지 HTML 내용 (권장). 있으면 이걸 그대로 표시
+   - file   : (대안) HTML 파일 경로. html이 비었을 때만 사용. 예) promotions/x.html
    - desc   : 카드 설명 (선택, 1~2줄)
    - period : 진행 기간 표시 (선택)
    - badge  : 배지 문구 (선택, "진행중"/"신규" 등)
    - ended  : 종료 여부 (선택, y/예 → 종료 배지)
    - image  : 카드 썸네일 (선택, 비우면 플레이스홀더)
-   - order  : 정렬 순서 (선택, 작을수록 먼저) */
+   - order  : 정렬 순서 (선택, 작을수록 먼저)
+   ※ html 또는 file 중 하나는 있어야 상세가 표시됩니다. */
 let PROMOTIONS = [];
 function mapPromotions(rows){
   var truthy = function(v){ return ['y','yes','true','1','o','예','종료','end','ended'].indexOf(String(v||'').trim().toLowerCase()) >= 0; };
   var slug = function(s){ return String(s||'').trim().toLowerCase().replace(/[^a-z0-9가-힣]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40); };
-  var out = rows.filter(function(o){ return (o.title||'').trim() && (o.file||'').trim(); }).map(function(o, i){
+  var out = rows.filter(function(o){ return (o.title||'').trim() && ((o.html||'').trim() || (o.file||'').trim()); }).map(function(o, i){
     regI18N(o.title, o.title_en); regI18N(o.desc, o.desc_en);
     regI18N(o.badge, o.badge_en); regI18N(o.period, o.period_en);
     return {
       id:     (o.id||'').trim() || slug(o.title) || ('promo-'+(i+1)),
       title:  (o.title||'').trim(),
+      html:   (o.html||'').trim(),
       file:   (o.file||'').trim(),
       desc:   (o.desc||'').trim(),
       period: (o.period||'').trim(),
@@ -2464,14 +2466,24 @@ function openPromoDetail(id){
   if (!p){ navigate('promotion'); return; }
   titleEl.textContent = T(p.title);
   window.__promoCurFile = p.file || '';
-  if (p.file){
+  if (p.html){
+    // 에디터에서 업로드/작성한 HTML 내용을 그대로 렌더 (파일·재배포 불필요)
     frame.style.display = '';
     emptyEl.style.display = 'none';
+    frame.removeAttribute('src');
+    frame.srcdoc = p.html;
+    openNew.style.display = p.file ? '' : 'none';
+  } else if (p.file){
+    // (대안) HTML 파일 경로로 로드
+    frame.style.display = '';
+    emptyEl.style.display = 'none';
+    frame.removeAttribute('srcdoc');
     frame.src = p.file;
     openNew.style.display = '';
   } else {
     frame.style.display = 'none';
     frame.removeAttribute('src');
+    frame.removeAttribute('srcdoc');
     emptyEl.style.display = '';
     openNew.style.display = 'none';
   }
@@ -2482,7 +2494,7 @@ function closePromoDetail(){
   const overlay = document.getElementById('promoDetail');
   const frame   = document.getElementById('promoFrame');
   if (overlay) overlay.classList.remove('open');
-  if (frame) frame.removeAttribute('src');
+  if (frame){ frame.removeAttribute('src'); frame.removeAttribute('srcdoc'); }
   document.body.style.overflow = '';
   // 목록으로 복귀 (상세 해시 정리)
   if (location.hash.indexOf('promo/') !== -1) navigate('promotion');
