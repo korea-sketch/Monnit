@@ -1,3 +1,0 @@
-# /editor (and /editor/) always serve the content editor on every domain
-/editor       /editor.html   200
-/editor/      /editor.html   200
