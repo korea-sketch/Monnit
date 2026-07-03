@@ -250,8 +250,6 @@ const TABS={
  'Partners':{title:'파트너',key:'name',display:'name',search:true,cols:{desc:'long',url:'url'}},
  'FAQs':{title:'FAQ',key:null,display:'question',search:true,cols:{answer:'long'}},
  'NewsHighlights':{title:'뉴스 하이라이트',key:null,display:'title',cols:{desc:'long',url:'url'}},
- 'Promotions':{title:'🎁 프로모션 (HTML 파일 업로드 → 목록 자동 생성)',key:'id',display:'title',
-   cols:{title:'long',html:'htmlfile',period:'text',badge:'text',ended:'bool',desc:'long',image:'media',file:'file',order:'text'}},
  'AppCategories':{title:'앱 카테고리',key:'key',display:'name',cols:{}},
  'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'ko',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
  'Logos':{title:'고객사 로고 (메인 하단 띠)',key:null,display:'name',search:true,cols:{name:'text',image:'media'}},
@@ -284,7 +282,6 @@ const LABELS={
   before:'도입 전',after:'도입 후',datasheet:'데이터시트 PDF',
   qs:'요약 수치',about:'개요',challenges:'과제',solutions:'솔루션',results:'성과',quote:'고객의 말',cite:'출처',
   file:'첨부 PDF',photos:'사진들',
-  period:'진행 기간',badge:'배지(진행중/신규)',ended:'종료 여부',file:'(대안) HTML 파일 경로',html:'프로모션 HTML',
 };
 
 let DATA={}, CAT_OPTS=[], CASE_OPTS=[], APP_NAME={};
@@ -347,48 +344,6 @@ function previewBox(input){const box=el('div','prev');
   const render=()=>{const u=normImg(input.value);box.innerHTML='';if(!u)return;const img=new Image();img.src=u;img.onerror=()=>{box.innerHTML='<span class="err">미리보기 불가 — 공유 설정/URL 확인</span>';};box.appendChild(img);};
   input.addEventListener('input',()=>{clearTimeout(input._t);input._t=setTimeout(render,400);});render();return box;}
 
-function htmlFileWidget(col,label,val){
-  const w=el('div','side full');
-  w.innerHTML=`<div class="col-h">${label} · 파일 업로드 또는 직접 작성</div>`;
-  // 안내
-  const hint=el('div','hint','프로모션 페이지 <b>.html 파일을 선택</b>하면 내용이 아래 칸에 들어갑니다. 저장하면 사이트에 바로 반영됩니다(파일 업로드·재배포 불필요). 직접 작성/수정도 가능합니다.');
-  w.appendChild(hint);
-  // 버튼 줄
-  const bar=el('div'); bar.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px';
-  const upBtn=el('button','btn-ghost btn-sm','📄 HTML 파일 선택'); upBtn.type='button';
-  const file=el('input'); file.type='file'; file.accept='.html,.htm,text/html'; file.style.display='none';
-  const prevBtn=el('button','btn-ghost btn-sm','👁 미리보기'); prevBtn.type='button';
-  const clrBtn=el('button','btn-ghost btn-sm','지우기'); clrBtn.type='button';
-  const msg=el('span','status');
-  bar.appendChild(upBtn); bar.appendChild(prevBtn); bar.appendChild(clrBtn); bar.appendChild(msg); bar.appendChild(file);
-  w.appendChild(bar);
-  // 내용 textarea (시트에 저장될 실제 값)
-  const ta=el('textarea'); ta.value=val||''; ta.dataset.col=col; ta.dataset.kind='htmlraw';
-  ta.style.cssText='width:100%;min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5';
-  ta.placeholder='<!DOCTYPE html> ... 프로모션 페이지 HTML ...';
-  w.appendChild(ta);
-  // 미리보기 iframe
-  const prev=el('iframe'); prev.style.cssText='width:100%;height:0;border:1px solid var(--line);border-radius:6px;background:#fff;margin-top:6px;transition:height .2s';
-  w.appendChild(prev);
-  let open=false;
-  function renderPrev(){ prev.srcdoc=ta.value||'<div style="font-family:sans-serif;color:#888;padding:20px">내용이 없습니다</div>'; }
-  upBtn.onclick=()=>file.click();
-  file.onchange=async()=>{
-    const f=file.files[0]; if(!f) return;
-    msg.textContent='읽는 중…';
-    try{
-      const text=await f.text();
-      ta.value=text;
-      msg.textContent='✅ '+f.name+' ('+Math.round(f.size/1024)+'KB) 불러옴 — 저장하면 반영됩니다';
-      if(open) renderPrev();
-    }catch(e){ msg.textContent='읽기 실패: '+e.message; }
-    file.value='';
-  };
-  prevBtn.onclick=()=>{ open=!open; if(open){ renderPrev(); prev.style.height='320px'; prevBtn.textContent='👁 미리보기 닫기'; } else { prev.style.height='0'; prevBtn.textContent='👁 미리보기'; } };
-  clrBtn.onclick=()=>{ if(confirm('HTML 내용을 비울까요?')){ ta.value=''; if(open) renderPrev(); msg.textContent='비웠습니다'; } };
-  return w;
-}
-
 function simpleWidget(col,label,kind,val){
   const w=el('div','side full');w.innerHTML=`<div class="col-h">${label}</div>`;let inp;
   if(kind==='long'){inp=el('textarea');inp.value=val||'';}
@@ -446,8 +401,6 @@ function renderForm(isNew, preset){
     const body=el('div','body');
     if(isObj){
       body.appendChild(fieldsWidget(col,spec.fields,rec[col]||'',rec[col+'_en']||'',hasEnCol,false,false));
-    } else if(kind==='htmlfile'){
-      body.appendChild(htmlFileWidget(col,'프로모션 HTML',rec[col]||''));
     } else if(kind==='photos'){
       body.appendChild(el('div','hint','이미지 URL(직접 호스팅 / 구글드라이브 "링크 있는 모든 사용자" 공유 / Dropbox)을 넣으세요. 셀에 이미지를 직접 넣으면 작동하지 않습니다.'));
       body.appendChild(fieldsWidget(col,['사진 URL','캡션'],rec[col]||'','',false,true,true));
@@ -494,9 +447,6 @@ function buildRow(isNew){
   if(cfg.key){where=`<b>${cfg.key}="${map[cfg.key]||''}"</b> 행의 첫 열(${header[0]}) 셀을 클릭 후 붙여넣기.`;}
   else{const idx=$('#recSel').value;where=(isNew||idx==='__new')?'맨 아래 <b>빈 행</b>의 첫 열 셀에 붙여넣기(새 행 추가).':`<b>데이터 ${(+idx)+1}번째 행</b>(시트 ${(+idx)+2}행)의 첫 열 셀에 붙여넣기.`;}
   $('#outHint').innerHTML=`<b>${cfg.title}</b> · <code>${tab}</code> 탭 — `+where+' (TSV 한 줄 = 한 행 전체)';
-  if(map.html && /[\t\n\r]/.test(map.html)){
-    $('#outHint').innerHTML+='<br><b style="color:#E4002B">⚠ 이 프로모션은 HTML 내용이 있어 수동 복사(TSV)로는 줄이 깨집니다. 위 초록색 “시트에 바로 저장” 버튼을 사용하세요.</b>';
-  }
   $('#outStatus').textContent=`${header.filter(h=>h!=null).length}개 열`;
   $('#outBox').style.display='block';$('#outBox').scrollIntoView({behavior:'smooth',block:'end'});
 }
@@ -628,7 +578,6 @@ function previewUrl(){
     'Cases':'#stories', 'Applications':'#what-we-do', 'AppDetails':'#what-we-do',
     'Products':'#products', 'Awards':'#awards', 'Partners':'#partners',
     'Blog':'#blog', 'Whitepapers':'#whitepaper', 'NewsHighlights':'#blog',
-    'Promotions':'#promotion',
     'FAQs':'#faqs', 'Knowledgebase':'#guides' }[tab]||'';
   return 'index.html?sheetId='+encodeURIComponent($('#sheetId').value.trim())+'&_t='+Date.now()+viewHash;
 }
