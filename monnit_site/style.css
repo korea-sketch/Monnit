@@ -4900,3 +4900,24 @@ body{
 @media (prefers-reduced-motion:reduce){
   .as-flow,.as-warn circle,.as-fan,.vx-dot.bad:not(.sm){animation:none!important}
 }
+
+/* ========== 블로그 인사이트 hover 오버레이 ========== */
+.blog-card.has-insight { position: relative; }
+.blog-insight {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(12,18,32,.97), rgba(8,12,22,.99));
+  opacity: 0; visibility: hidden;
+  transition: opacity .28s ease, visibility .28s ease;
+  display: flex; align-items: center; padding: 30px 28px; z-index: 3; border-radius: 12px;
+}
+.blog-card.has-insight:hover .blog-insight,
+.blog-card.has-insight:focus-within .blog-insight { opacity: 1; visibility: visible; }
+.blog-insight-inner { width: 100%; }
+.blog-insight .bi-label { font-family: var(--fm); font-size: 11px; letter-spacing: .14em; color: var(--accent-dark); display: block; margin-bottom: 14px; }
+.blog-insight p { font-size: 14.5px; line-height: 1.7; color: var(--ink-mid); display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 16px; }
+.blog-insight .b-link { color: var(--accent-dark); font-size: 13px; font-weight: 600; }
+@media (hover: none) {
+  .blog-insight { position: static; opacity: 1; visibility: visible; background: var(--bg-deep); border-top: 1px solid var(--line); border-radius: 0; padding: 20px 22px; }
+  .blog-insight p { -webkit-line-clamp: 4; }
+  .blog-card.has-insight .blog-body .b-link { display: none; }
+}

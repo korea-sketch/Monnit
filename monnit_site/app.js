@@ -851,8 +851,8 @@ function mapAppDetails(rows){
 
 /* 자료실 & 지원 (단순 목록 탭) */
 function mapBlog(rows){
-  return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.body,o.body_en);
-    return ({ date:o.date||'', title:o.title, body:o.body||'', thumb:o.thumb||'◐', image:normalizeImageUrl(o.image||''), category:o.category||'', url:o.url||'' }); });
+  return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.body,o.body_en); regI18N(o.insight,o.insight_en);
+    return ({ date:o.date||'', title:o.title, body:o.body||'', insight:o.insight||'', thumb:o.thumb||'◐', image:normalizeImageUrl(o.image||''), category:o.category||'', url:o.url||'' }); });
 }
 function mapNews(rows){
   return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.desc,o.desc_en);
@@ -2818,6 +2818,9 @@ function renderBlog(){
     const thumb = p.image
       ? `<div class="blog-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
       : `<div class="blog-thumb">${esc(p.thumb||'◐')}</div>`;
+    const insight = (p.insight && p.insight.trim())
+      ? `<div class="blog-insight"><div class="blog-insight-inner"><span class="bi-label">INSIGHT · 전체 요약</span><p>${esc(p.insight)}</p><span class="b-link">자세히 보기 →</span></div></div>`
+      : '';
     const inner = `
       ${thumb}
       <div class="blog-body">
@@ -2825,10 +2828,12 @@ function renderBlog(){
         <h3>${esc(p.title)}</h3>
         <p>${esc(p.body)}</p>
         <span class="b-link">자세히 보기 →</span>
-      </div>`;
+      </div>
+      ${insight}`;
+    const cls = insight ? 'blog-card has-insight' : 'blog-card';
     return p.url
-      ? `<a class="blog-card res-link" href="${esc(p.url)}" target="_blank" rel="noopener">${inner}</a>`
-      : `<article class="blog-card">${inner}</article>`;
+      ? `<a class="${cls} res-link" href="${esc(p.url)}" target="_blank" rel="noopener">${inner}</a>`
+      : `<article class="${cls}">${inner}</article>`;
   }).join('');
   renderPager(el, 'blogPager', total, per, pageState.blog, g=>{ pageState.blog=g; renderBlog(); el.scrollIntoView({behavior:'smooth',block:'start'}); });
 }
