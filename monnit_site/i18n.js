@@ -16,6 +16,12 @@
 
   /* 강조(<em>/<br>/<span>)가 들어간 헤드라인: textContent(정규화) → 영문 innerHTML */
   var HTML_DICT = {
+    /* ── 홈 헤드라인 번역 보강 (2026-07) ── */
+    '현장을 읽고 미래를 설계합니다': 'Read the <em style="font-style:normal">Field</em>,<br>Design the <em style="font-style:normal">Future</em>.',
+    '설계부터 제조·검증': 'From Design to <em>Manufacturing & QA</em>',
+    '당신의 산업에 가장 잘 맞는IoT 솔루션': 'The <em>IoT Solution</em><br>Best Suited to Your Industry',
+    '진행 중인 프로모션': 'Ongoing <em>Promotions</em>',
+    '프로모션 사전 신청': 'Promotion <em>Pre-registration</em>',
     '센서가 세상을 읽고,데이터가 미래를 결정합니다.':
       '<em style="font-style:normal">Sensors</em> read the world,<br><em style="font-style:normal">data</em> shapes the future.',
     '현장을 이해하는 전문가 그룹의 맞춤형 무선 IoT 통합 솔루션 — 실시간 통합관제, 자동제어, AI 예지보전을 한 번에.':
@@ -51,6 +57,36 @@
 
   /* 일반 라벨/문단 사전 (정규화 KO → EN). 사전에 없는 문구는 한국어로 남습니다(기술문서 등). */
   var DICT = {
+    /* ── 홈 라벨/문단 번역 보강 (2026-07) ── */
+    "프로모션": "Promotions",
+    "검증된 무선 IoT 기술과 현장 경험을 바탕으로 데이터 확보, 통합관제, 자동제어, AI 예지보전은 물론 현장 문제 해결까지 함께합니다.": "Built on proven wireless IoT technology and hands-on field experience, we deliver data capture, integrated monitoring, automated control, AI predictive maintenance, and real-world problem-solving.",
+    "실시간 AI 분석으로 사고를 미리 예방": "Prevent incidents in advance with real-time AI analysis",
+    "에너지와 인력 운영을 최적화해 비용 절감": "Reduce costs by optimizing energy and workforce operations",
+    "예지보전과 패트롤 출동으로 현장 문제를 미리 해결": "Resolve field issues early through predictive maintenance and patrol dispatch",
+    "어떤 설비에서든 데이터를 확보하고, 바로 쓸 수 있는 정보로 분석": "Capture data from any equipment and analyze it into ready-to-use insight",
+    "글로벌 제품인증": "Global Product Certifications",
+    "추가인증없이 어디서든 적용가능": "Deployable anywhere with no extra certification",
+    "하루 750억 개 데이터로 설비 고장을 미리 예측": "Predict equipment failures with 75 billion data points per day",
+    "가혹한 환경, 변함없는 성능": "Harsh Environments, Unwavering Performance",
+    "자체 개발한 주파수 호핑 스펙트럼(FHSS) 기술로, 잦은 끊김과 신호 간섭이라는 기존 무선 센서의 한계를 넘어섰습니다.": "Our in-house Frequency-Hopping Spread Spectrum (FHSS) technology overcomes the frequent dropouts and signal interference that limit conventional wireless sensors.",
+    "서버를 거치지 않는 엣지 게이트웨이가 현장 BMS를 직접 제어하고, AI 학습 기반 제어로 에너지 효율과 사고 예방을 동시에 실현합니다.": "A serverless edge gateway controls the on-site BMS directly, while AI-based learning control achieves energy efficiency and incident prevention at once.",
+    "미군을 비롯해 삼성·현대·청와대 등 최고 수준의 보안을 요구하는 고객들이 선택하고 신뢰해 온 제품입니다.": "Chosen and trusted by customers who demand the highest levels of security, including the U.S. military, Samsung, Hyundai, and the Korean presidential office.",
+    "검증된 대규모 통합 관제 역량": "Proven Large-Scale Integrated Monitoring",
+    "2,000~15,000개 규모의 사이트를 단일 플랫폼으로 통합 관제하는 프로젝트를 FM·보험·교육·국방·대기업·프랜차이즈·에너지/인프라 분야에서 성공적으로 운영하고 있습니다.": "We successfully run projects that unify 2,000–15,000 sites on a single platform across facility management, insurance, education, defense, enterprise, franchise, and energy/infrastructure sectors.",
+    "사전 신청하기": "Pre-register",
+    "이 프로모션 신청하기": "Apply for This Promotion",
+    "← 프로모션 목록으로 돌아가기": "← Back to Promotions",
+    "한정 수량 특가부터 신규 가입 혜택까지 — Monnit Korea가 준비한 특별한 기회를 지금 만나보세요.": "From limited-quantity deals to new-signup benefits — discover the special opportunities Monnit Korea has prepared.",
+    "새로운 프로모션을 준비하고 있습니다": "New promotions are on the way",
+    "현재 진행 중인 프로모션이 없습니다.": "There are no active promotions at the moment.",
+    "원하시는 프로모션을 선택하고 정보를 남겨주시면, 담당자가 빠르게 연락드립니다.": "Select the promotion you want and leave your details — our team will get back to you quickly.",
+    "솔루션 구성": "Solution Architecture",
+    "무선 센서 노드": "Wireless Sensor Node",
+    "ALTA 게이트웨이": "ALTA Gateway",
+    "클라우드 플랫폼": "Cloud Platform",
+    "통합 대시보드": "Integrated Dashboard",
+    "적용 어플리케이션": "Applications",
+    "도입 후 성과": "Results After Deployment",
     /* ── 메인 사이트 완성용 추가 번역 ── */
     "사고 사전예방": "Prevent Incidents",
     "현장 데이터를 실시간 AI 기반 분석으로 진단해, 사고가 발생하기 전에 미리 예방합니다.": "AI-driven real-time analysis of field data diagnoses risks and prevents incidents before they happen.",

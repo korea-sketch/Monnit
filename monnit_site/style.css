@@ -1840,7 +1840,12 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   font-size: 24px;
   margin-bottom: 8px;
   font-weight: 500;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.arch-node .ico svg { width: 27px; height: 27px; }
 
 .arch-node .name { font-size: 13px; font-weight: 500; color: var(--ink); }
 
@@ -2895,7 +2900,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .logo-marquee{ position:relative; width:100%;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
-.logo-track{ display:flex; align-items:stretch; gap:28px; width:max-content; animation:logoScroll 80s linear infinite; padding:4px 0; will-change:transform; }
+.logo-track{ display:flex; align-items:stretch; gap:28px; width:max-content; animation:logoScroll 150s linear infinite; padding:4px 0; will-change:transform; }
 .logo-marquee:hover .logo-track{ animation-play-state:paused; }
 .logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; flex:0 0 auto; width:172px; }
 .logo-slide img{ height:74px; width:100%; object-fit:contain;
@@ -4985,10 +4990,50 @@ body{
 
 /* ========== PROMOTIONS ========== */
 /* ========== 프로모션 히어로 ========== */
-.promo-hero { position: relative; overflow: hidden; padding: 88px 0 60px; border-bottom: 1px solid var(--line); }
+.promo-hero { position: relative; overflow: hidden; padding: 88px 0 60px; }
 .promo-hero .wrap { position: relative; z-index: 1; }
-.promo-hero-glow { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.promo-hero-glow::before { content: ''; position: absolute; top: -160px; right: -120px; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(74,130,196,0.10), transparent 64%); }
+/* 신호 파동(sonar ping) — 중심에서 링이 계속 바깥으로 퍼지며 사라짐 */
+.promo-hero::before {
+  content: ''; position: absolute; top: 50%; right: 120px; transform: translateY(-50%);
+  width: 620px; height: 620px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(74,130,196,.20) 0%, rgba(74,130,196,.07) 48%, transparent 72%);
+  filter: blur(8px); pointer-events: none; z-index: 0;
+  animation: promoGlowPulse 5s ease-in-out infinite;
+}
+.promo-hero-fx { position: absolute; top: 50%; right: 400px; width: 0; height: 0; z-index: 0; pointer-events: none; }
+.promo-hero-fx::before {
+  content: ''; position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%;
+  background: #6EAAF0; box-shadow: 0 0 16px 3px rgba(110,170,240,.85);
+  animation: promoSourcePulse 5s ease-in-out infinite;
+}
+.promo-hero-fx span {
+  position: absolute; left: 0; top: 0; width: 520px; height: 520px; margin: -260px 0 0 -260px;
+  border-radius: 50%; border: 1.5px solid rgba(110,170,235,.55); opacity: 0;
+  animation: signalWave 5s ease-out infinite;
+}
+.promo-hero-fx span:nth-child(2) { animation-delay: 1.25s; }
+.promo-hero-fx span:nth-child(3) { animation-delay: 2.5s; }
+.promo-hero-fx span:nth-child(4) { animation-delay: 3.75s; }
+@keyframes signalWave {
+  0%   { transform: scale(.06); opacity: 0; }
+  8%   { opacity: .7; }
+  100% { transform: scale(1); opacity: 0; }
+}
+@keyframes promoSourcePulse { 0%,100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.3); opacity: 1; } }
+@keyframes promoGlowPulse { 0%,100% { opacity: .5; } 50% { opacity: .9; } }
+@media (prefers-reduced-motion: reduce) {
+  .promo-hero::before, .promo-hero-fx span, .promo-hero-fx::before { animation: none !important; }
+  .promo-hero-fx span { opacity: .1; }
+  .promo-hero-fx span:nth-child(1) { transform: scale(.45); }
+  .promo-hero-fx span:nth-child(2) { transform: scale(.7); }
+  .promo-hero-fx span:nth-child(3) { transform: scale(1); }
+}
+@media (max-width: 900px) { .promo-hero-fx { right: 300px; } }
+@media (max-width: 760px) {
+  .promo-hero-fx { top: 46px; right: 26px; transform: none; }
+  .promo-hero-fx span { width: 300px; height: 300px; margin: -150px 0 0 -150px; }
+  .promo-hero::before { right: -60px; width: 380px; height: 380px; }
+}
 .promo-hero h1 { font-family: var(--fd); font-weight: 400; font-size: clamp(40px, 6vw, 66px); line-height: 1.06; letter-spacing: -0.02em; margin: 22px 0 20px; }
 .promo-hero h1 em { font-style: normal; font-weight: 500; color: var(--accent-dark); }
 .promo-hero .lede { font-size: 18px; line-height: 1.6; color: var(--ink-soft); max-width: 580px; margin: 0 0 26px; }
@@ -5020,7 +5065,7 @@ body{
 @media (max-width: 640px) { .promo-grid { grid-template-columns: 1fr; } }
 
 /* ========== 프로모션 사전 신청 폼 ========== */
-.promo-apply-band { background: var(--bg-deep); border-top: 1px solid var(--line); padding: 72px 0 80px; margin-top: 8px; }
+.promo-apply-band { background: var(--bg-deep); padding: 72px 0 80px; margin-top: 8px; }
 .promo-apply-head { text-align: center; margin-bottom: 40px; }
 .promo-apply-head .kicker { justify-content: center; }
 .promo-apply-head h2 { font-family: var(--fd); font-weight: 600; font-size: 30px; color: var(--ink); margin: 14px 0 12px; }
@@ -5058,8 +5103,8 @@ body{
 .cta-sm { font-size: 13.5px !important; padding: 9px 18px !important; }
 .promo-detail-body { background: transparent; color: inherit; border-radius: 0; overflow: visible; margin-top: 8px; }
 .promo-detail-cta { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.promo-back-bottom { background: none; border: none; color: var(--ink-soft); font-size: 14px; cursor: pointer; padding: 8px; transition: color .18s; }
-.promo-back-bottom:hover { color: var(--accent-dark); }
+.promo-back-bottom { background: none; border: 1px solid var(--line); color: var(--ink-mid); font-size: 13.5px; font-weight: 500; cursor: pointer; padding: 11px 22px; border-radius: 8px; transition: border-color .18s, color .18s, background .18s; }
+.promo-back-bottom:hover { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
 /* 업로드된 랜딩페이지 격리 컨테이너 — 자체 다크 테마 유지 */
 .promo-landing { border-radius: 14px; overflow: hidden; }
 
@@ -5081,8 +5126,8 @@ body{
 #promoDetailApply {
   font-size: 17px !important;
   padding: 16px 40px !important;
-  background: linear-gradient(135deg, #F5A623, #E8842B) !important;
-  box-shadow: 0 4px 20px rgba(232,132,43,0.4);
+  background: linear-gradient(135deg, #4A82C4, #2E5C9A) !important;
+  box-shadow: 0 4px 20px rgba(46,92,154,0.4);
   border-radius: 8px !important;
 }
-#promoDetailApply:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(232,132,43,0.55); }
+#promoDetailApply:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(46,92,154,0.55); background: linear-gradient(135deg, #5A92D4, #244B80) !important; }

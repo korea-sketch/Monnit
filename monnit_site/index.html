@@ -1228,7 +1228,7 @@
 <section class="view" id="view-promotions">
   <div id="promoList">
     <div class="page-hero promo-hero">
-      <div class="promo-hero-glow" aria-hidden="true"></div>
+      <div class="promo-hero-fx" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
       <div class="wrap">
         <span class="kicker">Promotions</span>
         <h1>진행 중인 <em>프로모션</em></h1>
@@ -1255,7 +1255,7 @@
           <p>원하시는 프로모션을 선택하고 정보를 남겨주시면, 담당자가 빠르게 연락드립니다.</p>
         </div>
         <div class="promo-apply-prompt" id="promoApplyPrompt">
-          <button type="button" class="cta-primary" onclick="openApplyForm()">사전 신청하기 →</button>
+          <button type="button" class="cta-primary" onclick="openApplyForm()">사전 신청하기</button>
         </div>
         <form id="promoApplyForm" class="promo-apply-form" onsubmit="return submitPromoApply(event)" hidden>
           <div class="paf-row paf-row-full">
@@ -1296,7 +1296,7 @@
           </div>
           <div class="paf-actions">
             <span id="pafStatus" class="paf-status"></span>
-            <button type="submit" class="cta-primary" id="pafSubmit">신청하기 →</button>
+            <button type="submit" class="cta-primary" id="pafSubmit">신청하기</button>
           </div>
         </form>
       </div>
@@ -1306,14 +1306,14 @@
     <div class="promo-detail-bar">
       <div class="wrap promo-detail-bar-inner">
         <button class="promo-back" onclick="closePromo()">← 프로모션 목록</button>
-        <button id="promoDetailApplyTop" class="cta-primary cta-sm" style="display:none">신청하기 →</button>
+        <button id="promoDetailApplyTop" class="cta-primary cta-sm" style="display:none">신청하기</button>
       </div>
     </div>
     <div class="wrap section-pad">
       <h2 id="promoDetailTitle" class="promo-detail-title"></h2>
       <div id="promoDetailBody" class="promo-detail-body"></div>
       <div class="promo-detail-cta">
-        <button id="promoDetailApply" class="cta-primary" style="display:none">이 프로모션 신청하기 →</button>
+        <button id="promoDetailApply" class="cta-primary" style="display:none">이 프로모션 신청하기</button>
         <button class="promo-back-bottom" onclick="closePromo()">← 프로모션 목록으로 돌아가기</button>
       </div>
     </div>

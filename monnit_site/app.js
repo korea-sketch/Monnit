@@ -1589,25 +1589,25 @@ function renderCaseDetail(id) {
       <h2>솔루션 구성</h2>
       <div class="arch">
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◐</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14"/><path d="M7.76 16.24a6 6 0 0 1 0-8.48"/><path d="M16.24 7.76a6 6 0 0 1 0 8.48"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div>
           <div class="name">무선 센서 노드</div>
           <div class="desc">FIELD</div>
           <span class="arch-arrow" style="color:${c.accentText}">→</span>
         </div>
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◧</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6.01 18H6"/><path d="M10.01 18H10"/><path d="M15 10v4"/><path d="M17.84 7.17a4 4 0 0 0-5.66 0"/><path d="M20.66 4.34a8 8 0 0 0-11.31 0"/></svg></div>
           <div class="name">ALTA 게이트웨이</div>
           <div class="desc">AGGREGATE</div>
           <span class="arch-arrow" style="color:${c.accentText}">→</span>
         </div>
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◇</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></div>
           <div class="name">클라우드 플랫폼</div>
           <div class="desc">MQTTS / API</div>
           <span class="arch-arrow" style="color:${c.accentText}">→</span>
         </div>
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◉</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
           <div class="name">통합 대시보드</div>
           <div class="desc">ANALYTICS</div>
         </div>
@@ -2862,9 +2862,16 @@ function renderPromotions(){
   const empty = document.getElementById('promoEmpty');
   if (!grid) return;
   const countEl = document.getElementById('promoHeroCount');
-  if (countEl) countEl.textContent = PROMOS.length
-    ? `현재 ${PROMOS.length}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`
-    : '새로운 프로모션을 준비하고 있습니다';
+  if (countEl) {
+    let _lang='ko'; try{ _lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+    if (PROMOS.length) {
+      countEl.textContent = (_lang==='en')
+        ? `${PROMOS.length} promotion${PROMOS.length>1?'s':''} currently running · apply before they sell out`
+        : `현재 ${PROMOS.length}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`;
+    } else {
+      countEl.textContent = (_lang==='en') ? 'New promotions are on the way' : '새로운 프로모션을 준비하고 있습니다';
+    }
+  }
   if (!PROMOS.length){
     grid.innerHTML = '';
     if (empty) empty.style.display = 'block';
