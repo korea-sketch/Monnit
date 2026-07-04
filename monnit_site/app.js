@@ -2768,8 +2768,8 @@ function mapPromotions(rows){
       badge: o.badge||'',
       desc: o.desc||'',
       image: normalizeImageUrl(o.image||''),
-      // 상세 페이지용 이미지들 (||로 여러 장 구분). images 없으면 image 한 장 사용
-      images: (o.images||'').split('||').map(s=>normalizeImageUrl(s.trim())).filter(Boolean),
+      // 상세 페이지용 이미지들 (||로 여러 장 구분). 각 항목의 ':: 캡션' 부분은 제거. images 없으면 image 한 장 사용
+      images: (o.images||'').split('||').map(s=>normalizeImageUrl((s.split('::')[0]||'').trim())).filter(Boolean),
       order: parseInt(o.order,10) || 999
     }))
     .sort((a,b) => a.order - b.order);
