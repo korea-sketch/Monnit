@@ -245,7 +245,7 @@ const TABS={
  'Knowledgebase':{title:'지원/지식베이스 (사이트 표시)',key:null,display:'title',search:true,cols:{desc:'long'}},
  'Whitepapers':{title:'백서 / 자료',key:null,display:'title',search:true,cols:{desc:'long',photo:'media',url:'file'}},
  'Blog':{title:'블로그 / 보도',key:null,display:'title',search:true,cols:{body:'long',image:'media',thumb:'media',url:'url'}},
- 'Promotions':{title:'프로모션 (HTML 업로드)',key:'id',display:'title',search:true,cols:{html:'htmlfile',desc:'long',image:'media',ended:'text'}},
+ 'Promotions':{title:'프로모션 (이미지)',key:'id',display:'title',search:true,cols:{images:'media',image:'media',desc:'long',ended:'text'}},
  'Customers':{title:'고객사',key:'name',display:'name',search:true,cols:{headline:'long'}},
  'Awards':{title:'수상 이력',key:null,display:'name',search:true,cols:{note:'long',url:'url'}},
  'Partners':{title:'파트너',key:'name',display:'name',search:true,cols:{desc:'long',url:'url'}},
@@ -266,12 +266,27 @@ const HIDE={
   SiteContent:['view','kind'],
   Blog:['thumb'],
 };
+// 편집에 꼭 필요한 컬럼만 노출하는 화이트리스트 (고급 모드에서 전체 표시)
+// 지정된 탭은 이 목록의 컬럼만 보임 → 불필요한 항목/빈 컬럼 자동 숨김
+const SHOW={
+  Promotions:['id','title','badge','period','desc','images','image','order','ended'],
+  Blog:['date','title','category','body','image','url','insight'],
+  Products:['name','category','desc','url','image'],
+  Partners:['name','desc','url','logo'],
+  Customers:['name','headline','logo'],
+  Awards:['name','year','note','url'],
+  FAQs:['question','answer','category'],
+  Whitepapers:['title','desc','photo','url','date'],
+  NewsHighlights:['title','desc','url','date'],
+};
+
 /* 영문 열 이름 → 친절한 한글 라벨 */
 const LABELS={
   id:'ID',key:'ID',name:'이름',title:'제목',label:'표시 이름',desc:'설명',body:'본문',
-  html:'프로모션 HTML',period:'기간',badge:'뱃지(라벨)',ended:'종료(내리기: 1 입력)',
+  html:'프로모션 HTML',period:'행사 기간',badge:'뱃지(예: HOT, 이벤트)',ended:'종료 (내리려면 1 입력)',
+  images:'상세 이미지 (여러 장 가능, 세로로 표시)',
   tagline:'한 줄 설명',headline:'헤드라인',note:'비고',question:'질문',answer:'답변',
-  url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'이미지',thumb:'썸네일',icon:'아이콘',
+  url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'카드 썸네일 이미지',thumb:'썸네일',icon:'아이콘',
   industry:'산업군',region:'지역',category:'분류',group:'그룹',cat:'카테고리',year:'연도',date:'날짜',
   caption:'캡션',apps:'연결 앱',sensors:'센서',isnew:'신규 표시',popularity:'인기도',added:'추가일',
   order:'정렬 순서',num:'번호',accent:'강조색',accentbg:'강조 배경색',
@@ -411,9 +426,13 @@ function renderForm(isNew, preset){
   if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다.</div></div>';$('#outBox').style.display='none';return;}
   const enSet=new Set();header.forEach(h=>{if(h!=null&&h.endsWith('_en'))enSet.add(h);});
   const adv=$('#advFields')&&$('#advFields').checked; const hideList=(HIDE[tab]||[]);
+  // 편집에 필요한 핵심 컬럼만 보여주는 화이트리스트 (있으면 이것만, 없으면 기존 방식)
+  const showList=(SHOW[tab]||null);
   let hiddenCount=0;
   header.forEach(col=>{
-    if(col==null||col.endsWith('_en'))return;
+    if(col==null||String(col).trim()===''||col.endsWith('_en'))return;
+    // 화이트리스트가 있으면: 목록에 없고 key도 아니면 숨김 (고급 모드에서만 표시)
+    if(!adv && showList && !showList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     if(!adv && hideList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     const spec=cfg.cols[col];const isObj=spec&&typeof spec==='object';const hasEnCol=enSet.has(col+'_en');
     const kind=isObj?'fields':(spec||'text');
@@ -428,9 +447,9 @@ function renderForm(isNew, preset){
       body.appendChild(el('div','hint','이미지 URL(직접 호스팅 / 구글드라이브 "링크 있는 모든 사용자" 공유 / Dropbox)을 넣으세요. 셀에 이미지를 직접 넣으면 작동하지 않습니다.'));
       body.appendChild(fieldsWidget(col,['사진 URL','캡션'],rec[col]||'','',false,true,true));
     } else if(kind==='list'){
-      const p=el('div','pair');p.appendChild(listWidget(col,'한국어',rec[col]||''));if(hasEnCol)p.appendChild(listWidget(col+'_en','ENGLISH',rec[col+'_en']||''));body.appendChild(p);
+      const p=el('div','pair');p.appendChild(listWidget(col,hasEnCol?'한국어':(LABELS[col]||'값'),rec[col]||''));if(hasEnCol)p.appendChild(listWidget(col+'_en','ENGLISH',rec[col+'_en']||''));body.appendChild(p);
     } else if(['text','long'].includes(kind)){
-      const p=el('div','pair');p.appendChild(simpleWidget(col,'한국어',kind,rec[col]||''));if(hasEnCol)p.appendChild(simpleWidget(col+'_en','ENGLISH',kind,rec[col+'_en']||''));body.appendChild(p);
+      const p=el('div','pair');p.appendChild(simpleWidget(col,hasEnCol?'한국어':(LABELS[col]||'값'),kind,rec[col]||''));if(hasEnCol)p.appendChild(simpleWidget(col+'_en','ENGLISH',kind,rec[col+'_en']||''));body.appendChild(p);
     } else {
       const lm={media:'사진 URL',file:'자료 PDF URL',url:'링크 URL',bool:'여부',catselect:'카테고리',caseselect:'연결 케이스(케이스스터디)',color:'색상'};
       body.appendChild(simpleWidget(col,lm[kind]||'값',kind,rec[col]||''));

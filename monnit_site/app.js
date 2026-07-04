@@ -2759,7 +2759,7 @@ let BLOG = [
 ];
 let PROMOS = [];
 function mapPromotions(rows){
-  return rows.filter(o => (o.title || o.html) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
+  return rows.filter(o => (o.title || o.html || o.images || o.image) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
     .map(o => ({
       id: (o.id||'').trim(),
       title: o.title||'',
@@ -2768,6 +2768,8 @@ function mapPromotions(rows){
       badge: o.badge||'',
       desc: o.desc||'',
       image: normalizeImageUrl(o.image||''),
+      // 상세 페이지용 이미지들 (||로 여러 장 구분). images 없으면 image 한 장 사용
+      images: (o.images||'').split('||').map(s=>normalizeImageUrl(s.trim())).filter(Boolean),
       order: parseInt(o.order,10) || 999
     }))
     .sort((a,b) => a.order - b.order);
@@ -2905,10 +2907,16 @@ function openPromo(id, fromHash){
   const titleEl = document.getElementById('promoDetailTitle');
   if (!view || !body) return;
   if (titleEl) titleEl.textContent = p.title || '프로모션';
-  // 시트의 html 칸 내용을 그대로 삽입 (관리자가 올린 프로모션 HTML)
-  body.innerHTML = p.html && p.html.trim()
-    ? p.html
-    : `<div style="padding:40px;text-align:center;color:var(--ink-soft)">등록된 상세 내용이 없습니다.</div>`;
+  // 이미지 방식 우선: images가 있으면 세로로 나열. 없으면 html, 그것도 없으면 안내
+  if (p.images && p.images.length){
+    body.innerHTML = '<div class="promo-images">' +
+      p.images.map(src => `<img src="${esc(src)}" alt="${esc(p.title)}" loading="lazy">`).join('') +
+      '</div>';
+  } else if (p.html && p.html.trim()){
+    body.innerHTML = p.html;
+  } else {
+    body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink-soft)">등록된 상세 내용이 없습니다.</div>`;
+  }
   // 상세 하단에 '이 프로모션 신청하기' 버튼
   const applyBtn = document.getElementById('promoDetailApply');
   if (applyBtn){

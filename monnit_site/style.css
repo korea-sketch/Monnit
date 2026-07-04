@@ -142,24 +142,33 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   background: var(--ink);
 }
 
-/* 프로모션 메뉴 강조 — nav-link 뒤에 정의해 우선순위 확보 */
-.nav-link.nav-link-promo {
-  color: var(--accent-dark);
-  font-weight: 600;
+/* 프로모션 버튼 — 상담신청 옆, 앰버 강조로 시선 집중 */
+.nav-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--fm);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 10px 16px;
+  margin-right: 8px;
+  background: linear-gradient(135deg, #F5A623, #E8842B);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 12px rgba(232,132,43,0.35);
+  white-space: nowrap;
 }
-.nav-link.nav-link-promo::before {
-  content: '';
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-right: 6px;
-  vertical-align: middle;
+.nav-promo-btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(232,132,43,0.5);
 }
-.nav-link.nav-link-promo:hover { color: var(--ink); background: var(--accent-soft); }
-.nav-link.nav-link-promo.active { color: #fff; background: var(--btn-bg); }
-.nav-link.nav-link-promo.active::before { background: #fff; }
+.nav-promo-btn.active {
+  background: linear-gradient(135deg, #E8842B, #D06818);
+}
 
 .nav-cta {
   display: inline-flex;
@@ -188,6 +197,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   .nav-link { padding: 8px 11px; font-size: 13.5px; }
   .nav-links { gap: 2px; }
   .nav-cta { padding: 9px 12px; font-size: 11.5px; letter-spacing: 0.08em; }
+  .nav-promo-btn { padding: 9px 12px; font-size: 11.5px; margin-right: 6px; }
   .brand { font-size: 21px; }
   .brand-kr { font-size: 11px; }
 }
@@ -196,6 +206,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   .nav-link { padding: 7px 8px; font-size: 12.5px; letter-spacing: -0.01em; }
   .nav-links { gap: 1px; }
   .nav-cta { padding: 8px 10px; font-size: 10.5px; letter-spacing: 0.05em; }
+  .nav-promo-btn { padding: 8px 10px; font-size: 10.5px; margin-right: 5px; }
   .nav-cta::after { display: none; }
   .brand { font-size: 19px; }
   .brand-logo { height: 26px; }
@@ -211,6 +222,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   .topnav-inner { padding: 12px 20px; flex-wrap: wrap; gap: 12px; }
   .brand { font-size: 20px; }
   .nav-cta { display: none; }
+  .nav-promo-btn { display: none; }
   .nav-link { padding: 7px 12px; font-size: 13px; }
 }
 
@@ -5029,3 +5041,27 @@ body{
 .promo-back-bottom:hover { color: var(--accent-dark); }
 /* 업로드된 랜딩페이지 격리 컨테이너 — 자체 다크 테마 유지 */
 .promo-landing { border-radius: 14px; overflow: hidden; }
+
+/* 모바일 전용 프로모션 메뉴 항목 — 데스크톱에선 숨김 */
+.nav-item-mobile-promo { display: none; }
+@media (max-width: 760px) {
+  .nav-item-mobile-promo { display: block; }
+  .nav-item-mobile-promo .nav-link { color: #E8842B; font-weight: 700; }
+}
+
+/* ========== 프로모션 이미지 방식 상세 ========== */
+.promo-images { display: flex; flex-direction: column; gap: 0; max-width: 900px; margin: 0 auto; }
+.promo-images img { width: 100%; height: auto; display: block; border-radius: 0; }
+.promo-images img:first-child { border-radius: 14px 14px 0 0; }
+.promo-images img:last-child { border-radius: 0 0 14px 14px; }
+.promo-images img:only-child { border-radius: 14px; }
+/* 이미지 방식일 때 신청 버튼을 더 크고 눈에 띄게 */
+.promo-detail-cta { margin-top: 40px; padding-top: 36px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+#promoDetailApply {
+  font-size: 17px !important;
+  padding: 16px 40px !important;
+  background: linear-gradient(135deg, #F5A623, #E8842B) !important;
+  box-shadow: 0 4px 20px rgba(232,132,43,0.4);
+  border-radius: 8px !important;
+}
+#promoDetailApply:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(232,132,43,0.55); }
