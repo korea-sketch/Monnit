@@ -245,7 +245,7 @@ const TABS={
  'Knowledgebase':{title:'지원/지식베이스 (사이트 표시)',key:null,display:'title',search:true,cols:{desc:'long'}},
  'Whitepapers':{title:'백서 / 자료',key:null,display:'title',search:true,cols:{desc:'long',photo:'media',url:'file'}},
  'Blog':{title:'블로그 / 보도',key:null,display:'title',search:true,cols:{body:'long',image:'media',thumb:'media',url:'url'}},
- 'Promotions':{title:'프로모션 (이미지)',key:'id',display:'title',search:true,cols:{images:'photos',images_pc:'photos',image:'media',desc:'long',ended:'text'}},
+ 'Promotions':{title:'프로모션 (이미지)',key:'id',display:'title',search:true,cols:{images:'photos',image:'media',desc:'long',ended:'text'}},
  'Customers':{title:'고객사',key:'name',display:'name',search:true,cols:{headline:'long'}},
  'Awards':{title:'수상 이력',key:null,display:'name',search:true,cols:{note:'long',url:'url'}},
  'Partners':{title:'파트너',key:'name',display:'name',search:true,cols:{desc:'long',url:'url'}},
@@ -269,7 +269,7 @@ const HIDE={
 // 편집에 꼭 필요한 컬럼만 노출하는 화이트리스트 (고급 모드에서 전체 표시)
 // 지정된 탭은 이 목록의 컬럼만 보임 → 불필요한 항목/빈 컬럼 자동 숨김
 const SHOW={
-  Promotions:['id','title','badge','period','desc','images','images_pc','image','order','ended'],
+  Promotions:['id','title','badge','period','desc','images','image','order','ended'],
   Blog:['date','title','category','body','image','url','insight'],
   Products:['name','category','desc','url','image'],
   Partners:['name','desc','url','logo'],
@@ -284,8 +284,7 @@ const SHOW={
 const LABELS={
   id:'ID',key:'ID',name:'이름',title:'제목',label:'표시 이름',desc:'설명',body:'본문',
   html:'프로모션 HTML',period:'행사 기간',badge:'뱃지(예: HOT, 이벤트)',ended:'종료 (내리려면 1 입력)',
-  images:'상세 이미지 (모바일용 · 여러 장, 세로 표시)',
-  images_pc:'상세 이미지 (PC/데스크탑용 · 여러 장) — 비우면 모바일용을 공용',
+  images:'상세 이미지 (여러 장 가능, 세로로 표시)',
   tagline:'한 줄 설명',headline:'헤드라인',note:'비고',question:'질문',answer:'답변',
   url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'카드 썸네일 이미지',thumb:'썸네일',icon:'아이콘',
   industry:'산업군',region:'지역',category:'분류',group:'그룹',cat:'카테고리',year:'연도',date:'날짜',
