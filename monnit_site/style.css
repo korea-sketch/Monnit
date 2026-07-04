@@ -157,11 +157,14 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   color: #fff;
   border: none;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 8px;
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 12px rgba(232,132,43,0.35);
   white-space: nowrap;
 }
+.nav-promo-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.nav-item-mobile-promo .nav-link { display: inline-flex; align-items: center; gap: 6px; }
+.nav-item-mobile-promo .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; }
 .nav-promo-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 18px rgba(232,132,43,0.5);
@@ -4981,7 +4984,21 @@ body{
 }
 
 /* ========== PROMOTIONS ========== */
-.promo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+/* ========== 프로모션 히어로 ========== */
+.promo-hero { position: relative; overflow: hidden; padding: 88px 0 60px; border-bottom: 1px solid var(--line); }
+.promo-hero .wrap { position: relative; z-index: 1; }
+.promo-hero-glow { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.promo-hero-glow::before { content: ''; position: absolute; top: -160px; right: -120px; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(74,130,196,0.10), transparent 64%); }
+.promo-hero h1 { font-family: var(--fd); font-weight: 400; font-size: clamp(40px, 6vw, 66px); line-height: 1.06; letter-spacing: -0.02em; margin: 22px 0 20px; }
+.promo-hero h1 em { font-style: normal; font-weight: 500; color: var(--accent-dark); }
+.promo-hero .lede { font-size: 18px; line-height: 1.6; color: var(--ink-soft); max-width: 580px; margin: 0 0 26px; }
+.promo-hero-status { display: inline-flex; align-items: center; gap: 9px; font-family: var(--fm); font-size: 12.5px; letter-spacing: 0.03em; color: var(--accent-dark); background: var(--accent-soft); border: 1px solid var(--line); padding: 8px 15px; border-radius: 22px; }
+.promo-hero-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #3FD79A; box-shadow: 0 0 0 0 rgba(63,215,154,0.5); animation: promoPulse 2.2s infinite; flex-shrink: 0; }
+@keyframes promoPulse { 0% { box-shadow: 0 0 0 0 rgba(63,215,154,0.5); } 70% { box-shadow: 0 0 0 8px rgba(63,215,154,0); } 100% { box-shadow: 0 0 0 0 rgba(63,215,154,0); } }
+@media (max-width: 640px) { .promo-hero { padding: 60px 0 44px; } .promo-hero .lede { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { .promo-hero-status .dot { animation: none; } }
+
+.promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 380px)); gap: 24px; justify-content: center; }
 .promo-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
 .promo-card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 14px 36px rgba(0,0,0,.28); }
 .promo-thumb { aspect-ratio: 16/9; width: 100%; flex-shrink: 0; overflow: hidden; background: linear-gradient(135deg, var(--accent-soft), var(--bg-deep)); display: flex; align-items: center; justify-content: center; font-size: 38px; color: var(--accent-dark); }
@@ -5000,8 +5017,7 @@ body{
 /* 관리자가 올린 프로모션 HTML을 감싸는 컨테이너 — 안전한 표시 영역 */
 .promo-detail-body { background: #fff; color: #1a1a1a; border-radius: 12px; overflow: hidden; }
 .promo-detail-body img { max-width: 100%; height: auto; display: block; }
-@media (max-width: 900px) { .promo-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .promo-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .promo-grid { grid-template-columns: 1fr; } }
 
 /* ========== 프로모션 사전 신청 폼 ========== */
 .promo-apply-band { background: var(--bg-deep); border-top: 1px solid var(--line); padding: 72px 0 80px; margin-top: 8px; }
@@ -5010,6 +5026,11 @@ body{
 .promo-apply-head h2 { font-family: var(--fd); font-weight: 600; font-size: 30px; color: var(--ink); margin: 14px 0 12px; }
 .promo-apply-head h2 em { font-style: normal; color: var(--accent-dark); }
 .promo-apply-head p { color: var(--ink-soft); font-size: 15px; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+.promo-apply-head { margin-bottom: 28px; }
+.promo-apply-prompt { display: flex; justify-content: center; }
+.promo-apply-form[hidden] { display: none; }
+.promo-apply-form.is-open { animation: pafReveal .28s ease; }
+@keyframes pafReveal { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .promo-apply-form { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 36px 36px 32px; }
 .promo-apply-form .paf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 0 0 20px; }
 .promo-apply-form .paf-row.paf-row-full { grid-template-columns: 1fr; }

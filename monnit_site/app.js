@@ -2861,6 +2861,10 @@ function renderPromotions(){
   const grid = document.getElementById('promoGrid');
   const empty = document.getElementById('promoEmpty');
   if (!grid) return;
+  const countEl = document.getElementById('promoHeroCount');
+  if (countEl) countEl.textContent = PROMOS.length
+    ? `현재 ${PROMOS.length}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`
+    : '새로운 프로모션을 준비하고 있습니다';
   if (!PROMOS.length){
     grid.innerHTML = '';
     if (empty) empty.style.display = 'block';
@@ -2993,13 +2997,21 @@ async function submitPromoApply(e){
   }
   return false;
 }
+function openApplyForm(){
+  // 접힌 사전신청 폼 펼치기
+  const form = document.getElementById('promoApplyForm');
+  const prompt = document.getElementById('promoApplyPrompt');
+  if (prompt) prompt.style.display = 'none';
+  if (form){ form.hidden = false; form.classList.add('is-open'); }
+  return form;
+}
 function applyForPromo(title){
-  // 상세페이지 '이 프로모션 신청' → 목록으로 돌아가 폼에 프로모션 미리 선택 + 스크롤
+  // 상세페이지 '이 프로모션 신청' → 목록으로 돌아가 폼을 펼치고 프로모션 미리 선택 + 스크롤
   closePromo();
   setTimeout(() => {
+    const form = openApplyForm();
     const sel = document.getElementById('pafPromo');
     if (sel && title){ sel.value = title; }
-    const form = document.getElementById('promoApplyForm');
     if (form) form.scrollIntoView({behavior:'smooth', block:'center'});
   }, 100);
 }
