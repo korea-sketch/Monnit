@@ -584,7 +584,7 @@ const CONTENT_SHEET = {
     appdetails: "AppDetails", blog: "Blog", whitepapers: "Whitepapers",
     news: "NewsHighlights", faqs: "FAQs", knowledgebase: "Knowledgebase",
     photos: "Photos", products: "Products", homecases: "homecases", sitecontent: "SiteContent",
-    logos: "Logos"
+    logos: "Logos", promotions: "Promotions"
   },
 
   // 3) (선택) 위 방식 대신 '웹에 게시 → CSV' 링크를 직접 쓰려면 여기에 전체 URL을 넣으세요.
@@ -1070,6 +1070,7 @@ async function loadSheetData(){
   add('applications',  r => { const m = mapApps(r);          if (m.length) APPS = m; });
   add('appdetails',    r => { const m = mapAppDetails(r);    if (hasKeys(m)) APP_DETAILS = m; });
   add('blog',          r => { const m = mapBlog(r);          if (m.length) BLOG = m; });
+  add('promotions',    r => { const m = mapPromotions(r);    PROMOS = m; if(typeof renderPromotions==='function') renderPromotions(); });
   add('whitepapers',   r => { const m = mapWhitepapers(r);   if (m.length) WHITEPAPERS = m; });
   add('news',          r => { const m = mapNews(r);          if (m.length) NEWS_HIGHLIGHTS = m; });
   add('faqs',          r => { const m = mapFaqs(r);          if (m.length) FAQS = m; });
@@ -1129,6 +1130,7 @@ function navigate(target) {
     window.location.hash = target === 'home' ? '' : target;
 
     // 다른 메뉴를 거쳐 다시 들어왔을 때 기술지원/기술문서는 항상 초기 화면으로
+    if (target === 'promotions' && typeof closePromo === 'function') { closePromo(); }
     if (target === 'knowledgebase' && typeof kbState !== 'undefined') {
       kbState.view = 'home'; kbState.cat = null; kbState.search = '';
       kbState.page = 1; kbState.docId = null; kbState.ret = null;
@@ -2755,6 +2757,21 @@ let BLOG = [
   { date:'2026.05.31', title:'진동 센서로 설비 고장 예측하기', body:'Velocity RMS와 Acceleration RMS의 관계를 활용해, 축별 주파수만으로도 다른 측정값을 추론하는 예지보전 실무 노하우를 정리했습니다.', thumb:'〜', url:'https://blog.naver.com/monnitkorea' },
   { date:'2025.10.24', title:'겨울철 설비 동파, 스마트하게 막는 법', body:'온도·누수 센서를 결합한 조기 경보로 한파 시즌의 배관 동파와 누수 피해를 예방하는 방법을 소개합니다.', thumb:'◇', url:'https://blog.naver.com/monnitkorea' }
 ];
+let PROMOS = [];
+function mapPromotions(rows){
+  return rows.filter(o => (o.title || o.html) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
+    .map(o => ({
+      id: (o.id||'').trim(),
+      title: o.title||'',
+      html: o.html||'',
+      period: o.period||'',
+      badge: o.badge||'',
+      desc: o.desc||'',
+      image: normalizeImageUrl(o.image||''),
+      order: parseInt(o.order,10) || 999
+    }))
+    .sort((a,b) => a.order - b.order);
+}
 let NEWS_HIGHLIGHTS = [
   { title:'2026 IoT Sensor Company of the Year 수상', desc:'Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.', url:'https://blog.naver.com/monnitkorea' },
   { title:'IoT Platforms Leadership Award 연속 수상', desc:'플랫폼 리더십 부문에서 백투백 수상을 기록했습니다.', url:'https://blog.naver.com/monnitkorea' },
@@ -2836,6 +2853,147 @@ function renderBlog(){
       : `<article class="${cls}">${inner}</article>`;
   }).join('');
   renderPager(el, 'blogPager', total, per, pageState.blog, g=>{ pageState.blog=g; renderBlog(); el.scrollIntoView({behavior:'smooth',block:'start'}); });
+}
+/* ===== PROMOTIONS ===== */
+function renderPromotions(){
+  const grid = document.getElementById('promoGrid');
+  const empty = document.getElementById('promoEmpty');
+  if (!grid) return;
+  if (!PROMOS.length){
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  grid.innerHTML = PROMOS.map(p => {
+    const thumb = p.image
+      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
+      : `<div class="promo-thumb">◆</div>`;
+    const badge = p.badge ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
+    const period = p.period ? `<div class="promo-period">${esc(p.period)}</div>` : '';
+    return `<article class="promo-card" data-promo="${esc(p.id)}" role="button" tabindex="0">
+      ${thumb}
+      <div class="promo-body">
+        ${badge}
+        <h3>${esc(p.title)}</h3>
+        ${period}
+        <p>${esc(p.desc)}</p>
+        <span class="b-link">자세히 보기 →</span>
+      </div>
+    </article>`;
+  }).join('');
+  grid.querySelectorAll('[data-promo]').forEach(card => {
+    const open = () => openPromo(card.getAttribute('data-promo'));
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
+  });
+  // 사전 신청 폼의 프로모션 선택 드롭다운 채우기
+  const sel = document.getElementById('pafPromo');
+  if (sel){
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— 프로모션을 선택하세요 —</option>'
+      + PROMOS.map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
+      + '<option value="기타/미정">기타 · 아직 정하지 않음</option>';
+    if (cur) sel.value = cur;
+  }
+}
+function openPromo(id, fromHash){
+  const p = PROMOS.find(x => x.id === id);
+  if (!p) return;
+  const view = document.getElementById('promoDetail');
+  const body = document.getElementById('promoDetailBody');
+  const titleEl = document.getElementById('promoDetailTitle');
+  if (!view || !body) return;
+  if (titleEl) titleEl.textContent = p.title || '프로모션';
+  // 시트의 html 칸 내용을 그대로 삽입 (관리자가 올린 프로모션 HTML)
+  body.innerHTML = p.html && p.html.trim()
+    ? p.html
+    : `<div style="padding:40px;text-align:center;color:var(--ink-soft)">등록된 상세 내용이 없습니다.</div>`;
+  // 상세 하단에 '이 프로모션 신청하기' 버튼
+  const applyBtn = document.getElementById('promoDetailApply');
+  if (applyBtn){
+    applyBtn.onclick = () => applyForPromo(p.title);
+    applyBtn.style.display = 'inline-flex';
+  }
+  const applyTop = document.getElementById('promoDetailApplyTop');
+  if (applyTop){
+    applyTop.onclick = () => applyForPromo(p.title);
+    applyTop.style.display = 'inline-flex';
+  }
+  document.getElementById('promoList').style.display = 'none';
+  view.style.display = 'block';
+  // 브라우저 뒤로가기 연동: 상세를 히스토리에 추가 (해시에 프로모션 id)
+  if (!fromHash){
+    try { history.pushState({promo:id}, '', '#promotions/' + encodeURIComponent(id)); } catch(e){}
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function closePromo(toHash){
+  const view = document.getElementById('promoDetail');
+  const list = document.getElementById('promoList');
+  if (view) view.style.display = 'none';
+  if (list) list.style.display = 'block';
+  const body = document.getElementById('promoDetailBody');
+  if (body) body.innerHTML = '';
+  // 목록으로 돌아가면 해시도 목록 상태로 (뒤로가기가 아닌 버튼 클릭 시)
+  if (!toHash){
+    try { if ((location.hash||'').indexOf('#promotions/')===0) history.pushState(null, '', '#promotions'); } catch(e){}
+  }
+}
+// 브라우저 뒤로/앞으로 버튼 대응
+window.addEventListener('popstate', function(){
+  const h = (location.hash||'').replace('#','');
+  if (h.indexOf('promotions/')===0){
+    const id = decodeURIComponent(h.slice('promotions/'.length));
+    if (typeof navigate==='function') navigate('promotions');
+    setTimeout(()=>openPromo(id, true), 30);
+  } else if (h === 'promotions'){
+    if (typeof closePromo==='function') closePromo(true);
+  }
+});
+async function submitPromoApply(e){
+  e.preventDefault();
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const promo = g('pafPromo'), name = g('pafName'), company = g('pafCompany');
+  const phone = g('pafPhone'), email = g('pafEmail'), qty = g('pafQty'), memo = g('pafMemo');
+  const status = document.getElementById('pafStatus');
+  const btn = document.getElementById('pafSubmit');
+  if (!promo || !name || !company || !phone || !email){
+    if (status){ status.textContent = '필수 항목(*)을 모두 입력해 주세요.'; status.className = 'paf-status err'; }
+    return false;
+  }
+  const payload = {
+    _subject: '[프로모션 사전신청] ' + promo + ' — ' + company,
+    '신청 프로모션': promo,
+    '이름/직급': name,
+    '회사명': company,
+    '전화번호': phone,
+    '이메일': email,
+    '구매 희망 수량': qty || '(미기재)',
+    '문의 사항': memo || '(없음)',
+    '접수 경로': '프로모션 사전신청'
+  };
+  if (status){ status.textContent = ''; status.className = 'paf-status'; }
+  const result = await sendLead(payload, btn);
+  if (result === true){
+    if (status){ status.textContent = '✓ 신청이 접수되었습니다. 담당자가 곧 연락드립니다.'; status.className = 'paf-status ok'; }
+    document.getElementById('promoApplyForm').reset();
+  } else if (result === 'mailto'){
+    if (status){ status.textContent = '메일 앱으로 신청 내용을 작성합니다. 전송 버튼을 눌러 완료해 주세요.'; status.className = 'paf-status'; }
+  } else {
+    if (status){ status.textContent = '전송에 실패했습니다. 잠시 후 다시 시도하거나 korea@monnit.com 으로 연락 주세요.'; status.className = 'paf-status err'; }
+  }
+  return false;
+}
+function applyForPromo(title){
+  // 상세페이지 '이 프로모션 신청' → 목록으로 돌아가 폼에 프로모션 미리 선택 + 스크롤
+  closePromo();
+  setTimeout(() => {
+    const sel = document.getElementById('pafPromo');
+    if (sel && title){ sel.value = title; }
+    const form = document.getElementById('promoApplyForm');
+    if (form) form.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 100);
 }
 function renderNewsHighlights(){
   const el = document.getElementById('newsHighlights'); if (!el) return;
@@ -3007,6 +3165,7 @@ function renderKnowledgebase(){
 }
 function renderResources(){
   renderBlog(); renderNewsHighlights(); renderWhitepapers(); renderFaqs(); renderKnowledgebase();
+  if(typeof renderPromotions==='function') renderPromotions();
   renderGuides();
 }
 
