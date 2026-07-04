@@ -5103,6 +5103,12 @@ body{
 .promo-images img:first-child { border-radius: 14px 14px 0 0; }
 .promo-images img:last-child { border-radius: 0 0 14px 14px; }
 .promo-images img:only-child { border-radius: 14px; }
+/* 반응형: 기본(데스크탑)은 PC 세트 표시 / 모바일 세트 숨김. 768px 이하에서 전환 */
+.promo-images.promo-mobile { display: none; }
+@media (max-width: 768px){
+  .promo-images.promo-pc { display: none; }
+  .promo-images.promo-mobile { display: flex; }
+}
 /* 이미지 방식일 때 신청 버튼을 더 크고 눈에 띄게 */
 .promo-detail-cta { margin-top: 40px; padding-top: 36px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 18px; }
 #promoDetailApply {

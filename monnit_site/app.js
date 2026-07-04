@@ -2770,6 +2770,8 @@ function mapPromotions(rows){
       image: normalizeImageUrl(o.image||''),
       // 상세 페이지용 이미지들 (||로 여러 장 구분). 각 항목의 ':: 캡션' 부분은 제거. images 없으면 image 한 장 사용
       images: (o.images||'').split('||').map(s=>normalizeImageUrl((s.split('::')[0]||'').trim())).filter(Boolean),
+      // PC(데스크탑)용 상세 이미지 세트. 있으면 데스크탑에서 이걸 대신 표시(반응형)
+      imagesPc: (o.images_pc||'').split('||').map(s=>normalizeImageUrl((s.split('::')[0]||'').trim())).filter(Boolean),
       order: parseInt(o.order,10) || 999
     }))
     .sort((a,b) => a.order - b.order);
@@ -2918,11 +2920,14 @@ function openPromo(id, fromHash){
   const titleEl = document.getElementById('promoDetailTitle');
   if (!view || !body) return;
   if (titleEl) titleEl.textContent = p.title || '프로모션';
-  // 이미지 방식 우선: images가 있으면 세로로 나열. 없으면 html, 그것도 없으면 안내
-  if (p.images && p.images.length){
-    body.innerHTML = '<div class="promo-images">' +
-      p.images.map(src => `<img src="${esc(src)}" alt="${esc(p.title)}" loading="lazy">`).join('') +
-      '</div>';
+  // 이미지 방식 우선: 모바일/PC 세트를 각각 렌더링해 화면 크기에 따라 CSS로 전환(반응형). 없으면 html, 그것도 없으면 안내
+  if ((p.images && p.images.length) || (p.imagesPc && p.imagesPc.length)){
+    const mob = (p.images && p.images.length) ? p.images : (p.imagesPc||[]);
+    const pc  = (p.imagesPc && p.imagesPc.length) ? p.imagesPc : mob;
+    const tag = src => `<img src="${esc(src)}" alt="${esc(p.title)}" loading="lazy">`;
+    body.innerHTML =
+      '<div class="promo-images promo-pc">' + pc.map(tag).join('') + '</div>' +
+      '<div class="promo-images promo-mobile">' + mob.map(tag).join('') + '</div>';
   } else if (p.html && p.html.trim()){
     body.innerHTML = p.html;
   } else {
