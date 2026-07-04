@@ -89,8 +89,9 @@
           <button data-nav="knowledgebase">Knowledgebase · 기술 문서</button>
         </div>
       </li>
+      <li class="nav-item nav-item-mobile-promo"><button class="nav-link" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button></li>
     </ul>
-    <button class="nav-promo" data-nav="promotion" title="진행 중인 프로모션">🎁 프로모션</button>
+    <button class="nav-promo-btn" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button>
     <button class="nav-cta" data-nav="contact">상담 신청</button>
     <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
   </div>
@@ -105,14 +106,14 @@
 
   <!-- HERO -->
   <section class="home-hero">
+    <div class="hero-pulse" aria-hidden="true"></div>
     <div class="wrap">
       <span class="kicker" data-sc="home.hero.kicker" data-sc-label="히어로 · 상단 라벨">Expert Consulting · Integrated Solutions</span>
-      <h1 class="home-headline" data-sc="home.hero.title" data-sc-label="히어로 · 메인 제목">현장을 읽고 미래를 설계합니다</h1>
+      <h1 class="home-headline" data-sc="home.hero.title" data-sc-label="히어로 · 메인 제목"><em>현장</em>을 읽고 <em>미래</em>를 설계합니다</h1>
       <p class="home-lede" data-sc="home.hero.lede" data-sc-label="히어로 · 설명문">검증된 무선 IoT 기술과 현장 경험을 바탕으로 데이터 확보, 통합관제, 자동제어, AI 예지보전은 물론 현장 문제 해결까지 함께합니다.</p>
       <div class="home-cta-row">
         <button class="cta-primary" data-nav="stories" data-sc="home.hero.cta1" data-sc-label="히어로 · 버튼1(고객사례)">고객사례 보기</button>
         <button class="cta-ghost" data-nav="applications" data-sc="home.hero.cta2" data-sc-label="히어로 · 버튼2(활용분야)">활용 분야 보기</button>
-        <button class="cta-promo" data-nav="promotion" data-sc="home.hero.cta3" data-sc-label="히어로 · 버튼3(프로모션)">🎁 프로모션 혜택</button>
         <a class="cta-download" href="https://linktr.ee/monnithvac" data-catalog="1" target="_blank" rel="noopener">카탈로그 다운로드</a>
       </div>
       <div class="hero-values">
@@ -121,7 +122,7 @@
           <div class="vc-body">
             <span class="vc-no">01</span>
             <h3 data-sc="home.val1.title" data-sc-label="가치카드1 · 제목">사고 사전예방</h3>
-            <p data-sc="home.val1.desc" data-sc-label="가치카드1 · 설명">현장 데이터를 실시간 AI 기반 분석으로 진단해, 사고가 발생하기 전에 미리 예방합니다.</p>
+            <p data-sc="home.val1.desc" data-sc-label="가치카드1 · 설명">실시간 AI 분석으로 사고를 미리 예방</p>
           </div>
         </article>
         <article class="value-card">
@@ -129,7 +130,7 @@
           <div class="vc-body">
             <span class="vc-no">02</span>
             <h3 data-sc="home.val2.title" data-sc-label="가치카드2 · 제목">비용 절감</h3>
-            <p data-sc="home.val2.desc" data-sc-label="가치카드2 · 설명">에너지 사용량 최적화와 인력 운영 효율화를 통해 운영 비용을 절감합니다.</p>
+            <p data-sc="home.val2.desc" data-sc-label="가치카드2 · 설명">에너지와 인력 운영을 최적화해 비용 절감</p>
           </div>
         </article>
         <article class="value-card">
@@ -137,7 +138,7 @@
           <div class="vc-body">
             <span class="vc-no">03</span>
             <h3 data-sc="home.val3.title" data-sc-label="가치카드3 · 제목">출동 서비스</h3>
-            <p data-sc="home.val3.desc" data-sc-label="가치카드3 · 설명">데이터 기반 예지보전과 패트롤 출동으로 현장의 문제를 사전에 해결합니다.</p>
+            <p data-sc="home.val3.desc" data-sc-label="가치카드3 · 설명">예지보전과 패트롤 출동으로 현장 문제를 미리 해결</p>
           </div>
         </article>
         <article class="value-card">
@@ -145,12 +146,12 @@
           <div class="vc-body">
             <span class="vc-no">04</span>
             <h3 data-sc="home.val4.title" data-sc-label="가치카드4 · 제목">AI 분석 데이터 생성</h3>
-            <p data-sc="home.val4.desc" data-sc-label="가치카드4 · 설명">어떠한 설비·장소에서도 데이터를 추출해 실행 가능한 인사이트를 도출합니다.</p>
+            <p data-sc="home.val4.desc" data-sc-label="가치카드4 · 설명">어떤 설비에서든 데이터를 확보하고, 바로 쓸 수 있는 정보로 분석</p>
           </div>
         </article>
       </div>
       <div class="hero-strengths">
-        <div class="hs-item"><img class="hs-ico" src="images/img-06.png" alt="글로벌 인증"><div class="hs-t" data-sc="home.str1.t" data-sc-label="강점배지1 · 제목">글로벌 인증 · 130개국</div><div class="hs-d" data-sc="home.str1.d" data-sc-label="강점배지1 · 설명">별도 인증 절차 없이 즉시 적용</div></div>
+        <div class="hs-item"><img class="hs-ico" src="images/img-06.png" alt="글로벌 인증"><div class="hs-t" data-sc="home.str1.t" data-sc-label="강점배지1 · 제목">글로벌 제품인증</div><div class="hs-d" data-sc="home.str1.d" data-sc-label="강점배지1 · 설명">추가인증없이 어디서든 적용가능</div></div>
         <div class="hs-item"><img class="hs-ico" src="images/img-07.png" alt="비용 효율"><div class="hs-t" data-sc="home.str2.t" data-sc-label="강점배지2 · 제목">정밀 계측 · 비용 1/10</div><div class="hs-d" data-sc="home.str2.d" data-sc-label="강점배지2 · 설명">경쟁업체 대비 약 1/10 비용</div></div>
         <div class="hs-item"><img class="hs-ico" src="images/img-08.png" alt="센서 조합"><div class="hs-t" data-sc="home.str3.t" data-sc-label="강점배지3 · 제목">80여 종 + 커스텀</div><div class="hs-d" data-sc="home.str3.d" data-sc-label="강점배지3 · 설명">센서 조합부터 맞춤 제작까지</div></div>
         <div class="hs-item"><img class="hs-ico" src="images/img-09.png" alt="빠른 설치"><div class="hs-t" data-sc="home.str4.t" data-sc-label="강점배지4 · 제목">15분 이내 설치</div><div class="hs-d" data-sc="home.str4.d" data-sc-label="강점배지4 · 설명">어떤 센서도 무선으로 빠르게</div></div>
@@ -166,7 +167,7 @@
   <section class="strengths-section">
     <div class="wrap">
       <div class="section-head">
-        <h2 data-sc="home.strengths.head" data-sc-label="핵심강점 · 섹션 제목">Monnit Korea의 <em>핵심 강점</em></h2>
+        <h2 data-sc="home.strengths.head" data-sc-label="핵심강점 · 섹션 제목">Monnit Korea의 <em>핵심 강점</h2>
         <span class="meta" data-sc="home.strengths.meta" data-sc-label="핵심강점 · 부제">Why partner with us · 4 core strengths</span>
       </div>
       <div class="strength-grid">
@@ -186,7 +187,7 @@
           <span class="s-tag">AI · DATA</span>
           <div class="s-num"><span class="cu" data-to="750">750</span><span class="s-unit">억 / 일</span></div>
           <h4 data-sc="home.strength3.title" data-sc-label="핵심강점 카드3 · 제목">AI 예지보전</h4>
-          <p data-sc="home.strength3.desc" data-sc-label="핵심강점 카드3 · 설명">일 750억 개의 데이터 포인트를 생성·분석하여 설비 고장을 사전에 예측하는 AI 예지보전을 구현합니다.</p>
+          <p data-sc="home.strength3.desc" data-sc-label="핵심강점 카드3 · 설명">하루 750억 개 데이터로 설비 고장을 미리 예측</p>
         </article>
         <article class="strength-card">
           <span class="s-tag">DEFENSE</span>
@@ -202,7 +203,7 @@
   <section class="fac-band">
     <div class="wrap">
       <div class="section-head">
-        <h2 data-sc="home.process.head" data-sc-label="제조공정 · 섹션 제목">설계부터 <em>제조·검증</em>까지</h2>
+        <h2 data-sc="home.process.head" data-sc-label="제조공정 · 섹션 제목">설계부터 <em>제조·검증</h2>
         <span class="meta" data-sc="home.process.meta" data-sc-label="제조공정 · 부제">In-house engineering · manufacturing · QA</span>
       </div>
       <div class="step-flow">
@@ -238,34 +239,34 @@
   <section class="why-section">
     <div class="wrap">
       <div class="section-head">
-        <h2 data-sc="home.why.head" data-sc-label="Why Monnit · 섹션 제목">Why <em>Monnit</em></h2>
+        <h2 data-sc="home.why.head" data-sc-label="Why Monnit · 섹션 제목">Why <em>Monnit</h2>
         <span class="meta" data-sc="home.why.meta" data-sc-label="Why Monnit · 부제">6 reasons · proven at 90,000+ global deployments</span>
       </div>
       <div class="why-grid">
         <article class="why-card">
           <div class="why-num">01</div>
-          <h4 data-sc="home.why1.title" data-sc-label="Why Monnit 1 · 제목">어디서든 작동한다</h4>
+          <h4 data-sc="home.why1.title" data-sc-label="Why Monnit 1 · 제목">가혹한 환경, 변함없는 성능</h4>
           <p data-sc="home.why1.desc" data-sc-label="Why Monnit 1 · 설명">15년간 다양한 산업 현장에서 작동하도록 발전해 온 강력한 펌웨어와 내구성으로, 어떤 환경에서도 안정적으로 동작합니다.</p>
         </article>
         <article class="why-card">
           <div class="why-num">02</div>
           <h4 data-sc="home.why2.title" data-sc-label="Why Monnit 2 · 제목">무선 센서의 한계 극복</h4>
-          <p data-sc="home.why2.desc" data-sc-label="Why Monnit 2 · 설명">자체 개발한 주파수 호핑 스펙트럼 기술로, 잘 끊기고 불안정한 기존 무선 센서의 한계를 극복했습니다.</p>
+          <p data-sc="home.why2.desc" data-sc-label="Why Monnit 2 · 설명">자체 개발한 주파수 호핑 스펙트럼(FHSS) 기술로, 잦은 끊김과 신호 간섭이라는 기존 무선 센서의 한계를 넘어섰습니다.</p>
         </article>
         <article class="why-card">
           <div class="why-num">03</div>
           <h4 data-sc="home.why3.title" data-sc-label="Why Monnit 3 · 제목">모니터링을 넘어 제어까지</h4>
-          <p data-sc="home.why3.desc" data-sc-label="Why Monnit 3 · 설명">엣지 게이트웨이가 서버 통신 없이 현장 BMS에 직접 연동해 제어하고, AI 학습 기반 제어로 에너지 효율을 최적화하며 사고를 사전에 예방합니다.</p>
+          <p data-sc="home.why3.desc" data-sc-label="Why Monnit 3 · 설명">서버를 거치지 않는 엣지 게이트웨이가 현장 BMS를 직접 제어하고, AI 학습 기반 제어로 에너지 효율과 사고 예방을 동시에 실현합니다.</p>
         </article>
         <article class="why-card">
           <div class="why-num">04</div>
           <h4 data-sc="home.why4.title" data-sc-label="Why Monnit 4 · 제목">검증된 최상위 보안·신뢰성</h4>
-          <p data-sc="home.why4.desc" data-sc-label="Why Monnit 4 · 설명">미군 부대를 비롯해 삼성·현대·청와대 등 보안이 생명인 극도로 까다로운 고객사가 선택한 제품입니다.</p>
+          <p data-sc="home.why4.desc" data-sc-label="Why Monnit 4 · 설명">미군을 비롯해 삼성·현대·청와대 등 최고 수준의 보안을 요구하는 고객들이 선택하고 신뢰해 온 제품입니다.</p>
         </article>
         <article class="why-card">
           <div class="why-num">05</div>
-          <h4 data-sc="home.why5.title" data-sc-label="Why Monnit 5 · 제목">대규모 군(郡)단위 도입에 최적화</h4>
-          <p data-sc="home.why5.desc" data-sc-label="Why Monnit 5 · 설명">FM, 보험사, 학교, 군부대, 대기업 현장, 프랜차이즈, 에너지 및 인프라 분야에서 수천~수만 개 사이트(2,000~15,000개)를 단일 플랫폼으로 통합 관제하는 대형 IoT·원격 모니터링 프로젝트를 성공적으로 수행 및 운영 중입니다.</p>
+          <h4 data-sc="home.why5.title" data-sc-label="Why Monnit 5 · 제목">검증된 대규모 통합 관제 역량</h4>
+          <p data-sc="home.why5.desc" data-sc-label="Why Monnit 5 · 설명">2,000~15,000개 규모의 사이트를 단일 플랫폼으로 통합 관제하는 프로젝트를 FM·보험·교육·국방·대기업·프랜차이즈·에너지/인프라 분야에서 성공적으로 운영하고 있습니다.</p>
         </article>
         <article class="why-card">
           <div class="why-num">06</div>
@@ -282,7 +283,7 @@
       <div class="section-head">
         <div>
           <span class="kicker" data-sc="home.appsgw.kicker" data-sc-label="앱 게이트웨이 · 라벨">Application Library</span>
-          <h2 style="margin-top:14px;" data-sc="home.appsgw.head" data-sc-label="앱 게이트웨이 · 제목">산업별 검증된 <em>60개 솔루션</em></h2>
+          <h2 style="margin-top:14px;" data-sc="home.appsgw.head" data-sc-label="앱 게이트웨이 · 제목">산업별 검증된 <em>60개 솔루션</h2>
         </div>
         <button class="link-btn" data-nav="applications">전체 어플리케이션 보기 →</button>
       </div>
@@ -296,7 +297,7 @@
       <div class="section-head">
         <div>
           <span class="kicker" data-sc="home.storiesgw.kicker" data-sc-label="사례 게이트웨이 · 라벨">Customer Success</span>
-          <h2 style="margin-top:14px;" data-sc="home.storiesgw.head" data-sc-label="사례 게이트웨이 · 제목">글로벌이 신뢰하는 <em>도입 사례</em></h2>
+          <h2 style="margin-top:14px;" data-sc="home.storiesgw.head" data-sc-label="사례 게이트웨이 · 제목">글로벌이 신뢰하는 <em>도입 사례</h2>
         </div>
         <button class="link-btn" data-nav="stories">전체 도입 사례 보기 →</button>
       </div>
@@ -310,7 +311,7 @@
       <div class="awards-strip-inner">
         <div class="aws-text">
           <span class="kicker" data-sc="home.awardstrip.kicker" data-sc-label="수상 띠 · 라벨">Recognition</span>
-          <h2 style="margin-top:14px;" data-sc="home.awardstrip.head" data-sc-label="수상 띠 · 제목">15년간 <em>50회 이상</em> 수상한<br>글로벌 IoT 리더십.</h2>
+          <h2 style="margin-top:14px;" data-sc="home.awardstrip.head" data-sc-label="수상 띠 · 제목">15년간 <em>50회 이상</h2>
           <p data-sc="home.awardstrip.desc" data-sc-label="수상 띠 · 설명">산업용 무선 센서와 IoT 플랫폼 분야에서 매년 세계적인 어워드를 이어가고 있습니다. 2026년 'IoT Sensor Company of the Year'를 연속 수상하며, 기술력과 신뢰성을 다시 한 번 입증했습니다.</p>
           <button class="link-btn" data-nav="awards" style="margin-top:20px;">전체 수상 내역 →</button>
         </div>
@@ -349,7 +350,7 @@
   <!-- FINAL CTA -->
   <section class="cta-block">
     <div class="wrap">
-      <h2 data-sc="home.finalcta.head" data-sc-label="하단 CTA · 제목">당신의 산업에 가장 잘 맞는<br><em>IoT 솔루션</em>을 제안합니다.</h2>
+      <h2 data-sc="home.finalcta.head" data-sc-label="하단 CTA · 제목">당신의 산업에 가장 잘 맞는<br><em>IoT 솔루션</h2>
       <button class="big-cta-btn" data-nav="contact" data-sc="home.finalcta.btn" data-sc-label="하단 CTA · 버튼">맞춤 상담 신청</button>
     </div>
   </section>
@@ -1222,6 +1223,105 @@
 </section>
 
 <!-- ========================================== -->
+<!-- ========================================== -->
+<!-- VIEW: PROMOTIONS · 프로모션 -->
+<!-- ========================================== -->
+<section class="view" id="view-promotions">
+  <div id="promoList">
+    <div class="page-hero promo-hero">
+      <div class="hero-pulse" aria-hidden="true"></div>
+      <div class="wrap">
+        <span class="kicker">Promotions</span>
+        <h1>진행 중인 <em>프로모션</em></h1>
+        <p class="lede">한정 수량 특가부터 신규 가입 혜택까지 — Monnit Korea가 준비한 특별한 기회를 지금 만나보세요.</p>
+        <div class="promo-hero-status" id="promoHeroStatus">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="promoHeroCount">진행 중인 프로모션을 확인하세요</span>
+        </div>
+      </div>
+    </div>
+    <div class="wrap section-pad">
+      <div class="promo-grid" id="promoGrid"></div>
+      <div id="promoEmpty" class="promo-empty" style="display:none">
+        <p>현재 진행 중인 프로모션이 없습니다.</p>
+      </div>
+    </div>
+
+    <!-- 프로모션 사전 신청 폼 -->
+    <div class="promo-apply-band">
+      <div class="wrap">
+        <div class="promo-apply-head">
+          <span class="kicker">Pre-registration</span>
+          <h2>프로모션 <em>사전 신청</em></h2>
+          <p>원하시는 프로모션을 선택하고 정보를 남겨주시면, 담당자가 빠르게 연락드립니다.</p>
+        </div>
+        <div class="promo-apply-prompt" id="promoApplyPrompt">
+          <button type="button" class="cta-primary" onclick="openApplyForm()">사전 신청하기</button>
+        </div>
+        <form id="promoApplyForm" class="promo-apply-form" onsubmit="return submitPromoApply(event)" hidden>
+          <div class="paf-row paf-row-full">
+            <label class="paf-field paf-full">
+              <span>신청 프로모션 <b>*</b></span>
+              <select id="pafPromo" required></select>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>이름 / 직급 <b>*</b></span>
+              <input type="text" id="pafName" placeholder="예: 홍길동 / 설비팀장" required>
+            </label>
+            <label class="paf-field">
+              <span>회사명 <b>*</b></span>
+              <input type="text" id="pafCompany" placeholder="예: (주)모넷코리아" required>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>전화번호 <b>*</b></span>
+              <input type="tel" id="pafPhone" placeholder="예: 010-1234-5678" required>
+            </label>
+            <label class="paf-field">
+              <span>이메일 <b>*</b></span>
+              <input type="email" id="pafEmail" placeholder="예: name@company.com" required>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>구매 희망 수량</span>
+              <input type="text" id="pafQty" placeholder="예: 센서 50개 / 게이트웨이 2대">
+            </label>
+            <label class="paf-field">
+              <span>문의 사항</span>
+              <input type="text" id="pafMemo" placeholder="추가로 남기실 내용 (선택)">
+            </label>
+          </div>
+          <div class="paf-actions">
+            <span id="pafStatus" class="paf-status"></span>
+            <button type="submit" class="cta-primary" id="pafSubmit">신청하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="promoDetail" style="display:none">
+    <div class="promo-detail-bar">
+      <div class="wrap promo-detail-bar-inner">
+        <button class="promo-back" onclick="closePromo()">← 프로모션 목록</button>
+        <button id="promoDetailApplyTop" class="cta-primary cta-sm" style="display:none">신청하기</button>
+      </div>
+    </div>
+    <div class="wrap section-pad">
+      <h2 id="promoDetailTitle" class="promo-detail-title"></h2>
+      <div id="promoDetailBody" class="promo-detail-body"></div>
+      <div class="promo-detail-cta">
+        <button id="promoDetailApply" class="cta-primary" style="display:none">이 프로모션 신청하기</button>
+        <button class="promo-back-bottom" onclick="closePromo()">← 프로모션 목록으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
 <!-- VIEW: RESOURCES — NEWSLETTER -->
 <!-- ========================================== -->
 <section class="view" id="view-newsletter">
@@ -1278,48 +1378,6 @@
         <div class="wp-card"><div class="wp-ico">⛏</div><div><h4>예지보전 ROI 백서</h4><p>진동·전류 데이터 기반 예지보전이 만들어내는 투자 수익.</p></div></div>
         <div class="wp-card"><div class="wp-ico">⌖</div><div><h4>산업 IoT 보안 백서</h4><p>Encrypt-RF® 기반 엔드투엔드 데이터 보안 아키텍처.</p></div></div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ========================================== -->
-<!-- VIEW: PROMOTION — 프로모션 -->
-<!-- ========================================== -->
-<section class="view" id="view-promotion">
-  <div class="promo-hero">
-    <div class="wrap-mid">
-      <span class="promo-eyebrow"><span class="promo-pulse"></span>PROMOTION</span>
-      <h1 data-sc="home.promo.head" data-sc-label="프로모션 · 제목">지금 진행 중인 <em>특별 혜택</em></h1>
-      <p class="lead" data-sc="home.promo.lede" data-sc-label="프로모션 · 설명">Monnit Korea가 준비한 한정 프로모션을 확인하세요. 도입 상담 시 추가 혜택이 적용됩니다.</p>
-    </div>
-  </div>
-  <div class="cpage">
-    <div class="wrap-mid">
-      <div class="promo-grid" id="promoGrid">
-        <div class="promo-empty">프로모션을 불러오는 중…</div>
-      </div>
-      <div class="promo-foot-cta">
-        <h2 data-sc="home.promo.cta.head" data-sc-label="프로모션 · 하단 CTA 제목">혜택, 놓치지 마세요</h2>
-        <p data-sc="home.promo.cta.lede" data-sc-label="프로모션 · 하단 CTA 설명">도입 규모와 현장 조건에 맞춰 최적의 프로모션을 안내해 드립니다.</p>
-        <button class="cta-promo" data-nav="contact">상담 신청하고 혜택 받기 →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 개별 프로모션 상세 (iframe 오버레이) -->
-  <div class="promo-detail" id="promoDetail" role="dialog" aria-modal="true" aria-labelledby="promoDetailTitle">
-    <div class="promo-detail-bar">
-      <span class="promo-detail-title" id="promoDetailTitle"></span>
-      <div class="promo-detail-actions">
-        <button class="promo-icon-btn" id="promoOpenNew" title="새 창에서 열기" aria-label="새 창에서 열기">↗</button>
-        <button class="promo-icon-btn" id="promoClose" title="닫기" aria-label="닫기">✕</button>
-      </div>
-    </div>
-    <iframe class="promo-frame" id="promoFrame" title="프로모션 상세" referrerpolicy="no-referrer"></iframe>
-    <div class="promo-detail-empty" id="promoDetailEmpty" style="display:none">
-      <div class="big">🎁</div>
-      <p>이 프로모션의 상세 페이지가 아직 등록되지 않았습니다.<br>
-      에디터에서 <b>file</b> 칸에 HTML 경로를 넣어주세요.</p>
     </div>
   </div>
 </section>
@@ -1511,7 +1569,10 @@
   </div>
   <div class="wrap footer-base">
     <span>© 2026 Monnit Korea. All rights reserved.</span>
-    <span><a href="mailto:korea@monnit.com" style="color:inherit;text-decoration:none;">korea@monnit.com</a> &nbsp;·&nbsp; 02-2088-1454</span>
+    <span class="foot-contact">
+      <a href="mailto:korea@monnit.com" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>korea@monnit.com</a>
+      <a href="tel:0220881454" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>02-2088-1454</a>
+    </span>
   </div>
 </footer>
 

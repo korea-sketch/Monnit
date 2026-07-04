@@ -593,7 +593,7 @@ const CONTENT_SHEET = {
     customers: "", awards: "", partners: "",
     cases: "", appcategories: "", applications: "",
     appdetails: "", blog: "", whitepapers: "",
-    news: "", faqs: "", knowledgebase: "", photos: "", products: "", homecases: "", sitecontent: "", logos: "", promotions: ""
+    news: "", faqs: "", knowledgebase: "", photos: "", products: "", homecases: "", sitecontent: "", logos: ""
   }
 };
 
@@ -851,50 +851,12 @@ function mapAppDetails(rows){
 
 /* 자료실 & 지원 (단순 목록 탭) */
 function mapBlog(rows){
-  return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.body,o.body_en);
-    return ({ date:o.date||'', title:o.title, body:o.body||'', thumb:o.thumb||'◐', image:normalizeImageUrl(o.image||''), category:o.category||'', url:o.url||'' }); });
+  return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.body,o.body_en); regI18N(o.insight,o.insight_en);
+    return ({ date:o.date||'', title:o.title, body:o.body||'', insight:o.insight||'', thumb:o.thumb||'◐', image:normalizeImageUrl(o.image||''), category:o.category||'', url:o.url||'' }); });
 }
 function mapNews(rows){
   return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.desc,o.desc_en);
     return ({ title:o.title, desc:o.desc||'', url:o.url||'' }); });
-}
-
-/* ====== 프로모션 (Promotions 탭) ======
-   운영 방식: 프로모션 페이지를 별도 HTML로 만들어 두고,
-   시트에는 그 HTML 경로(file)와 제목(title) 정도만 등록하면
-   목록 카드가 자동 생성되고, 클릭 시 그 HTML이 오버레이로 표시됩니다.
-
-   열: id, title, file, desc, period, badge, ended, image, order
-   - id     : 고유 식별자 (영문/숫자, 비우면 자동 생성). URL 해시 #promo/{id}
-   - title  : 카드 제목 (필수)
-   - file   : 프로모션 HTML 경로 (필수). 예) promotions/2026-spring.html
-   - desc   : 카드 설명 (선택, 1~2줄)
-   - period : 진행 기간 표시 (선택)
-   - badge  : 배지 문구 (선택, "진행중"/"신규" 등)
-   - ended  : 종료 여부 (선택, y/예 → 종료 배지)
-   - image  : 카드 썸네일 (선택, 비우면 플레이스홀더)
-   - order  : 정렬 순서 (선택, 작을수록 먼저) */
-let PROMOTIONS = [];
-function mapPromotions(rows){
-  var truthy = function(v){ return ['y','yes','true','1','o','예','종료','end','ended'].indexOf(String(v||'').trim().toLowerCase()) >= 0; };
-  var slug = function(s){ return String(s||'').trim().toLowerCase().replace(/[^a-z0-9가-힣]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40); };
-  var out = rows.filter(function(o){ return (o.title||'').trim() && (o.file||'').trim(); }).map(function(o, i){
-    regI18N(o.title, o.title_en); regI18N(o.desc, o.desc_en);
-    regI18N(o.badge, o.badge_en); regI18N(o.period, o.period_en);
-    return {
-      id:     (o.id||'').trim() || slug(o.title) || ('promo-'+(i+1)),
-      title:  (o.title||'').trim(),
-      file:   (o.file||'').trim(),
-      desc:   (o.desc||'').trim(),
-      period: (o.period||'').trim(),
-      badge:  (o.badge||'').trim(),
-      ended:  truthy(o.ended),
-      image:  normalizeImageUrl((o.image||'').split('||')[0].split('::')[0].trim()),
-      order:  parseInt(o.order,10) || 999
-    };
-  });
-  out.sort(function(a,b){ return a.order - b.order; });
-  return out;
 }
 /* 공유 링크(구글 드라이브·드롭박스)를 <img>에서 바로 보이는 직접 이미지 주소로 변환 */
 function normalizeImageUrl(u){
@@ -926,7 +888,7 @@ function mapKnowledgebase(rows){
    index.html 을 건드리지 않고, 각 뷰의 제목·문단·이미지에 런타임 키를 부여하여
    SiteContent 탭(열: key, ko, en, image)의 값으로 덮어쓴다. 값이 비어 있으면 기존 기본값 유지. */
 let SITE_CONTENT = {};
-const SITE_VIEWS = ['view-home','view-who-we-are','view-what-we-do','view-our-solution','view-stories','view-applications','view-blog','view-products','view-partners','view-awards','view-knowledgebase','view-faqs','view-guides','view-whitepaper','view-promotion'];
+const SITE_VIEWS = ['view-home','view-who-we-are','view-what-we-do','view-our-solution','view-stories','view-applications','view-blog','view-products','view-partners','view-awards','view-knowledgebase','view-faqs','view-guides','view-whitepaper'];
 const SLOT_TEXT_SEL = 'h1,h2,h3,h4,h5,p,figcaption,.sp-k,.sp-v,.sp-d,.hs-t,.hs-d,.step-title,.step-desc';
 let _siteToggleHooked = false;
 function eachSlot(cb){
@@ -1108,6 +1070,7 @@ async function loadSheetData(){
   add('applications',  r => { const m = mapApps(r);          if (m.length) APPS = m; });
   add('appdetails',    r => { const m = mapAppDetails(r);    if (hasKeys(m)) APP_DETAILS = m; });
   add('blog',          r => { const m = mapBlog(r);          if (m.length) BLOG = m; });
+  add('promotions',    r => { const m = mapPromotions(r);    PROMOS = m; if(typeof renderPromotions==='function') renderPromotions(); });
   add('whitepapers',   r => { const m = mapWhitepapers(r);   if (m.length) WHITEPAPERS = m; });
   add('news',          r => { const m = mapNews(r);          if (m.length) NEWS_HIGHLIGHTS = m; });
   add('faqs',          r => { const m = mapFaqs(r);          if (m.length) FAQS = m; });
@@ -1124,7 +1087,6 @@ async function loadSheetData(){
   add('photos',        r => { const m = mapPhotos(r);        if (hasKeys(m)) PHOTOS = Object.assign({}, PHOTOS, m); });
   add('products',      r => { const m = mapProducts(r);      if (m.length) PRODUCTS = m; });
   add('homecases',     r => { const m = mapHomeCases(r);     if (m.length) HOME_CASES = m; });
-  add('promotions',    r => { const m = mapPromotions(r);    PROMOTIONS = m; if (typeof renderPromotions === 'function') renderPromotions(); });
   add('logos',         r => { const m = mapLogos(r);         console.log('[add-logos]',m?.length); if(m&&m.length) renderLogos(m); else console.log('[Logos] 데이터 없음'); });
   add('sitecontent',   r => { console.log('[add-sitecontent] 로드 시작, rows:', r?.length); const sc = mapSiteContent(r); SITE_CONTENT = sc; console.log('[add-sitecontent] 맵핑 완료, 100ms 후 apply'); setTimeout(applySiteContent, 100); });
 
@@ -1161,11 +1123,6 @@ function navigate(target) {
     document.getElementById('view-app-detail').classList.add('active');
     document.querySelector('.nav-link[data-nav="applications"]').classList.add('active');
     window.location.hash = target;
-  } else if (target.startsWith('promo/')) {
-    const promoId = target.slice(6);
-    openPromoDetail(promoId);
-    document.getElementById('view-promotion').classList.add('active');
-    window.location.hash = target;
   } else {
     document.getElementById('view-' + target).classList.add('active');
     const navBtn = document.querySelector(`.nav-link[data-nav="${target}"]`);
@@ -1173,6 +1130,7 @@ function navigate(target) {
     window.location.hash = target === 'home' ? '' : target;
 
     // 다른 메뉴를 거쳐 다시 들어왔을 때 기술지원/기술문서는 항상 초기 화면으로
+    if (target === 'promotions' && typeof closePromo === 'function') { closePromo(); }
     if (target === 'knowledgebase' && typeof kbState !== 'undefined') {
       kbState.view = 'home'; kbState.cat = null; kbState.search = '';
       kbState.page = 1; kbState.docId = null; kbState.ret = null;
@@ -1237,7 +1195,6 @@ window.addEventListener('popstate', () => {
 
 /* ========== STORIES / AWARDS / PARTNERS (시트 데이터로 렌더) ========== */
 function renderData() {
-renderPromotions();
 /* ========== STORIES VIEW ========== */
 const featuredGrid = document.getElementById('featuredGrid');
 const _labelToKey = {}; Object.entries(INDUSTRIES).forEach(([k,v]) => { _labelToKey[v.label] = k; });
@@ -1632,25 +1589,25 @@ function renderCaseDetail(id) {
       <h2>솔루션 구성</h2>
       <div class="arch">
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◐</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14"/><path d="M7.76 16.24a6 6 0 0 1 0-8.48"/><path d="M16.24 7.76a6 6 0 0 1 0 8.48"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div>
           <div class="name">무선 센서 노드</div>
           <div class="desc">FIELD</div>
           <span class="arch-arrow" style="color:${c.accentText}">→</span>
         </div>
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◧</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6.01 18H6"/><path d="M10.01 18H10"/><path d="M15 10v4"/><path d="M17.84 7.17a4 4 0 0 0-5.66 0"/><path d="M20.66 4.34a8 8 0 0 0-11.31 0"/></svg></div>
           <div class="name">ALTA 게이트웨이</div>
           <div class="desc">AGGREGATE</div>
           <span class="arch-arrow" style="color:${c.accentText}">→</span>
         </div>
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◇</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></div>
           <div class="name">클라우드 플랫폼</div>
           <div class="desc">MQTTS / API</div>
           <span class="arch-arrow" style="color:${c.accentText}">→</span>
         </div>
         <div class="arch-node">
-          <div class="ico" style="color:${c.accentText}">◉</div>
+          <div class="ico" style="color:${c.accentText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
           <div class="name">통합 대시보드</div>
           <div class="desc">ANALYTICS</div>
         </div>
@@ -2407,102 +2364,6 @@ function renderLogos(list){
   console.log('[Logos] 완료');
 }
 
-/* ====================== 프로모션 렌더 ======================
-   목록(view-promotion 안의 #promoGrid)에 카드를 그리고,
-   카드 클릭 → navigate('promo/{id}') → openPromoDetail()이 iframe 상세를 띄움 */
-function _promoEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-function renderPromotions(){
-  const grid = document.getElementById('promoGrid');
-  if (!grid) return;
-  const T = (window.MonnitI18N && MonnitI18N.t) ? (s)=>MonnitI18N.t(s) : (s)=>s;
-  if (!PROMOTIONS.length){
-    grid.innerHTML = '<div class="promo-empty">현재 진행 중인 프로모션이 없습니다. 곧 새로운 혜택으로 찾아뵙겠습니다.</div>';
-    return;
-  }
-  grid.innerHTML = PROMOTIONS.map(function(p){
-    const badge = p.badge
-      ? '<span class="promo-badge'+(p.ended?' ended':'')+'">'+_promoEsc(T(p.badge))+'</span>' : '';
-    const media = p.image
-      ? '<img src="'+_promoEsc(p.image)+'" alt="'+_promoEsc(T(p.title))+'" loading="lazy" referrerpolicy="no-referrer">'
-      : '<span class="promo-ph">Monnit Korea</span>';
-    const desc = p.desc ? '<p>'+_promoEsc(T(p.desc))+'</p>' : '<p class="promo-nodesc"></p>';
-    const period = p.period ? '<span class="promo-period">'+_promoEsc(T(p.period))+'</span>' : '<span class="promo-period"></span>';
-    return ''
-      + '<article class="promo-card" tabindex="0" role="button" '
-      +   'aria-label="'+_promoEsc(T(p.title))+' 자세히 보기" data-promo="'+_promoEsc(p.id)+'">'
-      + '  <div class="promo-media">'+badge+media+'</div>'
-      + '  <div class="promo-body">'
-      + '    <h3>'+_promoEsc(T(p.title))+'</h3>'
-      +      desc
-      + '    <div class="promo-meta">'
-      +        period
-      + '      <span class="promo-cta">자세히 보기 →</span>'
-      + '    </div>'
-      + '  </div>'
-      + '</article>';
-  }).join('');
-
-  grid.querySelectorAll('.promo-card').forEach(function(card){
-    const go = function(){ navigate('promo/' + card.dataset.promo); };
-    card.addEventListener('click', go);
-    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
-  });
-}
-
-/* 상세 — 개별 프로모션 HTML을 iframe(오버레이)로 표시 */
-function openPromoDetail(id){
-  const p = PROMOTIONS.find(function(x){ return x.id === id; });
-  const overlay = document.getElementById('promoDetail');
-  const frame   = document.getElementById('promoFrame');
-  const titleEl = document.getElementById('promoDetailTitle');
-  const emptyEl = document.getElementById('promoDetailEmpty');
-  const openNew = document.getElementById('promoOpenNew');
-  if (!overlay) return;
-  const T = (window.MonnitI18N && MonnitI18N.t) ? (s)=>MonnitI18N.t(s) : (s)=>s;
-
-  if (!p){ navigate('promotion'); return; }
-  titleEl.textContent = T(p.title);
-  window.__promoCurFile = p.file || '';
-  if (p.file){
-    frame.style.display = '';
-    emptyEl.style.display = 'none';
-    frame.src = p.file;
-    openNew.style.display = '';
-  } else {
-    frame.style.display = 'none';
-    frame.removeAttribute('src');
-    emptyEl.style.display = '';
-    openNew.style.display = 'none';
-  }
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closePromoDetail(){
-  const overlay = document.getElementById('promoDetail');
-  const frame   = document.getElementById('promoFrame');
-  if (overlay) overlay.classList.remove('open');
-  if (frame) frame.removeAttribute('src');
-  document.body.style.overflow = '';
-  // 목록으로 복귀 (상세 해시 정리)
-  if (location.hash.indexOf('promo/') !== -1) navigate('promotion');
-}
-/* 상세 오버레이 컨트롤 바인딩 (한 번만) */
-(function bindPromoDetail(){
-  function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
-  ready(function(){
-    const closeBtn = document.getElementById('promoClose');
-    const openNew  = document.getElementById('promoOpenNew');
-    const overlay  = document.getElementById('promoDetail');
-    if (closeBtn) closeBtn.addEventListener('click', closePromoDetail);
-    if (openNew)  openNew.addEventListener('click', function(){ if(window.__promoCurFile) window.open(window.__promoCurFile,'_blank','noopener'); });
-    if (overlay)  overlay.addEventListener('click', function(e){ if(e.target===overlay) closePromoDetail(); });
-    document.addEventListener('keydown', function(e){
-      if(e.key==='Escape' && overlay && overlay.classList.contains('open')) closePromoDetail();
-    });
-  });
-})();
-
 function renderHomeCases() {
 const homeCases = document.getElementById('homeCases');
 if (!homeCases) return;
@@ -2896,6 +2757,23 @@ let BLOG = [
   { date:'2026.05.31', title:'진동 센서로 설비 고장 예측하기', body:'Velocity RMS와 Acceleration RMS의 관계를 활용해, 축별 주파수만으로도 다른 측정값을 추론하는 예지보전 실무 노하우를 정리했습니다.', thumb:'〜', url:'https://blog.naver.com/monnitkorea' },
   { date:'2025.10.24', title:'겨울철 설비 동파, 스마트하게 막는 법', body:'온도·누수 센서를 결합한 조기 경보로 한파 시즌의 배관 동파와 누수 피해를 예방하는 방법을 소개합니다.', thumb:'◇', url:'https://blog.naver.com/monnitkorea' }
 ];
+let PROMOS = [];
+function mapPromotions(rows){
+  return rows.filter(o => (o.title || o.html || o.images || o.image) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
+    .map(o => ({
+      id: (o.id||'').trim(),
+      title: o.title||'',
+      html: o.html||'',
+      period: o.period||'',
+      badge: o.badge||'',
+      desc: o.desc||'',
+      image: normalizeImageUrl(o.image||''),
+      // 상세 페이지용 이미지들 (||로 여러 장 구분). images 없으면 image 한 장 사용
+      images: (o.images||'').split('||').map(s=>normalizeImageUrl(s.trim())).filter(Boolean),
+      order: parseInt(o.order,10) || 999
+    }))
+    .sort((a,b) => a.order - b.order);
+}
 let NEWS_HIGHLIGHTS = [
   { title:'2026 IoT Sensor Company of the Year 수상', desc:'Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.', url:'https://blog.naver.com/monnitkorea' },
   { title:'IoT Platforms Leadership Award 연속 수상', desc:'플랫폼 리더십 부문에서 백투백 수상을 기록했습니다.', url:'https://blog.naver.com/monnitkorea' },
@@ -2959,6 +2837,9 @@ function renderBlog(){
     const thumb = p.image
       ? `<div class="blog-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
       : `<div class="blog-thumb">${esc(p.thumb||'◐')}</div>`;
+    const insight = (p.insight && p.insight.trim())
+      ? `<div class="blog-insight"><div class="blog-insight-inner"><span class="bi-label">INSIGHT · 전체 요약</span><p>${esc(p.insight)}</p><span class="b-link">자세히 보기 →</span></div></div>`
+      : '';
     const inner = `
       ${thumb}
       <div class="blog-body">
@@ -2966,12 +2847,180 @@ function renderBlog(){
         <h3>${esc(p.title)}</h3>
         <p>${esc(p.body)}</p>
         <span class="b-link">자세히 보기 →</span>
-      </div>`;
+      </div>
+      ${insight}`;
+    const cls = insight ? 'blog-card has-insight' : 'blog-card';
     return p.url
-      ? `<a class="blog-card res-link" href="${esc(p.url)}" target="_blank" rel="noopener">${inner}</a>`
-      : `<article class="blog-card">${inner}</article>`;
+      ? `<a class="${cls} res-link" href="${esc(p.url)}" target="_blank" rel="noopener">${inner}</a>`
+      : `<article class="${cls}">${inner}</article>`;
   }).join('');
   renderPager(el, 'blogPager', total, per, pageState.blog, g=>{ pageState.blog=g; renderBlog(); el.scrollIntoView({behavior:'smooth',block:'start'}); });
+}
+/* ===== PROMOTIONS ===== */
+function renderPromotions(){
+  const grid = document.getElementById('promoGrid');
+  const empty = document.getElementById('promoEmpty');
+  if (!grid) return;
+  const countEl = document.getElementById('promoHeroCount');
+  if (countEl) {
+    let _lang='ko'; try{ _lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+    if (PROMOS.length) {
+      countEl.textContent = (_lang==='en')
+        ? `${PROMOS.length} promotion${PROMOS.length>1?'s':''} currently running · apply before they sell out`
+        : `현재 ${PROMOS.length}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`;
+    } else {
+      countEl.textContent = (_lang==='en') ? 'New promotions are on the way' : '새로운 프로모션을 준비하고 있습니다';
+    }
+  }
+  if (!PROMOS.length){
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  grid.innerHTML = PROMOS.map(p => {
+    const thumb = p.image
+      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
+      : `<div class="promo-thumb">◆</div>`;
+    const badge = p.badge ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
+    const period = p.period ? `<div class="promo-period">${esc(p.period)}</div>` : '';
+    return `<article class="promo-card" data-promo="${esc(p.id)}" role="button" tabindex="0">
+      ${thumb}
+      <div class="promo-body">
+        ${badge}
+        <h3>${esc(p.title)}</h3>
+        ${period}
+        <p>${esc(p.desc)}</p>
+        <span class="b-link">자세히 보기 →</span>
+      </div>
+    </article>`;
+  }).join('');
+  grid.querySelectorAll('[data-promo]').forEach(card => {
+    const open = () => openPromo(card.getAttribute('data-promo'));
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
+  });
+  // 사전 신청 폼의 프로모션 선택 드롭다운 채우기
+  const sel = document.getElementById('pafPromo');
+  if (sel){
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— 프로모션을 선택하세요 —</option>'
+      + PROMOS.map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
+      + '<option value="기타/미정">기타 · 아직 정하지 않음</option>';
+    if (cur) sel.value = cur;
+  }
+}
+function openPromo(id, fromHash){
+  const p = PROMOS.find(x => x.id === id);
+  if (!p) return;
+  const view = document.getElementById('promoDetail');
+  const body = document.getElementById('promoDetailBody');
+  const titleEl = document.getElementById('promoDetailTitle');
+  if (!view || !body) return;
+  if (titleEl) titleEl.textContent = p.title || '프로모션';
+  // 이미지 방식 우선: images가 있으면 세로로 나열. 없으면 html, 그것도 없으면 안내
+  if (p.images && p.images.length){
+    body.innerHTML = '<div class="promo-images">' +
+      p.images.map(src => `<img src="${esc(src)}" alt="${esc(p.title)}" loading="lazy">`).join('') +
+      '</div>';
+  } else if (p.html && p.html.trim()){
+    body.innerHTML = p.html;
+  } else {
+    body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink-soft)">등록된 상세 내용이 없습니다.</div>`;
+  }
+  // 상세 하단에 '이 프로모션 신청하기' 버튼
+  const applyBtn = document.getElementById('promoDetailApply');
+  if (applyBtn){
+    applyBtn.onclick = () => applyForPromo(p.title);
+    applyBtn.style.display = 'inline-flex';
+  }
+  const applyTop = document.getElementById('promoDetailApplyTop');
+  if (applyTop){
+    applyTop.onclick = () => applyForPromo(p.title);
+    applyTop.style.display = 'inline-flex';
+  }
+  document.getElementById('promoList').style.display = 'none';
+  view.style.display = 'block';
+  // 브라우저 뒤로가기 연동: 상세를 히스토리에 추가 (해시에 프로모션 id)
+  if (!fromHash){
+    try { history.pushState({promo:id}, '', '#promotions/' + encodeURIComponent(id)); } catch(e){}
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function closePromo(toHash){
+  const view = document.getElementById('promoDetail');
+  const list = document.getElementById('promoList');
+  if (view) view.style.display = 'none';
+  if (list) list.style.display = 'block';
+  const body = document.getElementById('promoDetailBody');
+  if (body) body.innerHTML = '';
+  // 목록으로 돌아가면 해시도 목록 상태로 (뒤로가기가 아닌 버튼 클릭 시)
+  if (!toHash){
+    try { if ((location.hash||'').indexOf('#promotions/')===0) history.pushState(null, '', '#promotions'); } catch(e){}
+  }
+}
+// 브라우저 뒤로/앞으로 버튼 대응
+window.addEventListener('popstate', function(){
+  const h = (location.hash||'').replace('#','');
+  if (h.indexOf('promotions/')===0){
+    const id = decodeURIComponent(h.slice('promotions/'.length));
+    if (typeof navigate==='function') navigate('promotions');
+    setTimeout(()=>openPromo(id, true), 30);
+  } else if (h === 'promotions'){
+    if (typeof closePromo==='function') closePromo(true);
+  }
+});
+async function submitPromoApply(e){
+  e.preventDefault();
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const promo = g('pafPromo'), name = g('pafName'), company = g('pafCompany');
+  const phone = g('pafPhone'), email = g('pafEmail'), qty = g('pafQty'), memo = g('pafMemo');
+  const status = document.getElementById('pafStatus');
+  const btn = document.getElementById('pafSubmit');
+  if (!promo || !name || !company || !phone || !email){
+    if (status){ status.textContent = '필수 항목(*)을 모두 입력해 주세요.'; status.className = 'paf-status err'; }
+    return false;
+  }
+  const payload = {
+    _subject: '[프로모션 사전신청] ' + promo + ' — ' + company,
+    '신청 프로모션': promo,
+    '이름/직급': name,
+    '회사명': company,
+    '전화번호': phone,
+    '이메일': email,
+    '구매 희망 수량': qty || '(미기재)',
+    '문의 사항': memo || '(없음)',
+    '접수 경로': '프로모션 사전신청'
+  };
+  if (status){ status.textContent = ''; status.className = 'paf-status'; }
+  const result = await sendLead(payload, btn);
+  if (result === true){
+    if (status){ status.textContent = '✓ 신청이 접수되었습니다. 담당자가 곧 연락드립니다.'; status.className = 'paf-status ok'; }
+    document.getElementById('promoApplyForm').reset();
+  } else if (result === 'mailto'){
+    if (status){ status.textContent = '메일 앱으로 신청 내용을 작성합니다. 전송 버튼을 눌러 완료해 주세요.'; status.className = 'paf-status'; }
+  } else {
+    if (status){ status.textContent = '전송에 실패했습니다. 잠시 후 다시 시도하거나 korea@monnit.com 으로 연락 주세요.'; status.className = 'paf-status err'; }
+  }
+  return false;
+}
+function openApplyForm(){
+  // 접힌 사전신청 폼 펼치기
+  const form = document.getElementById('promoApplyForm');
+  const prompt = document.getElementById('promoApplyPrompt');
+  if (prompt) prompt.style.display = 'none';
+  if (form){ form.hidden = false; form.classList.add('is-open'); }
+  return form;
+}
+function applyForPromo(title){
+  // 상세페이지 '이 프로모션 신청' → 목록으로 돌아가 폼을 펼치고 프로모션 미리 선택 + 스크롤
+  closePromo();
+  setTimeout(() => {
+    const form = openApplyForm();
+    const sel = document.getElementById('pafPromo');
+    if (sel && title){ sel.value = title; }
+    if (form) form.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 100);
 }
 function renderNewsHighlights(){
   const el = document.getElementById('newsHighlights'); if (!el) return;
@@ -3143,6 +3192,7 @@ function renderKnowledgebase(){
 }
 function renderResources(){
   renderBlog(); renderNewsHighlights(); renderWhitepapers(); renderFaqs(); renderKnowledgebase();
+  if(typeof renderPromotions==='function') renderPromotions();
   renderGuides();
 }
 
