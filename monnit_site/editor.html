@@ -373,6 +373,7 @@ function simpleWidget(col,label,kind,val){
     w.appendChild(hint);
     return w;
   }
+  else{inp=el('input');inp.type='text';inp.value=val||'';}
   inp.dataset.col=col;inp.dataset.kind=kind;w.appendChild(inp);
   if(kind==='media'){attachUploader(inp);w.appendChild(previewBox(inp));}
   if(kind==='file'&&val){const a=el('a',null,'현재 링크 열기 ↗');a.href=val;a.target='_blank';a.style.cssText='font-size:11.5px;display:inline-block;margin-top:5px';w.appendChild(a);}
