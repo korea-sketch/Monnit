@@ -92,8 +92,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   padding: 16px 32px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
 }
 
 .brand {
@@ -116,6 +115,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   list-style: none;
   flex-wrap: nowrap;
   white-space: nowrap;
+  margin-right: auto;
 }
 
 .nav-link {
@@ -152,7 +152,6 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
   font-weight: 700;
   letter-spacing: 0.06em;
   padding: 10px 16px;
-  margin-right: 8px;
   background: linear-gradient(135deg, #F5A623, #E8842B);
   color: #fff;
   border: none;
@@ -3582,7 +3581,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .nav-dd button:hover { background: var(--bg-deep); color: var(--accent-dark); }
 .nav-dd .dd-meta { font-family:var(--fm); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-faint); padding:6px 14px 4px; }
 
-.nav-toggle { display: none; background:none; border:none; cursor:pointer; font-size: 22px; color: var(--ink); }
+.nav-toggle { display: none; margin-left: auto; background:none; border:none; cursor:pointer; font-size: 22px; color: var(--ink); }
 
 /* ----- Home key-strengths ----- */
 .strengths-section { padding: 112px 0; border-bottom: 1px solid var(--line); background: var(--bg-deep); }
@@ -5086,7 +5085,7 @@ body{
 .cta-sm { font-size: 13.5px !important; padding: 9px 18px !important; }
 .promo-detail-body { background: transparent; color: inherit; border-radius: 0; overflow: visible; margin-top: 8px; }
 .promo-detail-cta { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.promo-back-bottom { background: none; border: 1px solid var(--line); color: var(--ink-mid); font-size: 13.5px; font-weight: 500; cursor: pointer; padding: 11px 22px; border-radius: 8px; transition: border-color .18s, color .18s, background .18s; }
+.promo-back-bottom { display: inline-flex; align-items: center; justify-content: center; width: 340px; max-width: 100%; background: none; border: 1px solid var(--line); color: var(--ink-mid); font-size: 14px; font-weight: 500; cursor: pointer; padding: 14px 44px; border-radius: 8px; transition: border-color .18s, color .18s, background .18s; }
 .promo-back-bottom:hover { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
 /* 업로드된 랜딩페이지 격리 컨테이너 — 자체 다크 테마 유지 */
 .promo-landing { border-radius: 14px; overflow: hidden; }
@@ -5105,10 +5104,13 @@ body{
 .promo-images img:last-child { border-radius: 0 0 14px 14px; }
 .promo-images img:only-child { border-radius: 14px; }
 /* 이미지 방식일 때 신청 버튼을 더 크고 눈에 띄게 */
-.promo-detail-cta { margin-top: 40px; padding-top: 36px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.promo-detail-cta { margin-top: 40px; margin-bottom: 64px; padding-top: 40px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 14px; }
 #promoDetailApply {
-  font-size: 17px !important;
-  padding: 16px 40px !important;
+  font-size: 16px !important;
+  padding: 16px 44px !important;
+  width: 340px;
+  max-width: 100%;
+  justify-content: center;
   background: linear-gradient(135deg, #4A82C4, #2E5C9A) !important;
   box-shadow: 0 4px 20px rgba(46,92,154,0.4);
   border-radius: 8px !important;
