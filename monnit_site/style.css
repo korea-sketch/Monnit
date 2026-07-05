@@ -2897,12 +2897,16 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .logo-marquee-section{ padding:64px 0 56px; border-bottom:1px solid var(--line); background:var(--bg-deep); overflow:hidden; }
 .logo-marquee-section .lm-head{ text-align:center; margin-bottom:36px; }
 .logo-marquee-section .lm-head h2{ font-family:var(--fd); font-weight:400; font-size:clamp(24px,3vw,34px); letter-spacing:-0.02em; color:var(--ink); margin-top:10px; }
-.logo-marquee{ position:relative; width:100%;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
-.logo-track{ display:flex; align-items:stretch; gap:28px; width:max-content; animation:logoScroll 150s linear infinite; padding:4px 0; will-change:transform; }
+.logo-marquee{ position:relative; width:100%; overflow:hidden; }
+/* 페이드 엣지: mask-image 대신 오버레이 그라디언트로 처리 → 움직이는 .logo-track의 GPU 합성을 깨지 않음 (Safari/iOS·삼성인터넷 버벅임 방지) */
+.logo-marquee::before,
+.logo-marquee::after{ content:""; position:absolute; top:0; bottom:0; width:9%; z-index:2; pointer-events:none; }
+.logo-marquee::before{ left:0;  background:linear-gradient(90deg,  var(--bg-deep), transparent); }
+.logo-marquee::after{  right:0; background:linear-gradient(270deg, var(--bg-deep), transparent); }
+.logo-track{ display:flex; align-items:stretch; width:max-content; animation:logoScroll 45s linear infinite; padding:4px 0; will-change:transform; backface-visibility:hidden; }
 .logo-marquee:hover .logo-track{ animation-play-state:paused; }
-.logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; flex:0 0 auto; width:172px; }
+/* gap 대신 각 슬라이드에 margin-right → 마지막 슬라이드도 뒤 여백을 소유하므로 translateX(-50%)가 한 벌 폭과 정확히 일치 (한 바퀴마다 튐 제거) */
+.logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; flex:0 0 auto; width:172px; margin-right:28px; }
 .logo-slide img{ height:74px; width:100%; object-fit:contain;
   background:#F4F6FA; border-radius:14px; padding:16px 24px; box-sizing:border-box;
   border:1px solid rgba(255,255,255,.10);
@@ -2912,7 +2916,8 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .logo-slide span{ font-family:var(--fm); font-size:12px; letter-spacing:.04em; color:var(--ink-faint); text-align:center; white-space:nowrap; }
 .logo-slide.logo-fallback::before{ content:attr(data-name); display:flex; align-items:center; justify-content:center; height:74px; width:100%; background:#F4F6FA; border-radius:14px; padding:12px 18px; box-sizing:border-box; border:1px solid rgba(255,255,255,.10); color:#1a2b50; font-family:var(--fd); font-weight:600; font-size:14px; text-align:center; line-height:1.2; }
 @keyframes logoScroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
-@media(max-width:760px){ .logo-track{ gap:18px; } .logo-slide{ width:140px; } .logo-slide img{ height:60px; padding:12px 18px; } }
+@media(max-width:760px){ .logo-slide{ width:140px; margin-right:18px; } .logo-slide img{ height:60px; padding:12px 18px; } }
+@media (prefers-reduced-motion: reduce){ .logo-track{ animation:none; } }
 
 .t-num {
   font-family: var(--fd);
