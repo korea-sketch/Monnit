@@ -89,9 +89,9 @@
           <button data-nav="knowledgebase">Knowledgebase · 기술 문서</button>
         </div>
       </li>
-      <li class="nav-item nav-item-mobile-promo"><button class="nav-link" data-nav="promotions">🎁 프로모션</button></li>
+      <li class="nav-item nav-item-mobile-promo"><button class="nav-link" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button></li>
     </ul>
-    <button class="nav-promo-btn" data-nav="promotions">🎁 프로모션</button>
+    <button class="nav-promo-btn" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button>
     <button class="nav-cta" data-nav="contact">상담 신청</button>
     <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
   </div>
@@ -106,6 +106,7 @@
 
   <!-- HERO -->
   <section class="home-hero">
+    <div class="hero-pulse" aria-hidden="true"></div>
     <div class="wrap">
       <span class="kicker" data-sc="home.hero.kicker" data-sc-label="히어로 · 상단 라벨">Expert Consulting · Integrated Solutions</span>
       <h1 class="home-headline" data-sc="home.hero.title" data-sc-label="히어로 · 메인 제목"><em>현장</em>을 읽고 <em>미래</em>를 설계합니다</h1>
@@ -1227,11 +1228,16 @@
 <!-- ========================================== -->
 <section class="view" id="view-promotions">
   <div id="promoList">
-    <div class="page-hero">
+    <div class="page-hero promo-hero">
+      <div class="hero-pulse" aria-hidden="true"></div>
       <div class="wrap">
         <span class="kicker">Promotions</span>
         <h1>진행 중인 <em>프로모션</em></h1>
-        <p class="lede">Monnit Korea의 이벤트와 특별 혜택을 확인하세요.</p>
+        <p class="lede">한정 수량 특가부터 신규 가입 혜택까지 — Monnit Korea가 준비한 특별한 기회를 지금 만나보세요.</p>
+        <div class="promo-hero-status" id="promoHeroStatus">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="promoHeroCount">진행 중인 프로모션을 확인하세요</span>
+        </div>
       </div>
     </div>
     <div class="wrap section-pad">
@@ -1249,7 +1255,10 @@
           <h2>프로모션 <em>사전 신청</em></h2>
           <p>원하시는 프로모션을 선택하고 정보를 남겨주시면, 담당자가 빠르게 연락드립니다.</p>
         </div>
-        <form id="promoApplyForm" class="promo-apply-form" onsubmit="return submitPromoApply(event)">
+        <div class="promo-apply-prompt" id="promoApplyPrompt">
+          <button type="button" class="cta-primary" onclick="openApplyForm()">사전 신청하기</button>
+        </div>
+        <form id="promoApplyForm" class="promo-apply-form" onsubmit="return submitPromoApply(event)" hidden>
           <div class="paf-row paf-row-full">
             <label class="paf-field paf-full">
               <span>신청 프로모션 <b>*</b></span>
@@ -1288,7 +1297,7 @@
           </div>
           <div class="paf-actions">
             <span id="pafStatus" class="paf-status"></span>
-            <button type="submit" class="cta-primary" id="pafSubmit">신청하기 →</button>
+            <button type="submit" class="cta-primary" id="pafSubmit">신청하기</button>
           </div>
         </form>
       </div>
@@ -1298,14 +1307,14 @@
     <div class="promo-detail-bar">
       <div class="wrap promo-detail-bar-inner">
         <button class="promo-back" onclick="closePromo()">← 프로모션 목록</button>
-        <button id="promoDetailApplyTop" class="cta-primary cta-sm" style="display:none">신청하기 →</button>
+        <button id="promoDetailApplyTop" class="cta-primary cta-sm" style="display:none">신청하기</button>
       </div>
     </div>
     <div class="wrap section-pad">
       <h2 id="promoDetailTitle" class="promo-detail-title"></h2>
       <div id="promoDetailBody" class="promo-detail-body"></div>
       <div class="promo-detail-cta">
-        <button id="promoDetailApply" class="cta-primary" style="display:none">이 프로모션 신청하기 →</button>
+        <button id="promoDetailApply" class="cta-primary" style="display:none">이 프로모션 신청하기</button>
         <button class="promo-back-bottom" onclick="closePromo()">← 프로모션 목록으로 돌아가기</button>
       </div>
     </div>
@@ -1560,7 +1569,10 @@
   </div>
   <div class="wrap footer-base">
     <span>© 2026 Monnit Korea. All rights reserved.</span>
-    <span><a href="mailto:korea@monnit.com" style="color:inherit;text-decoration:none;">korea@monnit.com</a> &nbsp;·&nbsp; 02-2088-1454</span>
+    <span class="foot-contact">
+      <a href="mailto:korea@monnit.com" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>korea@monnit.com</a>
+      <a href="tel:0220881454" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>02-2088-1454</a>
+    </span>
   </div>
 </footer>
 
