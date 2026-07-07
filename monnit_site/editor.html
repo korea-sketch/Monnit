@@ -255,6 +255,7 @@ const TABS={
  'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'ko',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
  'Logos':{title:'고객사 로고 (메인 하단 띠)',key:null,display:'name',search:true,cols:{name:'text',image:'media'}},
  'InstallPhotos':{title:'설치 사례 (Installation Photo · 설치 사진)',key:null,display:'title',search:true,cols:{desc:'long',images:'photos'}},
+ 'InstallBuildings':{title:'설치 건물 디렉토리 (세안텍스 현장 48개소)',key:null,display:'name',search:true,cols:{image:'media'}},
 };
 
 /* 기본 숨김 열 (기술·정렬·색상 등 거의 안 고치는 항목). '고급 항목 보기' 켜면 다시 보임 */
@@ -279,6 +280,7 @@ const SHOW={
   FAQs:['question','answer','category'],
   Whitepapers:['title','desc','photo','url','date'],
   InstallPhotos:['title','client','site','sector','category','sensors','desc','images'],
+  InstallBuildings:['name','image'],
   NewsHighlights:['title','desc','url','date'],
 };
 
@@ -618,7 +620,7 @@ $('#previewReload').onclick=loadPreview;
 $('#previewClose').onclick=()=>{ $('#previewPanel').style.display='none'; document.body.style.paddingRight=''; };
 function previewUrl(){
   const tab=$('#tabSel').value;
-  if(tab==='InstallPhotos'){ return 'installation-photos.html?_t='+Date.now(); }
+  if(tab==='InstallPhotos'||tab==='InstallBuildings'){ return 'installation-photos.html?_t='+Date.now(); }
   // app.js navigate()가 기대하는 실제 해시(슬래시 없이)로 매핑
   const viewHash={ 'homecases':'', 'SiteContent':'', 'Customers':'',
     'Cases':'#stories', 'Applications':'#what-we-do', 'AppDetails':'#what-we-do',
