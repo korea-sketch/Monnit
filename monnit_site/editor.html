@@ -401,9 +401,10 @@ function simpleWidget(col,label,kind,val){
 }
 function listWidget(col,label,val){const w=el('div','side full');w.innerHTML=`<div class="col-h">${label} · 한 줄에 하나씩</div>`;const ta=el('textarea');ta.dataset.list=col;ta.value=splitItems(val).join('\n');ta.style.minHeight='60px';w.appendChild(ta);return w;}
 
-function fieldsWidget(col,names,koVal,enVal,hasEn,preview,photos){
+function fieldsWidget(col,names,koVal,enVal,hasEn,preview,photos,thumbsVal){
   const host=el('div');if(photos){host.dataset.photosCol=col;}else{host.dataset.fieldsCol=col;host.dataset.fieldsEn=hasEn?'1':'0';}
   const ko=splitItems(koVal).map(splitFields), en=splitItems(enVal).map(splitFields);
+  const ths=photos?String(thumbsVal||'').split(/\s*\|\|\s*|\r?\n/):[];
   const list=el('div','items');host.appendChild(list);
   function add(k,e){
     const it=el('div','item');const hd=el('div','itemhead');hd.innerHTML=`<b>항목 ${list.children.length+1}</b>`;
@@ -412,7 +413,7 @@ function fieldsWidget(col,names,koVal,enVal,hasEn,preview,photos){
     const tc=el('div',hasEn?'twocol':'');
     cols.forEach(([t,vals,side])=>{const sd=el('div','side');if(t)sd.innerHTML=`<h4>${t}</h4>`;
       names.forEach((fl,fi)=>{const r=el('div','fld');r.innerHTML=`<span>${fl}</span>`;const inp=el('input');inp.type='text';inp.value=vals[fi]||'';inp.dataset.side=side;inp.dataset.fi=fi;r.appendChild(inp);sd.appendChild(r);
-        if(photos&&side===0&&fi===0)attachUploader(inp);
+        if(photos&&side===0&&fi===0){attachUploader(inp);inp.dataset.thumb=(ths[list.children.length]||'').trim();}
         if(preview&&side===0&&fi===0)sd.appendChild(previewBox(inp));});
       tc.appendChild(sd);});
     it.appendChild(tc);list.appendChild(it);
@@ -450,7 +451,7 @@ function renderForm(isNew, preset){
       body.appendChild(fieldsWidget(col,spec.fields,rec[col]||'',rec[col+'_en']||'',hasEnCol,false,false));
     } else if(kind==='photos'){
       body.appendChild(el('div','hint','이미지 URL(직접 호스팅 / 구글드라이브 "링크 있는 모든 사용자" 공유 / Dropbox)을 넣으세요. 셀에 이미지를 직접 넣으면 작동하지 않습니다.'));
-      body.appendChild(fieldsWidget(col,['사진 URL','캡션'],rec[col]||'','',false,true,true));
+      body.appendChild(fieldsWidget(col,['사진 URL','캡션'],rec[col]||'','',false,true,true,rec['thumbs']||''));
     } else if(kind==='list'){
       const p=el('div','pair');p.appendChild(listWidget(col,hasEnCol?'한국어':(LABELS[col]||'값'),rec[col]||''));if(hasEnCol)p.appendChild(listWidget(col+'_en','ENGLISH',rec[col+'_en']||''));body.appendChild(p);
     } else if(['text','long'].includes(kind)){
@@ -476,9 +477,9 @@ function collect(){
   document.querySelectorAll('[data-fields-col]').forEach(host=>{const col=host.dataset.fieldsCol;const hasEn=host.dataset.fieldsEn==='1';const ko=[],en=[];
     host.querySelectorAll('.item').forEach(it=>{const k=[],e=[];it.querySelectorAll('input').forEach(inp=>{const s=+inp.dataset.side||0,fi=+inp.dataset.fi;(s?e:k)[fi]=(inp.value||'').trim();});if(k.some(x=>x&&x.trim()))ko.push(joinFields(k));if(hasEn&&e.some(x=>x&&x.trim()))en.push(joinFields(e));});
     map[col]=ko.join('||');if(hasEn)map[col+'_en']=en.join('||');});
-  document.querySelectorAll('[data-photos-col]').forEach(host=>{const col=host.dataset.photosCol;const arr=[];
-    host.querySelectorAll('.item').forEach(it=>{const ins=it.querySelectorAll('input');const u=(ins[0]&&ins[0].value||'').trim(),cap=(ins[1]&&ins[1].value||'').trim();if(u)arr.push(cap?(u+' :: '+cap):u);});
-    map[col]=arr.join('||');});
+  document.querySelectorAll('[data-photos-col]').forEach(host=>{const col=host.dataset.photosCol;const arr=[];const ths=[];
+    host.querySelectorAll('.item').forEach(it=>{const ins=it.querySelectorAll('input');const u=(ins[0]&&ins[0].value||'').trim(),cap=(ins[1]&&ins[1].value||'').trim();if(u){arr.push(cap?(u+' :: '+cap):u);ths.push((ins[0].dataset.thumb||'').trim());}});
+    map[col]=arr.join('||');if(col==='images')map['thumbs']=ths.join('||');});
   return map;
 }
 function rowFromForm(header){
@@ -557,6 +558,7 @@ try{ const k=localStorage.getItem('monnit_imgbb'); $('#imgbbKey').value=(k!=null
 $('#imgbbKey').addEventListener('input',()=>{ try{ localStorage.setItem('monnit_imgbb',$('#imgbbKey').value.trim()); }catch(e){} });
 function attachUploader(input){
   input.addEventListener('focus',()=>{ window.__lastImg=input; });
+  input.addEventListener('input',()=>{ if(input.__up){input.__up=false;} else {input.dataset.thumb='';} });
   const wrap=el('div'); wrap.style.cssText='display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap';
   const btn=el('button','btn-ghost btn-sm','📤 이미지 업로드'); btn.type='button';
   const file=el('input'); file.type='file'; file.accept='image/*'; file.style.display='none';
@@ -569,7 +571,7 @@ function attachUploader(input){
       const fd=new FormData(); fd.append('image',b64);
       const r=await fetch('https://api.imgbb.com/1/upload?key='+encodeURIComponent($('#imgbbKey').value.trim()),{method:'POST',body:fd});
       const j=await r.json();
-      if(j&&j.success&&j.data&&j.data.url){ input.value=j.data.url; input.dispatchEvent(new Event('input')); msg.textContent='✅ 업로드됨'; }
+      if(j&&j.success&&j.data&&j.data.url){ var _med=(j.data.medium&&j.data.medium.url)||(j.data.thumb&&j.data.thumb.url)||''; input.__up=true; input.value=j.data.url; input.dispatchEvent(new Event('input')); input.dataset.thumb=_med; msg.textContent='✅ 업로드됨'; }
       else { msg.textContent='실패: '+((j&&j.error&&j.error.message)||'키 확인'); }
     }catch(e){ msg.textContent='업로드 실패 (네트워크/키 확인)'; }
   };
