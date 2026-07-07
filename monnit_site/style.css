@@ -4148,14 +4148,15 @@ body{
 
 /* ----- 언어 토글 버튼 ----- */
 #langToggle{
-  margin-right:14px; padding:7px 13px; min-width:42px;
-  font-family:var(--fm); font-size:12px; font-weight:600; letter-spacing:.06em;
+  display:inline-flex; align-items:center; justify-content:center;
+  margin-right:14px; padding:9px 12px; line-height:1; white-space:nowrap;
+  font-family:var(--fm); font-size:12px; font-weight:600; letter-spacing:.08em;
   color:var(--ink); background:transparent;
-  border:1px solid var(--line-strong); border-radius:999px;
+  border:1px solid var(--line-strong); border-radius:2px;
   cursor:pointer; transition:border-color .2s ease, color .2s ease, background .2s ease;
 }
 #langToggle:hover{ border-color:var(--accent); color:var(--accent); }
-@media(max-width:820px){ #langToggle{ margin-right:8px; padding:6px 11px; font-size:11px; } }
+@media(max-width:820px){ #langToggle{ margin-right:8px; padding:8px 10px; font-size:11px; } }
 
 /* ========== PRODUCTS PAGE ========== */
 #view-products #productsRoot{ padding: 8px 0 84px; }
