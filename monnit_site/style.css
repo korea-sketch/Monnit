@@ -1,6 +1,6 @@
 /* ========== SHARED DESIGN TOKENS ========== */
 :root {
-  --fd: 'Archivo','Pretendard',system-ui,sans-serif;
+  --fd: 'Pretendard','Archivo',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --fb: 'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --fm: 'IBM Plex Mono', ui-monospace, monospace;
 
@@ -146,52 +146,56 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
 .nav-promo-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: var(--fm);
+  gap: 7px;
+  font-family: var(--fb);
   font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   padding: 10px 16px;
-  background: linear-gradient(135deg, #F5A623, #E8842B);
-  color: #fff;
-  border: none;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  border: 1px solid rgba(74,130,196,0.55);
   cursor: pointer;
-  border-radius: 8px;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 12px rgba(232,132,43,0.35);
+  border-radius: 2px;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   white-space: nowrap;
 }
 .nav-promo-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 .nav-item-mobile-promo .nav-link { display: inline-flex; align-items: center; gap: 6px; }
 .nav-item-mobile-promo .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; }
 .nav-promo-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 18px rgba(232,132,43,0.5);
+  background: rgba(74,130,196,0.24);
+  border-color: var(--accent);
+  color: var(--ink);
 }
 .nav-promo-btn.active {
-  background: linear-gradient(135deg, #E8842B, #D06818);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .nav-cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--fm);
-  font-size: 12.5px;
+  gap: 9px;
+  font-family: var(--fb);
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 10px 16px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  padding: 11px 20px;
   background: var(--btn-bg);
   color: #fff;
   text-decoration: none;
   border: none;
   cursor: pointer;
   border-radius: 2px;
-  transition: background 0.2s ease;
+  box-shadow: 0 3px 12px rgba(46,92,154,0.30), inset 0 1px 0 rgba(255,255,255,0.10);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
-.nav-cta:hover { background: var(--btn-bg-h); }
-.nav-cta::after { content: '→'; font-size: 14px; }
+.nav-cta:hover { background: var(--accent); box-shadow: 0 6px 20px rgba(74,130,196,0.42), inset 0 1px 0 rgba(255,255,255,0.14); transform: translateY(-1px); }
+.nav-cta::after { content: '→'; font-size: 14px; display: inline-block; transition: transform 0.2s ease; }
+.nav-cta:hover::after { transform: translateX(3px); }
 
 /* 중간 화면(태블릿~작은 노트북): 메뉴가 8개라 빠듯 → 간격·패딩 축소로 한 줄 유지 */
 @media (max-width: 1330px) and (min-width: 761px) {
@@ -2903,7 +2907,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .logo-marquee::after{ content:""; position:absolute; top:0; bottom:0; width:9%; z-index:2; pointer-events:none; }
 .logo-marquee::before{ left:0;  background:linear-gradient(90deg,  var(--bg-deep), transparent); }
 .logo-marquee::after{  right:0; background:linear-gradient(270deg, var(--bg-deep), transparent); }
-.logo-track{ display:flex; align-items:stretch; width:max-content; animation:logoScroll 45s linear infinite; padding:4px 0; will-change:transform; backface-visibility:hidden; }
+.logo-track{ display:flex; align-items:stretch; width:max-content; animation:logoScroll 75s linear infinite; padding:4px 0; will-change:transform; backface-visibility:hidden; }
 .logo-marquee:hover .logo-track{ animation-play-state:paused; }
 /* gap 대신 각 슬라이드에 margin-right → 마지막 슬라이드도 뒤 여백을 소유하므로 translateX(-50%)가 한 벌 폭과 정확히 일치 (한 바퀴마다 튐 제거) */
 .logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; flex:0 0 auto; width:172px; margin-right:28px; }
@@ -3584,6 +3588,14 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   padding: 10px 14px; border-radius: 7px; transition: all 0.15s ease;
 }
 .nav-dd button:hover { background: var(--bg-deep); color: var(--accent-dark); }
+.nav-dd a.nav-dd-a {
+  display: block; width: 100%; text-align: left; text-decoration: none;
+  font-family: var(--fb); font-size: 14px; color: var(--ink-mid);
+  padding: 10px 14px; border-radius: 7px; transition: all 0.15s ease;
+}
+.nav-dd a.nav-dd-a::after { content: ' ↗'; color: var(--ink-faint); font-size: 12px; }
+.nav-dd a.nav-dd-a:hover { background: var(--bg-deep); color: var(--accent-dark); }
+.nav-dd a.nav-dd-a:hover::after { color: var(--accent-dark); }
 .nav-dd .dd-meta { font-family:var(--fm); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-faint); padding:6px 14px 4px; }
 
 .nav-toggle { display: none; margin-left: auto; background:none; border:none; cursor:pointer; font-size: 22px; color: var(--ink); }
