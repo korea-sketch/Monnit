@@ -233,9 +233,10 @@ function _stat(){ cases = D.cases; cases.forEach((c,i)=>c._id=i);
   try{ s1.textContent=cases.length; s2.textContent=D.sectors.length; s3.textContent=D.sensors.length; s4.textContent=D.blds.length; }catch(e){} }
 
 function tags(c){return c.sensors.map(s=>`<span class="tag">${s}</span>`).join('');}
+function dbxFix(u){u=(u||'').trim();if(!u)return'';if(/dropbox\.com/i.test(u)){u=u.replace(/^https?:\/\/(www\.)?dropbox\.com/i,'https://dl.dropboxusercontent.com');u=u.replace(/[?&](dl|raw)=[^&#]*/gi,'');if(u.indexOf('?')<0&&u.indexOf('&')>-1)u=u.replace('&','?');u=u.replace(/[?&]+$/,'');}return u;}
 function phHtml(c,i){
  const g=c.gal&&c.gal.length?c.gal:[{t:c.thumb,r:c.img}];
- const imgs=g.map((x,k)=>`<img class="gi${k===0?' on':''}" loading="lazy" src="${x.t}" onerror="this.onerror=null;this.src='${x.r||''}'">`).join('');
+ const imgs=g.map((x,k)=>`<img class="gi${k===0?' on':''}" loading="lazy" src="${dbxFix(x.r||x.t)}" onerror="this.onerror=null;this.src='${(x.r||x.t||'')}'">`).join('');
  const dots=g.length>1?`<div class="dots">${g.map((x,k)=>`<i class="${k===0?'on':''}"></i>`).join('')}</div><div class="gcount">1/${g.length}</div>`:'';
  return `<div class="ph" data-g="${g.length}" onclick="lbCase(${c._id},this)">${imgs}<div class="num">${String(i+1).padStart(2,'0')}</div>${dots}</div>`;
 }
@@ -281,7 +282,7 @@ document.getElementById('dcount').textContent='('+D.blds.length+'개소)';
 document.getElementById('dirgrid').innerHTML=D.blds.map((b,i)=>`<div class="dcell"><div class="dimg">${b.t?`<img loading="lazy" src="${b.t}" onclick="lbSingle('${b.t}',\`${b.n}\`)">`:`<div class="dmono">M</div>`}</div><div class="dname"><span class="dnum">${String(i+1).padStart(2,'0')}</span>${b.n}</div></div>`).join('');
 }
 let LB={imgs:[],i:0};
-function lbRender(){const o=LB.imgs[LB.i];const im=document.getElementById('lbimg');im.onerror=function(){this.onerror=null;if(o.r)this.src=o.r;};im.src=o.t;const multi=LB.imgs.length>1;document.getElementById('lbcount').textContent=multi?(LB.i+1)+' / '+LB.imgs.length:'';document.querySelector('.lbprev').classList.toggle('hide',!multi);document.querySelector('.lbnext').classList.toggle('hide',!multi);}
+function lbRender(){const o=LB.imgs[LB.i];const im=document.getElementById('lbimg');im.onerror=function(){this.onerror=null;this.src=(o.r||o.t||'');};im.src=dbxFix(o.r||o.t);const multi=LB.imgs.length>1;document.getElementById('lbcount').textContent=multi?(LB.i+1)+' / '+LB.imgs.length:'';document.querySelector('.lbprev').classList.toggle('hide',!multi);document.querySelector('.lbnext').classList.toggle('hide',!multi);}
 function lbOpenArr(imgs,start,sub,cap){if(!imgs||!imgs.length)return;LB.imgs=imgs;LB.i=start||0;document.getElementById('lbsub').textContent=sub||'';document.getElementById('lbcap').textContent=cap||'';lbRender();document.getElementById('lb').classList.add('on');document.body.style.overflow='hidden';}
 function lbStep(d,ev){if(ev)ev.stopPropagation();LB.i=(LB.i+d+LB.imgs.length)%LB.imgs.length;lbRender();}
 function lbClose(){document.getElementById('lb').classList.remove('on');document.body.style.overflow='';}
