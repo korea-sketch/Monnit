@@ -238,12 +238,11 @@ let cases = D.cases;
 function _stat(){ cases = D.cases; cases.forEach((c,i)=>c._id=i);
   try{ s1.textContent=cases.length; s2.textContent=D.sectors.length; s3.textContent=D.sensors.length; }catch(e){} }
 
-function thumbURL(u){u=(u||'').trim();if(!u)return'';if(/data:|wsrv\.nl/i.test(u))return u;return 'https://wsrv.nl/?url='+encodeURIComponent(u)+'&w=680&q=72&output=webp&we&il';}
 function tags(c){return c.sensors.map(s=>`<span class="tag">${s}</span>`).join('');}
 function dbxFix(u){u=(u||'').trim();if(!u)return'';if(/dropbox\.com\//i.test(u)){u=u.replace(/^https?:\/\/dl\.dropboxusercontent\.com/i,'https://www.dropbox.com');u=u.replace(/([?&])dl=\d+/gi,'$1raw=1');if(!/[?&]raw=1/i.test(u))u+=(u.indexOf('?')>-1?'&':'?')+'raw=1';}return u;}
 function phHtml(c,i){
  const g=c.gal&&c.gal.length?c.gal:[{t:c.thumb,r:c.img}];
- const imgs=g.map((x,k)=>`<img class="gi${k===0?' on':''}" loading="lazy" decoding="async" src="${x.t?x.t:thumbURL(dbxFix(x.r))}" onerror="this.onerror=null;this.src='${dbxFix(x.r||x.t)||''}'">`).join('');
+ const imgs=g.map((x,k)=>`<img class="gi${k===0?' on':''}" loading="lazy" src="${dbxFix(x.r||x.t)}" onerror="this.onerror=null;this.src='${(x.r||x.t||'')}'">`).join('');
  const dots=g.length>1?`<div class="dots">${g.map((x,k)=>`<i class="${k===0?'on':''}"></i>`).join('')}</div><div class="gcount">1/${g.length}</div>`:'';
  return `<div class="ph" data-g="${g.length}" onclick="lbCase(${c._id},this)">${imgs}<div class="num">${String(i+1).padStart(2,'0')}</div>${dots}</div>`;
 }
@@ -325,7 +324,7 @@ function _initGallery(){ _stat(); _buildFilters(); render(); }
   function toObj(rows){if(!rows.length)return[];var h=rows[0].map(function(x){return String(x||'').trim().toLowerCase();});var out=[];for(var r=1;r<rows.length;r++){var o={},any=false;for(var c=0;c<h.length;c++){var v=(rows[r][c]||'').trim();o[h[c]]=v;if(v)any=true;}if(any){out.push(o);}}return out;}
   function build(list){
     var cs=list.map(function(o){
-      var _ths=String(o.thumbs||'').split(/\s*(?:\|\||\n|,)\s*/);var imgs=splitList(o.images||o.image||o.gallery||o.gal).map(function(u,ki){u=String(u).split(' :: ')[0].trim();var d=dbx(u);var th=(_ths[ki]||'').trim();return{t:th,r:d};});
+      var imgs=splitList(o.images||o.image||o.gallery||o.gal).map(function(u){var d=dbx(u);return{t:d,r:d};});
       return {t:o.title||o.t||'',cl:o.client||o.customer||o.cl||'',site:o.site||'',sector:o.sector||'',
         cat:o.category||o.cat||'',sensors:splitList(o.sensors),desc:o.desc||o.description||'',
         thumb:(imgs[0]&&imgs[0].t)||'',img:(imgs[0]&&imgs[0].r)||'',gal:imgs};
