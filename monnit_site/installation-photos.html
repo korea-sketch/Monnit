@@ -74,7 +74,7 @@ a{color:inherit;text-decoration:none}
 .controls.compact.open #secf{flex-wrap:wrap;overflow:visible;margin-top:15px}
 
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:46px 30px}
-.art{display:flex;flex-direction:column}
+.art{display:flex;flex-direction:column;min-width:0}
 .ph{position:relative;aspect-ratio:3/2;background:var(--ash);overflow:hidden;cursor:pointer;border-radius:12px}
 .ph .gi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .33s ease}
 .ph .gi.on{opacity:1}
@@ -86,7 +86,8 @@ a{color:inherit;text-decoration:none}
 .ph .dots i.on{background:#fff;width:16px;border-radius:3px}
 .ph .gcount{position:absolute;bottom:12px;right:13px;z-index:3;font-size:12px;color:#fff;background:rgba(23,26,32,.5);padding:2px 7px;border-radius:4px}
 .ibody{padding:18px 2px 0;display:flex;flex-direction:column;flex:1 1 auto}
-.seckick{font-size:13px;font-weight:500;color:var(--mut);margin-bottom:8px}
+.seckick{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:500;color:var(--mut);margin-bottom:12px}
+.seckick .sk-cat{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .art h3{font-weight:500;font-size:20px;line-height:1.25;color:var(--ink);margin-bottom:8px;min-height:0}
 .meta{font-size:13px;color:var(--mut);margin-bottom:12px}
 .dek{font-size:14.5px;color:var(--body);line-height:1.5}
@@ -174,7 +175,7 @@ body.dark .wrap{max-width:1320px;padding:0 48px}
 .dblrow b{color:var(--teal)}
 @media(max-width:760px){.sitebar-in,body.dark .wrap{padding-left:22px;padding-right:22px}}
 /* 각 설치 사례 → 도입 사례(어플리케이션) 상세 링크 */
-.art-detail{display:inline-flex;align-self:flex-start;align-items:center;gap:5px;margin-top:11px;
+.art-detail{display:inline-flex;align-self:center;align-items:center;flex:none;white-space:nowrap;gap:5px;margin-top:0;
   font-family:var(--sans);font-size:11.5px;font-weight:500;letter-spacing:-.01em;
   color:var(--teal);background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);
   border-radius:6px;padding:5px 10px;transition:background .2s ease,border-color .2s ease,color .2s ease}
@@ -277,17 +278,20 @@ function tags(c){return c.sensors.map(s=>`<span class="tag">${s}</span>`).join('
 function dbxFix(u){u=(u||'').trim();if(!u)return'';if(/dropbox\.com\//i.test(u)){u=u.replace(/^https?:\/\/dl\.dropboxusercontent\.com/i,'https://www.dropbox.com');u=u.replace(/([?&])dl=\d+/gi,'$1raw=1');if(!/[?&]raw=1/i.test(u))u+=(u.indexOf('?')>-1?'&':'?')+'raw=1';}return u;}
 function phHtml(c,i){
  const g=c.gal&&c.gal.length?c.gal:[{t:c.thumb,r:c.img}];
- const imgs=g.map((x,k)=>`<img class="gi${k===0?' on':''}" loading="lazy" src="${dbxFix(x.r||x.t)}" onerror="this.onerror=null;this.src='${(x.r||x.t||'')}'">`).join('');
+ const imgs=g.map((x,k)=>{
+   const full=dbxFix(x.r||x.t);
+   const srcAttr = k===0 ? `src="${full}"` : `data-src="${full}"`;  /* 첫 장만 즉시 로드, 나머지는 호버 시 */
+   return `<img class="gi${k===0?' on':''}" loading="lazy" decoding="async" ${srcAttr} onerror="this.onerror=null;this.src='${(x.r||x.t||'')}'">`;
+ }).join('');
  const dots=g.length>1?`<div class="dots">${g.map((x,k)=>`<i class="${k===0?'on':''}"></i>`).join('')}</div><div class="gcount">1/${g.length}</div>`:'';
  return `<div class="ph" data-g="${g.length}" onclick="lbCase(${c._id},this)">${imgs}<div class="num">${String(i+1).padStart(2,'0')}</div>${dots}</div>`;
 }
 function card(c,i){
  return `<article class="art">${phHtml(c,i)}
   <div class="ibody">
-   <div class="seckick">${c.sector} — ${c.cat}</div>
+   <div class="seckick"><span class="sk-cat">${c.sector} — ${c.cat}</span>${c.cl?`<a class="art-detail" href="index.html?usecase=${encodeURIComponent(c.cl)}#stories" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v13"/><path d="M15 5H4a1 1 0 0 0-1 1v13"/><path d="M3 19h18"/><path d="M8 9h4M8 13h4"/></svg>상세<span class="ad-arrow">&rarr;</span></a>`:''}</div>
    <h3>${c.t}</h3>
    <div class="meta">${c.cl} · ${c.site}</div>
-   ${c.cl?`<a class="art-detail" href="index.html?usecase=${encodeURIComponent(c.cl)}#stories" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v13"/><path d="M15 5H4a1 1 0 0 0-1 1v13"/><path d="M3 19h18"/><path d="M8 9h4M8 13h4"/></svg>도입사례 상세<span class="ad-arrow">&rarr;</span></a>`:''}
    <div class="dek">${c.desc}</div>
    <div class="foot"><div class="hr"></div><div class="tags">${tags(c)}</div></div>
   </div></article>`;
@@ -298,7 +302,7 @@ function attachHover(){
   const gis=ph.querySelectorAll('.gi'), dots=ph.querySelectorAll('.dots i'), cnt=ph.querySelector('.gcount');
   let idx=0,timer=null;ph.dataset.cur=0;
   function show(k){gis.forEach((g,j)=>g.classList.toggle('on',j===k));dots.forEach((d,j)=>d.classList.toggle('on',j===k));if(cnt)cnt.textContent=(k+1)+'/'+n;ph.dataset.cur=k;}
-  ph.addEventListener('mouseenter',()=>{timer=setInterval(()=>{idx=(idx+1)%n;show(idx);},900);});
+  ph.addEventListener('mouseenter',()=>{gis.forEach(g=>{if(g.dataset.src){g.src=g.dataset.src;g.removeAttribute('data-src');}});timer=setInterval(()=>{idx=(idx+1)%n;show(idx);},900);});
   ph.addEventListener('mouseleave',()=>{clearInterval(timer);idx=0;show(0);});
  });
 }

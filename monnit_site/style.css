@@ -200,7 +200,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
 /* 중간 화면(태블릿~작은 노트북): 메뉴 8개 → 간격·패딩·라벨 축소로 한 줄 유지 */
 @media (max-width: 1380px) and (min-width: 921px) {
   .topnav-inner { padding: 16px 18px; gap: 12px; }
-  .nav-link { padding: 8px 10px; font-size: 13px; }
+  .nav-link { padding: 8px 9px; font-size: 13.5px; }
   .nav-links { gap: 2px; }
   .nav-cta { padding: 9px 13px; font-size: 12px; letter-spacing: 0.04em; }
   .nav-promo-btn { padding: 9px 12px; font-size: 12px; margin-right: 4px; }
@@ -210,7 +210,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
 }
 @media (max-width: 1230px) and (min-width: 921px) {
   .topnav-inner { padding: 14px 14px; gap: 8px; }
-  .nav-link { padding: 7px 8px; font-size: 12.5px; letter-spacing: -0.01em; }
+  .nav-link { padding: 7px 7px; font-size: 13.5px; letter-spacing: -0.01em; }
   .nav-links { gap: 1px; }
   .nav-cta { padding: 8px 11px; font-size: 11px; letter-spacing: 0.03em; }
   .nav-cta::after { display: none; }
@@ -224,7 +224,7 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
 /* 아주 빠듯한 구간(921~1010): 프로모션 버튼 아이콘만, 초압축 */
 @media (max-width: 1010px) and (min-width: 921px) {
   .topnav-inner { padding: 13px 12px; gap: 6px; }
-  .nav-link { padding: 6px 7px; font-size: 12px; }
+  .nav-link { padding: 6px 6px; font-size: 13px; }
   .nav-promo-btn { font-size: 0; gap: 0; padding: 8px 9px; margin-right: 2px; }
   .nav-promo-btn svg { width: 16px; height: 16px; }
   .nav-cta { padding: 8px 10px; font-size: 10.5px; }
@@ -613,18 +613,25 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   padding: 14px 0 40px;
 }
 
-/* 도입 사례 → 설치 사례 연결 링크 */
-.install-cta-sec{ padding-top:0; }
-.install-link{ display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
-  padding:26px 32px; border:1px solid var(--line); border-radius:14px; background:var(--surface);
-  transition:border-color .25s ease, transform .25s ease; }
-.install-link:hover{ border-color:var(--accent); transform:translateY(-2px); }
-.install-link-k{ font-family:var(--fm); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:7px; }
-.install-link-t{ font-size:19px; font-weight:500; color:var(--ink); letter-spacing:-.01em; }
-.install-link-arrow{ font-family:var(--fm); font-size:12.5px; letter-spacing:.05em; color:var(--ink); white-space:nowrap;
-  border:1px solid var(--line-strong); border-radius:2px; padding:11px 16px; transition:background .2s ease, color .2s ease, border-color .2s ease; }
-.install-link:hover .install-link-arrow{ background:var(--accent); color:#fff; border-color:var(--accent); }
-@media(max-width:640px){ .install-link{ padding:22px 22px; } .install-link-t{ font-size:17px; } }
+/* 도입 사례 → 설치 사례 연결 링크 (대표 사례 섹션 하단 CTA) */
+.install-link{ display:flex; text-decoration:none; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap;
+  margin-top:52px; padding:30px 34px; border:1px solid var(--line); border-radius:16px;
+  background:linear-gradient(115deg, var(--surface) 0%, var(--surface-2) 100%);
+  position:relative; overflow:hidden;
+  transition:border-color .3s ease, transform .3s ease, box-shadow .3s ease; }
+.install-link::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:linear-gradient(180deg, var(--accent), var(--accent-dark)); opacity:.85; }
+.install-link:hover{ border-color:var(--accent-dark); transform:translateY(-2px); box-shadow:0 18px 44px rgba(8,12,22,.5); }
+.install-link .il-txt{ display:flex; flex-direction:column; gap:9px; padding-left:10px; min-width:0; }
+.install-link-k{ font-family:var(--fm); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-dark); }
+.install-link-t{ font-size:20px; font-weight:600; color:var(--ink); letter-spacing:-.015em; line-height:1.3; }
+.install-link-arrow{ display:inline-flex; align-items:center; gap:9px; font-family:var(--fb); font-size:13.5px; font-weight:600; letter-spacing:-.01em; color:var(--ink); white-space:nowrap;
+  background:var(--accent-soft); border:1px solid var(--line-strong); border-radius:11px; padding:13px 20px;
+  transition:background .25s ease, color .25s ease, border-color .25s ease; }
+.install-link-arrow svg{ flex:none; opacity:.9; }
+.install-link:hover .install-link-arrow{ background:var(--btn-bg); border-color:var(--btn-bg); color:#fff; }
+.install-link:hover .install-link-arrow svg{ opacity:1; }
+@media(max-width:640px){ .install-link{ padding:24px 22px; margin-top:40px; } .install-link-t{ font-size:17px; } .install-link-arrow{ padding:11px 16px; font-size:12.5px; } }
 
 .featured-card {
   background: var(--surface);
@@ -5154,7 +5161,7 @@ body{
 }
 
 /* ========== 프로모션 이미지 방식 상세 ========== */
-.promo-images { display: flex; flex-direction: column; gap: 0; max-width: 540px; margin: 0 auto; }
+.promo-images { display: flex; flex-direction: column; gap: 0; max-width: 1080px; margin: 0 auto; }
 .promo-images img { width: 100%; height: auto; display: block; border-radius: 0; }
 .promo-images img:first-child { border-radius: 14px 14px 0 0; }
 .promo-images img:last-child { border-radius: 0 0 14px 14px; }
