@@ -662,7 +662,7 @@ function mapCustomers(rows){
     if (!n || !INDUSTRIES[i]) return;
     const a = (o.apps||'').split('|').map(s => s.trim()).filter(Boolean);
     regI18N(o.headline, o.headline_en);
-    out.push({ n, i, h: o.headline||'', a });
+    out.push({ n, i, h: o.headline||'', a, install: (o.install||'').trim() });
   });
   return out;
 }
@@ -1268,10 +1268,15 @@ Object.entries(INDUSTRIES).forEach(([key, info]) => {
 });
 
 const cardsGrid = document.getElementById('cardsGrid');
+{ const _tc = document.getElementById('totalCount'); if (_tc) _tc.textContent = CUSTOMERS.length; }
 CUSTOMERS.forEach(c => {
   const ind = INDUSTRIES[c.i];
   const caseId = c.n.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const isClickable = !!CASE_DATA[caseId];
+  const hasCase = !!CASE_DATA[caseId];
+  const inst = (c.install || '').trim();
+  const hasInstall = !!inst;
+  const isClickable = hasCase || hasInstall;
+  const instUrl = hasInstall ? ('installation-photos.html?client=' + encodeURIComponent(inst)) : '';
   const card = document.createElement('article');
   card.className = 'case-card' + (isClickable ? ' clickable' : '');
   card.dataset.industry = c.i;
@@ -1282,9 +1287,12 @@ CUSTOMERS.forEach(c => {
     <ul class="apps">
       ${c.a.map(app => `<li>${app}</li>`).join('')}
     </ul>
+    ${hasInstall ? `<a class="case-install-link" href="${instUrl}"><span class="cil-ic">▶</span> 설치 사진 보기 &rarr;</a>` : ''}
   `;
-  if (isClickable) {
-    card.addEventListener('click', () => navigate('case/' + caseId));
+  if (hasCase) {
+    card.addEventListener('click', (e) => { if (e.target.closest('.case-install-link')) return; navigate('case/' + caseId); });
+  } else if (hasInstall) {
+    card.addEventListener('click', (e) => { if (e.target.closest('.case-install-link')) return; window.location.href = instUrl; });
   }
   cardsGrid.appendChild(card);
 });
