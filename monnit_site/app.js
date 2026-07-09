@@ -1280,6 +1280,7 @@ CUSTOMERS.forEach(c => {
   const card = document.createElement('article');
   card.className = 'case-card' + (isClickable ? ' clickable' : '');
   card.dataset.industry = c.i;
+  card.dataset.name = c.n;
   card.innerHTML = `
     <div class="logo">${c.n}</div>
     <span class="tag ${ind.tag}">${ind.label}</span>
@@ -1287,7 +1288,7 @@ CUSTOMERS.forEach(c => {
     <ul class="apps">
       ${c.a.map(app => `<li>${app}</li>`).join('')}
     </ul>
-    ${hasInstall ? `<a class="case-install-link" href="${instUrl}"><span class="cil-ic">▶</span> 설치 사진 보기 &rarr;</a>` : ''}
+    ${hasInstall ? `<a class="case-install-link" href="${instUrl}"><svg class="cil-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.3" r="1.7"/><path d="M20.5 16.5 15 11l-7 7"/></svg><span class="cil-tx">설치 현장 사진</span><span class="cil-arrow">&rarr;</span></a>` : ''}
   `;
   if (hasCase) {
     card.addEventListener('click', (e) => { if (e.target.closest('.case-install-link')) return; navigate('case/' + caseId); });
@@ -3532,6 +3533,17 @@ async function alignSheetToWriter(){
   }catch(e){ /* 실패 시 기본 sheetId 사용 */ }
 }
 
+/* 설치사진 → 도입사례: 특정 고객사 카드로 스크롤 + 강조 */
+function focusCustomer(name){
+  const target=(name||'').trim(); if(!target) return;
+  const cards=[...document.querySelectorAll('#cardsGrid .case-card')];
+  const card=cards.find(c=>{const dn=(c.dataset.name||'').trim(); return dn && (target===dn || target.includes(dn) || dn.includes(target));});
+  if(!card) return;
+  const allBtn=document.querySelector('#filterBar .filter-btn[data-filter="all"]');
+  if(allBtn && !allBtn.classList.contains('active')) allBtn.click();
+  setTimeout(()=>{ card.scrollIntoView({behavior:'smooth',block:'center'}); card.classList.add('focus-flash'); setTimeout(()=>card.classList.remove('focus-flash'),2400); }, 90);
+}
+
 async function boot() {
   await alignSheetToWriter();
   try { await loadSheetData(); }
@@ -3546,6 +3558,7 @@ async function boot() {
   if (window.MonnitI18N) window.MonnitI18N.refresh();
   const initHash = window.location.hash.replace('#', '');
   if (initHash) navigate(initHash);
+  try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } }catch(e){}
 }
 boot();
 

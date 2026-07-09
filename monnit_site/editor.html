@@ -226,7 +226,7 @@ function normImg(u){u=(u||'').trim();if(!u)return '';let m=u.match(/drive\.googl
   if(u.includes('dropbox.com'))return u.replace('www.dropbox.com','dl.dropboxusercontent.com').replace(/[?&]dl=0/,'');return u;}
 
 const TABS={
- 'Applications':{title:'어플리케이션 (앱 카드)',key:'id',display:'name',
+ 'Applications':{title:'어플리케이션 (앱 카드 + 상세페이지 통합)',key:'id',display:'name',
    cols:{desc:'long',isnew:'bool',cat:'catselect',photos:'photos',file:'file'}},
  'AppDetails':{title:'앱 상세 페이지',key:'key',display:'__appname',
    cols:{snapshot:{fields:['라벨','값','설명']},customerlead:'long',customerparagraphs:'list',
@@ -246,7 +246,7 @@ const TABS={
  'Whitepapers':{title:'산업별 제안서 (Dropbox 링크 연결)',key:null,display:'title',search:true,cols:{desc:'long',photo:'media',url:'file'}},
  'Blog':{title:'블로그 / 보도',key:null,display:'title',search:true,cols:{body:'long',image:'media',thumb:'media',url:'url'}},
  'Promotions':{title:'프로모션 (이미지)',key:'id',display:'title',search:true,cols:{images:'photos',image:'media',desc:'long',ended:'text'}},
- 'Customers':{title:'고객사',key:'name',display:'name',search:true,cols:{headline:'long'}},
+ 'Customers':{title:'고객사 / USE CASE (도입 사례 카드)',key:'name',display:'name',search:true,cols:{headline:'long',industry:'text',apps:'text',install:'text'}},
  'Awards':{title:'수상 이력',key:null,display:'name',search:true,cols:{note:'long',url:'url'}},
  'Partners':{title:'파트너',key:'name',display:'name',search:true,cols:{desc:'long',url:'url'}},
  'FAQs':{title:'FAQ',key:null,display:'question',search:true,cols:{answer:'long'}},
@@ -273,7 +273,7 @@ const SHOW={
   Blog:['date','title','category','body','image','url','insight'],
   Products:['name','category','desc','url','image'],
   Partners:['name','desc','url','logo'],
-  Customers:['name','headline','logo'],
+  Customers:['name','industry','headline','apps','install'],
   Awards:['name','year','note','url'],
   FAQs:['question','answer','category'],
   Whitepapers:['title','desc','photo','url','date'],
@@ -292,6 +292,7 @@ const LABELS={
   client:'고객사',site:'설치 현장',sector:'섹터 / 산업',
   caption:'캡션',apps:'연결 앱',sensors:'센서',isnew:'신규 표시',popularity:'인기도',added:'추가일',
   order:'정렬 순서',num:'번호',accent:'강조색',accentbg:'강조 배경색',
+  install:'연결 설치사진 (고객사명 · 예: 세안텍스)',
   caseid:'연결 케이스',resultnum:'성과 숫자',resultlabel:'성과 라벨',
   ko:'한국어',en:'영어',view:'화면',kind:'종류',
   // AppDetails / Cases 콘텐츠
@@ -330,7 +331,7 @@ $('#loadBtn').onclick=async()=>{
     CASE_OPTS=(DATA['Cases']&&DATA['Cases'].list||[]).map(o=>({v:o.key,l:(o.name||o.key)+' ('+o.key+')'}));
     APP_NAME={};((DATA['Applications']&&DATA['Applications'].list)||[]).forEach(o=>{if(o.id)APP_NAME[o.id]=o.name||o.id;});
     const ts=$('#tabSel');ts.innerHTML='';
-    Object.entries(TABS).forEach(([k,c])=>{const op=document.createElement('option');op.value=k;op.textContent=c.title+'  ('+((DATA[k]&&DATA[k].list.length)||0)+')';ts.appendChild(op);});
+    Object.entries(TABS).forEach(([k,c])=>{ if(k==='AppDetails') return; /* 앱 카드에 통합 편집 */ const op=document.createElement('option');op.value=k;op.textContent=c.title+'  ('+((DATA[k]&&DATA[k].list.length)||0)+')';ts.appendChild(op);});
     $('#pickBar').style.display='flex';
     $('#toolBar').style.display='flex';
     $('#loadStatus').textContent='로드 완료';
@@ -420,20 +421,15 @@ function fieldsWidget(col,names,koVal,enVal,hasEn,preview,photos){
   return host;
 }
 
-function renderForm(isNew, preset){
-  const tab=$('#tabSel').value, cfg=TABS[tab], d=DATA[tab]||{header:[],list:[]};const header=d.header||[];
-  let rec={};if(preset) rec=preset; else if(!isNew && $('#recSel').value!=='__new') rec=d.list[+$('#recSel').value]||{};
-  window.__curRec=rec;
-  const form=$('#form');form.innerHTML='';
-  if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다.</div></div>';$('#outBox').style.display='none';return;}
+/* 한 탭의 편집 필드를 container에 렌더 (앱 카드+상세페이지 통합용으로 분리 렌더) */
+function renderFieldsInto(container, tab, cfg, rec){
+  const d=DATA[tab]||{header:[]}; const header=d.header||[];
   const enSet=new Set();header.forEach(h=>{if(h!=null&&h.endsWith('_en'))enSet.add(h);});
   const adv=$('#advFields')&&$('#advFields').checked; const hideList=(HIDE[tab]||[]);
-  // 편집에 필요한 핵심 컬럼만 보여주는 화이트리스트 (있으면 이것만, 없으면 기존 방식)
-  const showList=(SHOW[tab]||null);
-  let hiddenCount=0;
+  const showList=(SHOW[tab]||null); let hiddenCount=0;
   header.forEach(col=>{
     if(col==null||String(col).trim()===''||col.endsWith('_en'))return;
-    // 화이트리스트가 있으면: 목록에 없고 key도 아니면 숨김 (고급 모드에서만 표시)
+    if(tab==='AppDetails' && col==='key') return; /* 상세 key = 앱 ID 자동연결 → 숨김 */
     if(!adv && showList && !showList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     if(!adv && hideList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     const spec=cfg.cols[col];const isObj=spec&&typeof spec==='object';const hasEnCol=enSet.has(col+'_en');
@@ -456,41 +452,66 @@ function renderForm(isNew, preset){
       const lm={media:'사진 URL',file:'자료 PDF URL',url:'링크 URL',bool:'여부',catselect:'카테고리',caseselect:'연결 케이스(케이스스터디)',color:'색상'};
       body.appendChild(simpleWidget(col,lm[kind]||'값',kind,rec[col]||''));
     }
-    card.appendChild(body);form.appendChild(card);
+    card.appendChild(body);container.appendChild(card);
   });
+  return hiddenCount;
+}
+
+function renderForm(isNew, preset){
+  const tab=$('#tabSel').value, cfg=TABS[tab], d=DATA[tab]||{header:[],list:[]};const header=d.header||[];
+  let rec={};if(preset) rec=preset; else if(!isNew && $('#recSel').value!=='__new') rec=d.list[+$('#recSel').value]||{};
+  window.__curRec=rec; window.__mergeDetail=false; window.__curRecDetail=null;
+  const form=$('#form');form.innerHTML='';
+  if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다.</div></div>';$('#outBox').style.display='none';return;}
+  const secMain=el('div');secMain.id='secMain';form.appendChild(secMain);
+  const hiddenCount=renderFieldsInto(secMain, tab, cfg, rec);
+  /* === 앱 카드 편집 시: 상세페이지 필드를 함께 렌더(앱 ID로 자동 매칭) === */
+  if(tab==='Applications' && DATA['AppDetails'] && (DATA['AppDetails'].header||[]).length){
+    const appId=String(rec.id||'').trim();
+    const dcfg=TABS['AppDetails'], dd=DATA['AppDetails'];
+    const drec = appId ? (dd.list.find(o=>String(o.key||'').trim()===appId)||{}) : {};
+    window.__mergeDetail=true; window.__curRecDetail=drec;
+    const banner=el('div');banner.style.cssText='margin:30px 0 6px;padding:14px 16px;background:#eef3fb;border:1px solid #d3ddef;border-radius:10px';
+    banner.innerHTML='<b style="color:#003087;font-size:15px">📄 상세 페이지 내용</b><div style="font-size:12px;color:#5a6a82;margin-top:4px;line-height:1.5">이 앱의 상세페이지(스냅샷·도전과제·솔루션·ROI·before/after 등)입니다. 앱 ID <code>'+(appId||'(저장 시 앱 ID로 자동 연결)')+'</code> 로 자동 매칭되며, 아래를 비워두면 기본 템플릿이 표시됩니다.</div>';
+    form.appendChild(banner);
+    const secDetail=el('div');secDetail.id='secDetail';form.appendChild(secDetail);
+    renderFieldsInto(secDetail, 'AppDetails', dcfg, drec);
+  }
   const gen=el('div','bar');gen.innerHTML='<label>완료되면</label>';
   if(hiddenCount>0){ const hn=el('span','status','· '+hiddenCount+'개 기술 항목 숨김 (위 "고급 항목 보기"로 표시)'); gen.appendChild(hn); }
-  const sv=el('button','btn','시트에 바로 저장');sv.style.background='#0a7d33';sv.onclick=()=>{buildRow(isNew);saveToSheet();};gen.appendChild(sv);
-  if(enSet.size){const tr=el('button','btn-ghost','🌐 한→영 자동번역(빈 칸)');tr.onclick=()=>translateEmptyEn(tr);gen.appendChild(tr);}
+  const sv=el('button','btn','시트에 바로 저장');sv.style.background='#0a7d33';sv.onclick=()=>{ saveToSheet(); };gen.appendChild(sv);
+  const anyEn=((DATA[tab].header||[]).concat(window.__mergeDetail?(DATA['AppDetails'].header||[]):[])).some(h=>h&&h.endsWith('_en'));
+  if(anyEn){const tr=el('button','btn-ghost','🌐 한→영 자동번역(빈 칸)');tr.onclick=()=>translateEmptyEn(tr);gen.appendChild(tr);}
   const b=el('button','btn-ghost','행 만들기(수동 복사)');b.onclick=()=>buildRow(isNew);gen.appendChild(b);form.appendChild(gen);
   $('#outBox').style.display='none';
 }
 
-function collect(){
-  const map={};
-  document.querySelectorAll('[data-col]').forEach(el=>{let v=el.value;if(['text','long'].includes(el.dataset.kind))v=String(v).replace(/\r?\n/g,' ').trim();map[el.dataset.col]=v;});
-  document.querySelectorAll('[data-list]').forEach(el=>{map[el.dataset.list]=splitLines(el.value).join('||');});
-  document.querySelectorAll('[data-fields-col]').forEach(host=>{const col=host.dataset.fieldsCol;const hasEn=host.dataset.fieldsEn==='1';const ko=[],en=[];
+function collect(root){ root=root||document; const map={};
+  root.querySelectorAll('[data-col]').forEach(el=>{let v=el.value;if(['text','long'].includes(el.dataset.kind))v=String(v).replace(/\r?\n/g,' ').trim();map[el.dataset.col]=v;});
+  root.querySelectorAll('[data-list]').forEach(el=>{map[el.dataset.list]=splitLines(el.value).join('||');});
+  root.querySelectorAll('[data-fields-col]').forEach(host=>{const col=host.dataset.fieldsCol;const hasEn=host.dataset.fieldsEn==='1';const ko=[],en=[];
     host.querySelectorAll('.item').forEach(it=>{const k=[],e=[];it.querySelectorAll('input').forEach(inp=>{const s=+inp.dataset.side||0,fi=+inp.dataset.fi;(s?e:k)[fi]=(inp.value||'').trim();});if(k.some(x=>x&&x.trim()))ko.push(joinFields(k));if(hasEn&&e.some(x=>x&&x.trim()))en.push(joinFields(e));});
     map[col]=ko.join('||');if(hasEn)map[col+'_en']=en.join('||');});
-  document.querySelectorAll('[data-photos-col]').forEach(host=>{const col=host.dataset.photosCol;const arr=[];
+  root.querySelectorAll('[data-photos-col]').forEach(host=>{const col=host.dataset.photosCol;const arr=[];
     host.querySelectorAll('.item').forEach(it=>{const ins=it.querySelectorAll('input');const u=(ins[0]&&ins[0].value||'').trim(),cap=(ins[1]&&ins[1].value||'').trim();if(u)arr.push(cap?(u+' :: '+cap):u);});
     map[col]=arr.join('||');});
   return map;
 }
-function rowFromForm(header){
+function rowFromForm(header, root, curRec){
   // 렌더된 항목은 폼 값으로, 화면에 없는(숨긴) 열은 원본 값으로 — 빈 값으로 지워지는 것 방지
-  const map=collect(); const rec=window.__curRec||{};
+  const map=collect(root); const rec=curRec||window.__curRec||{};
   return header.map(h=> (h!=null && map[h]!==undefined) ? map[h] : (rec[h]!=null?rec[h]:''));
 }
 function buildRow(isNew){
   const tab=$('#tabSel').value, cfg=TABS[tab], d=DATA[tab]||{header:[]};const header=d.header||[];
-  const map=collect();
-  $('#outTsv').value=rowFromForm(header).join('\t');
+  const mainRoot=document.getElementById('secMain')||document;
+  const map=collect(mainRoot);
+  $('#outTsv').value=rowFromForm(header, mainRoot, window.__curRec).join('\t');
   let where;
   if(cfg.key){where=`<b>${cfg.key}="${map[cfg.key]||''}"</b> 행의 첫 열(${header[0]}) 셀을 클릭 후 붙여넣기.`;}
   else{const idx=$('#recSel').value;where=(isNew||idx==='__new')?'맨 아래 <b>빈 행</b>의 첫 열 셀에 붙여넣기(새 행 추가).':`<b>데이터 ${(+idx)+1}번째 행</b>(시트 ${(+idx)+2}행)의 첫 열 셀에 붙여넣기.`;}
-  $('#outHint').innerHTML=`<b>${cfg.title}</b> · <code>${tab}</code> 탭 — `+where+' (TSV 한 줄 = 한 행 전체)';
+  const extra = window.__mergeDetail ? ' <b style="color:#c0392b">· 상세페이지(AppDetails)는 "시트에 바로 저장"으로 함께 저장됩니다(수동 복사에는 미포함).</b>' : '';
+  $('#outHint').innerHTML=`<b>${cfg.title}</b> · <code>${tab}</code> 탭 — `+where+' (TSV 한 줄 = 한 행 전체)'+extra;
   $('#outStatus').textContent=`${header.filter(h=>h!=null).length}개 열`;
   $('#outBox').style.display='block';$('#outBox').scrollIntoView({behavior:'smooth',block:'end'});
 }
@@ -511,40 +532,68 @@ $('#gasUrl').addEventListener('input',_persistGas);
 $('#gasUrl').addEventListener('change',_persistGas);
 $('#gasToken').addEventListener('input',_persistGas);
 $('#gasToken').addEventListener('change',_persistGas);
+/* 한 탭에 한 행 저장 (성공 시 로컬 캐시 갱신). 반환 {ok,row} | {ok:false,error} */
+async function saveOneTab(o){
+  const gas=($('#gasUrl').value||'').trim();
+  const tab=o.tab, cfg=TABS[tab], d=DATA[tab]||{header:[]}; const header=d.header||[];
+  if(!header.length) return {ok:false,error:tab+' 헤더 없음'};
+  const map=collect(o.root); const row=rowFromForm(header, o.root, o.curRec);
+  if(o.forceKey!=null && cfg.key){ const ki=header.indexOf(cfg.key); if(ki>=0) row[ki]=o.forceKey; map[cfg.key]=o.forceKey; }
+  const payload={ sheetId:$('#sheetId').value.trim(), tab, header, row, token:($('#gasToken').value||'').trim(), isNew:!!o.isNew };
+  if(cfg.key){ payload.keyCol=cfg.key; payload.keyVal=(o.forceKey!=null?o.forceKey:(map[cfg.key]||'')); if(!payload.keyVal) return {ok:false,error:tab+' ID(key) 비어있음'}; }
+  else if(o.rowIndex){ payload.rowIndex=o.rowIndex; }
+  window.__lastPayloads=(window.__lastPayloads||[]); window.__lastPayloads.push(payload); /* 디버그/테스트용 */
+  try{
+    const res=await fetch(gas,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    const j=await res.json();
+    if(j&&j.ok){
+      const obj={}; header.forEach((h,i)=>{ if(h!=null) obj[h]=row[i]; });
+      if(cfg.key){ const kv=String(payload.keyVal).trim(); const ix=d.list.findIndex(x=>String(x[cfg.key]||'').trim()===kv); if(ix>=0) d.list[ix]=obj; else d.list.push(obj); }
+      else if(payload.rowIndex){ d.list[payload.rowIndex-1]=obj; } else { d.list.push(obj); }
+      return {ok:true,row:j.row};
+    }
+    return {ok:false,error:(j&&j.error)||'알 수 없는 오류'};
+  }catch(e){ return {ok:false,error:'연결 실패'}; }
+}
+
 async function saveToSheet(){
   const gas=($('#gasUrl').value||'').trim();
   if(!gas){ toast('먼저 저장 URL(Apps Script)을 입력하세요'); $('#gasUrl').focus(); return; }
   const tab=$('#tabSel').value, cfg=TABS[tab], d=DATA[tab]||{header:[]}; const header=d.header||[];
   if(!header.length){ toast('먼저 시트를 불러오세요'); return; }
+  window.__lastPayloads=[];
   const isNew=$('#recSel').value==='__new';
-  const map=collect();
-  const row=rowFromForm(header);
-  const payload={ sheetId:$('#sheetId').value.trim(), tab, header, row, token:($('#gasToken').value||'').trim(), isNew:isNew };
-  if(cfg.key){ payload.keyCol=cfg.key; payload.keyVal=map[cfg.key]||''; if(!payload.keyVal){ toast('ID(key) 값이 비어 있습니다'); return; } }
-  else { const idx=$('#recSel').value; if(!isNew && idx!=='__new') payload.rowIndex=(+idx)+1; } // 1-based 데이터행
+  const mainRoot=document.getElementById('secMain')||document;
+  const mopt={ tab, root:mainRoot, curRec:window.__curRec, isNew };
+  if(!cfg.key){ const idx=$('#recSel').value; if(!isNew && idx!=='__new') mopt.rowIndex=(+idx)+1; }
+  else { const kv=(collect(mainRoot)[cfg.key]||'').trim(); if(!kv){ toast('ID(key) 값이 비어 있습니다'); return; } }
   $('#saveStatus').textContent='저장 중…';
-  try{
-    const res=await fetch(gas,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    const j=await res.json();
-    if(j&&j.ok){
-      const sid=(window.__boundSheet||$('#sheetId').value.trim());
-      const link=sid?(' · <a href="https://docs.google.com/spreadsheets/d/'+sid+'/edit" target="_blank">시트에서 확인</a>'):'';
-      $('#saveStatus').innerHTML='✅ 시트 '+j.row+'행에 저장됨'+link;
-      toast('구글시트에 저장되었습니다');
-      // 로컬 캐시 즉시 갱신 (재로딩 없이 이어서 편집 가능)
-      const obj={}; header.forEach((h,i)=>{ if(h!=null) obj[h]=row[i]; });
-      if(cfg.key){ const ix=d.list.findIndex(o=>String(o[cfg.key]||'').trim()===String(payload.keyVal).trim()); if(ix>=0) d.list[ix]=obj; else d.list.push(obj); }
-      else if(payload.rowIndex){ d.list[payload.rowIndex-1]=obj; } else { d.list.push(obj); }
-      // 저장 후 미리보기 자동 새로고침 (열려 있을 때)
-      if($('#previewPanel').style.display!=='none'){ $('#saveStatus').innerHTML+=' · 미리보기 갱신 중…'; setTimeout(loadPreview, 1500); }
-    } else {
-      $('#saveStatus').textContent='실패: '+((j&&j.error)||'알 수 없는 오류');
+  const r1=await saveOneTab(mopt);
+  if(!r1.ok){ if(r1.error==='연결 실패'){ $('#saveStatus').innerHTML='연결 실패 — URL/배포 권한을 확인하거나 <b>행 전체 복사</b>로 수동 붙여넣기 하세요.'; } else { $('#saveStatus').textContent='실패: '+r1.error; } return; }
+  let msg = window.__mergeDetail ? ('✅ 앱 카드 저장됨 (시트 '+r1.row+'행)') : ('✅ 시트 '+r1.row+'행에 저장됨');
+  /* === 통합: 상세페이지도 함께 저장 (앱 ID로 자동 연결) === */
+  if(window.__mergeDetail){
+    const detailRoot=document.getElementById('secDetail');
+    const appId=String((collect(mainRoot).id)||'').trim();
+    if(detailRoot && appId){
+      const dmap=collect(detailRoot);
+      const hadDetail = !!(window.__curRecDetail && Object.keys(window.__curRecDetail).some(k=>k!=='key' && String(window.__curRecDetail[k]||'').trim()!==''));
+      const anyVal = Object.keys(dmap).some(k=> k!=='key' && String(dmap[k]||'').trim()!=='');
+      if(anyVal || hadDetail){
+        const r2=await saveOneTab({ tab:'AppDetails', root:detailRoot, curRec:(window.__curRecDetail||{}), isNew:!hadDetail, forceKey:appId });
+        msg += r2.ok ? (' · 상세페이지 저장됨 (시트 '+r2.row+'행)') : (' · ⚠️ 상세페이지 저장 실패: '+r2.error);
+      } else {
+        msg += ' · (상세 내용 없음 — 상세 저장 생략)';
+      }
     }
-  }catch(e){
-    $('#saveStatus').innerHTML='연결 실패 — URL/배포 권한을 확인하거나 <b>행 전체 복사</b>로 수동 붙여넣기 하세요.';
   }
+  const sid=(window.__boundSheet||$('#sheetId').value.trim());
+  const link=sid?(' · <a href="https://docs.google.com/spreadsheets/d/'+sid+'/edit" target="_blank">시트에서 확인</a>'):'';
+  $('#saveStatus').innerHTML=msg+link;
+  toast('구글시트에 저장되었습니다');
+  if($('#previewPanel').style.display!=='none'){ $('#saveStatus').innerHTML+=' · 미리보기 갱신 중…'; setTimeout(loadPreview, 1500); }
 }
-$('#saveSheet').onclick=()=>{ buildRow($('#recSel').value==='__new'); saveToSheet(); };
+$('#saveSheet').onclick=()=>{ saveToSheet(); };
 
 /* --- 앱 카테고리: 인라인 추가 (앱 편집 중 새 분류 만들기) --- */
 function catOptsLive(){ return (DATA['AppCategories']&&DATA['AppCategories'].list||[]).map(o=>({v:(o.key||'').trim(),l:o.name||o.key})).filter(o=>o.v); }
