@@ -236,7 +236,7 @@ const TABS={
  'homecases':{title:'메인화면 케이스 카드',key:'caseid',display:'name',
    cols:{tagline:'long',photo:'media',link:'url',caseid:'caseselect'}},
  'Cases':{title:'유즈케이스 / 활용사례',key:'key',display:'name',
-   cols:{title:'long',tagline:'long',about:'long',quote:'long',
+   cols:{featured:'bool',title:'long',tagline:'long',about:'long',quote:'long',
      qs:{fields:['숫자','라벨']},challenges:'list',solutions:{fields:['제목','설명']},
      results:{fields:['숫자','라벨']},photos:'photos',accent:'color',accentbg:'color'}},
  'Products':{title:'제품',key:null,display:'name',search:true,cols:{desc:'long',url:'url'}},
@@ -299,6 +299,7 @@ const LABELS={
   caption:'캡션',apps:'연결 앱',sensors:'센서',isnew:'신규 표시',popularity:'인기도',added:'추가일',
   order:'정렬 순서',num:'번호',accent:'강조색',accentbg:'강조 배경색',
   install:'연결 설치사진 (고객사명 · 예: 세안텍스)',
+  featured:'⭐ 대표 도입사례로 표시 (전면 큰 카드)',
   caseid:'연결 케이스',resultnum:'성과 숫자',resultlabel:'성과 라벨',
   ko:'한국어',en:'영어',view:'화면',kind:'종류',
   // AppDetails / Cases 콘텐츠

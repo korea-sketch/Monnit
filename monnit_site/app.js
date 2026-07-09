@@ -728,7 +728,8 @@ function mapCases(rows){
       solutions: splitItems(o.solutions).map(it => { const f = splitFields(it); return { t:f[0]||'', d:f[1]||'' }; }),
       results: splitItems(o.results).map(it => { const f = splitFields(it); return { n:f[0]||'', l:f[1]||'' }; }),
       quote: o.quote||'', cite: o.cite||'',
-      photos: parsePhotos(o.photos)
+      photos: parsePhotos(o.photos),
+      featured: /^(true|1|y|yes|예|네|대표|featured)$/i.test(String(o.featured||'').trim())
     };
     // 영문(EN) 등록 — *_en 열이 있을 때만
     regTitle(o.title, o.title_en || o.titleen);
@@ -1213,8 +1214,14 @@ function renderData() {
 const featuredGrid = document.getElementById('featuredGrid');
 const _labelToKey = {}; Object.entries(INDUSTRIES).forEach(([k,v]) => { _labelToKey[v.label] = k; });
 const _stripTags = s => String(s||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+const _anyFeatured = Object.values(CASE_DATA).some(c => c && c.featured);
 const featuredCases = Object.entries(CASE_DATA)
-  .filter(([id,c]) => c && c.name)
+  .filter(([id,c]) => {
+    if (!c || !c.name) return false;
+    if (_anyFeatured) return !!c.featured;                 // 대표(featured) 지정된 케이스만
+    // 플래그 미설정 시: 내용이 충실한 케이스만 대표로 (최소 케이스 자동 제외)
+    return !!(c.about && String(c.about).trim() && c.challenges && c.challenges.length && c.solutions && c.solutions.length);
+  })
   .sort((a,b) => String(a[1].num||'').localeCompare(String(b[1].num||'')));
 featuredGrid.innerHTML = '';
 featuredCases.forEach(([caseId, c], idx) => {

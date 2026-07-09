@@ -803,7 +803,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   box-shadow: 0 14px 32px rgba(0,0,0,.34);
 }
 /* 설치 사진 연동 링크 (도입사례 → 설치사진) */
-.case-install-link{ display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+.case-install-link{ display:inline-flex; align-self:flex-start; align-items:center; gap:6px; margin-top:14px;
   font-family:var(--fb); font-size:11.5px; font-weight:600; letter-spacing:-0.01em;
   color:#9CC4FF; background:var(--accent-soft); border:1px solid var(--line-strong);
   border-radius:7px; padding:6px 11px 6px 9px; position:relative; z-index:2;
