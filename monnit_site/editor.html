@@ -255,12 +255,10 @@ const TABS={
  'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'ko',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
  'Logos':{title:'고객사 로고 (메인 하단 띠)',key:null,display:'name',search:true,cols:{name:'text',image:'media'}},
  'InstallPhotos':{title:'설치 사례 (Installation Photo · 설치 사진)',key:null,display:'title',search:true,cols:{desc:'long',images:'photos'}},
- 'InstallBuildings':{title:'설치 건물 디렉토리 (세안텍스 현장 48개소)',key:null,display:'name',search:true,cols:{image:'media'}},
 };
 
 /* 기본 숨김 열 (기술·정렬·색상 등 거의 안 고치는 항목). '고급 항목 보기' 켜면 다시 보임 */
 const HIDE={
-  Applications:['popularity','added','file'],
   homecases:['order'],
   Cases:['num','accent','accentbg'],
   Photos:['key','order'],
@@ -280,7 +278,6 @@ const SHOW={
   FAQs:['question','answer','category'],
   Whitepapers:['title','desc','photo','url','date'],
   InstallPhotos:['title','client','site','sector','category','sensors','desc','images'],
-  InstallBuildings:['name','image'],
   NewsHighlights:['title','desc','url','date'],
 };
 
@@ -370,7 +367,7 @@ function simpleWidget(col,label,kind,val){
   const w=el('div','side full');w.innerHTML=`<div class="col-h">${label}</div>`;let inp;
   if(kind==='long'){inp=el('textarea');inp.value=val||'';}
   else if(kind==='bool'){inp=el('select');[['','아니오'],['true','예']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;inp.appendChild(o);});inp.value=/^(true|1|y|yes|예|네|새|new)$/i.test(val||'')?'true':'';}
-  else if(kind==='catselect'||kind==='caseselect'){inp=el('select');const list=kind==='catselect'?CAT_OPTS:CASE_OPTS;const b=document.createElement('option');b.value='';b.textContent='(없음)';inp.appendChild(b);list.forEach(o=>{const op=document.createElement('option');op.value=o.v;op.textContent=o.l;inp.appendChild(op);});inp.value=val||'';}
+  else if(kind==='catselect'||kind==='caseselect'){inp=el('select');const list=kind==='catselect'?catOptsLive():CASE_OPTS;const b=document.createElement('option');b.value='';b.textContent='(없음)';inp.appendChild(b);list.forEach(o=>{const op=document.createElement('option');op.value=o.v;op.textContent=o.l;inp.appendChild(op);});inp.value=val||'';inp.dataset.col=col;inp.dataset.kind=kind;w.appendChild(inp);if(kind==='catselect'){const addb=el('button','btn-ghost btn-sm','＋ 새 카테고리 추가');addb.type='button';addb.style.marginTop='6px';addb.onclick=()=>addCategoryInline(inp);w.appendChild(addb);const chint=el('div');chint.style.cssText='font-size:11px;color:#889;margin-top:4px';chint.textContent='※ 원하는 분류가 없으면 새로 추가하세요. (앱 카테고리 탭에서도 관리 가능)';w.appendChild(chint);}return w;}
   else if(kind==='color'){const row=el('div');row.style.cssText='display:flex;gap:8px';inp=el('input');inp.type='text';inp.value=val||'';inp.style.flex='1';const cp=el('input','swatch');cp.type='color';try{cp.value=val||'#003087';}catch(e){}cp.oninput=()=>{inp.value=cp.value;};inp.oninput=()=>{try{cp.value=inp.value;}catch(e){}};row.appendChild(inp);row.appendChild(cp);inp.dataset.col=col;inp.dataset.kind=kind;w.appendChild(row);return w;}
   else if(kind==='htmlfile'){
     // .html 파일을 선택하면 내용을 읽어 textarea에 채움 → 시트의 html 칸에 저장됨 (재배포 불필요)
@@ -549,6 +546,30 @@ async function saveToSheet(){
 }
 $('#saveSheet').onclick=()=>{ buildRow($('#recSel').value==='__new'); saveToSheet(); };
 
+/* --- 앱 카테고리: 인라인 추가 (앱 편집 중 새 분류 만들기) --- */
+function catOptsLive(){ return (DATA['AppCategories']&&DATA['AppCategories'].list||[]).map(o=>({v:(o.key||'').trim(),l:o.name||o.key})).filter(o=>o.v); }
+async function saveCategoryRow(key,name){
+  const gas=($('#gasUrl').value||'').trim();
+  const d=DATA['AppCategories']||{header:['key','name','label']}; const header=(d.header&&d.header.length)?d.header:['key','name','label'];
+  const row=header.map(h=> h==='key'?key : (h==='name'?name : ''));
+  if(!gas){ toast('카테고리 로컬 추가됨 — 저장 URL 설정 후 "앱 카테고리" 탭에서 저장하세요'); return; }
+  try{
+    const res=await fetch(gas,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({sheetId:$('#sheetId').value.trim(),tab:'AppCategories',header,row,token:($('#gasToken').value||'').trim(),isNew:true,keyCol:'key',keyVal:key})});
+    const j=await res.json();
+    if(j&&j.ok) toast('카테고리 "'+name+'" 시트에 저장됨'); else toast('카테고리 로컬 추가 — 시트 저장 실패: '+((j&&j.error)||''));
+  }catch(e){ toast('카테고리 로컬 추가 — 시트 저장 실패(네트워크)'); }
+}
+function addCategoryInline(sel){
+  const name=(prompt('추가할 카테고리 이름을 입력하세요 (예: 스마트팜)')||'').trim(); if(!name) return;
+  let key=prompt('카테고리 ID (영문 소문자, 예: smartfarm) — 비우면 이름으로 자동 생성', name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''));
+  if(key===null) return; key=(key||'').trim()||('cat'+Date.now());
+  if(catOptsLive().some(o=>o.v===key)){ if(sel){sel.value=key;} toast('이미 존재하는 카테고리 ID입니다'); return; }
+  if(!DATA['AppCategories']) DATA['AppCategories']={header:['key','name','label'],list:[]};
+  DATA['AppCategories'].list.push({key:key,name:name,label:''});
+  if(sel){ const op=document.createElement('option'); op.value=key; op.textContent=name; sel.appendChild(op); sel.value=key; }
+  saveCategoryRow(key,name);
+}
+
 /* ====================== 고도화 기능 ====================== */
 
 /* --- 이미지 업로드 (imgbb, 무료) --- */
@@ -620,7 +641,7 @@ $('#previewReload').onclick=loadPreview;
 $('#previewClose').onclick=()=>{ $('#previewPanel').style.display='none'; document.body.style.paddingRight=''; };
 function previewUrl(){
   const tab=$('#tabSel').value;
-  if(tab==='InstallPhotos'||tab==='InstallBuildings'){ return 'installation-photos.html?_t='+Date.now(); }
+  if(tab==='InstallPhotos'){ return 'installation-photos.html?_t='+Date.now(); }
   // app.js navigate()가 기대하는 실제 해시(슬래시 없이)로 매핑
   const viewHash={ 'homecases':'', 'SiteContent':'', 'Customers':'',
     'Cases':'#stories', 'Applications':'#what-we-do', 'AppDetails':'#what-we-do',

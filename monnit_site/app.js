@@ -2667,7 +2667,7 @@ async function subscribeMsg(id) {
 function populateWpSelect(){
   const sel = document.getElementById('wpSelect'); if (!sel) return;
   const cur = sel.value;
-  sel.innerHTML = '<option value="">받아보실 백서를 선택하세요</option>' +
+  sel.innerHTML = '<option value="">받아보실 제안서를 선택하세요</option>' +
     WHITEPAPERS.map((w,i) => `<option value="${i}">${esc(w.title)}</option>`).join('');
   if (cur !== '' && WHITEPAPERS[cur]) sel.value = cur;
 }
@@ -2688,7 +2688,7 @@ async function wpRequest(){
   const em  = document.getElementById('wpEmail');
   const idx = sel ? sel.value : '';
   const v   = em ? em.value.trim() : '';
-  if (idx === '' || !WHITEPAPERS[idx]) { alert('받아보실 백서를 먼저 선택해 주세요.'); if (sel) sel.focus(); return; }
+  if (idx === '' || !WHITEPAPERS[idx]) { alert('받아보실 제안서를 먼저 선택해 주세요.'); if (sel) sel.focus(); return; }
   if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); if (em) em.focus(); return; }
   const wp = WHITEPAPERS[idx];
   const dl = (wp.url || '').trim();
