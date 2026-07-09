@@ -803,14 +803,14 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   box-shadow: 0 14px 32px rgba(0,0,0,.34);
 }
 /* 설치 사진 연동 링크 (도입사례 → 설치사진) */
-.case-install-link{ display:inline-flex; align-items:center; gap:8px; margin-top:16px;
-  font-family:var(--fb); font-size:12.5px; font-weight:600; letter-spacing:-0.01em;
+.case-install-link{ display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+  font-family:var(--fb); font-size:11.5px; font-weight:600; letter-spacing:-0.01em;
   color:#9CC4FF; background:var(--accent-soft); border:1px solid var(--line-strong);
-  border-radius:9px; padding:9px 14px 9px 12px; position:relative; z-index:2;
+  border-radius:7px; padding:6px 11px 6px 9px; position:relative; z-index:2;
   transition:background .24s cubic-bezier(.4,0,.2,1), border-color .24s ease, color .24s ease, transform .24s ease, box-shadow .24s ease; }
 .case-install-link:hover{ background:var(--btn-bg); border-color:var(--btn-bg); color:#fff;
   transform:translateY(-1px); box-shadow:0 8px 22px rgba(46,92,154,.4); }
-.case-install-link .cil-ic{ width:16px; height:16px; flex:none; opacity:.95; }
+.case-install-link .cil-ic{ width:14px; height:14px; flex:none; opacity:.95; }
 .case-install-link .cil-arrow{ margin-left:1px; font-weight:500; transition:transform .24s ease; }
 .case-install-link:hover .cil-arrow{ transform:translateX(3px); }
 /* 설치사진 → 도입사례 진입 시 해당 카드 강조 */
@@ -818,6 +818,11 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   40%{ box-shadow:0 0 0 5px rgba(74,130,196,.28); border-color:var(--accent-dark); }
   100%{ box-shadow:0 0 0 0 rgba(74,130,196,0); } }
 .case-card.focus-flash{ animation:caseFocusFlash 2.2s ease-out; border-color:var(--accent-dark) !important; }
+/* 케이스 상세 → 설치 현장 사진 전체 링크 */
+.case-field-link{ display:inline-flex; align-items:center; gap:6px; margin:0 0 22px; padding:11px 18px;
+  font-family:var(--fm); font-size:13px; letter-spacing:.02em; color:var(--accent-text,#6B9FD6);
+  border:1px solid var(--accent-text,#6B9FD6); border-radius:8px; transition:background .2s ease, color .2s ease; }
+.case-field-link:hover{ background:var(--accent-text,#6B9FD6); color:#0C1220; }
 
 .case-card .logo {
   font-family: var(--fd);

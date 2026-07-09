@@ -662,7 +662,7 @@ function mapCustomers(rows){
     if (!n || !INDUSTRIES[i]) return;
     const a = (o.apps||'').split('|').map(s => s.trim()).filter(Boolean);
     regI18N(o.headline, o.headline_en);
-    out.push({ n, i, h: o.headline||'', a, install: (o.install||'').trim() });
+    out.push({ n, i, h: o.headline||'', a, install: (o.install||'').trim(), key: (o.key||'').trim() });
   });
   return out;
 }
@@ -1115,13 +1115,13 @@ function navigate(target) {
     const caseId = target.slice(5);
     renderCaseDetail(caseId);
     document.getElementById('view-case').classList.add('active');
-    document.querySelector('.nav-link[data-nav="stories"]').classList.add('active');
+    { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
     window.location.hash = target;
   } else if (target.startsWith('app/')) {
     const appId = target.slice(4);
     renderAppDetail(appId);
     document.getElementById('view-app-detail').classList.add('active');
-    document.querySelector('.nav-link[data-nav="applications"]').classList.add('active');
+    { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
     window.location.hash = target;
   } else if (target.startsWith('promotions/')) {
     // 프로모션 상세 딥링크 (#promotions/{id}) — 빈 페이지 방지
@@ -1271,8 +1271,8 @@ const cardsGrid = document.getElementById('cardsGrid');
 { const _tc = document.getElementById('totalCount'); if (_tc) _tc.textContent = CUSTOMERS.length; }
 CUSTOMERS.forEach(c => {
   const ind = INDUSTRIES[c.i];
-  const caseId = c.n.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const hasCase = !!CASE_DATA[caseId];
+  const caseKey = (c.key || c.n.toLowerCase().replace(/[^a-z0-9]+/g, '-')).trim();
+  const hasCase = !!CASE_DATA[caseKey];
   const inst = (c.install || '').trim();
   const hasInstall = !!inst;
   const isClickable = hasCase || hasInstall;
@@ -1288,10 +1288,10 @@ CUSTOMERS.forEach(c => {
     <ul class="apps">
       ${c.a.map(app => `<li>${app}</li>`).join('')}
     </ul>
-    ${hasInstall ? `<a class="case-install-link" href="${instUrl}"><svg class="cil-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.3" r="1.7"/><path d="M20.5 16.5 15 11l-7 7"/></svg><span class="cil-tx">설치 현장 사진</span><span class="cil-arrow">&rarr;</span></a>` : ''}
+    ${hasInstall ? `<a class="case-install-link" href="${instUrl}"><svg class="cil-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.3" r="1.7"/><path d="M20.5 16.5 15 11l-7 7"/></svg><span class="cil-tx">설치 사진</span><span class="cil-arrow">&rarr;</span></a>` : ''}
   `;
   if (hasCase) {
-    card.addEventListener('click', (e) => { if (e.target.closest('.case-install-link')) return; navigate('case/' + caseId); });
+    card.addEventListener('click', (e) => { if (e.target.closest('.case-install-link')) return; navigate('case/' + caseKey); });
   } else if (hasInstall) {
     card.addEventListener('click', (e) => { if (e.target.closest('.case-install-link')) return; window.location.href = instUrl; });
   }
@@ -1576,6 +1576,16 @@ function renderCaseDetail(id) {
     </div>
   `).join('');
 
+  const _hasQs = c.qs && c.qs.length;
+  const _hasAbout = !!(c.about && String(c.about).trim());
+  const _hasCh = c.challenges && c.challenges.length;
+  const _hasSol = c.solutions && c.solutions.length;
+  const _hasRes = c.results && c.results.length;
+  const _hasQuote = !!((c.quote && String(c.quote).trim()) || (c.cite && String(c.cite).trim()));
+  const _relIds = CUSTOMER_TO_APPS[c.name] || [];
+  const _cust = (typeof CUSTOMERS !== 'undefined') ? CUSTOMERS.find(x => String(x.key||'').trim() === id) : null;
+  const _installClient = _cust ? String(_cust.install||'').trim() : '';
+  const _fieldLink = _installClient ? `<a class="case-field-link" href="installation-photos.html?client=${encodeURIComponent(_installClient)}">설치 현장 사진 전체 보기 &rarr;</a>` : '';
   page.innerHTML = `
     <div class="top-band" style="background:${c.accent}">
       <span class="label">Customer Success · Case Study ${c.num}</span>
@@ -1587,27 +1597,27 @@ function renderCaseDetail(id) {
       <div class="case-logo" style="border-bottom:2px solid ${c.accentText}">${c.name}</div>
       <h1>${c.title.replace('<em>', `<em style="color:${c.accentText}">`)}</h1>
       <p class="tagline">${c.tagline}</p>
-      <div class="qs-row">${qsHtml}</div>
+      ${_hasQs ? `<div class="qs-row">${qsHtml}</div>` : ''}
     </section>
 
-    <section class="sec">
+    ${_hasAbout ? `<section class="sec">
       <div class="sec-label" style="color:${c.accentText}">About the Customer</div>
       <p class="body">${c.about}</p>
-    </section>
+    </section>` : ''}
 
-    <section class="sec">
+    ${_hasCh ? `<section class="sec">
       <div class="sec-label" style="color:${c.accentText}">Challenge</div>
       <h2>현장이 마주한 문제</h2>
       <ul class="ch-list">${chHtml}</ul>
-    </section>
+    </section>` : ''}
 
-    <section class="sec">
+    ${_hasSol ? `<section class="sec">
       <div class="sec-label" style="color:${c.accentText}">Solution</div>
       <h2>적용 어플리케이션</h2>
       <div class="sol-grid">${solHtml}</div>
-    </section>
+    </section>` : ''}
 
-    <section class="sec">
+    ${_hasSol ? `<section class="sec">
       <div class="sec-label" style="color:${c.accentText}">Architecture</div>
       <h2>솔루션 구성</h2>
       <div class="arch">
@@ -1635,24 +1645,24 @@ function renderCaseDetail(id) {
           <div class="desc">ANALYTICS</div>
         </div>
       </div>
-    </section>
+    </section>` : ''}
 
-    <section class="sec">
+    ${_hasRes ? `<section class="sec">
       <div class="sec-label" style="color:${c.accentText}">Results</div>
       <h2>도입 후 성과</h2>
       <div class="res-grid">${resHtml}</div>
-    </section>
+    </section>` : ''}
 
-    <section class="quote-sec" style="background:${c.accentBg}">
+    ${_hasQuote ? `<section class="quote-sec" style="background:${c.accentBg}">
       <blockquote style="--quote-color:${c.accent};color:#17213B">
         <span style="display:none">${c.quote}</span>
         ${c.quote}
       </blockquote>
       <cite style="color:${c.accent}">— ${c.cite}</cite>
-    </section>
+    </section>` : ''}
 
     <!-- INTEGRATION: related applications -->
-    <section class="related-apps-section">
+    ${_relIds.length ? `<section class="related-apps-section">
       <div class="related-apps-head">
         <div>
           <span class="kicker">Explore deeper</span>
@@ -1661,11 +1671,12 @@ function renderCaseDetail(id) {
         <span class="meta">${c.name}가 활용하는 솔루션</span>
       </div>
       <div class="related-apps-grid" id="caseRelatedApps"></div>
-    </section>
+    </section>` : ''}
 
     <section class="sec photo-section">
       <div class="sec-label" style="color:${c.accentText}">Field Gallery</div>
       <h2>현장 · 설치 사진</h2>
+      ${_fieldLink}
       <div id="caseGallery" class="ph-wrap"></div>
     </section>
   `;
@@ -3558,7 +3569,7 @@ async function boot() {
   if (window.MonnitI18N) window.MonnitI18N.refresh();
   const initHash = window.location.hash.replace('#', '');
   if (initHash) navigate(initHash);
-  try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } }catch(e){}
+  try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
 }
 boot();
 

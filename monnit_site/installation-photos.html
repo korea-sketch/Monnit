@@ -174,12 +174,12 @@ body.dark .wrap{max-width:1320px;padding:0 48px}
 .dblrow b{color:var(--teal)}
 @media(max-width:760px){.sitebar-in,body.dark .wrap{padding-left:22px;padding-right:22px}}
 /* 각 설치 사례 → 도입 사례(어플리케이션) 상세 링크 */
-.art-detail{display:inline-flex;align-items:center;gap:7px;margin-top:12px;
-  font-family:var(--sans);font-size:12.5px;font-weight:500;letter-spacing:-.01em;
-  color:var(--teal);background:rgba(45,212,191,.07);border:1px solid rgba(45,212,191,.28);
-  border-radius:8px;padding:8px 13px;transition:background .22s ease,border-color .22s ease,color .22s ease,transform .22s ease}
-.art-detail:hover{background:var(--teal);border-color:var(--teal);color:#08121e;transform:translateX(2px)}
-.art-detail svg{width:15px;height:15px;flex:none;opacity:.9}
+.art-detail{display:inline-flex;align-items:center;gap:5px;margin-top:11px;
+  font-family:var(--sans);font-size:11.5px;font-weight:500;letter-spacing:-.01em;
+  color:var(--teal);background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);
+  border-radius:6px;padding:5px 10px;transition:background .2s ease,border-color .2s ease,color .2s ease}
+.art-detail:hover{background:var(--teal);border-color:var(--teal);color:#08121e}
+.art-detail svg{width:13px;height:13px;flex:none;opacity:.9}
 .art-detail .ad-arrow{margin-left:1px;transition:transform .22s ease}
 .art-detail:hover .ad-arrow{transform:translateX(3px)}
 /* 특정 고객사 필터 배너 (도입사례 → 설치사진) */
@@ -287,7 +287,7 @@ function card(c,i){
    <div class="seckick">${c.sector} — ${c.cat}</div>
    <h3>${c.t}</h3>
    <div class="meta">${c.cl} · ${c.site}</div>
-   ${c.cl?`<a class="art-detail" href="index.html?usecase=${encodeURIComponent(c.cl)}#stories" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v13"/><path d="M15 5H4a1 1 0 0 0-1 1v13"/><path d="M3 19h18"/><path d="M8 9h4M8 13h4"/></svg>${c.cl} 도입 사례 상세<span class="ad-arrow">&rarr;</span></a>`:''}
+   ${c.cl?`<a class="art-detail" href="index.html?usecase=${encodeURIComponent(c.cl)}#stories" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11a1 1 0 0 1 1 1v13"/><path d="M15 5H4a1 1 0 0 0-1 1v13"/><path d="M3 19h18"/><path d="M8 9h4M8 13h4"/></svg>도입사례 상세<span class="ad-arrow">&rarr;</span></a>`:''}
    <div class="dek">${c.desc}</div>
    <div class="foot"><div class="hr"></div><div class="tags">${tags(c)}</div></div>
   </div></article>`;
