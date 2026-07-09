@@ -5161,7 +5161,7 @@ body{
 }
 
 /* ========== 프로모션 이미지 방식 상세 ========== */
-.promo-images { display: flex; flex-direction: column; gap: 0; max-width: 1080px; margin: 0 auto; }
+.promo-images { display: flex; flex-direction: column; gap: 0; max-width: 800px; margin: 0 auto; }
 .promo-images img { width: 100%; height: auto; display: block; border-radius: 0; }
 .promo-images img:first-child { border-radius: 14px 14px 0 0; }
 .promo-images img:last-child { border-radius: 0 0 14px 14px; }
