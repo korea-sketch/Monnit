@@ -1,0 +1,5 @@
+# 시스템/임시/백업 파일만 제외 — 빌드 산출물(pages/, robots.txt, sitemap.xml, llms*.txt)은
+# AI 크롤러가 반드시 읽어야 하므로 저장소에 포함합니다.
+.DS_Store
+_gsdata_/
+images/_logo_orig/
