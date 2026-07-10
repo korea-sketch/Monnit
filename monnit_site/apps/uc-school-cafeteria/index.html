@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>학교 급식실 냉장·냉동고 IoT 모니터링 | 모넷코리아 Monnit Korea</title>
+<meta name="description" content="급식 워크인 쿨러·프리저의 온도와 도어 상태를 상시 추적해 식품 안전을 지원합니다.">
+<link rel="canonical" href="https://monnit.co.kr/apps/uc-school-cafeteria/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="모넷코리아 Monnit Korea">
+<meta property="og:title" content="학교 급식실 냉장·냉동고 IoT 모니터링">
+<meta property="og:description" content="급식 워크인 쿨러·프리저의 온도와 도어 상태를 상시 추적해 식품 안전을 지원합니다.">
+<meta property="og:url" content="https://monnit.co.kr/apps/uc-school-cafeteria/">
+<meta property="og:locale" content="ko_KR">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--ink:#16181d;--mut:#5b6270;--line:#e6e8ec;--accent:#0b6b5f;--bg:#fff;--soft:#f6f8f9}
+*{box-sizing:border-box}body{margin:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Malgun Gothic',sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+header.top{border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{font-weight:800;letter-spacing:-.02em;font-size:18px;color:var(--ink)}
+.brand span{color:var(--accent)}
+nav.top a{color:var(--mut);font-size:14px;margin-left:16px}
+.crumb{font-size:13px;color:var(--mut);padding:14px 0}
+.crumb a{color:var(--mut)}
+main{padding:8px 0 40px}
+h1{font-size:30px;line-height:1.25;letter-spacing:-.02em;margin:.2em 0 .3em}
+h2{font-size:20px;margin:1.6em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:16px;margin:1.2em 0 .3em}
+.lede{font-size:17px;color:#2b2f38}
+.kicker{display:inline-block;font-size:12px;font-weight:700;color:var(--accent);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 10px;margin-bottom:6px}
+ul.clean{padding-left:1.1em}ul.clean li{margin:.25em 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:12px 0}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg)}
+.card h3{margin:.1em 0 .25em;font-size:15px}
+.card p{margin:.1em 0;font-size:13px;color:var(--mut)}
+.metrics{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.metric{border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:150px;background:var(--soft)}
+.metric b{display:block;font-size:22px;color:var(--accent);letter-spacing:-.02em}
+.metric span{font-size:13px;color:var(--mut)}
+.dl{margin:8px 0}.dl .row{padding:8px 0;border-bottom:1px dashed var(--line)}
+.dl .k{font-weight:700;font-size:14px}.dl .v{color:var(--mut);font-size:14px}
+.cta{display:block;margin:22px 0;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:14px}
+footer.bot{border-top:1px solid var(--line);margin-top:24px}
+footer.bot .wrap{padding:20px 0;font-size:13px;color:var(--mut)}
+footer.bot a{color:var(--mut);margin-right:14px}
+.en{color:var(--mut)}
+.en h2{color:var(--ink)}
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Service", "serviceType": "학교 급식실 냉장·냉동고 IoT 모니터링", "provider": {"@context": "https://schema.org", "@type": "Organization", "name": "모넷코리아 Monnit Korea", "url": "https://monnit.co.kr", "email": "korea@monnit.com", "description": "산업용 무선 IoT 센서, 원격 모니터링, AI 예지보전 통합 솔루션 공급사", "areaServed": "KR"}, "areaServed": "KR", "description": "급식 워크인 쿨러·프리저의 온도와 도어 상태를 상시 추적해 식품 안전을 지원합니다.", "url": "https://monnit.co.kr/apps/uc-school-cafeteria/"}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+<a class="brand" href="/">M<span>O</span>NNIT <span style="color:var(--mut);font-weight:600">KOREA</span></a>
+<nav class="top"><a href="/apps/">활용 분야</a><a href="/cases/">고객 사례</a><a href="/products/">제품</a><a href="/company/">회사 소개</a></nav>
+</div></header>
+<div class="wrap">
+<div class="crumb"><a href="/">홈</a> &rsaquo; <a href="/apps/">활용 분야</a></div>
+<main>
+<span class='kicker'>활용 분야 · 콜드체인 &amp; 물류</span>
+<h1>학교 급식실 냉장·냉동고</h1>
+<p class='lede'>급식 워크인 쿨러·프리저의 온도와 도어 상태를 상시 추적해 식품 안전을 지원합니다.</p>
+<h2>한눈에 보기</h2><div class='dl'><div class='row'><div class='k'>주요 고객</div><div class='v'>학교 급식실·교육청·위탁급식 운영사</div></div><div class='row'><div class='k'>관리 항목</div><div class='v'>워크인 쿨러·프리저 온도와 도어 상태</div></div><div class='row'><div class='k'>운영 효과</div><div class='v'>식품 안전 관리·온도 기록 자동화</div></div><div class='row'><div class='k'>센서 구성</div><div class='v'>온도·저온·디지털 온도·개폐 감지·습도</div></div></div>
+<h2>주요 고객</h2><p>워크인 쿨러·프리저 온도·도어 상태를 관리해야 하는 학교 급식실·교육청·위탁급식 운영사.</p>
+<p>학교 급식은 많은 인원에게 식사를 제공해 냉장·냉동 온도·기록 관리가 중요합니다. 급식 준비 시간엔 기록이 누락되기 쉽고 방학·야간 장비 이상은 늦게 발견되므로, 온도·도어 상태를 자동 기록합니다.</p>
+<h2>현장 과제</h2><p>학교 급식 냉장 설비의 온도 이탈은 식품 안전과 학생 신뢰에 직접 영향을 줄 수 있습니다.</p>
+<ul class='clean'><li><b>기록 누락 가능성</b> — 급식 준비 중 온도 확인·기록 누락</li><li><b>야간·휴일 지연</b> — 근무 시간 외 장비 이상 대응 지연</li><li><b>도어 미닫힘 문제</b> — 워크인·프리저 개방 시 온도 상승</li><li><b>점검 대응 부담</b> — 이력 미정리 시 내부 점검·보고에 시간 과다</li></ul>
+<h2>솔루션</h2><p>급식 냉장·냉동 온도·도어 상태를 자동 기록하고 이탈 시 담당자에게 알림.</p>
+<p>온도·저온·디지털 온도·개폐 감지·습도 센서를 급식실에 적용해 iMonnit에서 상태를 봅니다. 이탈 시 알려 식품 안전 사고를 예방하고 방학 무인 기간 장비 이상까지 잡습니다.</p>
+<h3>적용 센서</h3><ul class='clean'><li>온도</li><li>저온</li><li>디지털 온도</li><li>개폐 감지</li><li>습도</li></ul>
+<h2>도입 절차</h2><div class='dl'>
+<div class='row'><div class='k'>PHASE 1</div><div class='v'>설비 지정 · 워크인 쿨러·프리저 등 핵심 보관 설비를 지정합니다. · 반나절</div></div>
+<div class='row'><div class='k'>PHASE 2</div><div class='v'>센서 설치 · 쿨러·프리저에 온도·도어 센서를 설치·연동합니다. · 1일</div></div>
+<div class='row'><div class='k'>PHASE 3</div><div class='v'>기준·보고 설정 · 법적 기준 온도와 점검 보고 양식을 설정합니다. · 반나절</div></div>
+<div class='row'><div class='k'>PHASE 4</div><div class='v'>급식실 확장 · 검증된 구성을 전 급식 설비로 확장합니다. · 1~2주</div></div>
+</div>
+<h2>기대 효과</h2><div class='metrics'><div class='metric'><b>60%↓</b><span>온도 점검·기록 공수</span></div><div class='metric'><b>식품안전↑</b><span>급식 냉장 온도 이탈 사고 예방</span></div><div class='metric'><b>방학 감시</b><span>무인 기간 장비 이상 알림</span></div></div>
+<div class='dl'>
+<div class='row'><div class='k'>도입 전</div><div class='v'>수기 온도표. 장비 이상 사후 확인. 도어 미닫힘 확인 지연. 점검 자료 수동 정리.</div></div>
+<div class='row'><div class='k'>도입 후</div><div class='v'>자동 온도 이력. 도어·고장 알림. 무인 기간 감시. 점검 대응 자료 확보.</div></div>
+</div>
+<h2>관련 활용 분야</h2><div class='grid'><a class='card' href='/apps/refrig/'><h3>상업용 냉장</h3><p>매장 내 냉장·냉동 진열대와 보관 설비의 온도 및 도어 상태를 상시 모니터링합니다.</p></a><a class='card' href='/apps/cold-chain/'><h3>콜드체인 모니터링</h3><p>매장·차량·창고까지 유통 전 구간의 온도 이력과 도어 상태를 통합 관리합니다.</p></a><a class='card' href='/apps/logistics/'><h3>물류 &amp; 창고</h3><p>대형 창고·물류센터의 구역별 온습도, 도어 상태, 보관 환경을 모니터링합니다.</p></a><a class='card' href='/apps/food/'><h3>식품 서비스</h3><p>레스토랑·급식 시설의 냉장·냉동 온도와 도어 상태를 자동 기록해 식품 안전 관리를 지원합니다.</p></a><a class='card' href='/apps/grocery/'><h3>그로서리 &amp; 편의점</h3><p>여러 매장의 냉장 진열대와 보관용 냉장·냉동고를 통합 관리합니다.</p></a><a class='card' href='/apps/transport/'><h3>수송 차량</h3><p>냉장 차량의 위치, 화물칸 온도, 도어 상태를 함께 추적해 운송 품질을 관리합니다.</p></a></div>
+<a class="cta" href="/">▶ 전체 인터랙티브 사이트에서 실시간 데이터·문의 보기 — monnit.co.kr</a>
+</main>
+</div>
+<footer class="bot"><div class="wrap">
+<div><a href="/apps/">활용 분야</a><a href="/cases/">고객 사례</a><a href="/products/">제품</a><a href="/faq/">FAQ</a><a href="/knowledgebase/">지식베이스</a><a href="/company/">회사 소개</a><a href="/browse/">전체 콘텐츠</a></div>
+<p style="margin:.6em 0 0">모넷코리아 Monnit Korea — 산업용 무선 IoT 센서 · 원격 모니터링 · AI 예지보전 통합 솔루션. 문의 korea@monnit.com</p>
+</div></footer>
+</body></html>
