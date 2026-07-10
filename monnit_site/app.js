@@ -897,12 +897,11 @@ function eachSlot(cb){
   SITE_VIEWS.forEach(function(vid){
     const root = document.getElementById(vid); if(!root) return;
     const base = vid.replace('view-','');
-    if (vid === 'view-home'){
+    if (vid === 'view-home' || vid === 'view-who-we-are'){
+      /* data-sc 슬롯 기반 (홈 + About us) — 시트 SiteContent 값으로 텍스트·이미지 덮어쓰기 */
       const slots = root.querySelectorAll('[data-sc]');
-      console.log('[eachSlot] view-home: data-sc 슬롯', slots.length, '개 찾음');
       slots.forEach(function(el){
-        const key = el.getAttribute('data-sc');
-        console.log('[eachSlot-home]', key, '→', el.tagName);
+        const key = el.getAttribute('data-sc'); if(!key) return;
         homeCount++;
         cb(key, el, el.tagName === 'IMG' ? 'img' : 'text');
       });
@@ -2330,6 +2329,7 @@ const CAT_DESCRIPTIONS = {
 
 function renderHomeCatCards() {
 const homeCatCards = document.getElementById('homeCatCards');
+if (!homeCatCards) return;   /* 2026 리디자인: 홈에서 앱 카테고리 카드 섹션 제거됨 — 컨테이너 없으면 건너뜀 */
 homeCatCards.innerHTML = '';
 Object.entries(CATEGORIES).forEach(([key, info]) => {
   const count = APPS.filter(a => a.cat === key).length;

@@ -2958,16 +2958,16 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .logo-marquee:hover .logo-track{ animation-play-state:paused; }
 /* gap 대신 각 슬라이드에 margin-right → 마지막 슬라이드도 뒤 여백을 소유하므로 translateX(-50%)가 한 벌 폭과 정확히 일치 (한 바퀴마다 튐 제거) */
 .logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; flex:0 0 auto; width:172px; margin-right:28px; }
-.logo-slide img{ height:74px; width:100%; object-fit:contain;
-  background:#F4F6FA; border-radius:14px; padding:16px 24px; box-sizing:border-box;
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:0 2px 0 rgba(255,255,255,.04) inset, 0 8px 22px rgba(0,0,0,.30);
-  opacity:.9; transition:transform .25s, box-shadow .25s, opacity .25s; }
-.logo-slide:hover img{ transform:translateY(-4px); opacity:1; box-shadow:0 14px 30px rgba(0,0,0,.42); }
+/* 다크 배경에 맞춘 투명·모노톤(밝은색) 로고 — 흰 배경 칩 제거 */
+.logo-slide img{ height:76px; width:100%; object-fit:contain;
+  background:transparent; border:none; box-shadow:none; padding:4px 10px; box-sizing:border-box;
+  filter:brightness(0) invert(1); opacity:.95;
+  transition:transform .25s, opacity .25s, filter .25s; }
+.logo-slide:hover img{ transform:translateY(-4px); opacity:1; }
 .logo-slide span{ font-family:var(--fm); font-size:12px; letter-spacing:.04em; color:var(--ink-faint); text-align:center; white-space:nowrap; }
-.logo-slide.logo-fallback::before{ content:attr(data-name); display:flex; align-items:center; justify-content:center; height:74px; width:100%; background:#F4F6FA; border-radius:14px; padding:12px 18px; box-sizing:border-box; border:1px solid rgba(255,255,255,.10); color:#1a2b50; font-family:var(--fd); font-weight:600; font-size:14px; text-align:center; line-height:1.2; }
+.logo-slide.logo-fallback::before{ content:attr(data-name); display:flex; align-items:center; justify-content:center; height:56px; width:100%; background:transparent; border-radius:12px; padding:10px 16px; box-sizing:border-box; border:1px solid var(--line); color:var(--ink-mid); font-family:var(--fd); font-weight:600; font-size:14px; text-align:center; line-height:1.2; }
 @keyframes logoScroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
-@media(max-width:760px){ .logo-slide{ width:140px; margin-right:18px; } .logo-slide img{ height:60px; padding:12px 18px; } }
+@media(max-width:760px){ .logo-slide{ width:150px; margin-right:18px; } .logo-slide img{ height:62px; padding:4px 10px; } }
 @media (prefers-reduced-motion: reduce){ .logo-track{ animation:none; } }
 
 .t-num {
@@ -5179,3 +5179,476 @@ body{
   border-radius: 8px !important;
 }
 #promoDetailApply:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(46,92,154,0.55); background: linear-gradient(135deg, #5A92D4, #244B80) !important; }
+
+/* ============================================================
+   NEW HOME v2 (2026 redesign) — nh-*  · 사진 중심 프리미엄
+   브랜드 토큰(다크 잉크 네이비 + 스틸블루 액센트) 유지
+   ============================================================ */
+.nh-section{ padding:96px 0; position:relative; }
+.nh-section + .nh-section{ border-top:1px solid var(--line); }
+
+/* ---- 공통 헤더 ---- */
+.nh-eyebrow{ display:inline-block; font-family:var(--fm); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-dark); margin-bottom:16px; position:relative; padding-left:26px; }
+.nh-eyebrow::before{ content:""; position:absolute; left:0; top:50%; width:18px; height:1px; background:var(--accent); }
+.nh-head{ max-width:820px; margin:0 auto 52px; text-align:center; }
+.nh-head-left{ text-align:left; margin:0 0 32px; }
+.nh-head-left .nh-eyebrow{ padding-left:26px; }
+.nh-head h2{ font-family:var(--fd); font-weight:700; font-size:clamp(28px,3.6vw,44px); line-height:1.16; letter-spacing:-0.025em; color:var(--ink); margin:0; }
+.nh-head h2 em{ font-style:normal; color:var(--accent-dark); }
+.nh-head-sub{ margin:16px auto 0; max-width:62ch; font-size:clamp(15px,1.4vw,17px); line-height:1.65; color:var(--ink-soft); }
+.nh-head-left .nh-head-sub{ margin-left:0; }
+.nh-more{ margin-top:48px; text-align:center; }
+.nh-link-btn{ background:none; border:none; cursor:pointer; font-family:var(--fm); font-size:14px; letter-spacing:.02em; color:var(--accent-dark); padding:10px 2px; transition:color .2s, transform .2s; }
+.nh-link-btn:hover{ color:var(--ink); transform:translateX(4px); }
+/* .nh-more 안의 링크는 눈에 띄는 아웃라인 버튼으로 */
+.nh-more .nh-link-btn{ display:inline-flex; align-items:center; gap:8px; padding:13px 28px; border:1px solid var(--line-strong); border-radius:999px; color:var(--ink); background:var(--surface); font-family:var(--fd); font-weight:600; font-size:15px; letter-spacing:-0.01em; }
+.nh-more .nh-link-btn:hover{ border-color:var(--accent); color:var(--accent-dark); background:var(--surface-2); transform:none; }
+
+/* ---- 공통 버튼 ---- */
+.nh-btn{ font-family:var(--fd); font-weight:600; font-size:16px; letter-spacing:-0.01em; padding:16px 34px; border-radius:11px; cursor:pointer; transition:background .2s, border-color .2s, color .2s, transform .15s, box-shadow .2s; border:1px solid transparent; }
+.nh-btn:active{ transform:translateY(1px); }
+.nh-btn-primary{ background:var(--btn-bg); color:#fff; border-color:var(--btn-bg); box-shadow:0 10px 30px -12px rgba(46,92,154,.9); }
+.nh-btn-primary:hover{ background:var(--btn-bg-h); border-color:var(--btn-bg-h); box-shadow:0 16px 40px -14px rgba(46,92,154,1); }
+.nh-btn-glass{ background:rgba(255,255,255,.06); color:var(--ink); border-color:rgba(255,255,255,.22); backdrop-filter:blur(6px); }
+.nh-btn-glass:hover{ background:rgba(255,255,255,.12); border-color:var(--accent-dark); }
+
+/* ---------- 1. HERO ---------- */
+.nh-hero{ position:relative; min-height:min(88vh,760px); display:flex; align-items:center; overflow:hidden; }
+/* 이미지 없는 깔끔한 히어로 */
+.nh-hero-plain{ min-height:min(80vh,700px);
+  background:
+    radial-gradient(1200px 620px at 14% -12%, rgba(74,130,196,.22), transparent 58%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%); }
+/* 미세 도트 그리드 텍스처 */
+.nh-hero-plain::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.4px); background-size:34px 34px;
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 30%, #000 75%, transparent);
+          mask-image:linear-gradient(90deg, transparent, #000 30%, #000 75%, transparent); }
+.nh-hero-plain::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:1px; background:linear-gradient(90deg, transparent, var(--line-strong) 25%, var(--line-strong) 75%, transparent); }
+.nh-hero-glow{ position:absolute; right:2%; top:2%; width:640px; height:640px; z-index:0; pointer-events:none;
+  background:radial-gradient(circle, rgba(74,130,196,.18), transparent 66%); filter:blur(10px); }
+/* 히어로 우측 장식 그래픽 */
+.nh-hero-art{ position:absolute; right:2%; top:50%; transform:translateY(-50%); width:520px; height:520px; z-index:0; color:var(--accent-dark); pointer-events:none; }
+.nh-hero-rings{ position:absolute; inset:0; width:100%; height:100%; animation:nhSpin 60s linear infinite; transform-origin:50% 50%; }
+@keyframes nhSpin{ to{ transform:rotate(360deg); } }
+.nh-chip{ position:absolute; display:inline-flex; align-items:center; gap:9px; padding:11px 16px; border-radius:12px;
+  background:rgba(20,28,46,.72); border:1px solid rgba(74,130,196,.30); backdrop-filter:blur(8px);
+  font-family:var(--fm); font-size:12.5px; letter-spacing:.02em; color:var(--ink-mid); box-shadow:0 16px 40px -20px rgba(0,0,0,.8); }
+.nh-chip b{ font-family:var(--fd); font-weight:700; color:#fff; }
+.nh-chip-dot{ width:8px; height:8px; border-radius:50%; background:#5FDDA0; box-shadow:0 0 0 4px rgba(95,221,160,.16); }
+.nh-chip-a{ top:20%; right:6%; }
+.nh-chip-b{ bottom:20%; right:24%; }
+@media (max-width:1080px){ .nh-hero-art{ display:none; } }
+@media (prefers-reduced-motion:reduce){ .nh-hero-rings{ animation:none; } }
+.nh-hero-bg{ position:absolute; inset:0; z-index:0; }
+.nh-hero-bg img{ width:100%; height:100%; object-fit:cover; object-position:center; filter:saturate(.9); }
+.nh-hero-scrim{ position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, rgba(8,12,22,.96) 0%, rgba(8,12,22,.82) 42%, rgba(8,12,22,.45) 72%, rgba(8,12,22,.30) 100%),
+    linear-gradient(0deg, rgba(8,12,22,.85) 0%, transparent 40%); }
+.nh-hero-inner{ position:relative; z-index:1; padding:120px 32px; width:100%; }
+.nh-hero .nh-kicker,.nh-hero-inner .nh-kicker{ display:inline-block; font-family:var(--fm); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-dark); margin-bottom:22px; }
+.nh-hero-title{ font-family:var(--fd); font-weight:800; font-size:clamp(36px,5.8vw,66px); line-height:1.08; letter-spacing:-0.035em; color:#fff; margin:0; max-width:17ch; text-shadow:0 2px 30px rgba(0,0,0,.4); }
+.nh-hero-title em{ font-style:normal; color:var(--accent-dark); }
+.nh-hero-lede{ margin:26px 0 0; max-width:50ch; font-size:clamp(16px,1.6vw,19px); line-height:1.65; color:var(--ink-mid); }
+.nh-hero-cta{ display:flex; gap:14px; margin-top:40px; flex-wrap:wrap; }
+.nh-hero-stats{ display:flex; gap:48px; margin:56px 0 0; padding-top:32px; border-top:1px solid rgba(255,255,255,.14); }
+.nh-hero-stats div{ display:flex; flex-direction:column; }
+.nh-hero-stats dt{ font-family:var(--fd); font-weight:700; font-size:clamp(26px,3vw,38px); line-height:1; letter-spacing:-0.02em; color:#fff; }
+.nh-hero-stats dd{ margin:8px 0 0; font-family:var(--fm); font-size:12.5px; letter-spacing:.04em; color:var(--ink-soft); }
+
+/* ---------- 2. 핵심 가치 (사진 카드) ---------- */
+.nh-grid{ display:grid; gap:26px; }
+.nh-values{ grid-template-columns:repeat(4,1fr); }
+.nh-value{ text-align:left; }
+.nh-value-media{ position:relative; aspect-ratio:4/3; border-radius:16px; overflow:hidden; border:1px solid var(--line); }
+.nh-value-media img{ width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+.nh-value-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 45%, rgba(8,12,22,.55)); }
+.nh-value:hover .nh-value-media img{ transform:scale(1.05); }
+.nh-value-no{ position:absolute; left:14px; bottom:12px; z-index:1; font-family:var(--fd); font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em; opacity:.9; }
+.nh-value h3{ font-family:var(--fd); font-weight:600; font-size:19px; letter-spacing:-0.01em; color:var(--ink); margin:18px 0 8px; }
+.nh-value p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0; }
+
+/* ---------- 3. 신뢰 지표 ---------- */
+.nh-metrics-section{ padding:80px 0; overflow:hidden; }
+.nh-metrics-bg{ position:absolute; inset:0; z-index:0; }
+.nh-metrics-bg img{ width:100%; height:100%; object-fit:cover; opacity:.16; }
+.nh-metrics-bg span{ position:absolute; inset:0; background:linear-gradient(180deg, var(--bg-deep), rgba(8,12,22,.86)); }
+.nh-metrics{ position:relative; z-index:1; display:grid; grid-template-columns:repeat(4,1fr); gap:24px; text-align:center; }
+.nh-metric{ position:relative; }
+.nh-metric + .nh-metric::before{ content:""; position:absolute; left:-12px; top:14%; height:72%; width:1px; background:var(--line-strong); }
+.nh-metric-num{ font-family:var(--fd); font-weight:800; font-size:clamp(36px,4.6vw,56px); line-height:1; letter-spacing:-0.03em;
+  background:linear-gradient(180deg,#fff,#B9CCE6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.nh-metric-suf{ -webkit-text-fill-color:var(--accent-dark); color:var(--accent-dark); margin-left:2px; }
+.nh-metric-lbl{ margin-top:16px; font-family:var(--fm); font-size:13px; letter-spacing:.04em; color:var(--ink-soft); }
+
+/* ---------- 4. WHY (full-bleed 배경 · 아이콘 행) ---------- */
+.nh-why-section{ position:relative; overflow:hidden; padding:0; background:var(--bg); }
+.nh-why-bg{ position:absolute; top:0; right:0; width:56%; height:100%; z-index:0; }
+.nh-why-bg img{ width:100%; height:100%; object-fit:cover; object-position:center; }
+.nh-why-bg::after{ content:""; position:absolute; inset:0;
+  background:linear-gradient(90deg, var(--bg) 2%, rgba(12,18,32,.74) 26%, rgba(12,18,32,.18) 58%, transparent 82%); }
+.nh-why-inner{ position:relative; z-index:1; padding:104px 32px; }
+.nh-why-copy{ max-width:560px; }
+.nh-why-list{ list-style:none; margin:0 0 32px; padding:0; }
+.nh-why-list li{ display:flex; align-items:flex-start; gap:16px; padding:22px 0; border-top:1px solid var(--line); }
+.nh-why-list li:last-child{ border-bottom:1px solid var(--line); }
+.nh-why-no{ font-family:var(--fd); font-weight:700; font-size:14px; color:var(--accent-dark); padding-top:16px; min-width:20px; }
+.nh-why-ico{ flex:0 0 auto; width:52px; height:52px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  color:var(--accent-dark); background:radial-gradient(circle at 50% 38%, rgba(74,130,196,.22), rgba(74,130,196,.05));
+  border:1px solid rgba(74,130,196,.38); box-shadow:0 0 0 4px rgba(74,130,196,.05), inset 0 0 12px rgba(74,130,196,.14); }
+.nh-why-ico svg{ width:26px; height:26px; }
+.nh-why-list li > div{ padding-top:3px; }
+.nh-why-list h3{ font-family:var(--fd); font-weight:600; font-size:18.5px; letter-spacing:-0.01em; color:var(--ink); margin:0 0 7px; }
+.nh-why-list p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0; }
+.nh-why-media{ position:relative; margin:0; border-radius:20px; overflow:hidden; border:1px solid var(--line-strong); aspect-ratio:4/3;
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.9); }
+.nh-why-media img{ width:100%; height:100%; object-fit:cover; }
+.nh-why-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 60%, rgba(8,12,22,.5)); pointer-events:none; }
+.nh-why-media-badge{ position:absolute; left:18px; bottom:16px; z-index:1; display:inline-flex; align-items:center; gap:9px;
+  padding:8px 14px; border-radius:10px; background:rgba(12,18,32,.66); border:1px solid rgba(74,130,196,.30); backdrop-filter:blur(8px);
+  font-family:var(--fm); font-size:12px; letter-spacing:.06em; color:var(--ink-mid); }
+
+/* ---------- 5·7. 사진 카드 (솔루션·제품군) ---------- */
+.nh-solutions{ grid-template-columns:repeat(3,1fr); }
+.nh-products{ grid-template-columns:repeat(4,1fr); }
+/* 제품군 — 아이콘 타일 (사진 대신) */
+.nh-prodgrid{ grid-template-columns:repeat(4,1fr); }
+.nh-prodtile{ display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:0; padding:30px 26px 26px; background:var(--surface); border:1px solid var(--line); border-radius:16px; cursor:pointer; transition:border-color .22s, transform .22s, background .22s; }
+.nh-prodtile:hover{ border-color:var(--accent); transform:translateY(-5px); background:var(--surface-2); }
+.nh-prodtile-ico{ width:56px; height:56px; border-radius:14px; display:inline-flex; align-items:center; justify-content:center; color:var(--accent-dark);
+  background:radial-gradient(circle at 50% 38%, rgba(74,130,196,.20), rgba(74,130,196,.05)); border:1px solid rgba(74,130,196,.34); margin-bottom:20px; }
+.nh-prodtile-ico svg{ width:28px; height:28px; }
+.nh-prodtile-name{ font-family:var(--fd); font-weight:600; font-size:18px; letter-spacing:-0.01em; color:var(--ink); margin:0 0 8px; }
+.nh-prodtile-desc{ font-size:14px; line-height:1.6; color:var(--ink-soft); margin:0 0 18px; }
+.nh-prodtile-more{ margin-top:auto; font-family:var(--fm); font-size:13px; letter-spacing:.02em; color:var(--accent-dark); transition:transform .2s; }
+.nh-prodtile:hover .nh-prodtile-more{ transform:translateX(4px); }
+.nh-card{ display:flex; flex-direction:column; text-align:left; padding:0; background:var(--surface); border:1px solid var(--line); border-radius:18px; overflow:hidden; cursor:pointer; transition:border-color .25s, transform .25s, box-shadow .25s; }
+.nh-card:hover{ border-color:var(--accent); transform:translateY(-6px); box-shadow:0 24px 50px -24px rgba(0,0,0,.7); }
+.nh-card-media{ position:relative; aspect-ratio:16/10; overflow:hidden; }
+.nh-card-sm .nh-card-media{ aspect-ratio:16/11; }
+.nh-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform .55s ease; }
+.nh-card-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,12,22,.05), rgba(20,28,46,.35)); }
+.nh-card:hover .nh-card-media img{ transform:scale(1.06); }
+.nh-card-body{ display:flex; flex-direction:column; flex:1; padding:22px 24px 24px; }
+.nh-card-name{ font-family:var(--fd); font-weight:600; font-size:18px; letter-spacing:-0.01em; color:var(--ink); margin:0 0 8px; }
+.nh-card-desc{ font-size:14px; line-height:1.6; color:var(--ink-soft); margin:0 0 18px; }
+.nh-card-more{ margin-top:auto; font-family:var(--fm); font-size:13px; letter-spacing:.02em; color:var(--accent-dark); transition:transform .2s; }
+.nh-card:hover .nh-card-more{ transform:translateX(4px); }
+
+/* ---------- 6. 고객사 & 사례 ---------- */
+.nh-cases-section .logo-marquee{ background:var(--bg-deep); padding:28px 0; margin:6px 0 60px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+
+/* ---------- 8. 작동 방식 (썸네일 스텝퍼) ---------- */
+.nh-flow{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4,1fr); gap:28px; position:relative; }
+.nh-flow::before{ content:""; position:absolute; top:44px; left:14%; right:14%; height:2px; background:linear-gradient(90deg, transparent, var(--line-strong) 14%, var(--line-strong) 86%, transparent); z-index:0; }
+.nh-flow-step{ position:relative; z-index:1; text-align:center; }
+.nh-flow-ico{ width:88px; height:88px; margin:0 auto 18px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--accent-dark);
+  background:radial-gradient(circle at 50% 38%, rgba(74,130,196,.20), rgba(20,28,46,.9)); border:1px solid rgba(74,130,196,.40);
+  box-shadow:0 0 0 8px var(--bg-deep), inset 0 0 18px rgba(74,130,196,.14); }
+.nh-flow-ico svg{ width:34px; height:34px; }
+.nh-flow-no{ font-family:var(--fm); font-size:12.5px; letter-spacing:.1em; color:var(--accent-dark); }
+.nh-flow-step h3{ font-family:var(--fd); font-weight:600; font-size:19px; color:var(--ink); margin:8px 0 8px; }
+.nh-flow-step h3 span{ display:block; font-family:var(--fm); font-weight:400; font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-top:5px; }
+.nh-flow-step p{ font-size:14px; line-height:1.55; color:var(--ink-soft); margin:0; max-width:24ch; margin-left:auto; margin-right:auto; }
+
+/* ---------- 9. 수상 · 인증 ---------- */
+.nh-awards{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.nh-award{ position:relative; text-align:center; padding:30px 20px; border:1px solid var(--line); border-radius:16px; background:var(--surface); overflow:hidden; }
+.nh-award::before{ content:""; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.5; }
+.nh-award-feature{ background:linear-gradient(180deg, rgba(74,130,196,.14), var(--surface)); border-color:var(--line-strong); }
+.nh-award-year{ font-family:var(--fd); font-weight:800; font-size:24px; color:var(--accent-dark); letter-spacing:-0.01em; }
+.nh-award-name{ margin-top:10px; font-size:13.5px; line-height:1.45; color:var(--ink-mid); }
+.nh-award-tag{ margin-top:12px; font-family:var(--fm); font-size:11.5px; letter-spacing:.06em; color:var(--accent-dark); }
+
+/* ---------- 10. 최종 CTA (사진 배경) ---------- */
+.nh-final-cta{ position:relative; padding:112px 0; text-align:center; overflow:hidden; }
+.nh-final-bg{ position:absolute; inset:0; z-index:0; }
+.nh-final-bg img{ width:100%; height:100%; object-fit:cover; }
+.nh-final-bg span{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,12,22,.9), rgba(8,12,22,.82)), radial-gradient(700px 380px at 50% 100%, rgba(74,130,196,.28), transparent 62%); }
+.nh-final-inner{ position:relative; z-index:1; max-width:780px; }
+.nh-final-cta h2{ font-family:var(--fd); font-weight:800; font-size:clamp(28px,3.8vw,46px); line-height:1.16; letter-spacing:-0.025em; color:#fff; margin:0; }
+.nh-final-cta h2 em{ font-style:normal; color:var(--accent-dark); }
+.nh-final-cta p{ margin:20px auto 0; max-width:48ch; font-size:16px; line-height:1.6; color:var(--ink-mid); }
+.nh-final-cta-row{ margin-top:36px; justify-content:center; }
+
+/* ============ 반응형 ============ */
+@media (max-width:1024px){
+  .nh-solutions{ grid-template-columns:repeat(2,1fr); }
+  .nh-products,.nh-prodgrid{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:1024px){ .nh-why-bg{ width:62%; } }
+@media (max-width:820px){
+  .nh-why-section{ padding:0; }
+  .nh-why-bg{ position:relative; width:100%; height:220px; }
+  .nh-why-bg::after{ background:linear-gradient(0deg, var(--bg) 4%, rgba(12,18,32,.35) 60%, transparent); }
+  .nh-why-inner{ padding:36px 24px 64px; }
+  .nh-why-copy{ max-width:none; }
+}
+@media (max-width:860px){
+  .nh-values{ grid-template-columns:repeat(2,1fr); }
+  .nh-metrics{ grid-template-columns:repeat(2,1fr); row-gap:40px; }
+  .nh-metric:nth-child(3)::before{ display:none; }
+  .nh-flow{ grid-template-columns:repeat(2,1fr); gap:40px 24px; }
+  .nh-flow::before{ display:none; }
+  .nh-awards{ grid-template-columns:repeat(2,1fr); }
+  .nh-hero-stats{ gap:32px; }
+}
+@media (max-width:600px){
+  .nh-section{ padding:64px 0; }
+  .nh-head{ margin-bottom:38px; }
+  .nh-hero{ min-height:auto; }
+  .nh-hero-inner{ padding:96px 24px 72px; }
+  .nh-values{ grid-template-columns:1fr; }
+  .nh-solutions{ grid-template-columns:1fr; }
+  .nh-products,.nh-prodgrid{ grid-template-columns:1fr; }
+  .nh-metrics{ grid-template-columns:1fr; }
+  .nh-metric + .nh-metric::before{ display:none; }
+  .nh-awards{ grid-template-columns:1fr; }
+  .nh-flow{ grid-template-columns:1fr; gap:32px; }
+  .nh-hero-cta{ flex-direction:column; align-items:stretch; }
+  .nh-hero-cta .nh-btn{ width:100%; }
+  .nh-hero-stats{ gap:24px; flex-wrap:wrap; }
+  .nh-value p,.nh-head-sub,.nh-hero-lede,.nh-card-desc,.nh-flow-step p{ max-width:none; }
+}
+@media (prefers-reduced-motion:reduce){
+  .nh-card,.nh-value-media img,.nh-card-media img,.nh-link-btn,.nh-btn{ transition:none; }
+}
+
+/* ---- About us (Who we are) 로 이관된 섹션 ---- */
+.about-sec-head{ margin-top:72px; }
+.about-sec-head em{ font-style:normal; color:var(--accent-dark); font-weight:600; }
+.about-why-grid{ margin-top:28px; }
+.about-step-flow{ margin-top:28px; }
+@media (max-width:600px){ .about-sec-head{ margin-top:52px; } }
+
+/* ---- About us 상단 히어로 (체계적 리디자인) ---- */
+.about-hero2{ display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; margin:14px 0 0; }
+.about-hero2 .nh-eyebrow{ margin-bottom:16px; }
+.ah-title{ font-family:var(--fd); font-weight:800; font-size:clamp(30px,3.8vw,46px); line-height:1.14; letter-spacing:-0.03em; color:var(--ink); margin:0 0 22px; }
+.ah-title em{ font-style:normal; background:linear-gradient(90deg,var(--accent-dark),#8FB8E6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.ah-copy > p{ font-size:15.5px; line-height:1.72; color:var(--ink-mid); margin:0 0 16px; max-width:52ch; }
+.ah-copy > p strong{ color:var(--ink); font-weight:600; }
+.ah-partner{ display:flex; gap:14px; align-items:center; margin-top:8px; padding:18px 20px; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:12px; background:var(--surface); }
+.ah-partner p{ margin:0; font-size:14px; line-height:1.6; color:var(--ink-mid); }
+.ah-partner p strong{ color:var(--ink); font-weight:600; }
+.ah-ico{ flex:0 0 auto; width:44px; height:44px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center;
+  color:var(--accent-dark); background:radial-gradient(circle at 50% 40%, rgba(74,130,196,.22), rgba(74,130,196,.05)); border:1px solid rgba(74,130,196,.34); }
+.ah-ico svg{ width:22px; height:22px; }
+.ah-partner .ah-ico{ width:40px; height:40px; }
+.ah-media{ position:relative; margin:0; border-radius:20px; overflow:hidden; border:1px solid var(--line); aspect-ratio:4/3; box-shadow:0 30px 60px -30px rgba(0,0,0,.8); }
+.ah-media img{ width:100%; height:100%; object-fit:cover; }
+.ah-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,12,22,.12), rgba(8,12,22,.30)); }
+
+/* 지표 밴드 (풀폭, 구분선) */
+.ah-stats{ display:grid; grid-template-columns:repeat(4,1fr); margin:52px 0 0; border:1px solid var(--line); border-radius:16px; background:var(--surface); overflow:hidden; }
+.ah-stats .ah-stat{ display:flex; gap:14px; align-items:center; padding:24px 26px; }
+.ah-stats .ah-stat + .ah-stat{ border-left:1px solid var(--line); }
+.ah-stat > div{ display:flex; flex-direction:column; }
+.ah-stat b{ font-family:var(--fd); font-weight:700; font-size:20px; letter-spacing:-0.01em; color:var(--ink); line-height:1.1; }
+.ah-stat span{ font-size:12.5px; line-height:1.4; color:var(--ink-soft); margin-top:5px; }
+
+/* 4가지 강조 (카드형 리디자인) */
+.ah-features{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin:22px 0 8px; }
+.ah-feat{ display:flex; flex-direction:column; gap:8px; padding:26px 24px; border:1px solid var(--line); border-radius:16px; background:var(--surface); transition:border-color .2s, transform .2s; }
+.ah-feat:hover{ border-color:var(--accent); transform:translateY(-4px); }
+.ah-feat-ico{ width:48px; height:48px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; color:var(--accent-dark);
+  background:radial-gradient(circle at 50% 38%, rgba(74,130,196,.20), rgba(74,130,196,.05)); border:1px solid rgba(74,130,196,.34); margin-bottom:8px; }
+.ah-feat-ico svg{ width:24px; height:24px; }
+.ah-feat b{ font-family:var(--fd); font-weight:600; font-size:16px; color:var(--ink); }
+.ah-feat span{ font-size:13px; line-height:1.5; color:var(--ink-soft); }
+@media (max-width:900px){
+  .about-hero2{ grid-template-columns:1fr; gap:32px; }
+  .ah-media{ aspect-ratio:16/10; order:-1; }
+  .ah-stats{ grid-template-columns:repeat(2,1fr); }
+  .ah-stats .ah-stat:nth-child(3){ border-left:none; }
+  .ah-stats .ah-stat:nth-child(n+3){ border-top:1px solid var(--line); }
+  .ah-features{ grid-template-columns:repeat(2,1fr); gap:16px; }
+}
+@media (max-width:560px){
+  .ah-stats{ grid-template-columns:1fr; }
+  .ah-stats .ah-stat + .ah-stat{ border-left:none; border-top:1px solid var(--line); }
+  .ah-features{ grid-template-columns:1fr; }
+}
+
+/* ============================================================
+   완성도 리파인 (finish pass) — 다크 프리미엄 톤 유지
+   ============================================================ */
+:root{ --shadow-card:0 22px 48px -28px rgba(0,0,0,.72); --shadow-card-h:0 30px 60px -26px rgba(0,0,0,.85); }
+
+/* 섹션 리듬 */
+.nh-section{ padding:104px 0; }
+.nh-section + .nh-section{ border-top:1px solid var(--line); }
+.nh-cases-section{ background:var(--bg-deep); }
+.nh-products-section{ background:var(--bg); }
+.nh-awards-section{ background:var(--bg); }
+
+/* 섹션 헤더 — 정렬·간격 정밀화 */
+.nh-head{ max-width:840px; margin:0 auto 56px; }
+.nh-eyebrow{ font-size:12px; letter-spacing:.20em; margin-bottom:18px; }
+.nh-eyebrow::before{ width:22px; background:linear-gradient(90deg,var(--accent),transparent); }
+.nh-head h2{ font-weight:800; letter-spacing:-0.03em; line-height:1.14; }
+.nh-head h2 em{ background:linear-gradient(96deg,var(--accent-dark),#93BBE8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.nh-head-sub{ margin-top:18px; color:var(--ink-mid); }
+
+/* 카드 공통 마감 — 값/솔루션/제품/어워드/About 강점 통일 */
+.nh-card,.nh-prodtile,.nh-value-media,.nh-why-card,.nh-award,.ah-feat{ box-shadow:var(--shadow-card); }
+.nh-card{ border-radius:18px; }
+.nh-card:hover,.nh-prodtile:hover,.ah-feat:hover{ box-shadow:var(--shadow-card-h); }
+/* 카드 상단 얇은 하이라이트(프리미엄 디테일) */
+.nh-card,.nh-prodtile,.nh-award,.ah-feat,.nh-why-card{ position:relative; }
+.nh-card::before,.nh-prodtile::before,.ah-feat::before{ content:""; position:absolute; left:0; right:0; top:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent); border-radius:inherit; opacity:0; transition:opacity .25s; pointer-events:none; }
+.nh-card:hover::before,.nh-prodtile:hover::before,.ah-feat:hover::before{ opacity:1; }
+
+/* 값 카드 — 텍스트 여백 정밀화 */
+.nh-value h3{ font-size:18px; margin:20px 0 8px; }
+.nh-value p{ color:var(--ink-soft); }
+
+/* 솔루션/제품 카드 본문 */
+.nh-card-name{ font-size:18.5px; }
+.nh-card-body{ padding:24px 26px 26px; }
+
+/* 신뢰지표 밴드 — 정밀 마감 */
+.nh-metrics-section{ padding:88px 0; }
+.nh-metric-lbl{ letter-spacing:.06em; color:var(--ink-soft); }
+
+/* 로고 마퀴 — 상하 여백 균형 */
+.nh-cases-section .logo-marquee{ margin:10px 0 64px; }
+
+/* 최종 CTA — 텍스트 대비 강화 */
+.nh-final-cta{ padding:120px 0; }
+.nh-final-cta p{ color:var(--ink-mid); }
+
+/* 어워드 카드 정밀화 */
+.nh-award{ border-radius:16px; }
+.nh-award-name{ color:var(--ink-mid); }
+
+/* 스크롤 리빌(있으면) — 더 부드럽게 */
+#view-home .reveal{ transition:opacity .6s ease, transform .6s ease; }
+
+/* ---------- 8. 작동 방식 v2 (스텝 카드 + 화살표) ---------- */
+.nh-flow2{ list-style:none; margin:0; padding:0; display:flex; align-items:stretch; }
+.nh-flow2-step{ flex:1; display:flex; align-items:stretch; min-width:0; }
+.nh-flow2-card{ position:relative; flex:1; display:flex; flex-direction:column; padding:30px 26px 28px;
+  background:linear-gradient(180deg, var(--surface), var(--surface-2)); border:1px solid var(--line); border-radius:18px;
+  box-shadow:var(--shadow-card); transition:transform .25s, border-color .25s, box-shadow .25s; }
+.nh-flow2-card::before{ content:""; position:absolute; left:0; right:0; top:0; height:3px; border-radius:18px 18px 0 0;
+  background:linear-gradient(90deg, var(--accent), rgba(74,130,196,.15)); opacity:.9; }
+.nh-flow2-step:hover .nh-flow2-card{ transform:translateY(-6px); border-color:var(--accent); box-shadow:var(--shadow-card-h); }
+.nh-flow2-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.nh-flow2-no{ font-family:var(--fm); font-size:12px; letter-spacing:.14em; color:var(--accent-dark); }
+.nh-flow2-ico{ width:52px; height:52px; border-radius:14px; display:inline-flex; align-items:center; justify-content:center; color:var(--accent-dark);
+  background:radial-gradient(circle at 50% 36%, rgba(74,130,196,.24), rgba(74,130,196,.06)); border:1px solid rgba(74,130,196,.36); }
+.nh-flow2-ico svg{ width:26px; height:26px; }
+.nh-flow2-card h3{ font-family:var(--fd); font-weight:700; font-size:21px; letter-spacing:-0.01em; color:var(--ink); margin:0 0 8px; }
+.nh-flow2-card h3 span{ display:inline-block; margin-left:8px; font-family:var(--fm); font-weight:400; font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); vertical-align:middle; }
+.nh-flow2-card p{ font-size:14px; line-height:1.6; color:var(--ink-soft); margin:0; }
+.nh-flow2-conn{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:44px; color:var(--line-strong); }
+.nh-flow2-conn svg{ width:22px; height:22px; }
+@media (max-width:900px){
+  .nh-flow2{ flex-wrap:wrap; gap:16px; }
+  .nh-flow2-step{ flex:0 0 calc(50% - 8px); }
+  .nh-flow2-conn{ display:none; }
+}
+@media (max-width:560px){
+  .nh-flow2-step{ flex:0 0 100%; }
+}
+
+/* ============================================================
+   리파인 v3 — Hero 지표 / 도입사례 밸런스 / 작동방식 / 수상·인증
+   ============================================================ */
+
+/* ── Hero 지표 재디자인 (구분선 + 라벨 확대 + 액센트 단위) ── */
+.nh-hero-stats{ display:flex; gap:0; margin:52px 0 0; padding-top:30px; border-top:1px solid rgba(255,255,255,.14); }
+.nh-hero-stats div{ display:flex; flex-direction:column; padding:2px 38px; position:relative; }
+.nh-hero-stats div:first-child{ padding-left:0; }
+.nh-hero-stats div + div::before{ content:""; position:absolute; left:0; top:2px; bottom:8px; width:1px; background:linear-gradient(180deg,transparent,rgba(255,255,255,.18),transparent); }
+.nh-hero-stats dt{ font-family:var(--fd); font-weight:800; font-size:clamp(30px,3.2vw,44px); line-height:1; letter-spacing:-0.025em; color:#fff; display:flex; align-items:baseline; }
+.nh-hs-u{ font-size:.5em; font-weight:700; color:var(--accent-dark); margin-left:3px; }
+.nh-hero-stats dd{ margin:13px 0 0; font-family:var(--fb); font-size:14px; font-weight:500; letter-spacing:0; color:var(--ink-mid); }
+@media (max-width:560px){ .nh-hero-stats{ flex-wrap:wrap; gap:20px 0; } .nh-hero-stats div{ padding:2px 22px; flex:0 0 33%; } .nh-hero-stats div:first-child{ padding-left:0; } .nh-hero-stats div+div::before{ display:none; } }
+
+/* ── 도입사례 카드 밸런스 (텍스트 처짐 방지) ── */
+#homeCases{ align-items:start; }
+.home-case-card{ min-height:0; }
+.hcc-result{ margin-top:20px; }
+
+/* ── 작동방식 v2 강화 (워터마크 번호 + 글로우) ── */
+.nh-flow2-card{ overflow:hidden; }
+.nh-flow2-card::after{ content:""; position:absolute; right:-40px; top:-40px; width:160px; height:160px; border-radius:50%;
+  background:radial-gradient(circle, rgba(74,130,196,.16), transparent 70%); opacity:0; transition:opacity .3s; pointer-events:none; }
+.nh-flow2-step:hover .nh-flow2-card::after{ opacity:1; }
+.nh-flow2-wm{ position:absolute; right:14px; bottom:-14px; font-family:var(--fd); font-weight:800; font-size:96px; line-height:1;
+  color:var(--ink); opacity:.05; pointer-events:none; letter-spacing:-0.04em; }
+.nh-flow2-conn svg{ width:24px; height:24px; }
+.nh-flow2-step:hover .nh-flow2-conn{ color:var(--accent-dark); }
+
+/* ── 수상·인증 재디자인 (골드 액센트 · 비대칭 · 트로피) ── */
+.nh-awards-section{ background:linear-gradient(180deg, var(--bg), var(--bg-deep)); }
+.nh-awards2{ display:grid; grid-template-columns:1.05fr 1fr; gap:24px; align-items:stretch; }
+.nh-award-hero{ position:relative; display:flex; align-items:center; gap:26px; padding:38px 40px; border-radius:20px; overflow:hidden;
+  background:linear-gradient(135deg, rgba(228,178,94,.16), rgba(228,178,94,.03) 55%), var(--surface);
+  border:1px solid rgba(228,178,94,.32); box-shadow:0 30px 60px -34px rgba(0,0,0,.8); }
+.nh-award-hero::before{ content:""; position:absolute; right:-60px; top:-60px; width:220px; height:220px; border-radius:50%;
+  background:radial-gradient(circle, rgba(228,178,94,.18), transparent 70%); pointer-events:none; }
+.nh-award-trophy{ flex:0 0 auto; width:86px; height:86px; border-radius:20px; display:flex; align-items:center; justify-content:center;
+  color:#E8BE6E; background:radial-gradient(circle at 50% 36%, rgba(228,178,94,.28), rgba(228,178,94,.06)); border:1px solid rgba(228,178,94,.42); position:relative; z-index:1; }
+.nh-award-trophy svg{ width:44px; height:44px; }
+.nh-award-hero-meta{ position:relative; z-index:1; }
+.nh-award-hero-badge{ display:inline-block; font-family:var(--fm); font-size:12px; letter-spacing:.08em; color:#EBC377; margin-bottom:12px;
+  padding:5px 12px; border:1px solid rgba(228,178,94,.34); border-radius:999px; background:rgba(228,178,94,.08); }
+.nh-award-hero-name{ font-family:var(--fd); font-weight:800; font-size:clamp(22px,2.2vw,28px); line-height:1.18; letter-spacing:-0.02em; color:#fff; }
+.nh-award-hero-sub{ margin-top:10px; font-size:13.5px; color:var(--ink-mid); }
+.nh-award-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:20px; background:var(--surface); overflow:hidden; }
+.nh-award-list li{ display:flex; align-items:center; gap:18px; padding:0 26px; flex:1 1 0; min-height:64px; border-top:1px solid var(--line); transition:background .2s; }
+.nh-award-list li:first-child{ border-top:none; }
+.nh-award-list li:not(.nh-award-more-row):hover{ background:var(--surface-2); }
+.nh-award-yr{ flex:0 0 auto; min-width:64px; font-family:var(--fd); font-weight:800; font-size:19px; color:#E8BE6E; letter-spacing:-0.01em; }
+.nh-award-yr-cert{ font-size:15px; }
+.nh-award-nm{ flex:1; font-size:14.5px; color:var(--ink-mid); }
+.nh-award-ar{ color:var(--ink-faint); transition:transform .2s, color .2s; }
+.nh-award-list li:not(.nh-award-more-row):hover .nh-award-ar{ color:#E8BE6E; transform:translateX(3px); }
+.nh-award-more-row{ justify-content:center; }
+.nh-award-more-row .nh-link-btn{ padding:14px 2px; }
+@media (max-width:820px){ .nh-awards2{ grid-template-columns:1fr; } .nh-award-list li{ padding:16px 22px; } }
+
+/* ── About us 대표이사 서명 ── */
+.ah-sign{ margin-top:22px; display:flex; align-items:center; gap:14px; }
+.ah-sign::before{ content:""; width:34px; height:1px; background:var(--accent); }
+.ah-sign-text{ display:flex; align-items:baseline; gap:10px; }
+.ah-sign-text span{ font-size:13.5px; color:var(--ink-soft); letter-spacing:.02em; }
+.ah-sign-text b{ font-family:var(--fd); font-weight:700; font-size:19px; color:var(--ink); letter-spacing:.06em; }
+
+/* ── 작동방식+제품 통합: 제품 보기 링크 ── */
+.nh-flow2-card p{ margin-bottom:20px; }
+.nh-flow2-prod{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; text-align:left;
+  padding:12px 14px; border:1px solid var(--line); border-radius:11px; background:rgba(74,130,196,.06); cursor:pointer; transition:border-color .2s, background .2s, transform .15s; position:relative; z-index:1; }
+.nh-flow2-prod:hover{ border-color:var(--accent); background:rgba(74,130,196,.13); }
+.nh-flow2-prod-lbl{ font-family:var(--fd); font-weight:600; font-size:13.5px; letter-spacing:-0.01em; color:var(--ink); }
+.nh-flow2-prod-go{ font-family:var(--fm); font-size:11px; letter-spacing:.03em; color:var(--accent-dark); white-space:nowrap; transition:transform .2s; }
+.nh-flow2-prod:hover .nh-flow2-prod-go{ transform:translateX(3px); }
+
+/* ── Hero 지표 상단 선: 지표 폭까지만 ── */
+.nh-hero-stats{ width:fit-content; max-width:100%; }
+@media (max-width:560px){ .nh-hero-stats{ width:100%; } }
+
+/* ── 수상·인증 v3 (심플 메달 카드 · 재디자인) ── */
+.nh-awards-section{ background:linear-gradient(180deg, var(--bg), var(--bg-deep)); }
+.nh-awards3{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.nh-award3{ position:relative; text-align:center; padding:36px 22px 30px; border:1px solid var(--line); border-radius:18px;
+  background:var(--surface); box-shadow:var(--shadow-card); transition:transform .25s, border-color .25s, box-shadow .25s; }
+.nh-award3:hover{ transform:translateY(-5px); border-color:var(--accent); box-shadow:var(--shadow-card-h); }
+.nh-award3-ico{ display:inline-flex; align-items:center; justify-content:center; width:66px; height:66px; margin-bottom:18px; border-radius:50%;
+  color:var(--accent-dark); background:radial-gradient(circle at 50% 34%, rgba(74,130,196,.20), rgba(74,130,196,.05)); border:1px solid rgba(74,130,196,.32); }
+.nh-award3-ico svg{ width:34px; height:34px; }
+.nh-award3-yr{ font-family:var(--fd); font-weight:800; font-size:25px; letter-spacing:-0.01em; color:var(--ink); }
+.nh-award3-nm{ margin-top:9px; font-size:14px; line-height:1.45; color:var(--ink-mid); max-width:22ch; margin-left:auto; margin-right:auto; }
+.nh-award3-badge{ display:inline-block; margin-top:15px; font-family:var(--fm); font-size:11px; letter-spacing:.06em; color:var(--accent-dark);
+  padding:4px 11px; border:1px solid rgba(74,130,196,.34); border-radius:999px; background:rgba(74,130,196,.10); }
+/* 대표 수상(2026): 채운 블루 메달 + 은은한 액센트 링으로 강조 (상단 굵은 선 제거) */
+.nh-award3-feat{ border-color:rgba(74,130,196,.45); background:var(--surface-2);
+  box-shadow:0 0 0 1px rgba(74,130,196,.18), 0 26px 52px -30px rgba(46,92,154,.6); }
+.nh-award3-feat .nh-award3-ico{ color:#fff; background:linear-gradient(180deg, var(--accent-dark), var(--btn-bg)); border-color:transparent; box-shadow:0 12px 26px -10px rgba(46,92,154,.95); }
+@media (max-width:820px){ .nh-awards3{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:560px){ .nh-awards3{ grid-template-columns:1fr; } }

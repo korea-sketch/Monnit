@@ -107,7 +107,7 @@
     <label title="api.imgbb.com 무료 키 — 입력하면 사진 칸에 '업로드' 버튼이 생깁니다">이미지 업로드 키</label>
     <input type="password" id="imgbbKey" class="grow" placeholder="imgbb API 키 (선택 — 파일 업로드용)">
     <button class="btn-ghost" id="galleryBtn" title="기존 사진 중에서 골라 넣기">🖼 사진 갤러리</button>
-    <button class="btn-ghost" id="homeBtn" title="메인페이지 문구·카탈로그 링크를 이름표 보고 쉽게 수정">🏠 메인페이지 편집</button>
+    <button class="btn-ghost" id="homeBtn" title="메인페이지·About us의 문구와 사진을 이름표 보고 쉽게 수정">🏠 메인·About us 편집</button>
     <button class="btn-ghost" id="seoBtn" title="검색 노출용 제목·설명">🔎 SEO</button>
     <label style="display:flex;align-items:center;gap:5px;white-space:nowrap" title="잘 안 쓰는 기술 항목까지 모두 표시"><input type="checkbox" id="advFields"> 고급 항목 보기</label>
   </div>
@@ -128,8 +128,8 @@
   </div>
 
   <div id="homePanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
-    <div style="font-size:13px;font-weight:700;margin-bottom:4px">🏠 메인페이지 쉬운 편집</div>
-    <div class="hint" style="margin:6px 0 10px">각 항목의 <b>현재 문구</b>를 보고 그대로 고치면 됩니다. 비워두면 기본값이 유지됩니다. (영어 칸은 영문 모드에서 표시) · 저장하려면 위에 <b>저장 URL(Apps Script)</b>이 채워져 있어야 합니다.</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">🏠 메인페이지 · About us 쉬운 편집 (문구 + 사진)</div>
+    <div class="hint" style="margin:6px 0 10px">섹션별로 묶여 있습니다 — <b>━ 메인</b> 그룹은 메인페이지, <b>▣ About us</b> 그룹은 회사소개 페이지입니다. 각 항목의 <b>현재 문구</b>를 보고 그대로 고치면 되고, <b>사진 칸</b>에는 이미지 URL을 넣거나(업로드 키 입력 시) '업로드' 버튼으로 교체합니다. 비워두면 기본값이 유지됩니다. 저장하려면 위에 <b>저장 URL(Apps Script)</b>이 채워져 있어야 합니다.</div>
     <div id="homeFields"></div>
     <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
       <button class="btn btn-sm" id="homeSave" style="background:#0a7d33">메인페이지 저장</button>
@@ -822,17 +822,25 @@ function scRow(key){ const d=DATA['SiteContent']||{list:[]}; return (d.list||[])
 /* 슬롯 key → 섹션 그룹 분류 (보기 편하게 묶음) */
 function homeGroup(key){
   if(key==='product#catalog') return '📄 카탈로그 링크';
-  if(key.startsWith('home.hero')) return '① 상단 히어로 (가장 큰 첫 화면)';
-  if(key.startsWith('home.val')) return '② 가치 카드 (사고예방·비용절감 등 4개)';
-  if(key.startsWith('home.str')&&!key.startsWith('home.strength')) return '③ 강점 배지 (글로벌 인증 등 4개)';
-  if(key.startsWith('home.strengths')||key.startsWith('home.strength')) return '④ 핵심 강점 (글로벌 리더·도입실적 등)';
-  if(key.startsWith('home.process')||key.startsWith('home.step')) return '⑤ 설계→제조 공정 (본사·PCB·생산)';
-  if(key.startsWith('home.why')) return '⑥ Why Monnit (6가지 이유)';
-  if(key.startsWith('home.appsgw')) return '⑦ 솔루션 섹션 제목';
-  if(key.startsWith('home.storiesgw')) return '⑧ 도입사례 섹션 제목';
-  if(key.startsWith('home.awardstrip')) return '⑨ 수상 띠 (Awards)';
-  if(key.startsWith('home.logos')) return '⑩ 고객사 로고 섹션 제목';
-  if(key.startsWith('home.finalcta')) return '⑪ 하단 상담 CTA';
+  /* ===== 메인페이지 (home2.*) ===== */
+  if(key.startsWith('home2.hero')) return '━ 메인 · ① Hero (최상단 문구)';
+  if(key.startsWith('home2.hs'))   return '━ 메인 · ① Hero 하단 지표 (130+ 등)';
+  if(key.startsWith('home2.val'))  return '━ 메인 · ② 핵심 가치 4개 (제목·설명·사진)';
+  if(key.startsWith('home2.metric')) return '━ 메인 · ③ 신뢰 지표 (숫자 라벨)';
+  if(key.startsWith('home2.why'))  return '━ 메인 · ④ Why Monnit (제목·3강점·배경사진)';
+  if(key.startsWith('home2.sol'))  return '━ 메인 · ⑤ 대표 솔루션 6개 (이름·설명·사진)';
+  if(key.startsWith('home2.cases')) return '━ 메인 · ⑥ 고객사·도입사례 제목';
+  if(key.startsWith('home2.flow')||key.startsWith('home2.prod')) return '━ 메인 · ⑦ 작동방식+제품 (감지→대응 · 제품 보기)';
+  if(key.startsWith('home2.awards')) return '━ 메인 · ⑨ 수상·인증';
+  if(key.startsWith('home2.final')) return '━ 메인 · ⑩ 하단 상담 CTA (제목·설명·버튼·배경)';
+  /* ===== About us (about2.*) ===== */
+  if(key.startsWith('about2.title')||key.startsWith('about2.p')||key.startsWith('about2.partner')||key.startsWith('about2.hero')) return '▣ About us · Ⓐ 상단 소개 (대제목·문단·대표사진)';
+  if(key.startsWith('about2.stat')) return '▣ About us · Ⓑ 지표 (Since 2010·64,000+ 등)';
+  if(key.startsWith('about2.feat')) return '▣ About us · Ⓒ 4가지 강조 (고신뢰성 등)';
+  if(key.startsWith('about2.r')||key==='about2.why.head') return '▣ About us · Ⓓ 왜 Monnit인가 6가지';
+  if(key.startsWith('about2.step')||key==='about2.mfg.head') return '▣ About us · Ⓔ 설계→제조·검증 3단계';
+  /* ===== 구버전 호환 (혹시 남아있을 경우) ===== */
+  if(key.startsWith('home.')) return '⑫ (구버전) 기타';
   return '⑫ 기타';
 }
 async function loadHome(){
@@ -892,7 +900,8 @@ async function saveSiteContentRow(key, ko, en, image){
   const d=DATA['SiteContent']; if(!d) return false;
   const header=d.header||['key','view','kind','ko','en','image'];
   const prev=scRow(key);
-  const obj={ key, view:prev.view||'home', kind:prev.kind||'slot',
+  const _view = prev.view || (key.indexOf('about2.')===0 ? 'who-we-are' : (key.indexOf('#')>0 ? 'meta' : 'home'));
+  const obj={ key, view:_view, kind:prev.kind||'slot',
     ko:ko!=null?ko:(prev.ko||''), en:en!=null?en:(prev.en||''), image:image!=null?image:(prev.image||'') };
   const row=header.map(h=>obj[h]!=null?obj[h]:'');
   const j=await postAction({ tab:'SiteContent', header, row, keyCol:'key', keyVal:key });
