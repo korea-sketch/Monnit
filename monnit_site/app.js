@@ -2388,6 +2388,10 @@ let _logosRendered = false;
 function renderLogos(list){
   if(!list || !list.length){ console.log('[Logos] 데이터 없음'); return; }
   if(_logosRendered){ console.log('[Logos] 이미 렌더링됨 (중복 호출 방지)'); return; }
+  // 흰색 통일 보장: 시트에 외부 URL(컬러) 로고가 하나라도 있으면 배포된 정적 흰색 로고 마퀴를 그대로 유지.
+  // 시트를 흰색 로컬 로고(images/clogo-*.png)로 갱신한 경우에만 시트 기준으로 렌더링.
+  var allLocal = list.every(function(it){ return !it.image || /^images\//.test(String(it.image)); });
+  if(!allLocal){ console.log('[Logos] 외부 URL 감지 → 배포된 흰색 로고 유지(시트 무시)'); return; }
   const track = document.querySelector('.logo-marquee .logo-track');
   if(!track){ console.warn('[Logos] DOM 요소 없음'); return; }
   console.log('[Logos] 렌더링:', list.length, '개');
