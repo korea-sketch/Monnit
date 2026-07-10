@@ -331,11 +331,11 @@ body, h1, h2, h3, h4, h5, h6, p, li, dt, dd, a, span, em, strong, button, figcap
 /* ============================================================ */
 
 /* contact heading: keep "상담 신청" together */
-#view-contact .cpage h1 em { white-space: nowrap; }
+#view-contact .cpage .seo-h1 em { white-space: nowrap; }
 /* blog & newsletter: long mixed titles — allow full width, no mid-phrase break */
-#view-blog .cpage h1, #view-newsletter .cpage h1 { max-width: none; }
-#view-blog .cpage h1 em { white-space: nowrap; }
-#view-newsletter .cpage h1 .nw { white-space: nowrap; }
+#view-blog .cpage .seo-h1, #view-newsletter .cpage .seo-h1 { max-width: none; }
+#view-blog .cpage .seo-h1 em { white-space: nowrap; }
+#view-newsletter .cpage .seo-h1 .nw { white-space: nowrap; }
 
 /* pulsing signal-ring decoration (top-right) on all Support pages */
 #view-contact .cpage, #view-faqs .cpage, #view-knowledgebase .cpage {
@@ -522,7 +522,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   background: var(--accent);
 }
 
-.stories-hero h1 {
+.stories-hero .seo-h1 {
   font-family: var(--fd);
   font-weight: 400;
   font-size: clamp(40px, 6vw, 72px);
@@ -531,7 +531,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   margin: 24px 0 24px;
   max-width: 900px;
 }
-.stories-hero h1 em {
+.stories-hero .seo-h1 em {
   font-style: normal;
   font-weight: 500;
   color: var(--accent-dark);
@@ -1040,7 +1040,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 }
 .inline-stats strong { color: var(--ink); font-weight: 500; }
 
-.awards-hero h1, .partners-hero h1 {
+.awards-hero .seo-h1, .partners-hero .seo-h1 {
   font-family: var(--fd);
   font-weight: 400;
   font-size: clamp(28px, 4vw, 48px);
@@ -1049,7 +1049,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   color: var(--ink);
   max-width: 800px;
 }
-.awards-hero h1 em, .partners-hero h1 em {
+.awards-hero .seo-h1 em, .partners-hero .seo-h1 em {
   font-style: normal;
   color: var(--accent);
   font-weight: 500;
@@ -1730,7 +1730,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   padding-bottom: 6px;
 }
 
-.case-page .hero h1 {
+.case-page .hero .seo-h1 {
   font-family: var(--fd);
   font-weight: 400;
   font-size: 52px;
@@ -1738,7 +1738,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   letter-spacing: -0.02em;
   margin-bottom: 24px;
 }
-.case-page .hero h1 em { font-style: normal; font-weight: 500; }
+.case-page .hero .seo-h1 em { font-style: normal; font-weight: 500; }
 
 .case-page .hero .tagline {
   font-size: 17px;
@@ -2370,7 +2370,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   font-size: 12.5px; padding: 4px 10px;
   display: inline-block; margin-bottom: 18px;
 }
-.app-detail-hero h1 {
+.app-detail-hero .seo-h1 {
   font-family: var(--fd);
   font-weight: 400;
   font-size: clamp(36px, 5vw, 56px);
@@ -3578,7 +3578,7 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   .case-page .hero, .sec { padding: 32px 24px; }
   .case-page .top-band, .case-footer, .case-back { padding: 12px 24px; }
   .case-back { padding-top: 16px; }
-  .case-page .hero h1 { font-size: 34px; }
+  .case-page .hero .seo-h1 { font-size: 34px; }
   .qs-row, .res-grid { grid-template-columns: repeat(3, 1fr); }
   .res-grid { grid-template-columns: repeat(2, 1fr); }
   .sol-grid { grid-template-columns: 1fr; }
@@ -3587,14 +3587,14 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 }
 
 @media (max-width: 600px) {
-  .stories-hero h1 { font-size: 36px; }
+  .stories-hero .seo-h1 { font-size: 36px; }
   .home-headline { font-size: 38px; }
   .home-lede { font-size: 16px; }
   .why-grid { grid-template-columns: 1fr; }
   .cat-cards { grid-template-columns: 1fr; }
   .aws-badges { grid-template-columns: 1fr; }
   .home-cta-row .cta-primary, .home-cta-row .cta-ghost, .home-cta-row .cta-download { width: 100%; justify-content: center; }
-  .awards-hero h1, .partners-hero h1 { font-size: 28px; }
+  .awards-hero .seo-h1, .partners-hero .seo-h1 { font-size: 28px; }
   .featured-grid { grid-template-columns: 1fr; }
   .fr-grid { grid-template-columns: 1fr; }
   .fr-card.feature .fr-year { font-size: 64px; }
@@ -3661,8 +3661,8 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 /* ----- Generic content page ----- */
 .cpage { padding: 80px 0 110px; }
 .cpage .crumb { font-family:var(--fm); font-size:12.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
-.cpage h1 { font-family:var(--fd); font-weight:400; font-size: clamp(36px, 5.5vw, 64px); line-height:1.04; letter-spacing:-0.02em; color: var(--ink); max-width: 14ch; }
-.cpage h1 em { font-style: normal; font-weight: 500; color: var(--accent-dark); }
+.cpage .seo-h1 { font-family:var(--fd); font-weight:400; font-size: clamp(36px, 5.5vw, 64px); line-height:1.04; letter-spacing:-0.02em; color: var(--ink); max-width: 14ch; }
+.cpage .seo-h1 em { font-style: normal; font-weight: 500; color: var(--accent-dark); }
 .cpage .lead { font-size: 19px; line-height: 1.75; color: var(--ink-mid); max-width: 760px; margin-top: 26px; }
 .cpage .body-prose { max-width: 760px; margin-top: 30px; }
 .cpage .body-prose p { font-size: 16px; line-height: 1.85; color: var(--ink-mid); margin-bottom: 18px; }
@@ -3927,7 +3927,7 @@ button.wp-card.wp-pick:hover .wp-dl-hint { text-decoration: underline; }
 .topnav{border-bottom:1px solid var(--line);}
 .nav-dd{box-shadow:0 18px 48px rgba(0,0,0,.5);}
 body{font-size:16px;}
-.home-headline,.cpage h1,.stories-hero h1,.awards-hero h1,.partners-hero h1{letter-spacing:-0.03em;}
+.home-headline,.cpage .seo-h1,.stories-hero .seo-h1,.awards-hero .seo-h1,.partners-hero .seo-h1{letter-spacing:-0.03em;}
 
 
 /* ===== dark panel fixes for inverted sections ===== */
@@ -4157,7 +4157,7 @@ body{
 .spec-cell { padding: 20px 20px 22px; }
 .spec-cell .sp-d { line-height: 1.6; margin-top: 8px; }
 .body-prose p, .lead, .home-lede { letter-spacing: -0.003em; }
-.cpage h1 { line-height: 1.1; margin-bottom: 16px; }
+.cpage .seo-h1 { line-height: 1.1; margin-bottom: 16px; }
 .cpage .lead { margin-bottom: 36px; }
 .cpage h2 { margin-top: 56px; }
 .section-head { margin-bottom: 48px; }
@@ -5078,8 +5078,8 @@ body{
   transform-origin: center; animation: heroRingPulse 7s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .hero-pulse::before, .hero-pulse::after { animation: none !important; } }
-.promo-hero h1 { font-family: var(--fd); font-weight: 400; font-size: clamp(40px, 6vw, 66px); line-height: 1.06; letter-spacing: -0.02em; margin: 22px 0 20px; }
-.promo-hero h1 em { font-style: normal; font-weight: 500; color: var(--accent-dark); }
+.promo-hero .seo-h1 { font-family: var(--fd); font-weight: 400; font-size: clamp(40px, 6vw, 66px); line-height: 1.06; letter-spacing: -0.02em; margin: 22px 0 20px; }
+.promo-hero .seo-h1 em { font-style: normal; font-weight: 500; color: var(--accent-dark); }
 .promo-hero .lede { font-size: 18px; line-height: 1.6; color: var(--ink-soft); max-width: 580px; margin: 0 0 26px; }
 .promo-hero-status { display: inline-flex; align-items: center; gap: 9px; font-family: var(--fm); font-size: 12.5px; letter-spacing: 0.03em; color: var(--accent-dark); background: var(--accent-soft); border: 1px solid var(--line); padding: 8px 15px; border-radius: 22px; }
 .promo-hero-status .dot { width: 7px; height: 7px; border-radius: 50%; background: #3FD79A; box-shadow: 0 0 0 0 rgba(63,215,154,0.5); animation: promoPulse 2.2s infinite; flex-shrink: 0; }
@@ -5423,10 +5423,13 @@ body{
 @media (max-width:600px){ .about-sec-head{ margin-top:52px; } }
 
 /* ---- About us 상단 히어로 (체계적 리디자인) ---- */
+/* About 상단 — 어색한 여백/중복 크럼 제거하고 지구본 히어로를 상단부터 몰입형으로 */
+#view-who-we-are .cpage{ padding-top:0; }
+#view-who-we-are .crumb{ display:none; }
 /* About 히어로 — 풀블리드 시네마틱 배너 (지구본 배경, 카피 오버레이) */
 .about-hero2{ position:relative; width:100vw; left:50%; transform:translateX(-50%);
-  min-height:min(74vh,620px); display:flex; align-items:center; margin:8px 0 0; overflow:hidden;
-  border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  min-height:min(82vh,640px); display:flex; align-items:center; margin:0 0 0; overflow:hidden;
+  border-top:none; border-bottom:1px solid var(--line); }
 .about-hero2 .ah-media{ position:absolute; inset:0; margin:0; border:none; border-radius:0; aspect-ratio:auto; box-shadow:none; overflow:hidden; }
 .about-hero2 .ah-media img{ width:100%; height:100%; object-fit:cover; object-position:center center; }
 .about-hero2 .ah-media::after{ content:""; position:absolute; inset:0;
@@ -5580,9 +5583,10 @@ body{
 @media (max-width:560px){ .nh-hero-stats{ flex-wrap:wrap; gap:20px 0; } .nh-hero-stats div{ padding:2px 22px; flex:0 0 33%; } .nh-hero-stats div:first-child{ padding-left:0; } .nh-hero-stats div+div::before{ display:none; } }
 
 /* ── 도입사례 카드 밸런스 (텍스트 처짐 방지) ── */
-#homeCases{ align-items:start; }
+/* 카드 높이를 행 기준으로 맞추고(stretch), 지표·CTA를 하단으로 밀어 정렬 → 글 길이 달라도 안 처짐 */
+#homeCases{ align-items:stretch; }
 .home-case-card{ min-height:0; }
-.hcc-result{ margin-top:20px; }
+.hcc-result{ margin-top:auto; padding-top:20px; }
 
 /* ── 작동방식 v2 강화 (워터마크 번호 + 글로우) ── */
 .nh-flow2-card{ overflow:hidden; }

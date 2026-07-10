@@ -1138,7 +1138,10 @@ function navigate(target) {
     };
     tryOpen(20);
   } else {
-    document.getElementById('view-' + target).classList.add('active');
+    // 존재하지 않는 뷰(잘못된 해시 등)면 홈으로 폴백 — null classList 크래시 방지
+    var _view = document.getElementById('view-' + target);
+    if (!_view) { target = 'home'; _view = document.getElementById('view-home'); }
+    _view.classList.add('active');
     const navBtn = document.querySelector(`.nav-link[data-nav="${target}"]`);
     if (navBtn) navBtn.classList.add('active');
     window.location.hash = target === 'home' ? '' : target;
