@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monnit Korea — Expert Consulting. Integrated Solutions.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
+<meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
+
+<!-- ===== 사이트 유입 분석 (무료) — 아래 ID만 채우면 작동, 비워두면 아무것도 로드 안 함 ===== -->
+<script>
+(function(){
+  // 1) Google Analytics 4 — analytics.google.com 에서 측정 ID(G-XXXXXXXXXX) 발급 후 입력
+  var GA4_ID = 'G-49THHRYKR4';        // 예: 'G-ABCD1234EF'
+  // 2) (선택) Microsoft Clarity — clarity.microsoft.com 에서 프로젝트 ID 발급 후 입력 (히트맵·세션 녹화)
+  var CLARITY_ID = 'x38egtft64';    // 예: 'abcdefghij'
+
+  if (GA4_ID) {
+    var s=document.createElement('script'); s.async=true;
+    s.src='https://www.googletagmanager.com/gtag/js?id='+GA4_ID; document.head.appendChild(s);
+    window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);};
+    gtag('js', new Date()); gtag('config', GA4_ID);
+    // 해시 라우팅(메뉴 이동)도 각각 페이지뷰로 집계
+    window.addEventListener('hashchange', function(){
+      gtag('event','page_view',{ page_location:location.href, page_path:location.pathname+location.hash, page_title:document.title });
+    });
+  }
+  if (CLARITY_ID) {
+    (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",CLARITY_ID);
+  }
+})();
+</script>
+</head>
+<body>
+
+<!-- ========== TOP NAV ========== -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="brand" data-nav="home"><img class="brand-logo" src="images/img-01.png" alt="Monnit"><span class="brand-kr">KOREA</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li class="nav-item">
+        <button class="nav-link has-caret">About us</button>
+        <div class="nav-dd">
+          <div class="dd-meta">회사 소개</div>
+          <button data-nav="who-we-are">Who we are · 회사 소개</button>
+          <button data-nav="our-solution">Our solution · 솔루션</button>
+          <button data-nav="what-we-do">What we do · 사업 영역</button>
+          <button data-nav="awards">Award · 수상 내역</button>
+        </div>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link has-caret" data-nav="products">Products</button>
+        <div class="nav-dd">
+          <div class="dd-meta">제품</div>
+          <button data-nav="products">All Products · 전체 제품</button>
+          <button data-product-cat="sensors">Sensors · 센서</button>
+          <button data-product-cat="gateways">Gateways · 게이트웨이</button>
+          <button data-product-cat="software">Software · 소프트웨어</button>
+          <button data-product-cat="accessories">Accessories · 액세서리</button>
+        </div>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link has-caret">Use case</button>
+        <div class="nav-dd">
+          <div class="dd-meta">활용 사례</div>
+          <button data-nav="stories">Case Studies · 도입 사례</button>
+          <a class="nav-dd-a" href="installation-photos.html">Installation Photo · 설치 사례</a>
+        </div>
+      </li>
+      <li class="nav-item"><button class="nav-link" data-nav="applications">Applications</button></li>
+      <li class="nav-item"><button class="nav-link" data-nav="partners">Partners</button></li>
+      <li class="nav-item">
+        <button class="nav-link has-caret">Resources</button>
+        <div class="nav-dd">
+          <div class="dd-meta">자료실</div>
+          <button data-nav="blog">Blog · 블로그</button>
+          <button data-nav="newsletter">Newsletter · 뉴스레터</button>
+          <button data-nav="whitepaper">Proposal · 산업별 제안서</button>
+        </div>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link has-caret">Support</button>
+        <div class="nav-dd">
+          <div class="dd-meta">고객 지원</div>
+          <button data-nav="contact">Contact Us · 문의</button>
+          <button data-nav="faqs">FAQs · 자주 묻는 질문</button>
+        <button data-nav="guides">Tech Support · 기술지원</button>
+          <button data-nav="knowledgebase">Knowledgebase · 기술 문서</button>
+        </div>
+      </li>
+      <li class="nav-item nav-item-mobile-promo"><button class="nav-link" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button></li>
+    </ul>
+    <button class="nav-promo-btn" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button>
+    <button class="nav-cta" data-nav="contact">상담 신청</button>
+    <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ========================================== -->
+<!-- VIEW 0: HOME (default landing) -->
+<!-- ========================================== -->
+<section class="view active" id="view-home">
+
+  <!-- HERO -->
+  <section class="home-hero">
+    <div class="hero-pulse" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="kicker" data-sc="home.hero.kicker" data-sc-label="히어로 · 상단 라벨">Expert Consulting · Integrated Solutions</span>
+      <h1 class="home-headline" data-sc="home.hero.title" data-sc-label="히어로 · 메인 제목"><em>현장</em>을 읽고 <em>미래</em>를 설계합니다</h1>
+      <p class="home-lede" data-sc="home.hero.lede" data-sc-label="히어로 · 설명문">검증된 무선 IoT 기술과 현장 경험을 바탕으로 데이터 확보, 통합관제, 자동제어, AI 예지보전은 물론 현장 문제 해결까지 함께합니다.</p>
+      <div class="home-cta-row">
+        <button class="cta-primary" data-nav="stories" data-sc="home.hero.cta1" data-sc-label="히어로 · 버튼1(고객사례)">고객사례 보기</button>
+        <button class="cta-ghost" data-nav="applications" data-sc="home.hero.cta2" data-sc-label="히어로 · 버튼2(활용분야)">활용 분야 보기</button>
+        <a class="cta-download" href="https://linktr.ee/monnithvac" data-catalog="1" target="_blank" rel="noopener">카탈로그 다운로드</a>
+      </div>
+      <div class="hero-values">
+        <article class="value-card">
+          <div class="vc-photo"><img src="images/img-02.jpg" alt="사고 사전예방"></div>
+          <div class="vc-body">
+            <span class="vc-no">01</span>
+            <h3 data-sc="home.val1.title" data-sc-label="가치카드1 · 제목">사고 사전예방</h3>
+            <p data-sc="home.val1.desc" data-sc-label="가치카드1 · 설명">실시간 AI 분석으로 사고를 미리 예방</p>
+          </div>
+        </article>
+        <article class="value-card">
+          <div class="vc-photo"><img src="images/img-03.jpg" alt="비용 절감"></div>
+          <div class="vc-body">
+            <span class="vc-no">02</span>
+            <h3 data-sc="home.val2.title" data-sc-label="가치카드2 · 제목">비용 절감</h3>
+            <p data-sc="home.val2.desc" data-sc-label="가치카드2 · 설명">에너지와 인력 운영을 최적화해 비용 절감</p>
+          </div>
+        </article>
+        <article class="value-card">
+          <div class="vc-photo"><img src="images/img-04.jpg" alt="출동 서비스"></div>
+          <div class="vc-body">
+            <span class="vc-no">03</span>
+            <h3 data-sc="home.val3.title" data-sc-label="가치카드3 · 제목">출동 서비스</h3>
+            <p data-sc="home.val3.desc" data-sc-label="가치카드3 · 설명">예지보전과 패트롤 출동으로 현장 문제를 미리 해결</p>
+          </div>
+        </article>
+        <article class="value-card">
+          <div class="vc-photo"><img src="images/img-05.jpg" alt="AI 분석 데이터 생성"></div>
+          <div class="vc-body">
+            <span class="vc-no">04</span>
+            <h3 data-sc="home.val4.title" data-sc-label="가치카드4 · 제목">AI 분석 데이터 생성</h3>
+            <p data-sc="home.val4.desc" data-sc-label="가치카드4 · 설명">어떤 설비에서든 데이터를 확보하고, 바로 쓸 수 있는 정보로 분석</p>
+          </div>
+        </article>
+      </div>
+      <div class="hero-strengths">
+        <div class="hs-item"><img class="hs-ico" src="images/img-06.png" alt="글로벌 인증"><div class="hs-t" data-sc="home.str1.t" data-sc-label="강점배지1 · 제목">글로벌 제품인증</div><div class="hs-d" data-sc="home.str1.d" data-sc-label="강점배지1 · 설명">추가인증없이 어디서든 적용가능</div></div>
+        <div class="hs-item"><img class="hs-ico" src="images/img-07.png" alt="비용 효율"><div class="hs-t" data-sc="home.str2.t" data-sc-label="강점배지2 · 제목">정밀 계측 · 비용 1/10</div><div class="hs-d" data-sc="home.str2.d" data-sc-label="강점배지2 · 설명">경쟁업체 대비 약 1/10 비용</div></div>
+        <div class="hs-item"><img class="hs-ico" src="images/img-08.png" alt="센서 조합"><div class="hs-t" data-sc="home.str3.t" data-sc-label="강점배지3 · 제목">80여 종 + 커스텀</div><div class="hs-d" data-sc="home.str3.d" data-sc-label="강점배지3 · 설명">센서 조합부터 맞춤 제작까지</div></div>
+        <div class="hs-item"><img class="hs-ico" src="images/img-09.png" alt="빠른 설치"><div class="hs-t" data-sc="home.str4.t" data-sc-label="강점배지4 · 제목">15분 이내 설치</div><div class="hs-d" data-sc="home.str4.d" data-sc-label="강점배지4 · 설명">어떤 센서도 무선으로 빠르게</div></div>
+      </div>
+      <button class="scroll-cue" aria-label="아래로 스크롤" onclick="document.querySelector('.strengths-section')?.scrollIntoView({behavior:'smooth',block:'start'})">
+        <span class="sc-label">SCROLL</span>
+        <span class="sc-track"><span class="sc-dot"></span></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- KEY STRENGTHS (from Word doc) -->
+  <section class="strengths-section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 data-sc="home.strengths.head" data-sc-label="핵심강점 · 섹션 제목">Monnit Korea의 <em>핵심 강점</h2>
+        <span class="meta" data-sc="home.strengths.meta" data-sc-label="핵심강점 · 부제">Why partner with us · 4 core strengths</span>
+      </div>
+      <div class="strength-grid">
+        <article class="strength-card">
+          <span class="s-tag">GLOBAL</span>
+          <div class="s-num"><span class="cu" data-to="130">130</span><span class="s-unit">여 개국</span></div>
+          <h4 data-sc="home.strength1.title" data-sc-label="핵심강점 카드1 · 제목">글로벌 리더</h4>
+          <p data-sc="home.strength1.desc" data-sc-label="핵심강점 카드1 · 설명">전 세계 130여 개국에 솔루션을 납품하는 산업용 무선 센싱 분야의 글로벌 리더입니다.</p>
+        </article>
+        <article class="strength-card">
+          <span class="s-tag">SCALE</span>
+          <div class="s-num"><span class="cu" data-to="64000">64,000</span><span class="s-unit">+</span></div>
+          <h4 data-sc="home.strength2.title" data-sc-label="핵심강점 카드2 · 제목">검증된 도입 실적</h4>
+          <p data-sc="home.strength2.desc" data-sc-label="핵심강점 카드2 · 설명">64,000여 고객사, 280여 종의 다양한 산업군에 솔루션을 공급하며 현장에서 검증되었습니다.</p>
+        </article>
+        <article class="strength-card">
+          <span class="s-tag">AI · DATA</span>
+          <div class="s-num"><span class="cu" data-to="750">750</span><span class="s-unit">억 / 일</span></div>
+          <h4 data-sc="home.strength3.title" data-sc-label="핵심강점 카드3 · 제목">AI 예지보전</h4>
+          <p data-sc="home.strength3.desc" data-sc-label="핵심강점 카드3 · 설명">하루 750억 개 데이터로 설비 고장을 미리 예측</p>
+        </article>
+        <article class="strength-card">
+          <span class="s-tag">DEFENSE</span>
+          <div class="s-num">Military<span class="s-unit">-grade</span></div>
+          <h4 data-sc="home.strength4.title" data-sc-label="핵심강점 카드4 · 제목">국방 전문 솔루션</h4>
+          <p data-sc="home.strength4.desc" data-sc-label="핵심강점 카드4 · 설명">밀리터리 그레이드 신뢰성으로 미군 부대 핵심 전략 자산 모니터링에 전용 납품하고 있습니다.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IT LOOKS LIKE (facility band) -->
+  <section class="fac-band">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 data-sc="home.process.head" data-sc-label="제조공정 · 섹션 제목">설계부터 <em>제조·검증</h2>
+        <span class="meta" data-sc="home.process.meta" data-sc-label="제조공정 · 부제">In-house engineering · manufacturing · QA</span>
+      </div>
+      <div class="step-flow">
+        <figure class="step-card">
+          <div class="step-media"><img src="images/img-10.jpg" alt="Monnit Korea 본사 · R&amp;D 센터" loading="lazy"></div>
+          <div class="step-body">
+            <div class="step-top"><span class="step-idx">01</span><span class="step-kicker">HQ · R&amp;D</span></div>
+            <h3 class="step-title" data-sc="home.step1.title" data-sc-label="제조공정 1단계 · 제목">본사 센터</h3>
+            <p class="step-desc" data-sc="home.step1.desc" data-sc-label="제조공정 1단계 · 설명">기획과 연구개발이 시작되는 거점. 현장 패트롤 서비스까지 직접 제공합니다.</p>
+          </div>
+        </figure>
+        <figure class="step-card">
+          <div class="step-media"><img src="images/img-12.jpg" alt="PCB · 회로 설계 엔지니어링" loading="lazy"></div>
+          <div class="step-body">
+            <div class="step-top"><span class="step-idx">02</span><span class="step-kicker">Engineering · QA</span></div>
+            <h3 class="step-title" data-sc="home.step2.title" data-sc-label="제조공정 2단계 · 제목">PCB 회로 설계</h3>
+            <p class="step-desc" data-sc="home.step2.desc" data-sc-label="제조공정 2단계 · 설명">커스텀 센서 회로를 직접 설계하고 검증합니다.</p>
+          </div>
+        </figure>
+        <figure class="step-card">
+          <div class="step-media"><img src="images/img-11.jpg" alt="자체 생산 라인 · SMT" loading="lazy"></div>
+          <div class="step-body">
+            <div class="step-top"><span class="step-idx">03</span><span class="step-kicker">Manufacturing</span></div>
+            <h3 class="step-title" data-sc="home.step3.title" data-sc-label="제조공정 3단계 · 제목">자체 생산 라인</h3>
+            <p class="step-desc" data-sc="home.step3.desc" data-sc-label="제조공정 3단계 · 설명">SMT·양산·조립·QC까지 모든 공정을 한 곳에서 수행합니다.</p>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY MONNIT -->
+  <section class="why-section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 data-sc="home.why.head" data-sc-label="Why Monnit · 섹션 제목">Why <em>Monnit</h2>
+        <span class="meta" data-sc="home.why.meta" data-sc-label="Why Monnit · 부제">6 reasons · proven at 90,000+ global deployments</span>
+      </div>
+      <div class="why-grid">
+        <article class="why-card">
+          <div class="why-num">01</div>
+          <h4 data-sc="home.why1.title" data-sc-label="Why Monnit 1 · 제목">가혹한 환경, 변함없는 성능</h4>
+          <p data-sc="home.why1.desc" data-sc-label="Why Monnit 1 · 설명">15년간 다양한 산업 현장에서 작동하도록 발전해 온 강력한 펌웨어와 내구성으로, 어떤 환경에서도 안정적으로 동작합니다.</p>
+        </article>
+        <article class="why-card">
+          <div class="why-num">02</div>
+          <h4 data-sc="home.why2.title" data-sc-label="Why Monnit 2 · 제목">무선 센서의 한계 극복</h4>
+          <p data-sc="home.why2.desc" data-sc-label="Why Monnit 2 · 설명">자체 개발한 주파수 호핑 스펙트럼(FHSS) 기술로, 잦은 끊김과 신호 간섭이라는 기존 무선 센서의 한계를 넘어섰습니다.</p>
+        </article>
+        <article class="why-card">
+          <div class="why-num">03</div>
+          <h4 data-sc="home.why3.title" data-sc-label="Why Monnit 3 · 제목">모니터링을 넘어 제어까지</h4>
+          <p data-sc="home.why3.desc" data-sc-label="Why Monnit 3 · 설명">서버를 거치지 않는 엣지 게이트웨이가 현장 BMS를 직접 제어하고, AI 학습 기반 제어로 에너지 효율과 사고 예방을 동시에 실현합니다.</p>
+        </article>
+        <article class="why-card">
+          <div class="why-num">04</div>
+          <h4 data-sc="home.why4.title" data-sc-label="Why Monnit 4 · 제목">검증된 최상위 보안·신뢰성</h4>
+          <p data-sc="home.why4.desc" data-sc-label="Why Monnit 4 · 설명">미군을 비롯해 삼성·현대·청와대 등 최고 수준의 보안을 요구하는 고객들이 선택하고 신뢰해 온 제품입니다.</p>
+        </article>
+        <article class="why-card">
+          <div class="why-num">05</div>
+          <h4 data-sc="home.why5.title" data-sc-label="Why Monnit 5 · 제목">검증된 대규모 통합 관제 역량</h4>
+          <p data-sc="home.why5.desc" data-sc-label="Why Monnit 5 · 설명">2,000~15,000개 규모의 사이트를 단일 플랫폼으로 통합 관제하는 프로젝트를 FM·보험·교육·국방·대기업·프랜차이즈·에너지/인프라 분야에서 성공적으로 운영하고 있습니다.</p>
+        </article>
+        <article class="why-card">
+          <div class="why-num">06</div>
+          <h4 data-sc="home.why6.title" data-sc-label="Why Monnit 6 · 제목">전문 컨설턴트 보유</h4>
+          <p data-sc="home.why6.desc" data-sc-label="Why Monnit 6 · 설명">15년 경력의 업계 전문 컨설턴트가 고객사의 문제를 정확히 진단해 확실한 솔루션을 제시하고 해결까지 책임집니다.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- APPLICATIONS GATEWAY -->
+  <section class="home-gateway home-gateway-apps">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="kicker" data-sc="home.appsgw.kicker" data-sc-label="앱 게이트웨이 · 라벨">Application Library</span>
+          <h2 style="margin-top:14px;" data-sc="home.appsgw.head" data-sc-label="앱 게이트웨이 · 제목">산업별 검증된 <em>60개 솔루션</h2>
+        </div>
+        <button class="link-btn" data-nav="applications">전체 어플리케이션 보기 →</button>
+      </div>
+      <div class="cat-cards" id="homeCatCards"></div>
+    </div>
+  </section>
+
+  <!-- CUSTOMER STORIES GATEWAY -->
+  <section class="home-gateway home-gateway-stories">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="kicker" data-sc="home.storiesgw.kicker" data-sc-label="사례 게이트웨이 · 라벨">Customer Success</span>
+          <h2 style="margin-top:14px;" data-sc="home.storiesgw.head" data-sc-label="사례 게이트웨이 · 제목">글로벌이 신뢰하는 <em>도입 사례</h2>
+        </div>
+        <button class="link-btn" data-nav="stories">전체 도입 사례 보기 →</button>
+      </div>
+      <div class="home-cases" id="homeCases"></div>
+    </div>
+  </section>
+
+  <!-- AWARDS STRIP -->
+  <section class="home-awards-strip">
+    <div class="wrap">
+      <div class="awards-strip-inner">
+        <div class="aws-text">
+          <span class="kicker" data-sc="home.awardstrip.kicker" data-sc-label="수상 띠 · 라벨">Recognition</span>
+          <h2 style="margin-top:14px;" data-sc="home.awardstrip.head" data-sc-label="수상 띠 · 제목">15년간 <em>50회 이상</h2>
+          <p data-sc="home.awardstrip.desc" data-sc-label="수상 띠 · 설명">산업용 무선 센서와 IoT 플랫폼 분야에서 매년 세계적인 어워드를 이어가고 있습니다. 2026년 'IoT Sensor Company of the Year'를 연속 수상하며, 기술력과 신뢰성을 다시 한 번 입증했습니다.</p>
+          <button class="link-btn" data-nav="awards" style="margin-top:20px;">전체 수상 내역 →</button>
+        </div>
+        <div class="aws-badges">
+          <div class="aws-badge feature">
+            <div class="aws-year">2026</div>
+            <div class="aws-name">IoT Sensor Company<br>of the Year</div>
+            <div class="aws-cat">★ 연속 수상</div>
+          </div>
+          <div class="aws-badge">
+            <div class="aws-year">2025</div>
+            <div class="aws-name">IoT Platforms<br>Leadership</div>
+          </div>
+          <div class="aws-badge">
+            <div class="aws-year">2024</div>
+            <div class="aws-name">IoT<br>Excellence</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOMER LOGOS MARQUEE -->
+  <section class="logo-marquee-section">
+    <div class="wrap">
+      <div class="lm-head">
+        <span class="kicker" data-sc="home.logos.kicker" data-sc-label="고객사 로고 · 라벨">Trusted by</span>
+        <h2 data-sc="home.logos.head" data-sc-label="고객사 로고 · 제목">국내 주요 고객사와 함께합니다</h2>
+      </div>
+    </div>
+    <div class="logo-marquee" aria-label="국내 주요 고객사 로고">
+      <div class="logo-track"><div class="logo-slide"><img src="images/img-13.avif" alt="SK하이닉스" loading="lazy"><span>SK하이닉스</span></div><div class="logo-slide"><img src="images/img-14.avif" alt="삼성SDS" loading="lazy"><span>삼성SDS</span></div><div class="logo-slide"><img src="images/img-15.avif" alt="현대건설" loading="lazy"><span>현대건설</span></div><div class="logo-slide"><img src="images/img-16.avif" alt="현대산업개발" loading="lazy"><span>현대산업개발</span></div><div class="logo-slide"><img src="images/img-17.avif" alt="현대" loading="lazy"><span>현대</span></div><div class="logo-slide"><img src="images/img-18.avif" alt="카카오" loading="lazy"><span>카카오</span></div><div class="logo-slide"><img src="images/img-19.avif" alt="SK가스" loading="lazy"><span>SK가스</span></div><div class="logo-slide"><img src="images/img-20.avif" alt="SK플래닛" loading="lazy"><span>SK플래닛</span></div><div class="logo-slide"><img src="images/img-21.avif" alt="SK쉴더스" loading="lazy"><span>SK쉴더스</span></div><div class="logo-slide"><img src="images/img-22.avif" alt="코오롱" loading="lazy"><span>코오롱</span></div><div class="logo-slide"><img src="images/img-23.avif" alt="풀무원" loading="lazy"><span>풀무원</span></div><div class="logo-slide"><img src="images/img-24.avif" alt="CJ피드앤케어" loading="lazy"><span>CJ피드앤케어</span></div><div class="logo-slide"><img src="images/img-25.avif" alt="삼양패키징" loading="lazy"><span>삼양패키징</span></div><div class="logo-slide"><img src="images/img-26.avif" alt="3M" loading="lazy"><span>3M</span></div><div class="logo-slide"><img src="images/img-27.avif" alt="비츠로셀" loading="lazy"><span>비츠로셀</span></div><div class="logo-slide"><img src="images/img-28.avif" alt="동원건설산업" loading="lazy"><span>동원건설산업</span></div><div class="logo-slide"><img src="images/img-13.avif" alt="SK하이닉스" loading="lazy"><span>SK하이닉스</span></div><div class="logo-slide"><img src="images/img-14.avif" alt="삼성SDS" loading="lazy"><span>삼성SDS</span></div><div class="logo-slide"><img src="images/img-15.avif" alt="현대건설" loading="lazy"><span>현대건설</span></div><div class="logo-slide"><img src="images/img-16.avif" alt="현대산업개발" loading="lazy"><span>현대산업개발</span></div><div class="logo-slide"><img src="images/img-17.avif" alt="현대" loading="lazy"><span>현대</span></div><div class="logo-slide"><img src="images/img-18.avif" alt="카카오" loading="lazy"><span>카카오</span></div><div class="logo-slide"><img src="images/img-19.avif" alt="SK가스" loading="lazy"><span>SK가스</span></div><div class="logo-slide"><img src="images/img-20.avif" alt="SK플래닛" loading="lazy"><span>SK플래닛</span></div><div class="logo-slide"><img src="images/img-21.avif" alt="SK쉴더스" loading="lazy"><span>SK쉴더스</span></div><div class="logo-slide"><img src="images/img-22.avif" alt="코오롱" loading="lazy"><span>코오롱</span></div><div class="logo-slide"><img src="images/img-23.avif" alt="풀무원" loading="lazy"><span>풀무원</span></div><div class="logo-slide"><img src="images/img-24.avif" alt="CJ피드앤케어" loading="lazy"><span>CJ피드앤케어</span></div><div class="logo-slide"><img src="images/img-25.avif" alt="삼양패키징" loading="lazy"><span>삼양패키징</span></div><div class="logo-slide"><img src="images/img-26.avif" alt="3M" loading="lazy"><span>3M</span></div><div class="logo-slide"><img src="images/img-27.avif" alt="비츠로셀" loading="lazy"><span>비츠로셀</span></div><div class="logo-slide"><img src="images/img-28.avif" alt="동원건설산업" loading="lazy"><span>동원건설산업</span></div></div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="cta-block">
+    <div class="wrap">
+      <h2 data-sc="home.finalcta.head" data-sc-label="하단 CTA · 제목">당신의 산업에 가장 잘 맞는<br><em>IoT 솔루션</h2>
+      <button class="big-cta-btn" data-nav="contact" data-sc="home.finalcta.btn" data-sc-label="하단 CTA · 버튼">맞춤 상담 신청</button>
+    </div>
+  </section>
+
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW 1: CUSTOMER STORIES INDEX -->
+<!-- ========================================== -->
+<section class="view" id="view-stories">
+  <section class="stories-hero">
+    <div class="wrap">
+      <span class="kicker">Customer Success</span>
+      <h1>글로벌이 신뢰하는<br><em>무선 IoT 모니터링</em> 파트너</h1>
+      <p class="lede">제조부터 에너지, 바이오, 유통, 데이터센터까지 — 70개 글로벌 기업이 12개 산업 현장에서 선택한 검증된 솔루션입니다.</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="num">70<span style="font-size:28px;color:var(--accent);">+</span></div>
+          <div class="lbl">Global Customers</div>
+        </div>
+        <div class="stat">
+          <div class="num">12</div>
+          <div class="lbl">Industries</div>
+        </div>
+        <div class="stat">
+          <div class="num">100K<span style="font-size:28px;color:var(--accent);">+</span></div>
+          <div class="lbl">Sensor Nodes</div>
+        </div>
+        <div class="stat">
+          <div class="num">15<span style="font-size:28px;color:var(--accent);">+</span></div>
+          <div class="lbl">Years of Service</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>대표 도입 사례</h2>
+        <span class="meta" id="featuredMeta">Featured Case Studies — 08</span>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="featured-grid" id="featuredGrid"></div>
+    </div>
+    <div class="wrap">
+      <a class="install-link" href="installation-photos.html">
+        <div class="il-txt">
+          <div class="install-link-k">Installation Photos · 설치 사례</div>
+          <div class="install-link-t">실제 설치 현장 사진 갤러리를 확인하세요</div>
+        </div>
+        <span class="install-link-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.3" r="1.7"/><path d="M20.5 16.5 15 11l-7 7"/></svg>설치 사례 갤러리 &rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>산업별 어플리케이션</h2>
+        <span class="meta">All Customers — <span id="totalCount">70</span></span>
+      </div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+  </section>
+
+
+  <section class="cta-block">
+    <div class="wrap">
+      <h2>당신의 산업에<br><em>가장 잘 맞는 솔루션</em>을 제안합니다.</h2>
+      <button class="big-cta-btn" data-nav="contact">상담 신청</button>
+    </div>
+  </section>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW 2: AWARDS -->
+<!-- ========================================== -->
+<section class="view" id="view-awards">
+  <section class="awards-hero">
+    <div class="wrap-mid">
+      <span class="kicker">Awards &amp; Honors</span>
+      <h1>매년 더해지는 <em>영예의 기록</em>.</h1>
+      <p class="awards-hero-lede">2010년 첫 수상 이후 15년간, 센서·플랫폼·스마트시티 등 9개 분야에서 50회 이상의 글로벌 어워드로 기술력을 인정받았습니다.</p>
+      <span class="inline-stats"><strong>50+</strong> Awards &nbsp;·&nbsp; <strong>15+</strong> Years &nbsp;·&nbsp; <strong>9</strong> Categories &nbsp;·&nbsp; since 2010</span>
+    </div>
+  </section>
+
+  <section class="honors-strip">
+    <div class="wrap-mid">
+      <div class="fr-header">
+        <span class="kicker">By the numbers</span>
+        <span class="fr-meta">2010 → 2026 누적 기록</span>
+      </div>
+      <div class="astat-grid">
+        <div class="astat"><div class="astat-n">50<span>+</span></div><div class="astat-l">누적 수상</div></div>
+        <div class="astat"><div class="astat-n">15<span>+</span></div><div class="astat-l">수상 연차 <em>since 2010</em></div></div>
+        <div class="astat"><div class="astat-n">9</div><div class="astat-l">수상 분야</div></div>
+        <div class="astat"><div class="astat-n">2026</div><div class="astat-l">최신 <em>Company of the Year</em></div></div>
+      </div>
+      <div class="astat-bars-head">분야별 수상 분포<span class="abh-sub">Awards by category</span></div>
+      <div class="astat-bars" id="awardCatBars"></div>
+    </div>
+  </section>
+
+  <nav class="sub-filter-bar" aria-label="Filter">
+    <div class="wrap-mid">
+      <div class="sub-filter-inner">
+        <span class="filter-label">Year</span>
+        <div class="chip-row" id="yearChips"></div>
+        <span class="filter-label">Category</span>
+        <div class="chip-row" id="catChips"></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="awards-section">
+    <div class="wrap-mid">
+      <div class="awards-head">
+        <span class="label">All Awards</span>
+        <span class="count" id="visibleCountAwards">— awards</span>
+      </div>
+      <ol class="awards-list" id="awardsList"></ol>
+      <div class="empty" id="emptyAwards" style="display:none;">No awards match the current filter</div>
+    </div>
+  </section>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW 3: PARTNERS -->
+<!-- ========================================== -->
+<section class="view" id="view-partners">
+  <section class="partners-hero">
+    <div class="wrap-mid">
+      <div class="hero-top">
+        <span class="kicker">Global Partners</span>
+        <span class="inline-stats">
+          <strong>75+</strong> Partners &nbsp;·&nbsp;
+          <strong>6</strong> Continents &nbsp;·&nbsp;
+          <strong>30+</strong> Countries
+        </span>
+      </div>
+      <h1>6개 대륙, <em>75+ 파트너</em>와 함께.</h1>
+    </div>
+  </section>
+
+  <section class="region-section">
+    <div class="wrap-mid">
+      <div class="map-title">
+        <span>Partners by region</span>
+        <span class="hint">지도의 지역 핀을 클릭하면 해당 지역 파트너로 필터됩니다</span>
+        <button class="reset" id="resetBtn">Clear</button>
+      </div>
+      <div class="worldmap" id="worldMap"></div>
+    </div>
+  </section>
+
+  <nav class="sub-filter-bar" aria-label="Region filter">
+    <div class="wrap-mid">
+      <div class="sub-filter-inner">
+        <span class="filter-label">Region</span>
+        <div class="chip-row" id="regionChips"></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="partners-section">
+    <div class="wrap-mid">
+      <div class="partners-head">
+        <span class="label">All Partners</span>
+        <span class="count" id="visibleCountPartners">— partners</span>
+      </div>
+      <ol class="partners-list" id="partnersList"></ol>
+      <div class="empty" id="emptyPartners" style="display:none;">No partners match the current filter</div>
+    </div>
+  </section>
+
+  <section class="join">
+    <div class="wrap-mid join-inner">
+      <figure class="join-figure"><img src="images/img-10.jpg" alt="Monnit 본사 — Commercial Remote Monitoring Solutions"></figure>
+      <div class="join-body">
+        <div class="join-text">
+          <h2>당신의 지역에서, <em>다음 파트너</em>가 되어 주세요.</h2>
+          <p>Monnit과 함께 산업용 IoT 솔루션을 전 세계에 공급하는 파트너 네트워크에 합류하세요.</p>
+        </div>
+        <button class="join-btn" data-nav="contact">파트너 문의</button>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW 2.5: APPLICATIONS LIBRARY -->
+<!-- ========================================== -->
+<section class="view" id="view-applications">
+  <section class="apps-hero">
+    <div class="wrap">
+      <span class="kicker">Application Library</span>
+      <h1 style="font-family:var(--fd);font-weight:400;font-size:clamp(40px,6vw,68px);line-height:1.05;letter-spacing:-0.02em;margin:24px 0 22px;max-width:900px;">
+        모든 산업의 IoT 모니터링,<br><em style="font-style:italic;color:var(--accent-dark);font-weight:500;">한곳에서.</em>
+      </h1>
+      <p style="font-size:17px;color:var(--ink-soft);max-width:640px;">
+        온도·습도·진동·전력·누수까지 — Monnit이 검증한 산업별 어플리케이션을 한 페이지에서 탐색하고, 실제 도입 고객사 사례로 즉시 확인하세요.
+      </p>
+    </div>
+  </section>
+
+  <div class="apps-controls">
+    <div class="wrap">
+      <div class="apps-controls-inner">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input type="text" id="appsSearch" placeholder="어플리케이션 검색 (예: 백신, HVAC, 진동)" autocomplete="off">
+        </div>
+        <div class="sort-wrap">
+          <label>Sort</label>
+          <select id="appsSort">
+            <option value="default">기본순</option>
+            <option value="name">이름순 (A→Z)</option>
+            <option value="category">카테고리순</option>
+            <option value="new">최근 추가순</option>
+            <option value="popular">인기순</option>
+          </select>
+        </div>
+      </div>
+      <div class="cat-bar" id="appsCategoryBar"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="apps-results-meta">
+      <h2 id="appsResultsTitle">전체 어플리케이션</h2>
+      <div class="count-label" id="appsResultsCount"></div>
+    </div>
+    <div class="apps-grid" id="appsGrid"></div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW 2.6: APPLICATION DETAIL (dynamic) -->
+<!-- ========================================== -->
+<section class="view" id="view-app-detail">
+  <section class="app-detail-hero">
+    <div class="wrap">
+      <button class="back-link" onclick="navigate('applications')">← 어플리케이션 라이브러리로</button>
+      <div id="appd-cat-tag"></div>
+      <h1 id="appd-name"></h1>
+      <p class="lede" id="appd-desc"></p>
+      <div class="snapshot-bar" id="appd-snapshot"></div>
+    </div>
+  </section>
+
+  <section class="case-section">
+    <div class="wrap">
+      <div class="case-row">
+        <div class="side">
+          <div class="case-step">01 / Customer Profile</div>
+          <div class="case-side-title">고객사 프로필</div>
+          <div class="case-side-desc">이 솔루션을 도입하는 일반적인 조직과 운영 환경.</div>
+        </div>
+        <div class="case-content" id="appd-customer"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="case-section">
+    <div class="wrap">
+      <div class="case-row">
+        <div class="side">
+          <div class="case-step">02 / Challenge</div>
+          <div class="case-side-title">현재의 문제점</div>
+          <div class="case-side-desc">기존 운영 방식의 한계와 비즈니스 리스크.</div>
+        </div>
+        <div class="case-content" id="appd-challenge"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="case-section">
+    <div class="wrap">
+      <div class="case-row">
+        <div class="side">
+          <div class="case-step">03 / Solution</div>
+          <div class="case-side-title">Monnit 솔루션</div>
+          <div class="case-side-desc">기술적 접근과 데이터 흐름의 핵심.</div>
+        </div>
+        <div class="case-content" id="appd-solution"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="case-section">
+    <div class="wrap">
+      <div class="case-row">
+        <div class="side">
+          <div class="case-step">04 / Proposal</div>
+          <div class="case-side-title">제안 단계</div>
+          <div class="case-side-desc">파일럿부터 본격 운영까지의 권장 도입 경로.</div>
+        </div>
+        <div class="case-content" id="appd-proposal"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="case-section">
+    <div class="wrap">
+      <div class="case-row">
+        <div class="side">
+          <div class="case-step">05 / Expected ROI</div>
+          <div class="case-side-title">예상 ROI</div>
+          <div class="case-side-desc">정량화 가능한 비즈니스 임팩트와 회수 기간.</div>
+        </div>
+        <div class="case-content" id="appd-roi"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTEGRATION POINT: real customers using this app -->
+  <section class="app-customers-section">
+    <div class="wrap">
+      <div class="app-customers-head">
+        <div>
+          <span class="kicker">Real Deployments</span>
+          <h3 style="margin-top:12px;">이 솔루션을 도입한 고객사</h3>
+        </div>
+        <span class="meta" id="appd-customers-count"></span>
+      </div>
+      <div class="app-customers-grid" id="appd-customers"></div>
+    </div>
+  </section>
+
+  <section class="case-section photo-section">
+    <div class="wrap">
+      <div class="ph-head">
+        <div>
+          <span class="kicker">Field Gallery</span>
+          <h3 style="margin-top:12px;">현장 · 설치 사진</h3>
+        </div>
+        <span class="meta">이 솔루션의 실제 적용 현장 사진</span>
+      </div>
+      <div id="appd-gallery" class="ph-wrap"></div>
+    </div>
+  </section>
+
+  <section class="app-cta">
+    <div class="wrap">
+      <div>
+        <span class="kicker" style="color:rgba(248,244,237,0.5);">Get started</span>
+        <h2 style="margin-top:16px;" id="appd-cta-title">이 솔루션, <em>우리 환경</em>에서 어떻게 작동할까요?</h2>
+        <p>환경과 규모를 알려주시면 권장 센서 구성·예상 ROI·견적을 24시간 내에 보내드립니다.</p>
+      </div>
+      <button class="app-cta-btn" data-nav="contact">맞춤 제안 받기</button>
+    </div>
+  </section>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW 4: CASE STUDY DETAIL (dynamic) -->
+<!-- ========================================== -->
+<section class="view" id="view-case">
+  <div class="case-back">
+    <button onclick="navigate('stories')">← Back to Customer Stories</button>
+  </div>
+  <div class="case-page" id="casePage"></div>
+  <div class="case-footer" id="caseFooter"></div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: ABOUT — WHO WE ARE -->
+<!-- ========================================== -->
+<section class="view" id="view-products">
+  <section class="apps-hero">
+    <div class="wrap">
+      <span class="kicker">Products</span>
+      <h1 style="font-family:var(--fd);font-weight:400;font-size:clamp(40px,6vw,68px);line-height:1.05;letter-spacing:-0.02em;margin:24px 0 22px;max-width:900px;">
+        Monnit 제품 라인업,<br><em style="font-style:italic;color:var(--accent-dark);font-weight:500;">한눈에.</em>
+      </h1>
+      <p style="font-size:17px;color:var(--ink-soft);max-width:680px;">
+        센서·게이트웨이·소프트웨어·액세서리 — 제품을 선택하면 사양·데이터시트가 새 탭으로 열립니다.
+      </p>
+      <div style="margin-top:22px">
+        <a class="cta-download" href="https://linktr.ee/monnithvac" data-catalog="1" target="_blank" rel="noopener">제품 카탈로그 다운로드</a>
+      </div>
+    </div>
+  </section>
+  <div class="wrap" id="productsRoot"></div>
+</section>
+
+<section class="view" id="view-who-we-are">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">About us / Who we are</div>
+      <h1>신뢰성으로 세상을 <em>모니터링</em>합니다</h1>
+      <div class="about-intro">
+        <div class="body-prose">
+        <p>Monnit은 신뢰성 높은 <strong>고정밀 산업용 등급의 무선 센서</strong>를 생산하여,
+        4차 산업 시대 전 세계 핵심 도시 인프라, 주요 생산 시설, 건물 등을 실시간으로 모니터링합니다.</p>
+        <p>이를 통해 수많은 대형 사고를 사전에 예방하고, 막대하게 낭비되는 에너지 사용과 운영 비용을 절감하며,
+        다양한 산업 분야의 <strong>탄소 배출량 감소</strong>에 앞장서고 있습니다.</p>
+        <p>2010년 IoT의 태동기부터 센싱 기술을 개발해 온 Monnit은 현재 64,000여 고객사와 130여 개국에서
+        2,000종 이상의 제품으로 사물에 데이터를 부여하고 있습니다. Monnit Korea는 이 글로벌 역량을
+        국내 현장에 맞춰 직접 컨설팅·구축·운영하는 통합 솔루션 파트너입니다.</p>
+        <p class="about-sign">Monnit Korea 대표이사<strong>염정훈</strong></p>
+      </div>
+      <figure class="prose-figure">
+        <img src="images/img-29.jpg" alt="Monnit 본사 전경">
+        <figcaption>Monnit 본사 · 전 세계 130여 개국에 무선 IoT 솔루션을 공급</figcaption>
+      </figure>
+      </div>
+      <h2>숫자로 보는 Monnit<span class="sub">Monnit by the numbers</span></h2>
+      <div class="spec-grid nums-grid">
+        <div class="spec-cell"><div class="sp-k">Founded</div><div class="sp-v">2010</div><div class="sp-d">IoT 원년부터 시작된 센싱 전문 기업</div></div>
+        <div class="spec-cell"><div class="sp-k">Customers</div><div class="sp-v">64,000+</div><div class="sp-d">전 세계 누적 고객사</div></div>
+        <div class="spec-cell"><div class="sp-k">Countries</div><div class="sp-v">130+</div><div class="sp-d">글로벌 납품 국가 수</div></div>
+        <div class="spec-cell"><div class="sp-k">Sensor Types</div><div class="sp-v">80+</div><div class="sp-d">온도·진동·누수·전류 등 센서 라인업</div></div>
+        <div class="spec-cell"><div class="sp-k">Product SKUs</div><div class="sp-v">2,000+</div><div class="sp-d">산업별 맞춤 제품군</div></div>
+        <div class="spec-cell"><div class="sp-k">Data / day</div><div class="sp-v">750억</div><div class="sp-d">일일 생성 데이터 포인트</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: ABOUT — OUR SOLUTION -->
+<!-- ========================================== -->
+<section class="view" id="view-our-solution">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">About us / Our solution</div>
+      <h1>감지하고, 분석하고, <em>스스로 제어합니다</em></h1>
+      <p class="lead">측정 → 전송 → 결정. 무선 센서 플랫폼이 현장 데이터를 모아 원하는 소프트웨어와 AI 자동제어로 연결합니다.</p>
+
+      <div class="sol-spec sol-stats-top">
+        <div class="spec-col">
+          <div class="spec-h"><span class="spec-ic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8.5 8.5a5 5 0 0 0 0 7M5.8 5.8a9 9 0 0 0 0 12.4M15.5 8.5a5 5 0 0 1 0 7M18.2 5.8a9 9 0 0 1 0 12.4"/></svg></span>무선 성능 · 연동</div>
+          <div class="spec-rows">
+            <div class="sp"><span>통신 거리</span><b>최대 약 600m</b></div>
+            <div class="sp"><span>실내 수신</span><b>구조물·층간 환경별 변동</b></div>
+            <div class="sp"><span>RF 기술</span><b>Sub-GHz FHSS</b></div>
+            <div class="sp"><span>게이트웨이</span><b>모델별 다수 센서 연결</b></div>
+            <div class="sp"><span>데이터 로깅</span><b>센서·게이트웨이 로컬 저장</b></div>
+          </div>
+          <div class="spec-chips"><span class="proto">REST API</span><span class="proto">MQTT</span><span class="proto">Webhook</span><span class="proto">JSON·XML</span><span class="proto">Modbus TCP</span><span class="proto">외부 클라우드 연동</span></div>
+        </div>
+        <div class="spec-col">
+          <div class="spec-h"><span class="spec-ic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none"/></svg></span>보안 · 인증</div>
+          <div class="spec-rows">
+            <div class="sp"><span>키 교환</span><b>256-bit Key Exchange</b></div>
+            <div class="sp"><span>데이터 암호화</span><b>AES-128 CTR</b></div>
+            <div class="sp"><span>보안 체계</span><b>Encrypt-RF®</b></div>
+            <div class="sp"><span>계정 보안</span><b>2FA 지원</b></div>
+            <div class="sp"><span>펌웨어</span><b>OTA/FOTA 업데이트 지원</b></div>
+            <div class="sp"><span>산업용 옵션</span><b>방폭 모델 별도 지원</b></div>
+          </div>
+          <div class="spec-chips"><span class="cert"><span class="cmark">FCC</span>FCC</span><span class="cert"><span class="cmark">IC</span>IC</span><span class="cert"><span class="cmark ce">CE</span>CE/ETSI</span><span class="proto">Encrypt-RF®</span><span class="proto">2FA</span><span class="proto">방폭 모델 별도</span></div>
+        </div>
+        <div class="spec-col">
+          <div class="spec-h"><span class="spec-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="16" height="9" rx="2"/><path d="M21.5 11.5v3"/><path d="M7 12.5h4l-1.5 3 4-4h-4l1.5-3z" fill="currentColor" stroke="none"/></svg></span>배터리 · 전력</div>
+          <div class="spec-rows">
+            <div class="sp"><span>최장 수명</span><b>AA 타입 기준 최대 10년+</b></div>
+            <div class="sp"><span>배터리 타입</span><b>AA / 코인셀 / 산업용 리튬</b></div>
+            <div class="sp"><span>잔량 확인</span><b>배터리 잔량 모니터링</b></div>
+            <div class="sp"><span>알림</span><b>저잔량 알림 지원</b></div>
+            <div class="sp"><span>전원 옵션</span><b>모델별 배터리·외부전원 선택</b></div>
+            <div class="sp"><span>설치 방식</span><b>배선 부담을 줄인 무선 설치</b></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="spec-note">※ 통신 거리, 배터리 수명, 센서 연결 수, 인증 항목은 모델 및 현장 환경에 따라 달라질 수 있습니다.</p>
+
+      <h2>어떻게 작동하는가<span class="sub">Sense → Transmit → Act</span></h2>
+      <div class="hmw">
+        <div class="hmw-step"><span class="hmw-badge">01 · SENSE</span><span class="hmw-ico ic-cyan"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="25" width="23" height="14" rx="2.5"/><circle cx="11.5" cy="32" r="1.6" fill="currentColor" stroke="none"/><path d="M23 25v-7"/><path d="M28.5 13a9 9 0 0 1 0 14M33.5 8.5a16 16 0 0 1 0 23M38.5 4a23 23 0 0 1 0 32"/></svg></span><h3>80+ 무선 센서</h3><p>온도·진동·전류·가스 등 현장 물리량을 FHSS 무선으로 측정.</p><div class="hmw-tags"><span>FHSS</span><span>AES-128</span><span>로컬 저장</span></div></div>
+        <span class="hmw-arrow"><svg viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line class="flowline" x1="2" y1="12" x2="50" y2="12"/><path d="M44 6l8 6-8 6"/><circle r="3" cx="2" cy="12" fill="currentColor" stroke="none"><animate attributeName="cx" values="2;50" dur="1.9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.9s" repeatCount="indefinite"/></circle></svg></span>
+        <div class="hmw-step"><span class="hmw-badge">02 · TRANSMIT</span><span class="hmw-ico ic-blue"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 22v-8M31 22v-8"/><circle cx="17" cy="11.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="31" cy="11.5" r="1.6" fill="currentColor" stroke="none"/><path d="M20.5 9.5a5 5 0 0 1 7 0"/><rect x="9" y="22" width="30" height="15" rx="3"/><path d="M14 30h16"/><circle cx="34" cy="30" r="1.9" fill="currentColor" stroke="none"/></svg></span><h3>게이트웨이</h3><p>다수 센서를 암호화·수집해 전송. 오프라인 버퍼로 보호.</p><div class="hmw-tags"><span>MQTT</span><span>멀티 클라우드</span><span>오프라인 버퍼</span><span>FOTA</span></div><span class="hmw-note">* PoE·WiFi 센서는 게이트웨이 불필요</span></div>
+        <span class="hmw-arrow"><svg viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line class="flowline" x1="2" y1="12" x2="50" y2="12"/><path d="M44 6l8 6-8 6"/><circle r="3" cx="2" cy="12" fill="currentColor" stroke="none"><animate attributeName="cx" values="2;50" dur="1.9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.9s" repeatCount="indefinite"/></circle></svg></span>
+        <div class="hmw-step"><span class="hmw-badge">03 · ACT</span><span class="hmw-ico ic-violet"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9a6 6 0 0 0-6 6 5 5 0 0 0-2 9 5 5 0 0 0 8 4 5 5 0 0 0 5-1"/><path d="M29 9a6 6 0 0 1 6 6 5 5 0 0 1 2 9 5 5 0 0 1-8 4 5 5 0 0 1-5-1"/><path d="M24 9v28"/></svg></span><h3>플랫폼 · AI</h3><p>분석·알림·AI 예지보전·자동제어. 엣지는 서버 없이 BMS 직접 제어.</p><div class="hmw-tags"><span>AI 예지보전</span><span>BMS/BACnet</span><span>REST API</span><span>엣지 제어</span></div></div>
+      </div>
+
+      <h2>배터리 수명 계산기<span class="sub">Battery life calculator</span></h2>
+      <div class="calc">
+        <div class="calc-in">
+          <label>배터리 타입</label>
+          <select id="batteryType"><option value="2AA_alk">2×AA 알칼라인 (3,000mAh)</option><option value="2AA_li" selected>2×AA 리튬 (3,500mAh)</option><option value="coin">코인셀 (240mAh)</option><option value="industrial">산업용 (5,500mAh)</option><option value="2AAA">2×AAA (1,200mAh)</option></select>
+          <label>센서 종류</label>
+          <select id="sensorType"><option value="temp">온도 센서</option><option value="humid">온습도 센서</option><option value="open_close">도어/개폐</option><option value="motion">모션 감지</option><option value="water">누수 감지</option><option value="vib" selected>진동 센서</option><option value="vib_adv">진동 ADV</option><option value="current_20">전류계 20A</option><option value="current_150">전류계 150A</option><option value="current_500">전류계 500A</option><option value="accel">가속도계</option><option value="pressure_50">압력 50PSI</option><option value="pressure_300">압력 300PSI</option><option value="gas_co2">가스 CO2</option><option value="gas_co">가스 CO</option><option value="airvel">풍속·기류</option><option value="ultrasonic">초음파 수위</option><option value="volt_200">전압 200VDC</option><option value="volt_500">전압 500VAC</option><option value="pulse">펄스 카운터</option><option value="dry_contact">Dry Contact</option></select>
+          <div class="calc-2col">
+            <div><label>하트비트 (분)</label><div class="stepper"><button data-step="hb" data-d="-1" type="button">−</button><span id="hbVal">5</span><button data-step="hb" data-d="1" type="button">+</button></div></div>
+            <div><label>체크인당 측정</label><div class="stepper"><button data-step="rpb" data-d="-1" type="button">−</button><span id="rpbVal">1</span><button data-step="rpb" data-d="1" type="button">+</button></div></div>
+          </div>
+          <label>신호 상태</label>
+          <select id="signalCond"><option value="good">양호 (≥50% 신호)</option><option value="medium">보통 (30–50%)</option><option value="low">불량 (≤25%)</option></select>
+          <button class="calc-go" id="calcGo" type="button">계산하기</button>
+        </div>
+        <div class="calc-out">
+          <div class="calc-res"><div><b id="resYears">—</b><span>예상 수명 (년)</span></div><div><b id="resDays">—</b><span>총 일수</span></div><div><b id="resMsgs">—</b><span>총 전송</span></div></div>
+          <div class="calc-barwrap"><div class="calc-bar"><span class="power-seg s1"></span><span class="power-seg s2"></span><span class="power-seg s3"></span><span class="power-seg s4"></span></div>
+          <div class="calc-leg"><span><i class="s1"></i>Sleep <em id="legSleep">—</em></span><span><i class="s2"></i>Assess <em id="legAssess">—</em></span><span><i class="s3"></i>Aging <em id="legAging">—</em></span><span><i class="s4"></i>TX <em id="legTx">—</em></span></div></div>
+          <div class="calc-notes" id="calcNotes">센서와 배터리를 선택한 뒤 <b>계산하기</b>를 누르세요. 결과는 평균 실내 환경 기준이며 ±30% 변동될 수 있습니다.</div>
+        </div>
+      </div>
+
+      <h2>현장 통합 대시보드<span class="sub">iMonnit dashboards</span></h2>
+      <div class="soldash-tabs">
+        <button class="soldash-tab active" data-tab="vib" type="button">진동 예지보전</button>
+        <button class="soldash-tab" data-tab="hvac" type="button">HVAC 예지보전</button>
+        <button class="soldash-tab" data-tab="scube" type="button">SCUBE 통합관제</button>
+      </div>
+
+      <div class="soldash-panel active" id="soldash-vib">
+        <div class="dash">
+          <div class="dash-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">진동 예지보전 · 회전설비 통합관제</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
+          <div class="vibx dark">
+
+            <div class="vx-kpis">
+              <div class="vx-kpi"><div class="vx-kpi-top"><span class="vx-ic neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg></span><span class="vx-tag">+2 신규</span></div><div class="vx-kpi-l">총 자산</div><div class="vx-kpi-n">124</div></div>
+              <div class="vx-kpi ok"><div class="vx-kpi-top"><span class="vx-ic ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="vx-tag ok">90.3%</span></div><div class="vx-kpi-l">정상 설비</div><div class="vx-kpi-n">112</div></div>
+              <div class="vx-kpi warn"><div class="vx-kpi-top"><span class="vx-ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span><span class="vx-tag warn">점검 필요</span></div><div class="vx-kpi-l">경고</div><div class="vx-kpi-n">8</div></div>
+              <div class="vx-kpi bad"><div class="vx-kpi-top"><span class="vx-ic bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.4-3.1 7.9-8 9-4.9-1.1-8-4.6-8-9V7z"/><path d="M12 9v4M12 16v.01"/></svg></span><span class="vx-tag bad">즉시 조치</span></div><div class="vx-kpi-l">위험</div><div class="vx-kpi-n">4</div></div>
+            </div>
+
+            <div class="vx-hero">
+              <div class="vx-card vx-asset">
+                <div class="vx-asset-h">
+                  <div><div class="vx-asset-t">모터 M-104</div><div class="vx-asset-s">실시간 상태 데이터 및 센서 위치</div></div>
+                  <div class="vx-asset-meta"><span class="vx-pill bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg>CRITICAL</span><span class="vx-id">ID: MOT-22901</span></div>
+                </div>
+                <div class="vx-stage">
+                  <svg class="vx-motor" viewBox="0 0 560 300" preserveAspectRatio="xMidYMid meet">
+                    <rect x="150" y="118" width="210" height="118" rx="14" fill="#46527A"/>
+                    <g stroke="#37425F" stroke-width="5" stroke-linecap="round"><line x1="170" y1="128" x2="170" y2="226"/><line x1="186" y1="128" x2="186" y2="226"/><line x1="202" y1="128" x2="202" y2="226"/><line x1="218" y1="128" x2="218" y2="226"/><line x1="234" y1="128" x2="234" y2="226"/><line x1="250" y1="128" x2="250" y2="226"/><line x1="266" y1="128" x2="266" y2="226"/><line x1="282" y1="128" x2="282" y2="226"/><line x1="298" y1="128" x2="298" y2="226"/><line x1="314" y1="128" x2="314" y2="226"/><line x1="330" y1="128" x2="330" y2="226"/><line x1="346" y1="128" x2="346" y2="226"/></g>
+                    <rect x="116" y="120" width="34" height="116" rx="12" fill="#3C476A"/>
+                    <g><line x1="124" y1="150" x2="142" y2="150" stroke="#566B8E" stroke-width="3" stroke-linecap="round"/></g>
+                    <rect x="222" y="92" width="86" height="34" rx="9" fill="#3C476A"/>
+                    <circle cx="360" cy="177" r="58" fill="#2C3654"/><circle cx="360" cy="177" r="34" fill="#222B45"/>
+                    <rect x="404" y="166" width="74" height="24" rx="8" fill="#2C3654"/>
+                    <g class="vx-dot bad"><circle cx="133" cy="150" r="17"/><svg x="124" y="141" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></g>
+                    <g class="vx-dot warn"><circle cx="265" cy="108" r="17"/><svg x="256" y="99" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="17" r="2.5" fill="#fff" stroke="none"/><path d="M12 3v11" stroke="#fff" stroke-width="2.4"/></svg></g>
+                    <g class="vx-dot ok"><circle cx="255" cy="200" r="17"/><svg x="246" y="191" width="18" height="18" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></g>
+                    <g class="vx-dot bad sm"><circle cx="430" cy="135" r="15"/><svg x="422" y="127" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></g>
+                  </svg>
+                  <div class="vx-live">
+                    <span class="vx-live-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18a6 6 0 0 0 0-12M12 22a10 10 0 0 0 0-20"/><circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+                    <div class="vx-live-id"><b>케이싱 표면</b><small>Sensor ID: S6</small></div>
+                    <div class="vx-live-v"><b><span id="vxLiveVal">0.82</span> <span class="u">mm/s</span></b><small>LIVE READING</small></div>
+                  </div>
+                </div>
+                <div class="vx-elec">
+                  <div class="vx-el"><span>주파수</span><b>60 <i>Hz</i></b></div>
+                  <div class="vx-el"><span>전압</span><b><span id="vxVolt">382.82</span> <i>V</i></b></div>
+                  <div class="vx-el"><span>전류</span><b><span id="vxAmp">12.53</span> <i>A</i></b></div>
+                  <div class="vx-el"><span>회전수</span><b><span id="vxRpm">2,950</span> <i>RPM</i></b></div>
+                </div>
+              </div>
+
+              <div class="vx-card vx-diag">
+                <div class="vx-card-h">AI 진단 · ISO 20826-3<div class="vx-seg"><button class="active" type="button">Day</button><button type="button">Week</button><button type="button">Month</button></div></div>
+                <div class="vx-diag-top">
+                  <div class="vx-donut-wrap">
+                    <svg class="vx-donut" viewBox="0 0 140 140">
+                      <circle cx="70" cy="70" r="52" fill="none" stroke="#222C52" stroke-width="16"/>
+                      <circle cx="70" cy="70" r="52" fill="none" stroke="#3FD79A" stroke-width="16" stroke-linecap="round" stroke-dasharray="196.0 326.7" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+                      <circle cx="70" cy="70" r="52" fill="none" stroke="#F2B544" stroke-width="16" stroke-linecap="round" stroke-dasharray="81.7 326.7" stroke-dashoffset="-196.0" transform="rotate(-90 70 70)"/>
+                      <circle cx="70" cy="70" r="52" fill="none" stroke="#FF5D72" stroke-width="16" stroke-linecap="round" stroke-dasharray="49.0 326.7" stroke-dashoffset="-277.7" transform="rotate(-90 70 70)"/>
+                      <text x="70" y="73" text-anchor="middle" class="vx-donut-c">20</text>
+                      <text x="70" y="90" text-anchor="middle" class="vx-donut-cl">검출 항목</text>
+                    </svg>
+                  </div>
+                  <div class="vx-diag-side">
+                    <div class="vx-diag-risk"><span>종합 위험도</span><b>72.35%</b></div>
+                    <div class="vx-iso-leg">
+                      <div><span class="ok"></span>NORMAL<b>12</b></div>
+                      <div><span class="warn"></span>ATTENTION<b>5</b></div>
+                      <div><span class="bad"></span>DAMAGE<b>3</b></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="vx-faults">
+                  <div class="vx-fl"><div class="vx-fl-t"><span>불균형</span><b>26.74%</b></div><div class="vx-fl-bar"><i class="bad" style="width:90%"></i></div></div>
+                  <div class="vx-fl"><div class="vx-fl-t"><span>베어링 결함</span><b>7%</b></div><div class="vx-fl-bar"><i class="warn" style="width:24%"></i></div></div>
+                  <div class="vx-fl"><div class="vx-fl-t"><span>오정렬</span><b>4.8%</b></div><div class="vx-fl-bar"><i class="ok" style="width:16%"></i></div></div>
+                  <div class="vx-fl"><div class="vx-fl-t"><span>패드 결함</span><b>3.95%</b></div><div class="vx-fl-bar"><i class="ok" style="width:13%"></i></div></div>
+                </div>
+                <button class="vx-iso-btn" type="button">ISO 기준 세부 진단</button>
+              </div>
+            </div>
+
+            <div class="vx-card vx-tl">
+              <div class="vx-card-h">실시간 진동 추이<span class="vx-upd"><i class="vx-livedot"></i>LIVE · M-104</span></div>
+              <div class="vx-tl-rows">
+                <div class="vx-tlr bad"><span class="vx-tlr-l">위험</span><span class="vx-tlr-track"><i style="left:86%;right:0"><b class="vx-tlr-m"></b></i></span></div>
+                <div class="vx-tlr warn"><span class="vx-tlr-l">경고</span><span class="vx-tlr-track"><i style="left:62%;right:14%"><b class="vx-tlr-m"></b></i></span></div>
+                <div class="vx-tlr ok"><span class="vx-tlr-l">정상</span><span class="vx-tlr-track"><i style="left:18%;right:38%"><b class="vx-tlr-m"></b></i></span></div>
+                <div class="vx-tlr learn"><span class="vx-tlr-l">학습</span><span class="vx-tlr-track"><i style="left:0;right:82%"><b class="vx-tlr-m"></b></i></span></div>
+              </div>
+              <div class="vx-chart-leg"><span class="s1">Crest Factor X</span><span class="s2">Crest Factor Y</span><span class="s3">Kurtosis</span><span class="s4">Temperature</span></div>
+              <div class="vx-chart">
+                <svg viewBox="0 0 1000 300" preserveAspectRatio="none">
+                  <text x="14" y="20" class="vx-chart-yl">MAGNITUDE (RMS)</text>
+                  <line class="vx-grid" x1="18" y1="92" x2="982" y2="92"/><line class="vx-grid" x1="18" y1="190" x2="982" y2="190"/><line class="vx-grid" x1="18" y1="288" x2="982" y2="288"/>
+                  <path class="vx-sp s4" d="M18.0 288L18.0 283.0 M25.5 288L25.5 284.1 M32.9 288L32.9 277.6 M40.4 288L40.4 280.4 M47.9 288L47.9 283.0 M55.4 288L55.4 275.7 M62.8 288L62.8 282.6 M70.3 288L70.3 281.6 M77.8 288L77.8 279.7 M85.3 288L85.3 278.0 M92.7 288L92.7 277.7 M100.2 288L100.2 281.0 M107.7 288L107.7 282.7 M115.1 288L115.1 281.0 M122.6 288L122.6 282.6 M130.1 288L130.1 283.9 M137.6 288L137.6 284.2 M145.0 288L145.0 281.0 M152.5 288L152.5 276.2 M160.0 288L160.0 283.8 M167.5 288L167.5 283.9 M174.9 288L174.9 266.5 M182.4 288L182.4 275.5 M189.9 288L189.9 265.9 M197.3 288L197.3 261.4 M204.8 288L204.8 270.7 M212.3 288L212.3 265.9 M219.8 288L219.8 269.8 M227.2 288L227.2 268.7 M234.7 288L234.7 276.3 M242.2 288L242.2 274.3 M249.7 288L249.7 270.1 M257.1 288L257.1 268.0 M264.6 288L264.6 272.2 M272.1 288L272.1 262.3 M279.6 288L279.6 265.9 M287.0 288L287.0 267.7 M294.5 288L294.5 258.5 M302.0 288L302.0 279.6 M309.4 288L309.4 278.8 M316.9 288L316.9 259.9 M324.4 288L324.4 263.4 M331.9 288L331.9 263.6 M339.3 288L339.3 272.6 M346.8 288L346.8 266.6 M354.3 288L354.3 266.9 M361.8 288L361.8 276.1 M369.2 288L369.2 278.3 M376.7 288L376.7 273.9 M384.2 288L384.2 270.1 M391.6 288L391.6 279.9 M399.1 288L399.1 269.8 M406.6 288L406.6 275.6 M414.1 288L414.1 263.8 M421.5 288L421.5 280.1 M429.0 288L429.0 271.5 M436.5 288L436.5 271.4 M444.0 288L444.0 275.2 M451.4 288L451.4 273.4 M458.9 288L458.9 270.4 M466.4 288L466.4 273.0 M473.8 288L473.8 273.2 M481.3 288L481.3 257.0 M488.8 288L488.8 274.8 M496.3 288L496.3 268.8 M503.7 288L503.7 277.6 M511.2 288L511.2 268.8 M518.7 288L518.7 268.7 M526.2 288L526.2 273.5 M533.6 288L533.6 278.9 M541.1 288L541.1 263.1 M548.6 288L548.6 277.1 M556.0 288L556.0 272.3 M563.5 288L563.5 277.8 M571.0 288L571.0 265.7 M578.5 288L578.5 277.4 M585.9 288L585.9 258.7 M593.4 288L593.4 277.9 M600.9 288L600.9 201.6 M608.4 288L608.4 246.7 M615.8 288L615.8 222.3 M623.3 288L623.3 215.3 M630.8 288L630.8 233.2 M638.2 288L638.2 232.5 M645.7 288L645.7 229.8 M653.2 288L653.2 232.3 M660.7 288L660.7 247.4 M668.1 288L668.1 237.0 M675.6 288L675.6 253.7 M683.1 288L683.1 214.1 M690.6 288L690.6 250.9 M698.0 288L698.0 239.0 M705.5 288L705.5 234.1 M713.0 288L713.0 229.4 M720.4 288L720.4 235.3 M727.9 288L727.9 235.6 M735.4 288L735.4 233.5 M742.9 288L742.9 238.2 M750.3 288L750.3 250.6 M757.8 288L757.8 241.8 M765.3 288L765.3 216.0 M772.8 288L772.8 244.3 M780.2 288L780.2 245.6 M787.7 288L787.7 250.0 M795.2 288L795.2 251.1 M802.7 288L802.7 246.2 M810.1 288L810.1 175.0 M817.6 288L817.6 118.8 M825.1 288L825.1 184.1 M832.5 288L832.5 163.8 M840.0 288L840.0 152.1 M847.5 288L847.5 91.6 M855.0 288L855.0 116.2 M862.4 288L862.4 153.4 M869.9 288L869.9 127.7 M877.4 288L877.4 151.9 M884.9 288L884.9 102.8 M892.3 288L892.3 195.6 M899.8 288L899.8 162.3 M907.3 288L907.3 144.5 M914.7 288L914.7 159.8 M922.2 288L922.2 129.1 M929.7 288L929.7 190.6 M937.2 288L937.2 167.4 M944.6 288L944.6 205.6 M952.1 288L952.1 158.7 M959.6 288L959.6 115.0 M967.1 288L967.1 165.9 M974.5 288L974.5 183.2 M982.0 288L982.0 155.8"/>
+                  <path class="vx-sp s3" d="M18.0 288L18.0 275.2 M25.5 288L25.5 281.4 M32.9 288L32.9 281.2 M40.4 288L40.4 282.2 M47.9 288L47.9 282.9 M55.4 288L55.4 278.6 M62.8 288L62.8 277.6 M70.3 288L70.3 276.0 M77.8 288L77.8 281.1 M85.3 288L85.3 282.0 M92.7 288L92.7 284.1 M100.2 288L100.2 281.2 M107.7 288L107.7 283.3 M115.1 288L115.1 280.5 M122.6 288L122.6 283.6 M130.1 288L130.1 279.4 M137.6 288L137.6 275.6 M145.0 288L145.0 278.1 M152.5 288L152.5 281.5 M160.0 288L160.0 275.7 M167.5 288L167.5 281.5 M174.9 288L174.9 275.7 M182.4 288L182.4 274.0 M189.9 288L189.9 268.6 M197.3 288L197.3 274.5 M204.8 288L204.8 270.2 M212.3 288L212.3 266.1 M219.8 288L219.8 254.6 M227.2 288L227.2 259.8 M234.7 288L234.7 257.1 M242.2 288L242.2 268.1 M249.7 288L249.7 262.9 M257.1 288L257.1 260.0 M264.6 288L264.6 275.5 M272.1 288L272.1 263.5 M279.6 288L279.6 269.5 M287.0 288L287.0 269.8 M294.5 288L294.5 260.6 M302.0 288L302.0 266.3 M309.4 288L309.4 267.2 M316.9 288L316.9 276.8 M324.4 288L324.4 270.8 M331.9 288L331.9 270.2 M339.3 288L339.3 251.4 M346.8 288L346.8 271.8 M354.3 288L354.3 276.8 M361.8 288L361.8 274.2 M369.2 288L369.2 274.7 M376.7 288L376.7 261.6 M384.2 288L384.2 263.0 M391.6 288L391.6 269.0 M399.1 288L399.1 271.4 M406.6 288L406.6 278.0 M414.1 288L414.1 262.8 M421.5 288L421.5 266.0 M429.0 288L429.0 263.4 M436.5 288L436.5 274.2 M444.0 288L444.0 270.0 M451.4 288L451.4 252.3 M458.9 288L458.9 265.9 M466.4 288L466.4 276.4 M473.8 288L473.8 259.1 M481.3 288L481.3 270.9 M488.8 288L488.8 265.9 M496.3 288L496.3 255.5 M503.7 288L503.7 260.9 M511.2 288L511.2 277.8 M518.7 288L518.7 265.0 M526.2 288L526.2 254.5 M533.6 288L533.6 261.1 M541.1 288L541.1 267.8 M548.6 288L548.6 275.8 M556.0 288L556.0 270.1 M563.5 288L563.5 266.5 M571.0 288L571.0 276.9 M578.5 288L578.5 262.1 M585.9 288L585.9 278.3 M593.4 288L593.4 265.9 M600.9 288L600.9 239.4 M608.4 288L608.4 238.2 M615.8 288L615.8 236.6 M623.3 288L623.3 201.4 M630.8 288L630.8 211.3 M638.2 288L638.2 244.6 M645.7 288L645.7 199.0 M653.2 288L653.2 247.6 M660.7 288L660.7 221.9 M668.1 288L668.1 237.2 M675.6 288L675.6 205.6 M683.1 288L683.1 250.0 M690.6 288L690.6 236.1 M698.0 288L698.0 229.2 M705.5 288L705.5 205.5 M713.0 288L713.0 235.5 M720.4 288L720.4 214.1 M727.9 288L727.9 222.9 M735.4 288L735.4 232.8 M742.9 288L742.9 224.4 M750.3 288L750.3 236.4 M757.8 288L757.8 240.9 M765.3 288L765.3 204.9 M772.8 288L772.8 244.7 M780.2 288L780.2 228.2 M787.7 288L787.7 252.4 M795.2 288L795.2 248.2 M802.7 288L802.7 195.1 M810.1 288L810.1 76.5 M817.6 288L817.6 116.4 M825.1 288L825.1 137.7 M832.5 288L832.5 155.6 M840.0 288L840.0 133.2 M847.5 288L847.5 159.5 M855.0 288L855.0 195.1 M862.4 288L862.4 165.6 M869.9 288L869.9 133.5 M877.4 288L877.4 125.1 M884.9 288L884.9 127.9 M892.3 288L892.3 116.0 M899.8 288L899.8 177.0 M907.3 288L907.3 119.7 M914.7 288L914.7 171.6 M922.2 288L922.2 145.9 M929.7 288L929.7 123.3 M937.2 288L937.2 153.5 M944.6 288L944.6 200.5 M952.1 288L952.1 123.9 M959.6 288L959.6 83.2 M967.1 288L967.1 166.2 M974.5 288L974.5 87.9 M982.0 288L982.0 143.8"/>
+                  <path class="vx-sp s2" d="M18.0 288L18.0 276.8 M25.5 288L25.5 280.6 M32.9 288L32.9 277.4 M40.4 288L40.4 282.5 M47.9 288L47.9 282.1 M55.4 288L55.4 276.7 M62.8 288L62.8 277.4 M70.3 288L70.3 275.8 M77.8 288L77.8 278.1 M85.3 288L85.3 278.2 M92.7 288L92.7 279.4 M100.2 288L100.2 277.5 M107.7 288L107.7 275.4 M115.1 288L115.1 276.7 M122.6 288L122.6 276.6 M130.1 288L130.1 278.2 M137.6 288L137.6 282.6 M145.0 288L145.0 283.6 M152.5 288L152.5 282.5 M160.0 288L160.0 274.4 M167.5 288L167.5 281.6 M174.9 288L174.9 265.6 M182.4 288L182.4 248.0 M189.9 288L189.9 268.0 M197.3 288L197.3 267.4 M204.8 288L204.8 247.1 M212.3 288L212.3 273.5 M219.8 288L219.8 266.2 M227.2 288L227.2 273.6 M234.7 288L234.7 266.0 M242.2 288L242.2 264.1 M249.7 288L249.7 277.4 M257.1 288L257.1 261.6 M264.6 288L264.6 272.4 M272.1 288L272.1 250.8 M279.6 288L279.6 275.9 M287.0 288L287.0 274.3 M294.5 288L294.5 273.5 M302.0 288L302.0 262.4 M309.4 288L309.4 260.6 M316.9 288L316.9 270.3 M324.4 288L324.4 260.6 M331.9 288L331.9 277.6 M339.3 288L339.3 261.2 M346.8 288L346.8 272.4 M354.3 288L354.3 257.6 M361.8 288L361.8 272.6 M369.2 288L369.2 273.1 M376.7 288L376.7 267.6 M384.2 288L384.2 258.4 M391.6 288L391.6 273.6 M399.1 288L399.1 267.1 M406.6 288L406.6 276.5 M414.1 288L414.1 277.5 M421.5 288L421.5 271.1 M429.0 288L429.0 261.4 M436.5 288L436.5 268.4 M444.0 288L444.0 273.1 M451.4 288L451.4 274.9 M458.9 288L458.9 258.4 M466.4 288L466.4 272.5 M473.8 288L473.8 260.6 M481.3 288L481.3 258.0 M488.8 288L488.8 261.1 M496.3 288L496.3 267.3 M503.7 288L503.7 253.6 M511.2 288L511.2 265.4 M518.7 288L518.7 257.8 M526.2 288L526.2 268.6 M533.6 288L533.6 277.8 M541.1 288L541.1 273.7 M548.6 288L548.6 273.5 M556.0 288L556.0 272.7 M563.5 288L563.5 253.0 M571.0 288L571.0 272.3 M578.5 288L578.5 270.1 M585.9 288L585.9 273.5 M593.4 288L593.4 266.6 M600.9 288L600.9 194.2 M608.4 288L608.4 219.1 M615.8 288L615.8 232.8 M623.3 288L623.3 246.2 M630.8 288L630.8 220.5 M638.2 288L638.2 233.8 M645.7 288L645.7 248.6 M653.2 288L653.2 241.7 M660.7 288L660.7 252.4 M668.1 288L668.1 236.6 M675.6 288L675.6 214.1 M683.1 288L683.1 200.9 M690.6 288L690.6 194.2 M698.0 288L698.0 230.1 M705.5 288L705.5 211.5 M713.0 288L713.0 202.9 M720.4 288L720.4 234.0 M727.9 288L727.9 194.8 M735.4 288L735.4 195.8 M742.9 288L742.9 236.3 M750.3 288L750.3 207.9 M757.8 288L757.8 191.3 M765.3 288L765.3 201.4 M772.8 288L772.8 203.1 M780.2 288L780.2 245.2 M787.7 288L787.7 240.7 M795.2 288L795.2 230.5 M802.7 288L802.7 212.1 M810.1 288L810.1 90.6 M817.6 288L817.6 160.3 M825.1 288L825.1 66.4 M832.5 288L832.5 115.4 M840.0 288L840.0 142.4 M847.5 288L847.5 119.2 M855.0 288L855.0 173.8 M862.4 288L862.4 124.2 M869.9 288L869.9 51.3 M877.4 288L877.4 128.8 M884.9 288L884.9 105.6 M892.3 288L892.3 82.1 M899.8 288L899.8 142.6 M907.3 288L907.3 168.4 M914.7 288L914.7 113.8 M922.2 288L922.2 153.9 M929.7 288L929.7 174.8 M937.2 288L937.2 84.8 M944.6 288L944.6 120.8 M952.1 288L952.1 120.0 M959.6 288L959.6 152.6 M967.1 288L967.1 111.4 M974.5 288L974.5 27.5 M982.0 288L982.0 167.0"/>
+                  <path class="vx-sp s1" d="M18.0 288L18.0 281.3 M25.5 288L25.5 279.0 M32.9 288L32.9 278.5 M40.4 288L40.4 282.5 M47.9 288L47.9 282.9 M55.4 288L55.4 283.5 M62.8 288L62.8 277.5 M70.3 288L70.3 282.7 M77.8 288L77.8 274.5 M85.3 288L85.3 277.9 M92.7 288L92.7 276.7 M100.2 288L100.2 276.0 M107.7 288L107.7 282.8 M115.1 288L115.1 278.8 M122.6 288L122.6 281.0 M130.1 288L130.1 277.5 M137.6 288L137.6 279.9 M145.0 288L145.0 283.3 M152.5 288L152.5 276.8 M160.0 288L160.0 279.7 M167.5 288L167.5 279.5 M174.9 288L174.9 250.9 M182.4 288L182.4 268.4 M189.9 288L189.9 256.6 M197.3 288L197.3 259.3 M204.8 288L204.8 256.4 M212.3 288L212.3 261.4 M219.8 288L219.8 271.7 M227.2 288L227.2 273.5 M234.7 288L234.7 253.8 M242.2 288L242.2 255.3 M249.7 288L249.7 255.5 M257.1 288L257.1 260.6 M264.6 288L264.6 245.4 M272.1 288L272.1 260.9 M279.6 288L279.6 272.7 M287.0 288L287.0 251.0 M294.5 288L294.5 257.1 M302.0 288L302.0 263.4 M309.4 288L309.4 275.3 M316.9 288L316.9 274.3 M324.4 288L324.4 272.3 M331.9 288L331.9 274.1 M339.3 288L339.3 261.0 M346.8 288L346.8 273.9 M354.3 288L354.3 255.8 M361.8 288L361.8 247.4 M369.2 288L369.2 269.0 M376.7 288L376.7 261.9 M384.2 288L384.2 256.3 M391.6 288L391.6 273.2 M399.1 288L399.1 269.5 M406.6 288L406.6 263.0 M414.1 288L414.1 276.1 M421.5 288L421.5 265.0 M429.0 288L429.0 246.4 M436.5 288L436.5 260.2 M444.0 288L444.0 264.0 M451.4 288L451.4 246.4 M458.9 288L458.9 246.8 M466.4 288L466.4 266.2 M473.8 288L473.8 271.9 M481.3 288L481.3 277.0 M488.8 288L488.8 273.0 M496.3 288L496.3 271.2 M503.7 288L503.7 277.8 M511.2 288L511.2 273.9 M518.7 288L518.7 272.6 M526.2 288L526.2 264.0 M533.6 288L533.6 270.3 M541.1 288L541.1 269.9 M548.6 288L548.6 244.3 M556.0 288L556.0 263.3 M563.5 288L563.5 276.2 M571.0 288L571.0 268.9 M578.5 288L578.5 259.0 M585.9 288L585.9 272.2 M593.4 288L593.4 266.0 M600.9 288L600.9 227.5 M608.4 288L608.4 192.1 M615.8 288L615.8 182.9 M623.3 288L623.3 228.8 M630.8 288L630.8 222.0 M638.2 288L638.2 199.4 M645.7 288L645.7 230.0 M653.2 288L653.2 172.9 M660.7 288L660.7 178.4 M668.1 288L668.1 183.6 M675.6 288L675.6 226.0 M683.1 288L683.1 235.2 M690.6 288L690.6 242.7 M698.0 288L698.0 218.8 M705.5 288L705.5 189.6 M713.0 288L713.0 164.3 M720.4 288L720.4 193.7 M727.9 288L727.9 235.0 M735.4 288L735.4 236.8 M742.9 288L742.9 188.8 M750.3 288L750.3 194.2 M757.8 288L757.8 191.1 M765.3 288L765.3 230.0 M772.8 288L772.8 176.0 M780.2 288L780.2 199.1 M787.7 288L787.7 220.8 M795.2 288L795.2 211.0 M802.7 288L802.7 191.4 M810.1 288L810.1 71.6 M817.6 288L817.6 110.0 M825.1 288L825.1 164.5 M832.5 288L832.5 22.5 M840.0 288L840.0 113.3 M847.5 288L847.5 30.7 M855.0 288L855.0 111.5 M862.4 288L862.4 174.1 M869.9 288L869.9 32.6 M877.4 288L877.4 56.7 M884.9 288L884.9 74.0 M892.3 288L892.3 96.6 M899.8 288L899.8 142.3 M907.3 288L907.3 120.5 M914.7 288L914.7 131.6 M922.2 288L922.2 109.0 M929.7 288L929.7 118.8 M937.2 288L937.2 52.2 M944.6 288L944.6 71.6 M952.1 288L952.1 96.7 M959.6 288L959.6 141.9 M967.1 288L967.1 134.1 M974.5 288L974.5 132.5 M982.0 288L982.0 136.4"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="vx-mid2">
+              <div class="vx-card vx-alerts">
+                <div class="vx-card-h tracked">ACTIVE ALERTS</div>
+                <div class="vx-al bad"><div class="vx-al-top"><span class="vx-al-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20z"/><path d="M12 10v4M12 17v.01"/></svg></span><b>CRITICAL</b><em>2분 전</em></div><div class="vx-al-t">VRMS 과다 감지</div><div class="vx-al-as">Motor M-104 (Stamping)</div><div class="vx-al-d">VRMS 8.5mm/s 초과. 비구동측 베어링 손상 가능성.</div></div>
+                <div class="vx-al warn"><div class="vx-al-top"><span class="vx-al-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20z"/><path d="M12 10v4M12 17v.01"/></svg></span><b>WARNING</b><em>15분 전</em></div><div class="vx-al-t">고온 경고</div><div class="vx-al-as">Motor M-106 (Assembly)</div><div class="vx-al-d">케이싱 온도 72°C 도달. 윤활 상태 점검 권장.</div></div>
+                <div class="vx-al info"><div class="vx-al-top"><span class="vx-al-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg></span><b>INFO</b><em>1시간 전</em></div><div class="vx-al-t">정비 일정 등록</div><div class="vx-al-as">Motor M-088 (Mixing)</div><div class="vx-al-d">다음 교대 자동 정비 작업 생성 (베어링 교체).</div></div>
+              </div>
+
+              <div class="vx-card vx-fleet">
+                <div class="vx-card-h">회전설비 통합관제 · 6대<span class="vx-fleet-sum"><i class="bad"></i>비정상 1 <i class="warn"></i>주의 2 <i class="ok"></i>정상 3</span></div>
+                <div class="vx-ftable">
+                  <div class="vx-fr bad"><span class="vx-fd"></span><span class="vx-fn">펌프 B-02</span><span class="vx-fb bad">비정상</span><span class="vx-frms" id="vxF1">4.12<small>mm/s</small></span><span class="vx-ft">73°C</span></div>
+                  <div class="vx-fr warn"><span class="vx-fd"></span><span class="vx-fn">모터 A-01</span><span class="vx-fb warn">주의</span><span class="vx-frms" id="vxF2">2.84<small>mm/s</small></span><span class="vx-ft">61°C</span></div>
+                  <div class="vx-fr warn"><span class="vx-fd"></span><span class="vx-fn">송풍기 D-01</span><span class="vx-fb warn">주의</span><span class="vx-frms" id="vxF3">2.10<small>mm/s</small></span><span class="vx-ft">58°C</span></div>
+                  <div class="vx-fr ok"><span class="vx-fd"></span><span class="vx-fn">펌프 B-01</span><span class="vx-fb ok">정상</span><span class="vx-frms" id="vxF4">1.33<small>mm/s</small></span><span class="vx-ft">52°C</span></div>
+                  <div class="vx-fr ok"><span class="vx-fd"></span><span class="vx-fn">모터 A-02</span><span class="vx-fb ok">정상</span><span class="vx-frms" id="vxF5">0.91<small>mm/s</small></span><span class="vx-ft">48°C</span></div>
+                  <div class="vx-fr ok"><span class="vx-fd"></span><span class="vx-fn">컴프레서 C</span><span class="vx-fb ok">정상</span><span class="vx-frms" id="vxF6">0.67<small>mm/s</small></span><span class="vx-ft">45°C</span></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="dash-foot">전 설비 진동·온도를 AI가 상시 학습 — 정상/주의/비정상 자동 판정, 임계 초과 시 즉시 알림·패트롤 연계</div>
+        </div>
+      </div>
+      <div class="soldash-panel" id="soldash-hvac">
+        <div class="dash">
+          <div class="dash-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">HVAC 자율제어 · 공조기(AHU) + 급기/환기 계통</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
+          <div class="ahu-schem">
+            <svg viewBox="0 0 940 250" preserveAspectRatio="xMidYMid meet">
+              <!-- return air loop -->
+              <path class="as-ret" d="M872 150 V40 H150 V70"/>
+              <text class="as-flab" x="500" y="32">환기 (RA) · 25.1°C</text>
+              <!-- OA intake -->
+              <g class="as-arrow"><path d="M26 122 H66"/><path d="M58 114 l10 8 -10 8"/></g>
+              <text class="as-lab" x="20" y="150">외기 OA</text>
+              <text class="as-val warm" x="20" y="167">31.2°C</text>
+              <!-- AHU casing -->
+              <rect class="as-case" x="70" y="78" width="640" height="92" rx="12"/>
+              <!-- stage separators -->
+              <line class="as-sep" x1="172" y1="78" x2="172" y2="170"/>
+              <line class="as-sep" x1="300" y1="78" x2="300" y2="170"/>
+              <line class="as-sep" x1="430" y1="78" x2="430" y2="170"/>
+              <line class="as-sep" x1="560" y1="78" x2="560" y2="170"/>
+              <!-- airflow dashes through casing -->
+              <path class="as-flow" d="M82 124 H700"/>
+              <!-- stage 1: OA damper -->
+              <g class="as-damper"><line x1="100" y1="92" x2="145" y2="108"/><line x1="100" y1="108" x2="145" y2="124"/><line x1="100" y1="124" x2="145" y2="140"/><line x1="100" y1="140" x2="145" y2="156"/></g>
+              <text class="as-stage" x="121" y="190">외기댐퍼</text>
+              <text class="as-mini" x="121" y="205">35%</text>
+              <!-- stage 2: pre-filter (WARN) -->
+              <g class="as-filter warn"><rect x="196" y="90" width="80" height="68" rx="5"/><path d="M200 96 l72 56 M200 112 l72 56 M200 128 l72 24 M216 90 l60 46 M236 90 l40 30"/></g>
+              <g class="as-warn"><circle cx="236" cy="70" r="12"/><path d="M236 64 v6 M236 75 v.5" stroke="#0A1130" stroke-width="2.4" stroke-linecap="round"/></g>
+              <text class="as-stage warn" x="236" y="190">프리필터</text>
+              <text class="as-mini warn" x="236" y="205">152Pa 막힘</text>
+              <!-- stage 3: cooling coil -->
+              <g class="as-coil cool"><path d="M312 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M338 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M364 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M390 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/></g>
+              <text class="as-stage" x="365" y="190">냉방코일</text>
+              <text class="as-mini cool" x="365" y="205">밸브 60% · 12.0°C</text>
+              <!-- stage 4: heating coil -->
+              <g class="as-coil heat"><path d="M455 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M485 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M515 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/></g>
+              <text class="as-stage" x="495" y="190">난방코일</text>
+              <text class="as-mini" x="495" y="205">대기</text>
+              <!-- stage 5: supply fan -->
+              <circle class="as-fan-r" cx="635" cy="124" r="42"/>
+              <g class="as-fan">
+                <g transform="translate(635 124)">
+                  <path d="M0 0 C 8 -22 26 -26 34 -16 C 20 -14 8 -6 0 0Z"/>
+                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(72)"/>
+                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(144)"/>
+                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(216)"/>
+                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(288)"/>
+                </g>
+              </g>
+              <circle class="as-fan-hub" cx="635" cy="124" r="7"/>
+              <text class="as-stage warn2" x="635" y="190">급기팬</text>
+              <text class="as-mini warn2" x="635" y="205">78% · 4.2A↑</text>
+              <!-- SA out to room -->
+              <g class="as-arrow sa"><path d="M712 124 H772"/><path d="M764 116 l10 8 -10 8"/></g>
+              <rect class="as-room" x="784" y="86" width="132" height="78" rx="10"/>
+              <text class="as-room-l" x="850" y="118">실내</text>
+              <text class="as-room-v" x="850" y="142">23.5°C · 45%</text>
+              <text class="as-lab sa" x="742" y="150">급기 SA</text>
+              <text class="as-val cool" x="742" y="167">23.8°C</text>
+            </svg>
+            <div class="ahu-schem-cap">AI 자율제어 공조기(AHU) 계통 · 외기 → 프리필터 → 냉/난방코일 → 급기팬 → 급기/환기 · 실시간 센서 연동</div>
+          </div>
+          <div class="hvac2-grid">
+            <div class="hsens">
+              <div class="hsens-h">현재 센서 데이터</div>
+              <div class="hsens-list">
+                <div class="hsv"><span>외기온도</span><b>31.2°C</b></div>
+                <div class="hsv"><span>급기온도</span><b>23.8°C</b></div>
+                <div class="hsv"><span>환기온도</span><b>25.1°C</b></div>
+                <div class="hsv"><span>실내 온/습도</span><b>23.5°C·45%</b></div>
+                <div class="hsv"><span>냉방코일 출구</span><b>12.0°C</b></div>
+                <div class="hsv bad"><span>프리필터 차압</span><b>152Pa ⚠</b></div>
+                <div class="hsv"><span>급기팬 속도</span><b>78%</b></div>
+                <div class="hsv warn"><span>급기팬 전류</span><b>4.2A ↑</b></div>
+              </div>
+            </div>
+            <div class="ins-card hi hdiag">
+              <div class="ins-h">AI 진단 &amp; 조치 · 프리필터</div>
+              <p><b>프리필터 차압 152Pa</b> — 임계 150Pa 초과, 막힘 진행(잔여수명 8%).</p>
+              <div class="diag-row"><span>영향</span><b>급기 풍량 ↓ · 팬 전류 4.2A 상승</b></div>
+              <div class="diag-act"><b>권고 조치</b> 프리필터 교체(D-3) · 교체 전 팬 정압 보정 · 차압 알람 유지</div>
+              <div class="hopt"><span class="h2-chip cool">냉방밸브 60%·급기 12°C</span><span class="h2-chip">외기댐퍼 35%·외기냉방</span><span class="h2-chip save">에너지 17% 절감</span></div>
+            </div>
+          </div>
+          <div class="dash-foot">외기·재실·부하를 AI가 분석해 댐퍼·코일밸브·팬을 실시간 자율 최적화 · 이상 부위는 진단·조치까지 안내 · BMS 양방향 연동</div>
+        </div>
+      </div>
+      <div class="soldash-panel" id="soldash-scube">
+        <div class="scube">
+          <div class="dash-top scube-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">통합관제 · 서울 9개 현장 · 진동·화재·정전·공조·보일러 예지보전</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
+          <div class="scube-body">
+            <div class="scube-map">
+              <div class="kmap-wrap seoul">
+                <svg class="kmap" viewBox="0 0 882.4 729.4" preserveAspectRatio="xMidYMid meet"><path class="kmap-land" d="M727.6 376.7L735.0 377.6L740.6 370.7L746.5 366.6L770.4 355.6L797.9 347.1L809.9 341.9L834.0 326.8L841.4 327.5L853.1 326.7L859.2 323.8L856.0 332.7L857.4 340.5L861.1 346.1L863.7 353.8L864.7 362.9L869.6 375.2L868.4 396.2L872.0 399.2L871.1 408.6L872.4 415.6L868.7 416.1L863.6 412.3L856.5 416.1L849.7 415.1L837.1 418.6L830.9 416.6L811.0 445.2L810.4 457.4L802.5 467.0L799.0 476.2L795.1 476.4L792.9 483.1L792.6 489.5L789.7 488.3L740.1 460.6L742.7 454.8L748.5 433.4L738.8 427.2L720.4 420.6L725.5 410.0L729.3 395.0L729.3 381.3L727.6 376.7Z M632.6 468.4L644.7 472.0L654.4 472.3L668.3 470.1L684.7 464.0L698.1 461.7L706.3 445.2L720.4 420.6L738.8 427.2L748.5 433.4L742.7 454.8L740.1 460.6L789.7 488.3L792.6 489.5L792.6 493.1L788.3 496.4L785.4 501.6L783.0 511.3L785.4 519.4L793.9 524.5L798.9 525.1L804.0 521.9L807.6 525.4L821.7 529.3L827.2 533.0L824.1 541.9L824.4 548.1L820.8 558.1L817.7 562.4L807.5 565.8L802.4 585.0L802.4 589.7L796.4 594.4L787.3 594.7L781.1 602.8L771.2 598.7L763.9 597.6L764.5 607.2L773.6 613.5L768.0 617.1L759.9 617.1L752.5 612.8L752.6 619.4L746.6 624.1L746.6 618.8L743.0 610.7L724.8 579.3L726.0 576.4L719.3 563.5L712.4 555.9L705.2 550.4L693.9 544.5L656.1 532.0L647.8 529.9L638.4 520.5L633.0 481.7L631.6 479.2L632.6 468.4Z M611.1 458.0L632.6 468.4L631.6 479.2L633.0 481.7L638.4 520.5L647.8 529.9L656.1 532.0L693.9 544.5L705.2 550.4L712.4 555.9L719.3 563.5L726.0 576.4L724.8 579.3L743.0 610.7L746.6 618.8L746.6 624.1L736.6 632.0L735.2 641.3L728.0 637.5L725.4 633.6L713.7 631.0L707.9 638.6L697.0 640.8L693.1 633.9L690.4 628.1L676.5 616.0L668.7 604.2L668.3 597.3L655.6 599.2L646.9 604.2L644.3 599.2L639.2 598.2L637.3 601.5L623.4 604.2L621.5 614.3L611.5 615.7L605.4 614.9L587.3 592.7L579.8 571.1L564.9 573.8L559.7 560.8L536.9 500.4L532.2 480.3L529.7 474.1L519.0 461.2L537.7 442.3L545.8 435.7L556.1 432.6L589.3 449.1L591.3 444.7L595.7 449.0L611.1 458.0Z M519.0 461.2L529.7 474.1L532.2 480.3L536.9 500.4L559.7 560.8L564.9 573.8L579.8 571.1L587.3 592.7L605.4 614.9L611.5 615.7L621.5 614.3L623.4 604.2L637.3 601.5L639.2 598.2L644.3 599.2L646.9 604.2L655.6 599.2L668.3 597.3L668.7 604.2L676.5 616.0L690.4 628.1L693.1 633.9L689.6 640.8L690.6 646.6L687.6 647.7L685.4 654.0L681.7 656.3L676.7 665.8L676.7 674.6L667.9 679.3L664.2 686.5L648.6 683.4L642.2 685.0L642.9 689.6L648.2 692.7L646.9 697.2L641.9 700.1L640.1 709.9L641.4 713.2L632.1 715.3L629.9 718.2L620.4 715.4L613.8 715.3L602.0 719.4L597.3 714.8L592.4 713.5L590.2 706.6L576.6 693.5L568.5 691.8L567.5 686.6L573.3 677.4L571.8 673.0L572.4 665.3L569.0 659.5L570.9 651.6L570.2 646.4L566.4 642.4L563.8 633.8L566.1 627.6L559.0 622.6L548.3 641.5L536.9 647.6L527.9 649.7L517.3 649.6L513.1 644.5L507.4 632.0L505.4 630.8L501.6 618.8L490.4 618.5L486.9 620.2L488.8 627.4L488.0 632.0L480.5 634.0L471.1 642.5L468.7 636.6L470.1 623.3L467.5 617.2L462.6 612.3L458.5 604.4L456.6 594.3L459.3 543.1L463.8 533.6L455.7 527.7L454.0 523.2L453.6 502.1L458.4 498.5L468.5 498.0L472.6 500.6L490.4 490.2L502.2 482.4L507.1 477.5L511.3 469.1L519.0 461.2Z M456.6 594.3L458.5 604.4L462.6 612.3L467.5 617.2L470.1 623.3L468.7 636.6L471.1 642.5L459.0 646.1L455.0 655.8L445.6 662.4L440.9 669.9L434.8 670.1L421.2 675.1L420.5 684.0L418.5 686.9L410.8 687.6L408.9 690.8L398.0 690.8L381.7 695.9L375.6 696.0L369.7 700.1L367.3 696.3L367.7 688.8L361.8 681.2L352.4 674.8L352.3 668.5L347.7 663.1L336.2 652.1L334.6 646.1L323.0 643.5L318.7 643.6L317.9 633.7L314.9 627.3L316.8 623.9L312.4 620.6L305.4 604.8L310.5 602.2L313.1 593.5L308.0 590.3L308.5 583.2L289.8 587.4L287.3 584.7L295.1 572.7L300.7 572.7L315.7 566.9L323.6 561.2L338.5 559.7L343.2 548.9L345.6 546.7L353.1 551.2L359.7 551.6L363.3 554.0L374.2 553.9L385.6 549.1L395.3 553.5L399.4 557.0L405.3 555.6L414.6 550.8L413.8 557.4L416.9 566.8L414.9 576.6L433.7 597.7L447.0 594.5L456.6 594.3Z M453.6 502.1L454.0 523.2L455.7 527.7L463.8 533.6L459.3 543.1L456.6 594.3L447.0 594.5L433.7 597.7L414.9 576.6L416.9 566.8L413.8 557.4L414.6 550.8L405.3 555.6L399.4 557.0L395.3 553.5L385.6 549.1L374.2 553.9L363.3 554.0L359.7 551.6L353.1 551.2L345.6 546.7L343.2 548.9L338.5 559.7L323.6 561.2L315.7 566.9L300.7 572.7L295.1 572.7L314.2 543.0L329.0 539.6L332.0 528.2L340.8 500.7L344.3 499.8L342.0 491.8L355.3 492.9L374.9 488.3L392.3 481.5L398.5 488.0L406.7 493.8L421.6 500.4L453.6 502.1Z M267.3 403.2L289.9 418.9L301.2 424.4L348.7 437.5L360.0 439.4L378.2 457.1L384.7 463.3L387.2 472.3L392.3 481.5L374.9 488.3L355.3 492.9L342.0 491.8L344.3 499.8L340.8 500.7L332.0 528.2L329.0 539.6L314.2 543.0L295.1 572.7L289.5 571.0L281.2 562.1L275.5 542.2L274.8 525.5L275.8 514.2L268.7 503.6L246.1 490.0L246.8 475.9L248.2 468.0L250.8 465.2L261.5 459.1L264.7 453.7L267.9 454.6L270.9 447.5L270.5 440.5L262.2 420.8L259.9 420.3L258.1 413.2L267.3 403.2Z M287.3 584.7L289.8 587.4L308.5 583.2L308.0 590.3L313.1 593.5L310.5 602.2L305.4 604.8L312.4 620.6L316.8 623.9L314.9 627.3L317.9 633.7L318.7 643.6L323.0 643.5L334.6 646.1L336.2 652.1L347.7 663.1L336.8 672.5L331.9 678.9L329.4 686.3L325.4 689.9L317.9 689.5L311.8 696.0L306.4 705.7L294.2 705.0L294.0 700.2L287.1 694.5L285.8 691.4L286.3 681.5L284.8 677.5L279.3 674.8L280.2 668.0L276.2 656.8L273.2 658.6L266.7 656.5L265.8 650.2L260.0 647.0L259.9 639.1L265.0 631.2L247.0 604.4L240.3 592.0L233.7 573.5L236.4 571.6L244.5 568.5L248.6 570.1L259.4 579.0L265.9 586.6L277.7 589.5L286.3 588.3L287.3 584.7Z M133.4 512.1L142.4 512.3L148.5 520.1L157.4 527.2L166.0 523.2L164.8 519.2L174.7 518.9L175.5 512.8L182.7 510.7L185.6 507.3L191.3 506.1L196.9 509.6L202.2 507.8L206.2 516.2L211.0 516.2L212.5 520.0L218.1 519.2L224.5 521.0L231.2 519.6L233.8 511.5L244.0 496.5L246.1 490.0L268.7 503.6L275.8 514.2L274.8 525.5L275.5 542.2L281.2 562.1L289.5 571.0L295.1 572.7L287.3 584.7L286.3 588.3L277.7 589.5L265.9 586.6L259.4 579.0L248.6 570.1L244.5 568.5L236.4 571.6L241.4 565.0L238.9 562.1L232.6 564.0L232.6 559.5L222.0 549.8L215.9 556.2L208.6 560.1L201.2 570.3L195.9 572.1L193.1 578.1L189.3 581.4L179.3 580.3L177.0 583.1L176.2 600.5L163.6 596.8L155.4 597.8L147.8 591.9L142.7 595.4L132.8 594.9L127.9 596.7L122.9 590.9L123.5 581.2L122.1 574.8L123.5 570.5L130.7 565.4L129.2 559.7L119.1 555.5L112.0 551.1L108.5 543.6L109.3 538.7L114.5 540.0L120.9 536.9L123.4 530.2L126.8 528.3L129.6 518.5L128.9 513.4L133.4 512.1Z M201.3 339.5L200.6 348.8L202.7 352.6L218.9 362.3L242.8 383.1L267.3 403.2L258.1 413.2L259.9 420.3L257.8 420.3L248.7 409.1L234.9 411.6L228.0 409.7L214.8 400.0L210.5 417.8L213.7 427.1L213.0 438.4L214.2 456.1L183.1 461.1L165.7 464.6L153.3 438.8L154.6 435.5L150.6 424.8L145.1 425.1L143.8 418.5L140.2 415.5L137.6 424.7L127.9 427.8L112.5 427.9L103.7 425.4L101.6 421.5L89.2 422.1L81.8 428.5L79.9 435.3L71.6 440.5L69.4 431.1L71.7 425.8L65.4 424.9L65.4 419.6L59.0 418.0L54.9 413.1L40.9 413.4L31.8 406.4L22.9 407.0L15.7 395.0L10.0 389.0L17.7 388.6L19.2 385.0L34.3 372.4L34.5 366.8L30.0 358.5L36.5 359.3L42.0 356.4L46.5 350.9L45.0 346.8L47.0 342.0L61.0 332.0L68.5 332.6L68.2 324.6L69.5 317.8L73.9 317.4L79.9 304.2L84.0 302.2L80.7 296.5L81.1 292.0L77.3 284.6L76.2 277.5L79.0 270.8L82.1 270.1L83.5 262.9L86.1 261.5L93.6 264.0L115.4 288.3L124.4 297.4L137.6 303.9L187.3 337.0L201.3 339.5Z M127.9 427.8L137.6 424.7L140.2 415.5L143.8 418.5L145.1 425.1L150.6 424.8L154.6 435.5L153.3 438.8L165.7 464.6L183.1 461.1L214.2 456.1L213.0 438.4L213.7 427.1L210.5 417.8L214.8 400.0L228.0 409.7L234.9 411.6L248.7 409.1L257.8 420.3L259.9 420.3L262.2 420.8L270.5 440.5L270.9 447.5L267.9 454.6L264.7 453.7L261.5 459.1L250.8 465.2L248.2 468.0L246.8 475.9L246.1 490.0L244.0 496.5L233.8 511.5L231.2 519.6L224.5 521.0L218.1 519.2L212.5 520.0L211.0 516.2L206.2 516.2L202.2 507.8L196.9 509.6L191.3 506.1L185.6 507.3L182.7 510.7L175.5 512.8L174.7 518.9L164.8 519.2L166.0 523.2L157.4 527.2L148.5 520.1L142.4 512.3L133.4 512.1L131.8 506.0L132.9 499.3L130.1 491.5L135.0 482.3L134.4 474.3L141.0 464.2L138.6 456.6L135.1 456.0L127.3 443.1L127.9 427.8Z M294.9 333.7L291.7 337.4L298.3 342.8L329.2 360.1L341.4 363.8L346.6 368.9L343.5 375.0L343.3 380.6L364.4 390.3L373.0 386.9L406.0 384.2L409.4 386.3L415.1 380.6L418.5 386.9L415.6 389.7L417.0 399.7L420.2 404.4L416.0 407.1L412.5 413.2L409.0 415.4L406.2 425.0L394.2 439.2L381.3 442.8L378.2 457.1L360.0 439.4L348.7 437.5L301.2 424.4L289.9 418.9L267.3 403.2L242.8 383.1L218.9 362.3L202.7 352.6L200.6 348.8L201.3 339.5L201.5 337.0L209.5 336.4L213.2 334.3L217.5 337.3L222.4 332.4L228.1 331.4L238.7 326.6L241.2 319.1L240.3 314.9L245.1 308.5L247.8 300.5L251.8 297.2L266.6 313.1L274.5 319.8L278.7 321.8L284.6 330.0L291.8 336.2L294.9 333.7Z M392.3 253.1L397.1 256.4L398.8 261.6L397.1 272.5L399.9 277.4L406.2 278.2L404.5 286.2L408.6 295.7L408.8 299.6L405.3 313.4L411.4 319.1L403.4 323.7L398.8 328.5L425.8 362.2L431.9 372.4L426.3 374.2L419.5 379.4L415.1 380.6L409.4 386.3L406.0 384.2L373.0 386.9L364.4 390.3L343.3 380.6L343.5 375.0L346.6 368.9L341.4 363.8L329.2 360.1L298.3 342.8L291.7 337.4L294.9 333.7L314.3 309.9L321.8 311.1L321.0 317.4L334.5 315.1L337.6 306.8L342.2 307.0L346.4 303.8L345.9 298.4L348.1 292.4L357.8 283.0L372.3 277.0L373.9 265.4L375.8 261.0L381.0 261.1L385.5 253.2L392.3 253.1Z M436.4 189.6L431.2 195.0L411.1 199.5L405.4 207.6L396.0 209.0L395.3 217.5L393.0 224.5L390.1 227.5L392.3 231.7L393.5 242.2L391.0 250.7L392.3 253.1L385.5 253.2L381.0 261.1L375.8 261.0L373.9 265.4L372.3 277.0L357.8 283.0L348.1 292.4L345.9 298.4L346.4 303.8L342.2 307.0L337.6 306.8L334.5 315.1L321.0 317.4L321.8 311.1L314.3 309.9L294.9 333.7L291.8 336.2L284.6 330.0L278.7 321.8L274.5 319.8L266.6 313.1L251.8 297.2L257.6 289.7L262.2 289.8L258.4 296.8L262.2 303.3L270.7 303.6L274.5 301.8L282.2 303.2L288.1 299.9L286.3 292.7L292.3 286.4L290.7 280.5L291.5 275.2L289.0 265.4L292.7 263.7L292.3 247.6L290.3 240.4L295.4 224.7L299.0 223.5L303.4 216.6L301.7 211.1L306.4 205.5L307.1 199.7L301.9 189.0L310.8 180.3L309.5 173.0L312.6 166.9L314.1 158.4L304.2 153.1L305.6 150.1L317.0 157.3L332.2 155.1L340.8 150.2L348.0 143.7L359.5 142.1L364.8 138.6L371.7 126.3L378.3 122.4L385.9 120.4L386.8 124.3L394.1 130.7L400.5 129.9L405.4 136.7L407.2 145.7L412.4 147.9L416.5 160.5L421.2 161.6L430.3 173.0L430.2 178.6L436.4 189.6Z M712.4 219.4L703.8 222.1L700.3 226.5L692.7 229.1L678.3 222.1L671.5 220.9L661.8 224.0L641.7 233.0L634.7 233.1L628.8 236.8L622.4 236.2L606.3 221.1L597.6 210.1L593.3 203.6L580.0 192.3L585.1 186.6L587.3 177.7L597.9 157.1L607.8 167.6L609.7 154.1L606.4 141.2L606.0 128.7L600.8 116.0L600.3 108.1L595.2 93.9L595.8 83.5L598.6 72.3L601.6 53.1L599.2 47.3L607.1 41.4L611.7 40.7L621.4 42.8L628.7 40.0L637.6 28.2L644.8 28.0L654.0 23.0L663.1 23.0L668.3 29.1L672.3 38.8L690.3 41.7L693.0 50.6L685.6 61.5L683.8 67.7L687.5 74.4L689.3 82.4L691.5 84.3L692.2 91.0L688.5 101.3L693.1 112.7L691.9 118.8L672.5 129.3L685.9 130.9L688.4 136.3L684.8 143.8L689.8 155.1L696.8 156.3L701.8 154.8L717.2 157.5L725.3 169.0L726.2 182.0L723.3 194.0L711.5 203.6L711.5 208.0L707.9 214.0L712.4 219.4Z M599.2 47.3L601.6 53.1L598.6 72.3L595.8 83.5L595.2 93.9L600.3 108.1L600.8 116.0L606.0 128.7L606.4 141.2L609.7 154.1L607.8 167.6L597.9 157.1L587.3 177.7L585.1 186.6L580.0 192.3L573.9 185.4L570.7 178.1L565.7 175.2L561.9 165.3L551.0 156.4L544.9 150.1L536.2 146.0L526.7 145.9L521.8 142.4L520.4 137.8L523.2 120.1L525.8 113.4L526.8 100.2L532.7 91.7L528.8 84.6L523.1 77.6L519.1 67.4L512.3 66.3L511.6 53.4L513.0 46.9L511.2 41.9L512.9 27.3L519.2 18.1L524.1 18.1L527.4 10.8L534.4 10.0L540.1 14.6L545.9 15.0L552.4 12.1L554.8 16.2L555.8 23.5L558.8 32.1L561.4 35.0L568.4 33.8L580.5 25.7L583.2 29.9L588.6 33.3L595.5 29.3L599.2 47.3Z M511.6 53.4L512.3 66.3L519.1 67.4L523.1 77.6L528.8 84.6L532.7 91.7L526.8 100.2L525.8 113.4L523.2 120.1L520.4 137.8L521.8 142.4L526.7 145.9L536.2 146.0L544.9 150.1L551.0 156.4L561.9 165.3L565.7 175.2L570.7 178.1L573.9 185.4L580.0 192.3L593.3 203.6L597.6 210.1L590.9 215.0L585.1 225.0L576.7 233.0L570.4 241.1L557.2 249.8L556.8 241.5L549.0 240.6L540.4 244.3L534.2 237.8L524.9 233.0L516.6 230.8L512.1 225.4L510.0 218.9L510.8 211.4L494.5 206.6L487.5 198.0L482.3 195.6L480.5 190.3L476.5 190.4L464.9 181.4L462.8 178.5L466.0 169.0L460.1 160.2L463.5 154.0L460.9 144.1L455.7 137.7L452.6 130.9L453.2 126.5L463.6 119.4L470.2 107.7L479.8 104.5L481.6 97.0L482.4 85.8L480.0 71.8L477.5 67.0L481.9 64.7L490.2 55.7L501.9 52.4L511.6 53.4Z M443.2 192.0L447.8 186.5L456.4 183.4L462.8 178.5L464.9 181.4L476.5 190.4L480.5 190.3L482.3 195.6L487.5 198.0L494.5 206.6L510.8 211.4L510.0 218.9L512.1 225.4L516.6 230.8L524.9 233.0L534.2 237.8L540.4 244.3L549.0 240.6L556.8 241.5L557.2 249.8L570.4 241.1L576.7 233.0L585.1 225.0L590.9 215.0L597.6 210.1L606.3 221.1L622.4 236.2L628.8 236.8L634.7 233.1L641.7 233.0L642.4 255.9L639.8 249.3L635.9 249.4L636.2 255.7L629.4 259.2L622.6 260.2L616.5 270.9L612.8 269.6L601.8 273.7L598.2 270.7L592.7 283.2L585.3 283.2L578.2 286.1L575.1 296.3L569.5 299.8L554.5 319.4L542.3 330.7L539.6 328.6L532.2 329.3L528.3 320.8L524.8 319.8L512.8 324.4L509.1 320.2L508.7 311.8L506.8 307.6L499.5 302.0L496.5 293.4L485.5 293.8L482.9 296.4L476.8 296.1L466.7 293.1L461.3 289.6L457.5 284.4L456.5 275.8L463.4 275.1L469.3 270.4L465.5 255.0L467.7 246.1L467.1 235.4L459.1 230.2L455.1 214.4L451.7 209.7L452.3 197.7L446.5 198.6L443.2 192.0Z M641.7 233.0L661.8 224.0L671.5 220.9L678.3 222.1L692.7 229.1L700.3 226.5L703.8 222.1L712.4 219.4L724.0 219.9L735.8 227.3L735.0 231.5L736.9 243.2L735.0 250.4L738.4 253.8L737.8 261.7L729.2 273.7L729.6 276.2L738.5 286.6L737.4 289.2L728.2 291.0L722.4 301.7L719.9 313.5L703.6 315.7L706.4 321.0L706.2 330.0L702.8 336.7L702.6 342.3L699.6 345.0L682.4 352.8L666.5 348.1L656.5 346.8L655.7 330.8L653.3 322.1L641.2 302.9L637.6 283.5L638.9 278.4L643.9 270.7L644.4 266.3L642.4 255.9L641.7 233.0Z M542.3 330.7L554.5 319.4L569.5 299.8L575.1 296.3L578.2 286.1L585.3 283.2L592.7 283.2L598.2 270.7L601.8 273.7L612.8 269.6L616.5 270.9L622.6 260.2L629.4 259.2L636.2 255.7L635.9 249.4L639.8 249.3L642.4 255.9L644.4 266.3L643.9 270.7L638.9 278.4L637.6 283.5L641.2 302.9L653.3 322.1L655.7 330.8L656.5 346.8L643.2 377.5L640.4 376.1L617.0 371.8L614.5 370.5L593.4 350.6L581.5 343.7L572.7 344.1L562.0 350.7L555.8 351.8L542.7 347.1L542.3 330.7Z M656.5 346.8L666.5 348.1L682.4 352.8L699.6 345.0L702.6 342.3L709.2 349.2L707.5 352.5L704.7 371.4L703.0 377.5L722.5 378.1L727.6 376.7L729.3 381.3L729.3 395.0L725.5 410.0L720.4 420.6L706.3 445.2L698.1 461.7L684.7 464.0L668.3 470.1L654.4 472.3L644.7 472.0L632.6 468.4L611.1 458.0L632.3 411.0L646.4 379.1L643.2 377.5L656.5 346.8Z M542.7 347.1L555.8 351.8L562.0 350.7L572.7 344.1L581.5 343.7L593.4 350.6L614.5 370.5L617.0 371.8L640.4 376.1L643.2 377.5L646.4 379.1L632.3 411.0L611.1 458.0L595.7 449.0L591.3 444.7L589.3 449.1L556.1 432.6L545.8 435.7L537.7 442.3L525.0 432.5L514.1 430.7L511.7 424.8L512.3 419.3L514.4 408.7L518.6 407.5L529.1 394.8L530.4 388.1L535.0 384.0L541.6 383.1L543.4 374.6L548.7 369.8L549.6 364.6L543.2 364.2L542.7 347.1Z M512.3 419.3L511.7 424.8L514.1 430.7L525.0 432.5L537.7 442.3L519.0 461.2L511.3 469.1L507.1 477.5L502.2 482.4L490.4 490.2L472.6 500.6L468.5 498.0L458.4 498.5L453.6 502.1L421.6 500.4L406.7 493.8L398.5 488.0L392.3 481.5L387.2 472.3L384.7 463.3L378.2 457.1L381.3 442.8L394.2 439.2L406.2 425.0L409.0 415.4L412.5 413.2L416.0 407.1L420.2 404.4L417.0 399.7L423.9 392.9L437.2 393.5L446.1 395.5L447.4 390.7L454.4 394.8L461.0 395.7L464.5 393.9L469.4 399.7L474.5 399.9L484.9 410.8L491.5 403.8L500.1 404.6L503.2 402.6L504.5 413.5L509.5 419.7L512.3 419.3Z M542.7 347.1L543.2 364.2L549.6 364.6L548.7 369.8L543.4 374.6L541.6 383.1L535.0 384.0L530.4 388.1L529.1 394.8L518.6 407.5L514.4 408.7L512.3 419.3L509.5 419.7L504.5 413.5L503.2 402.6L500.1 404.6L491.5 403.8L484.9 410.8L474.5 399.9L469.4 399.7L464.5 393.9L461.0 395.7L454.4 394.8L447.4 390.7L446.1 395.5L437.2 393.5L423.9 392.9L417.0 399.7L415.6 389.7L418.5 386.9L415.1 380.6L419.5 379.4L426.3 374.2L431.9 372.4L425.8 362.2L430.7 356.3L438.7 353.7L448.8 353.6L471.7 356.5L487.7 355.0L497.9 352.7L527.0 352.1L536.6 347.1L542.7 347.1Z M436.4 189.6L443.2 192.0L446.5 198.6L452.3 197.7L451.7 209.7L455.1 214.4L459.1 230.2L467.1 235.4L467.7 246.1L465.5 255.0L469.3 270.4L463.4 275.1L456.5 275.8L457.5 284.4L461.3 289.6L466.7 293.1L476.8 296.1L482.9 296.4L485.5 293.8L496.5 293.4L499.5 302.0L506.8 307.6L508.7 311.8L509.1 320.2L512.8 324.4L524.8 319.8L528.3 320.8L532.2 329.3L539.6 328.6L542.3 330.7L542.7 347.1L536.6 347.1L527.0 352.1L497.9 352.7L487.7 355.0L471.7 356.5L448.8 353.6L438.7 353.7L430.7 356.3L425.8 362.2L398.8 328.5L403.4 323.7L411.4 319.1L405.3 313.4L408.8 299.6L408.6 295.7L404.5 286.2L406.2 278.2L399.9 277.4L397.1 272.5L398.8 261.6L397.1 256.4L392.3 253.1L391.0 250.7L393.5 242.2L392.3 231.7L390.1 227.5L393.0 224.5L395.3 217.5L396.0 209.0L405.4 207.6L411.1 199.5L431.2 195.0L436.4 189.6Z"/></svg>
+                <div class="kmap-pins"><button class="kmark normal" style="left:73.08%;top:76.47%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">강남 데이터센터 · 정상</span></button><button class="kmark warning" style="left:34.24%;top:65.53%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">여의도 오피스 · 주의</span></button><button class="kmark normal" style="left:51.25%;top:38.41%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">종로 본사빌딩 · 정상</span></button><button class="kmark normal" style="left:35.1%;top:50.39%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">마포 물류센터 · 정상</span></button><button class="kmark alert" style="left:84.56%;top:73.21%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">송파 복합몰 · 경보</span></button><button class="kmark warning" style="left:21.7%;top:75.21%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">구로 스마트팩토리 · 주의</span></button><button class="kmark normal" style="left:63.96%;top:53.95%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">성동 제조동 · 정상</span></button><button class="kmark alert" style="left:54.69%;top:52.46%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">중구 호텔 · 경보</span></button><button class="kmark normal" style="left:13.27%;top:51.59%" type="button"><span class="kmark-ring"></span><span class="kmark-dot"></span><span class="kmark-tip">강서 콜드체인 · 정상</span></button></div>
+              </div>
+              <div class="scube-legend"><span><i class="normal"></i>정상 5</span><span><i class="warning"></i>주의 2</span><span><i class="alert"></i>경보 2</span></div>
+            </div>
+            <div class="scube-side">
+              <div class="scube-counts"><span class="sc-c normal"><b>5</b>정상</span><span class="sc-c warning"><b>2</b>주의</span><span class="sc-c alert"><b>2</b>경보</span></div>
+              <div class="ins-card hi"><div class="ins-h">AI 인사이트</div><p>송파 복합몰 화재센서 온도 급상승 — <b>즉시 현장 확인</b> 권고. 구로 모터 베어링 마모 패턴 감지, <b>7일 내 정비</b> 예측.</p></div>
+              <div class="ins-card"><div class="ins-h">진동 모니터링 · 상위 설비</div>
+                <div class="vbar alert"><span class="vb-n">구로 모터 #M-02</span><span class="vb"><i style="width:90%"></i></span><b id="scVib1">4.12</b></div>
+                <div class="vbar warn"><span class="vb-n">성동 펌프 #P-07</span><span class="vb"><i style="width:62%"></i></span><b id="scVib2">2.84</b></div>
+                <div class="vbar"><span class="vb-n">강남 AHU #A-01</span><span class="vb"><i style="width:31%"></i></span><b id="scVib3">1.33</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="scube-row">
+            <div class="ins-card"><div class="ins-h">이벤트 발생 비율 · 최근 30일</div>
+              <div class="stat-bars">
+                <div class="sb"><span>모터·진동</span><span class="sbar"><i style="width:40%"></i></span><em>40%</em></div>
+                <div class="sb"><span>보일러</span><span class="sbar"><i style="width:24%"></i></span><em>24%</em></div>
+                <div class="sb"><span>화재</span><span class="sbar"><i style="width:16%"></i></span><em>16%</em></div>
+                <div class="sb"><span>정전</span><span class="sbar"><i style="width:12%"></i></span><em>12%</em></div>
+                <div class="sb"><span>공조</span><span class="sbar"><i style="width:8%"></i></span><em>8%</em></div>
+              </div>
+            </div>
+            <div class="ins-card"><div class="ins-h">패트롤 출동 서비스</div>
+              <div class="disp-top"><span><b>2</b>출동중</span><span><b>1</b>대기</span><span><b>23분</b>평균 ETA</span></div>
+              <div class="disp-row"><span class="dl-dot alert"></span>송파 복합몰 · 화재 확인 <em>출동중</em></div>
+              <div class="disp-row"><span class="dl-dot alert"></span>중구 호텔 · 보일러 점검 <em>출동중</em></div>
+              <div class="disp-row"><span class="dl-dot warn"></span>구로 스마트팩토리 · 모터 정비 <em>대기</em></div>
+            </div>
+            <div class="ins-card"><div class="ins-h">AI 조치 가이드라인</div>
+              <ol class="guide">
+                <li><b>송파 복합몰</b> 화재센서 79°C → 전원 차단·현장 확인, 소방 연계</li>
+                <li><b>구로 모터</b> 진동 4.1mm/s → 베어링 교체 D+5, 부하 20% 경감</li>
+                <li><b>중구 보일러</b> 압력 상승 → 안전밸브 점검, 급수온도 조정</li>
+                <li><b>여의도 AHU</b> 팬 78% → 필터 교체로 정압 회복</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2>센서 → AI 자동제어 구성도<span class="sub">Edge AI control architecture</span></h2>
+      <p class="lead sol-mini">센서 데이터가 AI 판단을 거쳐 설비를 자동 제어합니다. 엣지 게이트웨이는 서버 없이 현장 BMS에 직접 명령합니다.</p>
+      <div class="ai-arch">
+        <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M8.3 8.3a5.2 5.2 0 0 0 0 7.4M5.6 5.6a9 9 0 0 0 0 12.8M15.7 8.3a5.2 5.2 0 0 1 0 7.4M18.4 5.6a9 9 0 0 1 0 12.8"/></svg></span><div><span class="ai-ln">L1 · SENSE</span><span class="ai-ld">설비 데이터 24시간 측정 · 온도·진동·전류·압력·가스</span></div></div><div class="ai-chips"><span>온도</span><span>진동</span><span>전류</span><span>누수</span><span>CO2</span><span>압력</span><span>Dry Contact</span></div></div>
+        <div class="ai-flow"><span class="ai-flow-dot"></span>FHSS 무선 · AES-128 암호화</div>
+        <div class="ai-layer edge"><div class="ai-lhead"><span class="ai-lic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7.5" y="7.5" width="9" height="9" rx="2"/><circle cx="12" cy="12" r="1.9" fill="currentColor" stroke="none"/><path d="M10 7.5V5M14 7.5V5M10 19v-2.5M14 19v-2.5M7.5 10H5M7.5 14H5M19 10h-2.5M19 14h-2.5"/></svg></span><div><span class="ai-ln">L2 · EDGE GATEWAY</span><span class="ai-ld">수집·암호화·로컬 룰 실행 · 서버 없이 현장 판단</span></div></div><div class="ai-chips"><span>게이트웨이</span><span>엣지 AI 엔진</span><span>로컬 룰</span><span>오프라인 버퍼</span></div><div class="ai-decision">임계 초과 → 즉시 BMS 명령 <em>&lt;200ms</em> (서버 통신 없이)</div></div>
+        <div class="ai-flow"><span class="ai-flow-dot"></span>MQTT · REST API · Modbus / BACnet</div>
+        <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 18.5a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.4A3.6 3.6 0 0 1 16.5 18.5z"/><circle cx="11.8" cy="14" r="1.7"/><path d="M11.8 12v-.7M11.8 16.7V16M13.6 14h-.7M10.6 14h-.7"/></svg></span><div><span class="ai-ln">L3 · CLOUD</span><span class="ai-ld">ML 예지보전·이상 탐지·에너지 최적화 패턴 학습</span></div></div><div class="ai-chips"><span>AI 이상 탐지</span><span>ML 예지보전</span><span>에너지 최적화</span><span>패턴 학습</span></div><div class="ai-decision cloud">750억/일 학습 → 고장 <em>D-7~D-30</em> 사전 예측</div></div>
+        <div class="ai-flow"><span class="ai-flow-dot"></span>자동 제어 명령 · 알림 발송</div>
+        <div class="ai-layer act"><div class="ai-lhead"><span class="ai-lic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h7M16 8h4"/><path d="M4 16h4M13 16h7"/><circle cx="13" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span><div><span class="ai-ln">L4 · ACTUATE & NOTIFY</span><span class="ai-ld">BMS·SCADA 자동제어 + 멀티채널 즉시 알림</span></div></div><div class="ai-chips"><span>BMS 연동</span><span>SCADA</span><span>액추에이터</span><span>SMS/Email</span><span>모바일</span><span>패트롤 출동</span></div></div>
+      </div>
+
+      <div class="ai-feats">
+        <div class="ai-feat"><span class="aif-ic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7.5A2.8 2.8 0 0 0 6.7 10 2.6 2.6 0 0 0 6 15a2.8 2.8 0 0 0 3.5 2M14.5 7.5A2.8 2.8 0 0 1 17.3 10 2.6 2.6 0 0 1 18 15a2.8 2.8 0 0 1-3.5 2M12 6.5v12"/></svg></span><h4>이상 탐지 · 예지보전</h4><p>진동·전류·온도 데이터의 패턴을 AI가 지속 학습. 베어링 마모, 임박한 모터 고장을 7–30일 전에 경고해 계획 정비를 가능하게 합니다.</p><span class="aif-badge"><i class="d ok"></i>LIVE · 750억/일 학습</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13.5h5.2L9 21l8-11h-5.4z"/></svg></span><h4>엣지 자동제어</h4><p>클라우드 통신 없이 엣지 게이트웨이가 현장 판단. 임계값 도달 즉시 BMS·SCADA에 명령을 내려 200ms 이내 응답. 정전·네트워크 장애에도 제어 유지.</p><span class="aif-badge"><i class="d acc"></i>EDGE · 서버 불필요</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a2 2 0 0 0-2 2v7.2a3.6 3.6 0 1 0 4 0V6a2 2 0 0 0-2-2z"/><circle cx="12" cy="16.6" r="1.5" fill="currentColor" stroke="none"/></svg></span><h4>HVAC AI 에너지 최적화</h4><p>공조 센서 데이터 + 외기 조건 + 재실 패턴을 AI가 분석해 댐퍼·팬 속도를 자동 조정. 기존 대비 15–25% 에너지 절감.</p><span class="aif-badge"><i class="d ok"></i>AI · 평균 17% 절감</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15a6 6 0 0 0-12 0l-1.6 2.4A.6.6 0 0 0 4.9 18h14.2a.6.6 0 0 0 .5-.6L18 15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><h4>멀티채널 즉시 알림</h4><p>SMS·이메일·전화·모바일 푸시·API 웹훅 — 조건 위반 즉시 담당자에게 전달. 알림 우선순위·수신자·에스컬레이션 경로를 자유롭게 설정.</p><span class="aif-badge"><i class="d warn"></i>ALERT · &lt;5초 발송</span></div>
+      </div>
+
+      <div class="ai-log" id="aiLog"><div class="ai-log-h">AI DECISION LOG — LIVE</div></div>
+
+      <div style="margin-top:36px;"><button class="cta-primary" data-nav="applications">산업별 적용 사례 보기</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: ABOUT — WHAT WE DO -->
+<!-- ========================================== -->
+<section class="view" id="view-what-we-do">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">About us / What we do</div>
+      <h1>현장이 필요로 하는 <em>모든 것</em>을 합니다</h1>
+      <p class="lead">단순 센서 공급을 넘어, 컨설팅부터 커스텀 제작·소프트웨어 개발·시스템 연동·예지보전까지
+      산업 IoT의 전 과정을 책임집니다.</p>
+
+      <h2>사업 영역<span class="sub">Industries we serve</span></h2>
+      <div class="ind-grid">
+        <article class="ind-card clickable" data-go-case="us-army" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-30.jpg" alt="국방"><span class="ind-name">국방</span></div><div class="cap">미군 부대 핵심 전략 자산 모니터링</div></article>
+        <article class="ind-card clickable" data-go-case="exxonmobil" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-31.jpg" alt="오일가스"><span class="ind-name">오일가스</span></div><div class="cap">정유·석유화학 설비 안전 감시</div></article>
+        <article class="ind-card clickable" data-go-case="gs-eps" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-32.jpg" alt="발전소"><span class="ind-name">발전소</span></div><div class="cap">전력 생산 설비 상태 진단</div></article>
+        <article class="ind-card clickable" data-go-case="microsoft" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-33.jpg" alt="데이터센터"><span class="ind-name">데이터센터</span></div><div class="cap">온습도·전력·누수 통합 관제</div></article>
+        <article class="ind-card clickable" data-go-case="cbre" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-34.jpg" alt="인프라"><span class="ind-name">인프라</span></div><div class="cap">고속도로·기차·공항·항만·댐·공공시설</div></article>
+        <article class="ind-card clickable" data-go-case="cbre" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-35.jpg" alt="대형 상업건물"><span class="ind-name">대형 상업건물</span></div><div class="cap">스마트 빌딩 에너지·환경 관리</div></article>
+        <article class="ind-card clickable" data-go-case="walmart" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-36.jpg" alt="물류창고"><span class="ind-name">물류창고</span></div><div class="cap">콜드체인·재고 환경 모니터링</div></article>
+        <article class="ind-card clickable" data-go-case="samsung-biologics" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-37.jpg" alt="생산시설"><span class="ind-name">생산시설</span></div><div class="cap">반도체·제약·자동차 등 정밀 생산 라인</div></article>
+      </div>
+
+      <h2>주요 서비스<span class="sub">Core services</span></h2>
+      <div class="svc-grid">
+        <article class="svc-card clickable" data-go-contact="맞춤형 무선 센서 제작(OEM·ODM)" role="button" tabindex="0"><div class="ph"><span class="n">01</span><img src="images/img-38.jpg" alt="맞춤형 무선 센서 제작"></div><div class="tx"><h4>맞춤형 무선 센서 제작 (OEM · ODM)</h4><p>자동 제어가 가능한 커스텀 무선 센서를 현장 요구에 맞춰 설계·제작합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="프로젝트별 소프트웨어 커스텀 개발" role="button" tabindex="0"><div class="ph"><span class="n">02</span><img src="images/img-39.jpg" alt=""></div><div class="tx"><h4>프로젝트별 소프트웨어 커스텀 개발</h4><p>대시보드·관제·자동화 로직을 프로젝트 단위로 맞춤 구현합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="설비 예지보전 패트롤 서비스" role="button" tabindex="0"><div class="ph"><span class="n">03</span><img src="images/img-40.jpg" alt=""></div><div class="tx"><h4>설비 예지보전 패트롤 서비스</h4><p>진동·온도 데이터를 기반으로 한 정기 점검 패트롤로 고장을 사전에 차단합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="레거시·관제 시스템 연동(SI)" role="button" tabindex="0"><div class="ph"><span class="n">04</span><img src="images/img-41.jpg" alt=""></div><div class="tx"><h4>레거시 및 관제 시스템 연동 (SI)</h4><p>기존 관제·SCADA·MES 시스템과 ALTA 데이터를 매끄럽게 통합합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="AI 분석용 빅데이터 제공·분석" role="button" tabindex="0"><div class="ph"><span class="n">05</span><img src="images/img-42.jpg" alt=""></div><div class="tx"><h4>AI 분석용 맞춤형 빅데이터 제공 / 분석</h4><p>AI 예지보전을 위한 정제된 데이터 셋을 구축하고 분석 모델을 제공합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="전문 컨설팅 기반 솔루션 제안" role="button" tabindex="0"><div class="ph"><span class="n">06</span><img src="images/img-43.jpg" alt=""></div><div class="tx"><h4>전문 컨설팅 기반 솔루션 제안</h4><p>현장을 이해하는 엔지니어가 직접 진단하고 최적의 해결책과 솔루션을 제시합니다.</p></div></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: RESOURCES — BLOG -->
+<!-- ========================================== -->
+<section class="view" id="view-blog">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Resources / Blog</div>
+      <h1>인사이트 &amp; <em>기술 블로그</em></h1>
+      <p class="lead">현장 적용 노하우, 센서 기술, 예지보전 사례를 정기적으로 공유합니다.
+      더 많은 글은 <a href="https://blog.naver.com/monnitkorea" target="_blank" rel="noopener" style="color:var(--accent-dark);">Monnit Korea 네이버 블로그</a>에서 확인하세요.</p>
+      <div class="cat-bar" id="blogCatBar" style="margin-top:32px;"></div>
+      <div class="blog-grid" id="blogGrid">
+        <article class="blog-card">
+          <div class="blog-thumb">◐</div>
+          <div class="blog-body">
+            <div class="blog-date">2026.01.08</div>
+            <h3>신형 ALTA Ethernet Gateway 4K 출시</h3>
+            <p>게이트웨이 1대로 최대 4,000개 센서를 통합 관리하는 차세대 이더넷 게이트웨이가 공개되었습니다. 캠퍼스·대규모 공장 배포가 단일 인프라로 가능해집니다.</p>
+            <span class="b-link">자세히 보기 →</span>
+          </div>
+        </article>
+        <article class="blog-card">
+          <div class="blog-thumb">〜</div>
+          <div class="blog-body">
+            <div class="blog-date">2026.05.31</div>
+            <h3>진동 센서로 설비 고장 예측하기</h3>
+            <p>Velocity RMS와 Acceleration RMS의 관계를 활용해, 축별 주파수만으로도 다른 측정값을 추론하는 예지보전 실무 노하우를 정리했습니다.</p>
+            <span class="b-link">자세히 보기 →</span>
+          </div>
+        </article>
+        <article class="blog-card">
+          <div class="blog-thumb">◇</div>
+          <div class="blog-body">
+            <div class="blog-date">2025.10.24</div>
+            <h3>겨울철 설비 동파, 스마트하게 막는 법</h3>
+            <p>온도·누수 센서를 결합한 조기 경보로 한파 시즌의 배관 동파와 누수 피해를 예방하는 방법을 소개합니다.</p>
+            <span class="b-link">자세히 보기 →</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- ========================================== -->
+<!-- VIEW: PROMOTIONS · 프로모션 -->
+<!-- ========================================== -->
+<section class="view" id="view-promotions">
+  <div id="promoList">
+    <div class="page-hero promo-hero">
+      <div class="hero-pulse" aria-hidden="true"></div>
+      <div class="wrap">
+        <span class="kicker">Promotions</span>
+        <h1>진행 중인 <em>프로모션</em></h1>
+        <p class="lede">한정 수량 특가부터 신규 가입 혜택까지 — Monnit Korea가 준비한 특별한 기회를 지금 만나보세요.</p>
+        <div class="promo-hero-status" id="promoHeroStatus">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="promoHeroCount">진행 중인 프로모션을 확인하세요</span>
+        </div>
+      </div>
+    </div>
+    <div class="wrap section-pad">
+      <div class="promo-grid" id="promoGrid"></div>
+      <div id="promoEmpty" class="promo-empty" style="display:none">
+        <p>현재 진행 중인 프로모션이 없습니다.</p>
+      </div>
+    </div>
+
+    <!-- 프로모션 사전 신청 폼 -->
+    <div class="promo-apply-band">
+      <div class="wrap">
+        <div class="promo-apply-head">
+          <span class="kicker">Pre-registration</span>
+          <h2>프로모션 <em>사전 신청</em></h2>
+          <p>원하시는 프로모션을 선택하고 정보를 남겨주시면, 담당자가 빠르게 연락드립니다.</p>
+        </div>
+        <div class="promo-apply-prompt" id="promoApplyPrompt">
+          <button type="button" class="cta-primary" onclick="openApplyForm()">사전 신청하기</button>
+        </div>
+        <form id="promoApplyForm" class="promo-apply-form" onsubmit="return submitPromoApply(event)" hidden>
+          <div class="paf-row paf-row-full">
+            <label class="paf-field paf-full">
+              <span>신청 프로모션 <b>*</b></span>
+              <select id="pafPromo" required></select>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>이름 / 직급 <b>*</b></span>
+              <input type="text" id="pafName" placeholder="예: 홍길동 / 설비팀장" required>
+            </label>
+            <label class="paf-field">
+              <span>회사명 <b>*</b></span>
+              <input type="text" id="pafCompany" placeholder="예: (주)모넷코리아" required>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>전화번호 <b>*</b></span>
+              <input type="tel" id="pafPhone" placeholder="예: 010-1234-5678" required>
+            </label>
+            <label class="paf-field">
+              <span>이메일 <b>*</b></span>
+              <input type="email" id="pafEmail" placeholder="예: name@company.com" required>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>구매 희망 수량</span>
+              <input type="text" id="pafQty" placeholder="예: 센서 50개 / 게이트웨이 2대">
+            </label>
+            <label class="paf-field">
+              <span>문의 사항</span>
+              <input type="text" id="pafMemo" placeholder="추가로 남기실 내용 (선택)">
+            </label>
+          </div>
+          <div class="paf-actions">
+            <span id="pafStatus" class="paf-status"></span>
+            <button type="submit" class="cta-primary" id="pafSubmit">신청하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="promoDetail" style="display:none">
+    <div class="promo-detail-bar">
+      <div class="wrap promo-detail-bar-inner">
+        <button class="promo-back" onclick="closePromo()">← 프로모션 목록</button>
+      </div>
+    </div>
+    <div class="wrap section-pad">
+      <h2 id="promoDetailTitle" class="promo-detail-title"></h2>
+      <div id="promoDetailBody" class="promo-detail-body"></div>
+      <div class="promo-detail-cta">
+        <button id="promoDetailApply" class="cta-primary" style="display:none">이 프로모션 신청하기</button>
+        <button class="promo-back-bottom" onclick="closePromo()">← 프로모션 목록으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: RESOURCES — NEWSLETTER -->
+<!-- ========================================== -->
+<section class="view" id="view-newsletter">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Resources / Newsletter</div>
+      <h1>Inside the <span class="nw"><em>IoT</em> 뉴스레터</span></h1>
+      <p class="lead">Monnit의 월간 뉴스레터 <strong>'Inside the IoT'</strong>는 최신 IoT 소식, 예지보전 인사이트,
+      신제품 발표, 기술 팁을 한국어로 정리해 정기적으로 전해드립니다.</p>
+      <div class="band">
+        <h3>월 1회, 핵심 소식만 골라서</h3>
+        <p>원격 모니터링·예지보전 트렌드부터 ALTA 신제품, 수상 소식, 현장 적용 사례까지 —
+        실무에 바로 쓰이는 내용만 담아 이메일로 보내드립니다.</p>
+        <div class="inline-form">
+          <input type="email" placeholder="이메일 주소를 입력하세요" id="nlEmail">
+          <button onclick="subscribeMsg('nlEmail')">구독 신청</button>
+        </div>
+      </div>
+      <h2>최근 발행 소식<span class="sub">Recent highlights</span></h2>
+      <div class="svc-list" id="newsHighlights">
+        <div class="svc-row"><div class="svc-n">▸</div><div><h4>2026 IoT Sensor Company of the Year 수상</h4><p>Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.</p></div></div>
+        <div class="svc-row"><div class="svc-n">▸</div><div><h4>IoT Platforms Leadership Award 연속 수상</h4><p>플랫폼 리더십 부문에서 백투백 수상을 기록했습니다.</p></div></div>
+        <div class="svc-row"><div class="svc-n">▸</div><div><h4>신형 ALTA / ALTA XL Ethernet Gateway 4K 발표</h4><p>대규모 센서 네트워크를 위한 차세대 게이트웨이를 출시했습니다.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: RESOURCES — WHITE PAPER -->
+<!-- ========================================== -->
+<section class="view" id="view-whitepaper">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Resources / Proposal</div>
+      <h1>산업별 <em>제안서</em></h1>
+      <p class="lead">실제 고객사에 제안했던 산업별 제안서를 그대로 제공합니다.
+      업종별 과제 정의부터 솔루션 구성, 도입 효과까지 담겨 있어 — 프로젝트가 어떻게 설계되고 진행되는지 구체적으로 확인하실 수 있습니다.</p>
+      <div class="band">
+        <h3>제안서를 이메일로 받아보세요</h3>
+        <p>필요한 산업별 제안서를 선택하고 이메일을 입력해 신청하시면, 입력하신 주소로 PDF를 보내드리며 선택하신 제안서의 다운로드가 바로 시작됩니다.</p>
+        <div class="inline-form">
+          <select id="wpSelect" aria-label="다운로드할 제안서 선택">
+            <option value="">받아보실 제안서를 선택하세요</option>
+          </select>
+          <input type="email" placeholder="이메일 주소" id="wpEmail">
+          <button onclick="wpRequest()">제안서 신청 · 다운로드</button>
+        </div>
+      </div>
+      <div class="cat-bar" id="wpCatBar" style="margin-top:32px;"></div>
+      <div class="wp-list" id="wpList">
+        <div class="wp-card"><div class="wp-ico">▤</div><div><h4>스마트 빌딩 설비 모니터링 제안서</h4><p>HVAC·보일러·전력 등 설비 상태를 원격 관제해 운영비를 절감한 실제 제안 구성.</p></div></div>
+        <div class="wp-card"><div class="wp-ico">◷</div><div><h4>콜드체인 온도 모니터링 제안서</h4><p>온도 규정 준수와 식품 안전을 위한 무선 온도 관제 설계와 도입 효과.</p></div></div>
+        <div class="wp-card"><div class="wp-ico">⛏</div><div><h4>설비 예지보전 도입 제안서</h4><p>진동·전류 데이터 기반 예지보전의 구축 범위와 투자 수익 산정.</p></div></div>
+        <div class="wp-card"><div class="wp-ico">⌖</div><div><h4>산업 IoT 보안 아키텍처 제안서</h4><p>Encrypt-RF® 기반 엔드투엔드 데이터 보안 구성 제안.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: SUPPORT — CONTACT -->
+<!-- ========================================== -->
+<section class="view" id="view-contact">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Support / Contact Us</div>
+      <h1>도입 문의 &amp; <em>상담 신청</em></h1>
+      <p class="lead">현장 진단부터 맞춤 솔루션 제안까지, 전문 엔지니어가 직접 상담해 드립니다.
+      아래 양식을 남겨 주시면 빠르게 연락드리겠습니다.</p>
+      <figure class="contact-figure"><img src="images/img-44.jpg" alt="Monnit Korea 엔지니어링·제조 현장"></figure>
+      <div class="contact-grid">
+        <dl class="contact-info">
+          <dt>Email</dt><dd><a href="mailto:korea@monnit.com">korea@monnit.com</a></dd>
+          <dt>Tel</dt><dd><a href="tel:0220881454">02-2088-1454</a></dd>
+          <dt>Address</dt><dd>서울시 서초구 효령로 380, 2층 모넷코리아</dd>
+          <dt>Business Hours</dt><dd>평일 09:00 – 18:00 (KST)</dd>
+        </dl>
+        <div class="form-card">
+          <label>이름 / 회사명</label>
+          <input type="text" id="ctName" placeholder="홍길동 / (주)모닛코리아">
+          <label>이메일</label>
+          <input type="email" id="ctEmail" placeholder="you@company.com">
+          <label>전화번호</label>
+          <input type="tel" id="ctPhone" placeholder="010-1234-5678">
+          <label>산업군</label>
+          <select id="ctIndustry" onchange="toggleOtherField('ctIndustry','ctIndustryOther')">
+            <option value="" disabled selected>선택해 주세요</option>
+            <option>부동산</option>
+            <option>공장</option>
+            <option>건설</option>
+            <option>물류</option>
+            <option>인프라</option>
+            <option>농축산</option>
+            <option>기타</option>
+          </select>
+          <input type="text" id="ctIndustryOther" placeholder="산업군을 직접 입력해 주세요" style="display:none;margin-top:8px;">
+          <label>문의 항목</label>
+          <select id="ctInquiry" onchange="toggleOtherField('ctInquiry','ctInquiryOther')">
+            <option value="" disabled selected>선택해 주세요</option>
+            <option>도입</option>
+            <option>컨설팅</option>
+            <option>기술문의</option>
+            <option>개발(소프트웨어/하드웨어)</option>
+            <option>견적</option>
+            <option>협업</option>
+            <option>국책과제</option>
+            <option>기타</option>
+          </select>
+          <input type="text" id="ctInquiryOther" placeholder="문의 항목을 직접 입력해 주세요" style="display:none;margin-top:8px;">
+          <label>문의 내용</label>
+          <textarea id="ctMsg" rows="4" placeholder="도입을 고려 중인 산업·현장과 필요한 모니터링 항목을 알려주세요."></textarea>
+          <button class="form-btn" onclick="contactSubmit()">상담 신청 보내기</button>
+          <p class="form-note">* 보내주신 내용은 담당 엔지니어에게 이메일로 즉시 전달됩니다. 영업일 기준 24시간 내 회신드립니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: SUPPORT — FAQs -->
+<!-- ========================================== -->
+<section class="view" id="view-faqs">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Support / FAQs</div>
+      <h1>자주 묻는 <em>질문</em></h1>
+      <p class="lead">도입 전 가장 많이 받는 질문을 정리했습니다. 더 궁금한 점은 언제든 문의해 주세요.</p>
+      <div class="faq-list" id="faqList">
+        <div class="faq-item">
+          <button class="faq-q">센서 무선 통신 거리는 얼마나 되나요?</button>
+          <div class="faq-a"><div class="faq-a-inner">ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">센서 배터리는 얼마나 가나요?</button>
+          <div class="faq-a"><div class="faq-a-inner">사용 환경에 따라 다르지만, 단일 AA 배터리로 최대 10년 이상 사용 가능합니다. 데이터 전송 주기(하트비트), 통신 거리, 장애물 수가 수명에 영향을 줍니다. 배터리 잔량은 iMonnit에서 백분율로 확인할 수 있고, 설정 임계값 이하가 되면 알림을 받을 수 있습니다.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">인터넷이 끊기면 데이터가 사라지나요?</button>
+          <div class="faq-a"><div class="faq-a-inner">아닙니다. 게이트웨이 연결이 끊겨도 센서가 자체적으로 최대 4,000건의 측정값을 저장하며, 연결이 복구되면 누락 없이 전송합니다. 게이트웨이 역시 내부 메모리에 다수의 메시지를 저장합니다.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">데이터 보안은 어떻게 보장되나요?</button>
+          <div class="faq-a"><div class="faq-a-inner">Encrypt-RF® 기술로 256-bit ECDH 키 교환과 AES-128 암호화를 적용해 센서~게이트웨이 구간을 보안 터널로 보호합니다. 또한 패킷 변조 검증 루틴으로 위·변조 및 재전송 공격을 차단합니다.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">알림은 어떤 방식으로 받나요?</button>
+          <div class="faq-a"><div class="faq-a-inner">사용자가 설정한 조건을 초과하면 iMonnit이 SMS 문자, 이메일, 전화로 즉시 알림을 보냅니다. 임계값과 수신자는 자유롭게 설정할 수 있습니다.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">설치와 설정은 어렵지 않나요?</button>
+          <div class="faq-a"><div class="faq-a-inner">대부분의 ALTA 센서는 전원을 켜는 즉시 게이트웨이에 연결되는 플러그앤플레이 방식으로, 시스템 구성에 보통 15분이면 충분합니다. Monnit Korea가 현장 설치와 초기 설정을 지원합니다.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================== -->
+<!-- VIEW: SUPPORT — KNOWLEDGEBASE -->
+<!-- ========================================== -->
+<section class="view" id="view-knowledgebase">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Support / Knowledgebase</div>
+      <h1>기술 문서 &amp; <em>가이드</em></h1>
+      <p class="lead">설치·설정·문제 해결을 위한 기술 문서입니다. 영문 원문은
+      <a href="https://monnit.crisp.help/en-us/" target="_blank" rel="noopener" style="color:var(--accent-dark);">Monnit Knowledge Base</a>에서도 확인할 수 있습니다.</p>
+      <div class="kb-search-wrap">
+        <span class="kb-search-ico">⌕</span>
+        <input type="text" id="kbSearch" placeholder="지식베이스 검색 (예: 센서 연결, 펌웨어 업데이트, 배터리)" autocomplete="off">
+        <button type="button" id="kbSearchClear" aria-label="검색 지우기" style="display:none">✕</button>
+      </div>
+      <div class="kb-cat-grid" id="kbCatGrid"></div>
+      <div class="kb-list-head" id="kbListHead" style="display:none"></div>
+      <div class="kb-grid" id="kbGrid"></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="view-guides">
+  <div class="cpage">
+    <div class="wrap-mid">
+      <div class="crumb">Support / 기술지원</div>
+      <h1>기술 <em>지원</em></h1>
+      <p class="lead">센서·게이트웨이·소프트웨어·액세서리 등 제품별 설치·설정·활용 가이드입니다. 본문에는 단계별 사진이 포함됩니다.</p>
+      <div class="kb-search-wrap">
+        <span class="kb-search-ico">⌕</span>
+        <input type="text" id="gSearch" placeholder="가이드 검색 (예: 설치, 페어링, 펌웨어)" autocomplete="off">
+        <button type="button" id="gSearchClear" aria-label="검색 지우기" style="display:none">✕</button>
+      </div>
+      <div class="kb-cat-grid" id="gCatGrid"></div>
+      <div class="kb-list-head" id="gListHead" style="display:none"></div>
+      <div class="kb-grid" id="gGrid"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ========================================== -->
+<!-- SITE FOOTER -->
+<!-- ========================================== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="brand-col">
+      <div class="fb-logo"><img class="fb-logo-img" src="images/img-01.png" alt="Monnit"><span style="color:var(--accent);font-size:14px;font-family:var(--fm);">KOREA</span></div>
+      <p>Expert Consulting. Integrated Solutions.<br>현장을 이해하는 전문가 그룹의 맞춤형 무선 IoT 통합 솔루션 파트너.</p>
+    </div>
+    <div>
+      <h5>About us</h5>
+      <ul>
+        <li><button data-nav="who-we-are">Who we are</button></li>
+        <li><button data-nav="our-solution">Our solution</button></li>
+        <li><button data-nav="what-we-do">What we do</button></li>
+        <li><button data-nav="awards">Award</button></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Solutions</h5>
+      <ul>
+        <li><button data-nav="stories">Use case</button></li>
+        <li><button data-nav="applications">Applications</button></li>
+        <li><button data-nav="partners">Partners</button></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Resources</h5>
+      <ul>
+        <li><button data-nav="blog">Blog</button></li>
+        <li><button data-nav="newsletter">Newsletter</button></li>
+        <li><button data-nav="whitepaper">산업별 제안서</button></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Support</h5>
+      <ul>
+        <li><button data-nav="contact">Contact Us</button></li>
+        <li><button data-nav="faqs">FAQs</button></li>
+        <li><button data-nav="guides">Tech Support</button></li>
+        <li><button data-nav="knowledgebase">Knowledgebase</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-base">
+    <span>© 2026 Monnit Korea. All rights reserved.</span>
+    <span class="foot-contact">
+      <a href="mailto:korea@monnit.com" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>korea@monnit.com</a>
+      <a href="tel:0220881454" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>02-2088-1454</a>
+    </span>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="i18n.js"></script>
+
+</body>
+</html>
