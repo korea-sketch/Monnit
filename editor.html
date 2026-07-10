@@ -829,16 +829,17 @@ function homeGroup(key){
   if(key.startsWith('home2.metric')) return '━ 메인 · ③ 신뢰 지표 (숫자 라벨)';
   if(key.startsWith('home2.why'))  return '━ 메인 · ④ Why Monnit (제목·3강점·배경사진)';
   if(key.startsWith('home2.sol'))  return '━ 메인 · ⑤ 대표 솔루션 6개 (이름·설명·사진)';
+  if(key.startsWith('home2.finder')) return '━ 메인 · ⑤-1 솔루션 파인더 (라벨·제목·질문)';
   if(key.startsWith('home2.cases')) return '━ 메인 · ⑥ 고객사·도입사례 제목';
-  if(key.startsWith('home2.flow')||key.startsWith('home2.prod')) return '━ 메인 · ⑦ 작동방식+제품 (감지→대응 · 제품 보기)';
-  if(key.startsWith('home2.awards')) return '━ 메인 · ⑨ 수상·인증';
-  if(key.startsWith('home2.final')) return '━ 메인 · ⑩ 하단 상담 CTA (제목·설명·버튼·배경)';
+  if(key.startsWith('home2.proc'))  return '━ 메인 · ⑦ 진단부터 인계까지 (4단계 · 제목·설명)';
+  if(key.startsWith('home2.cta'))   return '━ 메인 · ⑧ 우리 현장 무엇부터 (상담 문구·폼)';
   /* ===== About us (about2.*) ===== */
   if(key.startsWith('about2.title')||key.startsWith('about2.p')||key.startsWith('about2.partner')||key.startsWith('about2.hero')) return '▣ About us · Ⓐ 상단 소개 (대제목·문단·대표사진)';
   if(key.startsWith('about2.stat')) return '▣ About us · Ⓑ 지표 (Since 2010·64,000+ 등)';
   if(key.startsWith('about2.feat')) return '▣ About us · Ⓒ 4가지 강조 (고신뢰성 등)';
   if(key.startsWith('about2.r')||key==='about2.why.head') return '▣ About us · Ⓓ 왜 Monnit인가 6가지';
   if(key.startsWith('about2.step')||key==='about2.mfg.head') return '▣ About us · Ⓔ 설계→제조·검증 3단계';
+  if(key.startsWith('about2.cmp')) return '▣ About us · Ⓕ 유선/무선 비교표';
   /* ===== 구버전 호환 (혹시 남아있을 경우) ===== */
   if(key.startsWith('home.')) return '⑫ (구버전) 기타';
   return '⑫ 기타';

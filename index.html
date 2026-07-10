@@ -338,6 +338,63 @@
     </div>
   </section>
 
+  <!-- ============ 5-1. Solution Finder (신규) ============ -->
+  <section class="nh-section nh-finder-section">
+    <div class="wrap">
+      <div class="nh-head">
+        <span class="nh-eyebrow" data-sc="home2.finder.kicker" data-sc-label="솔루션 파인더 · 라벨">Solution Finder</span>
+        <h2 data-sc="home2.finder.head" data-sc-label="솔루션 파인더 · 제목">30초 만에 <em>우리 현장 솔루션</em> 찾기</h2>
+        <p class="nh-head-sub" data-sc="home2.finder.sub" data-sc-label="솔루션 파인더 · 설명">시설과 고민을 선택하면 맞는 구성과 기대 효과를 바로 보여드립니다.</p>
+      </div>
+      <div class="mkfinder">
+        <div id="mk-wizard" class="wiz-wrap">
+          <div class="wiz-box">
+        <div class="wiz-panel">
+          <p class="q" data-sc="home2.finder.q1" data-sc-label="솔루션 파인더 · 질문1">Q1 · 어떤 시설을 운영하시나요?</p>
+          <div class="opts" id="wizFac" role="radiogroup" aria-label="시설 선택">
+            <button class="opt" data-v="factory">공장·제조</button>
+            <button class="opt" data-v="hospital">병원·제약</button>
+            <button class="opt" data-v="logistics">물류·콜드체인</button>
+            <button class="opt" data-v="dc">데이터센터</button>
+            <button class="opt" data-v="building">빌딩·부동산</button>
+            <button class="opt" data-v="infra">인프라</button>
+            <button class="opt" data-v="retail">매장</button>
+            <button class="opt" data-v="agri">농수산</button>
+            <button class="opt" data-v="construction">건설</button>
+            <button class="opt" data-v="church">교회·학교·시설</button>
+          </div>
+        </div>
+        <div class="wiz-panel">
+          <p class="q" data-sc="home2.finder.q2" data-sc-label="솔루션 파인더 · 질문2">Q2 · 가장 고민되는 것은?</p>
+          <div class="opts" id="wizCon" role="radiogroup" aria-label="고민 선택">
+            <button class="opt" data-v="fire">화재</button>
+            <button class="opt" data-v="leak">누수·동파</button>
+            <button class="opt" data-v="equip">설비 고장</button>
+            <button class="opt" data-v="hvac">공조기</button>
+            <button class="opt" data-v="energy">에너지</button>
+            <button class="opt" data-v="ops">운영효율화</button>
+            <button class="opt" data-v="control">통합관제</button>
+            <button class="opt" data-v="safety">사고예방</button>
+          </div>
+        </div>
+        <div class="wiz-result" id="wizOut" aria-live="polite">
+          <p class="tagline" id="rTag"></p>
+          <h3 id="rTitle"></h3>
+          <p id="rDesc"></p>
+          <div class="wiz-meta">
+            <div><b>센서 구성</b><span id="rSensors"></span></div>
+            <div class="fx"><b>기대 효과</b><span id="rFx"></span></div>
+            <div><b>설치</b><span>공사 없이 15분 · 운영 중단 0</span></div>
+          </div>
+          <a class="mkbtn mkbtn-primary" id="rCta" data-nav="contact" style="cursor:pointer">이 구성으로 무료 상담</a>
+          <a class="mkbtn mkbtn-outline" id="rMore" href="#" style="margin-left:10px">상세 보기</a>
+        </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 6. 주요 고객사 & 도입 사례 ============ -->
   <section class="nh-section nh-cases-section">
     <div class="wrap">
@@ -357,98 +414,69 @@
     </div>
   </section>
 
-  <!-- ============ 7. 작동 방식 + 제품 (통합) ============ -->
-  <section class="nh-section nh-flow-section">
+  <!-- ============ 7. 진단부터 인계까지 (신규 · 프로세스) ============ -->
+  <section class="nh-section nh-process-section">
     <div class="wrap">
       <div class="nh-head">
-        <span class="nh-eyebrow" data-sc="home2.flow.kicker" data-sc-label="작동·제품 · 라벨">How it works · Products</span>
-        <h2 data-sc="home2.flow.head" data-sc-label="작동·제품 · 제목">감지에서 대응까지, <em>제품이 하나로</em></h2>
-        <p class="nh-head-sub" data-sc="home2.flow.sub" data-sc-label="작동·제품 · 부제">센서 · 게이트웨이 · 소프트웨어 · 연동장치가 하나의 흐름으로 연결됩니다.</p>
+        <span class="nh-eyebrow" data-sc="home2.proc.kicker" data-sc-label="진단부터 인계까지 · 라벨">Process</span>
+        <h2 data-sc="home2.proc.head" data-sc-label="진단부터 인계까지 · 제목">진단부터 <em>인계까지</em>, 2~3일</h2>
+        <p class="nh-head-sub" data-sc="home2.proc.sub" data-sc-label="진단부터 인계까지 · 설명">단 4단계면 충분합니다. 무료 현장 진단으로 시작해 운영팀 인계까지 순서대로 진행됩니다.</p>
       </div>
-      <ol class="nh-flow2">
-        <li class="nh-flow2-step">
-          <div class="nh-flow2-card">
-            <div class="nh-flow2-top"><span class="nh-flow2-no">STEP 01</span><span class="nh-flow2-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a7 7 0 0 1 14 0"/><path d="M8 13a4 4 0 0 1 8 0"/><circle cx="12" cy="13" r="1.6" fill="currentColor" stroke="none"/><path d="M12 20v-3"/></svg></span></div>
-            <h3 data-sc="home2.flow1.t" data-sc-label="작동1 · 제목">감지 <span>Sense</span></h3>
-            <p data-sc="home2.flow1.d" data-sc-label="작동1 · 설명">무선 센서가 현장 데이터를 수집합니다.</p>
-            <button class="nh-flow2-prod" data-product-cat="sensors"><span class="nh-flow2-prod-lbl" data-sc="home2.prod1.t" data-sc-label="제품1 · 이름">무선 센서</span><span class="nh-flow2-prod-go">제품 보기 →</span></button>
+      <div class="mkfinder">
+        <div class="proc-grid">
+          <div class="mkstep">
+            <div class="st-top"><span class="st-n">1</span><span class="dur">반나절</span></div>
+            <span class="st-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a1 1 0 0 1 1-1z"/><path d="M9 13l2 2 4-4"/></svg></span>
+            <h3 data-sc="home2.proc1.t" data-sc-label="프로세스 1 · 제목">현장 평가</h3>
+            <p data-sc="home2.proc1.d" data-sc-label="프로세스 1 · 설명">설비 위치·환경·통신 가용성을 점검합니다. 비용 없는 무료 진단 단계입니다.</p>
           </div>
-          <span class="nh-flow2-conn" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
-        </li>
-        <li class="nh-flow2-step">
-          <div class="nh-flow2-card">
-            <div class="nh-flow2-top"><span class="nh-flow2-no">STEP 02</span><span class="nh-flow2-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="14" width="18" height="6" rx="1.5"/><circle cx="7" cy="17" r="1" fill="currentColor" stroke="none"/><path d="M12 14V9"/><path d="M8.5 9a3.5 3.5 0 0 1 7 0"/><path d="M6 6a6 6 0 0 1 12 0"/></svg></span></div>
-            <h3 data-sc="home2.flow2.t" data-sc-label="작동2 · 제목">전송 <span>Connect</span></h3>
-            <p data-sc="home2.flow2.d" data-sc-label="작동2 · 설명">게이트웨이가 데이터를 안전하게 전송합니다.</p>
-            <button class="nh-flow2-prod" data-product-cat="gateways"><span class="nh-flow2-prod-lbl" data-sc="home2.prod2.t" data-sc-label="제품2 · 이름">게이트웨이</span><span class="nh-flow2-prod-go">제품 보기 →</span></button>
+          <div class="mkstep">
+            <div class="st-top"><span class="st-n">2</span><span class="dur">1일</span></div>
+            <span class="st-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-4.6 4.6a1.5 1.5 0 0 0 2.1 2.1l4.6-4.6a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.1-2.1z"/></svg></span>
+            <h3 data-sc="home2.proc2.t" data-sc-label="프로세스 2 · 제목">설치 &amp; 페어링</h3>
+            <p data-sc="home2.proc2.d" data-sc-label="프로세스 2 · 설명">센서 부착·게이트웨이 연결·클라우드 연동을 진행합니다. 운영 중단은 없습니다.</p>
           </div>
-          <span class="nh-flow2-conn" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
-        </li>
-        <li class="nh-flow2-step">
-          <div class="nh-flow2-card">
-            <div class="nh-flow2-top"><span class="nh-flow2-no">STEP 03</span><span class="nh-flow2-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1.5"/><path d="M3 9h18"/><path d="M9 21h6"/><path d="M12 18v3"/></svg></span></div>
-            <h3 data-sc="home2.flow3.t" data-sc-label="작동3 · 제목">분석 <span>Analyze</span></h3>
-            <p data-sc="home2.flow3.d" data-sc-label="작동3 · 설명">통합관제 소프트웨어가 AI로 이상을 분석합니다.</p>
-            <button class="nh-flow2-prod" data-product-cat="software"><span class="nh-flow2-prod-lbl" data-sc="home2.prod3.t" data-sc-label="제품3 · 이름">소프트웨어</span><span class="nh-flow2-prod-go">제품 보기 →</span></button>
+          <div class="mkstep">
+            <div class="st-top"><span class="st-n">3</span><span class="dur">반나절</span></div>
+            <span class="st-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h8M16 18h4"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg></span>
+            <h3 data-sc="home2.proc3.t" data-sc-label="프로세스 3 · 제목">플랫폼 설정</h3>
+            <p data-sc="home2.proc3.d" data-sc-label="프로세스 3 · 설명">알림 임계값과 담당자 라우팅을 설정하고 테스트 가동으로 검증합니다.</p>
           </div>
-          <span class="nh-flow2-conn" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
-        </li>
-        <li class="nh-flow2-step">
-          <div class="nh-flow2-card nh-flow2-card-last">
-            <div class="nh-flow2-top"><span class="nh-flow2-no">STEP 04</span><span class="nh-flow2-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 2.6 16a1.5 1.5 0 0 0 1.3 2.3h16.2A1.5 1.5 0 0 0 21.4 16L13.7 3.2a1.6 1.6 0 0 0-2.7 0z"/><path d="M12 9v4"/><path d="M12 16.5h.01"/></svg></span></div>
-            <h3 data-sc="home2.flow4.t" data-sc-label="작동4 · 제목">대응 <span>Act</span></h3>
-            <p data-sc="home2.flow4.d" data-sc-label="작동4 · 설명">연동장치가 자동 제어와 알림으로 즉시 대응합니다.</p>
-            
+          <div class="mkstep is-last">
+            <div class="st-top"><span class="st-n">4</span><span class="dur">반나절</span></div>
+            <span class="st-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg></span>
+            <h3 data-sc="home2.proc4.t" data-sc-label="프로세스 4 · 제목">교육 &amp; 인계</h3>
+            <p data-sc="home2.proc4.d" data-sc-label="프로세스 4 · 설명">운영팀 교육과 보고서 자동화 절차 인계로 프로젝트를 마무리합니다.</p>
           </div>
-        </li>
-      </ol>
-      <div class="nh-more"><button class="nh-link-btn" data-nav="products">전체 제품 보기 →</button></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ============ 9. 수상 · 인증 ============ -->
-  <section class="nh-section nh-awards-section">
+  <!-- ============ 8. 우리 현장 무엇부터 (신규 · 상담 CTA) ============ -->
+  <section class="nh-section nh-finalcta-section">
     <div class="wrap">
       <div class="nh-head">
-        <span class="nh-eyebrow">Recognition</span>
-        <h2 data-sc="home2.awards.head" data-sc-label="수상·인증 · 제목">수상 · 인증</h2>
-        <p class="nh-head-sub" data-sc="home2.awards.sub" data-sc-label="수상·인증 · 부제">15년간 50회 이상 수상한 글로벌 IoT 리더십.</p>
+        <span class="nh-eyebrow" data-sc="home2.cta.kicker" data-sc-label="우리 현장 무엇부터 · 라벨">Get Started</span>
+        <h2 data-sc="home2.cta.head" data-sc-label="우리 현장 무엇부터 · 제목">우리 현장, <em>무엇부터</em> 보이게 할까요?</h2>
+        <p class="nh-head-sub" data-sc="home2.cta.sub" data-sc-label="우리 현장 무엇부터 · 설명">현장 상황에 맞는 센서 구성과 예상 비용을 안내해 드립니다.</p>
       </div>
-      <div class="nh-awards3">
-        <div class="nh-award3 nh-award3-feat">
-          <span class="nh-award3-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 13.6 6 21l3.2-1.6L11 21"/><path d="M15.6 13.6 18 21l-3.2-1.6L13 21"/><circle cx="12" cy="8.5" r="6"/><path d="m12 5.2 1.05 2.13 2.35.34-1.7 1.66.4 2.34L12 10.6l-2.1 1.11.4-2.34-1.7-1.66 2.35-.34z" fill="currentColor" stroke="none"/></svg></span>
-          <div class="nh-award3-yr">2026</div>
-          <div class="nh-award3-nm">IoT Sensor Company of the Year</div>
-          <span class="nh-award3-badge">★ 연속 수상</span>
+      <div class="mkfinder">
+        <div class="cta-grid">
+          <div class="assure">
+            <div data-sc="home2.cta.a1" data-sc-label="상담 · 보증1">24시간 내 회신</div>
+            <div data-sc="home2.cta.a2" data-sc-label="상담 · 보증2">현장 진단 무료</div>
+            <div data-sc="home2.cta.a3" data-sc-label="상담 · 보증3">영업 전화 없이 자료 먼저</div>
+          </div>
+          <form class="lead" id="mk-leadForm">
+            <div><label for="f-co" data-sc="home2.cta.lblco" data-sc-label="상담 · 입력1 라벨">회사 · 시설명</label><input id="f-co" required placeholder="예) ○○물류센터"></div>
+            <div><label for="f-tel" data-sc="home2.cta.lbltel" data-sc-label="상담 · 입력2 라벨">연락처 (전화 또는 이메일)</label><input id="f-tel" required placeholder="010-0000-0000"></div>
+            <div><label for="f-type" data-sc="home2.cta.lbltype" data-sc-label="상담 · 입력3 라벨">시설 유형</label>
+              <select id="f-type"><option>공장·제조</option><option>병원·제약</option><option>교회·학교·시설</option><option>물류·콜드체인</option><option>데이터센터</option><option>빌딩·부동산</option><option>기타</option></select></div>
+            <button class="mkbtn mkbtn-primary" type="submit" data-sc="home2.cta.btn" data-sc-label="상담 · 버튼">무료 현장 진단 신청</button>
+            <p class="fine" data-sc="home2.cta.fine" data-sc-label="상담 · 하단 안내">제출 정보는 상담 목적 외에 사용하지 않습니다.</p>
+          </form>
         </div>
-        <div class="nh-award3">
-          <span class="nh-award3-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 13.6 6 21l3.2-1.6L11 21"/><path d="M15.6 13.6 18 21l-3.2-1.6L13 21"/><circle cx="12" cy="8.5" r="6"/><path d="m12 5.2 1.05 2.13 2.35.34-1.7 1.66.4 2.34L12 10.6l-2.1 1.11.4-2.34-1.7-1.66 2.35-.34z" fill="currentColor" stroke="none"/></svg></span>
-          <div class="nh-award3-yr">2025</div>
-          <div class="nh-award3-nm">IoT Platforms Leadership</div>
-        </div>
-        <div class="nh-award3">
-          <span class="nh-award3-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 13.6 6 21l3.2-1.6L11 21"/><path d="M15.6 13.6 18 21l-3.2-1.6L13 21"/><circle cx="12" cy="8.5" r="6"/><path d="m12 5.2 1.05 2.13 2.35.34-1.7 1.66.4 2.34L12 10.6l-2.1 1.11.4-2.34-1.7-1.66 2.35-.34z" fill="currentColor" stroke="none"/></svg></span>
-          <div class="nh-award3-yr">2024</div>
-          <div class="nh-award3-nm">IoT Excellence Award</div>
-        </div>
-        <div class="nh-award3">
-          <span class="nh-award3-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 7.7 7 8.7 4-1 7-4.3 7-8.7V6z"/><path d="m9.2 11.7 1.9 1.9 3.7-3.9"/></svg></span>
-          <div class="nh-award3-yr">CE·FCC·KC</div>
-          <div class="nh-award3-nm">글로벌 제품 인증 (미국·유럽·한국)</div>
-        </div>
-      </div>
-      <div class="nh-more"><button class="nh-link-btn" data-nav="awards">전체 수상·인증 보기 →</button></div>
-    </div>
-  </section>
-
-  <!-- ============ 10. 최종 상담 CTA ============ -->
-  <section class="nh-final-cta">
-    <div class="nh-final-bg" aria-hidden="true"><img src="images/cta-bg.jpg" alt="" data-sc="home2.final.img" data-sc-label="하단 CTA · 배경 사진"><span></span></div>
-    <div class="wrap nh-final-inner">
-      <h2 data-sc="home2.final.head" data-sc-label="최종 CTA · 제목">현장의 위험과 운영 문제,<br><em>Monnit</em>이 데이터로 해결합니다</h2>
-      <p data-sc="home2.final.desc" data-sc-label="최종 CTA · 설명">시설 환경과 관리 목적에 맞는 IoT 모니터링 솔루션을 제안해드립니다.</p>
-      <div class="nh-hero-cta nh-final-cta-row nh-final-cta-single">
-        <button class="nh-btn nh-btn-primary" data-nav="contact" data-sc="home2.final.btn1" data-sc-label="최종 CTA · 버튼">솔루션 상담 신청</button>
       </div>
     </div>
   </section>
@@ -965,6 +993,27 @@
             <p class="step-desc" data-sc="about2.step3.d" data-sc-label="About 제조3 · 설명">SMT·양산·조립·QC까지 모든 공정을 한 곳에서 수행합니다.</p>
           </div>
         </figure>
+      </div>
+
+      <!-- 유선 vs 무선 비교표 (신규) -->
+      <h2 class="about-sec-head" data-sc="about2.cmp.head" data-sc-label="About · 비교표 제목">기존 유선 방식과 <em>무선 IoT</em> 비교<span class="sub">Wired legacy vs. Monnit wireless IoT</span></h2>
+      <div class="mkfinder">
+        <div class="cmp-wrap">
+          <div class="cmp-scroll">
+          <table class="cmp">
+            <thead><tr><th>항목</th><th class="old">기존 유선 방식</th><th class="mon">Monnit 무선 IoT</th></tr></thead>
+            <tbody>
+              <tr><td>설치</td><td class="old" data-sc="about2.cmp1.old" data-sc-label="비교 · 설치(유선)">수일~수주 배선 공사</td><td class="mon" data-sc="about2.cmp1.mon" data-sc-label="비교 · 설치(무선)">센서당 15분, 부착만으로 가동</td></tr>
+              <tr><td>유지보수</td><td class="old" data-sc="about2.cmp2.old" data-sc-label="비교 · 유지보수(유선)">정기 방문 점검 인력 필요</td><td class="mon" data-sc="about2.cmp2.mon" data-sc-label="비교 · 유지보수(무선)">원격 진단 · 배터리 최대 10년</td></tr>
+              <tr><td>공사</td><td class="old" data-sc="about2.cmp3.old" data-sc-label="비교 · 공사(유선)">배관·전기·방폭 구간 공사비 급증</td><td class="mon" data-sc="about2.cmp3.mon" data-sc-label="비교 · 공사(무선)">공사 불필요 — 구축비 최대 1/30</td></tr>
+              <tr><td>확장성</td><td class="old" data-sc="about2.cmp4.old" data-sc-label="비교 · 확장성(유선)">증설 시 재공사</td><td class="mon" data-sc="about2.cmp4.mon" data-sc-label="비교 · 확장성(무선)">센서 추가 즉시 반영</td></tr>
+              <tr><td>실시간성</td><td class="old" data-sc="about2.cmp5.old" data-sc-label="비교 · 실시간성(유선)">순회 점검 주기에 의존</td><td class="mon" data-sc="about2.cmp5.mon" data-sc-label="비교 · 실시간성(무선)">24/7 초 단위 감시 · 즉시 알림</td></tr>
+              <tr><td>운영비용</td><td class="old" data-sc="about2.cmp6.old" data-sc-label="비교 · 운영비용(유선)">인건비 + 유지보수 계약</td><td class="mon" data-sc="about2.cmp6.mon" data-sc-label="비교 · 운영비용(무선)">저비용 구독형 · 점검 시간 -90%</td></tr>
+              <tr><td>ROI</td><td class="old" data-sc="about2.cmp7.old" data-sc-label="비교 · ROI(유선)">수년 단위 회수</td><td class="mon" data-sc="about2.cmp7.mon" data-sc-label="비교 · ROI(무선)">평균 6개월~1년 내 회수</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1780,5 +1829,61 @@
   <script src="app.js"></script>
   <script src="i18n.js"></script>
 
+<script>
+/* ===== Solution Finder (신규 위저드) — 원본 이식용 독립 스크립트 ===== */
+(function(){
+  var REC={
+    fire:{tag:'화재 예방',title:'실시간 화재 알림 시스템',desc:'열·연기 감지를 무선 연동해 0.1초 내 경보를 전파합니다. 무인 시간대에도 담당자 휴대폰·SMS·전화로 즉시 통보됩니다.',sensors:'온도 · 연기 연동 · 경보 릴레이',fx:'0.1초 화재경보 전파'},
+    leak:{tag:'누수 예방',title:'무선 누수 감지 솔루션',desc:'로프·스팟 센서로 서버룸·기계실·배관의 누수를 실시간 감시하고, 피해 확산 전에 알립니다.',sensors:'누수 로프 · 스팟 감지 · 온습도',fx:'-75% 누수 대응 시간'},
+    equip:{tag:'설비 예지보전',title:'진동·전류 AI 예지보전',desc:'모터·펌프·공조 설비의 진동과 전류 파형을 AI가 학습해 고장 징후를 2~4주 전에 경보합니다.',sensors:'진동 · 전류 · 온도',fx:'-40% 비계획 정지'},
+    energy:{tag:'에너지 절감',title:'설비 에너지 모니터링',desc:'설비별 전력 사용과 가동 패턴을 계측해 낭비 구간을 특정하고 최적 운전을 제안합니다.',sensors:'전류 · 전력량 · 온도',fx:'-15% 에너지 사용량'},
+    hvac:{tag:'공조·냉난방 관리',title:'공조기·냉난방 설비 감시',desc:'AHU·냉동기·보일러의 온습도·차압·전류를 실시간 감시해 이상 운전과 에너지 낭비를 잡아냅니다.',sensors:'온도 · 습도 · 차압 · 전류',fx:'-30% 공조 에너지'},
+    ops:{tag:'운영 효율화',title:'설비 운영 효율화 플랫폼',desc:'가동률·상태·환경 데이터를 한 화면에 모아 순회 점검을 원격 모니터링으로 전환합니다.',sensors:'전류 · 가동 · 온습도',fx:'-90% 점검 시간'},
+    control:{tag:'통합 관제',title:'다현장 통합 관제 플랫폼',desc:'여러 설비와 현장을 단일 대시보드로 통합 가시화하고, 이상은 우선순위로 알립니다.',sensors:'멀티 센서 · 게이트웨이',fx:'단일 플랫폼 통합'},
+    safety:{tag:'사고 예방',title:'사고 예방 통합 감시',desc:'화재·누수·설비 이상을 24/7 감시하고 즉시 경보해, 사고가 커지기 전에 차단합니다.',sensors:'화재 · 누수 · 진동 · 도어',fx:'사고 위험 사전 차단'}
+  };
+  var FAC={factory:'공장·제조',hospital:'병원·제약',church:'교회·학교·시설',logistics:'물류·콜드체인',dc:'데이터센터',building:'빌딩·부동산',infra:'인프라',retail:'매장',agri:'농수산',construction:'건설'};
+  var FCTX={
+    factory:{eg:'모터·펌프·공조기·전력 설비',sensor:'진동',app:'manufact'},
+    hospital:{eg:'백신 보관고·클린룸·콜드체인',sensor:'저온',app:'hospital'},
+    logistics:{eg:'냉동·냉장 창고·수송 차량',sensor:'저온',app:'logistics'},
+    dc:{eg:'서버 랙·HVAC·전력·누수 구간',sensor:'차압',app:'datacenter'},
+    building:{eg:'공조·전기실·주차·환경 설비',sensor:'전류',app:'facility'},
+    infra:{eg:'수처리·펌프장·통신·전력 설비',sensor:'전류',app:'energy'},
+    retail:{eg:'냉장 쇼케이스·주방·백룸 창고',sensor:'저온',app:'grocery'},
+    agri:{eg:'양식장·축사·저장고·온실',sensor:'온습도',app:'greenhouse'},
+    construction:{eg:'가설 전기·양중 장비·환경·안전',sensor:'진동',app:'construct'},
+    church:{eg:'예배당·주방·기계실·주차장',sensor:'도어',app:'facility'}
+  };
+  var CON_APP={leak:'leak',hvac:'hvac',energy:'energy'};
+  var fac=null,con=null;
+  function pick(id,cb){var g=document.getElementById(id);if(!g)return;g.addEventListener('click',function(e){var b=e.target.closest('.opt');if(!b)return;g.querySelectorAll('.opt').forEach(function(o){o.classList.remove('on')});b.classList.add('on');cb(b.dataset.v);render();});}
+  function render(){if(!fac||!con)return;
+    var base=REC[con]||{}, ctx=FCTX[fac]||{eg:'현장 설비',sensor:'',app:'facility'};
+    var set=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
+    var title=FAC[fac]+' · '+base.title;
+    var desc=base.desc+' 특히 '+ctx.eg+'에 맞춰 센서를 구성합니다.';
+    var sensors=base.sensors+(ctx.sensor && base.sensors.indexOf(ctx.sensor)<0 ? ' · '+ctx.sensor : '');
+    set('rTag',FAC[fac]+' × '+base.tag);set('rTitle',title);set('rDesc',desc);set('rSensors',sensors);set('rFx',base.fx);
+    var appId=CON_APP[con]||ctx.app||'facility';
+    var m=document.getElementById('rMore');if(m){m.setAttribute('href','#');m.onclick=function(e){e.preventDefault();if(typeof navigate==='function')navigate('app/'+appId);};m.textContent='활용분야 상세 보기';}
+    var out=document.getElementById('wizOut');if(out){out.classList.add('show');out.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    var sel=document.getElementById('f-type');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===FAC[fac]){sel.selectedIndex=i;break;}}}
+  }
+  function bindLead(){
+    var form=document.getElementById('mk-leadForm');
+    if(!form||form._bound)return; form._bound=true;
+    form.addEventListener('submit',function(e){e.preventDefault();
+      var co=(document.getElementById('f-co')||{}).value||'', tel=(document.getElementById('f-tel')||{}).value||'', ty=(document.getElementById('f-type')||{}).value||'';
+      var payload={'이름/회사명':co,'전화번호':tel,'이메일':tel,'산업군':ty,'문의항목':'무료 현장 진단','문의내용':'무료 현장 진단 신청 · 시설유형: '+ty,'출처':'메인 하단 상담폼','_subject':'모넷코리아 무료 현장 진단 신청'};
+      var btn=form.querySelector('button[type=submit]');
+      var done=function(){form.innerHTML='<p style="text-align:center;padding:34px 0;font-size:16px;color:#fff"><b style="color:var(--teal)">접수 완료.</b><br><span style="color:#9DB0C8;font-size:14px">24시간 내 담당 컨설턴트가 연락드립니다.</span></p>';};
+      if(typeof sendLead==='function'){Promise.resolve(sendLead(payload,btn)).then(done).catch(done);}else{done();}
+    });
+  }
+  function init(){ pick('wizFac',function(v){fac=v}); pick('wizCon',function(v){con=v}); bindLead(); }
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
 </body>
 </html>

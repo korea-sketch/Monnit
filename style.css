@@ -5417,7 +5417,7 @@ body{
 
 /* ---- About us (Who we are) 로 이관된 섹션 ---- */
 .about-sec-head{ margin-top:72px; }
-.about-sec-head em{ font-style:normal; color:var(--accent-dark); font-weight:600; }
+.about-sec-head em{ font-style:normal; font-weight:800; background:linear-gradient(96deg,var(--accent-dark),#93BBE8); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .about-why-grid{ margin-top:28px; }
 .about-step-flow{ margin-top:28px; }
 @media (max-width:600px){ .about-sec-head{ margin-top:52px; } }
@@ -5666,3 +5666,107 @@ body{
 .nh-award3-feat .nh-award3-ico{ color:#fff; background:linear-gradient(180deg, var(--accent-dark), var(--btn-bg)); border-color:transparent; box-shadow:0 12px 26px -10px rgba(46,92,154,.95); }
 @media (max-width:820px){ .nh-awards3{ grid-template-columns:repeat(2,1fr); } }
 @media (max-width:560px){ .nh-awards3{ grid-template-columns:1fr; } }
+
+/* ============ Solution Finder (신규 위저드) — .mkfinder 스코프 독립 스타일 ============ */
+.mkfinder{
+  --navy:#0A1624; --navy-2:#101E30; --teal:#5B9DE8; --teal-deep:#6FA6E6;
+  --bg:#0C1220; --surface:#141C2E; --surface-2:#1B2536; --line:#26304A;
+  --ink:#EEF1F6; --txt:#B7C2D2; --cap:#8193AC;
+  --disp:'Archivo',Pretendard,sans-serif; --body:Pretendard,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sub:#9CAAC0; --sub-dk:#A7BBD3; --r:14px;
+  color:#EAF0F8;
+}
+.mkfinder *{box-sizing:border-box;margin:0;padding:0}
+.mkfinder a{text-decoration:none}
+.mkfinder .mkwrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.mkfinder section{padding:88px 0}
+.mkfinder .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:14px}
+.mkfinder h2{font-family:var(--disp);font-size:clamp(28px,3.8vw,40px);line-height:1.22;letter-spacing:-.02em;font-weight:800;color:#fff;max-width:26ch}
+.mkfinder .sec-lede{color:var(--sub-dk);font-size:16.5px;margin-top:12px;max-width:56ch}
+.mkfinder .mkbtn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:10px;font-weight:700;font-size:15px;transition:transform .15s,background .15s;cursor:pointer;border:0;font-family:var(--body)}
+.mkfinder .mkbtn:active{transform:scale(.98)}
+.mkfinder .mkbtn-primary{background:var(--teal);color:var(--navy)}
+.mkfinder .mkbtn-primary:hover{background:#78ADEE}
+.mkfinder .mkbtn-outline{background:transparent;color:#E7EEF7;border:1px solid #33465F}
+.mkfinder .mkbtn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.mkfinder .wizard{background:var(--navy);color:#F2F6FB}
+.mkfinder .wiz-box{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mkfinder .wiz-panel{background:var(--navy-2);border:1px solid #1B2B42;border-radius:var(--r);padding:26px}
+.mkfinder .wiz-panel .q{font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--teal);margin-bottom:14px}
+.mkfinder .opts{display:flex;flex-wrap:wrap;gap:10px}
+.mkfinder .opt{border:1px solid #2A3D58;border-radius:999px;padding:10px 18px;font-size:14.5px;color:#C9D6E6;cursor:pointer;transition:all .15s;background:transparent;font-family:var(--body)}
+.mkfinder .opt:hover{border-color:var(--teal)}
+.mkfinder .opt.on{background:var(--teal);border-color:var(--teal);color:var(--navy);font-weight:700}
+.mkfinder .wiz-result{grid-column:1/-1;background:#0D1B2E;border:1px solid #1B2B42;border-radius:var(--r);padding:30px;display:none}
+.mkfinder .wiz-result.show{display:block}
+.mkfinder .wiz-result .tagline{font-family:var(--mono);font-size:12px;color:var(--teal);letter-spacing:.12em;margin-bottom:10px}
+.mkfinder .wiz-result h3{font-family:var(--disp);font-size:22px;font-weight:700;color:#fff}
+.mkfinder .wiz-result p{color:var(--sub-dk);font-size:15px;margin:10px 0 4px;max-width:60ch}
+.mkfinder .wiz-meta{display:flex;gap:34px;flex-wrap:wrap;margin:18px 0 22px}
+.mkfinder .wiz-meta div b{display:block;font-family:var(--mono);font-size:12px;color:#7B8DA6;letter-spacing:.1em;margin-bottom:4px;font-weight:400}
+.mkfinder .wiz-meta div span{font-size:14.5px;color:#E7EEF7}
+.mkfinder .wiz-meta .fx span{color:var(--teal);font-family:var(--mono);font-size:19px}
+@media(max-width:760px){ .mkfinder .wiz-box{grid-template-columns:1fr} .mkfinder section{padding:60px 0} }
+
+/* ===== 신규 프로세스 스텝퍼 (.mkfinder 스코프) ===== */
+.mkfinder .proc-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:22px; margin-top:8px; position:relative; }
+.mkfinder .mkstep{ position:relative; z-index:1; text-align:left; padding:28px 24px 26px; border:1px solid var(--line); border-top:3px solid var(--teal-deep); border-radius:var(--r); background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.35), 0 22px 40px -28px rgba(0,0,0,.6); transition:transform .2s, box-shadow .2s; }
+.mkfinder .mkstep:hover{ transform:translateY(-4px); box-shadow:0 2px 6px rgba(0,0,0,.4), 0 28px 50px -26px rgba(0,0,0,.7); }
+.mkfinder .mkstep.is-last{ border-top-color:var(--teal); }
+.mkfinder .mkstep .st-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.mkfinder .mkstep .st-n{ display:flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:13px; background:var(--teal-deep); color:var(--navy); font-family:var(--mono); font-size:18px; font-weight:600; line-height:1; box-shadow:0 10px 20px -8px rgba(46,92,154,.55); }
+.mkfinder .mkstep.is-last .st-n{ background:var(--teal); }
+.mkfinder .mkstep .dur{ display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; background:rgba(91,157,232,.14); color:var(--teal-deep); font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.02em; }
+.mkfinder .mkstep .dur::before{ content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
+.mkfinder .mkstep .st-ic{ display:flex; align-items:center; justify-content:center; width:46px; height:46px; margin-bottom:16px; border-radius:12px; background:rgba(91,157,232,.14); color:var(--teal-deep); }
+.mkfinder .mkstep .st-ic svg{ width:26px; height:26px; }
+.mkfinder .mkstep h3{ font-family:var(--disp); font-size:17.5px; font-weight:700; margin:0 0 8px; color:#fff; }
+.mkfinder .mkstep p{ font-size:14px; color:var(--txt); line-height:1.65; }
+.mkfinder .mkstep:not(.is-last)::after{ content:''; position:absolute; top:46px; right:-17px; z-index:4; width:11px; height:11px; border-top:2px solid var(--teal-deep); border-right:2px solid var(--teal-deep); transform:rotate(45deg); opacity:.7; }
+@media(max-width:900px){ .mkfinder .proc-grid{ grid-template-columns:repeat(2,1fr); } .mkfinder .mkstep:nth-child(2)::after{ display:none; } }
+@media(max-width:560px){ .mkfinder .proc-grid{ grid-template-columns:1fr; } .mkfinder .mkstep::after{ display:none; } }
+
+/* ===== 신규 상담 CTA 폼 (.mkfinder 스코프) ===== */
+.mkfinder .cta-grid{ display:grid; grid-template-columns:1fr 1.05fr; gap:44px; align-items:start; margin-top:8px; text-align:left; }
+.mkfinder .assure{ list-style:none; margin:0; padding:0; display:grid; gap:12px; font-size:15px; color:#C6D3E4; align-content:center; }
+.mkfinder .assure div{ display:flex; align-items:center; }
+.mkfinder .assure div::before{ content:"✓"; color:var(--teal); margin-right:12px; font-weight:800; }
+.mkfinder form.lead{ background:var(--navy-2); border:1px solid #1B2B42; border-radius:var(--r); padding:28px; display:grid; gap:14px; }
+.mkfinder form.lead label{ font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; color:#8497AE; }
+.mkfinder form.lead input, .mkfinder form.lead select{ width:100%; height:48px; border-radius:10px; border:1px solid #2A3D58; background:#0D1B2E; color:#fff; padding:0 14px; font-size:15px; font-family:var(--body); margin-top:6px; }
+.mkfinder form.lead input:focus, .mkfinder form.lead select:focus{ outline:2px solid var(--teal); border-color:transparent; }
+.mkfinder form.lead .mkbtn{ width:100%; margin-top:6px; }
+.mkfinder form.lead .fine{ font-size:12px; color:#66788F; text-align:center; }
+@media(max-width:760px){ .mkfinder .cta-grid{ grid-template-columns:1fr; gap:28px; } }
+
+/* 파인더: nh-section 안에서의 위저드 간격 조정 */
+.nh-finder-section .wiz-box{ margin-top:8px; }
+
+/* ===== About us 유선/무선 비교표 (.mkfinder 스코프) — 재디자인: 행 zebra · 열 색상코딩 ===== */
+.mkfinder .cmp-wrap{ margin-top:28px; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:0 22px 46px -30px rgba(0,0,0,.75); }
+.mkfinder .cmp-scroll{ overflow-x:auto; }
+.mkfinder table.cmp{ width:100%; border-collapse:separate; border-spacing:0; font-size:15px; min-width:660px; }
+.mkfinder .cmp th, .mkfinder .cmp td{ padding:16px 22px; text-align:left; vertical-align:middle; }
+/* --- 헤더 --- */
+.mkfinder .cmp thead th{ font-family:var(--mono); font-size:12.5px; letter-spacing:.06em; font-weight:600; padding-top:17px; padding-bottom:17px; border-bottom:2px solid #2f3c56; }
+.mkfinder .cmp thead th:first-child{ color:var(--cap); background:#0b1120; }
+.mkfinder .cmp thead th.old{ color:#D69A9A; background:rgba(197,120,120,.10); }
+.mkfinder .cmp thead th.mon{ color:#fff; background:linear-gradient(180deg,rgba(74,130,196,.42),rgba(74,130,196,.22)); }
+/* --- 행 구분(zebra) + 구분선 --- */
+.mkfinder .cmp tbody td{ border-bottom:1px solid #232f45; }
+.mkfinder .cmp tbody tr:nth-child(even) td{ background:#182339; }
+.mkfinder .cmp tbody tr:last-child td{ border-bottom:0; }
+.mkfinder .cmp tbody tr:hover td{ background:#1d2b45; }
+/* --- 첫 열(항목 라벨) --- */
+.mkfinder .cmp td:first-child, .mkfinder .cmp th:first-child{ position:sticky; left:0; font-weight:700; color:#fff; width:132px; background:#0f1626; }
+.mkfinder .cmp tbody tr:nth-child(even) td:first-child{ background:#131d31; }
+.mkfinder .cmp tbody tr:hover td:first-child{ background:#182238; }
+/* --- 유선(old) 열 --- */
+.mkfinder .cmp td.old{ color:#93a1b6; }
+.mkfinder .cmp td.old::before{ content:"✕"; display:inline-block; width:20px; color:#D46A6A; font-weight:700; margin-right:6px; }
+/* --- 무선(mon) 열 · 강조 --- */
+.mkfinder .cmp td.mon, .mkfinder .cmp th.mon{ border-left:1px solid rgba(74,130,196,.28); }
+.mkfinder .cmp td.mon{ color:#EAF2FC; font-weight:600; background:rgba(74,130,196,.10); }
+.mkfinder .cmp tbody tr:nth-child(even) td.mon{ background:rgba(74,130,196,.17); }
+.mkfinder .cmp tbody tr:hover td.mon{ background:rgba(74,130,196,.22); }
+.mkfinder .cmp td.mon::before{ content:"✓"; display:inline-block; width:20px; color:#5FD3A6; font-weight:800; margin-right:6px; }
