@@ -2957,17 +2957,17 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .logo-track{ display:flex; align-items:stretch; width:max-content; animation:logoScroll 75s linear infinite; padding:4px 0; will-change:transform; backface-visibility:hidden; }
 .logo-marquee:hover .logo-track{ animation-play-state:paused; }
 /* gap 대신 각 슬라이드에 margin-right → 마지막 슬라이드도 뒤 여백을 소유하므로 translateX(-50%)가 한 벌 폭과 정확히 일치 (한 바퀴마다 튐 제거) */
-.logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; flex:0 0 auto; width:172px; margin-right:28px; }
-/* 다크 배경에 맞춘 투명·모노톤(밝은색) 로고 — 흰 배경 칩 제거 */
-.logo-slide img{ height:76px; width:100%; object-fit:contain;
-  background:transparent; border:none; box-shadow:none; padding:4px 10px; box-sizing:border-box;
-  filter:brightness(0) invert(1); opacity:.95;
-  transition:transform .25s, opacity .25s, filter .25s; }
+.logo-slide{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:0 0 auto; width:176px; margin-right:28px; }
+/* 다크 배경에 맞춘 투명·모노톤(밝은색) 로고 — 로고 파일이 이미 흰색 실루엣(투명 배경, 여백 제거)으로 정규화됨 */
+.logo-slide img{ height:54px; width:152px; object-fit:contain;
+  background:transparent; border:none; box-shadow:none; box-sizing:border-box;
+  opacity:.9;
+  transition:transform .25s, opacity .25s; }
 .logo-slide:hover img{ transform:translateY(-4px); opacity:1; }
 .logo-slide span{ font-family:var(--fm); font-size:12px; letter-spacing:.04em; color:var(--ink-faint); text-align:center; white-space:nowrap; }
 .logo-slide.logo-fallback::before{ content:attr(data-name); display:flex; align-items:center; justify-content:center; height:56px; width:100%; background:transparent; border-radius:12px; padding:10px 16px; box-sizing:border-box; border:1px solid var(--line); color:var(--ink-mid); font-family:var(--fd); font-weight:600; font-size:14px; text-align:center; line-height:1.2; }
 @keyframes logoScroll{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
-@media(max-width:760px){ .logo-slide{ width:150px; margin-right:18px; } .logo-slide img{ height:62px; padding:4px 10px; } }
+@media(max-width:760px){ .logo-slide{ width:132px; margin-right:18px; } .logo-slide img{ height:44px; width:120px; } }
 @media (prefers-reduced-motion: reduce){ .logo-track{ animation:none; } }
 
 .t-num {
@@ -5423,22 +5423,29 @@ body{
 @media (max-width:600px){ .about-sec-head{ margin-top:52px; } }
 
 /* ---- About us 상단 히어로 (체계적 리디자인) ---- */
-.about-hero2{ display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; margin:14px 0 0; }
+/* About 히어로 — 풀블리드 시네마틱 배너 (사진이 전체폭 배경, 카피 오버레이) */
+.about-hero2{ position:relative; width:100vw; left:50%; transform:translateX(-50%);
+  min-height:min(74vh,620px); display:flex; align-items:center; margin:8px 0 0; overflow:hidden;
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.about-hero2 .ah-media{ position:absolute; inset:0; margin:0; border:none; border-radius:0; aspect-ratio:auto; box-shadow:none; overflow:hidden; }
+.about-hero2 .ah-media img{ width:100%; height:100%; object-fit:cover; object-position:center center; }
+.about-hero2 .ah-media::after{ content:""; position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, rgba(6,10,18,.88) 0%, rgba(6,10,18,.58) 40%, rgba(6,10,18,.12) 68%, rgba(6,10,18,0) 100%),
+    linear-gradient(0deg, rgba(6,10,18,.42) 0%, rgba(6,10,18,0) 44%); }
+.about-hero2 .ah-copy{ position:relative; z-index:2; width:100%; max-width:1140px; margin:0 auto; padding:72px 32px; }
 .about-hero2 .nh-eyebrow{ margin-bottom:16px; }
-.ah-title{ font-family:var(--fd); font-weight:800; font-size:clamp(30px,3.8vw,46px); line-height:1.14; letter-spacing:-0.03em; color:var(--ink); margin:0 0 22px; }
-.ah-title em{ font-style:normal; background:linear-gradient(90deg,var(--accent-dark),#8FB8E6); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.ah-copy > p{ font-size:15.5px; line-height:1.72; color:var(--ink-mid); margin:0 0 16px; max-width:52ch; }
-.ah-copy > p strong{ color:var(--ink); font-weight:600; }
-.ah-partner{ display:flex; gap:14px; align-items:center; margin-top:8px; padding:18px 20px; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:12px; background:var(--surface); }
-.ah-partner p{ margin:0; font-size:14px; line-height:1.6; color:var(--ink-mid); }
-.ah-partner p strong{ color:var(--ink); font-weight:600; }
+.ah-title{ font-family:var(--fd); font-weight:800; font-size:clamp(30px,4vw,48px); line-height:1.13; letter-spacing:-0.03em; color:#fff; margin:0 0 22px; max-width:20ch; text-shadow:0 2px 26px rgba(0,0,0,.5); }
+.ah-title em{ font-style:normal; background:linear-gradient(90deg,#9CC2EE,#C9DEF6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.ah-copy > p{ font-size:15.5px; line-height:1.72; color:rgba(233,239,248,.92); margin:0 0 16px; max-width:50ch; text-shadow:0 1px 14px rgba(0,0,0,.4); }
+.ah-copy > p strong{ color:#fff; font-weight:600; }
+.ah-partner{ display:flex; gap:14px; align-items:center; margin-top:8px; max-width:52ch; padding:18px 20px; border:1px solid rgba(255,255,255,.16); border-left:3px solid var(--accent); border-radius:12px; background:rgba(12,18,30,.52); backdrop-filter:blur(6px); }
+.ah-partner p{ margin:0; font-size:14px; line-height:1.6; color:rgba(226,233,244,.9); }
+.ah-partner p strong{ color:#fff; font-weight:600; }
 .ah-ico{ flex:0 0 auto; width:44px; height:44px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center;
   color:var(--accent-dark); background:radial-gradient(circle at 50% 40%, rgba(74,130,196,.22), rgba(74,130,196,.05)); border:1px solid rgba(74,130,196,.34); }
 .ah-ico svg{ width:22px; height:22px; }
-.ah-partner .ah-ico{ width:40px; height:40px; }
-.ah-media{ position:relative; margin:0; border-radius:20px; overflow:hidden; border:1px solid var(--line); aspect-ratio:4/3; box-shadow:0 30px 60px -30px rgba(0,0,0,.8); }
-.ah-media img{ width:100%; height:100%; object-fit:cover; }
-.ah-media::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,12,22,.12), rgba(8,12,22,.30)); }
+.ah-partner .ah-ico{ width:40px; height:40px; color:#9CC2EE; }
 
 /* 지표 밴드 (풀폭, 구분선) */
 .ah-stats{ display:grid; grid-template-columns:repeat(4,1fr); margin:52px 0 0; border:1px solid var(--line); border-radius:16px; background:var(--surface); overflow:hidden; }
@@ -5458,8 +5465,12 @@ body{
 .ah-feat b{ font-family:var(--fd); font-weight:600; font-size:16px; color:var(--ink); }
 .ah-feat span{ font-size:13px; line-height:1.5; color:var(--ink-soft); }
 @media (max-width:900px){
-  .about-hero2{ grid-template-columns:1fr; gap:32px; }
-  .ah-media{ aspect-ratio:16/10; order:-1; }
+  .about-hero2{ min-height:0; }
+  .about-hero2 .ah-copy{ padding:52px 24px; }
+  .about-hero2 .ah-media img{ object-position:center 30%; }
+  .about-hero2 .ah-media::after{ background:
+    linear-gradient(90deg, rgba(6,10,18,.92) 0%, rgba(6,10,18,.80) 55%, rgba(6,10,18,.55) 100%),
+    linear-gradient(0deg, rgba(6,10,18,.6) 0%, rgba(6,10,18,0) 46%); }
   .ah-stats{ grid-template-columns:repeat(2,1fr); }
   .ah-stats .ah-stat:nth-child(3){ border-left:none; }
   .ah-stats .ah-stat:nth-child(n+3){ border-top:1px solid var(--line); }
@@ -5617,8 +5628,8 @@ body{
 .ah-sign{ margin-top:22px; display:flex; align-items:center; gap:14px; }
 .ah-sign::before{ content:""; width:34px; height:1px; background:var(--accent); }
 .ah-sign-text{ display:flex; align-items:baseline; gap:10px; }
-.ah-sign-text span{ font-size:13.5px; color:var(--ink-soft); letter-spacing:.02em; }
-.ah-sign-text b{ font-family:var(--fd); font-weight:700; font-size:19px; color:var(--ink); letter-spacing:.06em; }
+.ah-sign-text span{ font-size:13.5px; color:rgba(214,224,238,.85); letter-spacing:.02em; }
+.ah-sign-text b{ font-family:var(--fd); font-weight:700; font-size:19px; color:#fff; letter-spacing:.06em; }
 
 /* ── 작동방식+제품 통합: 제품 보기 링크 ── */
 .nh-flow2-card p{ margin-bottom:20px; }
