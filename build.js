@@ -179,8 +179,10 @@ ${ch ? `<h2>당면 과제</h2><ul>${ch}</ul>` : ''}
 ${q ? `<h2>핵심 성과</h2><ul>${q}</ul>` : ''}
 <p><a href="${SITE}/pages/cases.html">← 전체 도입 사례</a></p>`;
     writePage('case-' + id, page({
-      slug: 'case-' + id, title: `${strip(c.name || id)} 도입 사례 — Monnit Korea`,
-      desc: strip(c.tagline || c.about || (c.name + ' Monnit IoT 도입 사례')).slice(0, 160),
+      slug: 'case-' + id, title: `${strip(c.name || id)} 도입 사례 — ${strip(c.industry || '산업용')} 무선 IoT 모니터링 | Monnit Korea`,
+      desc: (function(){ var nm=strip(c.name||id), ind=strip(c.industry||''), tg=strip(c.tagline||'');
+        var d = nm + (ind?'('+ind+')':'') + '의 Monnit 산업용 무선 IoT 모니터링 도입 사례. ' + (tg?tg+(/[.。]$/.test(tg)?'':'.')+' ':'') + '실시간 데이터로 사고를 예방하고 설비·에너지 운영 효율을 높인 성과를 소개합니다.';
+        return d.slice(0, 160); })(),
       h1: `${strip(c.name || id)} — ${strip((c.title || '').replace(/<br>/g, ' '))}`,
       jsonld: { '@context': 'https://schema.org', '@type': 'Article', headline: strip(c.name || id) + ' 도입 사례', publisher: ORG_LD, about: strip(c.tagline || '') },
       bodyHtml: body
