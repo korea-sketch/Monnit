@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>지식베이스 — 센서 기술 자료 | 모넷코리아 Monnit Korea</title>
+<meta name="description" content="Monnit 무선 센서 설치·연결·배터리·보정 등 기술 지원 지식베이스 자료 모음.">
+<link rel="canonical" href="https://monnit.co.kr/knowledgebase/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="모넷코리아 Monnit Korea">
+<meta property="og:title" content="지식베이스 — 센서 기술 자료">
+<meta property="og:description" content="Monnit 무선 센서 설치·연결·배터리·보정 등 기술 지원 지식베이스 자료 모음.">
+<meta property="og:url" content="https://monnit.co.kr/knowledgebase/">
+<meta property="og:locale" content="ko_KR">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--ink:#16181d;--mut:#5b6270;--line:#e6e8ec;--accent:#0b6b5f;--bg:#fff;--soft:#f6f8f9}
+*{box-sizing:border-box}body{margin:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Malgun Gothic',sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+header.top{border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{font-weight:800;letter-spacing:-.02em;font-size:18px;color:var(--ink)}
+.brand span{color:var(--accent)}
+nav.top a{color:var(--mut);font-size:14px;margin-left:16px}
+.crumb{font-size:13px;color:var(--mut);padding:14px 0}
+.crumb a{color:var(--mut)}
+main{padding:8px 0 40px}
+h1{font-size:30px;line-height:1.25;letter-spacing:-.02em;margin:.2em 0 .3em}
+h2{font-size:20px;margin:1.6em 0 .5em;padding-top:.4em;border-top:1px solid var(--line)}
+h3{font-size:16px;margin:1.2em 0 .3em}
+.lede{font-size:17px;color:#2b2f38}
+.kicker{display:inline-block;font-size:12px;font-weight:700;color:var(--accent);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 10px;margin-bottom:6px}
+ul.clean{padding-left:1.1em}ul.clean li{margin:.25em 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:12px 0}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg)}
+.card h3{margin:.1em 0 .25em;font-size:15px}
+.card p{margin:.1em 0;font-size:13px;color:var(--mut)}
+.metrics{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.metric{border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:150px;background:var(--soft)}
+.metric b{display:block;font-size:22px;color:var(--accent);letter-spacing:-.02em}
+.metric span{font-size:13px;color:var(--mut)}
+.dl{margin:8px 0}.dl .row{padding:8px 0;border-bottom:1px dashed var(--line)}
+.dl .k{font-weight:700;font-size:14px}.dl .v{color:var(--mut);font-size:14px}
+.cta{display:block;margin:22px 0;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:14px}
+footer.bot{border-top:1px solid var(--line);margin-top:24px}
+footer.bot .wrap{padding:20px 0;font-size:13px;color:var(--mut)}
+footer.bot a{color:var(--mut);margin-right:14px}
+.en{color:var(--mut)}
+.en h2{color:var(--ink)}
+</style>
+
+</head>
+<body>
+<header class="top"><div class="wrap">
+<a class="brand" href="/">M<span>O</span>NNIT <span style="color:var(--mut);font-weight:600">KOREA</span></a>
+<nav class="top"><a href="/apps/">활용 분야</a><a href="/cases/">고객 사례</a><a href="/products/">제품</a><a href="/company/">회사 소개</a></nav>
+</div></header>
+<div class="wrap">
+<div class="crumb"><a href="/">홈</a></div>
+<main>
+<span class='kicker'>Knowledge Base</span><h1>지식베이스</h1><p class='lede'>센서 설치·운영·문제 해결 기술 자료.</p>
+<h2>센서</h2>
+<h3>센서가 게이트웨이에 연결되지 않을 때</h3><p>참고: 센서 수리가 필요한 경우, 진단 및/또는 수리를 위해 Monnit에 기기를 반송할 때 요구되는 반품 승인서(RMA) 발급에 앞서 최선의 문제 해결 단계를 먼저 수행해야 합니다.</p>
+<h3>센서가 구성 변경을 적용하지 않을 때</h3><p>센서 구성이 업데이트되지 않는 경우: iMonnit 소프트웨어에서 구성을 변경하면, 이 구성은 게이트웨이로 전송되어 센서로 전달되기 위해 대기열에 들어갑니다.</p>
+<h3>센서 하트비트(Heartbeat), Aware 상태, Assessment 이해하기</h3><p>Monnit 센서 동작은 Aware 상태(Aware State)라는 개념을 기반으로 합니다. 이 용어는 센서가 감지한 조건을 감지 즉시 보고할 수 있게 하는 센서의 동작 상태를 가리킵니다. 이 동작이 이루어지도록 하는 몇 가지 구성 요소와 설정이 있습니다. 이 문서는 그 동작을 설명합니다. Trigger 센서 vs.</p>
+<h3>Monnit 센서에서 배터리 레벨이 변동하는 이유</h3><p>많은 사용자가 센서가 보고하는 배터리 레벨이 변동하는 이유를 문의합니다. 배터리 레벨이 오르내리는 것이 반드시 배터리 문제의 징후는 아닙니다. 최근 Monnit 센서가 배터리 레벨을 측정하는 방식 때문에 배터리 레벨 측정값이 일관되지 않게 나올 수 있습니다.</p>
+<h3>Monnit Wi-Fi(MoWi) 센서 설정 및 사용</h3><p>Monnit MoWi 센서는 표준 무선 802.11 A, B, G 네트워크에 연결되어 iMonnit Online 포털로 데이터를 전송합니다. 게이트웨이가 선호되지 않는 상황에서 센서를 로컬 WiFi 네트워크에 연결할 수 있게 해 줍니다. 이 문서는 Monnit MoWi 센서를 WiFi 네트워크에 설정하는 과정을 안내합니다.</p>
+<h3>Link Mode(링크 모드)</h3><p>Link Mode라는 용어는 Monnit 센서가 게이트웨이에 연결(또는 재연결)하려 할 때 수행하는 동작을 가리킵니다. 센서는 처음 연결을 시도할 때, 또는 게이트웨이와의 연결이 끊겨 게이트웨이를 찾아 재연결하려 할 때 Link Mode에 진입합니다.</p>
+<h3>이전에 체크인하던 센서가 게이트웨이와 연결이 끊긴 경우</h3><p>참고: 이 문서는 Monnit Commercial(Gen1) 및 Alta 센서를 위한 것입니다. MoWi WiFi 센서를 사용 중이라면 MoWi 센서 관련 문서를 참고하십시오. 센서가 게이트웨이와 통신을 멈춘 경우, 아래 단계로 센서가 다시 통신하게 될 수 있습니다. 게이트웨이와 센서가 호환되는지 확인합니다.</p>
+<h3>배터리</h3><p>설명: Monnit® 센서는 AA 또는 CR2032 코인셀 배터리로 동작합니다. Industrial 센서는 Monnit 또는 다른 산업용 배터리 공급업체에서 제공하는 3.6V 리튬 배터리가 필요합니다. Monnit은 고객이 사용한 배터리를 모두 재활용할 것을 권장합니다. 코인셀 배터리 Gen1 배터리 수명: 1~1.5년.</p>
+<h3>센서에 영향을 주는 환경 요인</h3><p>센서 동작에 영향을 줄 수 있는 몇 가지 환경 요인이 있습니다. 이 요인들은 센서의 전원 동작, 감지 동작, 무선 통신에 영향을 줄 수 있습니다. 이 문서는 이러한 요인에 관한 유용한 정보를 제공합니다. 고온과 저온 온도는 센서 동작에 영향을 주는 가장 흔한 요인 중 하나입니다. 온도는 폼팩터(외형)마다 다르게 영향을 줍니다.</p>
+<h3>센서를 PC에 연결한 뒤 3단계에서 ‘Wi-Fi Sensor Connected’ 이미지가 보이지 않는 경우</h3><p>MoWi WiFi 센서를 구성하려면, 센서가 MoWi WiFi Configuration Utility에 인식되어야 합니다. PC가 MoWi 센서를 인식하지 못하는 경우, 이 문서가 도움이 될 것입니다.</p>
+<h3>Alta(2세대)와 Commercial(1세대) 기기의 차이</h3><p>Monnit 기기는 두 세대로 제공됩니다. Alta 라인과 Commercial 라인은 서로 다른 무선 하드웨어로 동작합니다. 1세대 제품은 Alta 출시 이전에 Monnit이 개발했습니다. 두 세대는 고유한 특성과 동작을 가지므로 상호 호환되지 않습니다. 이 문서는 두 세대의 차이와 Alta 라인의 고유 기능을 설명합니다.</p>
+<h3>온도 센서 보정(Calibration)</h3><p>Monnit 무선 온도 센서는 기본적으로 +/- 1°C(1.8°F) 정확도를 가지며, 센서가 동작하는 환경에 맞춰 보정하면 더 높은 정확도를 얻을 수 있습니다. 더 높은 정확도를 원하거나 온도 센서의 측정값이 부정확하다고 판단되면, iMonnit Online 포털에서 보정하거나 기본 보정으로 설정할 수 있습니다.</p>
+<h3>센서 배터리 퍼센트와 전압의 상관관계</h3><p>다음 표는 Monnit 센서의 배터리 전압 레벨과 배터리 퍼센트 추정값의 관계를 나타냅니다.</p>
+<h3>MoWi Monnit Wi-Fi 센서의 LED 이해</h3><p>이 문서는 다양한 상황에서 Monnit Wi-Fi 센서(MoWi 센서) LED의 동작을 이해하는 데 도움을 줍니다. 배터리를 넣었을 때 배터리를 넣자마자 몇 가지 상황이 발생할 수 있으며, LED가 무슨 일이 일어나고 있는지 정확히 알려 줍니다. 빨간색 1회 깜박임 이 경우 센서가 Wi-Fi 네트워크에 연결할 수 없음을 의미합니다.</p>
+<h3>게이트웨이가 이미 체크인 중인 상태에서 센서 추가하기</h3><p>기존 센서 네트워크가 있는 상태에서 기기를 추가하거나, 수리 후 센서를 돌려받거나, 새 센서를 구매하거나, Monnit 기기 설정의 표준 작업 순서를 벗어나 이미 기기를 켜 둔 경우가 있을 수 있습니다. Monnit 시스템에서는 기기가 시의적절하게 데이터를 보고하도록 하는 데 작업 순서가 중요합니다.</p>
+<h3>MoWi Wi-Fi 센서 FAQ</h3><p>Q: MoWi 센서는 어떤 Wi-Fi 대역을 지원하나요? A: MoWi Wi-Fi 센서 네트워크는 IEEE 802.11 b/g에서 동작합니다. Q: Monnit Wi-Fi 센서는 어떤 종류의 보안 프로토콜을 지원하나요?</p>
+<h3>Aware 상태와 Trigger 센서</h3><p>Monnit 센서는 크게 두 범주로 나뉩니다. Interval 센서와 Trigger 센서입니다.</p>
+<h3>Sensor State vs. STS</h3><p>요약 이 문서는 센서의 내보내기(export) 데이터에서 STS와 State의 차이를 설명하기 위해 작성되었습니다. 또한 사용되는 특정 오류 코드의 원인과 센서가 가질 수 있는 다양한 상태를 파악하는 데 도움이 됩니다.</p>
+<h3>MoWi 센서 또는 Ethernet 게이트웨이의 MAC 주소 조회 방법</h3><p>이 문서는 MAC 주소를 가진 기기(MoWi 센서, Ethernet 게이트웨이 등)의 MAC 주소(및 기타 유용한 정보)를 조회하는 방법을 안내합니다. MAC 주소란? MAC 주소(Media Access Control address)는 네트워크상의 네트워크 인터페이스 컨트롤러(NIC)에 할당된 고유 식별자입니다.</p>
+<h3>한 번의 예정 하트비트에서 동일한 센서 메시지가 연속으로 중복 표시되는 경우</h3><p>Monnit 프로토콜의 강점 중 하나는 센서가 송신과 수신을 모두 할 수 있다는 점입니다. 센서는 데이터를 전송한 후 센서 데이터가 수신되었다는 확인 응답을 게이트웨이로부터 듣기를 기다립니다. 일정 시간 내에 게이트웨이로부터 응답을 듣지 못하면 데이터를 재전송합니다.</p>
+<h3>H2S(황화수소 가스) 센서가 ‘Hardware Error!’로 표시되는 경우</h3><p>H2S(황화수소 가스) 센서는 24시간의 초기화 기간을 가집니다. 이 기간 동안 센서는 동작 중이어야 하며 ‘Hardware Error!’를 나타내는 측정값을 제공할 수 있습니다. 이는 초기화 기간 동안 예상되는 동작입니다. 초기화 기간 H2S 센서는 긴 초기화 기간이 필요하다는 점에서 다소 독특합니다.</p>
+<h3>냉동고 제상 장치와 Monnit 센서</h3><p>Monnit 센서 프로브나 센서 본체가 냉동고 또는 냉장고 제상 장치 근처에서 동작하면 센서 동작에 의도치 않은 영향이 있을 수 있습니다. 제상 장치는 흔히 전기 코일로 구성되므로 EMI 간섭의 형태로 센서 무선 통신에 영향을 줄 수 있습니다. 또한 제상 장치는 센서 측정 기록에 예기치 않은 고점과 저점을 유발할 수 있습니다.</p>
+<h3>Alta 센서 데이터 로깅</h3><p>Alta 센서는 전원 손실과 무선 통신 손실 시에도 센서가 기록한 데이터가 유실되지 않도록 데이터 로깅 기능을 제공합니다. 현재 버전의 Alta 센서와 Alta 게이트웨이 모두 이 기능을 제공합니다. 이 문서는 센서 데이터 로깅의 기능을 자세히 설명합니다. 센서 데이터 로깅을 고려할 때 Link Mode를 이해하는 것도 중요합니다.</p>
+<h3>무선 안테나의 올바른 방향과 센서 위치</h3><p>요약: 최적의 도달 거리와 성능을 위한 안테나 방향과 센서 위치 설정 방법 최적 도달 거리를 위한 올바른 안테나 방향과 센서 위치 설정. Monnit 무선 센서에서 최상의 성능을 얻으려면 올바른 안테나 방향과 센서 위치에 유의하는 것이 중요합니다. 안테나는 모두 같은 방향, 즉 센서에서 수직으로 나오도록 향해야 합니다.</p>
+<h3>48시간 넘게 Aware 상태에 있는 센서</h3><p>요약 센서가 48시간 넘게 Aware 상태에 있으면, Aware 상태 기반의 Action(Advanced Notifications)이 더 이상 트리거되지 않습니다. 시스템은 센서가 모니터링하던 조건이 48시간 이내에 확인(acknowledge)되었을 것이라고 가정합니다.</p>
+<h3>무선 센서 네트워크에 맞는 무선 주파수 선택</h3><p>요약 무선 센서 네트워크를 선택할 때, 특정 요구에 맞는 올바른 주파수를 고르려면 고려해야 할 몇 가지가 있습니다. Monnit의 무선 센서 네트워크는 현재 ISM 900MHz(902~928MHz) 대역과 868MHz, 433MHz 대역에서 동작합니다.</p>
+<h3>Monnit Standard 진동 센서와 ISO 10816</h3><p>진동 모니터링은 유지보수 엔지니어가 전통적인 순회 점검 중 기계를 살펴보던 데에서 비롯되었습니다. 이는 기계가 평소와 다르게 진동하고 있다는 직관적 이해를 공식화하려는 시도입니다.</p>
+<h3>Monnit 전압 센서 응답 시간</h3><p>Monnit이 제공하는 전압 계측기는 하드웨어에 약한 필터링이 구현되어 있어, 센서에 공급되는 실제 전압을 보고하는 데 약간의 지연이 생길 수 있습니다. 필터 시간 전압 센서에는 전압 급증으로부터 센서 회로가 과부하되지 않도록 보호하는 약한 필터가 있습니다. 이 필터는 5초의 지연을 가집니다.</p>
+<h3>고밀도 센서 네트워크 구성</h3><p>요약 밀집 센서 네트워크를 위한 최적화 센서 통신 밀도: 경험칙으로, 최대 처리량으로 게이트웨이당 초당 1건(즉 분당 60건)의 센서 통신을 허용할 만큼의 대역폭을 두는 것을 선호합니다. 이론상 게이트웨이는 그보다 더 처리할 수 있지만, 센서가 완벽하게 무작위로 분포하는 경우는 드뭅니다.</p>
+<h3>습도 센서와 정확도 사양</h3><p>Monnit 습도 센서는 제조 시 사양서에 명시된 범위 내에 있음을 확인받습니다. 환경 조건은 센서의 정확도에 영향을 줄 수 있습니다. 먼지나 화학물질 같은 것에 노출되면 Monnit 습도 센서의 정확도에 영향을 줄 수 있습니다. 따라서 센서가 제조사 사양을 벗어난 측정값을 보고한다면 이러한 요인을 고려하는 것이 중요합니다.</p>
+<h3>Monnit CO2 센서의 자동 보정(Auto Calibration) 기능</h3><p>Monnit CO2 센서는 자동 보정(Auto Calibration) 기능을 제공하여, 자동 보정 기간 동안의 측정값을 기반으로 센서가 주기적으로 스스로 보정하도록 합니다. 작동 방식 이 예에서는 자동 보정 기간이 3일로 설정된 CO2 센서를 살펴봅니다.</p>
+<h3>다른 Monnit 센서와 비교하기</h3><p>Monnit 센서를 보유 중이고 기기의 정확도가 우려된다면, 센서의 정확도를 검토할 수 있는 방법이 있습니다. 이는 특히 냉장 장치의 측정값이 Monnit 센서가 보고하는 값과 차이가 날 때 유용합니다. 이를 위해서는 프로브를 같은 영역에 놓을 수 있는, 동작 중인 여러 Monnit 온도 센서에 접근할 수 있어야 합니다.</p>
+<h3>구성 가능한 Window 필터를 지원하는 센서의 Window 필터링</h3><p>Advanced Vibration Meter 등 일부 Monnit 센서는 센서 단에서 측정값을 필터링하는 Window 필터를 제공합니다. 이 필터를 용도에 맞게 조정하면 센서를 용도에 맞게 활용하는 데 도움이 됩니다.</p>
+<h3>열전대(Thermocouple) 센서가 ‘Invalid’로 표시되는 경우</h3><p>Monnit 열전대(Thermocouple) 센서는 Readings 탭에 오류를 보고할 수 있습니다. 이 오류는 일반적으로 열전대 프로브와 센서 본체 간 접속 불량의 결과입니다. ‘Invalid’ 측정값이 흔히 ‘No Sensor Detected’와 함께 보일 수 있습니다.</p>
+<h3>센서 펌웨어 무선(OTA) 업데이트 - 기본 정보</h3><p>Monnit Alta 센서는 원격 펌웨어 업데이트 기능을 갖추고 있습니다. 이는 현재 포털과 통신 중인 Alta 센서에 대해 iMonnit Online 포털을 통해 수행할 수 있습니다. 이 과정에는 아래에 언급된 제한이 있습니다. 센서 펌웨어의 현재 버전에 따라 원격 펌웨어 업데이트 가능 여부가 달라질 수 있습니다.</p>
+<h3>습도 센서의 습도 감지 소자 재생</h3><p>경우에 따라 습도 센서의 감지 소자를 재생(recondition)하는 것이 가능할 수 있습니다. 감지 소자가 기름, 먼지 등 오염 물질에 노출된 경우, 정확도를 위해 센서를 재생할 수 있습니다. 아래 단계를 따라 이 센서 유형을 재생할 수 있습니다. 재생 절차 AA 센서는 윗부분을, 코인셀 센서는 아랫부분을 제거합니다.</p>
+<h2>게이트웨이</h2>
+<h3>Ethernet Gateway 4가 iMonnit Online에 연결되지 않는 경우</h3><p>Ethernet Gateway 4(EGW4)는 로컬 Ethernet 네트워크에서 동작하며, 아웃바운드 TCP 포트 3000을 통해 iMonnit Online 포털(Default Interface라고도 함)로 데이터를 전달하려면 인터넷 연결이 필요합니다.</p>
+<h3>게이트웨이를 iMonnit Enterprise, iMonnit Express, Monnit MINE 등 사용자 지정 호스트/IP로 Unlock 및 Point하기</h3><p>참고: 게이트웨이를 사용자 지정 호스트나 IP 주소로 Point하려면, 아직 구매하지 않았다면 먼저 게이트웨이를 Unlock해야 합니다. 게이트웨이 Unlock 코드는 https://www.monnit.com/Product/MNA-GW-UL/ 에서 구매할 수 있습니다.</p>
+<h3>Ethernet 또는 Cellular 게이트웨이의 펌웨어를 iMonnit Online으로 업데이트하는 방법</h3><p>게이트웨이 펌웨어를 최신으로 유지하는 것은 일부 예기치 않은 문제를 해결하는 중요한 단계입니다. Ethernet 및 셀룰러 게이트웨이의 펌웨어 업데이트는 iMonnit Online 포털을 통해 주기적으로 제공됩니다.</p>
+<h3>Ethernet Gateway 4의 로컬 구성 페이지(HTTP Interface)로 게이트웨이를 로컬 구성하려는 경우</h3><p>참고: Ethernet Gateway 4는 기본적으로 DHCP가 활성화되어 있습니다. 이 게이트웨이는 기본 IP 주소가 없으므로(Ethernet Gateway 3와 다름), 로컬 구성 페이지에 처음 접근하려면 DHCP를 지원하는 네트워크에 연결해야 합니다. 이를 위해 네트워크에서 DHCP로 게이트웨이에 할당된 IP 주소를 찾아야 합니다.</p>
+<h3>사설 MODBUS TCP 또는 SNMP 네트워크에서 Ethernet Gateway 4 사용(Default Interface 비활성화)</h3><p>사설 MODBUS TCP 또는 SNMP 네트워크에서 Ethernet Gateway 4 사용 Ethernet Gateway 4는 MODBUS TCP 및 SNMP 인터페이스를 제공하여, MODBUS TCP 또는 SNMP 네트워크에서 센서 데이터를 가져오도록 폴링(polling)할 수 있습니다.</p>
+<h3>게이트웨이 네트워크 Reform</h3><p>게이트웨이 네트워크 Reform 하기 게이트웨이의 Reform 명령은 일부 상황에서 필요할 수 있는 기능을 수행합니다. 이 문서는 게이트웨이 네트워크를 Reform할 때 관여하는 과정을 설명합니다.</p>
+<h3>Ethernet Gateway 4의 MODBUS TCP Interface 사용</h3><p>참고: 이 문서는 Ethernet Gateway 4를 위해 작성되었습니다. Ethernet Gateway 3의 MODBUS TCP Interface에는 약간의 차이가 있습니다. Ethernet Gateway 3을 사용할 때 이를 고려해야 합니다.</p>
+<h3>iMonnit Online 포털에서 센서 Readings 기록에 초(seconds) 표시하기</h3><p>iMonnit Online 포털은 센서 Readings 기록에 표시되는 타임스탬프에 초를 포함하는 기능을 제공합니다. 이 환경설정은 계정 수준과 사용자 수준 모두에 적용할 수 있습니다. 이 문서는 이 환경설정을 구성하는 단계를 제공합니다. 참고: 타임스탬프 표시에 초를 포함하는 것은 24시간 시계 타임스탬프에서만 제공됩니다.</p>
+<h3>Monnit Ethernet 또는 Cellular 게이트웨이를 iMonnit Online 포털로 되돌리기(USB 게이트웨이 제외)</h3><p>게이트웨이가 iMonnit Enterprise, Express, MINE 같은 로컬 서버를 향해 Point되어 통신하던 상태에서, 게이트웨이를 다시 iMonnit Online 포털로 되돌려야 하는 경우가 있습니다. 이 문서는 그 방법을 안내합니다. !!중요!!</p>
+<h3>4G LTE 게이트웨이가 iMonnit Online에 연결되지 않는 경우(Monnit을 통한 셀룰러 서비스로 활성화된 경우)</h3><p>참고: 게이트웨이 수리가 필요한 경우, 진단 및/또는 수리를 위해 Monnit에 기기를 반송할 때 요구되는 반품 승인서(RMA) 발급에 앞서 Monnit Support의 안내에 따른 최선의 문제 해결 단계를 먼저 수행해야 합니다.</p>
+<h3>4G LTE 게이트웨이가 iMonnit Online에 연결되지 않는 경우(고객 자체 데이터 요금제)</h3><p>참고: 게이트웨이 수리가 필요한 경우, 진단 및/또는 수리를 위해 Monnit에 기기를 반송할 때 요구되는 반품 승인서(RMA) 발급에 앞서 Monnit Support의 안내에 따른 최선의 문제 해결 단계를 먼저 수행해야 합니다.</p>
+<h3>USB Wireless Sensor Adapter 또는 USB 게이트웨이가 iMonnit Online으로 데이터를 보내지 않는 경우</h3><p>설정 시(또는 게이트웨이가 통신을 멈춘 경우) 이 문서는 USB Wireless Sensor Adapter 또는 USB 게이트웨이 문제 해결에 유용합니다. 상태(Status) Monnit Link Configuration Utility에는 게이트웨이가 PC와 통신 중인지 알려 주는 Status가 표시됩니다.</p>
+<h3>Monnit Ethernet 게이트웨이 네트워크 요구 사항</h3><p>Monnit Ethernet 게이트웨이는 물리적 Ethernet 네트워크에 연결되어 TCP/IP 통신으로 iMonnit 서버에 데이터를 보냅니다. 이 문서는 게이트웨이가 iMonnit 서버와 성공적으로 통신하도록 허용하기 위한 요구 사항을 자세히 설명합니다.</p>
+<h3>iMonnit Online을 사용해 Ethernet Gateway 4의 로컬 구성 페이지(HTTP Interface)로 게이트웨이를 구성하려는 경우</h3><p>참고: Ethernet Gateway 4는 기본적으로 DHCP가 활성화되어 있습니다. 이 게이트웨이는 기본 IP 주소가 없으므로(Ethernet Gateway 3와 다름), 게이트웨이를 처음 연결하려면 DHCP를 지원하는 네트워크에 연결해야 합니다. 이를 위해 네트워크에서 DHCP로 게이트웨이에 할당된 IP 주소를 찾아야 합니다.</p>
+<h3>iMonnit Online으로 USB Wireless Sensor Adapter 설정</h3><p>Monnit USB Wireless Sensor Adapter는 Monnit USB 게이트웨이의 현재 버전입니다. Wireless Sensor Adapter는 USB 케이블로 PC에 연결됩니다.</p>
+<h3>Ethernet Gateway 4의 AutoIP 기능</h3><p>게이트웨이 펌웨어 버전 1.0.6.6 이상을 실행하는 Ethernet 게이트웨이에는, 게이트웨이를 DHCP 지원 네트워크에 연결하지 않고도 로컬 HTTP 구성 페이지에 접근해 게이트웨이를 구성할 수 있는 기능이 포함됩니다. 이 기능은 고정 IP 주소가 필요한 네트워크에서 게이트웨이를 운영하는 경우 유용합니다.</p>
+<h3>게이트웨이 Sensor List(무선 기기 네트워크 목록) 이해</h3><p>Sensor List는 센서가 게이트웨이로 데이터를 보낼 권한을 받는 수단입니다. Sensor List는 게이트웨이에 저장된 센서 ID 목록으로, 게이트웨이가 센서의 Join 요청을 승인해 해당 센서가 게이트웨이에 링크되도록 허가합니다. Sensor List는 여러 방식으로 구성됩니다.</p>
+<h3>Monnit 3G 게이트웨이를 사용자 지정 APN으로 프로비저닝</h3><p>Monnit이 제공하지 않는 통신사 요금제로 Monnit 3G 게이트웨이를 사용하려면, 게이트웨이가 동작하는 무선 대역에서 M2M 통신을 지원하는 활성 데이터 요금제 SIM이 필요합니다. 게이트웨이를 사용자 지정 APN으로 프로비저닝하는 단계는 아래와 같습니다. iMonnit 계정을 설정하고 셀룰러 게이트웨이와 무선 센서를 추가합니다.</p>
+<h3>2G 또는 3G 게이트웨이의 전체 공장 초기화</h3><p>일부 상황에서는 Monnit Cellular 2G 또는 3G 게이트웨이를 완전히 초기화해야 할 수 있습니다. 이 전체 초기화는 APN 프로비저닝을 포함한 모든 구성을 지웁니다. 이는 셀룰러 통신사 네트워크에 연결하지 못하는 게이트웨이를 문제 해결하는 경우(및 기타 문제) 등에 필요할 수 있습니다.</p>
+<h3>SIM 카드용 GSM International Cellular Gateway 구성</h3><p>모든 SIM에 대해 셀룰러 게이트웨이(CGW)를 구성하는 것은 간단합니다. 열린 CGW에서 사용 중인 SIM으로 SMS를 보냅니다. 아래는 유럽 시장에서 이를 수행하는 방법입니다. 고객은 선택한 이동통신 사업자(SIM 제공자)에게 GPRS 네트워크의 APN 이름을 확인합니다(보통: ApnName, userName, password).</p>
+<h3>PC의 네트워크 연결을 Monnit Ethernet 게이트웨이와 공유</h3><p>PC에 Ethernet 포트가 하나 이상 있고 다른 네트워크 어댑터(보통 Wi-Fi)가 있으면, Windows 10 PC에서 PC의 인터넷/네트워크 연결을 Ethernet 게이트웨이와 공유할 수 있습니다. 가장 흔한 구성은 Wi-Fi 연결을 Ethernet 포트로 공유하는 것입니다.</p>
+<h3>Monnit 2G 또는 3G 게이트웨이에서 ‘Gateway Management’ 메시지가 반복 보고되는 경우</h3><p>Monnit 2G 또는 3G 게이트웨이에서 이 Gateway Management가 반복되는 가장 흔한 원인은 CR2032 시계 배터리 방전입니다.</p>
+<h3>Gateway Management 메시지 정의</h3><p>Monnit 게이트웨이는 다양한 작업을 수행하며, 각 작업은 게이트웨이 History에 Gateway Management 항목으로 기록됩니다. Gateway Management는 이러한 각 작업에 대한 식별자입니다. 이 메시지의 의미를 이해하면 흔한 문제를 식별하는 데 유용합니다.</p>
+<h3>Serial MODBUS Gateway에서 ‘RX Timeout!’ 오류가 보이는 경우</h3><p>처음 구성할 때(또는 설정 완료 후 가끔) Serial MODBUS Gateway에 명령이나 폴을 보낼 때 ‘RX Timeout!’ 오류가 보일 수 있습니다. 이는 통신 오류를 나타내며 일반적으로 구성 또는 배선 문제의 결과입니다. 이 문서는 이 문제의 해결 단계를 제공합니다.</p>
+<h3>배터리 백업이 있는 2G 또는 3G 셀룰러 게이트웨이에서 ‘Charge Fault’ 오류가 보이는 경우</h3><p>Charge Fault 오류는 일반적으로 배터리 백업이 있는 셀룰러 게이트웨이의 전력 소비와 충전에 영향을 주는 물리적 조건을 나타냅니다. 이 문서는 이 문제와 가능한 해결 방법에 관한 정보를 제공합니다.</p>
+<h3>센서 메시지를 수신 즉시 전송하도록 게이트웨이 구성</h3><p>기본 구성에서 게이트웨이 하트비트는 정해진 일정에 발생하도록 설정됩니다. 즉 게이트웨이는 센서 하트비트에 센서 통신을 수신하고, 게이트웨이 하트비트에 측정값을 Monnit 소프트웨어로 전달하기 위해 대기시킵니다. 이 동작을 변경해 게이트웨이가 센서 측정값을 수신하는 즉시 Monnit 소프트웨어로 전송하도록 만드는 방법이 있습니다.</p>
+<h3>USB 게이트웨이 또는 Wireless Sensor Adapter가 iMonnit 소프트웨어로 데이터를 보내지 않는 경우</h3><p>예를 들어 Windows 구성 변경 후, USB 게이트웨이가 컴퓨터와 통신은 하지만 데이터가 iMonnit 소프트웨어에 도달하지 못하는 상황이 있을 수 있습니다. 게이트웨이가 PC에 인식되고 하드웨어에 문제가 없다면(설치 또는 드라이버 문제 해결 단계는 이 문서 참고), 다음 빠른 단계로 기본적인 문제를 해결할 수 있습니다.</p>
+<h3>게이트웨이와 같은 네트워크가 아닌 센서가 그 게이트웨이로 데이터를 보내는 경우(또는 내 네트워크 센서가 네트워크 외 게이트웨이로 데이터를 보내는 경우)</h3><p>센서가 게이트웨이와 통신하도록 허가받는 수단은 Sensor List입니다. 게이트웨이가 센서를 Sensor List로 다운로드하면, 게이트웨이의 네트워크가 Reform되지 않는 한 그 센서 ID는 게이트웨이의 Sensor List에서 제거되지 않습니다.</p>
+<h3>USB Wireless Sensor Adapter 게이트웨이를 Enterprise·Express·MINE로 Unlock 및 Point</h3><p>Monnit USB Wireless Sensor Adapter와 USB 게이트웨이는 로컬 설치된 iMonnit 소프트웨어로 데이터를 보내도록 Point할 수 있습니다. 이는 다른 게이트웨이 유형과 마찬가지로 USB 게이트웨이에서도 가능합니다. USB 게이트웨이에는 구성을 독특하게 만드는 고유한 특성이 있습니다.</p>
+<h3>Alta 게이트웨이의 BSN 펌웨어 업데이트</h3><p>각 Monnit 게이트웨이에는 BSN(Base Station Node, APN이라고도 함)이라는 칩이 있습니다. 이 칩은 기기의 무선 전송을 제어합니다. 이 칩에는 무선 동작을 실행하는 펌웨어가 있습니다. Alta 게이트웨이 라인에서는 이 칩에 업그레이드 가능한 펌웨어가 있습니다.</p>
+<h3>Alta 게이트웨이 데이터 로깅</h3><p>Monnit Alta 게이트웨이는 Monnit 소프트웨어와의 통신이 끊겼을 때 센서 데이터를 수신·보존하는 기능을 제공합니다. 게이트웨이가 전원이 켜진 상태로 센서와 연결을 유지하고 있으면, 게이트웨이의 무선과 센서 네트워크가 활성 상태로 유지되어 네트워크 다운타임 동안 수신한 센서 메시지를 로그로 저장·보존합니다.</p>
+<h3>iMonnit Online에서 별도 센서 네트워크로 센서를 게이트웨이에 지정</h3><p>센서가 게이트웨이와 통신하도록 허가받는 수단은 센서 네트워크입니다. 즉 iMonnit Online에서 동일한 네트워크에 추가된 센서는 그 네트워크의 게이트웨이와 통신하도록 허가됩니다. 센서가 통신하도록 허가될 게이트웨이를 지정하려면 iMonnit Online에서 센서를 별도의 센서 네트워크에 할당해야 합니다.</p>
+<h3>무선 USB 게이트웨이, 호스트 컴퓨터 절전 모드 및 전원 꺼짐</h3><p>PC가 꺼져 있거나 절전 상태여서 MonnitLink™ 무선 게이트웨이 또는 USB Sensor Adapter가 센서로부터 전송을 수신하지 못하면, 센서는 계속 게이트웨이에 링크를 시도합니다(기본 2회). 게이트웨이에 링크하지 못하면 ‘link mode’에 진입하여 인근의 다른 게이트웨이를 찾습니다.</p>
+<h3>USB Wireless Sensor Adapter에서 새 센서 ID 다운로드</h3><p>센서가 게이트웨이와 통신하려면 통신 허가를 위해 게이트웨이가 센서 ID를 받아야 합니다. 대부분의 게이트웨이에는 물리적 버튼이 있어, 눌렀다가 즉시 떼면 iMonnit 소프트웨어에서 게이트웨이와 동일한 네트워크에 추가된 센서 ID를 받습니다.</p>
+<h3>서버 손실 시 무선 네트워크 비활성화 - Ethernet Gateway 4</h3><p>Monnit 서버와의 통신이 끊긴 동안 게이트웨이가 로그 메시지를 보존하지 않기를 원하는 용도가 있을 수 있습니다. 네트워크 연결 손실이 잦거나 네트워크 데이터 사용을 세심히 분산해야 하는 용도에서는, 센서가 데이터 메시지를 로그로 저장하도록 의존하는 것이 더 나을 수 있습니다.</p>
+<h3>Advanced Edge Gateway 구성 인터페이스</h3><p>Monnit Advanced Edge Gateway에는 Express Core 인터페이스 외에 HTTP 구성 인터페이스가 포함됩니다. 다음으로 이 추가 인터페이스로 Edge Gateway를 구성할 수 있습니다.</p>
+<h3>센서 하트비트가 게이트웨이 하트비트보다 잦은 경우</h3><p>일부 구성에서는 사용자가 센서 하트비트를 게이트웨이 하트비트보다 잦게 구성할 수 있습니다. 이는 의도치 않을 수도, 의도적일 수도 있습니다. 이 구성에는 의도하지 않은 영향이 따를 수 있습니다.</p>
+<h2>iMonnit Online</h2>
+<h3>Monnit Connection Tester(Communication Check Utility)</h3><p>Communication Check Utility는 PC와 iMonnit 서버 간 연결을 테스트할 수 있는 경량 PC 응용 프로그램입니다. 이 유틸리티로 게이트웨이가 iMonnit 소프트웨어로 보내는 데이터를 모방할 수 있습니다. 목적은 기기가 iMonnit 소프트웨어와 통신할 수 있는 네트워크 경로가 있는지 확인하는 것입니다.</p>
+<h3>iMonnit Online에서 새 Action 생성</h3><p>iMonnit 소프트웨어의 Action은 사전 구성된 조건에 기반한 에스컬레이션으로, action 이벤트를 일으킵니다. Action에는 두 가지 주요 구성 요소가 있습니다. Trigger 이벤트와 Action 이벤트입니다. Trigger는 에스컬레이션을 시작하는 조건이고, Action은 트리거의 결과로 소프트웨어가 실행하는 활동입니다.</p>
+<h3>Premiere 구독이 만료되는 경우</h3><p>참고: 이는 iMonnit Online 포털에 해당합니다. Enterprise, Express, MINE 같은 다른 소프트웨어의 라이선스는 별도로 관리됩니다.</p>
+<h3>Action에 Delay(지연) 설정</h3><p>Action(Notification)은 지연 기간 후 알림을 보내는 기능을 제공합니다. 이는 특정 트리거 조건이 일정 시간 지속되지 않는 한 알림이 필요 없는 경우에 유용합니다. 이 문서는 이 기능에 관한 정보를 제공합니다. 사용 사례 예시 냉장 모니터링 이 기능이 유용한 흔한 예는 냉장 모니터링입니다.</p>
+<h3>Action의 Text Override 값 이해</h3><p>Text Override 값은 Action의 기능으로, 특정 구문의 텍스트를 Action 메시지에 입력하면 iMonnit Online 포털이 이를 트리거 이벤트의 정보로 대체합니다. 이를 통해 수신자에게 전달되는 Action 메시지를 트리거 조건에 특정한 정보를 포함하도록 사용자 지정할 수 있습니다.</p>
+<h3>iMonnit Online에서 사용자를 다른 계정에 연결(Link)</h3><p>iMonnit Online 포털은 단일 사용자를 여러 계정에 연결(Link)할 수 있게 합니다. 사용자를 다른 계정에 연결하면 그 사용자가 사용자 지정 권한으로 연결된 계정을 볼 수 있고, 연결된 계정의 Action 수신자로 포함될 수 있으며, 연결된 계정의 센서를 보고 구성할 수 있습니다.</p>
+<h3>Reports 및 과거 센서 데이터</h3><p>Reports 기능으로 과거 센서 데이터를 내보내려는 경우 iMonnit Online 포털에서 Reports 탭으로 과거 센서 데이터를 Excel에서 읽을 수 있는 CSV 스프레드시트로 정리한 보고서를 생성할 수 있습니다. 이 작업 방식과 관련된 기능적 세부 사항이 있습니다.</p>
+<h3>iMonnit Online에서 특정 네트워크 보기에 대한 사용자 권한 제한/허용</h3><p>iMonnit Online은 계정의 특정 센서 네트워크를 사용자가 보지 못하도록 제한하거나 보도록 허용하는 기능을 제공합니다. 기본적으로 Standard User에게는 계정의 네트워크를 볼 권한이 부여되지 않습니다. 이 문서는 사용자가 볼 수 있는 센서 네트워크를 지정하는 단계를 제공합니다.</p>
+<h3>iMonnit.com 사용자 이름 또는 비밀번호를 잊은 경우</h3><p>사용자 이름이나 비밀번호를 잊어 iMonnit.com 온라인 센서 포털에 로그인할 수 없는 경우 참고: !중요! iMonnit.com 온라인 센서 포털은 Monnit.com 판매 웹사이트와 다른 웹사이트이며 로그인 자격 증명도 다릅니다. Monnit.com 판매 웹사이트 로그인에 문제가 있으면 해당 문제에 대한 문서를 참고하십시오.</p>
+<h3>Action의 Disarm 및 Rearm</h3><p>Action의 Disarm 및 Rearm 개념 Action은 트리거 조건에 기반해 이메일, SMS, 음성 통화 알림을 고객에게 전달하는 수단입니다. 알림이 전달되었을 때 사용자가 응답하는 방식은 두 가지입니다. 바로 Action의 **Disarm**과 **Rearm**입니다. 이 문서는 이 에스컬레이션의 개념을 설명합니다.</p>
+<h3>System Action 이해</h3><p>System Action은 알림 및/또는 Add-on 기기(Control Unit, Local Alert 등)와 관련된 로직을 사용자가 구성할 수 있게 합니다. System Action은 iMonnit Online 포털에서 Action을 구성할 때 Action 탭과 함께 사용됩니다.</p>
+<h3>External Delivery와 Direct SMS 선택의 차이</h3><p>Monnit은 SMS 메시지를 사용자에게 전달하는 두 가지 방법을 제공합니다. External Delivery(추가 비용 없음)와 Direct Delivery(Notification Credit으로 관리되는 유료 서비스)입니다. 이 문서는 그 차이와 비용을 설명합니다.</p>
+<h3>센서 보정 인증서(Calibration Certificate)</h3><p>요약: iMonnit에서 보정 인증서를 생성하는 안내. 센서 보정 인증서를 생성하면 이 설정을 조정할 권한이 없어야 하는 사용자에게 calibrate 탭이 가려집니다. 보정을 자체 인증하는 권한은 사용자 권한에서 활성화해야 합니다. 이 때문에 이 과정은 권한 활성화와 인증서 생성이라는 두 부분으로 구성됩니다.</p>
+<h3>iMonnit Online 계정의 Primary Contact 업데이트 방법</h3><p>iMonnit Online 계정의 Primary Contact는 계정 구독, 크레딧, 서버 이벤트 관련 연락 등 Monnit의 중요한 연락을 받을 수 있습니다. 계정의 Primary Contact를 최신으로 유지하는 것이 중요합니다.</p>
+<h3>iMonnit Online 계정에 사용자 추가</h3><p>iMonnit Premiere 구독이 있으면 iMonnit Online 계정에 여러 사용자를 추가할 수 있습니다(iMonnit Basic은 단일 사용자만 지원). 이 문서는 iMonnit Online 계정에 사용자를 추가하는 단계를 제공합니다.</p>
+<h3>사용자의 Notification 세부 정보 편집 방법</h3><p>각 사용자에게는 Notification 세부 정보를 구성하는 섹션이 있습니다. 여기에는 Email, SMS, 음성 통화의 연락처 세부 정보가 포함됩니다. 이 문서는 Notification 세부 정보를 변경하는 방법을 안내합니다.</p>
+<h3>센서의 Inactivity(비활동) 알림 시간 설정</h3><p>요약 Inactivity Action의 Inactivity 시간은 센서가 실제로 비활동 상태가 아닌데도 알림을 받는 것을 피하는 데 중요한 고려 사항입니다. Inactivity 시간은 iMonnit 소프트웨어가 셉니다.</p>
+<h3>센서의 Action 일시 정지(Pause)</h3><p>요약: 단일 센서의 모든 알림을 일시적으로 또는 무기한 정지하는 방법. 센서 알림은 Monnit 무선 센서를 사용하는 주요 이유 중 하나이지만, 센서로부터 알림 전송을 일시적으로 멈춰야 할 때가 있을 수 있습니다. 그런 경우 아래 지침을 따르십시오: 화면 왼쪽의 기본 탐색 메뉴에서 ‘Sensors’ 옵션을 선택합니다.</p>
+<h3>iMonnit Online에서 센서 또는 게이트웨이 데이터를 CSV 파일로 내보내기</h3><p>Monnit은 로컬 저장을 위해 센서 및 게이트웨이 데이터를 Excel에서 읽을 수 있는 CSV 파일로 다운로드하는 기능을 제공합니다. 이 기능은 제한된 수의 센서 또는 게이트웨이 데이터 레코드를 다운로드해 로컬에 저장하는 기능을 제공하기 위한 것입니다. 참고: !!중요!!</p>
+<h3>iMonnit Online의 센서 설정(Sensor Settings)</h3><p>iMonnit에는 여러 센서에 공통된 센서 설정이 있습니다. 이 문서는 서로 다른 센서 유형 간에 공통된 일부 설정을 다룹니다. 일부 센서에는 해당 센서 유형 고유의 설정이 있다는 점에 유의해야 합니다. 센서 설정 보기 센서 설정을 보려면 아래 단계를 따르십시오. 계정에 로그인합니다.</p>
+<h3>권한 편집(Editing Permissions)</h3><p>iMonnit 센서 포털의 계정이 커지고 변화하면서 사용자가 추가·제거되거나 접근 권한이 바뀌면, 사용자 권한 편집이 매우 중요해집니다. 관리(Administration) 접근 권한이 있는 사용자만 이러한 변경 대부분을 할 수 있으며, 아래 문서는 로그인하여 이 작업을 수행하는 방법을 설명합니다.</p>
+<h3>REST API 및 WebHooks의 시간 형식</h3><p>REST API 요청과 WebHooks에 응답으로 전달되는 모든 데이터셋은 타임스탬프를 UTC로 제공합니다. 따라서 엔드포인트에서 변환을 적용해야 합니다. REST API JSON 요청의 경우 데이터가 epoch 형식으로 제공되므로 파싱해야 합니다. 아래 예시를 참고하십시오.</p>
+<h3>Action 및 센서 일정의 ‘Before and After’ 구성 이해</h3><p>일정을 효과적으로 구현하려면 Action 및 센서 일정의 ‘Before and After’ 선택을 이해하는 것이 핵심입니다. 이 문서는 이 구성이 동작하는 세부 사항을 안내합니다.</p>
+<h3>무선 센서 또는 게이트웨이를 한 네트워크에서 다른 네트워크로 이동 - iMonnit Online Classic View</h3><p>요약: 게이트웨이나 센서를 이동하는 과정은 단순히 기기를 원하는 네트워크에 추가하는 것입니다. 게이트웨이나 센서를 새 네트워크에 추가하면 이전 네트워크에서 자동으로 제거됩니다. 무선 게이트웨이 이동 ‘Overview’ 아래 드롭다운 목록에서 게이트웨이를 이동할 출발 네트워크를 선택합니다.</p>
+<h3>iMonnit Online에서 센서 네트워크 생성</h3><p>센서 네트워크 개요 iMonnit Online에서 네트워크를 생성하면 센서와 게이트웨이를 묶어 기기 간 통신을 허가합니다. 네트워크는 어떤 기기들이 함께 통신하도록 허용할지 정하는 수단입니다. 게이트웨이와 센서가 동일한 네트워크에 추가되면, 게이트웨이가 센서 ID를 다운로드하고 이후 그 센서가 게이트웨이와 통신하도록 허가합니다.</p>
+<h3>iMonnit 하트비트(Heartbeats) 설명</h3><p>하트비트란? Monnit 센서는 하트비트(Heartbeat)라는 정해진 간격으로 데이터를 전송합니다. **하트비트**는 Assessment 중 예외(Aware 상태) 활동이 감지되지 않을 때 센서가 게이트웨이와 측정값을 통신하는 빈도(분)를 가리키는 Monnit 용어입니다.</p>
+<h3>iMonnit HX 작동 방식</h3><p>iMonnit Online에서 사용하는 센서의 표준 최소 하트비트는 10분입니다. 10분 하트비트가 대부분의 사용자에게 충분하지만, Monnit은 일부 고객이 더 잦은 하트비트로 운영해야 할 필요성을 인지하고 있습니다.</p>
+<h3>계정 개요(Account Overview)</h3><p>iMonnit은 제품을 관리하기 위한 클라우드 기반 모바일 인터넷 플랫폼입니다. 센서를 가동하는 첫 단계가 계정 등록이므로 이는 필수적입니다. 편의를 위해 어떤 데스크톱 브라우저나 App으로도 계정을 등록·관리할 수 있습니다. App은 Android와 iOS 기기 모두에서 제공됩니다.</p>
+<h3>서브 계정 개요(Sub-Account Overview)</h3><p>각 고객/거래처의 데이터를 분리·관리하는 가장 효율적인 방법은 메인 계정 아래에 그들의 계정을 직접 생성하는 것입니다. Premiere 가격은 고객이 사용할 센서 수에 기반합니다.</p>
+<h3>iMonnit Online에서 Action의 구성된 일정 밖에서도 계속 알림을 받는 경우</h3><p>iMonnit Online은 Action에 일정을 적용하는 기능을 제공합니다. 이를 통해 하루/주/월의 지정 기간에만 Action 알림을 받을 수 있습니다. Action에 일정이 적용된 경우, Action이 Disarm되지 않으면 Snooze 시간(기본 60분)에 알림이 계속 전송되는 특정 동작이 있습니다.</p>
+<h3>Sensor Reading Action과 Advanced Action의 차이</h3><p>Monnit은 동작이 비슷할 수 있지만 알림 운영 방식을 좌우할 수 있는 핵심적이면서도 미묘한 차이가 있는 두 가지 Action 유형을 제공합니다. 이 문서는 서로 다른 Action 유형과 구현 방법을 이해하도록 이러한 차이를 설명합니다.</p>
+<h3>Action의 Snooze 시간을 0으로 설정하는 경우</h3><p>Action의 Snooze 기능은 Action이 Disarm되지 않으면 정해진 간격으로 반복 알림을 보내게 합니다(Action Disarm에 관한 정보는 ‘Action의 Disarm 및 Rearm’ 참고). 기본 Snooze 시간은 60분입니다.</p>
+<h3>iMonnit Online에서 Action의 Snooze 설정 이해</h3><p>참고: Action과 Notification이라는 용어는 Monnit 용어에서 일반적으로 같은 것을 가리킵니다. Action은 iMonnit Online의 New Look 3.0 보기에서 쓰는 용어이고, Notification은 iMonnit Classic View에서 쓰는 용어입니다.</p>
+<h3>보고서를 생성했는데 다운로드 링크가 웹페이지를 로드하지 않는 경우</h3><p>iMonnit Online에서 보고서를 생성했는데 보고서 다운로드 링크가 웹페이지를 로드하지 않는 경우가 몇 가지 있을 수 있습니다. 원인은 여러 가지일 수 있습니다. 이 문제를 겪으면 아래 문서가 해결에 도움이 될 수 있습니다. 단계 요약: 보고서 이름에 비표준 문자가 없는지 확인합니다.</p>
+<h3>iMonnit Online 페이지 인쇄</h3><p>브라우저에 따라 iMonnit Online 페이지를 인쇄하면 형식이 깨진 결과가 나올 수 있습니다. 이는 브라우저와 그것이 인쇄용으로 페이지를 해석하는 방식의 결과입니다. 일부 브라우저를 해석된 보기 대신 페이지 보기를 인쇄하도록 구성하는 방법이 있습니다. 이는 iMonnit Online에서 차트를 인쇄할 때 유용합니다.</p>
+<h3>iMonnit Online 계정에서 네트워크의 기기 제거 방법</h3><p>iMonnit Online에서 네트워크의 기기를 제거할 수 있습니다. 제거한 기기는 이후 원하면 다른 네트워크에 추가할 수 있습니다. 센서를 제거한 네트워크의 게이트웨이는 네트워크를 Reform하는 것이 좋다는 점을 고려하십시오. 단계 요약 참고: 네트워크에서 기기를 제거하려면 관리자 권한이 필요합니다.</p>
+<h3>국가별 Notification Credit 비용</h3><p>Direct Delivery SMS 기능을 사용할 때(External Delivery와 Direct SMS의 차이에 관한 정보는 여기 참고), Monnit이 SMS 메시지를 전달하는 데 Notification Credit이 차감됩니다. 각 메시지에 차감되는 Notification Credit 수는 메시지가 전달되는 국가에 따라 다릅니다.</p>
+<h3>iMonnit Premiere 구독 추가</h3><p>iMonnit Premiere란? iMonnit Premiere는 무선 센서 네트워크를 위한 12개월 소프트웨어 구독입니다. iMonnit 계정을 iMonnit Premiere로 업그레이드하면 최소한의 연간 비용으로 추가 고급 기능이 더해집니다.</p>
+<h3>iMonnit Online에서 Access Token 생성</h3><p>Access Token이란 Access Token은 고유하게 생성된 영숫자 코드로, 기술 담당자가 지정된 기간(기본 24시간) 동안 iMonnit 계정에 접근할 수 있게 합니다. 문제가 해결되어 더 이상 접근을 허용하고 싶지 않으면 연장하거나 취소할 수 있습니다. 이 토큰은 EU GDPR 준수를 지원합니다.</p>
+<h3>iMonnit 데이터 백업</h3><p>Monnit은 자사 서버에서 정기적인 데이터 백업을 유지합니다. 다음 세부 사항으로 백업을 처리합니다. 전체 백업(Full Backups) 각 데이터베이스의 전체 백업이 주 1회 완료됩니다. 이 파일에는 프로세스 실행 시점의 선택된 데이터베이스의 모든 데이터가 포함됩니다. 이 백업을 데이터 센터에 2주간 로컬 저장합니다.</p>
+<h3>iMonnit 모바일 App 다운로드</h3><p>iMonnit®은 센서와 게이트웨이의 모든 설정을 수정할 수 있는 Monnit의 온라인 인터페이스입니다. 이 사용하기 쉬운 플랫폼은 모바일 앱으로 제공되며 어떤 앱 스토어에서도 다운로드할 수 있어, 언제 어디서나 센서 활동을 볼 수 있습니다.</p>
+<h3>iMonnit Online의 Classic View와 New Look 전환</h3><p>iMonnit Online 포털은 현재 서로 다른 그래픽 사용자 인터페이스를 가진 두 가지 사용자 경험을 제공합니다. New Look 3.0 사이트는 모바일 보기에도 잘 맞는 현대적 디자인을 가집니다. iMonnit Classic View는 Monnit이 원래 설계한 사용자 인터페이스를 제공합니다.</p>
+<h3>iMonnit Online의 네트워크(Networks)</h3><p>센서 네트워크 개요 iMonnit Online의 네트워크는 센서와 게이트웨이를 묶어 기기 간 통신을 허가합니다. 네트워크는 어떤 기기들이 함께 통신하도록 허용할지 정하는 수단입니다. 게이트웨이와 센서가 동일한 네트워크에 추가되면, 게이트웨이가 센서 ID를 다운로드하고 이후 그 센서가 게이트웨이와 통신하도록 허가합니다.</p>
+<h3>냉장 시스템을 위한 iMonnit 고급 Action</h3><p>이 동영상은 iMonnit에서 냉장 시스템의 센서를 위한 고급 Action을 생성하는 과정을 안내합니다. 업데이트: 2020-10-20</p>
+<h3>iMonnit Online 포털에서 사용자의 이메일 알림 비활성화 단계</h3><p>사용자는 iMonnit Online 포털에서 알림(alert) 알림과 System Maintenance 알림 전송을 비활성화할 수 있습니다. 아래 단계로 이를 수행합니다. iMonnit Online 포털의 이메일 수신 거부(Opt Out) 단계는 ‘iMonnit Online의 통신 수신 거부’ 문서를 참고하십시오.</p>
+<h3>iMonnit Online에서 Action 비활성화(Deactivating)</h3><p>여러 이유로 Action 비활성화가 필요할 수 있습니다. 이 문서는 Action을 비활성화하고 이메일 및/또는 전화 알림을 비활성화하는 방법을 안내합니다. 이벤트 비활성화 iMonnit을 엽니다. 기본 탐색 메뉴에서 Actions를 선택합니다. 계정의 모든 Action이 페이지에 표시됩니다.</p>
+<h3>Action을 삭제해야 하는 경우</h3><p>아래 단계는 iMonnit Online 포털에서 Action을 삭제하는 단계를 제공합니다. iMonnit Online 포털에 로그인합니다. 왼쪽 사이드바 기본 메뉴의 Actions 탭을 클릭합니다. 삭제할 Action의 이름을 클릭합니다. Trigger 탭을 클릭합니다. 페이지 오른쪽의 Delete Action 버튼을 클릭합니다.</p>
+<h3>전체 센서 네트워크의 알림 활성화 및 비활성화</h3><p>이 문서는 네트워크의 모든 무선 센서에 대한 이메일·문자 알림을 활성화하거나 비활성화하는 방법을 이해하는 데 도움을 줍니다. iMonnit®에는 iMonnit 시스템에서 이메일·문자 메시지 알림 전송을 시작하거나 중지할 수 있는 전역 기능이 있습니다. 이 기능을 구성하려면 아래 단계를 따르십시오.</p>
+<h3>iMonnit Online의 통신 수신 거부(Opt Out) 단계</h3><p>Monnit은 iMonnit Online 포털을 통해 기기 알림과 유지보수 통신을 전송합니다. 일부 사용자는 iMonnit Online 포털의 모든 통신을 중지하기를 원할 수 있습니다. 그 방법은 이 문서에 있습니다. 참고: 수신 거부는 Report 알림 수신자에서 제거하지는 않습니다.</p>
+<h3>계정 ID(Account ID) 확인</h3><p>요약 모든 iMonnit Online 포털 계정에는 계정을 식별하는 데 참조할 수 있는 고유 Account ID가 있습니다. 이 문서는 Account ID를 확인하는 방법을 설명합니다. Account ID 확인 PC 브라우저에서 해당 계정에 속한 사용자 이름으로 iMonnit Online 포털에 로그인합니다.</p>
+<h3>Notify After Aware Period 알림 작동 방식</h3><p>이 문서는 Notify After Aware Period 알림이 작동하는 방식과 권장 설정을 설명합니다. Notify After Aware Period 서버가 센서로부터 메시지를 받으면 그 센서에 할당된 알림을 찾습니다.</p>
+<h3>iMonnit Online - 기기 ‘not authorized to transfer’</h3><p>iMonnit Online에서 계정에 기기를 추가할 때 ‘Sensor ID: xxxxxx not authorized to transfer’ 오류가 보일 수 있습니다. 이 응답은 기기가 이미 iMonnit Online 포털의 다른 계정에 추가되었음을 나타냅니다.</p>
+<h3>iMonnit Online에서 서브 계정 관리</h3><p>iMonnit Online 포털은 Reseller 권한을 부여받은 계정이 서브 계정 또는 중첩 계정을 생성·관리하는 기능을 제공합니다. 이 권한을 받기 전에 고객은 요청된 reseller 양식을 작성해 영업 담당에게 제출해야 합니다. 양식이 완료되면 Monnit Support에 필요한 권한 부여를 요청할 수 있습니다.</p>
+<h3>Maintenance 알림 내용 편집</h3><p>Monnit은 서버의 예정된 유지보수를 고객에게 알리기 위해 maintenance 알림을 전송합니다. Reseller 계정은 사용자에게 배포되기 전에 이러한 예정 유지보수 공지를 보고 편집할 수 있습니다. 유지보수 공지를 편집하면 사용자에게 더 맞춤화된 메시지를 제공할 수 있습니다.</p>
+<h3>SMS 알림에 사용자 지정 텍스트를 추가하고 기본 텍스트를 완전히 제거하려는 경우</h3><p>기본적으로 Monnit은 SMS 메시지 내용에 트리거 센서 ID, Notification 제목, Network ID를 포함합니다. 기본 내용을 완전히 대체하고 SMS 메시지에 사용자 지정 텍스트만 포함하려면, 이 문서가 그 방법을 자세히 안내합니다.</p>
+<h3>Action Snooze - Jointly vs. Independently</h3><p>요약 이 기능은 알림 snooze 시간과 활성화를 더 세밀하게 제어할 수 있게 합니다. ‘Independently’로 설정하면 여러 센서가 차례로 알림을 보낼 수 있습니다. ‘Jointly’로 설정하면 첫 번째 센서가 알림을 트리거한 후 snooze가 적용됩니다.</p>
+<h3>습도 센서 Offset과 Action 트리거</h3><p>펌웨어 14.x 이상의 Alta 습도 센서는 센서 메모리에 저장되는 보정을 지원합니다. 모든 1세대 습도 센서와 펌웨어 14.x 이전의 Alta 습도 센서는 센서에 저장되는 보정을 지원하지 않습니다. 이런 초기 센서에 적용된 보정은 소프트웨어에 적용되는 Offset만 지원합니다.</p>
+<h3>습도 센서 데이터를 온도와 습도 측정값을 분리해 Excel로 내보내기</h3><p>요약 이 문서는 Excel에서 그래프 작성·분석을 위해 습도와 온도를 2개 셀로 분리하는 방법을 설명합니다. 다음 단계는 Monnit® 습도 센서 데이터를 내보내고 Microsoft Excel에서 스프레드시트를 수정하여 습도와 온도를 별도 값으로 표시하는 과정을 안내합니다. 습도와 온도 데이터를 독립적으로 차트화하려는 경우 유용합니다.</p>
+<h3>Classic View에서 여러 센서 동시 구성</h3><p>이 문서는 같은 유형의 센서를 같은 설정으로 구성하는 방법을 보여 줍니다. 여러 센서를 동시에 구성하여 Monnit 무선 센서 설정을 더 쉽게 할 수 있다는 것을 아셨나요? iMonnit 시스템은 같은 유형의 센서를 동시에 구성할 수 있게 합니다.</p>
+<h3>계정의 Primary Contact가 모든 사용자의 알림을 받기 시작하는 경우</h3><p>iMonnit Premiere는 여러 사용자를 지원하지만 무료 iMonnit Basic 구독은 단일 사용자만 지원합니다. 따라서 iMonnit 구독이 만료되면 계정의 추가 사용자가 비활성화되고, Premiere 구독이 갱신될 때까지 계정의 Primary Contact 사용자만 활성 상태가 됩니다.</p>
+<h3>Action을 트리거할 센서 추가</h3><p>Action이 센서로 트리거되려면 센서가 Action에 할당되어야 합니다. Action이 할당되면 센서가 조건을 트리거할 수 있습니다. 이를 간과하면 센서로 트리거되도록 구성되지 않은 Action을 생성할 수 있습니다. 이 문서는 Action에 트리거 기기가 있는지 확인하는 방법을 보여 줍니다.</p>
+<h3>iMonnit Online의 Charts 및 Min/Max/Average 표시</h3><p>iMonnit Online의 Charts 기능은 개별 데이터 포인트로 생성된 선 그래프 또는 Min/Max/Avg 그래프 선이 있는 집계 데이터로 생성된 선 그래프를 표시할 수 있습니다. 이는 센서 데이터를 검토할 때 강력한 도구가 될 수 있습니다. 7일 미만의 날짜 선택은 개별 데이터 포인트로 생성된 그래프 선을 표시합니다.</p>
+<h3>사용자 지정 Email to SMS 통신사로 Action 전송 구성</h3><p>iMonnit의 Action은 SMS 알림을 받도록 구성된 사용자에게 SMS로 알림을 전달할 수 있습니다. 각 통신사의 Email to SMS 시스템을 활용해 이메일을 SMS로 변환하는 무료 SMS 알림(External Delivery)이 있습니다. iMonnit 시스템에서 이 SMS 기능 사용에는 비용이 없습니다.</p>
+<h3>iMonnit Online에서 날짜 형식 변경</h3><p>iMonnit Online은 사용자 선호에 맞출 수 있는 유연한 플랫폼입니다. 날짜 형식은 지역마다 다를 수 있으므로, 지역에 맞게 날짜 표시를 쉽게 구성할 수 있도록 했습니다. 날짜 형식 변경 파란색 탐색 바에서 Settings를 선택합니다. Account Settings 창 오른쪽 상단의 Preferences를 선택합니다.</p>
+<h3>Action이 트리거되는 동안 센서의 Action 일시 정지</h3><p>센서가 이미 Action을 트리거한 상태에서 그 센서의 Action을 일시 정지하려는 시나리오가 있을 수 있습니다. Action을 트리거한 센서에서 이를 하면 Action이 자동으로 Disarm/Rearm되고, 센서가 더 이상 그 Action을 트리거해 알림을 보내지 않습니다.</p>
+<h3>사용자를 Action 수신자로 구성</h3><p>이미 Action을 생성했는데 다른 사용자를 그 Action의 수신자로 추가해야 하는 경우가 있을 수 있습니다. 이 문서는 그 단계를 제공합니다. 단계 iMonnit Online 포털에 로그인합니다. 원하는 사용자가 생성되었고, 그 사용자의 Notification 세부 정보가 원하는 알림 유형으로 구성되었는지 확인합니다.</p>
+<h3>연결된 계정 접근 시 404 또는 453 오류</h3><p>Linked Account를 활용하는 사용자가 있는 경우, 연결이 시작된 이후 연결된 계정 중 하나가 삭제되었다면 어떤 연결된 계정에 접근하려 할 때 404 또는 453 오류가 발생할 수 있습니다. 해결 이를 해결하려면 Monnit Support에 연락해 끊어진 링크를 제거해야 합니다.</p>
+<h3>iMonnit Online에서 센서 측정값에 메모(Notes) 추가</h3><p>iMonnit Online 포털은 기록된 측정값에 메모를 추가하는 기능을 제공합니다. 이는 센서가 기록한 이벤트에 대한 설명을 추가하거나, 보정 수행을 문서화하거나, 기타 유사한 이벤트에 유용할 수 있습니다. 메모를 생성한 후 사용자는 특정 날짜 범위의 기록된 메모를 내보내는 Report를 보거나 생성할 수 있습니다.</p>
+<h2>온프레미스 소프트웨어</h2>
+<h3>인터넷에 접속되지 않은 서버에서 iMonnit Enterprise를 활성화하는 경우</h3><p>오프라인 활성화 iMonnit Enterprise 소프트웨어는 Enterprise Activation Key를 검증하기 위해 인터넷 연결을 사용합니다. iMonnit Enterprise를 설치하는 서버가 인터넷에 접속할 수 없으면, 서버에 인터넷 연결 없이도 활성화를 완료할 수 있는 오프라인 활성화 절차가 있습니다.</p>
+<h3>iMonnit Enterprise 서버에서 Enterprise Wireless Gateway Server 서비스 실행 확인</h3><p>Enterprise Wireless Gateway Server는 iMonnit Enterprise 서버에서 Windows의 Services.msc 프로그램으로 실행되는 서비스입니다. 이 서버는 게이트웨이가 구성된 포트(기본 포트 3000)로 서버에 데이터를 전송할 때 들어오는 통신을 수신하는 역할을 합니다.</p>
+<h3>iMonnit Enterprise에 기기 추가 시 ‘could not be transferred to a new network’ 오류가 보이는 경우</h3><p>‘[SensorID/GatewayID: xxxxxx] could not be transferred to a new network’ 오류는 iMonnit Enterprise 서버 버전 3.6.2.1 이하에 새 기기를 추가하려 할 때 나타날 수 있습니다. 이 오류는 몇 가지 문제 중 하나를 나타낼 수 있습니다.</p>
+<h3>iMonnit Enterprise 3.6.2.1 이하에서 ‘This installation is expired, contact support to update subscription.’가 보이는 경우</h3><p>iMonnit Enterprise는 Annual 및 Perpetual 라이선스를 모두 제공합니다. Annual 라이선스의 경우 소프트웨어 활성화에 사용한 날짜로부터 1년 후 키가 만료됩니다.</p>
+<h3>Sensor Application ID 이해</h3><p>Sensor Application ID 이해 Monnit은 각 센서 프로파일마다 식별 번호를 할당하며, 이는 모든 Monnit 플랫폼에서 그 센서 유형을 식별하는 데 사용됩니다. 이 식별자는 일반적으로 Application ID 또는 Profile ID라고 하며 10진수 형태입니다.</p>
+<h3>인터넷에 연결되지 않은 상태에서 iMonnit Enterprise 서버에 기기 추가</h3><p>iMonnit Enterprise는 기기를 Enterprise 포털/데이터베이스에 추가할 때 기본적으로 인터넷 연결을 활용해 기기 메타데이터를 자동으로 다운로드합니다.</p>
+<h3>iMonnit Express 4 서비스 시작</h3><p>iMonnit Express 4 소프트웨어는 웹 서버를 운영하며 Windows 서비스를 기반으로 통신을 수신합니다. 서버와 함께 실행되는 소형 웹 서버는 ‘localhost’ 주소로 접근할 수 있는 Kestrel 웹 서버입니다. 이 서비스는 또한 TCP 및 UDP 포트 3000에서 들어오는 게이트웨이 트래픽을 수신합니다.</p>
+<h3>호스트 컴퓨터가 오프라인인 상태에서 iMonnit Express에 센서를 추가해야 하는 경우</h3><p>iMonnit Express 4.0.1(2020년 3월 출시)은 호스트 PC에 인터넷 연결 없이 기기를 추가하는 기능을 제공합니다. 일반적으로 기기를 추가할 때 iMonnit Express는 인터넷에 접속해 센서 메타데이터(센서 유형, 배터리 유형, 펌웨어 버전 등)를 다운로드하여 iMonnit Express 데이터베이스로 전달합니다.</p>
+<h3>iMonnit Express 4.0 사이트를 설치·접근한 후 보안 오류가 보이는 경우</h3><p>iMonnit Express 4.0은 PC에 로컬로 호스팅되는 웹사이트입니다. 따라서 Express 설치 시 포함되는 보안 인증서(Security Certificate)가 없습니다. 그 결과 웹사이트 접근 시 보안 오류가 보일 수 있습니다. 실제 보안 위험은 없지만, 브라우저가 보안 인증서가 없는 사이트를 보안 문제로 해석합니다.</p>
+<h3>iMonnit Express 4와 함께 사용하기 위한 Ethernet 게이트웨이 구성</h3><p>iMonnit Express 4는 iMonnit Online의 대안으로 Monnit 소프트웨어를 로컬에서 운영하는 iMonnit Express 소프트웨어의 현재 버전입니다. Express는 인터넷 연결 없이 독립형 Monnit 서버로 실행됩니다.</p>
+<h3>업그레이드 전 iMonnit Enterprise 백업 생성</h3><p>새 버전으로 업그레이드하기 전에 iMonnit Enterprise 설치를 백업하는 것이 중요합니다. 이 문서는 그 단계를 안내하는 자료를 제공합니다. 단계 요약 사이트 파일 백업을 생성합니다. Enterprise 데이터베이스 백업을 생성합니다. Activation Key를 반드시 기록해 둡니다.</p>
+<h3>iMonnit Enterprise 설치 체크리스트</h3><p>iMonnit Enterprise 사이트 로딩 시 오류가 보이면 다음을 확인하십시오. 설치 전에 이 항목들을 검토하는 것도 좋습니다. Configuration Utility를 관리자 권한으로 실행했는지 확인합니다(마우스 오른쪽 버튼 클릭 &gt; Run as Administrator).</p>
+<h3>iMonnit Express 4에서 새 빈 데이터베이스 생성</h3><p>iMonnit Express 4의 데이터베이스에 문제가 생겨 다시 만들어야 하는 경우가 있을 수 있습니다. 이 문서는 iMonnit Express 4에서 새 빈 데이터베이스를 생성하는 방법을 안내합니다. 단계 요약 Monnit 또는 리셀러로부터 현재 iMonnit Express 4.0 Activation Key를 구매/확보합니다.</p>
+<h3>iMonnit Express 4.0 오프라인 활성화</h3><p>iMonnit Express 4.0은 인터넷 연결 없이 활성화하고 기기를 추가하는 기능을 제공합니다. 이 문서는 이 작업에 필요한 정보를 제공합니다. 참고: 이는 Express 버전 4.0.1 이상에 해당합니다.</p>
+<h3>iMonnit Enterprise - ‘Error 500.19 - Internal Server Error’</h3><p>요약 iMonnit Enterprise를 설치한 후 누락된 Windows Features로 인해 다음 오류가 발생할 수 있습니다. 해결책: 이는 일반적으로 서버에 ASP.NET(또는 기타 필수 기능)이 활성화되지 않은 결과입니다.</p>
+<h3>iMonnit Express 4.0 설치·활성화 후 ERR_TOO_MANY_REDIRECTS(또는 유사) 오류가 보이는 경우</h3><p>iMonnit Express 4.0 소프트웨어를 설치하고 활성화하려 할 때 ERR_TOO_MANY_REDIRECTS 오류가 보일 수 있습니다. 이는 이전 버전의 iMonnit Express용 Activation Key를 사용한 결과일 가능성이 높습니다.</p>
+<h3>Monnit MINE Java Sample Application GUI 시작하기</h3><p>Monnit MINE은 Monnit 게이트웨이·센서를 타사 플랫폼과 연동할 수 있게 하는 독립형 서버입니다. Monnit 기기는 독자 프로토콜로 동작하므로 Monnit 시스템과 직접 연동하려면 Monnit MINE이 필요합니다. MINE은 Monnit 하드웨어의 통신을 수신하고 다른 플랫폼과 연동할 수 있게 하는 ‘미들웨어’ 서버입니다.</p>
+<h3>iMonnit 계정 계층(Account Hierarchy)</h3><p>iMonnit 소프트웨어는 최상위 계정이 계정, 사용자, 기기, 네트워크, 서브 계정(중첩 계정 포함)을 생성·관리·접근할 수 있는 계정 계층을 구현합니다. 이 계층을 이해하는 것은 성공적인 구축 관리에 중요할 수 있습니다. 특히 관리할 서브 계정과 중첩 계정이 있을 때 그렇습니다.</p>
+<h3>iMonnit Express 4.0 서비스가 시작되지 않는 경우</h3><p>iMonnit Express 4 소프트웨어를 설치한 후 iMonnit Express 서비스를 시작하려 할 때 ‘Error 1064: An exception occurred in the service when handling the control request’ 오류가 보일 수 있습니다.</p>
+<h3>Monnit MINE을 AWS와 연동하기</h3><p>이것은 Monnit MINE을 AWS와 연동하기 위한 간단한 ‘How-To’ 가이드입니다. 고지: 이 절차는 AWS에 대한 지식이 있는 소프트웨어 개발자가 완료해야 합니다.</p>
+<h3>Enterprise 완전 제거 방법</h3><p>요약 컴퓨터에서 Enterprise 설치를 완전히 제거하려면 다음 단계를 따르십시오. Enterprise 설치 중 문제가 계속될 때 유용합니다. 전체 재설치를 의도하는 경우에만 이 단계를 따르십시오. 서비스 중지 Windows 키를 누르고 ‘Services’를 입력합니다.</p>
+<h3>iMonnit Enterprise SQL 데이터베이스의 유지보수 요구 사항</h3><p>시간이 지나면 iMonnit Enterprise SQL 데이터베이스에는 유지보수가 필요합니다. 그 유지보수의 정확한 적용은 일반적으로 데이터베이스가 어떻게 사용되는지에 따라 다릅니다. 한 데이터베이스에 최적인 것이 다른 데이터베이스에는 가장 최적이 아닐 수 있습니다. 다만 데이터베이스 유지에 할 수 있는 일반적인 조언이 있습니다.</p>
+<h3>Monnit Enterprise Configuration Utility 외부에서 SQL 데이터베이스 연결 테스트</h3><p>SQL 플랫폼은 데이터베이스 연결을 테스트하는 방법을 제공합니다. 데이터베이스 연결에 문제가 있으면 Enterprise 설치 프로그램 외부에서 테스트하여 자격 증명이 올바른지 확인할 수 있습니다. 테스트 완료는 아래 단계를 참고하십시오.</p>
+<h3>Express 완전 제거 방법</h3><p>단계 서비스 삭제 적절한 권한이 있는 사용자로 Windows에서 Services.msc 프로그램을 실행합니다(Windows 검색에서 ‘services’ 검색). ‘iMonnit Express’ 서비스를 찾아 마우스 오른쪽 버튼으로 클릭하고 Stop을 선택합니다.</p>
+<h3>iMonnit Enterprise 설치가 연결된 SQL 데이터베이스의 자격 증명 변경</h3><p>Enterprise 설치가 데이터를 기록하는 SQL 데이터베이스의 자격 증명을 변경해야 하는 경우가 있을 수 있습니다. 일반적으로 SQL 사용자 자격 증명이 변경되어 Enterprise에서 업데이트해야 하거나, Enterprise가 다른 데이터베이스로 데이터를 보내도록 지정해야 하는 경우입니다.</p>
+<h3>Enterprise 4로 업그레이드 시 고려 사항</h3><p>지원 버전 Enterprise 4로 업그레이드하려면 버전 3.5.0.0 이상이 필요합니다. 3.5.0.0 이전 버전은 iMonnit Enterprise 4.0으로 성공적으로 업데이트할 수 없습니다. 기존 사이트 백업 Enterprise 4로 업그레이드하기 전에 이 문서에 따라 기존 Enterprise 설치를 백업해야 합니다.</p>
+<h3>iMonnit Enterprise 갱신 키 입력</h3><p>iMonnit Enterprise를 센서 10개 Trial 키 또는 센서 50개(Annual) 키로 활성화했다면, 소프트웨어를 재활성화하기 위해 설치 프로그램에 갱신 키를 입력해야 합니다. 이 문서가 그 방법을 안내합니다.</p>
+<h3>게이트웨이가 iMonnit Enterprise와 예기치 않게 통신을 멈추는 경우</h3><p>모든 게이트웨이가 갑자기 iMonnit Enterprise Portal로 데이터 전송을 멈추면, 이 문서의 정보가 문제 식별에 도움이 됩니다. iMonnit Enterprise Portal 검토 가장 먼저 검토할 구성 요소는 iMonnit Enterprise Portal입니다.</p>
+<h3>Sensor Profile별 구성 값</h3><p>각 Sensor Profile에는 고유한 구성 값과 속성이 있습니다. 이 구성들은 센서가 제시하는 측정값에 자주 영향을 주는 센서 동작을 결정합니다. MINE 및 Serial MODBUS Gateway는 이 구성을 수정하는 기능을 제공하지만, Monnit은 이 센서 설정을 구성하는 데 필요한 설명을 명시적으로 제공하지 않습니다.</p>
+<h3>‘Object reference not set to an instance of an object.’ 오류가 보이는 경우</h3><p>‘Object reference not set to an instance of an object.’ 오류는 데이터베이스 문제의 결과입니다. 이 오류를 해결하려면 데이터베이스 문제를 해결해야 합니다.</p>
+<h2>애드온 기기</h2>
+<h3>센서의 하드웨어 오류(Hardware Failure)</h3><p>코인셀 배터리로 동작하는 센서의 경우, 이 측정값은 일반적으로 배터리가 잘못 장착되어 발생합니다. 배터리를 하우징 안으로 더 밀어 넣어야 하며, 배터리 위치가 센서의 데이터 측정 능력을 방해하고 있는 것입니다. 배터리가 내부 회로 기판 가장자리의 원형 포트에 닿아 있을 가능성이 높습니다.</p>
+<h3>게이트웨이 및 Add-On 기기의 Poll Interval</h3><p>Poll Interval은 Control Unit, Local Alert 같은 Add-On 기기의 원하는 동작에 중요한 구성입니다. Polling 과정은 Add-On 기기가 원하는 응답 시간으로 명령이나 입력에 응답할 수 있게 합니다. 고려할 Polling 이벤트는 두 가지입니다.</p>
+<h3>Control Unit의 Default State</h3><p>Monnit Control Unit에는 각 Relay의 정상 동작 상태를 결정하는 Default State 구성이 있습니다. 각 Relay는 Off 또는 On의 Default State를 갖도록 독립적으로 구성할 수 있습니다. Default State란?</p>
+<h3>Control Unit Relay 테스트</h3><p>Control Unit Relay의 열림/닫힘에 문제가 의심되면 멀티미터로 릴레이를 테스트할 수 있습니다. 이 문서는 그 방법에 관한 정보를 제공합니다. LED 표시 확인 각 Control Unit에는 물리적 LED 4개(Relay 1, Relay 2, Radio, Power)가 있습니다.</p>
+<h2>기기 손상</h2>
+<h3>센서 또는 게이트웨이를 수리를 위해 Monnit으로 보내기</h3><p>Monnit은 의도대로 동작하지 않는 제품에 대해 수리 서비스를 제공합니다. Monnit 1년 보증 기간 내 제품의 경우, 손상이나 오용이 감지되지 않으면 Monnit이 수리 또는 교체(동일/유사품 및/또는 재생/신품)를 부담합니다.</p>
+<h3>센서가 Improper Battery Placement를 보고하는 경우</h3><p>Monnit 센서는 배터리가 올바르게 삽입되지 않았거나, 센서 회로에 단락을 일으키는 하드웨어 문제가 있으면 Improper Battery Placement 오류를 보고합니다. 이 오류가 보이면 고려·확인할 사항이 몇 가지 있습니다.</p>
+<h3>센서가 iMonnit Online에서 ‘Short Detected’ 오류를 표시하는 경우</h3><p>Short Detected 오류는 센서 하드웨어가 회로에서 단락을 감지했음을 나타냅니다. 이 문서는 이 오류의 가능한 원인과 해결책을 안내합니다.</p>
+<h3>센서가 No Sensor Detected를 보고하는 경우</h3><p>일부 센서는 센서 프로브에서 측정값을 가져올 수 없을 때 ‘No Sensor Detected’ 오류를 보고합니다. Temperature, Humidity, Thermocouple 등 일부 센서 유형이 이 오류를 보일 수 있습니다.</p>
+<h3>Monnit 보증 약관</h3><p>보증 정보 Monnit의 보증은 당사 사이트에 게시된 약관(Terms)의 13항에서 확인할 수 있습니다.</p>
+<a class="cta" href="/">▶ 전체 인터랙티브 사이트에서 실시간 데이터·문의 보기 — monnit.co.kr</a>
+</main>
+</div>
+<footer class="bot"><div class="wrap">
+<div><a href="/apps/">활용 분야</a><a href="/cases/">고객 사례</a><a href="/products/">제품</a><a href="/faq/">FAQ</a><a href="/knowledgebase/">지식베이스</a><a href="/company/">회사 소개</a><a href="/browse/">전체 콘텐츠</a></div>
+<p style="margin:.6em 0 0">모넷코리아 Monnit Korea — 산업용 무선 IoT 센서 · 원격 모니터링 · AI 예지보전 통합 솔루션. 문의 korea@monnit.com</p>
+</div></footer>
+</body></html>
