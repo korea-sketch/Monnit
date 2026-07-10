@@ -1,0 +1,25 @@
+# Monnit Korea — Netlify 설정
+# 빌드 시 build.js 가 robots.txt / sitemap.xml / llms.txt / llms-full.txt / pages/*.html 를 생성합니다.
+[build]
+  command = "node build.js"
+  publish = "."
+
+# Node 18+ (Function/ESM 없이 순수 CommonJS라 버전 민감도 낮음)
+[build.environment]
+  NODE_VERSION = "20"
+
+# llms.txt 계열은 text/plain 으로 서빙
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
