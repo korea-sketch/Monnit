@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온프레미스 소프트웨어 기술 문서 30건 — Monnit 지식베이스 | Monnit Korea</title>
+<meta name="description" content="Monnit 온프레미스 소프트웨어 설치·설정·문제 해결 기술 문서 30건 전문.">
+<link rel="canonical" href="https://monnit.co.kr/pages/kb-onprem-software.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="온프레미스 소프트웨어 기술 문서 30건 — Monnit 지식베이스 | Monnit Korea">
+<meta property="og:description" content="Monnit 온프레미스 소프트웨어 설치·설정·문제 해결 기술 문서 30건 전문.">
+<meta property="og:url" content="https://monnit.co.kr/pages/kb-onprem-software.html">
+<meta property="og:site_name" content="Monnit Korea">
+<meta name="robots" content="index,follow">
+
+<style>body{font-family:'Pretendard',system-ui,sans-serif;max-width:900px;margin:0 auto;padding:32px 20px;line-height:1.7;color:#1a2130;background:#fff}a{color:#2E5C9A}h1{font-size:30px}h2{font-size:22px;margin-top:36px;border-top:1px solid #e5e8ef;padding-top:24px}h3{font-size:17px;margin:20px 0 4px}.muted{color:#666}.back{display:inline-block;margin-bottom:20px;font-size:14px}nav.crumb{font-size:13px;color:#888;margin-bottom:8px}ul{padding-left:18px}li{margin:6px 0}.card{border:1px solid #e5e8ef;border-radius:10px;padding:16px 18px;margin:12px 0}</style>
+</head>
+<body>
+<nav class="crumb"><a href="https://monnit.co.kr/">Monnit Korea</a> / 온프레미스 소프트웨어 기술 문서 30건</nav>
+<a class="back" href="https://monnit.co.kr/">← 메인으로</a>
+<h1>지식베이스 — 온프레미스 소프트웨어</h1>
+<p class="muted">기술 지식베이스 / 온프레미스 소프트웨어 · 30건</p><h2>인터넷에 접속되지 않은 서버에서 iMonnit Enterprise를 활성화하는 경우</h2><h5>오프라인 활성화</h5>
+<p>iMonnit Enterprise 소프트웨어는 Enterprise Activation Key를 검증하기 위해 인터넷 연결을 사용합니다. iMonnit Enterprise를 설치하는 서버가 인터넷에 접속할 수 없으면, 서버에 인터넷 연결 없이도 활성화를 완료할 수 있는 오프라인 활성화 절차가 있습니다. 이 경우 ‘Unable to verify against the online database’ 메시지가 보입니다. 활성화를 완료할 Offline Manual Key를 생성하려면 다른 기기에서 인터넷 접속이 필요합니다. 이 문서는 그 방법을 안내합니다.</p>
+<h4>단계 요약</h4>
+<ul><li>일반 활성화 절차를 시도합니다.</li><li>Manual Token을 가져옵니다.</li><li>Manual Key를 생성합니다.</li><li>iMonnit Enterprise 설치 프로그램에 Manual Key를 입력해 활성화를 완료합니다.</li></ul>
+<h4>일반 활성화 절차 시도</h4>
+<p>Enterprise Configuration Utility를 실행해 Enterprise를 설치합니다. SQL 데이터베이스 자격 증명을 입력한 후 Enter Key를 클릭합니다. Enterprise Activation Key를 입력하고 Activate를 클릭합니다. 설치 프로그램이 인터넷으로 키를 검증하려 시도합니다. 인터넷 연결이 없으면 ‘Unable to verify key against online database. Contact support at support@monnit.com’ 메시지가 보이고 Offline Activation 프롬프트가 나타납니다.</p>
+<p>참고: 이전 버전의 Enterprise 설치 프로그램을 실행하는 경우에도 이 메시지가 보일 수 있습니다. 이는 검증 서버에 적용된 TLS 암호화 업그레이드의 결과입니다. 이전 설치 프로그램은 TLS 1.1을 사용했고, 현재 Monnit 검증 서버에는 TLS 1.2가 적용되어 있습니다. 따라서 TLS 1.1로 키를 보내는 버전(3.6.2.1 이하)의 설치 프로그램을 실행 중이면 Enterprise를 오프라인으로 수동 활성화해야 합니다.</p>
+<h4>Manual Token 가져오기</h4>
+<p>이 단계에서 Manual Token이 자동으로 생성됩니다. Manual Token 필드의 텍스트를 복사합니다.</p>
+<h4>Manual Key 생성</h4>
+<p><a href="https://www.monnit.com/order/productactivation" rel="noopener" target="_blank">https://www.monnit.com/order/productactivation</a> 웹사이트를 방문해 Manual Token 텍스트를 Product Activation 필드에 입력합니다. OK 버튼을 클릭합니다. 그러면 Manual Key가 생성됩니다. 이 텍스트를 복사합니다.</p>
+<h4>iMonnit Enterprise 설치 프로그램에 Manual Key 입력</h4>
+<p>복사한 Manual Key 텍스트를 Enterprise 설치 프로그램의 Manual Key 필드에 붙여넣고 Manual 버튼을 클릭합니다. 그러면 설치가 검증되고 설치를 계속할 수 있습니다. Manual Key가 수락되면 .ky 파일을 복사해야 한다는 다음 메시지가 보입니다:</p>
+<p>‘you will need to copy the key and put it in the website directory you create after the installation. You will be able to find the key:</p>
+<p>C:/inetpub/wwwroot/Enterprise\Enterprise Server\[Key name].ky’</p>
+<p>이는 키가 성공적으로 적용되었음을 나타냅니다. 메시지를 확인한 뒤(파일을 복사할 필요는 없음) 설치를 계속하면 됩니다.</p>
+<h5>오류</h5>
+<p>오류가 보이면 Monnit Support에 문의해야 할 수 있습니다. <a href="https://www.monnit.com/order/productactivation" rel="noopener" target="_blank">https://www.monnit.com/order/productactivation</a> 사이트에서 Activation Failed 메시지가 보이면 키 재설정을 위해 Monnit Support에 문의해야 할 수 있습니다. 오류가 보이면 사용하려는 Activation Key를 반드시 포함하십시오.</p>
+<p>오프라인 활성화 절차는 인터넷 연결이 없을 때 iMonnit Enterprise 소프트웨어를 활성화할 수 있는 편리한 방법입니다. 이 절차에 문제가 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-11-05</p><h2>iMonnit Enterprise 서버에서 Enterprise Wireless Gateway Server 서비스 실행 확인</h2><p>Enterprise Wireless Gateway Server는 iMonnit Enterprise 서버에서 Windows의 Services.msc 프로그램으로 실행되는 서비스입니다. 이 서버는 게이트웨이가 구성된 포트(기본 포트 3000)로 서버에 데이터를 전송할 때 들어오는 통신을 수신하는 역할을 합니다. 게이트웨이가 iMonnit Enterprise 서버로 데이터를 보내려면 이 서비스가 실행 중이어야 합니다.</p>
+<h4>단계 요약</h4>
+<ul><li>iMonnit Enterprise 서버에 접근합니다.</li><li>적절한 권한이 있는 사용자로 Windows에서 Services.msc 프로그램을 실행합니다(Windows 검색에서 ‘services’를 검색하면 접근 가능).</li><li>서비스 목록에서 Enterprise Wireless Gateway Server를 찾습니다.</li><li>상태가 ‘running’인지 확인합니다.</li><li>상태가 ‘stopped’이면 서비스를 마우스 오른쪽 버튼으로 클릭하고 ‘Start Service’를 선택합니다.</li></ul>
+<p>Communication Check Utility로 게이트웨이의 통신이 수신되고 있는지 확인할 수 있습니다. 관련 정보는 해당 문서의 ‘The Enterprise Wireless Gateway Server’ 섹션에서 확인할 수 있습니다.</p>
+<h5>서비스가 실행되지 않을 때의 증상</h5>
+<p>Enterprise Wireless Server 서비스가 Enterprise 서버에서 실행되지 않으면, 서버에 추가된 모든 게이트웨이와 센서가 통신하지 못합니다. 모든 기기가 서버로 데이터 전송을 멈췄다면 가장 먼저 이것을 확인하십시오.</p>
+<h5>서비스 중지의 가능한 원인</h5>
+<p>서비스 중지의 흔한 원인은 아래와 같습니다.</p>
+<ul><li>Windows 업데이트</li><li>시작 시 실행을 허용하지 않는 권한</li><li>보안 소프트웨어</li></ul>
+<p>업데이트: 2020-09-03</p><h2>iMonnit Enterprise에 기기 추가 시 ‘could not be transferred to a new network’ 오류가 보이는 경우</h2><p>‘[SensorID/GatewayID: xxxxxx] could not be transferred to a new network’ 오류는 iMonnit Enterprise 서버 버전 3.6.2.1 이하에 새 기기를 추가하려 할 때 나타날 수 있습니다. 이 오류는 몇 가지 문제 중 하나를 나타낼 수 있습니다. 이 문서는 이 메시지의 가능한 원인과 해결책을 다룹니다.</p>
+<h4>이 메시지의 가능한 원인</h4>
+<ol><li>Enterprise 서버가 인터넷에 연결되어 있지 않아 기기 메타데이터를 자동으로 가져올 수 없음.</li><li>기기가 이미 Enterprise 데이터베이스에 추가되어 Enterprise 내 다른 네트워크에 이미 추가되어 있음.</li><li>TLS 1.2 암호화 업그레이드로 인해 Enterprise 서버가 기기 메타데이터를 가져오기 위해 보낸 요청이 Monnit의 lookup 서비스에 도달하지 못함.</li></ol>
+<h4>iMonnit Enterprise를 호스팅하는 서버가 인터넷에 접속할 수 없는 경우</h4>
+<p>기본적으로 iMonnit Enterprise 데이터베이스에는 기기 ID가 없으므로 기기를 데이터베이스에 추가해야 합니다. Enterprise는 센서·게이트웨이 ID와 코드를 사용해 중앙 온라인 저장소에서 센서·게이트웨이의 필수 메타데이터를 다운로드할 수 있습니다. 이는 웹 응용 프로그램을 호스팅하는 서버가 인터넷에 접속할 수 있는 경우에만 가능합니다. 게이트웨이와 센서를 데이터베이스에 추가하는 방식은, 데이터베이스에 추가된 후 네트워크 간에 이동하는 방식과 동일합니다. ‘Manage’ 화면에서 ‘Add Gateway/Add Sensor’를 선택하면 Gateway ID/Sensor ID와 코드를 입력하라는 메시지가 표시됩니다. 이 값들은 Monnit 게이트웨이와 센서에 부착된 ID 라벨에 있습니다.</p>
+<h4>iMonnit Enterprise 버전 4 - 기기 수동 추가</h4>
+<p>Enterprise 버전 4에서 오프라인으로 기기를 수동 추가하려면 이 문서를 참고하십시오.</p>
+<h4>레거시 Enterprise - 기기 수동 추가</h4>
+<p>이는 레거시 Enterprise 버전 3.6.2.1 이하에만 해당합니다.</p>
+<p>서버 관리자만 접근할 수 있는 영역이 있으며, 여기서 게이트웨이와 센서를 데이터베이스에 수동으로 추가할 수 있습니다. 이 절차는 서버가 중앙 온라인 데이터베이스에서 정보를 다운로드할 수 없을 때만 수행해야 합니다. 기기를 추가할 계정과 네트워크로 이동합니다. ‘Administration’ 영역의 Network Details 아래에 게이트웨이와 센서를 수동 추가하는 링크가 있습니다. 이 영역에서 게이트웨이와 센서를 서로 다른 계정/네트워크 간에 빠르게 이동할 수도 있습니다.</p>
+<p>기기를 데이터베이스에 수동으로 추가해야 하면 iMonnit 온라인 포털에서 올바른 메타데이터를 조회할 수 있습니다. 인터넷에 연결된 웹 브라우저로 <a href="https://www.imonnit.com/lookup" rel="noopener" target="_blank">https://www.imonnit.com/lookup</a> 에 접속합니다. 센서 또는 게이트웨이 ID와 check-code를 양식에 입력하면 필수 메타데이터를 가져옵니다. 이 정보로 ‘Add new Sensor’ 양식을 작성해 데이터베이스에 기기를 채웁니다. 센서가 데이터베이스에 입력되면 사용자는 기기 라벨의 기기 ID와 코드로 계정 간에 기기를 이동할 수 있습니다.</p>
+<p>새 게이트웨이를 데이터베이스에 추가하려면:</p>
+<ul><li>‘Add New Gateway’를 선택합니다.</li><li>게이트웨이 스티커의 게이트웨이 ID를 입력합니다.</li><li>게이트웨이 이름을 지정합니다.</li><li>올바른 게이트웨이 유형을 선택합니다.</li><li>올바른 radio band를 선택합니다(관리 용도 전용).</li><li>올바른 APN Firmware Version을 입력합니다(관리 용도 전용).</li><li>올바른 Gateway Firmware Version을 입력합니다(관리 용도 전용).</li><li>MAC Address(필수 아님)는 네트워크에서 조회하면 입력할 수 있습니다.</li><li>Save를 클릭합니다.</li></ul>
+<p>센서를 데이터베이스에 추가하려면:</p>
+<ul><li>‘Add New Sensor’를 클릭합니다.</li><li>올바른 Sensor Profile을 선택합니다(이 정보를 올바르게 입력하는 것이 동작에 매우 중요).</li><li>센서 하단의 센서 ID를 입력합니다.</li><li>센서 이름을 지정합니다.</li><li>올바른 센서 유형을 선택합니다:</li></ul>
+<p>o Commercial / o Commercial (AA) / o Industrial / o Wi-Fi</p>
+<ul><li>펌웨어 버전을 입력합니다.</li><li>전원 소스를 선택합니다:</li></ul>
+<p>o Commercial (CR2032) / o Commercial (AA) / o Line Power / o Voltage / o Industrial (Tadiran) / o Industrial Solar (Ind Rech) / o Custom (AAA) / o Custom (CR123) / o Wi-Fi (AA)</p>
+<ul><li>Save를 클릭합니다.</li></ul>
+<h4>기기가 이미 네트워크에 추가되어 있는 경우</h4>
+<p>이 메시지는 기기가 이미 데이터베이스에 추가되어 현재 다른 네트워크에 있는 경우에도 나타날 수 있습니다. 이를 판단하려면 아래 단계를 따르십시오.</p>
+<ul><li>서버 관리자로 로그인합니다.</li><li>탐색 바의 Administration 탭을 클릭합니다.</li><li>탐색 바의 Reports 탭을 클릭합니다.</li><li>Device ID 필드에 기기 ID를 입력합니다.</li><li>Submit을 클릭합니다.</li></ul>
+<p>o 기기가 아직 데이터베이스에 추가되지 않았으면 ‘Not Found’ 텍스트가 보입니다.</p>
+<p>o 기기가 데이터베이스에 추가되었으면 Account와 Network 필드에 기기가 추가된 위치가 표시됩니다.</p>
+<h4>TLS 1.2 업그레이드로 인해 Enterprise 서버가 요청을 완료할 수 없는 경우</h4>
+<p>Enterprise 버전 3.6.2.1 이하는 TLS 1.1 지원으로 개발되었습니다. 이 버전들이 출시된 이후 Monnit은 서버 통신 시 사용하는 암호화를 TLS 1.2로 업그레이드했습니다. Enterprise 3.6.2.1 이하는 TLS 1.1로 통신을 시도하므로 이 요청들이 Monnit 서버에 도달하지 못합니다. 따라서 이 문제를 해결하려면 Enterprise 서버에 패치가 필요할 수 있습니다. 패치를 적용하려면 아래 단계를 따르십시오.</p>
+<ol><li>다음 링크에서 Footer.ascx 파일을 다운로드합니다: <a href="http://downloads.imonnit.com/misc/Footer.zip" rel="noopener" target="_blank">http://downloads.imonnit.com/misc/Footer.zip</a> .</li><li>다음 기본 위치의 기존 Footer.ascx 파일을 교체합니다:</li></ol>
+<p>C:\inetpub\wwwroot\Enterprise\Views\Shared\</p>
+<p>참고: 위 위치는 기본 위치입니다. 서버가 다른 디렉터리에 설치되었으면 해당 위치로 파일을 복사하십시오.</p>
+<p>업데이트: 2020-12-02</p><h2>iMonnit Enterprise 3.6.2.1 이하에서 ‘This installation is expired, contact support to update subscription.’가 보이는 경우</h2><p>iMonnit Enterprise는 Annual 및 Perpetual 라이선스를 모두 제공합니다. Annual 라이선스의 경우 소프트웨어 활성화에 사용한 날짜로부터 1년 후 키가 만료됩니다. 이 경우 설치 상단에 ‘This installation is expired, contact support to update subscription.’ 배너가 보입니다. 이를 해결하려면 새 annual 키를 Enterprise 설치에 적용해야 합니다.</p>
+<h4>증상</h4>
+<p>체험 만료를 나타내는 배너 외에도, 계정의 게이트웨이가 더 이상 통신하지 않는 것을 볼 수 있습니다. 이는 키 만료로 Enterprise Wireless Gateway Server 서비스가 중지된 결과입니다. Enterprise Wireless Gateway Server를 실행하려면 소프트웨어를 재활성화해야 합니다.</p>
+<h4>Enterprise 센서 10개 Trial</h4>
+<p>센서 10개 Enterprise 라이선스는 갱신할 수 없습니다. Enterprise Trial 키를 60일간 사용한 후 이 메시지가 보이면 정식 라이선스를 구매해야 합니다.</p>
+<h4>갱신 키 구매</h4>
+<p>Enterprise Annual License 제품 페이지를 방문해 사이트에서 키를 구매할 수 있습니다. 교체 키를 받으면 아래 단계로 새 키를 입력할 수 있습니다.</p>
+<ul><li>Enterprise Wireless Configuration Utility를 실행합니다.</li><li>Update Key 버튼을 선택합니다.</li><li>Activation Key를 입력합니다.</li><li>Activate를 클릭합니다.</li></ul>
+<p>이렇게 하면 Enterprise Activation Key가 1년 더 갱신됩니다.</p>
+<h4>센서 250개 perpetual 라이선스에서 이 메시지가 보이는 경우</h4>
+<p>레거시 버전의 Enterprise(버전 3.6.2.1 이하)를 실행 중이면 perpetual 250 센서 라이선스를 적용했더라도 이 메시지가 보일 수 있습니다. 이를 해결하려면 Enterprise 버전을 최신 버전 4로 업그레이드해야 합니다.</p>
+<p>업그레이드가 옵션이 아닌 경우 해결 방법이 있을 수 있습니다. Support가 최선의 지원을 제공하지만, 이 해결이 성공하지 못하면 Support는 최신 버전 업그레이드를 해결책으로 제안할 것입니다.</p>
+<p>먼저 Enterprise Activation Key를 support@monnit.com 으로 제공해야 합니다. 일반적으로 Enterprise Configuration Utility를 실행하고 Update Key 버튼을 클릭하면 Activation Key 필드에 자동으로 채워집니다. 없으면 키를 구매한 주문 번호를 제공해야 합니다. Monnit Support가 재활성화를 위해 키를 재설정합니다. 아래 단계를 참고하십시오.</p>
+<ul><li>Enterprise Configuration Utility를 실행합니다.</li><li>Update Key 버튼을 클릭합니다.</li><li>전체 Activation Key를 복사합니다.</li><li>키를 support@monnit.com 으로 이메일 보냅니다.</li><li>Support가 키를 재설정하고 완료 확인을 제공합니다.</li><li>Enterprise Configuration Utility를 실행합니다.</li><li>Update Key를 클릭합니다.</li><li>Activation Key를 입력합니다.</li><li>Activate를 클릭하면 키가 업데이트됩니다(오프라인 활성화가 필요할 수 있음).</li><li>Enterprise Wireless Gateway Server 서비스를 중지했다가 시작합니다.</li></ul>
+<p>이렇게 하면 소프트웨어가 재활성화되고 게이트웨이가 다시 통신할 수 있습니다.</p>
+<p>성공하지 못한 경우:</p>
+<p>위 단계로 게이트웨이가 다시 통신을 시작하지 않으면, 이 문서에 설명된 Communication Check Utility로 Enterprise Wireless Gateway Server를 테스트하십시오.</p>
+<p>문제가 지속되면 Enterprise 디렉터리의 .ky 파일을 Monnit Support로 보내야 합니다. 아래 단계를 참고하십시오.</p>
+<ul><li>Enterprise 서버의 다음 디렉터리로 이동합니다: C:\inetpub\wwwroot\Enterprise</li><li>이 디렉터리에서 .ky 파일을 찾습니다(보통 ‘TUFURU8tREVTS1RPUA.ky’와 유사한 이름).</li><li>이 파일을 검토를 위해 support@monnit.com 으로 보냅니다.</li><li>Monnit Support가 기존 .ky 파일을 교체할 수정된 .ky 파일을 제공합니다.</li><li>다음 두 디렉터리로 이동해 기존 .ky 파일을 삭제합니다: C:\inetpub\wwwroot\Enterprise\ 와 C:\inetpub\wwwroot\Enterprise\Enterprise Server\</li><li>이전 단계의 두 디렉터리에 Monnit Support가 제공한 .ky 파일을 복사합니다.</li><li>IIS에서 웹사이트를 중지했다가 시작합니다.</li><li>Enterprise Wireless Gateway Server 서비스를 중지했다가 시작합니다.</li><li>IIS에서 웹사이트를 시작합니다.</li></ul>
+<p>문제가 지속되면 추가 지원을 위해 support@monnit.com 으로 문의하십시오.</p>
+<p>업데이트: 2020-12-14</p><h2>Sensor Application ID 이해</h2><h4>Sensor Application ID 이해</h4>
+<p>Monnit은 각 센서 프로파일마다 식별 번호를 할당하며, 이는 모든 Monnit 플랫폼에서 그 센서 유형을 식별하는 데 사용됩니다. 이 식별자는 일반적으로 Application ID 또는 Profile ID라고 하며 10진수 형태입니다. 이 ID는 여러 API(REST, WebHooks, MINE 등)를 통해 Monnit 플랫폼과 연동할 때 중요합니다. Application ID 목록은 아래에 나열되어 있습니다.</p>
+<p>마지막 업데이트 2020-02-06</p>
+<p>Application ID:</p>
+<p>1 - Analog Voltage / 2 - Temperature / 3 - Dry Contact / 4 - Water / 5 - Activity / 6 - Magnetic Presence / 9 - Open / Closed / 11 - Button / 12 - Control 1 / 13 - Local Alert / 15 - Accelerometer P1 / 16 - Accelerometer P3 / 19 - Activity P2 / 20 - Accelerometer P2 / 21 - Lux / 22 - 0-20mA Current / 23 - PIR Motion / 24 - Flex / 26 - Liquid Level 8 / 27 - Light Presence / 28 - Compass / 30 - Humidity GPP / 32 - 500V Meter / 33 - Vehicle Presence / 34 - CO Gas / 35 - High Temperature / 36 - Liquid Level 24 / 39 - Vehicle Detector / 40 - Vehicle Speed / 42 - Activity Timer / 43 - Humidity / 44 - Serial Data Bridge / 45 - Smart Ranger / 46 - Low Temperature / 47 - Multi Pulse Counter / 48 - Pulse Counter / 51 - Seat / 52 - Air Flow / 55 - Power CT1MA / 59 - Battery Health / 64 - AC Voltage Detection / 65 - Water Temperature / 66 - Asset / 67 - Ultrasonic Ranger / 69 - Dual Input Pulse Counter / 70 - Resistance / 71 - DC Voltage Detection / 72 - 0-5V Measure / 73 - Filtered Pulse Counter / 74 - 0-10V Measure / 75 - Tilt / 76 - Basic Control / 77 - Grid Eye / 78 - Water Area Sensor / 79 - Pressure 50 PSI / 82 - Pressure 300 PSI / 83 - Pressure Custom / 84 - Duct Temperature / 85 - Short Range Asset / 86 - Thermocouple / 89 - M1 Current Transducer / 90 - Filtered Pulse Counter 64 bit / 91 - Motion Temp / 92 - Quad Temperature / 93 - Current Meter 20 Amp / 94 - Current Meter 150 Amp / 95 - Vibration Meter / 97 - Thermostat / 99 - Resistance Delta / 100 - QTIP Temperature / 101 - PIR - Alta / 102 - Air Quality / 103 - Differential Pressure / 104 - Vibration800 / 105 - UltrasonicRangerIndustrial / 106 - CO2 Meter / 107 - LightSensor / 108 - ThreePhasePowerMeter / 109 - ThreePhaseCurrentMeter / 110 - DwellTime / 111 - Advanced Vibration / 113 - Voltage Meter - 200 VDC / 114 - AirSpeed / 116 - CO Meter / 117 - AssetLocationRepeater / 118 - AssetLocationTag / 119 - Vehicle Counter-Detection / 120 - Current Meter 500 Amp / 121 - Quartzdyne Pressure / 122 - Voltage Meter - 500 VAC / 123 - Voltage Detection - 200 VDC / 124 - Propane Tank Monitor / 126 - G-force - Max &amp; Avg / 127 - Quad Contact / 128 - Handheld Food Probe / 129 - ThreePhaseCurrentMeter500 / 130 - Tilt Detection</p>
+<p>업데이트: 2020-03-09</p><h2>인터넷에 연결되지 않은 상태에서 iMonnit Enterprise 서버에 기기 추가</h2><p>iMonnit Enterprise는 기기를 Enterprise 포털/데이터베이스에 추가할 때 기본적으로 인터넷 연결을 활용해 기기 메타데이터를 자동으로 다운로드합니다. 인터넷 연결이 없으면 기기 추가 시 ‘SensorID: xxxx not authorized to transfer’ 메시지, 404 오류, 또는 ‘Server Error in '/' Application. The remote name could not be resolved: 'www.imonnit.com'’이 보입니다. 기기를 수동으로 추가해야 합니다. 수동 추가 절차는 인터넷을 통해 iMonnit.com 온라인 센서 포털에 기기를 추가한 뒤, 모든 센서 메타데이터를 담은 XML 파일을 다운로드하고, 그 파일을 Enterprise 서버로 전송한 다음 서버에 업로드하는 것입니다. 이 문서는 이 작업을 수행하는 단계를 제공합니다.</p>
+<p>참고: 이 오류는 레거시 버전의 Enterprise에서는 다릅니다. 4.0 이전 버전은 다음 문서를 참고하십시오: iMonnit Enterprise - 기기 추가 시 ‘could not be transferred to a new network’.</p>
+<h4>Sensor Network의 모든 기기 ID를 XML 파일로 다운로드</h4>
+<p>인터넷 연결이 없을 때 기기를 Enterprise에 추가하려면, iMonnit Online에서 네트워크 내 모든 기기를 담은 XML 파일을 생성한 뒤 그 파일을 Enterprise 포털로 가져오면 됩니다. 이 XML 파일은 선택한 네트워크의 모든 기기 메타데이터를 담으므로, 그 네트워크에 Enterprise에 둘 기기만 있도록 하십시오.</p>
+<p>1부 – XML 파일 생성</p>
+<p>나중에 Enterprise로 가져올 네트워크의 모든 기기를 담은 XML을 생성합니다. 이 부분은 모두 iMonnit Online(www.imonnit.com)에서 수행합니다.</p>
+<ol><li>인터넷이 되는 컴퓨터를 찾습니다.</li><li>iMonnit Online(www.imonnit.com)에 로그인합니다.</li><li>(선택) 새 네트워크를 생성합니다.</li></ol>
+<ul><li>화면 왼쪽의 networks 탭을 선택합니다.</li><li>오른쪽 상단의 ‘+ New Network’ 버튼을 선택합니다.</li><li>네트워크 이름을 지정합니다.</li><li>Save를 선택합니다.</li></ul>
+<ol><li>원하는 네트워크에 기기를 추가합니다.</li></ol>
+<ul><li>네트워크를 선택합니다.</li><li>화면 오른쪽의 ‘Add Device to Network +’ 버튼을 선택합니다.</li><li>기기를 추가할 네트워크를 선택합니다.</li><li>‘Add One Device’ 버튼을 선택합니다.</li><li>각 박스에 기기 ID와 코드를 입력합니다.</li><li>Add Device를 선택합니다.</li><li>추가할 각 기기에 대해 이 과정을 반복합니다.</li></ul>
+<ol><li>모든 기기를 원하는 네트워크에 추가한 후 전체 네트워크와 기기의 메타데이터를 다운로드합니다.</li></ol>
+<ul><li>네트워크를 클릭합니다.</li><li>네트워크의 첫 세부 정보 아래 ‘Device Xml Download’ 링크를 클릭합니다.</li></ul>
+<p>2부 – XML 파일을 Enterprise로 가져오기</p>
+<p>참고: 기기를 Enterprise로 가져오는 데 필요한 모든 메타데이터가 XML 파일에 있으므로, 선호하는 방식으로 파일을 서버로 전송하면 됩니다.</p>
+<ol><li>Enterprise 포털로 가서 최상위 Admin으로 로그인합니다.</li><li>화면 왼쪽의 ‘Networks’를 클릭합니다.</li><li>네트워크를 생성하거나 기존 네트워크를 선택합니다.</li><li>‘Add Device to Network +’ 버튼을 클릭합니다.</li><li>오른쪽 상단에서 ‘Manual Upload’를 선택합니다.</li><li>XML 파일을 업로드합니다.</li></ol>
+<ul><li>기기를 추가할 네트워크를 선택합니다.</li><li>choose file을 선택합니다.</li><li>앞서 생성한 XML 파일을 찾습니다.</li><li>파일을 선택하고 Open을 누릅니다.</li><li>파란색 ‘Upload’ 버튼을 클릭합니다.</li></ul>
+<ol><li>Done을 선택합니다.</li></ol>
+<p>오프라인 Enterprise에 기기를 수동으로 추가하는 과정에는 iMonnit Online 포털 사용이 필요합니다. 관련 질문이 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-12-02</p><h2>iMonnit Express 4 서비스 시작</h2><p>iMonnit Express 4 소프트웨어는 웹 서버를 운영하며 Windows 서비스를 기반으로 통신을 수신합니다. 서버와 함께 실행되는 소형 웹 서버는 ‘localhost’ 주소로 접근할 수 있는 Kestrel 웹 서버입니다. 이 서비스는 또한 TCP 및 UDP 포트 3000에서 들어오는 게이트웨이 트래픽을 수신합니다. 따라서 서비스가 실행되려면 TCP 포트 80(HTTP), 443(HTTPS), TCP/UDP 3000(게이트웨이 트래픽)이 열려 사용 가능해야 합니다. 또한 IIS에 별도로 호스팅된 웹사이트가 없어야 합니다.</p>
+<h4>단계 요약</h4>
+<ol><li>Windows에서 Services.msc 프로그램을 실행합니다(관리자 권한 필요).</li></ol>
+<ul><li>Windows 검색을 클릭하고 ‘services’를 입력한 뒤 ‘Services’의 톱니바퀴 아이콘을 클릭합니다.</li></ul>
+<p>(또는 Windows 키 + R을 누르고 services.msc를 입력한 뒤 Return을 누릅니다.)</p>
+<ol><li>목록에서 iMonnit Express 서비스를 찾습니다.</li><li>서비스를 마우스 오른쪽 버튼으로 클릭합니다.</li><li>Start 옵션을 선택합니다.</li></ol>
+<p>업데이트: 2020-04-13</p><h2>호스트 컴퓨터가 오프라인인 상태에서 iMonnit Express에 센서를 추가해야 하는 경우</h2><p>iMonnit Express 4.0.1(2020년 3월 출시)은 호스트 PC에 인터넷 연결 없이 기기를 추가하는 기능을 제공합니다. 일반적으로 기기를 추가할 때 iMonnit Express는 인터넷에 접속해 센서 메타데이터(센서 유형, 배터리 유형, 펌웨어 버전 등)를 다운로드하여 iMonnit Express 데이터베이스로 전달합니다. 이 메타데이터는 센서 동작에 필수입니다. Enterprise 호스트 PC에 인터넷 연결이 없으면(또는 보안이 요청을 막으면) 센서 추가 시 오류가 보일 수 있습니다. 이 문서는 호스트 PC가 인터넷에 연결되지 않은 상태에서 센서를 추가하는 방법을 안내합니다.</p>
+<h4>인터넷 연결 없이 Express 4.0 이상에 센서를 추가할 때의 오류</h4>
+<p>서버가 인터넷에 연결되지 않은 상태에서 iMonnit Express 소프트웨어에 센서를 추가하려 하면 다음 오류가 보입니다. 이 경우 다음 단계에 설명된 센서 수동 추가 방법을 사용해야 합니다.</p>
+<p>An error occurred while processing your request. Request ID: XXXXXXXXXXXXXXXXXXXXXX (Development Mode 관련 메시지 - Development 환경으로 전환하면 발생한 오류에 대한 더 자세한 정보가 표시됨. 배포된 응용 프로그램에서는 Development 환경을 활성화하면 안 되며, 예외에서 민감한 정보가 최종 사용자에게 표시될 수 있음. 로컬 디버깅 시 ASPNETCORE_ENVIRONMENT 환경 변수를 Development로 설정하고 앱을 재시작하여 Development 환경을 활성화함.)</p>
+<h4>오프라인으로 센서 추가</h4>
+<p>iMonnit Online에서 기기 XML 파일 가져오기:</p>
+<p>참고: 이 과정에는 인터넷에 연결된 컴퓨터가 필요하지만, iMonnit Express 소프트웨어를 호스팅하는 PC와 같을 필요는 없습니다. 인터넷에 연결된 다른 PC에서 이 과정을 완료하고 XML 파일을 Express 호스트 PC로 전송하여 센서를 추가할 수 있습니다.</p>
+<p>Manual Device Upload 과정을 완료하려면 먼저 iMonnit Online 계정에 기기를 추가해야 합니다. 계정 생성 및 기기 추가는 다음 문서를 참고하십시오: iMonnit Online 계정 생성. 계정을 만들고 기기를 추가한 후, iMonnit Express 소프트웨어로 기기를 업로드하는 데 사용할 XML 파일을 다운로드할 수 있습니다.</p>
+<p>기기 목록 XML을 다운로드하려면:</p>
+<ol><li>iMonnit.com 온라인 센서 포털에 로그인합니다.</li><li>페이지 왼쪽 하단의 Networks 탭을 클릭합니다.</li><li>센서를 추가한 네트워크를 클릭합니다.</li><li>Device XML Download 링크를 클릭합니다.</li><li>iMonnit Express를 호스팅하는 PC에서 접근할 수 있는 방식으로 XML 파일을 저장합니다.</li></ol>
+<p>XML 파일로 iMonnit Express에 센서 업로드:</p>
+<ol><li>브라우저로 iMonnit Express 페이지에 로그인합니다.</li><li>페이지 왼쪽의 Sensors 탭을 클릭합니다.</li><li>페이지 오른쪽 상단의 + Add Sensor 버튼을 클릭합니다.</li><li>나타나는 오버레이에서 녹색 Manual Device Upload 버튼을 클릭합니다.</li><li>나타나는 Choose File 버튼을 클릭합니다.</li><li>앞서 저장한 XML 파일로 이동해 Choose를 클릭합니다.</li><li>센서가 iMonnit Express 네트워크에 추가됩니다.</li></ol>
+<p>업데이트: 2020-04-06</p><h2>iMonnit Express 4.0 사이트를 설치·접근한 후 보안 오류가 보이는 경우</h2><p>iMonnit Express 4.0은 PC에 로컬로 호스팅되는 웹사이트입니다. 따라서 Express 설치 시 포함되는 보안 인증서(Security Certificate)가 없습니다. 그 결과 웹사이트 접근 시 보안 오류가 보일 수 있습니다. 실제 보안 위험은 없지만, 브라우저가 보안 인증서가 없는 사이트를 보안 문제로 해석합니다. 따라서 보안 오류가 보이더라도 그대로 웹사이트를 보도록 선택할 수 있습니다.</p>
+<h4>Chrome 및 Edge</h4>
+<p>Chrome에서는 다음 오류가 보일 수 있습니다:</p>
+<p>connection isn't private - 공격자가 localhost에서 정보(비밀번호, 메시지, 신용카드 등)를 훔치려 할 수 있음. NET::ERR_CERT_AUTHORITY_INVALID</p>
+<h4>FireFox</h4>
+<p>FireFox에서는 다음 오류가 보일 수 있습니다:</p>
+<p>Potential Security Risk Ahead - Firefox가 잠재적 보안 위협을 감지해 localhost로 계속하지 않음. 이 사이트를 방문하면 공격자가 비밀번호·이메일·신용카드 정보를 훔치려 할 수 있음.</p>
+<p>이를 해결하려면 Advanced 버튼을 클릭한 뒤 Accept the Risk and Continue 버튼을 클릭합니다.</p>
+<h4>Internet Explorer</h4>
+<p>Internet Explorer에서는 다음 오류가 보일 수 있습니다:</p>
+<p>site is not secure - 누군가 당신을 속이거나 서버로 보내는 정보를 훔치려 할 수 있음. 이 사이트를 즉시 닫아야 함.</p>
+<p>이를 해결하려면 ‘More Information’을 클릭한 뒤 ‘Go on to webpage (not recommended)’를 클릭합니다.</p>
+<p>업데이트: 2020-04-06</p><h2>iMonnit Express 4와 함께 사용하기 위한 Ethernet 게이트웨이 구성</h2><p>iMonnit Express 4는 iMonnit Online의 대안으로 Monnit 소프트웨어를 로컬에서 운영하는 iMonnit Express 소프트웨어의 현재 버전입니다. Express는 인터넷 연결 없이 독립형 Monnit 서버로 실행됩니다. 이 시스템은 고객이 소규모 센서 네트워크를 관리하고 데이터를 로컬에 저장하는 간단하고 효과적인 방법을 제공하도록 설계되었습니다. 이 버전의 iMonnit Express는 여러 게이트웨이와 센서를 지원하며, 센서 임계값이 충족·초과되면 이메일로 알림을 보낼 수 있습니다.(이메일 알림 전송에는 인터넷 연결이 필요합니다.)</p>
+<h4>시스템 요구 사항/사양</h4>
+<p>Windows OS / 사용 가능 RAM 2GB / 지원 알림: 이메일 알림만(인터넷 연결 필요) / 최소 하트비트(센서 체크인): 1초 / 지원 센서 네트워크 수: 1 / 지원 센서 수: (라이선스에 따라) / 지원 게이트웨이 수: 다수 / 지원 사용자 수: 다수 / 센서 데이터 기록: 센서당 5,000개 데이터 포인트</p>
+<h4>요약</h4>
+<p>Ethernet 게이트웨이는 외부 인터넷 연결 없이 컴퓨터에서 무선 센서를 로컬로 모니터링하는 데 사용할 수 있습니다. PC 응용 프로그램과 Ethernet 게이트웨이를 사용하려면 게이트웨이와 PC가 같은 네트워크에 연결되어 있는지 확인하고, 게이트웨이가 인터넷을 사용하는 대신 컴퓨터 소프트웨어로 직접 데이터를 보내도록 구성해야 합니다. 이를 위해 다음이 필요합니다:</p>
+<ul><li>Monnit Ethernet 게이트웨이</li><li>Monnit 센서</li><li>설치된 iMonnit Express 4 소프트웨어</li><li>게이트웨이가 Express를 실행하는 PC에 연결할 수 있는 Ethernet 네트워크</li><li>Gateway Unlock Code</li></ul>
+<h4>iMonnit Express 설치</h4>
+<p>Quick Start Guide는 다음 링크의 문서를 참고하십시오: <a href="https://monnit.blob.core.windows.net/content/documents/quickstart/AQS-009-iMonnit-Express-Core.pdf" rel="noopener" target="_blank">https://monnit.blob.core.windows.net/content/documents/quickstart/AQS-009-iMonnit-Express-Core.pdf</a></p>
+<p>먼저 iMonnit Express 소프트웨어를 설치해야 합니다. iMonnit Express 4는 레거시 버전과 달리 사용자가 웹 브라우저를 통해 소프트웨어와 상호작용합니다. Express는 PC에 로컬로 호스팅되는 웹사이트입니다. 경험은 로컬로 호스팅된 iMonnit Online을 사용하는 것과 유사합니다.</p>
+<ol><li>다음 링크에서 iMonnit Express 4 설치 프로그램을 다운로드합니다: <a href="https://www.monnit.com/support/downloads/" rel="noopener" target="_blank">https://www.monnit.com/support/downloads/</a> (iMonnit™ Express &gt; iMonnit Express™ (Windows Installer)).</li><li>iMonnit Express 설치 프로그램을 실행하고 화면 안내를 따릅니다(필요하면 마우스 오른쪽 버튼 클릭 후 Run as Administrator 선택).</li><li>!!중요!! 컴퓨터를 재시작합니다.</li><li>바탕화면에서 iMonnit Express 프로그램을 실행합니다(브라우저가 실행되어 localhost 사이트로 이동).</li><li>구매 시 받은 코드로 Express 소프트웨어를 활성화합니다.</li><li>이메일 주소와 고유 비밀번호로 사용자 이름을 만듭니다. 조합을 다시 입력해 iMonnit Express Core에 로그인합니다.</li><li>게이트웨이와 센서를 iMonnit Express에 추가합니다.</li></ol>
+<h4>게이트웨이를 Unlock하고 iMonnit Express로 Point</h4>
+<p>iMonnit Express 같은 로컬 버전의 iMonnit 소프트웨어와 Monnit 게이트웨이를 사용하려면 게이트웨이를 Unlock Code로 Unlock해야 합니다. Unlock되면 게이트웨이를 로컬 iMonnit Express 소프트웨어로 데이터를 보내는 데 사용할 수 있습니다. 이 과정에 관한 정보는 다음 문서를 참고하십시오: 게이트웨이를 사용자 지정 호스트/IP로 Unlock 및 Point(Enterprise/Express/MINE).</p>
+<p>참고: 게이트웨이를 이미 Unlock된 상태로 구매하지 않았다면, Unlock을 위해 게이트웨이가 인터넷을 통해 iMonnit Online 포털에 연결해야 합니다.</p>
+<h4>게이트웨이를 iMonnit Express 소프트웨어에 연결</h4>
+<p>게이트웨이가 iMonnit Express 소프트웨어로 데이터를 보내려면, 로컬 네트워크에서 TCP 포트 3000을 통해 iMonnit Express를 실행하는 PC와 통신해야 합니다. 이 통신을 허용하도록 네트워크 방화벽이나 PC를 구성해야 할 수 있습니다. 이를 한 후, 게이트웨이가 Express를 실행하는 PC로 데이터를 보내도록 구성할 수 있습니다. 이는 다음 문서에서 참조하는 HTTP Interface(로컬 구성 페이지)로 수행할 수 있습니다: Ethernet Gateway 4 - 로컬 구성 페이지(HTTP Interface) 로컬 접근.</p>
+<p>게이트웨이가 (위에서 언급한 대로) Unlock되어 있으면, Data Interfaces &gt; Default Server Configuration 탭에서 iMonnit Express를 실행하는 PC의 IP 주소를 입력하고 Save를 클릭합니다. 게이트웨이가 재부팅되고 iMonnit Express로 데이터를 보내기 시작합니다.</p>
+<p>iMonnit Express는 데이터를 로컬에 호스팅해야 하고 iMonnit Online보다 잦은 하트비트가 필요한 사용자에게 좋은 옵션입니다. 추가 문의가 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-01-29</p><h2>업그레이드 전 iMonnit Enterprise 백업 생성</h2><p>새 버전으로 업그레이드하기 전에 iMonnit Enterprise 설치를 백업하는 것이 중요합니다. 이 문서는 그 단계를 안내하는 자료를 제공합니다.</p>
+<h4>단계 요약</h4>
+<ol><li>사이트 파일 백업을 생성합니다.</li><li>Enterprise 데이터베이스 백업을 생성합니다.</li><li>Activation Key를 반드시 기록해 둡니다.</li></ol>
+<h4>사이트 파일 백업</h4>
+<p>사이트 파일의 .zip 파일을 생성합니다.</p>
+<ul><li>C:\inetpub\wwwroot\ 로 이동합니다.</li><li>Enterprise 폴더를 마우스 오른쪽 버튼으로 클릭합니다.</li><li>Send To &gt; Compressed (zipped) Folder를 선택합니다.</li><li>.zip 파일을 안전한 위치에 저장합니다.</li></ul>
+<h4>SQL 데이터베이스 백업</h4>
+<p>SQL 데이터베이스의 백업을 생성합니다.</p>
+<ul><li>SQL Server Management Studio를 실행합니다.</li><li>왼쪽 열의 Object Explorer에서 Server를 펼칩니다.</li><li>Databases를 펼칩니다.</li><li>Enterprise 데이터베이스를 찾습니다.</li><li>데이터베이스를 마우스 오른쪽 버튼으로 클릭하고 Tasks &gt; Backup을 선택합니다.</li><li>대상(destination)을 확인합니다.</li><li>OK를 클릭합니다.</li></ul>
+<p>데이터베이스가 백업되며 필요하면 나중에 복원할 수 있습니다.</p>
+<h4>%appdata% 폴더 백업</h4>
+<p>설치용 구성 파일이 %appdata% 폴더에 있습니다. 이 폴더의 백업을 생성합니다.</p>
+<ul><li>Windows 버튼을 선택해 검색에 접근합니다.</li><li>‘%appdata%’를 입력하고 Return을 누릅니다.</li><li>이 디렉터리에서 ‘Enterprise’ 폴더를 복사합니다(마우스 오른쪽 버튼 클릭 후 Send To &gt; Compressed (zipped) folder로 .zip 파일을 생성할 수 있음).</li></ul>
+<h4>Activation Key 기록</h4>
+<p>키 구매 시 Monnit이 보낸 이메일에서 Activation Key를 가져옵니다. 원본 이메일이 없으면 다음 단계로 Enterprise Configuration Utility에서 가져올 수 있습니다.</p>
+<ul><li>Enterprise Configuration Utility를 실행합니다.</li><li>Update Key 버튼을 클릭합니다.</li><li>현재 키가 Activation Key 필드에 표시될 수 있습니다.</li></ul>
+<p>키를 가져올 수 없으면 주문 번호로 Monnit Support에서 가져올 수 있습니다. 원본 주문 번호를 찾아 support@monnit.com 으로 이메일을 보내면 키를 제공받을 수 있습니다.</p>
+<p>업데이트: 2021-01-19</p><h2>iMonnit Enterprise 설치 체크리스트</h2><p>iMonnit Enterprise 사이트 로딩 시 오류가 보이면 다음을 확인하십시오. 설치 전에 이 항목들을 검토하는 것도 좋습니다.</p>
+<ol><li>Configuration Utility를 관리자 권한으로 실행했는지 확인합니다(마우스 오른쪽 버튼 클릭 &gt; Run as Administrator).</li><li>Enterprise Wireless Gateway Server 서비스가 실행 중인지 확인합니다(이 문서 참고).</li><li>SQL에서 Mix Mode Authentication이 활성화되어 있는지 확인합니다(해당 링크 단계 참고).</li><li>Windows Features(Windows Server에서는 Roles/Features)가 설치되어 있는지 확인합니다(Windows 10 / Windows Server 단계는 각 링크 참고).</li></ol>
+<p>참고: 이 기능들 다수는 Internet Information Services &gt; World Wide Web Services &gt; Application Development Features 아래에 있습니다.</p>
+<ul><li>Internet Information Services &gt; IIS Management Console</li><li>.NET Framework 3.5 (.NET 2.0 및 3.0 포함)</li><li>.NET Framework 3.5</li><li>ASP</li><li>ASP.NET 3.5</li><li>ASP.NET 4.5</li><li>ASP.NET 4.8 (가능한 경우)</li><li>.NET Extensibility 3.5</li><li>.NET Extensibility 4.5</li></ul>
+<ol><li>Windows의 Default Website가 중지되었거나 호스팅이 적절히 구성되었는지 확인합니다(IIS에서 웹사이트 중지 단계는 해당 링크 참고).</li><li>캐시된 사이트가 로드되는 경우를 대비해 브라우저 캐시를 재설정했는지 확인합니다(또는 다른 브라우저 시도). 이는 캐시된 데이터가 로드되지 않도록 확인하는 핵심 단계입니다.</li></ol>
+<p>적절한 권한, 기능, 보안 구성이 갖춰지면 위 항목들을 고려한 한 iMonnit Enterprise 포털을 문제없이 호스팅할 수 있을 것입니다. 추가 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-10-08</p><h2>iMonnit Express 4에서 새 빈 데이터베이스 생성</h2><p>iMonnit Express 4의 데이터베이스에 문제가 생겨 다시 만들어야 하는 경우가 있을 수 있습니다. 이 문서는 iMonnit Express 4에서 새 빈 데이터베이스를 생성하는 방법을 안내합니다.</p>
+<h4>단계 요약</h4>
+<ol><li>Monnit 또는 리셀러로부터 현재 iMonnit Express 4.0 Activation Key를 구매/확보합니다.</li><li>Windows 탐색기로 다음 위치의 파일 이름을 ‘ExpressCore.db.old’로 변경합니다.</li></ol>
+<p>참고: 이를 하려면 관리자 권한이 필요합니다.</p>
+<p>C:\Windows\System32\config\systemprofile\AppData\Roaming\ExpressCore</p>
+<ol><li>컴퓨터를 재시작합니다.</li><li>Windows에서 Services.msc 프로그램을 실행합니다(보통 Windows 검색에서 ‘services’ 검색).</li></ol>
+<p>참고: 이를 하려면 관리자 권한이 필요합니다.</p>
+<ol><li>Windows Services.msc의 iMonnit Express 서비스를 찾아 마우스 오른쪽 버튼으로 클릭하고 Stop을 선택합니다.</li><li>iMonnit Express 서비스를 찾아 마우스 오른쪽 버튼으로 클릭하고 Start를 선택합니다.</li><li>브라우저의 캐시와 쿠키를 지웁니다.</li><li>브라우저에서 ‘localhost’ 사이트를 방문해 봅니다.</li><li>iMonnit Express 활성화를 완료합니다.</li></ol>
+<p>업데이트: 2020-08-11</p><h2>iMonnit Express 4.0 오프라인 활성화</h2><p>iMonnit Express 4.0은 인터넷 연결 없이 활성화하고 기기를 추가하는 기능을 제공합니다. 이 문서는 이 작업에 필요한 정보를 제공합니다.</p>
+<p>참고: 이는 Express 버전 4.0.1 이상에 해당합니다. 4.0 설치 프로그램을 가지고 있다면 이 오프라인 기능이 구현되지 않았으므로, 4.0.1 이상으로 업그레이드하거나 서버가 인터넷에 연결된 상태에서 활성화 및 기기 추가를 완료해야 합니다.</p>
+<h4>단계 요약</h4>
+<ul><li>다음 링크에서 iMonnit Express 4.0.1을 다운로드해 설치합니다: <a href="https://monnit.azureedge.net/content/downloads/iMonnit_Express_Setup_4.0.1.exe" rel="noopener" target="_blank">https://monnit.azureedge.net/content/downloads/iMonnit_Express_Setup_4.0.1.exe</a></li><li>‘localhost’를 방문하거나 바탕화면 바로 가기로 브라우저에서 웹사이트를 실행합니다.</li><li>보안 오류가 보이면 진행 방법은 다음 문서를 참고하십시오: iMonnit Express 4.0 설치 후 - Not Secure Site 오류.</li><li>Activation Key를 입력하라는 메시지가 표시되면 입력합니다.</li></ul>
+<ol><li>PC가 오프라인이면 Manual Activation을 완료하라는 메시지가 표시됩니다.</li><li>Manual Token이 상단 필드에 채워집니다. 이 텍스트를 복사합니다.</li><li><a href="https://www.monnit.com/order/productactivation" rel="noopener" target="_blank">https://www.monnit.com/order/productactivation</a> 사이트를 방문합니다.</li><li>빈 필드에 Manual Token을 입력합니다.</li><li>OK 버튼을 클릭하고 필드에 표시된 텍스트를 복사합니다.</li><li>이전 단계에서 복사한 Offline Activation Key 텍스트를 Activate 버튼 위 필드에 입력합니다.</li><li>Activate 버튼을 클릭합니다.</li></ol>
+<p>이 과정으로 iMonnit Express 소프트웨어의 오프라인 활성화를 완료할 수 있습니다. 추가 문의는 언제든 Monnit에 문의하십시오.</p>
+<p>업데이트: 2020-07-09</p><h2>iMonnit Enterprise - ‘Error 500.19 - Internal Server Error’</h2><h4>요약</h4>
+<p>iMonnit Enterprise를 설치한 후 누락된 Windows Features로 인해 다음 오류가 발생할 수 있습니다.</p>
+<h4>해결책:</h4>
+<p>이는 일반적으로 서버에 ASP.NET(또는 기타 필수 기능)이 활성화되지 않은 결과입니다. 이를 해결하려면 다음 Windows Features(Add or Remove Windows Features)가 활성화되어 있는지 확인해야 합니다.</p>
+<p>.NET Extensibility 4.8 / .NET Extensibility 3.5 / ASP.NET 3.5 / ASP.NET 4.8</p>
+<p>이 기능들을 활성화한 후 Enterprise 사이트에 성공적으로 접근할 수 있습니다.</p>
+<p>업데이트: 2020-07-15</p><h2>iMonnit Express 4.0 설치·활성화 후 ERR_TOO_MANY_REDIRECTS(또는 유사) 오류가 보이는 경우</h2><p>iMonnit Express 4.0 소프트웨어를 설치하고 활성화하려 할 때 ERR_TOO_MANY_REDIRECTS 오류가 보일 수 있습니다. 이는 이전 버전의 iMonnit Express용 Activation Key를 사용한 결과일 가능성이 높습니다. 소프트웨어를 올바르게 활성화하려면 현재 버전인 Express 4용 키를 구매해야 합니다. 이 문서가 문제 해결에 도움이 될 것입니다.</p>
+<h4>단계 요약</h4>
+<ol><li>Monnit 또는 리셀러로부터 현재 iMonnit Express 4.0 Activation Key를 구매/확보합니다.</li><li>Windows 탐색기로 다음 위치의 파일 이름을 ‘ExpressCore.db.old’로 변경합니다.</li></ol>
+<p>참고: 이를 하려면 관리자 권한이 필요합니다.</p>
+<p>C:\Windows\System32\config\systemprofile\AppData\Roaming\ExpressCore</p>
+<ol><li>컴퓨터를 재시작합니다.</li><li>Windows에서 Services.msc 프로그램을 실행합니다(보통 Windows 검색에서 ‘services’ 검색).</li></ol>
+<p>참고: 이를 하려면 관리자 권한이 필요합니다.</p>
+<ol><li>Windows Services.msc의 iMonnit Express 서비스를 찾아 마우스 오른쪽 버튼으로 클릭하고 Stop을 선택합니다.</li><li>iMonnit Express 서비스를 찾아 마우스 오른쪽 버튼으로 클릭하고 Start를 선택합니다.</li><li>브라우저의 캐시와 쿠키를 지웁니다.</li><li>브라우저에서 ‘localhost’ 사이트를 방문해 봅니다.</li><li>iMonnit Express 활성화를 완료합니다.</li></ol>
+<p>아래 스크린샷처럼 발생하는 리디렉션 오류는 브라우저마다 다를 수 있습니다.</p>
+<p>업데이트: 2020-08-11</p><h2>Monnit MINE Java Sample Application GUI 시작하기</h2><p>Monnit MINE은 Monnit 게이트웨이·센서를 타사 플랫폼과 연동할 수 있게 하는 독립형 서버입니다. Monnit 기기는 독자 프로토콜로 동작하므로 Monnit 시스템과 직접 연동하려면 Monnit MINE이 필요합니다. MINE은 Monnit 하드웨어의 통신을 수신하고 다른 플랫폼과 연동할 수 있게 하는 ‘미들웨어’ 서버입니다. MINE은 .NET 및 Java 라이브러리로 제공됩니다. 이 문서는 MINE Java 라이브러리로 테스트를 시작할 수 있도록 MINE 서버 Java Sample Application GUI를 시작하는 단계를 제공합니다.</p>
+<p>MINE Java 라이브러리 시작 정보는 다음 링크에서 확인할 수 있습니다: <a href="http://mine.imonnit.com/Java/v3.0.0/GettingStarted_3.0.0.pdf" rel="noopener" target="_blank">http://mine.imonnit.com/Java/v3.0.0/GettingStarted_3.0.0.pdf</a> .</p>
+<h4>단계 요약</h4>
+<ul><li><a href="http://mine.imonnit.com/" rel="noopener" target="_blank">http://mine.imonnit.com/</a> 사이트를 방문해 최신 버전의 MINE Java 라이브러리를 다운로드합니다.</li><li>Monnit_Mine_Java_x.x.x.x 폴더의 압축을 풉니다.</li><li>\JavaMineLibrary\MineGUI\dist\ 폴더로 이동해 MineGUI.jar 파일이 있는지 확인합니다.</li><li>명령 프롬프트를 관리자 권한으로 실행합니다(Windows 검색에서 Command 검색, 마우스 오른쪽 버튼 클릭 후 Run as Administrator 선택).</li><li>다음 명령을 실행해 적절한 디렉터리로 이동합니다([FOLDER LOCATION]은 MINE 폴더가 저장된 디렉터리로 대체):</li></ul>
+<p>cd C:\[FOLDER LOCATION]\Monnit_Mine_Java_x.x.x.x\JavaMineLibrary\MineGUI\dist\</p>
+<ul><li>명령 프롬프트에서 해당 폴더 위치로 이동한 후 다음 명령을 실행합니다:</li></ul>
+<p>java -jar MineGUI.jar</p>
+<p>JAVA MINE Sample Application GUI가 나타나며 테스트를 시작할 수 있습니다.</p>
+<h5>GUI 실행용 .bat 파일 생성</h5>
+<p>또한 Java MINE Sample Application GUI를 자동으로 실행하는 .bat 파일을 만들 수 있습니다. C:\[FOLDER LOCATION]\Monnit_Mine_Java_x.x.x.x\JavaMineLibrary\MineGUI\dist\ 디렉터리에 .txt 파일을 만들어 아래 텍스트를 입력하고 .bat 확장자로 저장하면, 그 .bat 파일로 MINE GUI를 실행할 수 있습니다.</p>
+<p>java -jar MineGUI.jar</p>
+<h5>게이트웨이와 센서로 시작하기</h5>
+<p>GUI가 실행되면 IP Address에 0.0.0.0을 설정합니다. 이는 서버에 localhost 주소를 적용합니다(들어오는 모든 IP 주소에서 통신 수신). 사용할 프로토콜 유형과 포트 번호를 선택합니다(기본 TCPAndUDP Port 3000 권장). 구성을 마친 후 Start Listening을 클릭합니다. 선택한 포트가 사용 가능하도록 기존 방화벽에 예외를 추가해야 합니다. 그런 다음 게이트웨이 ID를 추가하고 ‘게이트웨이를 사용자 지정 호스트/IP로 Unlock 및 Point(Enterprise/Express/MINE)’에 따라 서버로 Point합니다. 그 후 센서를 추가하고 전원을 켜면 기기로부터 통신을 받을 수 있습니다.</p>
+<p>업데이트: 2020-03-09</p><h2>iMonnit 계정 계층(Account Hierarchy)</h2><p>iMonnit 소프트웨어는 최상위 계정이 계정, 사용자, 기기, 네트워크, 서브 계정(중첩 계정 포함)을 생성·관리·접근할 수 있는 계정 계층을 구현합니다. 이 계층을 이해하는 것은 성공적인 구축 관리에 중요할 수 있습니다. 특히 관리할 서브 계정과 중첩 계정이 있을 때 그렇습니다. 이 문서에 제공된 다이어그램은 iMonnit 소프트웨어의 계정 계층을 시각적으로 설명합니다.</p>
+<p>(이미지를 마우스 오른쪽 버튼으로 클릭해 저장하면 더 자세히 볼 수 있습니다.)</p>
+<h4>유의 사항</h4>
+<p>단순화를 위해 다이어그램에서 생략된 몇 가지 세부 사항이 있습니다:</p>
+<ul><li>추가 사용자, Sensor Networks, Gateways, Sensors는 모든 계정 유형에 추가할 수 있지만 다이어그램에는 표시되지 않습니다. 여기에는 Super Admin 최상위 계정, Reseller 계정, 중첩 Reseller 계정, 중첩 Subaccount가 포함됩니다.</li><li>Reseller 계정과 관련된 두 가지 구성 요소가 있습니다:</li></ul>
+<ol><li>계정 설정 아래의 Reseller 권한 플래그.(이 권한이 활성화되면 서브 계정의 User Permissions 아래에 ‘Reseller’라는 추가 탭이 나타납니다. 이 권한은 서브 계정의 관리자(및 최상위 계정의 모든 관리자 사용자)가 수정할 수 있습니다.)</li><li>Reseller 탭 아래에는 사용자가 계정의 ‘Admin’ 섹션을 볼 수 있게 하는 두 가지 사용자 권한이 있습니다:</li></ol>
+<ul><li>View Administration</li><li>View Subaccounts</li></ul>
+<p>특히 중첩 계정 구조가 필요한 사용자와 운영할 때 계정 계층을 이해하는 것이 성공적인 구축에 핵심입니다. 관련 문의가 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-10-19</p><h2>iMonnit Express 4.0 서비스가 시작되지 않는 경우</h2><p>iMonnit Express 4 소프트웨어를 설치한 후 iMonnit Express 서비스를 시작하려 할 때 ‘Error 1064: An exception occurred in the service when handling the control request’ 오류가 보일 수 있습니다. 이 경우 다른 응용 프로그램과 충돌이 있는 것입니다. 이 문서가 해결에 도움이 됩니다.</p>
+<p>흔한 원인:</p>
+<p>VMWare / iMonnit Enterprise 소프트웨어 / 해당 기기가 호스팅하는 다른 웹사이트 / Windows 업데이트</p>
+<p>문제 해결:</p>
+<ul><li>Windows의 Resource Monitor 네트워크 탭으로 다른 서비스가 포트 443 또는 3000을 사용 중인지 확인합니다. 다른 응용 프로그램이 이 포트 중 하나를 사용 중이면 iMonnit Express를 운영하기 위해 그 서비스를 중지해야 합니다.</li><li>IIS로 로컬 호스팅 웹사이트 실행을 중지합니다.</li></ul>
+<p>Windows 업데이트:</p>
+<p>Windows 업데이트가 .db 파일을 이동시킬 수 있습니다. 로컬 C:\ 드라이브에 Windows.old 폴더가 있는지 확인하십시오. 있으면 Windows 업데이트가 Express 데이터베이스를 이동/제거했을 가능성이 높습니다. 새 데이터베이스 생성은 이 문서를 참고하십시오.</p>
+<ul><li>Express를 제거합니다.</li><li>Express를 다시 설치합니다.</li></ul>
+<p>문제가 지속되면 TCP 포트 80, 443, 3000에서 Express 서비스와 충돌하는 다른 소프트웨어가 무엇인지 파악해야 합니다. 피드백은 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-09-08</p><h2>Monnit MINE을 AWS와 연동하기</h2><p>이것은 Monnit MINE을 AWS와 연동하기 위한 간단한 ‘How-To’ 가이드입니다.</p>
+<p>고지: 이 절차는 AWS에 대한 지식이 있는 소프트웨어 개발자가 완료해야 합니다.</p>
+<h5>시작 전 필요한 것:</h5>
+<p>Monnit MINE (<a href="http://mine.imonnit.com/" rel="noopener" target="_blank">http://mine.imonnit.com/</a>)</p>
+<p>AWSSDK</p>
+<ul><li>1단계:</li></ul>
+<p>◦ 엔지니어가 AWS와 연동하는 프로그램을 작성합니다.</p>
+<p>◦ 코드에 사용자 지정 엔드포인트를 추가합니다.</p>
+<p>◦ AWS 지식 문서: <a href="https://aws.amazon.com/iot-platform/getting-started/" rel="noopener" target="_blank">https://aws.amazon.com/iot-platform/getting-started/</a></p>
+<p>아래 코드 예시를 참고하십시오:</p>
+<ul><li>2단계:</li></ul>
+<p>◦ AWS IoT 콘솔로 이동합니다.</p>
+<p>◦ ‘Resources’를 클릭합니다.</p>
+<p>◦ 사용자 지정 엔드포인트를 얻기 위해 화면 맨 오른쪽의 물음표를 클릭합니다.</p>
+<p>◦ AWS IoT 콘솔에서 인증서와 개인 키를 가져옵니다.</p>
+<ul><li>3단계:</li></ul>
+<p>◦ AWS IoT 콘솔로 이동합니다.</p>
+<p>◦ ‘Create a resource’를 클릭합니다.</p>
+<p>◦ ‘Create a certificate’를 클릭합니다.</p>
+<p>◦ ‘Activate’ 박스를 체크합니다.</p>
+<p>◦ ‘1-Click certificate create’를 클릭합니다.</p>
+<p>◦ ‘Show private key’를 클릭합니다.</p>
+<p>◦ 개인 키 내용을 private.pem.key 파일에 복사합니다.</p>
+<p>◦ ‘Show certificate’를 클릭합니다.</p>
+<p>◦ 인증서 내용을 certificate.pem.crt 파일에 복사합니다.</p>
+<p>◦ 이 자격 증명을 향후 사용을 위해 보관합니다.</p>
+<p>◦ 모든 AWS IoT 데이터 플레인 작업에 대한 접근을 허용하는 정책을 생성합니다.</p>
+<ul><li>4단계</li></ul>
+<p>◦ AWS IoT 콘솔로 이동합니다.</p>
+<p>◦ ‘Create a resource’를 클릭합니다.</p>
+<p>◦ ‘Create a policy’를 클릭합니다.</p>
+<p>◦ 정책 이름을 ‘YourPolicyName’으로 지정합니다.</p>
+<p>◦ action을 iot:*로 설정합니다.</p>
+<p>◦ resource를 *로 설정합니다.</p>
+<p>◦ ‘Allow’ 박스를 체크합니다.</p>
+<p>◦ ‘Add statement’를 클릭합니다.</p>
+<p>◦ ‘Create’를 클릭합니다.</p>
+<p>◦ 정책을 인증서에 연결합니다.</p>
+<ul><li>5단계</li></ul>
+<p>◦ AWS IoT 콘솔로 이동합니다.</p>
+<p>◦ 생성한 인증서를 클릭합니다.</p>
+<p>◦ ‘Actions’를 클릭합니다.</p>
+<p>◦ ‘Attach a policy’를 클릭합니다.</p>
+<p>◦ 정책 이름 필드에 ‘YourPolicyName’을 입력합니다.</p>
+<p>◦ ‘Attach’를 클릭합니다.</p>
+<p>MQTT 클라이언트 구독</p>
+<p>◦ MQTT 클라이언트로 이동합니다.</p>
+<p>◦ Client ID를 생성합니다.</p>
+<p>◦ Connect를 클릭합니다.</p>
+<p>◦ Subscribe to Topic를 클릭합니다.</p>
+<p>◦ Subscription Topic Name을 입력합니다.</p>
+<p>◦ Subscribe를 클릭합니다.</p>
+<p>◦ JSON이 Dialog box에 게시됩니다(아래 대화 상자 표시).</p>
+<p>업데이트: 2020-01-30</p><h2>Enterprise 완전 제거 방법</h2><h4>요약</h4>
+<p>컴퓨터에서 Enterprise 설치를 완전히 제거하려면 다음 단계를 따르십시오. Enterprise 설치 중 문제가 계속될 때 유용합니다. 전체 재설치를 의도하는 경우에만 이 단계를 따르십시오.</p>
+<h4>서비스 중지</h4>
+<p>Windows 키를 누르고 ‘Services’를 입력합니다.</p>
+<p>‘Enterprise Gateway Server’를 찾아 ‘Stop the service’를 누릅니다.</p>
+<h4>서비스 삭제</h4>
+<p>Windows 키를 누르고 ‘cmd’를 입력합니다.</p>
+<p>명령 프롬프트를 열기 전에 마우스 오른쪽 버튼으로 클릭하고 ‘Run as administrator’를 선택합니다.</p>
+<p>명령 프롬프트에 다음을 입력합니다: sc delete "Enterprise Wireless Gateway Server"</p>
+<p>[SC] DeleteService SUCCESS가 보여야 합니다.</p>
+<h4>Enterprise 데이터베이스 제거</h4>
+<p>Windows 키를 누르고 ‘ssms’를 입력합니다. Microsoft SQL Server Management Studio를 엽니다.</p>
+<p>데이터베이스 서버에 연결합니다.</p>
+<p>왼쪽의 Database 폴더를 펼칩니다.</p>
+<p>‘Enterprise’ 데이터베이스를 마우스 오른쪽 버튼으로 클릭하고 ‘Delete’를 선택합니다.</p>
+<p>다른 이름을 지정했다면 이름이 다를 수 있습니다. 찾을 수 없으면 다음 위치의 web.config 파일 내 연결 문자열에서 이름을 찾을 수 있습니다: C:\inetpub\wwwroot\Enterprise</p>
+<p>‘close existing connections’ 박스를 체크하고 ‘OK’를 클릭합니다.</p>
+<h4>IIS 웹사이트 제거</h4>
+<p>Windows 키를 누르고 ‘iis’를 입력합니다. IIS Manager를 엽니다.</p>
+<p>왼쪽의 DESKTOP 연결을 펼칩니다.</p>
+<p>Sites 폴더를 펼칩니다.</p>
+<p>‘Enterprise Portal’을 클릭합니다. 맨 오른쪽 Manage Website 섹션에서 ‘Stop’을 누릅니다.</p>
+<p>‘Enterprise Portal’을 마우스 오른쪽 버튼으로 클릭하고 ‘Remove’를 선택합니다.</p>
+<p>‘Application Pools’를 클릭합니다.</p>
+<p>‘Enterprise Portal_AppPool’을 클릭합니다. 맨 오른쪽 Application Pool Tasks 섹션에서 ‘Stop’을 누릅니다.</p>
+<p>‘Enterprise Portal_AppPool’을 마우스 오른쪽 버튼으로 클릭하고 ‘Remove’를 선택합니다.</p>
+<p>‘Default Web Site’가 있으면 마찬가지로 중지·제거합니다.</p>
+<h4>Enterprise 폴더 삭제</h4>
+<p>다음 위치로 이동합니다: C:\inetpub\wwwroot</p>
+<p>‘Enterprise’ 폴더를 삭제합니다.</p>
+<h4>AppData에서 Enterprise 삭제</h4>
+<p>Windows 키를 누르고 ‘%appdata%’를 입력합니다. ‘%appdata%’ 파일 폴더를 엽니다.</p>
+<p>‘Enterprise’ 폴더를 삭제합니다.</p>
+<h4>Enterprise Setup Utility 제거</h4>
+<p>Windows 키를 누르고 ‘add’를 입력합니다. ‘Add or remove programs’를 엽니다.</p>
+<p>‘Enterprise Setup Utility’를 찾아 ‘Uninstall’을 누릅니다.</p>
+<p>이 단계는 C:\Program Files (x86)\Enterprise Configuration Utility 에 있는 ‘Enterprise Configuration Utility’ 폴더를 제거해야 합니다.</p>
+<p>제거되지 않으면 이 폴더를 수동으로 삭제하십시오.</p>
+<p>‘C:\Program Files (x86)\Enterprise Configuration Utility’로 이동합니다.</p>
+<p>‘Enterprise Server’ 폴더를 삭제합니다.</p>
+<h4>이제 Enterprise가 컴퓨터에서 완전히 제거되었습니다.</h4>
+<p>업데이트: 2020-08-27</p><h2>iMonnit Enterprise SQL 데이터베이스의 유지보수 요구 사항</h2><p>시간이 지나면 iMonnit Enterprise SQL 데이터베이스에는 유지보수가 필요합니다. 그 유지보수의 정확한 적용은 일반적으로 데이터베이스가 어떻게 사용되는지에 따라 다릅니다. 한 데이터베이스에 최적인 것이 다른 데이터베이스에는 가장 최적이 아닐 수 있습니다. 다만 데이터베이스 유지에 할 수 있는 일반적인 조언이 있습니다. 일반적으로 더 많은 데이터를 담은 테이블에 데이터베이스 호출이 도달할 때 쿼리 성능 문제가 발생하기 시작합니다. 그런 경우의 해결책은 테이블의 데이터 양을 줄이거나, 쿼리가 적시에 실행되기 쉽도록 데이터를 구조화하는 것입니다. 이는 인덱스를 추가하거나 테이블의 통계를 업데이트하여 할 수 있습니다.</p>
+<h4>데이터 제거</h4>
+<p>데이터를 정리·제거하는 것이 옵션일 수 있습니다. 예를 들어 고객이 과거 Webhook 데이터가 필요 없다고 판단하면, webhook 쿼리를 더 빠르게 하기 위해 그 데이터를 제거할 수 있습니다. 이를 하려면 데이터를 삭제하거나 테이블을 truncate(테이블의 모든 데이터 제거)해야 합니다. 테이블의 데이터를 삭제하면 delete 문이 끝날 때까지 그 테이블이 차단되며, 외래 키 제약이 있는 동안 다른 테이블에서 참조되는 데이터는 삭제할 수 없다는 점을 유의하십시오. 또한 truncate 문은 즉시 실행되지만, 그 데이터가 다른 테이블에서 명시적으로 참조되지 않더라도 외래 키 제약이 있는 동안에는 수행할 수 없습니다. 데이터의 상당 부분을 제거하면 그 테이블의 통계를 업데이트해야 할 수 있습니다.</p>
+<h4>인덱싱 및 통계 업데이트</h4>
+<p>데이터 삭제가 최선이 아닌 경우, 테이블의 하나 이상의 열에 인덱스를 추가하는 것을 선택할 수 있습니다. 인덱스는 선택한 특정 열의 데이터를 구조화·정렬하여 쿼리 속도를 높입니다. 인덱스를 생성하면 더 많은 디스크 공간을 차지합니다. 정확한 크기는 인덱싱하는 열의 데이터 유형과 테이블의 행 수에 따라 다릅니다. 또한 인덱스는 향후 유지보수가 필요할 수 있습니다. 정기적인 간격으로 인덱스를 재구축해야 할 수 있고, 가끔 그 인덱스의 통계를 업데이트해야 할 수도 있습니다. 다만 인덱스는 데이터베이스에 도달하는 쿼리를 최적화하는 강력한 도구입니다. 인덱스를 구축하는 동안에는 테이블이 차단된다는 점을 유의하십시오.</p>
+<p>데이터베이스 유지의 정확한 방법은 개별 요구에 따라 다릅니다. 단일 옵션이 모든 경우에 옳은 것은 아닙니다. 어느 시점에는 데이터베이스 관리자를 고용해 직접 사례를 평가하게 하는 것이 최선일 수 있습니다. 위 옵션을 시도하려면 먼저 데이터베이스를 백업하는 것이 좋습니다.</p>
+<p>업데이트: 2020-11-11</p><h2>Monnit Enterprise Configuration Utility 외부에서 SQL 데이터베이스 연결 테스트</h2><p>SQL 플랫폼은 데이터베이스 연결을 테스트하는 방법을 제공합니다. 데이터베이스 연결에 문제가 있으면 Enterprise 설치 프로그램 외부에서 테스트하여 자격 증명이 올바른지 확인할 수 있습니다. 테스트 완료는 아래 단계를 참고하십시오.</p>
+<h4>UDL 파일을 생성해 연결 테스트</h4>
+<p>data link(UDL) 파일 생성</p>
+<ol><li>Windows 바탕화면을 마우스 오른쪽 버튼으로 클릭하고 New &gt; Text Document로 이동합니다. 기본적으로 새 파일(New Text Document.txt)이 생성됩니다.</li><li>Windows 탐색기를 엽니다.</li><li>Tools 메뉴에서 Folder Options를 클릭하고 View 탭을 선택합니다.</li><li>‘Hide file extensions for known file types’ 체크박스를 해제하고 OK를 클릭합니다(.txt 확장자를 제거하고 올바른 .udl 확장자로 교체할 수 있도록).</li><li>1단계에서 만든 텍스트 문서를 마우스 오른쪽 버튼으로 클릭하고 Rename을 선택합니다.</li><li>파일 이름과 확장자를 ‘dbtest.udl’로 변경합니다. 파일 확장자 변경이 파일을 사용 불가로 만들 수 있다는 경고 메시지가 나오면 무시합니다.</li><li>dbtest.udl 파일은 시스템이나 네트워크 어디에나 저장할 수 있습니다. 이제 데이터 소스에 연결할 준비가 되었습니다.</li></ol>
+<p>SQL 서버 연결 테스트</p>
+<ol><li>testdb.udl 파일을 마우스 오른쪽 버튼으로 클릭하고 Properties를 선택해 Data Link Properties 대화 상자를 엽니다.</li><li>Data Link Properties에서 Provider 탭을 선택합니다.</li><li>OLE DB Provider 목록에서 Microsoft OLE DB for SQL Server를 선택합니다.</li><li>Next를 클릭해 Connection 탭으로 이동합니다.</li><li>첫 박스에 SQL 서버의 호스트명 뒤에 백슬래시(\)를 붙여 입력합니다(예: windows2003server\InstanceName).</li><li>‘Enter information to log on to the server’ 섹션에서 적절한 라디오 버튼을 선택합니다:</li><li>SQL 서버가 Windows 인증을 사용하면 Use Windows NT Integrated security를 선택합니다.</li><li>SQL 서버가 SQL 인증을 사용하면 Use a specific user name and password를 선택합니다.</li><li>‘Select the database on the server’ 섹션에서 드롭다운 목록을 클릭해 사용 가능한 모든 데이터베이스를 보고 필요한 데이터베이스를 선택합니다.</li><li>Test Connection 버튼을 클릭합니다.</li><li>OK로 Properties 창을 닫습니다.</li><li>연결 설정을 저장합니다.</li></ol>
+<p>이 테스트는 자격 증명과 경로가 올바른지 확인합니다. Enterprise Configuration Utility에서 데이터베이스에 연결할 수 없으면 다른 권한 관련 문제가 있을 수 있고, Mixed Mode Authentication을 활성화해야 할 수도 있습니다. 다만 이 테스트로 최소한 데이터베이스의 경로와 자격 증명이 올바른지는 확인할 수 있습니다.</p>
+<p>업데이트: 2020-05-08</p><h2>Express 완전 제거 방법</h2><h4>단계</h4>
+<ol><li>서비스 삭제</li></ol>
+<ul><li>적절한 권한이 있는 사용자로 Windows에서 Services.msc 프로그램을 실행합니다(Windows 검색에서 ‘services’ 검색).</li><li>‘iMonnit Express’ 서비스를 찾아 마우스 오른쪽 버튼으로 클릭하고 Stop을 선택합니다.</li><li>Windows 검색에서 ‘cmd’를 검색해 명령 프롬프트를 열고 마우스 오른쪽 버튼 클릭 후 ‘Run as Administrator’를 선택합니다.</li><li>다음 명령을 실행합니다:</li></ul>
+<p>sc delete "iMonnit Express"</p>
+<p>서비스를 완전히 제거하려면 시스템 재시작이 필요할 수 있습니다.</p>
+<ol><li>iMonnit Express 응용 프로그램 제거</li></ol>
+<ul><li>Windows에서 ‘Add or remove programs’를 엽니다.</li><li>목록에서 ‘iMonnit Express’를 찾아 Uninstall을 클릭합니다.</li><li>다음 디렉터리에서 ‘iMonnit Express’ 폴더가 올바르게 제거되었는지 확인합니다:</li></ul>
+<p>C:\Program Files (x86)\</p>
+<p>제거되지 않았으면 삭제하십시오.</p>
+<ol><li>데이터베이스 삭제</li></ol>
+<p>기본적으로 데이터베이스는 다음 디렉터리에 저장됩니다:</p>
+<p>C:\Windows\System32\config\systemprofile\AppData\Roaming\ExpressCore</p>
+<ul><li>‘ExpressCore.db’ 파일을 삭제하거나 이름을 변경합니다.</li></ul>
+<p>참고: 설치 경로는 다음 파일로 재정의할 수 있습니다: C:\Program Files (x86)\iMonnit Express\Express_Core.dll.config</p>
+<p>업데이트: 2020-09-03</p><h2>iMonnit Enterprise 설치가 연결된 SQL 데이터베이스의 자격 증명 변경</h2><p>Enterprise 설치가 데이터를 기록하는 SQL 데이터베이스의 자격 증명을 변경해야 하는 경우가 있을 수 있습니다. 일반적으로 SQL 사용자 자격 증명이 변경되어 Enterprise에서 업데이트해야 하거나, Enterprise가 다른 데이터베이스로 데이터를 보내도록 지정해야 하는 경우입니다. 이 문서는 Enterprise 설치가 SQL 데이터베이스에 연결하는 데 사용하는 Connection String 수정 정보를 제공합니다.</p>
+<p>!!중요 - Enterprise 사이트를 다른 Enterprise 데이터베이스로 Point하려면 설치된 버전이 데이터베이스의 버전과 같아야 합니다.</p>
+<h4>단계 요약</h4>
+<ol><li>Enterprise Wireless Gateway Server 서비스를 중지합니다.</li></ol>
+<ul><li>Windows에서 Services.msc 프로그램을 실행합니다(보통 Windows 검색에서 ‘services’ 검색). 참고: 서비스를 중지·시작할 권한이 있어야 합니다.</li><li>목록에서 Enterprise Wireless Gateway Server 서비스를 찾습니다.</li><li>Enterprise Wireless Gateway Server 서비스를 마우스 오른쪽 버튼으로 클릭합니다.</li><li>Stop을 선택합니다.</li></ul>
+<ol><li>IIS에서 Enterprise Portal 웹사이트를 중지합니다.</li></ol>
+<ul><li>Windows에서 IIS(Internet Information Services) 프로그램을 실행합니다(보통 Windows 검색에서 ‘iis’ 검색).</li><li>COMPUTER NAME &gt; Sites를 펼칩니다.</li><li>Enterprise Portal을 클릭해 강조합니다.</li><li>창 오른쪽의 Actions 사이드바에서 Stop을 클릭합니다.</li></ul>
+<ol><li>Web.config 파일 편집</li></ol>
+<ul><li>iMonnit Enterprise 사이트를 호스팅하는 서버에서 탐색기로 다음 디렉터리로 이동합니다: C:\inetpub\wwwroot\Enterprise\ .</li><li>Web.config 파일을 찾습니다.</li><li>메모장(또는 선호하는 텍스트 편집기)으로 이 파일 내용을 편집합니다. 참고: ‘inetpub’ 디렉터리에 이 파일을 편집·저장하려면 관리자 권한이 필요합니다.</li><li>이 파일에서 ‘Connection String’ 항목을 찾습니다. 아래 예시와 유사합니다.</li></ul>
+<p>&lt;connectionStrings&gt; &lt;add name="SqlServer" connectionString="Server=DESKTOP\SQLEXPRESS;Database=Enterprise;Uid=sa;Pwd=password;" /&gt; &lt;/connectionStrings&gt;</p>
+<p>‘Server=’는 SQL 서버 주소입니다.</p>
+<p>‘Database=’는 SQL 데이터베이스 이름입니다.</p>
+<p>‘Uid=’는 읽기/쓰기 권한이 있는 SQL 사용자입니다.</p>
+<p>‘Pwd=’는 SQL 사용자의 비밀번호입니다.</p>
+<ul><li>기존 자격 증명을 업데이트된 자격 증명으로 교체합니다.</li><li>같은 디렉터리 C:\inetpub\wwwroot\Enterprise\ 에 파일을 저장합니다.</li></ul>
+<ol><li>WirelessGatewayServer.exe.config 파일 편집</li></ol>
+<ul><li>iMonnit Enterprise 사이트를 호스팅하는 같은 서버에서 탐색기로 다음 디렉터리로 이동합니다: C:\inetpub\wwwroot\Enterprise\Enterprise Server\ .</li><li>WirelessGatewayServer.exe.config 파일을 찾습니다.</li><li>메모장으로 이 파일 내용을 편집합니다. 참고: 관리자 권한이 필요합니다.</li><li>이 파일에서 ‘Connection String’ 항목을 찾습니다. 아래 예시와 유사합니다.</li></ul>
+<p>&lt;connectionStrings&gt; &lt;add name="SqlServer" connectionString="Server=DESKTOP\SQLEXPRESS;Database=Enterprise;Uid=sa;Pwd=password;" /&gt; &lt;/connectionStrings&gt;</p>
+<ul><li>기존 자격 증명을 업데이트된 자격 증명으로 교체합니다.</li><li>같은 디렉터리 C:\inetpub\wwwroot\Enterprise\Enterprise Server\ 에 파일을 저장합니다.</li></ul>
+<ol><li>IIS에서 Enterprise Portal 웹사이트를 시작합니다.</li></ol>
+<ul><li>이 가이드의 2단계를 참고하여 Actions 사이드바에서 Start를 선택합니다.</li></ul>
+<ol><li>Enterprise Wireless Gateway Server 서비스를 시작합니다.</li></ol>
+<ul><li>이 가이드의 1단계를 참고하여 팝업 메뉴에서 Start를 선택합니다.</li></ul>
+<p>구성 파일을 업데이트하고 서비스와 사이트를 재시작하면, Enterprise 설치의 SQL 데이터베이스 자격 증명이 업데이트됩니다. 관련 문의가 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-12-29</p><h2>Enterprise 4로 업그레이드 시 고려 사항</h2><h4>지원 버전</h4>
+<p>Enterprise 4로 업그레이드하려면 버전 3.5.0.0 이상이 필요합니다. 3.5.0.0 이전 버전은 iMonnit Enterprise 4.0으로 성공적으로 업데이트할 수 없습니다.</p>
+<h4>기존 사이트 백업</h4>
+<p>Enterprise 4로 업그레이드하기 전에 이 문서에 따라 기존 Enterprise 설치를 백업해야 합니다.</p>
+<h4>현재 설치 프로그램 저장</h4>
+<p>향후 이전 버전을 복원하는 옵션을 원하면, 기존 Enterprise Configuration Utility 설치 파일이 아직 있다면 저장해 두는 것이 좋습니다.</p>
+<h4>이전 Enterprise Configuration Utility 제거</h4>
+<p>설치 프로그램이 올바른 설치 스크립트를 참조하려면, 기존 Enterprise Configuration Utility가 현재 시스템에 남아 있으면 제거해야 합니다. Windows의 Add or Remove Programs로 기존 Enterprise Setup Utility(또는 유사한 이름)를 제거할 수 있습니다.</p>
+<h4>관리자 확인</h4>
+<p>Enterprise 설치 프로그램은 관리자 권한이 필요하므로, 설치하는 사용자는 C:\inetpub\ 디렉터리에 쓸 수 있는 완전한 관리자 권한이 있어야 합니다. 또한 설치 프로그램과 Enterprise Configuration Utility를 마우스 오른쪽 버튼으로 클릭해 관리자 권한으로 실행하도록 하십시오.</p>
+<p>업데이트: 2020-12-21</p><h2>iMonnit Enterprise 갱신 키 입력</h2><p>iMonnit Enterprise를 센서 10개 Trial 키 또는 센서 50개(Annual) 키로 활성화했다면, 소프트웨어를 재활성화하기 위해 설치 프로그램에 갱신 키를 입력해야 합니다. 이 문서가 그 방법을 안내합니다.</p>
+<h4>키가 만료되면 발생하는 일</h4>
+<p>현재 Enterprise 라이선스가 만료되면 두 가지 증상이 있습니다:</p>
+<ol><li>Enterprise Wireless Gateway Server 서비스가 게이트웨이로부터 들어오는 통신 수신을 중단합니다. 그 결과 Enterprise Portal에 추가된 모든 게이트웨이가 Enterprise와 통신을 멈춥니다.</li><li>웹페이지 상단에 ‘This installation has expired. Contact Support to update subscription.’ 배너가 나타납니다.</li></ol>
+<p>참고: 레거시 버전의 Enterprise가 센서 250개 라이선스를 perpetual이 아닌 annual 라이선스로 잘못 식별하는 별도 문제도 있습니다. 위 증상이 이 시나리오에도 적용됩니다. 이를 해결하려면 해당 문제 전용 문서를 참고하십시오.</p>
+<h4>갱신 키 구매</h4>
+<p>이를 해결하려면 유효한 Enterprise 키를 구매해 적용해야 합니다.</p>
+<p>참고: Enterprise Trial 라이선스는 60일만 유효합니다. 센서 10개 Trial 라이선스를 또 다른 10개 Trial 라이선스로 갱신할 수 없습니다. Trial 만료 후에는 정식 라이선스(Annual 또는 Perpetual)를 적용할 수 있습니다.</p>
+<p>50 Sensor Annual License</p>
+<p>250 Sensor Perpetual License</p>
+<p>2000 Sensor Perpetual License</p>
+<h4>갱신 키 입력</h4>
+<p>갱신 키를 입력하려면 아래 단계를 따르십시오.</p>
+<ol><li>iMonnit Enterprise Configuration Utility를 실행합니다.</li><li>Update Key 버튼을 클릭합니다.</li><li>구매한 Enterprise Activation Key를 입력합니다.</li><li>Activate를 클릭합니다.</li><li>Enterprise Wireless Gateway Server 서비스를 중지했다가 시작합니다.</li><li>IIS에서 Enterprise Portal 사이트를 중지했다가 시작합니다.</li></ol>
+<p>갱신 키를 적용하면 게이트웨이가 통신하고 설치 만료 배너가 사라집니다.</p>
+<p>업데이트: 2020-09-22</p><h2>게이트웨이가 iMonnit Enterprise와 예기치 않게 통신을 멈추는 경우</h2><p>모든 게이트웨이가 갑자기 iMonnit Enterprise Portal로 데이터 전송을 멈추면, 이 문서의 정보가 문제 식별에 도움이 됩니다.</p>
+<h4>iMonnit Enterprise Portal 검토</h4>
+<p>가장 먼저 검토할 구성 요소는 iMonnit Enterprise Portal입니다. 이 단계로 서버가 게이트웨이 통신을 수신하고 있는지 확인합니다.</p>
+<h4>버전 확인</h4>
+<p>Monnit은 현재 iMonnit Enterprise 버전 4.0 이상을 지원합니다. 레거시 iMonnit Enterprise 3.5.0.0 이상에 대한 기본 지원은 가능할 수 있습니다. 3.5.0.0 이전 버전은 더 이상 지원되지 않습니다. 버전 3.5.0.0 이상에서는 업그레이드가 가능하지만, 3.5.0.0 이전 버전으로의 업그레이드 지원은 중단되었습니다.</p>
+<p>iMonnit Enterprise 업그레이드는 Enterprise 라이선스 구매 후 12개월 이내에 포함됩니다. 키가 12개월 미만이면 지원 버전에서 Enterprise 4.0을 추가 비용 없이 다운로드·설치할 수 있습니다. Enterprise 버전 키가 12개월을 넘으면 새 라이선스에 20% 유지보수 비용이 부과됩니다. 지원 요청 시 iMonnit Enterprise 키나 판매 주문 번호를 제공할 준비를 하십시오.</p>
+<h4>Enterprise Wireless Gateway Server 서비스 실행 확인</h4>
+<p>이 문서에 따라 Enterprise Wireless Gateway Server 서비스가 실행 중인지 확인하십시오. 이 서비스는 들어오는 포트 3000(기본값이지만 구성 중 변경되었을 수 있음)을 통해 네트워크에서 서버로 데이터를 받아 iMonnit Enterprise 데이터베이스로 전달·처리하는 프로세스입니다. 게이트웨이가 iMonnit Enterprise 데이터베이스로 데이터를 전달하려면 이 서비스가 실행 중이어야 합니다. 서비스가 실행되지 않을 때 가장 흔한 증상은 서버의 모든 게이트웨이가 동시에 Enterprise Server와 통신을 멈추는 것입니다.</p>
+<h4>설치 만료 배너</h4>
+<p>Monnit은 iMonnit Enterprise 소프트웨어에 대해 Trial Enterprise 라이선스(60일 유효), Annual 센서 50개 라이선스, perpetual 센서 250개(이상) 라이선스를 제공합니다. 특정 기간 동안만 유효한 키를 적용했다면 라이선스를 갱신해야 합니다. 이 경우 iMonnit Enterprise가 게이트웨이로부터 데이터 수신을 멈추고, iMonnit Enterprise Portal 상단에 ‘This installation is expired, contact support to update subscription.’ 메시지가 배너로 보일 수 있습니다. 이 경우 유효한 키로 라이선스를 갱신해야 합니다.</p>
+<p>참고: 레거시 버전(3.6.2.1 이하)의 Enterprise에서 센서 250개 라이선스를 가지고 있어도 이 메시지가 보이는 독특한 시나리오가 있습니다. 그 시나리오에 해당하면 해당 문서를 검토하십시오.</p>
+<h4>센서 한도</h4>
+<p>사용 가능한 iMonnit Enterprise 라이선스에는 서로 다른 센서 한도가 있습니다. 센서 한도에 도달하면 Enterprise Wireless Gateway Server 서비스는 계속 실행되지만 서버로 들어오는 통신을 수신하지 않습니다. 일반적으로 Enterprise 데이터베이스의 ExceptionLog 테이블에 예외가 표시됩니다. 가장 최근 로그를 검토하면 이 경우의 로그를 볼 수 있습니다.</p>
+<h4>데이터베이스 연결·크기·한도 확인</h4>
+<p>무료 버전의 SQL Express를 사용하는 경우, 이 문서에 따라 데이터베이스가 10GB 한도를 넘지 않았는지 확인해야 합니다. 이 문서로 유효한 데이터베이스 연결과 자격 증명도 확인할 수 있습니다.</p>
+<h4>Communication Check Utility 실행</h4>
+<p>Enterprise Wireless Gateway Server 서비스가 실행 중이고 라이선스가 유효함을 확인했다면, 해당 문서의 ‘iMonnit Enterprise 같은 로컬 서버와 Communication Check Utility 사용’ 섹션에 따라 Communication Check Utility로 테스트해야 합니다.</p>
+<p>수행할 테스트는 두 가지입니다:</p>
+<ol><li>iMonnit Enterprise를 실행하는 서버 자체에서 유틸리티를 실행해 테스트합니다.</li></ol>
+<p>테스트가 실패하지만 Enterprise Wireless Gateway Server 서비스가 실행 중이면, iMonnit Enterprise Portal의 구성된 포트(기본 3000)로 트래픽이 도달하는 것을 막는 PC 보안 설정을 분석해야 합니다.</p>
+<ol><li>같은 네트워크 세그먼트의 PC에서 테스트합니다.</li></ol>
+<p>같은 네트워크 세그먼트의 다른 PC에서 테스트하면 구성된 포트로 서버 통신을 막는 네트워크 구성을 식별하는 데 도움이 될 수 있습니다. 서버에서는 성공하지만 노드 PC에서 실패하면 네트워크 구성을 검토해야 합니다. 서버와 노드 PC 모두에서 성공하면 서브넷에 네트워크 구성 문제가 없을 가능성이 높습니다. 다만 노드 PC에서의 성공 테스트가 네트워크 구성에 유용한 지표이긴 하지만, 게이트웨이가 그 네트워크 세그먼트에서 Enterprise 서버에 도달할 수 있음을 확정하지는 않습니다. MAC 주소 필터링 같은 다른 보안 기능이 여전히 존재할 수 있으므로 좋은 지표일 뿐 확정은 아닙니다.</p>
+<h4>게이트웨이 검토</h4>
+<p>서버(가급적 노드 PC에서도)에서 Communication Check Utility 테스트를 성공적으로 수행했다면, Enterprise 서버가 구성되어 게이트웨이 통신을 성공적으로 수신하고 있음을 확인한 것입니다. 이 시점에 게이트웨이와 네트워크 구성을 검토해야 합니다.</p>
+<h4>게이트웨이 LED</h4>
+<p>게이트웨이 상태를 판단하려면 게이트웨이 LED를 검토합니다. 이 문서에서는 Ethernet Gateway 4 구성에 초점을 맞춥니다. 다른 게이트웨이 유형도 Enterprise와 사용할 수 있지만 Ethernet Gateway 4가 Enterprise에서 가장 흔합니다.</p>
+<ul><li>하단 LED는 로컬 Ethernet 연결을 나타냅니다. 녹색 고정이면 게이트웨이가 로컬 네트워크에서 유효한 IP 주소를 가진 것입니다. 이것이 게이트웨이가 Enterprise Server에 도달할 네트워크 경로가 있음을 반드시 의미하지는 않지만, 게이트웨이가 로컬 네트워크에서 통신하고 있다는 좋은 신호입니다.</li></ul>
+<p>하단 LED가 빨간색이면 게이트웨이가 유효한 IP 주소를 얻지 못한 것입니다. 게이트웨이가 Enterprise Server에 도달하기 전에 이를 해결해야 합니다.</p>
+<ul><li>두 번째 LED는 Enterprise 서버와의 연결을 나타냅니다. 녹색이면 서버와의 유효한 연결이 있는 것입니다. 유효한 서버 연결이 없으므로 이 LED가 빨간색일 가능성이 높습니다.</li></ul>
+<h4>게이트웨이 IP 주소 Ping</h4>
+<p>게이트웨이 하단 LED가 녹색이고 게이트웨이 IP 주소를 안다면, Enterprise Server에서 그 IP 주소로 ping합니다. 정상 응답이 오면 Enterprise 서버에서 게이트웨이에 도달할 수 있는 네트워크 경로가 있는 것입니다.</p>
+<p>ping이 unreachable을 반환하면 연결을 막는 것이 무엇인지 네트워크 구성을 검토해야 합니다.</p>
+<h4>게이트웨이의 로컬 HTTP 구성 페이지 접근</h4>
+<p>게이트웨이에 ping할 수 있으면, 게이트웨이의 로컬 HTTP 구성 페이지에 접근할 수 있는지 확인하십시오. 브라우저에 게이트웨이 IP 주소를 입력하면 됩니다. 게이트웨이 구성 페이지가 보이면 게이트웨이와 서버 간 HTTP 트래픽을 전송할 경로가 있음을 확인한 것입니다.</p>
+<p>참고: HTTP 구성 페이지를 방문할 때, 이전에 활성화하지 않았다면 인터페이스가 비활성화되어 있거나 읽기 전용이라는 메시지가 보일 수 있습니다. 이 단계의 목적은 단순히 서버와 게이트웨이가 통신할 경로가 있는지 확인하는 것이지, 게이트웨이 구성을 편집하는 것이 아닙니다.</p>
+<h4>게이트웨이의 서버 호스트 주소 검토</h4>
+<p>게이트웨이의 로컬 HTTP 구성 페이지에 접근할 수 있으면 ‘Default Server Name/IP:’를 검토해 서버의 IP 또는 도메인 주소로 구성되어 있는지 확인합니다.</p>
+<p>주소가 서버 주소로 올바르게 입력되어 있으면, 게이트웨이가 iMonnit Enterprise Portal로 데이터를 전달하도록 구성되고 Enterprise Server가 게이트웨이로부터 데이터를 받도록 구성된 것입니다. 둘 사이의 통신을 막는 네트워크 구성을 검토해야 합니다.</p>
+<p>서버 구성이 양호하고 데이터를 수신하고 있음을 확인하고, 게이트웨이가 실제로 서버로 Point되어 있음을 확인했다면 Monnit 측 구성이 올바름을 확인한 것입니다. 기타 네트워크 및 보안 고려 사항은 적절한 담당자와 검토해야 합니다. 관련 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-11-20</p><h2>Sensor Profile별 구성 값</h2><p>각 Sensor Profile에는 고유한 구성 값과 속성이 있습니다. 이 구성들은 센서가 제시하는 측정값에 자주 영향을 주는 센서 동작을 결정합니다. MINE 및 Serial MODBUS Gateway는 이 구성을 수정하는 기능을 제공하지만, Monnit은 이 센서 설정을 구성하는 데 필요한 설명을 명시적으로 제공하지 않습니다. 이는 Advanced Vibration, CO2 등 복잡한 구성 프로파일을 가진 센서 유형에서 특히 그렇습니다.</p>
+<h4>MINE의 센서 구성에 관한 참고</h4>
+<p>MINE의 한 기능은 모든 센서 유형에 정의된 ‘SensorEdit’ 메서드가 있다는 점입니다. 이 메서드의 매개변수는 iMonnit의 해당 센서 Edit 페이지에서 사용 가능한 매개변수와 동일합니다. 예를 들어 이 링크에서 MINE의 Temperature SensorEdit 메서드를 검토할 수 있습니다.</p>
+<p>특히 이 매개변수들은 ‘Nullable’이어서 변경하려는 값만 전달하는 옵션도 제공합니다. 예를 들어 SensorEdit 메서드로 MINE 서버를 통해 센서에 Heartbeat 구성만 전달하면, 다른 매개변수는 기존 값을 유지하고 heartbeat 값만 변경됩니다. 이 메서드는 사용자를 위해 적절한 ‘dirty’ 플래그 표시도 처리합니다.</p>
+<p>해당 메서드 안에 가드(guard)가 ‘이미’ 마련되어 있어야 합니다. 일반적으로 iMonnit UI에서 값을 구성할 수 있다면, MINE에서 메서드를 호출할 때 iMonnit과 동일한 값을 사용하면 동일한 결과가 나옵니다.</p>
+<h4>이것이 적용되지 않는 경우</h4>
+<p>앞서 언급했듯이 일부 센서 프로파일은 위 Temperature 센서보다 복잡합니다. MINE에서 원시 Sensor 객체를 수정해 이 구성을 편집할 수 있지만, 센서 동작을 방해할 수 있는 값 전달을 막는 가드가 없습니다. 이는 MINE에서 원시 Sensor 객체를 편집하는 경우와 Serial MODBUS Gateway로 센서를 구성하는 경우 모두에 적용됩니다. 이 구성들은 센서에 성공적으로 적용되려면 내부 정보가 필요하므로, 이 구성에 관한 세부 사항은 공개되지 않습니다. 잘못된 구성을 적용하면 센서가 동작 불능이 될 수 있습니다.</p>
+<p>업데이트: 2020-12-09</p><h2>‘Object reference not set to an instance of an object.’ 오류가 보이는 경우</h2><p>‘Object reference not set to an instance of an object.’ 오류는 데이터베이스 문제의 결과입니다. 이 오류를 해결하려면 데이터베이스 문제를 해결해야 합니다.</p>
+<h4>가능한 원인</h4>
+<ol><li>SQL 데이터베이스 크기</li><li>데이터베이스 연결 없음(권한, 사용자명/비밀번호, 네트워크 문제)</li></ol>
+<h4>SQL 데이터베이스 크기 확인</h4>
+<p>가능성 높은 원인은 SQL 데이터베이스 크기입니다. 무료 버전의 SQL Express는 최대 10GB 데이터베이스를 허용합니다. 이 데이터베이스 한도에 도달하면 Enterprise 서버가 더 이상 데이터베이스에 쓸 수 없습니다. 정식 버전의 Microsoft SQL 응용 프로그램으로 업그레이드하거나 새 데이터베이스로 시작해야 합니다. 데이터베이스의 현재 데이터에는 접근할 수 있지만, iMonnit Enterprise 소프트웨어는 더 이상 데이터베이스에 접근/쓰기를 할 수 없습니다. 따라서 새 빈 데이터베이스를 생성해야 합니다. 나중에 데이터에 접근해야 한다면 먼저 기존 데이터베이스를 백업하는 것을 고려할 수 있습니다.</p>
+<p>그런 다음 iMonnit Enterprise 제거 단계를 따를 수 있습니다. 제거 후 다시 설치하고 새 데이터베이스로 시작할 수 있습니다.</p>
+<h4>DB 연결 확인</h4>
+<p>위 단계를 거쳤는데도 문제가 지속되면 다음 중 하나에 문제가 있습니다:</p>
+<ul><li>SQL 사용자명/비밀번호 문제</li><li>Enterprise와 SQL 서버 간 네트워크 문제</li><li>데이터베이스에 접근/쓰기하는 사용자의 권한</li></ul>
+<p>이 단계들로 데이터베이스 연결을 테스트하는 것이 유용할 수 있습니다. 문제가 지속되면 SQL 데이터베이스를 지원하는 담당자와 협력해 문제를 파악하십시오.</p>
+<p>업데이트: 2020-11-03</p><p><a href="https://monnit.co.kr/pages/knowledgebase.html">← 지식베이스 전체</a></p>
+<hr style="margin:40px 0;border:none;border-top:1px solid #e5e8ef">
+<p class="muted">이 페이지는 검색·AI 크롤러를 위한 정적 콘텐츠 버전입니다. 인터랙티브 버전은 <a href="https://monnit.co.kr/">monnit.co.kr</a> 에서 확인하세요.</p>
+<p class="muted">문의: <a href="mailto:korea@monnit.com">korea@monnit.com</a> · 02-2088-1454</p>
+</body>
+</html>

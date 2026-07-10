@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMonnit Online 기술 문서 68건 — Monnit 지식베이스 | Monnit Korea</title>
+<meta name="description" content="Monnit iMonnit Online 설치·설정·문제 해결 기술 문서 68건 전문.">
+<link rel="canonical" href="https://monnit.co.kr/pages/kb-imonnit-online.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="iMonnit Online 기술 문서 68건 — Monnit 지식베이스 | Monnit Korea">
+<meta property="og:description" content="Monnit iMonnit Online 설치·설정·문제 해결 기술 문서 68건 전문.">
+<meta property="og:url" content="https://monnit.co.kr/pages/kb-imonnit-online.html">
+<meta property="og:site_name" content="Monnit Korea">
+<meta name="robots" content="index,follow">
+
+<style>body{font-family:'Pretendard',system-ui,sans-serif;max-width:900px;margin:0 auto;padding:32px 20px;line-height:1.7;color:#1a2130;background:#fff}a{color:#2E5C9A}h1{font-size:30px}h2{font-size:22px;margin-top:36px;border-top:1px solid #e5e8ef;padding-top:24px}h3{font-size:17px;margin:20px 0 4px}.muted{color:#666}.back{display:inline-block;margin-bottom:20px;font-size:14px}nav.crumb{font-size:13px;color:#888;margin-bottom:8px}ul{padding-left:18px}li{margin:6px 0}.card{border:1px solid #e5e8ef;border-radius:10px;padding:16px 18px;margin:12px 0}</style>
+</head>
+<body>
+<nav class="crumb"><a href="https://monnit.co.kr/">Monnit Korea</a> / iMonnit Online 기술 문서 68건</nav>
+<a class="back" href="https://monnit.co.kr/">← 메인으로</a>
+<h1>지식베이스 — iMonnit Online</h1>
+<p class="muted">기술 지식베이스 / iMonnit Online · 68건</p><h2>Monnit Connection Tester(Communication Check Utility)</h2><p>Communication Check Utility는 PC와 iMonnit 서버 간 연결을 테스트할 수 있는 경량 PC 응용 프로그램입니다. 이 유틸리티로 게이트웨이가 iMonnit 소프트웨어로 보내는 데이터를 모방할 수 있습니다. 목적은 기기가 iMonnit 소프트웨어와 통신할 수 있는 네트워크 경로가 있는지 확인하는 것입니다. iMonnit Enterprise, Express, MINE 같은 로컬 호스팅 버전의 iMonnit 소프트웨어를 구현하는 경우, 이 유틸리티로 서버가 게이트웨이 통신을 수용하도록 구성되었는지도 확인할 수 있습니다. 이 문서는 이 유틸리티 사용법을 안내합니다.</p>
+<h4>단계 요약</h4>
+<p><a href="http://downloads.imonnit.com/misc/CommunicationCheckUtility.exe" rel="noopener" target="_blank">http://downloads.imonnit.com/misc/CommunicationCheckUtility.exe</a></p>
+<ul><li>게이트웨이를 iMonnit 소프트웨어에 추가합니다(아직 추가하지 않은 경우).</li><li>Communication Check Utility를 다운로드합니다.</li><li>유틸리티를 실행합니다.</li><li>게이트웨이 ID를 입력합니다.</li><li>올바른 Gateway Type을 선택합니다.</li><li>iMonnit Online 연결을 테스트하는 경우 ‘Use Defaults’ 체크박스를 체크된 상태로 둡니다.</li><li>로컬 호스팅 소프트웨어로 테스트하는 경우 ‘Use Defaults’ 체크박스를 해제하고 서버의 IP 주소(또는 도메인 이름)를 입력합니다.</li></ul>
+<p>--게이트웨이가 통신을 보내는 기본 포트는 아웃바운드 포트 3000입니다. 이 기본값이 변경된 로컬 호스팅 소프트웨어로 테스트하는 경우 올바른 포트를 입력하고, 그렇지 않으면 기본값 3000을 둡니다.</p>
+<ul><li>Check Communication 버튼을 클릭합니다.</li></ul>
+<h4>테스트되는 항목</h4>
+<p>Communication Check Utility는 세 가지를 테스트합니다.</p>
+<ol><li>서버가 게이트웨이로부터 통신을 수신할 준비가 되었는지 확인합니다.</li><li>유틸리티가 실행되는 네트워크가 서버의 DNS를 확인할 수 있는지 확인합니다.</li><li>적절한 포트(포트 3000)를 통해 통신이 서버에 도달할 수 있는 네트워크 경로가 있는지 확인합니다.</li></ol>
+<h4>iMonnit Online과 함께 Communication Check Utility 사용</h4>
+<p>이 유틸리티는 게이트웨이가 iMonnit Online 포털에 연결할 수 없을 때 유용합니다. 네트워크의 DNS 서버 구성이 Monnit 게이트웨이가 데이터를 전달하는 도메인을 확인하는 데 문제가 있는지 식별하는 데 도움이 됩니다. 또한 포트 3000을 통한 iMonnit 서버로의 데이터 전달을 막는 방화벽 문제를 식별하는 데도 도움이 됩니다.</p>
+<h4>DNS 확인 테스트</h4>
+<p>Monnit 게이트웨이는 기본적으로 도메인 이름으로 데이터를 전송합니다. iMonnit Online은 게이트웨이 유형과 연식에 따라 여러 도메인 중 하나에서 이 게이트웨이 통신을 수신합니다. 게이트웨이가 iMonnit Online과 성공적으로 통신하려면, 네트워크의 DNS 서버가 도메인을 확인할 수 있어야 게이트웨이 통신이 전달됩니다. 게이트웨이는 다섯 도메인 이름 중 하나를 확인하려 시도합니다:</p>
+<ul><li>sensorsgateway.com</li><li>t1.sensorsgateway.com</li><li>t2.sensorsgateway.com</li><li>u1.sensorsgateway.com</li><li>u2.sensorsgateway.com</li></ul>
+<p>Communication Check Utility는 네트워크의 DNS 서버로 도메인을 확인하려 시도합니다. 테스트가 성공하면 Success 메시지가 보이고, 유틸리티가 게이트웨이 통신을 모방한 데이터를 iMonnit 서버로 보내려 시도합니다.</p>
+<p>참고: Ethernet 게이트웨이와 USB 게이트웨이(USB Wireless Sensor Adapter 포함)는 TCP로 데이터를 보냅니다. 셀룰러 게이트웨이와 MoWi Wi-Fi 센서는 UDP로 데이터를 보냅니다.</p>
+<h4>통신 테스트</h4>
+<p>DNS 확인이 성공한 후, 지정된 게이트웨이 ID의 데이터를 모방한 패킷이 적절한 포트(기본 포트 3000)를 통해 iMonnit 서버로 전송됩니다. 유틸리티는 먼저 포트 3000을 통해 (기기 유형에 따라) TCP 또는 UDP 연결을 수립하려 시도합니다. 성공하면 ‘TCP/UDP Connect Success’ 텍스트가 표시되고, 유틸리티가 서버로 데이터를 보내려 시도합니다. ‘Message Sent’ 텍스트가 보입니다. 통신이 서버에 수신되면 ‘Message Received’ 텍스트가 보입니다.</p>
+<h4>iMonnit Enterprise 같은 로컬 서버와 함께 Communication Check Utility 사용</h4>
+<p>이 유틸리티는 iMonnit Enterprise 같은 로컬 호스팅 버전의 Monnit 소프트웨어와의 통신 테스트에도 사용할 수 있습니다. 단계와 수행되는 테스트는 iMonnit Online과 동일하지만, Server Address 필드에 서버 주소(도메인 또는 IP 주소)를 입력합니다.</p>
+<h4>Enterprise Wireless Gateway Server</h4>
+<p>이 유틸리티는 게이트웨이가 Enterprise의 계정에 추가되었는지, 그리고 Enterprise Wireless Gateway Server 서비스가 Windows Services.msc 프로그램에서 실행 중인지 확인하는 데 유용합니다. Enterprise Wireless Gateway Server는 게이트웨이 기기로부터 포트 3000을 통한 통신을 수용하는 서비스입니다.</p>
+<p>Enterprise를 실행하는 동일 서버에서 이 유틸리티를 실행하면 서비스가 실행 중이며 게이트웨이 통신을 수용할 준비가 되었는지 테스트합니다. 같은 로컬 네트워크의 다른 PC에서 실행하면 네트워크 통신과 서버 도달 능력에 관한 유용한 정보를 제공합니다.</p>
+<ul><li>Communication Check Utility를 실행합니다.</li><li>게이트웨이가 Enterprise 서버의 네트워크에 추가되었는지 확인합니다.</li><li>게이트웨이 ID를 입력합니다.</li><li>구성된 포트를 입력합니다(기본값 3000).</li><li>Check Communication을 클릭합니다.</li></ul>
+<p>서버에서 실행했을 때 테스트가 성공하면 서비스가 실행 중이며 통신을 수용하는 것입니다.</p>
+<p>테스트가 실패하면 이 문서를 참고해 Enterprise Wireless Gateway Server 문제를 점검하십시오.</p>
+<h4>추가 참고</h4>
+<p>이 유틸리티는 게이트웨이의 데이터를 모방하지만 PC의 IP 주소에서 전송된다는 점을 기억하는 것이 중요합니다. 따라서 PC에서 유틸리티를 실행한 테스트가 성공했다고 해서 네트워크가 게이트웨이의 통신을 완전히 지원한다고 결론짓는 것은 옳지 않습니다. 일반적으로는 그렇지만, 많은 네트워크 보안 기능이 유틸리티를 실행하는 PC에서는 테스트를 성공시키면서도 게이트웨이의 데이터가 Monnit 서버에 도달하는 것은 막을 수 있습니다. 즉 이 유틸리티는 일부 네트워크 문제를 진단하는 데 신뢰할 만하지만, 데이터 전송을 막는 네트워크 문제의 가능성을 완전히 배제하지는 않습니다.</p>
+<p>업데이트: 2020-09-01</p><h2>iMonnit Online에서 새 Action 생성</h2><p>iMonnit 소프트웨어의 Action은 사전 구성된 조건에 기반한 에스컬레이션으로, action 이벤트를 일으킵니다. Action에는 두 가지 주요 구성 요소가 있습니다. Trigger 이벤트와 Action 이벤트입니다. Trigger는 에스컬레이션을 시작하는 조건이고, Action은 트리거의 결과로 소프트웨어가 실행하는 활동입니다. 일반적으로 Trigger는 센서가 감지한 측정 조건에 기반하고, Action은 사용자에게 전송되는 알림입니다. 이 문서는 트리거 조건에 기반해 기능을 수행하는 새 Action을 생성하는 방법을 안내합니다.</p>
+<p>참고: Action은 이전 버전의 Monnit 소프트웨어(iMonnit Online의 Classic View 포함)에서 Notification이라고 불렸습니다. Action과 Notification이라는 용어는 가끔 같은 의미로 쓰입니다.</p>
+<h4>단계 요약</h4>
+<ol><li>iMonnit Online 계정에 로그인합니다.</li><li>왼쪽 사이드바의 Actions 탭을 클릭합니다.</li><li>페이지 오른쪽 상단의 + Add Action 버튼을 클릭합니다.</li><li>Action ‘Trigger’를 추가합니다(필요 시 Sensor Type 등 추가 선택).</li><li>Save를 클릭합니다.</li><li>수행할 Action을 선택합니다(이 문서에서는 Notification Action 선택).</li><li>Notification Settings 구성을 완료합니다.</li><li>알림의 필수 수신자를 선택합니다.</li><li>원하면 Delay를 설정합니다.</li><li>Continue 버튼을 클릭합니다.</li><li>Action 이름을 지정합니다.</li><li>Action Sensors를 선택합니다. !!중요!!</li><li>Finish 버튼을 클릭합니다.</li></ol>
+<h4>Action 생성</h4>
+<p>+ Add Action 페이지 상단 섹션에 표시된 대로 Action 생성에는 세 단계가 있습니다.</p>
+<ol><li>Trigger 생성</li><li>Action 생성</li><li>Action 이름 지정 및 Action에 기기 할당</li></ol>
+<h4>Trigger 생성</h4>
+<p>Trigger는 Action 에스컬레이션을 시작하는 이벤트입니다. Trigger는 센서 측정값, 기기 비활동(Inactivity), 배터리 부족, 일정(Schedule), 또는 더 복잡한 로직(Advanced Action Type)으로 시작될 수 있습니다.</p>
+<ul><li>왼쪽 사이드바 기본 메뉴의 Actions 탭을 클릭합니다.</li><li>페이지 오른쪽 상단의 + Add Action 버튼을 클릭합니다.</li><li>Action Type을 선택합니다(이 문서에서는 Sensor Reading 선택).</li><li>프롬프트가 표시되면 Sensor Type을 선택합니다(이 문서에서는 Temperature 선택).</li></ul>
+<p>Action Triggers라는 새 창이 나타납니다.</p>
+<ul><li>‘Notify when temperature reading is’ 드롭다운 메뉴에서 ‘Greater Than’ 또는 ‘Less Than’을 선택합니다.</li><li>값 필드에 원하는 온도 임계값을 입력합니다.</li><li>다음 드롭다운 메뉴에서 단위(scale)를 선택합니다.</li><li>Save 버튼을 클릭합니다.</li></ul>
+<p>Trigger가 구성되었습니다. 다음 단계인 Action 생성으로 안내됩니다.</p>
+<h4>Action 생성</h4>
+<p>Action은 트리거의 결과로 실행되는 이벤트입니다. 일반적으로 알림(Email, SMS, 음성 통화) 형태이지만, Use Control Unit, Use Local Alert, Use Thermostat, System Action 등 다른 Action도 있습니다. 각 Action에 관한 정보는 관련 문서를 참고하십시오. 이 문서에서는 알림을 트리거합니다.</p>
+<p>이전 단계의 Save 버튼을 클릭하면 Select Actions 창이 나타납니다.</p>
+<ul><li>Send Notification을 클릭합니다.</li><li>Subject 필드에 제목을 입력합니다.</li><li>Text Override 값(트리거 이벤트의 정보로 대체되는 텍스트)을 입력하는 경우 원하는 메시지와 함께 Message 필드에 입력합니다.</li></ul>
+<p>Text Override 값에 관한 정보는 다음 문서를 참고하십시오: Text Override 값 이해.</p>
+<p>Advanced Settings:</p>
+<ul><li>수신자가 표준 SMS 메시지를 받도록 구성된 경우 SMS 필드에 원하는 텍스트를 입력합니다.</li><li>음성 통화 알림에 사용자 지정 메시지를 원하면 여기에 입력합니다.</li></ul>
+<p>Recipient 창에서:</p>
+<ul><li>!!중요!! 알림이 Email, SMS, 음성 통화 알림을 보내도록 하려면 각각 종이비행기 아이콘, 말풍선 아이콘, 전화 아이콘을 클릭합니다. 이 아이콘이 보이지 않으면 사용자가 알림을 받도록 구성하는 관련 문서를 참고하십시오.</li></ul>
+<h5>원하는 사용자에게 원하는 알림 유형 아이콘이 보이지 않으면, 이 문서에 따라 사용자의 Notification Details를 구성해야 할 수 있습니다.</h5>
+<ul><li>알림의 Delay를 설정합니다(Delay를 원하지 않으면 No Delay 선택).</li><li>Set을 선택합니다.</li><li>페이지 오른쪽 상단의 Continue -&gt; 버튼을 클릭합니다.</li></ul>
+<p>이제 Trigger와 Action을 구성했습니다. Action 이름 지정 및 Action Sensors 선택 섹션으로 안내됩니다.</p>
+<h4>Action 이름 지정 및 Action Sensors 선택</h4>
+<p>이 단계에서는 Action Name과 Action Sensors 두 창이 나타납니다. 이 창에서 Action 이름을 지정하고 Action을 트리거할 센서를 선택할 수 있습니다.</p>
+<ul><li>Action 라벨 텍스트를 입력합니다. 이 텍스트는 기본 메뉴에서 Actions 항목을 선택하면 메인 Actions 페이지에 표시됩니다.</li><li>Action Sensors 창에서 이 Action을 트리거할 기기의 센서 이름을 클릭합니다. 센서가 활성화되면 기기 옆에 녹색 체크 표시가 나타납니다.</li><li>Action Name 창에서 Save 버튼을 클릭하면 Action Information 페이지로 이동합니다. Finish 버튼을 클릭하면 모든 Action이 나열된 메인 Actions 페이지로 이동합니다.</li></ul>
+<h4>Action 일정(Schedule) 설정</h4>
+<p>위 단계를 따라 Save 버튼을 클릭하면 Actions Information 페이지로 이동하며, 트리거되어 알림을 보낼 준비가 된 새 Action이 생깁니다. Action이 따를 일정도 만들 수 있습니다. Action에 일정이 있으면 적용된 일정 동안에만 트리거될 수 있습니다.</p>
+<p>참고: Action에 일정이 있으면 예약된 활성 시간 동안에만 트리거될 수 있다는 점을 이해하는 것이 중요합니다. 다만 Action이 활성 일정 동안 트리거되고 Snooze 시간(기본 60분)이 설정되어 있으면, Action이 Disarm되거나 트리거 조건이 정상으로 돌아올 때까지 알림이 계속 전송됩니다. 이로 인해 알림 수신자가 예약 시간 밖에서도 (Snooze로 인해) 알림을 계속 받는 경우가 있을 수 있습니다. 자세한 내용은 다음 문서를 참고하십시오: Action 및 센서 일정의 ‘Before and After’ 이해.</p>
+<p>(Notification Information 페이지에서)</p>
+<ul><li>Schedule 탭(달력 아이콘, 페이지 오른쪽 상단)을 클릭합니다.</li><li>Month &amp; Day Schedule 창이 나타납니다. 요일별 특정 시간에 Action을 예약하려면 Schedule Notification Time 스위치를 전환합니다.</li><li>요일 목록이 나타납니다. 각 요일의 드롭다운 메뉴를 클릭해 일별 일정을 설정합니다. 옵션은 All Day, Off, Between, Before and After, Before, After입니다.</li></ul>
+<p>!!중요!! Notification Time 옵션의 다양한 옵션을 이해하는 것이 중요합니다. 각 요일은 오전 12:00:00부터 오후 11:59:59까지 24시간으로 간주됩니다. 따라서 일정을 적용할 때 고유한 고려 사항이 있습니다. 자세한 내용은 관련 문서를 참고하십시오.</p>
+<ul><li>매월 특정 일에 Action을 활성화하려면 Schedule Notification Months and days 스위치를 전환합니다.</li><li>달력이 나타납니다. 활성화할 각 날짜를 클릭합니다(강조 표시된 날짜를 클릭하면 비활성화됨).</li><li>Save 버튼을 클릭합니다.</li></ul>
+<p>Month &amp; Day Schedule 창 하단에 Success! 메시지가 나타납니다. 이제 Action이 구성된 일정으로 동작합니다.</p>
+<p>Action 생성은 사용자가 iMonnit Online 포털에서 가장 흔히 하는 작업 중 하나입니다. 이 문서가 기본적인 Sensor Reading Action을 성공적으로 생성하는 데 도움이 될 것입니다. 관련 문의가 있으면 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-10-14</p><h2>Premiere 구독이 만료되는 경우</h2><p>참고: 이는 iMonnit Online 포털에 해당합니다. Enterprise, Express, MINE 같은 다른 소프트웨어의 라이선스는 별도로 관리됩니다.</p>
+<h5>iMonnit Premiere 구독이 만료되어 iMonnit Online 기능을 더 이상 사용할 수 없는 경우:</h5>
+<p>Monnit은 무료 iMonnit Basic 구독 외에, 연 $39부터 시작하는 iMonnit Premiere 유료 연간 구독도 제공합니다. iMonnit Premiere 구독의 주요 기능은 다음과 같습니다:</p>
+<ul><li>10분 최소 하트비트(무료 iMonnit Basic의 120분 최소와 대비)</li><li>다중 사용자(단일 사용자와 대비)</li><li>고급 센서 구성 및 동작(센서의 Aware 상태 구성 기능 등)</li><li>iMonnit Online 포털에서 1년치 센서 기록 접근(90일과 대비)</li></ul>
+<p>iMonnit Premiere 구독이 만료되었다면 이 기능들이 계정에서 제거된 것을 보았을 수 있습니다. 계정의 Primary Contact를 제외한 모든 사용자가 비활성화되거나, 하트비트가 예기치 않게 120분으로 바뀌거나, 고급 센서 구성에 더 이상 접근할 수 없는 형태로 나타날 수 있습니다. 이는 45일 무료 체험이 만료되거나 이전 유료 구독이 종료될 때 발생할 수 있습니다. 이 경우 새 연간 라이선스를 구매해 구독을 갱신해야 합니다. 아래 단계로 할 수 있습니다.</p>
+<h4>단계 요약</h4>
+<ul><li>iMonnit Premiere 구독 키를 구매합니다.</li><li>iMonnit Premiere 구독 키를 iMonnit 계정에 적용합니다.</li></ul>
+<h4>iMonnit Premiere 구독 키 구매</h4>
+<p>참고: iMonnit Premiere 구독은 센서 한도로 구분되는 연간 라이선스입니다. 각 라이선스는 계정의 센서 수에 한도가 있습니다. 예를 들어 센서가 6개면 Premiere 6 라이선스가, 150개면 Premiere 200 라이선스가 필요합니다.</p>
+<p>iMonnit Premiere 구독을 구매하는 방법은 두 가지입니다.</p>
+<p>iMonnit Online 계정에서(계정에 저장된 결제 수단 필요)</p>
+<ul><li>iMonnit.com 계정에 로그인합니다.</li><li>관리자라면 왼쪽 사이드바의 Settings 옵션을 클릭합니다.</li><li>‘Subscription’이라고 표시된 섹션을 찾아 Purchase Premiere를 클릭합니다.</li><li>계정에 결제 수단이 아직 추가되지 않았으면 입력하라는 메시지가 표시됩니다. 결제 수단이 있으면 결제를 계속할 수 있습니다.</li></ul>
+<p>Monnit.com 판매 웹사이트에서:</p>
+<ul><li>Monnit.com 사이트에 접속해 Premiere Subscription 제품 페이지로 이동합니다:</li></ul>
+<p><a href="https://www.monnit.com/Products/Software/Software/iMonnit-Premiere---Up-To-6-Sensors" rel="noopener" target="_blank">https://www.monnit.com/Products/Software/Software/iMonnit-Premiere---Up-To-6-Sensors</a></p>
+<ul><li>iMonnit.com 계정의 센서 수에 맞는 라이선스를 선택합니다.</li><li>결제를 완료합니다.</li><li>Premiere 구독 코드가 담긴 이메일을 받습니다.</li><li>코드를 받으면 관리자 로그인으로 iMonnit.com 계정에 로그인합니다.</li><li>왼쪽 하단 사이드바의 Settings를 클릭합니다.</li><li>Premiere 섹션의 Subscription Key 필드에 Premiere 구독 키를 입력합니다.</li><li>Submit 버튼을 클릭합니다.</li></ul>
+<p>이렇게 하면 Premiere 구독이 계정에 적용됩니다.</p>
+<h4>Basic 사용자에게 제공되지 않는 센서 설정</h4>
+<p>iMonnit Basic 사용자는 고급 센서 구성에 접근할 수 없습니다. 목록은 아래와 같습니다.</p>
+<p>Basic:</p>
+<p>Interval: 활동이 기록되지 않을 때 센서가 게이트웨이와 통신하는 주기.</p>
+<p>Sensor Name: 식별을 쉽게 하기 위해 이 센서에 부여한 고유 이름.</p>
+<p>Advanced:</p>
+<p>Activate when: 센서의 어떤 측정값이 Aware 상태를 트리거할지 결정.</p>
+<p>Active Between: 센서가 활발히 동작하는 하루 중 시간대. 센서가 휴면 중일 때는 통신이 이루어지지 않음.</p>
+<p>Assessments per Heartbeat: 하트비트 사이에 센서가 Aware 상태 진입/유지 여부를 판단하기 위해 임계값과 측정값을 비교하는 횟수.(센서 HB가 10분, APH가 10이면 1분마다 조건을 평가. HB 10분, APH 20이면 약 30초마다. HB 10분, APH 250이면 최대 빈도인 1초마다 조건을 평가.)</p>
+<p>Aware State Buffer: 평가값이 임계값에 매우 가까울 때 센서가 표준 동작과 Aware 상태 사이를 오가는 것을 방지하는 버퍼.</p>
+<p>Aware State Heartbeat: Aware 상태에서 센서가 게이트웨이로 데이터를 전송하는 빈도.</p>
+<p>Display As: 데이터 유형의 라벨 설정(예: 화씨 vs 섭씨).</p>
+<p>Failed transmissions before link mode: 센서가 Link 모드에 진입하기 전, 게이트웨이의 응답 없이 전송하는 횟수.</p>
+<p>Heartbeat Interval: 임계값 이탈 활동이 기록되지 않을 때 센서가 게이트웨이로 데이터를 전송하는 주기.</p>
+<p>Hysteresis: 센서가 표준 동작과 Aware 상태 사이를 오가는 것을 방지하는 버퍼.</p>
+<p>Maximum Threshold: 이 값을 초과하는 평가값은 센서를 Aware 상태로 진입시킴.</p>
+<p>Minimum Threshold: 이 값 미만의 평가값은 센서를 Aware 상태로 진입시킴.</p>
+<p>The sensor is on: 센서가 활발히 동작하는 하루 중 시간대. 센서가 휴면 중일 때는 통신이 전송되지 않음.</p>
+<p>Sensor Name: 식별을 쉽게 하기 위해 이 센서에 부여한 고유 이름.</p>
+<p>Show Dew Point: 표시 데이터에 이슬점을 정보로 포함.</p>
+<p>Synchronize: 소규모 센서 네트워크에서 센서들이 통신을 동기화하도록 설정할 수 있음. ‘Yes’로 표시된 센서는 UTC와 동기화하여 UTC 자정에 통신하도록 설정한 뒤 그에 기반해 하트비트를 잡음(배터리를 넣은 시점이 아니라). 기본값 ‘Off’는 센서가 통신을 무작위화하여 통신 견고성을 최대화함. 이 값을 설정하면 센서들의 통신이 동기화됨.</p>
+<p>Time Frame: 평가할 시간 범위(분).</p>
+<p>Time to Re-Arm (seconds): 트리거 이벤트 후 센서가 재무장하기 전 기다리는 시간(초).</p>
+<p>Use Aware State: 사용자가 설정한 값을 벗어난 평가값은 센서를 Aware 상태로 진입시킴.</p>
+<p>Use this sensor through a repeater: 센서를 리피터와 함께 사용하려면 이 박스를 체크(기본값은 체크 해제). 참고: 펌웨어 2.0.0.0 이전 출시 센서에만 해당.</p>
+<p>Premiere 구독을 적용하면 Premiere 기능(추가 사용자, 10분 하트비트, 고급 센서 구성 등)이 돌아옵니다.</p>
+<p>업데이트: 2020-10-26</p><h2>Action에 Delay(지연) 설정</h2><p>Action(Notification)은 지연 기간 후 알림을 보내는 기능을 제공합니다. 이는 특정 트리거 조건이 일정 시간 지속되지 않는 한 알림이 필요 없는 경우에 유용합니다. 이 문서는 이 기능에 관한 정보를 제공합니다.</p>
+<h4>사용 사례 예시</h4>
+<p>냉장 모니터링</p>
+<p>이 기능이 유용한 흔한 예는 냉장 모니터링입니다. Monnit 센서는 냉장 장치 내부 온도를 모니터링하여 내용물이 규정 시간 이상 온도 규정을 벗어나지 않도록 하는 데 자주 사용됩니다. Monnit 센서는 냉장고 문이 열리거나 제상 주기 동안 온도 변화를 자주 감지하므로, 지정 임계값 미만의 모든 온도 변화에 알림을 받으면 불필요하게 매우 잦은 알림이 사용자에게 전송될 수 있습니다. 이런 경우 사용자는 온도 임계값이 장시간 위반된 경우에만 알림을 받기를 원할 수 있습니다. 즉 냉장고 문이 열릴 때마다 알림을 받기보다는, 문이 일정 시간 이상 열려 있을 때 알림을 받기를 원할 수 있습니다. 이것이 Action의 Delay 기능 사용 사례입니다.</p>
+<p>계층형 수신자(Tiered Recipients)</p>
+<p>지연이 유용한 또 다른 예는 알림을 받도록 설정된 사용자가 여럿이지만 계층적으로 알림을 받게 해야 하는 경우입니다. 즉 한 사용자가 알림을 받아 문제를 처리하도록 안내받고, 그 사용자가 응답하지 않으면 지연 후 두 번째 사용자가 알림을 받습니다(추가 지연 후 추가 사용자도 가능). 지연을 사용해, 지정 시간 내에 다른 사용자가 이미 조건을 처리하지 않은 경우에만 전략적으로 사용자에게 알릴 수 있습니다. Action은 독립적인 여러 지연 시간으로 여러 사용자에게 알림을 보내도록 구성할 수 있습니다.</p>
+<h4>단계 요약</h4>
+<ol><li>iMonnit Online 계정에 로그인합니다.</li><li>왼쪽 사이드바의 Actions를 클릭합니다.</li><li>지연을 추가할 Action의 이름을 클릭합니다.</li><li>상단 탐색 바의 Actions 탭(로켓 아이콘)을 클릭합니다.</li><li>창의 메인 보기 영역에서 Notifications 옵션을 클릭합니다.</li><li>Recipient 창에서 지연 알림을 설정할 사용자를 찾습니다.</li><li>지연을 설정할 알림 유형의 아이콘을 클릭합니다.</li><li>Delay 옵션 오버레이가 나타납니다. 알림에 적용할 Delay를 선택합니다.</li><li>Set 버튼을 클릭합니다.</li><li>해당 사용자의 알림 아이콘이 녹색으로 강조되고 아이콘 옆에 구성된 지연이 표시되는지 확인합니다.</li></ol>
+<h4>지연 작동 방식</h4>
+<p>Action의 트리거 조건이 충족되면, Action은 알림을 보내지 않고 트리거되며 지연 타이머가 시작됩니다. 지연 타이머가 만료될 때까지 센서가 정상 동작 조건 내의 측정값을 보고하지 않으면 지연 후 알림이 전송됩니다. 지연 타이머 만료 전에 센서가 정상 동작 조건 내의 측정값을 다시 보고하면, Action이 Disarm/Rearm되어 수신자에게 알림이 전송되지 않습니다.</p>
+<h4>Notify after aware period 알림</h4>
+<p>센서가 특정 조건을 일정 시간 감지한 후 알림을 보내도록 구성하는 대안적 방법이 있습니다. 이 방법은 센서의 Aware 상태를 활용하며, 센서가 구성된 시간 동안 추가로 연속된 Aware 상태 측정값을 보고한 후 Action을 트리거합니다. 이 유형의 Advanced Notification은 iMonnit Premiere 구독자에게만 제공되며, 관련 정보는 다른 문서에서 확인할 수 있습니다.</p>
+<h4>온도 버퍼(Temperature buffer)</h4>
+<p>Monnit은 지연 알림을 구현하는 경우 유용할 수 있는 온도 버퍼도 제공합니다. 온도 버퍼는 온도 센서 프로브를 삽입하는 유리구슬 바이알입니다(센서에 유선 프로브가 있어야 함). 이 버퍼는 온도 센서가 주변 온도 변화를 감지하는 속도를 늦추는 데 효과적입니다. 센서 프로브와 접촉하는 유리구슬이 주변 공기보다 온도 변동에 더 천천히 반응하므로 변화율이 느려집니다. 일부 경우 이는 원하는 지연을 얻는 데 유용할 수 있습니다.</p>
+<p><a href="https://www.monnit.com/Products/Accessories/Accessory/Temperature-Buffer---Glass-Beads" rel="noopener" target="_blank">https://www.monnit.com/Products/Accessories/Accessory/Temperature-Buffer---Glass-Beads</a></p>
+<p>위에서 언급한 것 외에도 지연 알림이 바람직한 시나리오가 많습니다. 이 문서에서 언급한 도구로 원하는 구성을 달성할 수 있을 것입니다. 관련 문의는 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-02-19</p><h2>Action의 Text Override 값 이해</h2><p>Text Override 값은 Action의 기능으로, 특정 구문의 텍스트를 Action 메시지에 입력하면 iMonnit Online 포털이 이를 트리거 이벤트의 정보로 대체합니다. 이를 통해 수신자에게 전달되는 Action 메시지를 트리거 조건에 특정한 정보를 포함하도록 사용자 지정할 수 있습니다. 이 문서는 이 기능에 관한 정보를 제공합니다.</p>
+<p>참고: 사용자 지정 텍스트만 포함하는 메시지 구성에 관한 정보는 이 문서를 참고하십시오.</p>
+<h4>Text Override 값 활용 방법</h4>
+<p>Text Override 값을 포함하도록 Action을 구성하면, 수신자에게 전달되는 메시지 텍스트에 트리거 이벤트의 동적 정보를 포함할 수 있습니다. 트리거 센서 ID, 이름, 날짜, 측정값 등의 세부 정보를 메시지에 담을 수 있습니다.</p>
+<p>예를 들어 Action의 Message 필드에 다음 텍스트로 구성된 Action은, 해당 스크린샷처럼 수신자에게 전달되는 문자 메시지가 됩니다.</p>
+<p>_Message(및 SMS Message) 필드에 입력한 텍스트:</p>
+<p>"TemperatureData Greater Than 32 {ID} {Reading} {Time} {ReadingDate} {ReadingTime} {Name} {Reading}_</p>
+<p>수신자 문자 메시지:</p>
+<p>위 예에서 보듯, Text Override 값은 ‘{ }’(중괄호) 안에 특정 텍스트로 입력하며, 알림이 수신자에게 전송될 때 iMonnit 포털이 이 값들을 해당 정보로 대체합니다.</p>
+<h4>사용 가능한 Text Override 값</h4>
+<p>아래 나열된 값들이 메시지에 포함할 수 있는 Text Override 값입니다. Actions Message 구성에서 Message 라벨 옆 작은 느낌표 아이콘을 클릭하면 볼 수 있습니다.</p>
+<p>사용 가능한 Text Override 값:</p>
+<p>{ID} : 알림을 트리거한 센서 또는 게이트웨이의 고유 ID</p>
+<p>{Name} : 알림을 트리거한 센서 또는 게이트웨이의 이름</p>
+<p>{Reading} : 기기의 현재 측정값</p>
+<p>{Network} : 센서/게이트웨이가 속한 네트워크 이름</p>
+<p>{Notification} : 알림 이름</p>
+<p>{Subject} : 알림 제목</p>
+<p>{AccountNumber} : 알림이 속한 계정 번호</p>
+<p>{CompanyName} : 알림이 속한 계정의 회사명</p>
+<p>{Address} : 센서가 있어야 하는 계정 주소</p>
+<p>{Address2} : 계정 주소의 호실, 아파트 등 번호</p>
+<p>{City} : 계정이 위치한 도시</p>
+<p>{State} : 계정이 위치한 주</p>
+<p>{PostalCode} : 계정이 위치한 우편번호</p>
+<p>{Country} : 계정이 위치한 국가</p>
+<p>{Date} : 알림이 전송된 날짜</p>
+<p>{Time} : 알림이 전송된 시간</p>
+<p>{ReadingDate} : 현재 알림 트리거 날짜</p>
+<p>{ReadingTime} : 현재 알림 트리거 시간</p>
+<p>{OriginalReadingDate} : 최초 알림 트리거 날짜</p>
+<p>{OriginalReadingTime} : 최초 알림 트리거 시간</p>
+<p>{OriginalReading} : 알림을 트리거한 최초 측정값</p>
+<p>{Acknowledge} : 알림 확인(Acknowledge) 링크(이메일 전용)</p>
+<p>{AcknowledgeURL} : 알림 확인 링크의 원시 URL</p>
+<p>알림의 일부로 Text Override 값을 구성하면 iMonnit 시스템의 활용 범위를 넓힐 수 있습니다. Text Override 값에 관한 문의가 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-12-14</p><h2>iMonnit Online에서 사용자를 다른 계정에 연결(Link)</h2><p>iMonnit Online 포털은 단일 사용자를 여러 계정에 연결(Link)할 수 있게 합니다. 사용자를 다른 계정에 연결하면 그 사용자가 사용자 지정 권한으로 연결된 계정을 볼 수 있고, 연결된 계정의 Action 수신자로 포함될 수 있으며, 연결된 계정의 센서를 보고 구성할 수 있습니다. 이는 단일 사용자 이름을 유지하면서 별도 계정의 기기/정보에 접근하려는 사용자에게 유용합니다. 예를 들어 각자 별도의 iMonnit Online 계정을 가진 두 지점에서 일하는 음식점 직원이 있다고 합시다. 사용자가 한 계정에 있고 두 번째 계정에 연결하면 두 지점 모두 모니터링할 수 있습니다. 이 문서는 사용자를 추가 계정에 연결하는 단계와 세부 사항을 제공합니다.</p>
+<p>참고: 연결된 사용자는 연결된 계정에서 권한을 갖지 않습니다. 따라서 연결된 사용자가 연결된 계정에서 볼 수 있는 네트워크를 제한할 방법이 없습니다. 네트워크 권한을 제한해야 한다면 그 계정에 사용자를 생성해야 합니다.</p>
+<h4>단계</h4>
+<h4>사용자를 계정에 연결</h4>
+<ol><li>사용자가 아직 접근 권한이 없는 계정의 관리자로 로그인합니다.</li><li>왼쪽 사이드바의 Users 탭을 선택합니다.</li><li>메인 보기 영역 오른쪽 상단의 Link Users 아이콘을 선택합니다.</li><li>이 계정에 연결 접근을 제공할 사용자의 이메일 주소를 입력합니다.</li><li>Submit을 선택합니다.</li></ol>
+<h4>연결 수락</h4>
+<ol><li>다른 계정에 연결되는 사용자 계정에 로그인합니다.</li><li>사용자 메뉴(오른쪽 상단의 사람 실루엣 아이콘)를 선택합니다.</li><li>Linked Accounts를 선택합니다.</li><li>녹색 체크 표시 ✅를 클릭해 연결을 수락합니다.</li></ol>
+<p>✅ 이제 사용자가 공식적으로 다른 계정에 연결되었습니다.</p>
+<h4>연결 거절</h4>
+<p>참고: 대기 중인 연결이 있는 사용자는 계정에서 삭제할 수 없습니다.</p>
+<ol><li>다른 계정에 연결되는 사용자 계정에 로그인합니다.</li><li>사용자 메뉴(오른쪽 상단의 사람 실루엣 아이콘)를 선택합니다.</li><li>Linked Accounts를 선택합니다.</li><li>빨간색 ❌를 클릭해 연결을 거절합니다.</li></ol>
+<p>❌ 연결이 거절되었습니다.</p>
+<h4>연결된 계정 보기</h4>
+<ol><li>다른 계정에 연결되는 사용자 계정에 로그인합니다.</li><li>사용자 메뉴(오른쪽 상단의 사람 실루엣 아이콘)를 선택합니다.</li><li>Linked Accounts를 선택합니다.</li><li>보려는 연결된 계정 옆의 View Account(눈 아이콘)를 선택합니다.</li></ol>
+<h4>연결된 계정에서 나가기</h4>
+<p>연결된 계정을 보고 있을 때 왼쪽 사이드바에 Admin 옵션이 나타납니다.</p>
+<ol><li>왼쪽 사이드바의 Admin 옵션을 선택합니다.</li><li>왼쪽 사이드바의 Home 아이콘을 선택합니다.</li><li>나타나는 메뉴에서 Home을 선택합니다.</li></ol>
+<p>✅ 사용자가 기본 계정으로 돌아갑니다.</p>
+<h4>연결된 계정에서 사용자 연결 해제</h4>
+<ol><li>사용자가 아직 접근 권한이 없는 계정의 관리자로 로그인합니다.</li><li>왼쪽 사이드바의 Users 탭을 선택합니다.</li><li>메인 보기 영역 오른쪽 상단의 Link Users 아이콘을 선택합니다.</li><li>Unlink 아이콘을 선택합니다.</li></ol>
+<h4>사용자 측에서 연결된 계정에서 연결 해제</h4>
+<ol><li>다른 계정에 연결되는 사용자 계정에 로그인합니다.</li><li>사용자 메뉴(오른쪽 상단의 실루엣 아이콘)를 선택합니다.</li><li>Linked Accounts를 선택합니다.</li><li>Remove를 선택합니다.</li></ol>
+<p>사용자 측에서 연결을 해제한 후에는, 연결된 계정에 Relink 옵션과 함께 표시될 수 있습니다.</p>
+<p>이전에 연결되었던 계정의 관리자가 사용자를 다시 연결(Relink)할 수 있습니다.</p>
+<p>업데이트: 2021-01-05</p><h2>Reports 및 과거 센서 데이터</h2><h5>Reports 기능으로 과거 센서 데이터를 내보내려는 경우</h5>
+<p>iMonnit Online 포털에서 Reports 탭으로 과거 센서 데이터를 Excel에서 읽을 수 있는 CSV 스프레드시트로 정리한 보고서를 생성할 수 있습니다. 이 작업 방식과 관련된 기능적 세부 사항이 있습니다. 이 문서는 Reports 기능을 가장 효과적으로 사용하도록 이에 관한 정보를 제공합니다.</p>
+<h4>Sensor Export: By Date Range</h4>
+<p>단일 센서에 대해 최대 70,000개 레코드를 내보낼 수 있는 보고서가 있습니다. Sensor Export: By Date Range는 지난 1년에 대해 최대 70,000개 데이터 포인트를 제공합니다. 이 보고서는 ‘Once(한 번)’로 실행되도록 구성할 수 있습니다. 생성 후 60분 이내에 실행되어 지정 기간의 데이터를 담습니다. 이 보고서는 단일 센서에만 유효하며 여러 센서에 대해 실행할 수 없습니다. 단일 센서 이상의 데이터가 필요하면 여러 보고서를 만들거나 Monnit에 유료 사용자 지정 보고서를 요청해야 합니다.</p>
+<h4>기타 보고서는 사전에 생성하도록 설계됨</h4>
+<p>Monnit 소프트웨어는 매일 수백만 개의 데이터 포인트를 저장합니다. 보고서를 실행하면 이 데이터 포인트에 접근하므로 Monnit 서버에 큰 부하가 걸릴 수 있습니다. 따라서 Monnit 소프트웨어는 보고서 실행 시 서버에 걸리는 부하를 효율적으로 관리하기 위해 예약 보고서를 제공합니다. 이 때문에 센서 및 네트워크 데이터에 대한 보고서는 사전에 생성해야 합니다(Sensor Export: By Date Range 제외). 보고서는 매일·매주·매월 실행하도록 구성할 수 있습니다. 이런 보고서의 예로 Sensor: Data Export(일/주/월)와 Network: Data Export(일/주/월/센서 30개 한도)가 있습니다.</p>
+<p>참고: Network: Data Export(일/주/월/센서 30개 한도)는 센서 30개라는 엄격한 한도가 있습니다. 네트워크에 센서가 30개를 초과하면 보고서가 실행되지 않습니다. 이 보고서를 실행하려면 네트워크를 센서 30개 이하로 구성해야 합니다. 네트워크에 센서가 30개를 초과하는데 보고서를 실행하려면, Monnit Support에 유료 사용자 지정 보고서를 요청할 수 있습니다(이 문서의 ‘보고서를 사전에 생성하지 않은 경우’ 섹션 참고).</p>
+<h4>보고서 저장 한도</h4>
+<p>보고서가 실행되어 다운로드 가능해지면, iMonnit Online 계정의 Reports 탭에서 일시적으로 접근할 수 있도록 저장됩니다.</p>
+<p>월간 보고서: 생성된 각 월간 보고서 인스턴스는 30일간 일시 저장됩니다(보고서 1개, 30일).</p>
+<p>주간 보고서: 각 주간 보고서 인스턴스는 4개 주간 보고서를 30일간 저장합니다(보고서 4개, 30일).</p>
+<p>일간 보고서: 각 일간 보고서는 20개 일간 인스턴스를 30일간 저장합니다(보고서 20개, 30일).</p>
+<p>30일이 지나면 각 보고서 인스턴스가 제거되므로, 향후 참조해야 한다면 생성된 보고서를 다운로드해 보관하는 것이 중요합니다.</p>
+<h4>예약하지 않아도 되는 보고서</h4>
+<p>사전 예약이 필요 없는 보고서도 있습니다. 이 보고서는 생성 후 실행되면 다운로드할 수 있습니다. 보고서 생성 후 일반적으로 20분 이내에 생성됩니다(생성 후 실행될 때까지 인내심을 가지십시오). 이런 보고서의 예로 Account Report, Battery Health Report, Access Log, Sent Notifications, Sensor count by subaccount, Logged Notes Report, Sensor: No Notification Profile, Device Info Report, Account Expiration Report, Inactivity Report For SubAccounts, Device Signal and Battery Health, Notification Credits By Sub Accounts, Reseller: User List, Calibration Certification Report 등이 있습니다.</p>
+<h4>보고서를 사전에 생성하지 않은 경우</h4>
+<p>네트워크 기록 내보내기가 필요한데 보고서를 미리 생성하지 않았거나, 필요한 기록이 1년 이상 전의 것이거나, 큰 데이터셋이 필요하면, Monnit이 유료 보고서를 생성할 수 있습니다. 1년 이상 된 과거 데이터나 10,000개를 초과하는 레코드는 Monnit에서 사용자 지정 보고서를 구매해 여전히 가져올 수 있습니다(Sensor Export: By Date Range 제외). 사용자 지정 보고서 비용은 $50부터 시작하며 요청 데이터 포인트 수와 보고서에 필요한 기간에 따라 달라집니다. 사용자 지정 보고서를 생성해야 하면 담당 영업이나 고객 서비스(info@monnit.com)로 문의하십시오.</p>
+<h4>Export/Download 기능으로 센서 데이터 내보내기</h4>
+<p>보고서 외에도 Sensor Overview에서 센서 및 게이트웨이 데이터를 다운로드할 수 있습니다. 최대 2,500개 레코드를 다운로드할 수 있는 다운로드 옵션이 있습니다. 대부분의 용도에서 이는 센서 데이터를 CSV 형식으로 다운로드하는 효과적인 방법입니다. Sensor Overview에서 센서 데이터를 다운로드할 때 2,500개 레코드 한도는 엄격한 한도입니다. 따라서 더 많은 레코드가 필요하면 보고서를 사전에 생성하고 예약 실행 시간 후에 다운로드해야 합니다.</p>
+<p>보고서는 사전에 구성하면 유용한 도구가 될 수 있습니다. 기기가 생성한 데이터를 편리하게 예약된 방식으로 다운로드할 수 있습니다. 보고서를 사전에 생성하지 않더라도 Monnit은 데이터를 CSV 형식으로 가져올 방법을 제공합니다. 추가 문의는 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-12-03</p><h2>iMonnit Online에서 특정 네트워크 보기에 대한 사용자 권한 제한/허용</h2><p>iMonnit Online은 계정의 특정 센서 네트워크를 사용자가 보지 못하도록 제한하거나 보도록 허용하는 기능을 제공합니다. 기본적으로 Standard User에게는 계정의 네트워크를 볼 권한이 부여되지 않습니다. 이 문서는 사용자가 볼 수 있는 센서 네트워크를 지정하는 단계를 제공합니다.</p>
+<h4>단계 요약</h4>
+<ul><li>관리자 사용자로 iMonnit Online 계정에 로그인합니다.</li><li>기본 메뉴의 Users 탭을 클릭합니다.</li><li>네트워크 접근을 제한할 사용자를 클릭합니다.</li><li>Permissions 탭(자물쇠 아이콘)을 클릭합니다.</li><li>Networks 탭을 클릭합니다.</li><li>사용자 계정에서 보이지 않게 할 네트워크의 ‘Can See Network’ 체크박스를 체크/해제합니다.</li><li>Save 버튼을 클릭합니다.</li></ul>
+<h4>최종 결과</h4>
+<p>Networks 권한 목록에서 네트워크를 체크/해제하면, 그 네트워크의 게이트웨이와 센서를 볼 권한이 부여/제거됩니다. Actions 같은 일부 권한은 계정 전체 권한이라는 점에 유의해야 합니다. 다만 이 구성은 사용자가 계정에서 선택되지 않은 네트워크를 보지 못하게 합니다.</p>
+<p>업데이트: 2020-10-05</p><h2>iMonnit.com 사용자 이름 또는 비밀번호를 잊은 경우</h2><h5>사용자 이름이나 비밀번호를 잊어 iMonnit.com 온라인 센서 포털에 로그인할 수 없는 경우</h5>
+<p>참고: !중요! iMonnit.com 온라인 센서 포털은 Monnit.com 판매 웹사이트와 다른 웹사이트이며 로그인 자격 증명도 다릅니다. Monnit.com 판매 웹사이트 로그인에 문제가 있으면 해당 문제에 대한 문서를 참고하십시오.</p>
+<p>iMonnit.com 온라인 센서 포털 웹사이트 로그인에 어려움이 있다면, 잘못된 사용자 이름·비밀번호이거나 사용자가 잠겼기 때문일 수 있습니다. 센서 포털 접근에 문제가 있으면 이 문서가 해결에 도움이 될 수 있습니다.</p>
+<h4>단계 요약</h4>
+<ul><li>사용자 이름을 조회하고 비밀번호를 재설정합니다.</li><li>사용자 잠금을 해제합니다.</li><li>계정에 활성 iMonnit Premiere 구독이 있는지 확인합니다.</li></ul>
+<h4>사용자 이름 조회 및 비밀번호 재설정</h4>
+<p>iMonnit.com 센서 포털 사용자 이름은 이메일 주소일 수도, 텍스트만으로 구성될 수도, 특수 문자가 포함된 사용자 이름일 수도 있습니다. 흔한 문제는 잘못된 사용자 이름으로 로그인을 시도하는 것입니다. 따라서 사용자 이름을 조회해야 할 수 있습니다. iMonnit.com 로그인 페이지 <a href="https://www.imonnit.com/Account/LogOnOV" rel="noopener" target="_blank">https://www.imonnit.com/Account/LogOnOV</a> 에 접속해 아래 단계를 따르십시오.</p>
+<ol><li>‘Forgot?’ 링크를 클릭합니다.</li><li>사용자의 Notification 설정에 추가된 이메일 주소를 입력하고 Submit을 클릭합니다.</li></ol>
+<p>참고: 해당 이메일 주소가 둘 이상의 사용자 Notification 설정에 추가되어 있으면, 가장 최근에 생성된 사용자에 대해 비밀번호 재설정이 실행됩니다. 이메일 주소가 여러 사용자에 연결되어 있다고 의심되면 support@monnit.com 으로 연락해 계정 접근을 받아야 합니다.</p>
+<ol><li>이메일로 전달된 Recovery Authorization Key를 확인합니다. Recovery Authorization Key 필드에 키를 입력하고 Submit을 클릭합니다.</li><li>다음으로 사용자 이름이 표시되고 비밀번호를 변경할 수 있는 페이지가 보입니다. 사용자 이름이 이메일 주소와 다를 수 있으므로 반드시 기록해 두십시오. 새 비밀번호를 입력하고 확인한 뒤 Submit을 클릭합니다.</li><li>사용자 이름과 새 비밀번호로 로그인합니다.</li></ol>
+<h4>‘This user is inactive. Multiple users only available with premium subscription.’ 오류가 보이는 경우</h4>
+<p>유료 iMonnit Premiere 구독의 기능 중 하나는 둘 이상의 사용자를 둘 수 있다는 것입니다. 무료 iMonnit Basic 구독은 단일 사용자만 허용합니다. 따라서 iMonnit Premiere 구독이 만료된 계정이라면 Primary Contact를 제외한 모든 사용자가 비활성화됩니다. 추가 사용자를 활성화하려면 iMonnit Premiere 구독 갱신을 구매해야 합니다. 이는 계정의 Primary Contact 사용자가 할 수 있습니다. 갱신 완료에 관한 정보는 다음 문서를 참고하십시오.</p>
+<p><a href="https://monnit.crisp.help/en-us/article/premiere-subscription-expirationrenewal-y6qa0/?1576791935727" rel="noopener" target="_blank">https://monnit.crisp.help/en-us/article/premiere-subscription-expirationrenewal-y6qa0/?1576791935727</a></p>
+<h4>이메일 수신을 거부(Opt Out)한 경우</h4>
+<p>이전에 이메일 수신을 거부했다면(Monnit이 보낸 이메일의 Unsubscribe 링크 클릭), 비밀번호 재설정 이메일을 받지 못합니다. Monnit의 이메일 수신을 다시 동의(Opt In)해야 합니다. User Notification 설정에서 Opt In하기 위해 계정에 접근할 수 없으면(‘사용자 Notification 세부 정보 편집’ 참고), 사무실로 전화하거나 support@monnit.com 으로 이메일을 보내 Opt In을 요청해야 합니다.</p>
+<p>이 문서의 단계로 iMonnit.com 온라인 센서 포털 로그인 시 겪는 대부분의 문제를 해결할 수 있을 것입니다. 추가 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-07-30</p><h2>Action의 Disarm 및 Rearm</h2><h5>Action의 Disarm 및 Rearm 개념</h5>
+<p>Action은 트리거 조건에 기반해 이메일, SMS, 음성 통화 알림을 고객에게 전달하는 수단입니다. 알림이 전달되었을 때 사용자가 응답하는 방식은 두 가지입니다. 바로 Action의 **Disarm**과 **Rearm**입니다. 이 문서는 이 에스컬레이션의 개념을 설명합니다.</p>
+<h4>일반 Action 에스컬레이션</h4>
+<p>Action의 두 주요 구성 요소는 Trigger 이벤트와 Action 이벤트입니다. 트리거는 에스컬레이션을 시작하는 이벤트이고, Action은 트리거에 대응해 소프트웨어가 취하는 동작입니다. 트리거는 센서 측정 이벤트, 비활동, 일정 등으로 시작될 수 있습니다. 대부분의 경우 트리거는 센서 측정값 형태입니다. Action은 이메일·SMS·음성 통화 알림 형태일 수 있습니다. 또한 Action을 활성화·비활성화·Disarm(Acknowledge)·Rearm(Full Reset)하는 로직을 실행하는 System Action 형태일 수도 있습니다. Action은 Control Unit, Thermostat, Local Alert에 명령을 보내는 형태일 수도 있습니다. 이 문서의 초점은 표준 알림 Action입니다.</p>
+<p>알림을 보내도록 구성된 Sensor Reading Action의 예에서, 센서 측정값이 iMonnit Online 포털에 수신되어 에스컬레이션을 시작합니다. 이는 Recipients로 구성된 사용자에게 알림을 보냅니다. 알림이 트리거되면 iMonnit Online 포털 페이지 왼쪽 상단의 ‘종(bell)’ 아이콘 위에 작은 빨간 점이 보입니다. 이 종을 클릭하면 트리거되어 현재 응답을 기다리는 알림 목록이 다음 이미지처럼 보입니다.</p>
+<p>사용자가 아무 조치를 취하지 않으면, 알림은 ‘snooze’ 타이머로 반복 알림을 계속 보냅니다. 기본적으로 이 타이머는 60분입니다. 즉 트리거 조건이 지속되고 사용자가 Action을 Disarm하지 않으면, Disarm되거나 트리거 조건이 정상으로 돌아올 때까지 알림이 60분마다 계속 전송됩니다.</p>
+<p>Action을 트리거한 센서가 계속 트리거 조건을 보고하고, 사용자가 이를 확인하여 트리거 조건이 지속되는 동안 60분 snooze 반복 알림 전송을 멈추려면 Action을 Disarm할 수 있습니다. 이는 왼쪽 상단의 종 아이콘을 클릭한 뒤(위 이미지) 나타나는 오버레이 메뉴에서 더 작은 Disarm 종 아이콘을 클릭하면 됩니다. 이렇게 하면 현재 트리거 조건이 지속되는 동안 반복 snooze 알림 전송이 Disarm됩니다.</p>
+<p>센서가 트리거 조건이 끝났다고 보고하면 Action이 ‘Rearm’됩니다. 즉 센서가 정상 조건을 감지하고 Action이 사실상 재설정되어, 향후 센서가 다시 트리거 조건을 보고하면 다시 트리거될 수 있습니다.</p>
+<p>사용자가 Action을 **Disarm**하면 수동으로 **Rearm**할 수도 있습니다. 현재 트리거 조건으로 인한 알림 전송은 멈추되, 이후 측정값에서 트리거 조건이 지속되면 다시 알림이 전송되기를 원하는 경우입니다. Action을 Disarm한 뒤 Rearm하면 알림이 사실상 완전히 재설정됩니다.</p>
+<h4>Action 색상 구분</h4>
+<p>iMonnit 계정에서 Actions 탭을 볼 때 빨간색이나 노란색으로 강조된 Action이 보일 수 있습니다.</p>
+<ul><li>노란색 - Disarm되었으나 Rearm되지 않았고, 아직 트리거 상태에 있는 트리거에 연결된 Action. 이 Action은 구성된 Snooze 시간에 알림을 계속 보내지 않습니다.</li><li>빨간색 - 아직 Disarm/Rearm되지 않았고, 아직 트리거 상태에 있는 트리거에 연결된 Action. 이 Action은 구성된 Snooze 시간에 알림을 계속 보냅니다. 참고: Action이 비활성화되어 전송하지 않더라도, Trigger 센서가 트리거 조건을 충족하면 빨간색으로 강조될 수 있습니다.</li></ul>
+<p>또한 센서가 Action의 트리거로 선택되어 있고 그 측정값이 Action 트리거의 트리거 조건을 충족하면, 센서 그래픽의 작은 점이 빨간 점으로 표시됩니다.</p>
+<h4>알림은 24시간 동안 전송된 뒤 멈춤</h4>
+<p>알림이 24시간 이내에 Disarm/Rearm되지 않으면 전송이 멈춥니다. Monnit은 Snooze 시간에 24시간 동안 알림이 전송되면 사용자가 트리거 조건을 처리하기에 충분한 시간으로 간주합니다. 따라서 24시간이 지나면 알림이 더 이상 트리거되지 않습니다. 그 시점에 사용자가 Action을 Disarm/Rearm하면 다시 트리거됩니다. 다만 Rearm하지 않으면 더 이상 트리거되지 않습니다.</p>
+<p>Disarm, Rearm, Snooze 시간을 이해하는 것은 Action을 효과적으로 관리하는 데 필수적입니다. 추가 문의가 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-10-20</p><h2>System Action 이해</h2><p>System Action은 알림 및/또는 Add-on 기기(Control Unit, Local Alert 등)와 관련된 로직을 사용자가 구성할 수 있게 합니다. System Action은 iMonnit Online 포털에서 Action을 구성할 때 Action 탭과 함께 사용됩니다. Action은 트리거 조건이나 이벤트로 트리거되며 다음 상호작용을 제공합니다:</p>
+<ul><li>알림 전송(Email, SMS, 음성 통화)</li><li>Control Unit 명령 전송</li><li>Local Alert 메시지 전송(메시지 표시, 소리, LED)</li><li>System Action 실행</li></ul>
+<p>따라서 위 기능들로 트리거 조건에 기반해 사용자나 기기와 상호작용하는 복잡한 로직을 실행할 수 있습니다. Action이 트리거되면, 트리거 Action에 구성된 System Action이 대상 Action(트리거 Action과 같을 수도, 다를 수도 있음)에 대해 실행됩니다.</p>
+<h4>System Action 기능</h4>
+<p>아래와 같이 네 가지 System Action이 있습니다. Disarm/Rearm 이해를 위한 참고는 이 문서를 보십시오.</p>
+<ol><li>Acknowledge(Disarm이라고도 함)</li><li>Full Reset(Rearm이라고도 함)</li><li>Activate</li><li>Deactivate</li></ol>
+<h4>Acknowledge 흔한 사용 사례</h4>
+<p>Acknowledge System Action은 단순히 Action을 Disarm(Acknowledge)합니다. 흔한 사용 사례는 Action이 트리거된 후 자기 자신을 Disarm(Acknowledge)하는 System Action을 실행하는 것입니다. 목적은 센서 측정값 트리거 조건에 알림(예: SMS)을 한 번 보내되, Action에 구성된 Snooze 시간(기본 60분)에 반복 알림을 계속 보내지 않게 하는 것입니다.</p>
+<p>이 시나리오에서 기본 60분 Snooze 시간의 Action은 구성된 조건으로 트리거되어 사용자에게 SMS 알림을 한 번 보내고, 알림 전송 후 자기 자신을 Disarm(Acknowledge)하여 조건이 지속되어도 Snooze 타이머에 반복 알림을 보내지 않습니다. 즉 사용자는 트리거 조건이 보고될 때 알림을 한 번 받고 반복 알림은 받지 않습니다. 트리거 조건이 정상으로 돌아오면 (Auto-Acknowledge 설정이 활성화된 경우) Action이 자기 자신을 Rearm(Reset)하여, 향후 센서가 트리거 조건을 보고하면 다시 트리거될 준비를 합니다.</p>
+<h4>Full Reset 흔한 사용 사례</h4>
+<p>Full Reset은 실행 시 Action을 Rearm(Reset)합니다. 흔한 시나리오는 (Snooze 기능을 활용하는 대신) 센서가 트리거 조건이 있는 측정값을 보고할 때마다 SMS로 즉시 알림을 받고자 하는 경우입니다. 자기 자신에게 Full Reset System Action을 실행하면, 센서가 Action을 트리거하는 측정값을 보고할 때마다 Action이 사실상 Disarm/Rearm됩니다. 따라서 자기 자신에게 Full Reset을 실행하는 Action이 있으면, 센서가 제공하는 모든 트리거 측정값마다 알림을 트리거합니다.</p>
+<h4>Activate 및 Deactivate</h4>
+<p>Activate 및 Deactivate System Action은 대상 Action을 켜거나 끕니다. 이는 Action이 트리거되는 것을 완전히 활성화/비활성화합니다. 트리거 조건으로 Action을 켜거나 끄고 싶을 때 사용할 수 있습니다.</p>
+<h4>Delay 설정</h4>
+<p>각 System Action은 Delay를 설정하는 기능이 있습니다. 계획된 순서로 일어나는 로직을 설정해야 할 때 유용합니다. 지연을 활성화하지 않으면 System Action이 즉시 실행됩니다.</p>
+<p>참고: 흔히 1분의 지연을 설정해 System Action 로직이 너무 빨리 실행되어 포털의 다른 작업과 순서가 어긋나지 않도록 하는 것이 좋습니다.</p>
+<h4>System Action 생성</h4>
+<p>System Action을 생성하려면 아래 단계를 따르십시오.</p>
+<ol><li>Action을 생성합니다.</li><li>Actions 탭에서 System Actions 토글을 클릭합니다.</li><li>System Action 창이 나타납니다(아래로 스크롤해야 할 수 있음).</li><li>수행할 Action을 선택합니다.</li><li>Delay를 선택합니다.</li><li>대상 Notification Action을 선택합니다.</li><li>Save를 클릭합니다.</li></ol>
+<h4>Action Schedule 사용</h4>
+<p>System Action 사용의 전략적 요소는 Scheduled Action을 만드는 것입니다. Scheduled Action은 구성된 365일 시간/15분 일정에 따라 실행됩니다. 예약 Action을 만들면 원하는 시간에 System Action을 실행할 수 있습니다. 이는 System Action 사용의 강력한 구성 요소가 될 수 있습니다.</p>
+<p>참고: 예약 Action은 트리거가 특정 날짜/시간인 Action으로, Trigger Action에 일정을 추가하는 것과 다릅니다.</p>
+<h4>System Action 기록</h4>
+<p>System Action이 실행된 기록을 보려면 Action History를 검토하여 실행된 순서로 System Action을 식별할 수 있습니다.</p>
+<ul><li>Action을 클릭합니다.</li><li>History 탭을 클릭합니다.</li><li>적절한 날짜를 설정합니다.</li><li>Set 버튼을 선택합니다.</li><li>기록에서 System Action을 찾습니다.</li></ul>
+<p>System Action은 원하는 논리 기능을 실행하는 강력한 도구가 될 수 있습니다. Monnit Support는 System Action의 로직을 설계하거나 검토하는 서비스를 제공하지 않는다는 점에 유의해야 합니다. 다만 관련 문의가 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-11-05</p><h2>External Delivery와 Direct SMS 선택의 차이</h2><p>Monnit은 SMS 메시지를 사용자에게 전달하는 두 가지 방법을 제공합니다. External Delivery(추가 비용 없음)와 Direct Delivery(Notification Credit으로 관리되는 유료 서비스)입니다. 이 문서는 그 차이와 비용을 설명합니다.</p>
+<p>국가별 목록과 국가별 Notification Credit 비용은 ‘국가별 알림 비용’을 참고하십시오.</p>
+<h4>External Provider 세부 사항</h4>
+<p>External Delivery는 iMonnit Online의 기본 SMS 옵션입니다. External Delivery SMS 옵션은 로컬 통신사의 Email to SMS 시스템(SMS Gateway)을 사용해 이메일을 SMS 메시지로 변환합니다. 그런 다음 통신사가 SMS 메시지를 수신자에게 전달합니다. Monnit은 기존 이메일 서버를 활용하므로 External Delivery SMS 시스템 사용에 추가 요금을 부과하지 않습니다. 이런 종류의 알림은 통신사의 Email to SMS 시스템으로 변환을 위해 이메일을 보내는 것에서 시작되므로, 메시지를 받으려면 통신사가 Email to SMS를 지원해야 합니다. 통신사가 승인된 External Delivery SMS Provider 목록에서 선택되어 있어야 합니다.</p>
+<p>참고: External Delivery SMS Provider 목록에 통신사가 없으면 현재 지원되지 않는 것입니다. 통신사가 Email to SMS를 지원한다면 추가를 요청할 수 있습니다. support@monnit.com 으로 통신사 추가를 요청해야 합니다. (1) Email to SMS를 보낼 도메인이 포함된 번호 형식(예: Verizon Wireless: xxxxxxxxxx@vtext.com), (2) 통신사 이름, (3) 국가, (4) 웹 주소를 포함해야 합니다. 참고: 통신사 추가 요청은 Monnit의 내부 검토에 따라 설명 없이 거부될 수 있습니다.</p>
+<p>참고: External Delivery 시스템으로 보낸 SMS 메시지는 계속 바뀌는 단축 코드 번호로 전송됩니다. 따라서 동일한 전화번호로 SMS 알림을 받는 것이 중요하다면 Direct Delivery를 사용해야 합니다.</p>
+<h4>Direct Delivery 세부 사항</h4>
+<p>Monnit은 실제 휴대전화 번호로 전송하는 Direct Delivery SMS 메시지도 제공합니다. External Delivery처럼 이메일에서 변환하는 과정이 없으므로 통신사를 선택할 필요가 없습니다. 지원 국가 목록에 있고 SMS 메시징을 지원하는 통신사의 휴대 기기라면 Direct Delivery SMS 알림을 받을 수 있습니다. 이 유형의 SMS는 휴대전화 번호로 메시지를 보내므로 이 서비스 사용에는 비용이 따릅니다. Notification Credit을 계정에 적용해야 하며 휴대전화 번호의 국가에 따라 차감됩니다. 지원 국가와 Notification Credit 비용 목록은 관련 문서에서 확인할 수 있습니다.</p>
+<p>현재 Direct Delivery SMS 메시지가 전송되는 전화번호는 미국 (385) 245-2815입니다.</p>
+<h4>Direct Delivery Notification Credit이 소진되는 경우</h4>
+<p>Direct Delivery를 활성화한 상태에서 Notification Credit이 소진되면, 시스템은 0에서 크레딧 사용을 멈추고 대신 사용자에게 이메일을 보내기 시작합니다. 사이트의 Notification Credits 섹션에는 크레딧이 구성 가능한 임계값 미만으로 떨어지면 이메일 알림을 보내는 기능이 있습니다.</p>
+<p>업데이트: 2021-01-13</p><h2>센서 보정 인증서(Calibration Certificate)</h2><h4>요약:</h4>
+<p>iMonnit에서 보정 인증서를 생성하는 안내.</p>
+<p>센서 보정 인증서를 생성하면 이 설정을 조정할 권한이 없어야 하는 사용자에게 calibrate 탭이 가려집니다. 보정을 자체 인증하는 권한은 사용자 권한에서 활성화해야 합니다. 이 때문에 이 과정은 권한 활성화와 인증서 생성이라는 두 부분으로 구성됩니다.</p>
+<h4>1부 - 권한 활성화</h4>
+<ol><li>과정을 시작하기 전에 인증서를 생성할 권한이 있는지 확인합니다.</li></ol>
+<ul><li>iMonnit을 엽니다.</li><li>탐색 바 왼쪽의 ‘Users’를 선택합니다.</li><li>목록에서 자신의 계정을 찾습니다.</li></ul>
+<p>참고: Basic 계정이라면 기본 계정 보유자인 본인 이름만 목록에 표시됩니다. 한 계정에 여러 사용자를 등록하는 기능은 iMonnit Premiere에서만 제공됩니다.</p>
+<ul><li>자신의 계정 페이지에서 User Permissions 탭을 선택합니다.</li></ul>
+<ol><li>‘Can Create Calibration Certificate’ 체크박스가 체크되어 있는지 확인합니다. 비어 있으면 체크한 뒤 계속하기 전에 반드시 ‘Save’ 버튼을 선택합니다.</li></ol>
+<h4>2부 - 인증서 생성</h4>
+<ul><li>기본 탐색 메뉴에서 ‘Sensors’를 찾습니다.</li><li>목록에서 센서를 선택합니다.</li></ul>
+<p>참고: 보정 가능한 센서만 인증서 생성이 가능합니다(예: 온도 센서). calibration 탭의 유무로 센서의 보정 가능 여부를 알 수 있습니다.</p>
+<ul><li>바에서 Calibrate 탭을 선택합니다.</li></ul>
+<p>calibrate 버튼 바로 아래에 ‘Create Calibration Certificate’ 선택이 있습니다.</p>
+<ol><li>‘Create Calibration Certificate’를 선택하면 인증서 생성 양식이 열립니다.</li></ol>
+<ul><li>‘Certificate Valid Until’ 날짜는 ‘Date Certified’ 필드의 날짜보다 하루 뒤 미래로 설정해야 합니다.</li><li>‘Calibration Number’와 ‘Calibration Type’은 인증서 고유 값입니다.</li><li>하트비트 간격과 Aware State Heartbeat는 ‘Heartbeat Interval Reset’에 따라 변경됩니다.</li></ul>
+<ol><li>계속하기 전에 ‘Save’ 버튼을 선택합니다.</li></ol>
+<p>새 인증서가 수락되면 Calibration 탭이 Certificate 탭으로 바뀝니다.</p>
+<p>참고: Certificate 탭을 선택하고 ‘Edit Calibration Certificate’로 이동해 인증서를 계속 편집할 수 있습니다. 인증서 기간이 끝나면 탭은 다시 ‘Calibrate’로 되돌아갑니다.</p>
+<p>센서 보정 인증서 생성은 더 안전하고 체계적인 환경을 만드는 데 매우 유용합니다. 관련 질문이 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-07-15</p><h2>iMonnit Online 계정의 Primary Contact 업데이트 방법</h2><p>iMonnit Online 계정의 Primary Contact는 계정 구독, 크레딧, 서버 이벤트 관련 연락 등 Monnit의 중요한 연락을 받을 수 있습니다. 계정의 Primary Contact를 최신으로 유지하는 것이 중요합니다.</p>
+<h4>New Look 3.0 iMonnit 인터페이스에서 Primary Contact 업데이트 단계</h4>
+<ul><li>iMonnit Online 계정에 로그인합니다.</li><li>왼쪽 사이드바 기본 메뉴의 Settings 탭을 클릭합니다.</li><li>Primary Contact로 지정하려는 사용자의 이름을 입력합니다.</li></ul>
+<p>참고: Primary Contact를 변경하려면 Primary Contact로 추가되는 사용자가 이 계정에 사용자(User)로 생성되어 있어야 합니다. Primary Contact로 추가하려는 사용자 이름을 입력하면 그 사용자 이름이 자동 완성되기 시작합니다. 이 계정의 사용자로 구성되지 않은 사람을 Primary Contact로 추가할 수 없습니다. 따라서 현재 계정의 사용자가 아닌 사람을 Primary Contact로 추가하려면 먼저 사용자로 추가해야 합니다. iMonnit Premiere 계정에 사용자를 추가하는 방법(iMonnit Basic은 다중 사용자 미지원)은 다음 문서를 참고하십시오: iMonnit Online 계정에 사용자 추가.</p>
+<p>업데이트: 2020-03-09</p><h2>iMonnit Online 계정에 사용자 추가</h2><p>iMonnit Premiere 구독이 있으면 iMonnit Online 계정에 여러 사용자를 추가할 수 있습니다(iMonnit Basic은 단일 사용자만 지원). 이 문서는 iMonnit Online 계정에 사용자를 추가하는 단계를 제공합니다. iMonnit Premiere 업그레이드에 관한 정보는 다음 문서를 참고하십시오: Premiere 구독 만료/갱신.</p>
+<h4>단계</h4>
+<ul><li>iMonnit Online 계정에 로그인합니다.</li><li>관리자 사용자로 왼쪽 사이드바 기본 메뉴의 Users 탭을 클릭합니다.</li><li>New User 세부 정보를 입력합니다.</li><li>Submit을 클릭합니다.</li></ul>
+<p>사용자를 생성하면, 그 사용자가 자신의 권한에 따라 로그인하여 iMonnit Online 계정 및 기기와 상호작용할 수 있습니다. Notification 세부 정보가 구성되어 있으면 Action 수신자로도 추가될 수 있습니다. 추가 문의는 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-03-09</p><h2>사용자의 Notification 세부 정보 편집 방법</h2><p>각 사용자에게는 Notification 세부 정보를 구성하는 섹션이 있습니다. 여기에는 Email, SMS, 음성 통화의 연락처 세부 정보가 포함됩니다. 이 문서는 Notification 세부 정보를 변경하는 방법을 안내합니다.</p>
+<h4>단계 요약</h4>
+<ul><li>관리자 또는 편집 대상 사용자(자신의 구성을 편집할 권한이 있는 경우)로 iMonnit.com 계정에 로그인합니다.</li><li>왼쪽 사이드바 기본 메뉴의 Users 탭을 클릭합니다.</li><li>편집할 사용자를 클릭합니다.</li><li>Notifications 탭을 클릭합니다.</li><li>원하는 구성을 편집합니다.</li><li>Save 버튼을 클릭합니다.</li></ul>
+<p>Email Address</p>
+<p>Monnit이 Action 알림, System Maintenance 알림, 비밀번호 재설정 이메일을 보내는 데 사용하는 이메일 주소입니다. 작은 ‘play’ 아이콘을 클릭하면 구성된 이메일 주소로 테스트 메시지가 전송됩니다. 사용자에게 구성된 이메일 주소가 있으면 Action 구성 시 이메일 수신자로 선택할 수 있습니다.</p>
+<p>Text Settings</p>
+<p>iMonnit Online 포털에서 SMS 메시지가 SMS 기기로 전송되는 방식을 선택하는 곳입니다. 토글로 External Delivery와 Direct SMS 중 하나를 선택할 수 있습니다. SMS 전달에 관한 세부 사항은 ‘SMS Alerts: External Provider와 Direct Delivery의 차이’를 참고하십시오. Direct Delivery를 선택한 경우 작은 ‘play’ 아이콘을 클릭해 충분한 Notification Credit이 있는지 테스트할 수 있습니다.</p>
+<p>Voice Call Number</p>
+<p>음성 통화 알림을 보낼 전화번호를 구성하는 곳입니다. 작은 ‘play’ 아이콘은 테스트 알림을 전송합니다. Direct Delivery와 마찬가지로 음성 통화 알림은 Notification Credit으로 차감됩니다. 통화당 차감되는 Notification Credit 수는 국가에 따라 다릅니다.</p>
+<h4>사용자를 Action 수신자로 추가</h4>
+<p>사용자의 Notification 세부 정보가 구성되면, 아래 스크린샷처럼 Action 수신자로 포함할 수 있습니다.</p>
+<p>업데이트: 2020-03-09</p><h2>센서의 Inactivity(비활동) 알림 시간 설정</h2><h4>요약</h4>
+<p>Inactivity Action의 Inactivity 시간은 센서가 실제로 비활동 상태가 아닌데도 알림을 받는 것을 피하는 데 중요한 고려 사항입니다.</p>
+<p>Inactivity 시간은 iMonnit 소프트웨어가 셉니다. 통신 사슬(센서 하트비트 &gt; 게이트웨이 하트비트 &gt; iMonnit 소프트웨어)로 인해 iMonnit 소프트웨어가 센서 측정값을 받는 데 지연이 있을 수 있으므로, 센서 하트비트와 게이트웨이 하트비트를 모두 고려하여 Inactivity 시간을 설정하는 것이 중요합니다. 간단한 계산으로 오경보를 최소화할 수 있습니다.</p>
+<h4>Inactivity 시간 공식</h4>
+<p>비활동을 모니터링할 때, 지속 시간을 (센서 하트비트의 2배) + (게이트웨이 하트비트 1회) + 1분으로 설정할 것을 권장합니다.</p>
+<p>(하트비트 설명은 이 문서 참고.)</p>
+<p>Inactivity Duration = (센서HB × 2) + (게이트웨이HB + 1분)</p>
+<p>예를 들어 센서 하트비트가 60분이고 그 센서가 하트비트 5분인 게이트웨이와 체크인한다면, Inactivity 시간을 설정할 최소 시간은 129분입니다. 이는 Inactivity 시간 공식으로 계산됩니다.</p>
+<p>Inactivity Duration = (센서HB × 2) + (게이트웨이HB + 1분)</p>
+<p>126분 = (60 × 2) + (5 × 1)</p>
+<h4>Inactivity 알림 문제 해결</h4>
+<p>Inactivity 알림을 받으면 약간의 조사로 경보의 근본 원인을 찾을 수 있습니다.</p>
+<ol><li>먼저 어떤 기기가 Inactivity 알림을 트리거했는지 확인합니다. 센서 이름이 알림 자체에 표시되어야 합니다.</li><li>www.imonnit.com 계정에 로그인하여 알림을 트리거한 기기가 여전히 오프라인인지 확인합니다.</li><li>센서가 오프라인이 아니면 Inactivity 알림 설정을 확인합니다. Inactivity 알림 시간이 위에서 설명한 대로 (센서 하트비트의 2배) + (게이트웨이 하트비트 1회 + 1분)으로 설정되어 있는지 확인하십시오.</li></ol>
+<p>이 기기만 오프라인인 경우:</p>
+<p>‘Overview’에서 센서가 마지막으로 체크인한 시간을 확인하고 날짜와 시간을 기록합니다. 그런 다음 신호 강도를 봅니다. 신호가 약하면 원인일 수 있습니다. 다음으로 배터리 레벨을 봅니다. 낮으면 원인일 수 있습니다. 신호 강도와 배터리 레벨 모두 낮지 않다면 다음을 고려하십시오. 이 센서가 리피터와 통신하고 있었습니까? 그렇다면 리피터가 여전히 온라인인지 확인하십시오. 리피터 데이터를 확인해 메시지를 처리하고 있는지, 아니면 대기열에 실패와 메시지가 있는지 보십시오. 리피터를 사용하지 않았다면 게이트웨이를 확인하십시오. 정상 동작 중입니까?</p>
+<p>모든 센서가 오프라인인 경우:</p>
+<p>문제는 센서가 아니라 상위 연결에 있을 가능성이 높습니다. 게이트웨이부터 시작하십시오. 게이트웨이가 켜져 체크인 중입니까? 셀룰러 게이트웨이라면 셀룰러 네트워크가 살아 있는지 확인합니다. Ethernet 게이트웨이라면 인터넷 접속이 가능한지 확인합니다. USB 게이트웨이라면 게이트웨이 응용 프로그램 유틸리티 상태가 ‘Active’인지 확인합니다.</p>
+<p><a href="https://status.monnit.com/" rel="noopener" target="_blank">https://status.monnit.com/</a> 페이지에서 Monnit 서버에 문제가 있는지도 확인할 수 있습니다.</p>
+<p>업데이트: 2021-04-09</p><h2>센서의 Action 일시 정지(Pause)</h2><h4>요약:</h4>
+<p>단일 센서의 모든 알림을 일시적으로 또는 무기한 정지하는 방법.</p>
+<p>센서 알림은 Monnit 무선 센서를 사용하는 주요 이유 중 하나이지만, 센서로부터 알림 전송을 일시적으로 멈춰야 할 때가 있을 수 있습니다. 그런 경우 아래 지침을 따르십시오:</p>
+<ul><li>화면 왼쪽의 기본 탐색 메뉴에서 ‘Sensors’ 옵션을 선택합니다.</li><li>알림을 정지할 센서를 선택합니다.</li><li>센서 페이지의 actions 탭으로 이동합니다.</li><li>Pause || 버튼을 선택합니다.</li><li>알림을 정지할 시간을 선택합니다.</li><li>‘Set’을 선택합니다.</li></ul>
+<p>참고: 이 기능은 보고 있는 센서에서 전송되는 알림에만 적용됩니다. 알림이 여러 센서에 걸쳐 공유되더라도 다른 센서의 알림에는 영향을 주지 않습니다.</p>
+<p>‘Actions’ 섹션은 보고 있는 센서의 알림을 일시적으로 또는 무기한 정지하는 방법을 제공합니다. 관련 질문이 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-07-15</p><h2>iMonnit Online에서 센서 또는 게이트웨이 데이터를 CSV 파일로 내보내기</h2><p>Monnit은 로컬 저장을 위해 센서 및 게이트웨이 데이터를 Excel에서 읽을 수 있는 CSV 파일로 다운로드하는 기능을 제공합니다. 이 기능은 제한된 수의 센서 또는 게이트웨이 데이터 레코드를 다운로드해 로컬에 저장하는 기능을 제공하기 위한 것입니다.</p>
+<p>참고: !!중요!! iMonnit Online에서 Download(Classic View의 Export) 기능을 사용할 때, 한 번에 다운로드할 수 있는 레코드는 2500개로 제한됩니다. 따라서 날짜 범위에 2500개를 초과하는 데이터 레코드가 있으면 가장 최근 레코드만 내보내기에 포함됩니다.</p>
+<h4>단계 요약</h4>
+<ul><li>iMonnit Online 계정에 로그인합니다.</li><li>왼쪽 사이드바의 Sensors 또는 Gateways를 클릭합니다.</li><li>페이지 메인 영역에서 센서 또는 게이트웨이를 클릭합니다.</li><li>Sensor/Gateway Readings 탭을 클릭합니다.</li><li>Date Picker로 날짜 범위를 선택하고 설정합니다.</li><li>Download 아이콘을 클릭해 선택한 데이터를 CSV로 다운로드합니다.</li></ul>
+<ol><li>imonnit.com 의 iMonnit Online 계정에 로그인합니다.</li><li>왼쪽 사이드바의 Sensors 또는 Gateways를 클릭합니다.</li><li>페이지 메인 영역에서 센서 또는 게이트웨이를 클릭합니다.</li><li>Sensor/Gateway Readings 탭을 클릭합니다.</li><li>Date Picker로 날짜 범위를 선택하고 설정합니다.</li><li>Download 아이콘을 클릭합니다.</li></ol>
+<h4>레코드 한도</h4>
+<p>위 강조된 참고처럼 다운로드당 2500개 레코드 한도가 있습니다. 따라서 2500개를 초과하는 레코드가 포함된 날짜 범위를 선택하면, 생성되는 CSV 파일에는 그 날짜 범위 내 가장 최근 2500개 레코드가 포함됩니다. 2500개를 초과하는 레코드를 다운로드해야 하면, 한도에 맞춰 날짜 범위를 나누어 여러 번 다운로드해야 합니다.</p>
+<p>Download/Export 기능은 한도 내에서 센서 또는 게이트웨이 데이터를 저장하는 데 매우 유용할 수 있습니다. 생성된 CSV 파일은 Excel과 대부분의 스프레드시트 응용 프로그램에서 읽을 수 있습니다. 이 기능에 관한 문제나 질문이 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-01-28</p><h2>iMonnit Online의 센서 설정(Sensor Settings)</h2><p>iMonnit에는 여러 센서에 공통된 센서 설정이 있습니다. 이 문서는 서로 다른 센서 유형 간에 공통된 일부 설정을 다룹니다. 일부 센서에는 해당 센서 유형 고유의 설정이 있다는 점에 유의해야 합니다.</p>
+<h4>센서 설정 보기</h4>
+<p>센서 설정을 보려면 아래 단계를 따르십시오.</p>
+<ol><li>계정에 로그인합니다.</li><li>iMonnit Online 포털 홈페이지에서 왼쪽 사이드바의 ‘Sensors’를 선택합니다.</li><li>센서 목록 페이지에서 편집할 센서를 선택합니다.</li></ol>
+<ul><li>Sensor Detail 페이지에는 다음 탭이 보입니다: ‘Details’, ‘Readings’, ‘Actions’, ‘Settings’. 편집하는 센서 유형에 따라 ‘Calibrate’와 ‘Scale’ 두 탭이 추가로 보일 수 있습니다.</li></ul>
+<ol><li>센서 구성을 편집하려면 ‘Settings’ 탭을 선택합니다.</li></ol>
+<h4>Sensor Settings 탭</h4>
+<p>Settings 탭에서 센서 동작 방식을 변경할 수 있습니다. 이 탭에서 다음 Sensor Settings를 볼 수 있습니다:</p>
+<ul><li>Sensor Name – 센서의 사용자 정의 고유 식별자. 기본값은 센서 유형 뒤에 기기 ID 번호가 붙습니다.</li><li>Heartbeat Interval - Aware 활동이 기록되지 않을 때 센서가 게이트웨이와 통신하는 주기.</li><li>Aware State Heartbeat - Aware 상태에서 센서가 게이트웨이와 통신하는 주기(Aware 상태란 센서가 허용 범위를 벗어나 임계값 밖을 측정하고 있음을 의미).</li><li>Assessments Per Heartbeat - 하트비트 사이에 센서가 Aware 상태 진입 여부를 판단하기 위해 임계값과 측정값을 비교하는 횟수.</li><li>Aware State Threshold - 아래 값은 센서가 Aware 상태로 진입하기 전 기록해야 하는 최소 측정값입니다.</li></ul>
+<p>위 값은 센서가 Aware 상태로 진입하기 전 기록해야 하는 최대 측정값입니다.</p>
+<ul><li>Aware State Buffer - 평가값이 임계값에 매우 가까울 때 센서가 표준 동작과 Aware 상태 사이를 오가는 것을 방지합니다. 예를 들어 최대 임계값이 90도이고 버퍼가 1이면, 센서가 90.1도를 평가하면 89.0도로 떨어질 때까지 Aware 상태를 유지합니다. 마찬가지로 최소 임계값에서는 표준 동작으로 돌아가려면 온도가 임계값보다 1도 더 올라가야 합니다.</li><li>Sync - 센서 6개 이하의 소규모 센서 네트워크에서 센서들이 통신을 동기화하도록 설정할 수 있습니다. 기본값 Off에서는 센서가 통신을 무작위화하여 통신 견고성을 최대화합니다. 이 값을 설정하면 센서들의 통신이 동기화됩니다.</li><li>Failed Transmissions Before Link Mode - 센서가 게이트웨이 응답 없이 전송하는 횟수로, 이 횟수를 넘으면 센서가 다른 게이트웨이로 재연결을 시도하는 배터리 절약 link mode에 진입합니다. 값이 낮으면 측정값 누락을 줄이며 새 게이트웨이를 찾을 수 있습니다. 값이 높으면 잡음이 많은 RF 환경에서 현재 게이트웨이와 유지될 가능성이 높아집니다. 0이면 센서가 절대 다른 게이트웨이에 Join하지 않습니다. 새 게이트웨이를 찾으려면 배터리를 빼고 다시 넣어야 합니다.</li></ul>
+<p>Sensor Settings를 수정할 때는 반드시 Save 버튼을 클릭해 변경을 적용하십시오. Sensor Settings는 센서로 즉시 전달되지 않습니다. 수정된 설정은 이후 하트비트에 센서에 적용됩니다. 센서가 구성 변경을 대기하는 동안에는 구성이 적용될 때까지 ‘Fields waiting to be written to sensor are not available for edit until transaction is complete.’ 메시지가 보입니다.</p>
+<p>참고: 기본 하트비트 간격은 120분(2시간)입니다. 더 잦은 하트비트 간격과 Assessment는 하트비트 및 Assessment 간격의 빈도에 비례하여 배터리 수명에 심각한 영향을 줄 수 있습니다.</p>
+<h4>결론</h4>
+<p>Monnit이 제공하는 센서 유형은 많지만 대부분 동일한 일반 설정을 가집니다. Sensor Settings의 추가 세부 사항에 관한 질문이 있으면 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-08-28</p><h2>권한 편집(Editing Permissions)</h2><p>iMonnit 센서 포털의 계정이 커지고 변화하면서 사용자가 추가·제거되거나 접근 권한이 바뀌면, 사용자 권한 편집이 매우 중요해집니다. 관리(Administration) 접근 권한이 있는 사용자만 이러한 변경 대부분을 할 수 있으며, 아래 문서는 로그인하여 이 작업을 수행하는 방법을 설명합니다.</p>
+<h4>사용자 권한 편집 단계</h4>
+<p>iMonnit 센서 포털에 로그인합니다(iMonnit 센서 포털은 Google Chrome에서 사용하도록 최적화되어 있습니다).</p>
+<ul><li>왼쪽 하단 사이드바의 Users를 클릭합니다.</li><li>편집할 사용자를 선택합니다.</li><li>자물쇠(Lock) 아이콘을 클릭합니다.</li><li>변경할 Permission 범주를 선택합니다.</li><li>사용자에게 원하는 권한을 선택합니다.</li><li>Save를 클릭합니다.</li></ul>
+<h4>수정 가능한 권한</h4>
+<p>다음 권한을 수정할 수 있습니다. Administration 권한이 있는 사용자만 다른 사용자 권한을 변경할 수 있습니다.</p>
+<p>Administration - 계정의 일상적 관리에 영향을 주는 권한.</p>
+<p>Acknowledge Notifications - 사용자가 Action을 Disarm/Acknowledge할 수 있게 함</p>
+<p>Add Network - 사용자가 계정에 네트워크를 생성할 수 있게 함</p>
+<p>Add User - 계정에 활성 Premiere 구독이 있으면 사용자가 추가 사용자를 추가할 수 있게 함</p>
+<p>Calibrate Sensor - 지원 센서의 Calibration 탭을 보고 조작할 수 있게 함</p>
+<p>Can Access Billing pages - 계정의 청구 정보에 접근할 수 있게 함</p>
+<p>Can Create Calibration Certificate - 보정 인증서를 추가할 수 있게 함(기본 비활성)</p>
+<p>Delete Users - 계정의 사용자 목록에서 다른 사용자를 삭제할 수 있게 함</p>
+<p>Disable Notifications from Network - 계정의 Action을 비활성화할 수 있게 함</p>
+<p>Edit Account - Settings 탭의 계정 정보를 편집할 수 있게 함</p>
+<p>Edit Gateway Configuration - 게이트웨이의 Settings/Edit 탭에 접근할 수 있게 함</p>
+<p>Edit Network - 계정 네트워크에서 기기를 추가/제거할 수 있게 함</p>
+<p>Edit Notifications - Action/Notification 설정을 수정할 수 있게 함</p>
+<p>Edit Other Users - 다른 사용자 구성을 편집할 수 있게 함</p>
+<p>Edit Self - 사용자 목록을 보고 자기 사용자 계정의 구성을 편집할 수 있게 함</p>
+<p>Edit Sensor - Settings/Edit 탭에서 기본 센서 구성을 보고 수정할 수 있게 함</p>
+<p>Edit Sensor (Advanced) - Settings/Edit 탭에서 고급 센서 구성을 보고 수정할 수 있게 함</p>
+<p>Edit Sensor (Multiple) - 여러 센서에 한 번에 구성을 적용할 수 있게 함</p>
+<p>Edit Sensor Group - 센서 그룹 구성을 수정할 수 있게 함</p>
+<p>Edit Usernames - 사용자 이름을 변경할 수 있게 함</p>
+<p>Export Data - 센서/게이트웨이 기록의 Download/Export 기능에 접근할 수 있게 함</p>
+<p>Modify Visual Map - Sensor Maps를 변경할 수 있게 함</p>
+<p>Password Unlock - 계정에서 잠긴 사용자를 잠금 해제할 수 있게 함</p>
+<p>Pause Notifications - Action을 일시 정지할 수 있게 함</p>
+<p>Reset Other User Password - 계정의 다른 사용자 비밀번호를 재설정할 수 있게 함</p>
+<p>**Navigation** - 사용자가 접근할 수 있는 계정 영역에 영향을 주는 권한.</p>
+<p>View API - Account Settings 페이지의 API/WebHook 옵션을 활성화</p>
+<p>View Charts - 탐색 메뉴의 Charts 옵션을 활성화</p>
+<p>View Maps - 탐색 메뉴의 Sensor Maps 옵션을 활성화</p>
+<p>View My Account - 탐색 메뉴의 Settings 옵션 접근을 활성화</p>
+<p>View Notifications - 탐색 메뉴의 Actions 옵션 접근을 활성화</p>
+<p>View Reports - 탐색 메뉴의 Reports 옵션 접근을 활성화</p>
+<p>View Sensor History - Sensor Overview의 Readings 탭 접근을 활성화</p>
+<p>**Networks** - 사용자가 볼 수 있는 네트워크.</p>
+<p>이 섹션에 네트워크 목록이 나타납니다. 이름 옆에 체크박스가 표시된 네트워크는 사용자가 볼 수 있습니다.</p>
+<p>업데이트: 2021-01-27</p><h2>REST API 및 WebHooks의 시간 형식</h2><p>REST API 요청과 WebHooks에 응답으로 전달되는 모든 데이터셋은 타임스탬프를 UTC로 제공합니다. 따라서 엔드포인트에서 변환을 적용해야 합니다. REST API JSON 요청의 경우 데이터가 epoch 형식으로 제공되므로 파싱해야 합니다. 아래 예시를 참고하십시오.</p>
+<h4>WebHook 시간</h4>
+<p>아래 예에서 WebHook의 JSON에는 Gateway 메시지의 ‘date’ 값과 Sensor 메시지의 ‘messageDate’ 값이 포함됩니다.</p>
+<p>Gateway의 ‘date’ 값 - 게이트웨이가 이 통신을 iMonnit 서버로 전달한 UTC 날짜를 나타냅니다. 아래 JSON에서 ‘gatewayMessage’의 ‘date’ 값은 2020-09-04 14:50:38 UTC입니다. 예를 들어 Mountain 시간으로 변환하면 2020-09-03 오전 8:50:38입니다.</p>
+<p>Sensor의 ‘messageDate’ 값 - 센서가 측정값을 생성해 게이트웨이로 전송한 UTC 날짜를 나타냅니다. 아래 JSON에서 ‘sensorMessage’의 ‘messageDate’ 값은 ‘2020-09-04 14:47:37’ UTC입니다. Mountain 시간으로 변환하면 2020-09-03 오전 8:47:37입니다.</p>
+<p>{ "gatewayMessage":{ "gatewayID":"xxxxxx" , "gatewayName":"Ethernet Gateway 1 - xxxxxx" , "accountID":"xxxxxx", "networkID":"xxxxxx" , "messageType":"0" , "power":"0", "batteryLevel": "101" , "date": "2020-09-04 14:50:38", "count":"1", "signalStrength": "0", "pendingChange": "False" }, "sensorMessages":[ { "sensorID":"xxxxxx" , "sensorName":"Garage - xxxxxx", "applicationID":"9", "networkID":"xxxxxx", "dataMessageGUID":"c469dcba-c230-4206-8ba2-25d7xxxxxx", "state": "0", "messageDate": "2020-09-04 14:47:37", "rawData":"False", "dataType": "DoorData|MagnetDetect", "dataValue": "False|False", "plotValues": "0|0", "plotLabels": "Door Position|Magnet Position", "batteryLevel": "40", "signalStrength": "100", "pendingChange": "True", "voltage": "2.32" } ]}</p>
+<h4>REST API 시간</h4>
+<p>REST API도 UTC 기준 시간을 전달합니다. 시간 값은 XML 요청과 JSON 요청에서 다릅니다. JSON REST API 시간 값은 .NET Epoch 시간 형식이라는 점에서 WebHook 및 XML REST 요청과 다릅니다. 아래 데이터에서 확인할 수 있습니다.</p>
+<p>REST API JSON 시간</p>
+<p>아래 REST API 요청에 대한 JSON 응답에서 날짜를 나타내는 "MessageDate":"\/Date(1599232716000\/") 값을 볼 수 있습니다. 이 값은 센서가 측정값을 취해 게이트웨이로 전송한 날짜입니다. 날짜 형식은 epoch .NET 형식입니다. 이 수치를 파싱하여 Epoch Converter 도구로 변환하면 2020-09-04 오후 3:18:36 UTC 또는 2020-09-03 오전 9:18:36 Mountain이 됩니다.</p>
+<p>{"Method":"AccountRecentDataMessages","Result":[{ "DataMessageGUID":"577b2faa-ce10-4d16-8fb3042c9fxxxxxx", "SensorID":xxxxxx, "MessageDate":"\/Date(1599231620000)\/", "State":0, "SignalStrength":100, "Voltage":1.87, "Battery":0, "Data":"38.14,21.47,6.6,43.1", "DisplayData":"38.14% @ 70.6° F D: 43.9° F GPP:43.1", "PlotValue":"38.14", "MetNotificationRequirements":false, "GatewayID":xxxxxx, "DataValues":"38.14|21.47|6.6|43.1", "DataTypes":"Percentage|TemperatureData|TemperatureData|MoistureWeight", "PlotValues":"38.14|70.646|43.88|43.1", "PlotLabels":"Humidity|Fahrenheit|DewPoint|GrainsPerPound" } ]}</p>
+<p>REST API XML 시간</p>
+<p>REST API XML 시간은 사람이 읽을 수 있는 형식으로 UTC로 제공됩니다. 아래 REST API 요청에 대한 XML 응답에서 MessageDate="9/4/2020 4:00:20 PM" 값을 볼 수 있습니다. 이는 센서가 측정값을 생성해 게이트웨이로 전송한 UTC 날짜를 나타냅니다. Mountain 시간으로 변환하면 2020-09-03 오전 10:00:20입니다.</p>
+<p>&lt;SensorRestAPI ...&gt;&lt;Method&gt;AccountRecentDataMessages&lt;/Method&gt;&lt;Result xsi:type="xsd:collection"&gt;&lt;APIDataMessageList&gt;&lt;APIDataMessage DataMessageGUID="67d4e7b3-9512-44d5-ac04-8d3829xxxxxx" SensorID="xxxxxx" MessageDate="9/4/2020 4:00:20 PM" State="0" SignalStrength="100" Voltage="1.88" Battery="0" Data="36.81,22.36,6.9,44" DisplayData="36.81% @ 72.2° F D: 44.4° F GPP: 44" .../&gt;&lt;/APIDataMessageList&gt;&lt;/Result&gt;&lt;/SensorRestAPI&gt;</p>
+<p>관련 문의가 있으면 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-09-16</p><h2>Action 및 센서 일정의 ‘Before and After’ 구성 이해</h2><p>일정을 효과적으로 구현하려면 Action 및 센서 일정의 ‘Before and After’ 선택을 이해하는 것이 핵심입니다. 이 문서는 이 구성이 동작하는 세부 사항을 안내합니다.</p>
+<h4>이 옵션이 중요한 이유</h4>
+<p>Action이나 센서 일정을 설정할 때, iMonnit 소프트웨어는 하루를 오전 12:00:00에 시작해 오후 11:59:59에 끝나는 전체 24시간으로 간주하여 일정을 구현합니다. 따라서 사람이 직관적으로 생각하는 대로 일정을 설정하더라도, iMonnit 소프트웨어가 일정을 처리하는 방식을 고려해야 합니다.</p>
+<h5>‘Between’ 선택 이해</h5>
+<p>일정을 구성할 때 ‘Between’ 옵션을 선택하는 것이 흔히 직관적입니다. 그러나 원하는 일정이 하루의 끝(오후 11:59:59)과 새 날의 시작(오전 12:00:00) 사이의 경계를 넘으면 ‘Between’ 선택이 적용되지 않습니다. 이는 일반적으로 하루에서 다음 날로 경계를 넘어 야간에 일정을 적용하려는 경우에 해당합니다. 소프트웨어가 하루 일정을 단일 24시간으로 적용하므로, ‘Between’을 선택하고 시작 시간이 종료 시간보다 늦으면 일정이 적용되지 않습니다.</p>
+<p>이것이 ‘Before and After’ 일정 옵션을 언제 선택할지 이해하는 것이 중요한 이유입니다.</p>
+<h5>‘Before and After’ 선택 이해</h5>
+<p>‘Between’ 선택은 단일 하루 내에 연속된 ‘on’ 기간을 설정하는 반면, ‘Before and After’ 선택은 그 반대입니다. 일정을 하루에서 다음 날로 전환하는 동안 활성화하려면, 이 선택이 단일 하루의 연속된 기간을 ‘off’ 시간으로 구성합니다.</p>
+<p>포털이 일정을 단일 24시간으로 보므로, Before 시간을 PM, After 시간을 AM으로 선택할 수 없습니다. Before 시간이 PM이고 After가 AM이면 일정이 무효화됩니다. 하루를 24시간으로 간주하는 점을 반드시 고려하십시오.</p>
+<h4>예시</h4>
+<p>낮 시간에는 일정을 off로, 야간부터 다음 날 아침까지 활성화하는 것이 목표라면 ‘Before and After’ 일정 옵션을 선택합니다.</p>
+<p>원하는 일정</p>
+<p>알림 비활성: 같은 날 오전 8시부터 오후 6시까지</p>
+<p>알림 활성: 오후 6시부터 다음 날 오전 8시까지</p>
+<p>올바른 일정 선택: Before 8 AM and After 6 PM</p>
+<p>사용자가 낮 시간 동안 Action의 알림 전송을 비활성화하려는 경우 이 구성을 볼 수 있습니다. 예를 들어 모션 감지 센서 사용자는 흔히 건물 업무 종료 후 움직임이 감지되면 알림이 전송되기를 원하지만, 정상 영업 시간에는 Action 전송이 필요 없습니다. 이 경우 사용자는 Action을 Before 8 AM and After 6 PM으로 예약합니다. 따라서 영업 중에는 Action이 전송되지 않고, 움직임이 예상되지 않는 업무 종료 후에는 전송됩니다.</p>
+<p>참고: 활성 일정 밖에서도 ‘Snooze’ 알림을 계속 보내는 Action에 관한 정보는 관련 문서를 참고하십시오.</p>
+<p>일정이 연속된 24시간 기간으로 구현된다는 점을 이해하는 것이 중요합니다. 이를 명확히 이해하면 ‘Before and After’ 일정 선택을 목적에 맞게 성공적으로 구현할 수 있습니다.</p>
+<p>업데이트: 2020-09-23</p><h2>무선 센서 또는 게이트웨이를 한 네트워크에서 다른 네트워크로 이동 - iMonnit Online Classic View</h2><h4>요약:</h4>
+<p>게이트웨이나 센서를 이동하는 과정은 단순히 기기를 원하는 네트워크에 추가하는 것입니다. 게이트웨이나 센서를 새 네트워크에 추가하면 이전 네트워크에서 자동으로 제거됩니다.</p>
+<ol><li>무선 게이트웨이 이동</li></ol>
+<ul><li>‘Overview’ 아래 드롭다운 목록에서 게이트웨이를 이동할 출발 네트워크를 선택합니다.</li><li>파란색 탐색 바의 ‘Manage’ 탭을 클릭합니다.</li><li>이동할 게이트웨이를 찾습니다.</li><li>‘Add Gateway’ 버튼 아래 각 게이트웨이에 4개의 아이콘이 있습니다. 이동할 게이트웨이 행에서 화살표가 위·오른쪽을 가리키는 상자 아이콘을 클릭합니다.</li><li>게이트웨이를 이동할 네트워크를 선택합니다.</li><li>‘Assign Gateway’를 클릭합니다.</li></ul>
+<ol><li>무선 센서 이동</li></ol>
+<ul><li>‘Overview’ 아래 드롭다운 목록에서 센서를 이동할 출발 네트워크를 선택합니다.</li><li>파란색 탐색 바의 ‘Manage’ 탭을 클릭합니다.</li><li>이동할 센서를 찾습니다.</li><li>‘Add Sensor’ 버튼 아래 각 센서에 4개의 아이콘이 있습니다. 이동할 센서 행에서 화살표가 위·오른쪽을 가리키는 상자 아이콘을 클릭합니다.</li><li>센서를 이동할 네트워크를 선택합니다.</li><li>‘Assign Sensor’를 클릭합니다.</li></ul>
+<p>더 많은 센서를 이 네트워크에 추가하려면 이 과정을 반복합니다.</p>
+<ul><li>게이트웨이의 저장된 Sensor List를 갱신하기 위해 게이트웨이 전원을 재시작합니다.</li></ul>
+<p>iMonnit Online Classic View에서는 몇 가지 간단한 단계로 센서를 한 네트워크에서 다른 네트워크로 이동할 수 있습니다. 관련 질문이 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-08-12</p><h2>iMonnit Online에서 센서 네트워크 생성</h2><h5>센서 네트워크 개요</h5>
+<p>iMonnit Online에서 네트워크를 생성하면 센서와 게이트웨이를 묶어 기기 간 통신을 허가합니다. 네트워크는 어떤 기기들이 함께 통신하도록 허용할지 정하는 수단입니다. 게이트웨이와 센서가 동일한 네트워크에 추가되면, 게이트웨이가 센서 ID를 다운로드하고 이후 그 센서가 게이트웨이와 통신하도록 허가합니다. 이 문서는 iMonnit Online 플랫폼에서 네트워크를 생성하는 과정을 안내합니다.</p>
+<p>네트워크는 기기를 위한 조직 구성 요소이기도 합니다. iMonnit Premiere 회원은 각자 게이트웨이와 고유한 센서 목록을 가진 여러 네트워크를 둘 수 있습니다. 기기는 한 번에 하나의 네트워크에만 추가할 수 있습니다. 여러 네트워크가 있으면 그 사이를 전환하여 추가된 기기를 볼 수 있습니다.</p>
+<h4>단계</h4>
+<p>iMonnit Online 계정에서:</p>
+<ol><li>왼쪽 사이드바의 Networks를 클릭합니다.</li><li>페이지 오른쪽 상단의 + New Network 버튼을 클릭합니다.</li><li>Network Name을 입력합니다.</li><li>Save 버튼을 선택합니다.</li></ol>
+<h4>기기 추가</h4>
+<p>새 네트워크를 생성하면 기기를 추가하라는 메시지가 표시됩니다.</p>
+<p>업데이트: 2020-10-09</p><h2>iMonnit 하트비트(Heartbeats) 설명</h2><p>하트비트란?</p>
+<p>Monnit 센서는 하트비트(Heartbeat)라는 정해진 간격으로 데이터를 전송합니다. **하트비트**는 Assessment 중 예외(Aware 상태) 활동이 감지되지 않을 때 센서가 게이트웨이와 측정값을 통신하는 빈도(분)를 가리키는 Monnit 용어입니다. 센서의 기본 하트비트는 120분(2시간)이지만, iMonnit Premiere 구독으로 10분까지 잦게 구성할 수 있습니다. 로컬 호스팅 버전의 Monnit 소프트웨어(Express, Enterprise, MINE)를 사용하면 더 잦게도 구성할 수 있습니다.</p>
+<p>Assessments Per Heartbeat</p>
+<p>Assessments Per Heartbeat는 센서 하트비트 및 Aware 상태 하트비트와 함께 동작합니다. 센서는 예약된 하트비트에만 데이터를 전송하지만, 하트비트 사이에 Assessment(샘플 측정)를 수행해 구성된 Aware 상태 임계값이 위반되었는지 확인할 수 있습니다. Aware 상태 임계값이 위반된 것으로 판단되면 센서가 깨어나 게이트웨이로 측정값을 전송하고 Aware 상태 하트비트 빈도로 체크인을 시작합니다.</p>
+<p>게이트웨이 하트비트</p>
+<p>게이트웨이에도 하트비트가 있습니다. 게이트웨이 하트비트 기본 구성은 게이트웨이 유형에 따라 다릅니다. 즉 센서는 센서 하트비트에 게이트웨이로 데이터를 전송하고, 게이트웨이는 그 데이터를 대기시켰다가 게이트웨이 하트비트에 iMonnit 소프트웨어로 전송합니다. 따라서 센서가 하트비트에 측정값을 취한 시점과 게이트웨이가 그 데이터를 iMonnit 소프트웨어로 전송하는 시점 사이에 지연이 있을 수 있습니다. 이것이 게이트웨이 하트비트를 센서 네트워크의 가장 잦은 센서 하트비트보다 최소한 더 잦게 설정하는 것이 좋은 습관인 이유입니다.</p>
+<p>게이트웨이 유형별 기본 하트비트 구성은 다음과 같습니다:</p>
+<p>Ethernet Gateway: 5분</p>
+<p>4G LTE Gateway: 15분</p>
+<p>3G Cellular Gateway: 60분</p>
+<p>2G Cellular Gateway: 60분</p>
+<p>Wireless Sensor Adapter: 5분</p>
+<p>Serial MODBUS Gateway: 하트비트 없음</p>
+<p>게이트웨이 Force Transmit on Aware 설정</p>
+<p>Monnit 게이트웨이에는 Aware 상태 측정값을 iMonnit 소프트웨어로 즉시 전송하게 하는 기본 설정이 있습니다. 즉 센서가 Aware 상태에 진입하면, 그 측정값이 예약된 게이트웨이 하트비트 이전에 게이트웨이 하트비트를 즉시 트리거하여 iMonnit 소프트웨어로 보냅니다. 이는 센서가 감지한 예외 상태가 Aware 상태 측정값 전송 시 즉시 소프트웨어에 입력되도록 하는 핵심 기능입니다.</p>
+<h4>센서 하트비트 및 Assessments Per Heartbeat 편집</h4>
+<ol><li>왼쪽 사이드바의 Sensors를 선택합니다.</li><li>센서가 추가된 네트워크를 선택합니다.</li><li>센서 중 하나를 선택합니다.</li><li>Settings 탭(톱니바퀴 아이콘)을 선택합니다.</li><li>Heartbeat 필드에 원하는 구성(분)을 입력합니다.</li><li>Aware State Heartbeat 필드에 원하는 구성을 입력합니다(Aware 상태 하트비트는 일반적으로 표준 하트비트보다 잦음).</li><li>Assessments Per Heartbeat에 원하는 구성을 입력합니다.</li><li>Save를 클릭합니다.</li></ol>
+<p>작동 방식</p>
+<p>• 하트비트 간격: 120분</p>
+<p>• Aware 상태 하트비트: 30분</p>
+<p>• Assessments per Heartbeat: 2(60분마다)</p>
+<p>• Aware 상태 임계값: 257°F</p>
+<p>• 단위: 화씨.</p>
+<p>이 예에서는 위 구성의 온도 센서를 사용합니다.</p>
+<p>오후 1:00 -&gt; 38°F: 센서가 깨어나 평가합니다. 측정 온도가 임계값 미만이라 Aware가 아니며 현재 온도 38°F를 전송합니다. 다음 Assessment까지 60분, 다음 하트비트까지 120분 카운트다운을 시작하고 절전합니다.</p>
+<p>오후 2:00 -&gt; 60°F: 센서가 깨어나 평가합니다. 임계값 미만이라 Aware 아님. Assessment일 뿐 하트비트가 아니므로 데이터를 전송하지 않고 절전합니다. 다음 Assessment까지 60분 카운트다운을 시작하고 120분 하트비트 카운트다운은 계속됩니다.</p>
+<p>오후 3:00 -&gt; 200°F: 센서가 깨어나 평가합니다. 임계값 미만이라 Aware 아님. 하트비트 시점이므로 현재 온도 200°F를 전송합니다. 다음 Assessment까지 60분 카운트다운을 시작하고 절전합니다.</p>
+<p>오후 3:20 -&gt; 258°F: 센서가 절전 상태이므로 마지막 하트비트로부터 60분 후 또는 마지막 Assessment로부터 60분 후 다음 Assessment 전까지 아무 동작도 하지 않습니다.</p>
+<p>오후 4:00 -&gt; 258°F: 센서가 깨어나 평가합니다. 임계값을 초과하여 Aware 상태에 진입합니다. ‘urgent’ 태그와 함께 데이터를 게이트웨이로 전송(게이트웨이가 즉시 서버로 전송). 이제 하트비트는 30분, Assessment는 그 안에 2회(15분마다)로 설정되고 절전합니다.</p>
+<p>오후 4:15 -&gt; 262°F: 센서가 깨어나 평가합니다. 임계값 초과로 Aware 상태. Assessment일 뿐 하트비트가 아니므로 전송하지 않습니다. 다음 Assessment까지 15분 카운트다운을 시작하고 절전합니다.</p>
+<p>오후 4:30 -&gt; 262°F: 센서가 깨어나 평가합니다. 임계값 초과로 Aware 상태 진입. ‘urgent’ 태그와 함께 데이터를 전송. 하트비트 카운트다운 30분, Assessment 카운트다운 15분으로 설정합니다.</p>
+<p>오후 4:45 -&gt; 258°F: 센서가 깨어나 평가합니다. 임계값 초과로 Aware 상태. Assessment일 뿐이라 전송하지 않습니다. 다음 Assessment까지 15분 카운트다운을 시작하고 절전합니다.</p>
+<p>오후 5:00 -&gt; 258°F: 센서가 깨어나 평가합니다. 임계값 초과로 Aware 상태 유지. ‘urgent’ 태그와 함께 데이터를 전송. 하트비트 카운트다운 30분, Assessment 카운트다운 15분으로 설정하고 절전합니다.</p>
+<p>오후 5:15 -&gt; 256°F: 센서가 깨어나 평가합니다. 임계값 미만. Aware 상태를 벗어났습니다. Assessment일 뿐이라 전송하지 않고 다음 하트비트까지 카운트다운을 계속하며 절전합니다.</p>
+<p>오후 5:30: 센서가 깨어나 평가합니다. 임계값 미만이고 Aware 아님. 데이터를 게이트웨이로 전송합니다. 하트비트 카운트다운 120분, Assessment 카운트다운 60분으로 설정하고 절전합니다.</p>
+<p>하트비트는 센서가 현재 조건의 측정값을 게이트웨이로 전송하는 시간 간격(분)입니다. 이 데이터는 게이트웨이가 대기시켰다가, (기본적으로) 게이트웨이로 전송된 측정값이 Aware 상태 측정값이 아닌 한 게이트웨이 하트비트에 iMonnit 소프트웨어로 보냅니다. 하트비트는 효율적인 배터리 사용을 가능하게 하고 센서가 예외 상태에 대한 측정값을 즉시 제공하게 합니다. 추가 문의는 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-01-27</p><h2>iMonnit HX 작동 방식</h2><p>iMonnit Online에서 사용하는 센서의 표준 최소 하트비트는 10분입니다. 10분 하트비트가 대부분의 사용자에게 충분하지만, Monnit은 일부 고객이 더 잦은 하트비트로 운영해야 할 필요성을 인지하고 있습니다. 이 때문에 Monnit은 iMonnit Online에서 센서 하트비트를 1분까지 잦게 설정할 수 있게 하는 특수 크레딧을 제공합니다. 이것이 iMonnit HX Credit 형태로 제공됩니다.</p>
+<p>이 크레딧으로 iMonnit Premiere 사용자는 센서에 1분까지 잦은 하트비트를 적용할 수 있습니다. Premiere 계정에 잦은 하트비트를 충당할 충분한 크레딧이 있는 한, 센서는 구성된 빈도로 체크인하고 HX Credit을 사용해 데이터 포인트를 표시합니다.</p>
+<h4>작동 세부 사항</h4>
+<p>iMonnit HX Activation Key를 iMonnit Online 계정에 적용하면 계정이 HX Enabled가 되어 센서 하트비트를 1분까지 잦게 구성할 권한을 갖습니다. 해당 일자에 센서가 10분보다 잦게 체크인하지 않으면 크레딧이 소모되지 않습니다. 일일 한도인 150개 레코드를 초과하는 모든 센서 하트비트는 iMonnit HX Credit을 소모합니다.</p>
+<p>센서당 일일 총 하트비트: 150</p>
+<p>Monnit은 iMonnit HX Credit이 사용되기 전 센서당 하루 150회 하트비트를 허용합니다. 이 기준은 다음 벤치마크로 계산됩니다:</p>
+<p>**1개** 센서가 10분 하트비트 = 시간당 6회 하트비트(60분 / 10분 = 6) = 하루 144회(시간당 6회 × 24시간 = 144) + Aware 측정값을 위한 추가 6회 허용 = 하루 150회 하트비트</p>
+<p>해당 일자에 센서의 데이터 포인트가 150개를 넘지 않으면 HX Credit이 사용되지 않습니다. 해당 일자에 150회를 초과하는 하트비트는 하트비트당 HX Credit 1개 비율로 HX Credit을 사용합니다.</p>
+<p>요구 사항</p>
+<ul><li>활성 iMonnit Premiere 계정</li><li>1분 하트비트 간격을 지원하는 센서</li><li>충분한 iMonnit HX Credit</li></ul>
+<h4>iMonnit HX Credit이 소진되는 경우</h4>
+<p>iMonnit HX Credit을 구매해 Activation Key를 계정에 적용했다면 계정이 HX Enabled입니다. 따라서 HX Credit이 소진되었는데 센서가 계속 잦은 하트비트로 체크인하면, 그 센서가 생성하는 데이터가 150개 레코드 임계값을 넘으면 보기에서 가려집니다. HX Credit 부족으로 데이터가 가려졌다면, 추가 크레딧을 구매하거나 Monnit Support에 계정의 iMonnit HX 비활성화를 요청해야 합니다. 또한 센서 하트비트를 10분 이상으로 설정해야 합니다.</p>
+<p>iMonnit HX Credit이 소진되면 센서의 Readings 탭에 HX Message Credits Consumed 메시지가 보입니다.</p>
+<p>HX Credit 사용을 더 이상 원하지 않으면 Monnit Support가 HX Enabled 옵션을 제거하며, 이후 하트비트는 10분 한도가 되고 가려졌던 데이터가 보이게 됩니다.</p>
+<p>또한 iMonnit Account의 HX Credits 섹션에는 HX Credit이 부족할 때 알림을 보내도록 임계값을 구성할 수 있는 영역이 있어, 계정이 예기치 않게 크레딧을 소진하는 것을 방지합니다. 사용 가능한 HX Credit이 이 임계값 미만으로 떨어지면 알림이 전송됩니다.</p>
+<h4>1분 하트비트 시 게이트웨이 대역폭 한도</h4>
+<p>1분처럼 잦은 하트비트로 운영할 때는 게이트웨이 대역폭을 고려하는 것이 중요합니다. 대부분의 게이트웨이는 한 번에 최대 100개 센서를 지원합니다. 그러나 빠른 하트비트에서는 센서당 게이트웨이 무선 대역폭이 줄어듭니다. 따라서 좋은 운영 기준은 게이트웨이당 최대 100개 센서를 지원하도록 센서 하트비트를 최소 2분으로 제한하는 것입니다. 1분 하트비트가 필요하면, 줄어든 대역폭을 고려해 그 게이트웨이와 통신할 센서를 최대 50개로 두는 것이 좋습니다.</p>
+<h4>HX Credit 구매 및 적용</h4>
+<p>Monnit.com 온라인 스토어에서 iMonnit HX Credit을 구매할 수 있습니다. 구매하면 제공한 이메일 주소로 Activation Key를 받습니다. 이 코드를 복사해 HX Credit 코드 입력 필드에 입력하여 계정에 적용할 수 있습니다.</p>
+<p>iMonnit HX Credit은 센서 데이터를 더 빠르게 수집할 수 있게 하는 강력한 도구입니다. iMonnit HX 기능 동작에 관한 질문이나 문제가 있으면 support@monnit.com 으로 문의하십시오.</p>
+<p>업데이트: 2020-06-22</p><h2>계정 개요(Account Overview)</h2><p>iMonnit은 제품을 관리하기 위한 클라우드 기반 모바일 인터넷 플랫폼입니다. 센서를 가동하는 첫 단계가 계정 등록이므로 이는 필수적입니다. 편의를 위해 어떤 데스크톱 브라우저나 App으로도 계정을 등록·관리할 수 있습니다. App은 Android와 iOS 기기 모두에서 제공됩니다.</p>
+<h5>계정 생성</h5>
+<p>온프레미스 소프트웨어 솔루션이나 타사 모니터링 솔루션을 사용하는 경우가 아니라면, iMonnit 계정 생성이 매우 중요합니다.</p>
+<h4>단계 요약</h4>
+<ol><li>새 계정 생성</li><li>필수 계정 정보 입력</li><li>네트워크 생성</li><li>기기 추가</li><li>배치하고 iMonnit 계정을 사용합니다.</li></ol>
+<h4>새 계정 생성</h4>
+<p>먼저 www.imonnit.com 에 접속하거나 스마트폰에서 iMonnit App을 선택해 iMonnit을 엽니다. 랜딩 페이지가 나타납니다. ‘Create Account’ 옵션을 선택합니다.</p>
+<h4>필수 계정 정보 입력</h4>
+<p>이 섹션의 정보는 계정 생성에 필수입니다. 첫 화면에서 Primary Contact 정보를 입력하라는 메시지가 표시됩니다. Primary Contact는 계정의 구성과 관리를 대부분 담당할 사람이어야 합니다. 이 양식 하단에는 Premiere 구독 코드 필드가 있습니다. Premiere 구매 후 이메일로 받은 영수증의 코드를 입력합니다. 아직 iMonnit을 구매하지 않아 이 필드를 비워 두면, 시스템이 기본적으로 45일 무료 iMonnit Premiere 체험으로 설정됩니다.</p>
+<p>참고: 진행하기 전에 이용 약관(Terms and Conditions)을 읽고 이해했음을 확인해야 합니다.</p>
+<h4>센서 네트워크 생성</h4>
+<p>계정에는 하나의 주 센서 네트워크가 필요하지만, 둘 이상을 둘 수도 있습니다. 네트워크 이름은 기본적으로 초기 설정 시 제공한 이름과 성입니다. 필요하면 나중에 변경할 수 있습니다.</p>
+<h4>게이트웨이 추가</h4>
+<ul><li>게이트웨이 뒷면에서 게이트웨이 ID를 찾습니다.</li><li>제공된 필드에 Gateway ID를 입력합니다.</li><li>Gateway Security Code를 입력합니다(이 코드는 대소문자를 구분하며 항상 대문자입니다).</li><li>‘Add Device’를 클릭합니다.</li><li>추가 게이트웨이가 있으면 과정을 반복합니다.</li></ul>
+<p>참고: 모바일 App을 사용하는 경우, QR 스캐너가 활성화되어 있으면 스마트폰으로 게이트웨이와 센서의 QR 코드를 스캔할 수 있습니다. 이렇게 하면 ID와 코드를 수동으로 입력하지 않고 기기가 계정에 바로 추가됩니다.</p>
+<h4>센서 추가</h4>
+<ul><li>센서 ID를 입력합니다.</li><li>Sensor Security Code를 입력합니다(이 코드는 대소문자를 구분하며 항상 대문자입니다).</li><li>‘Add Device’를 클릭합니다.</li><li>모든 센서에 대해 이 과정을 반복합니다.</li><li>‘Finished Adding’을 클릭합니다.</li></ul>
+<p>상태 박스 아래에 센서와 게이트웨이 수가 표시된 iMonnit 홈페이지가 로드됩니다.</p>
+<p>위 단계를 따르면 계정이 설정되어 배치할 준비가 됩니다. 계정 설정에 문제가 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-04-06</p><h2>서브 계정 개요(Sub-Account Overview)</h2><p>각 고객/거래처의 데이터를 분리·관리하는 가장 효율적인 방법은 메인 계정 아래에 그들의 계정을 직접 생성하는 것입니다.</p>
+<p>Premiere 가격은 고객이 사용할 센서 수에 기반합니다. 비용 세부 내역은 여기를 클릭해 확인할 수 있습니다:</p>
+<p>iMonnit Premiere 구독 옵션</p>
+<h5>고객용 서브 계정 생성</h5>
+<p>서브 계정은 메인 리셀러 계정의 관리자가 고객의 구성, Action, 기타 모든 유지보수·설정 기능에 접근할 수 있게 하면서도 고객에게 자율성을 부여합니다. 고객이 갖는 접근 권한의 정도는 구성하는 권한 수준에 따라 결정됩니다.</p>
+<h4>단계 요약</h4>
+<ol><li>새 계정 생성</li><li>필수 계정 정보 입력</li><li>Primary Contact 구성</li><li>네트워크 생성</li><li>기기 추가</li><li>센서를 배치하고 사용합니다.</li></ol>
+<h4>새 계정 생성</h4>
+<ol><li>iMonnit.com 최상위 계정에 로그인합니다.</li><li>왼쪽 사이드바의 Portal을 클릭합니다.</li><li>나타나는 메뉴에서 Create Sub-Account를 클릭합니다.</li></ol>
+<h4>필수 고객 정보 입력</h4>
+<p>이 섹션의 정보는 계정 생성에 필수이며 서브 계정을 정리하는 데 도움이 됩니다. 회사명, 업종 유형, 위치가 포함됩니다. 일부 고객은 회사나 회사 그룹을 검색할 때 비슷한 이름의 계정이 함께 묶이도록 회사명 앞에 방향이나 지역을 붙입니다.</p>
+<p>진행하기 전에 이용 약관을 읽고 이해했음을 확인해야 합니다.</p>
+<h4>센서 네트워크 생성</h4>
+<p>각 계정에는 하나의 주 센서 네트워크가 필요하지만 둘 이상을 둘 수도 있습니다. 주 네트워크 이름을 입력하고 ‘Create Sensor Network’를 클릭합니다. 이름은 필요하면 언제든 편집할 수 있습니다. 여러 네트워크가 있을 경우, 위치·센서 유형·건물 이름·기타 그룹 유형을 나타내는 이름을 사용하면 어떤 센서로 작업하는지 식별하기 쉬워집니다.</p>
+<p>업데이트: 2020-04-24</p><h2>iMonnit Online에서 Action의 구성된 일정 밖에서도 계속 알림을 받는 경우</h2><p>iMonnit Online은 Action에 일정을 적용하는 기능을 제공합니다. 이를 통해 하루/주/월의 지정 기간에만 Action 알림을 받을 수 있습니다. Action에 일정이 적용된 경우, Action이 Disarm되지 않으면 Snooze 시간(기본 60분)에 알림이 계속 전송되는 특정 동작이 있습니다. 이 문서는 이 예상 동작을 설명하고 가능한 해결책을 제시합니다.</p>
+<h4>Action이 구성된 일정 밖에서도 계속 전송되는 이유</h4>
+<p>Action이 구성된 일정 밖에서도 계속 전송되는 이유는 Action의 Snooze 설정과 관련됩니다. Action의 Snooze 설정에 관한 정보는 다음 문서를 참고하십시오: iMonnit Online에서 Action의 Snooze 설정 이해. Action이 활성 일정 동안 트리거되었고 일정이 비활성으로 예정되기 전에 Disarm되지 않으면, Snooze 시간에 계속 전송됩니다.</p>
+<p>참고: Action이 예약된 활성 시간 내에 트리거되고, 예약 기간이 끝났으며, 센서 측정값이 여전히 트리거 매개변수 내에 있으면, Snooze 알림에는 일정 내에서 알림을 트리거한 마지막 측정값이 표시됩니다.</p>
+<h4>예시</h4>
+<p>이 예에서는 45°F 온도 측정값으로 Action을 트리거하도록 적용된 온도 센서를 사용하며, Action은 오전 8시부터 오후 5시 사이에 활성으로 예약됩니다.</p>
+<p>Action 트리거 구성: 센서 측정값이 45°F를 초과할 때 알림</p>
+<p>Action 일정: 오전 8시 ~ 오후 5시 사이</p>
+<p>Action: 이메일 전송</p>
+<p>Snooze 설정: 기본 60분</p>
+<p>센서 구성: 표준 및 Aware 상태 하트비트 10분</p>
+<p>오후 4:23 &gt; 센서가 42°F로 체크인 - Action 미트리거</p>
+<p>오후 4:33 &gt; 센서가 46°F로 체크인 - Action 트리거, 이메일 전송(Snooze 타이머 시작)</p>
+<p>오후 4:43 &gt; 센서가 46.5°F로 체크인 - Action 여전히 트리거 상태, 사용자가 아직 Disarm 안 함, 60분 중 10분 snooze, 변화 없음</p>
+<p>오후 4:53 &gt; 센서가 47°F로 체크인 - 여전히 트리거, 60분 중 20분 snooze, 변화 없음</p>
+<p>오후 5:03 &gt; 센서가 47.5°F로 체크인 - 여전히 트리거, 60분 중 30분 snooze, 변화 없음</p>
+<p>오후 5:13 &gt; 센서가 48°F로 체크인 - 여전히 트리거, 60분 중 40분 snooze, 변화 없음</p>
+<p>오후 5:00 &gt; Action 비활성으로 예약됨</p>
+<p>오후 5:23 &gt; 센서가 49°F로 체크인 - 여전히 트리거, 60분 중 50분 snooze, 변화 없음</p>
+<p>오후 5:33 &gt; 센서가 50°F로 체크인 - 여전히 트리거, snooze가 60분에 도달하여 추가 이메일 전송, Snooze 타이머 재시작</p>
+<p>오후 5:43 &gt; 센서가 49°F로 체크인 - 여전히 트리거, 60분 중 10분 snooze, 변화 없음</p>
+<p>오후 5:53 &gt; 센서가 50°F로 체크인 - 여전히 트리거, 60분 중 20분 snooze, 변화 없음</p>
+<p>오후 6:03 &gt; 센서가 51°F로 체크인 - 여전히 트리거, 60분 중 30분 snooze, 변화 없음</p>
+<p>오후 6:13 &gt; 센서가 50°F로 체크인 - 여전히 트리거, 60분 중 40분 snooze, 변화 없음</p>
+<p>오후 6:23 &gt; 센서가 52°F로 체크인 - 여전히 트리거, 60분 중 50분 snooze, 변화 없음</p>
+<p>오후 6:33 &gt; 센서가 52°F로 체크인 - 여전히 트리거, snooze가 60분에 도달하여 추가 이메일 전송, Snooze 타이머 재시작</p>
+<p>오후 6:43 &gt; 센서가 51°F로 체크인 - 여전히 트리거, 60분 중 10분 snooze, 변화 없음</p>
+<p>오후 6:46 &gt; 사용자가 Action을 Disarm</p>
+<p>오후 6:53 &gt; 센서가 49°F로 체크인 - Action 더 이상 트리거 안 됨, 일정상 Action 비활성, snooze 타이머 없음</p>
+<p>오후 7:03 &gt; 센서가 50°F로 체크인 - 트리거 안 됨, 일정상 비활성, snooze 없음</p>
+<p>오후 7:13 &gt; 센서가 51°F로 체크인 - 트리거 안 됨, 일정상 비활성, snooze 없음</p>
+<p>오후 7:23 &gt; 센서가 48°F로 체크인 - 트리거 안 됨, 일정상 비활성, snooze 없음</p>
+<p>오후 7:33 &gt; 센서가 47°F로 체크인 - 트리거 안 됨, 일정상 비활성, snooze 없음</p>
+<p>오후 7:43 &gt; 센서가 46°F로 체크인 - 트리거 안 됨, 일정상 비활성, snooze 없음</p>
+<p>오후 7:53 &gt; 센서가 44°F로 체크인 - 센서 측정값이 Action 설정의 임계값 미만이므로 Action이 Rearm(Reset)됨, 활성 일정 동안에만 다시 트리거 가능</p>
+<p>오후 8:03 &gt; 센서가 48°F로 체크인 - 활성 일정 밖이라 Action 미트리거, 이메일 미전송(측정값이 트리거 임계값을 초과했더라도)</p>
+<p>위 예에서 보듯, 트리거가 예약 비활성 시간 이전에 발생했기 때문에 측정값이 예약 비활성 시간 후에도 Snooze 시간에 계속 전송되었습니다. 이 트리거 후 Disarm되지 않았으므로 사용자가 Action을 Disarm할 때까지 Snooze 시간에 계속 전송되었습니다. Action이 Disarm된 후 정상 동작으로 돌아갔습니다. 센서는 이후 48°F를 측정(보통 Action을 트리거)했지만 예약 비활성 시간 후에 발생했으므로 트리거되지 않았습니다.</p>
+<h4>활성 일정 중 트리거가 발생하더라도 예약 비활성 시간에 알림 전송 방지</h4>
+<p>위에서 설명한 상황을 겪는다면, 예약 비활성 시간 밖에서 Action이 전송되는 것을 자동으로 방지하는 해결책을 구현할 수 있습니다. System Action을 사용해 예약 비활성 시간에 Action을 자동으로 Rearm(Reset)하는 추가 Scheduled Action을 만들 수 있습니다. 아래 단계를 따르십시오.</p>
+<ul><li>iMonnit Online에서 새 Scheduled Action을 생성합니다(‘iMonnit Online에서 Action 생성’ 참고).</li><li>이 Scheduled Action을 실행할 시간을 설정합니다(원래 Action 일정의 비활성 시간과 동일하게 예약하는 것이 좋음).</li><li>Action 구성에서 System Action을 클릭해 활성화로 강조합니다.</li><li>창의 System Action 부분에서 ‘Action to be done’을 Full Reset으로 설정합니다.</li><li>Delay 필드에서 No Delay를 선택합니다.</li><li>‘Target Notification’에 선택된 Action이 예약 비활성 시간에 비활성화하려는 Action인지 확인합니다.</li><li>Save를 클릭합니다.</li></ul>
+<p>이 Action으로 원래 Action이 예약 비활성 시간에 자동으로 재설정(Rearm)되어 Snooze 시간에 더 이상 전송하지 않습니다.</p>
+<h4>자기 자신을 Target Action으로 재설정</h4>
+<p>또한 예약 Action 자체를 재설정하는 Full Reset System Action을 추가하는 것을 고려할 수 있습니다. 예약 Action도 다른 알림과 마찬가지로 Disarm/Rearm이 필요합니다. 따라서 수동으로 Rearm/Disarm하거나, 실행 후 자기 자신을 재설정해 다음 날 다시 실행되도록 추가 System Action을 추가할 수 있습니다.</p>
+<p>업데이트: 2020-11-25</p><h2>Sensor Reading Action과 Advanced Action의 차이</h2><p>Monnit은 동작이 비슷할 수 있지만 알림 운영 방식을 좌우할 수 있는 핵심적이면서도 미묘한 차이가 있는 두 가지 Action 유형을 제공합니다. 이 문서는 서로 다른 Action 유형과 구현 방법을 이해하도록 이러한 차이를 설명합니다.</p>
+<h4>흔한 질문</h4>
+<p>Sensor Reading Action과 Advanced Action의 차이를 이해할 필요가 생기는 매우 흔한 질문은 센서의 Aware 상태 임계값과 관련됩니다. Monnit 플랫폼을 처음 접하는 많은 고객이 센서의 Aware 상태 임계값을 구성하는 것으로 시작하며, 이 임계값만 설정하면 임계값 적용 후 Action이 트리거된다고 생각합니다. 센서의 Aware 상태 동작(기본 정보는 ‘센서 하트비트, Aware 상태, Assessment, Rearm 이해’ 참고)이 사용자가 설정하지 않는 한 Action과 연결되지 않는다는 사실은 나중에야 깨닫는 경우가 있습니다. Aware 상태 구성은 센서가 통신·동작하는 방식을 제어하지만, Action이 생성되고 센서가 그 Action에 할당되지 않는 한 본질적으로 어떤 Action과도 연결되지 않습니다.</p>
+<p>또 다른 중요한 세부 사항은 Sensor Reading Action이 센서의 Aware 상태 임계값 설정과 연결되지 않는다는 점입니다. Sensor Reading Action에서는 Action 자체에서 트리거 지점을 구성합니다. 반면 Advanced Action은 센서의 Aware 상태로 트리거되므로 센서의 Aware 상태 임계값 설정과 직접 연결됩니다. 따라서 센서 측정값이 Aware 상태 임계값을 위반해도 Action이 트리거되지 않는 이유가 궁금하다면 Action 유형을 확인하십시오. 센서의 Aware 상태로 트리거되는 것은 Advanced Action뿐입니다.</p>
+<p>참고: Advanced Action은 Premiere 구독자에게만 제공됩니다.</p>
+<h4>Sensor Reading Action</h4>
+<p>Sensor Reading Action은 Action 설정에 트리거 지점 구성이 있습니다. 위에서 언급했듯이 이는 센서의 Aware 상태 임계값과 본질적으로 연결되지 않습니다. 따라서 특정 Aware 상태 임계값을 가진 센서와, 완전히 다른 트리거 지점을 가진 Sensor Reading Action을 둘 수 있습니다. Sensor Reading Action은 일반적으로 Greater Than, Less Than, Equal to, Greater than or equal to, Less than or equal to 구성을 제공합니다. 이는 설정에 따라 다릅니다. Action은 오로지 센서 측정값과 Action에 설정한 트리거 지점에 기반해 트리거됩니다.</p>
+<h4>Advanced Action</h4>
+<p>Advanced Action은 센서의 Aware 상태로 트리거됩니다. 따라서 센서의 Aware 상태 임계값과 직접 연결됩니다. 일반적으로 더 복잡한 로직을 허용하는 여러 종류의 Advanced Action이 있습니다. 예를 들어 센서가 ‘x’회 연속 Aware 메시지를 보고할 때 전송되도록 Advanced Action을 트리거할 수 있습니다. 가장 흔한 Advanced Action은 Notify After Aware Period Action으로, 첫 보고된 Aware 메시지로 Notify After Aware Period 타이머가 시작되고, 타이머가 경과한 후 센서로부터 이어지는 연속 Aware 메시지로 Action이 트리거됩니다.</p>
+<p>Advanced Action을 생성하기 전까지는 센서의 Aware 상태 임계값 구성에 어떤 Action도 연결되지 않습니다. 다만 다양한 유형의 Advanced Action으로 센서의 Aware 측정값/Aware 상태 임계값에 기반한 알림을 구현할 수 있습니다.</p>
+<p>Sensor Reading Action과 Advanced Action의 차이를 이해하는 것은 특히 신규 사용자에게 중요합니다. 이는 Action 운영 방식을 좌우할 수 있습니다. 관련 질문은 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-05-29</p><h2>Action의 Snooze 시간을 0으로 설정하는 경우</h2><p>Action의 Snooze 기능은 Action이 Disarm되지 않으면 정해진 간격으로 반복 알림을 보내게 합니다(Action Disarm에 관한 정보는 ‘Action의 Disarm 및 Rearm’ 참고). 기본 Snooze 시간은 60분입니다. 즉 Action이 처음 트리거되면 구성된 알림을 전송하고, Action을 Disarm하는 사용자 조치가 없으면 조건이 정상으로 돌아오거나 사용자가 Disarm할 때까지 Snooze 간격으로 계속 전송합니다.</p>
+<h4>Snooze를 0으로 설정하면 어떻게 되나요?</h4>
+<p>Snooze 시간을 0으로 설정하면 Snooze가 비활성화되는 것이 아니라 Snooze 시간이 기본값 60분으로 설정됩니다. 따라서 Snooze가 0으로 설정되어 있으면, 트리거 조건이 정상으로 돌아오거나 Action이 Disarm될 때까지 60분마다 반복 알림을 받습니다.</p>
+<h4>반복 알림을 받고 싶지 않은 경우</h4>
+<p>반복 알림을 원하지 않는 경우가 있을 수 있습니다. 이 경우 Action을 자동으로 Disarm(Acknowledge라고도 함)하는 System Action을 설정할 수 있습니다. Action 구성에서 System Action을 활성화하고 ‘Acknowledge’를 선택한 뒤 원하는 Delay 시간을 선택하고 Disarm할 현재 Action을 선택합니다. System Action 생성 단계는 관련 문서를 참고하십시오.</p>
+<p>참고: System Action 활성화를 원하지 않으면 Snooze 시간을 65535로 설정할 수 있습니다. 반복 알림은 여전히 전송되지만 45.51일 지연됩니다. 일부 사용자에게는 이것이 더 간단한 옵션입니다.</p>
+<p>업데이트: 2020-04-06</p><h2>iMonnit Online에서 Action의 Snooze 설정 이해</h2><p>참고: Action과 Notification이라는 용어는 Monnit 용어에서 일반적으로 같은 것을 가리킵니다. Action은 iMonnit Online의 New Look 3.0 보기에서 쓰는 용어이고, Notification은 iMonnit Classic View에서 쓰는 용어입니다.</p>
+<p>iMonnit의 Action에는 Snooze라는 설정이 있습니다. iMonnit Classic View의 ‘Don't Alert again for (Snooze)’ 설정으로 익숙할 수 있습니다. 이 구성은 Action이 Disarm되지 않으면 구성된 시간 간격으로 알림을 계속 보내게 합니다(Action Disarm/Rearm에 관한 정보는 다음 문서 참고: Action의 Disarm 및 Rearm). 알람 시계의 snooze 설정처럼, 조건이 지속되어 사용자가 확인해야 할 때 유용합니다. Action은 Disarm(Acknowledge)될 때까지 알림을 계속 보냅니다.</p>
+<p>기본 60분 구성</p>
+<p>기본적으로 Snooze 설정은 60분으로 구성됩니다. 따라서 Action이 트리거되고 60분 Snooze 시간 내에 Disarm되지 않으면(Action Disarm에 관한 정보는 이 문서 참고), 트리거 조건이 지속되는 한 구성된 수신자(또는 기기)에게 60분마다 표준 알림 에스컬레이션이 계속됩니다. Action이 Disarm되면, 트리거 조건이 변화 없이 지속되더라도 Snooze 시간에 알림이 더 이상 전송되지 않습니다.</p>
+<p>Snooze 시간 구성</p>
+<p>New Look에서:</p>
+<p>-왼쪽 사이드바의 Actions 탭을 선택합니다.</p>
+<p>-Snooze 설정을 편집할 Action을 선택합니다.</p>
+<p>-페이지 오른쪽 상단의 Action 로켓 아이콘을 선택합니다.</p>
+<p>-Send Notifications 섹션으로 스크롤합니다.</p>
+<p>Classic View에서:</p>
+<p>-탐색 바의 Notifications 탭을 클릭합니다.</p>
+<p>-Snooze 설정을 수정할 Notification을 클릭합니다.</p>
+<p>-해당 Notification의 Settings 탭을 클릭합니다.</p>
+<p>-‘Don't Alert again for (Snooze)’ 필드를 원하는 Snooze 시간으로 수정합니다.</p>
+<p>참고: Snooze 시간을 0으로 설정해도 Snooze 기능이 비활성화되지 않습니다. 대신 Snooze 시간이 기본값 60분으로 설정됩니다.</p>
+<p>-Save Settings 버튼을 클릭합니다.</p>
+<h4>예시</h4>
+<p>이 예에서는 45°F 온도 측정값으로 Action을 트리거하도록 적용된 온도 센서를 사용합니다.</p>
+<p>Action 트리거 구성: 센서 측정값이 45°F를 초과할 때 알림</p>
+<p>Action: 이메일 전송</p>
+<p>Snooze 설정: 기본 60분</p>
+<p>센서 구성: 표준 및 Aware 상태 하트비트 10분</p>
+<p>오후 1:23 &gt; 센서가 42°F로 체크인 - Action 미트리거</p>
+<p>오후 1:33 &gt; 센서가 46°F로 체크인 - Action 트리거, 이메일 전송(Snooze 타이머 시작)</p>
+<p>오후 1:43 &gt; 센서가 46.5°F로 체크인 - 여전히 트리거, 60분 중 10분 snooze, 변화 없음</p>
+<p>오후 1:53 &gt; 센서가 47°F로 체크인 - 여전히 트리거, 60분 중 20분 snooze, 변화 없음</p>
+<p>오후 2:03 &gt; 센서가 47.5°F로 체크인 - 여전히 트리거, 60분 중 30분 snooze, 변화 없음</p>
+<p>오후 2:13 &gt; 센서가 48°F로 체크인 - 여전히 트리거, 60분 중 40분 snooze, 변화 없음</p>
+<p>오후 2:23 &gt; 센서가 49°F로 체크인 - 여전히 트리거, 60분 중 50분 snooze, 변화 없음</p>
+<p>오후 2:33 &gt; 센서가 50°F로 체크인 - 여전히 트리거, snooze가 60분에 도달하여 추가 이메일 전송, Snooze 타이머 재시작</p>
+<p>오후 2:43 &gt; 센서가 49°F로 체크인 - 여전히 트리거, 60분 중 10분 snooze, 변화 없음</p>
+<p>오후 2:53 &gt; 센서가 50°F로 체크인 - 여전히 트리거, 60분 중 20분 snooze, 변화 없음</p>
+<p>오후 3:03 &gt; 센서가 51°F로 체크인 - 여전히 트리거, 60분 중 30분 snooze, 변화 없음</p>
+<p>오후 3:13 &gt; 센서가 50°F로 체크인 - 여전히 트리거, 60분 중 40분 snooze, 변화 없음</p>
+<p>오후 3:23 &gt; 센서가 52°F로 체크인 - 여전히 트리거, 60분 중 50분 snooze, 변화 없음</p>
+<p>오후 3:33 &gt; 센서가 52°F로 체크인 - 여전히 트리거, snooze가 60분에 도달하여 추가 이메일 전송, Snooze 타이머 재시작</p>
+<p>오후 3:43 &gt; 센서가 51°F로 체크인 - 여전히 트리거, 60분 중 10분 snooze, 변화 없음</p>
+<p>오후 3:46 &gt; 사용자가 Action을 Disarm</p>
+<p>오후 3:53 &gt; 센서가 49°F로 체크인 - 여전히 트리거, 사용자가 Disarm함, snooze 타이머 없음</p>
+<p>오후 4:03 &gt; 센서가 50°F로 체크인 - 여전히 트리거, Disarm 상태, snooze 없음</p>
+<p>오후 4:13 &gt; 센서가 51°F로 체크인 - 여전히 트리거, Disarm 상태, snooze 없음</p>
+<p>오후 4:23 &gt; 센서가 48°F로 체크인 - 여전히 트리거, Disarm 상태, snooze 없음</p>
+<p>오후 4:33 &gt; 센서가 47°F로 체크인 - 여전히 트리거, Disarm 상태, snooze 없음</p>
+<p>오후 4:43 &gt; 센서가 46°F로 체크인 - 여전히 트리거, Disarm 상태, snooze 없음</p>
+<p>오후 4:53 &gt; 센서가 44°F로 체크인 - 센서 측정값이 Action 설정의 임계값 미만이므로 Action이 Rearm(Reset)됨, 다시 트리거 가능</p>
+<p>iMonnit에서 Action을 효과적으로 구현하려면 Action의 Snooze 설정을 이해하는 것이 핵심입니다. Snooze 동작을 알면 도움이 되는 고유한 에스컬레이션 세부 사항이 있습니다. 추가 질문이 있으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-09-24</p><h2>보고서를 생성했는데 다운로드 링크가 웹페이지를 로드하지 않는 경우</h2><p>iMonnit Online에서 보고서를 생성했는데 보고서 다운로드 링크가 웹페이지를 로드하지 않는 경우가 몇 가지 있을 수 있습니다. 원인은 여러 가지일 수 있습니다. 이 문제를 겪으면 아래 문서가 해결에 도움이 될 수 있습니다.</p>
+<h4>단계 요약:</h4>
+<ul><li>보고서 이름에 비표준 문자가 없는지 확인합니다.</li><li>Network: Data Export 보고서에 센서가 30개 이하인지 확인합니다.</li><li>기기에 지정 기간의 데이터가 실제로 있는지 확인합니다.</li></ul>
+<h4>보고서 이름에 지원되지 않는 문자가 포함됨</h4>
+<p>Monnit은 표준 비특수 문자만 지원하는 쿼리를 기반으로 보고서를 생성합니다. 보고서 이름에 지원되지 않는 문자가 있으면 보고서는 실행되지만 예상한 데이터를 포함하지 않습니다. 이 경우 보고서 이름 제목에 비표준 문자가 없는지 확인하십시오. 제목에는 표준 영문자만 사용할 수 있습니다. 보고서 이름에 기호가 있으면 제거하면 보고서에 예상 데이터가 포함됩니다. 예를 들어 á, é, í, ó, ú, ñ 등의 기호는 지원되지 않습니다. 보고서가 실행되지 않았고 이것이 원인으로 의심되면, 특수 문자를 모두 제거하고 영문자만 포함하도록 하십시오.</p>
+<h4>Network: Data Export 보고서에 센서가 30개를 초과함</h4>
+<p>Network: Data Export 보고서는 최대 30개 센서를 지원합니다. 보고서가 예약된 네트워크에 센서가 30개를 초과하면 보고서가 데이터 없이 반환됩니다. 보고서를 성공적으로 실행하려면 네트워크에 센서가 30개 미만이어야 합니다.</p>
+<h4>네트워크의 기기에 지정 기간의 데이터가 없음</h4>
+<p>특수 문자가 없고 Network: Data Export 보고서의 센서가 30개 미만임을 확인했다면, 단순히 지정 기간 동안 센서에 데이터가 없는 것일 수 있습니다. 센서의 Readings 기록을 확인해 데이터가 보이는지 확인하십시오.</p>
+<p>위의 가능한 원인을 검토한 후에도 예약 보고서에 예상 데이터가 포함되지 않으면 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-08-03</p><h2>iMonnit Online 페이지 인쇄</h2><p>브라우저에 따라 iMonnit Online 페이지를 인쇄하면 형식이 깨진 결과가 나올 수 있습니다. 이는 브라우저와 그것이 인쇄용으로 페이지를 해석하는 방식의 결과입니다. 일부 브라우저를 해석된 보기 대신 페이지 보기를 인쇄하도록 구성하는 방법이 있습니다. 이는 iMonnit Online에서 차트를 인쇄할 때 유용합니다. 이 문서는 현재 Chrome 및 Edge(버전 80 이상, Chromium 기반) 브라우저로 이를 수행하는 방법을 안내합니다(대부분의 브라우저가 유사한 기능을 제공).</p>
+<h4>단계 요약</h4>
+<ul><li>인쇄할 페이지를 엽니다.</li><li>‘햄버거’ 메뉴를 선택해 기본 브라우저 메뉴에 접근합니다.</li><li>More Tools</li><li>Developer Tools(Ctrl + Shift + I로 바로 이동 가능)</li><li>‘햄버거’ 메뉴를 선택해 추가 메뉴에 접근합니다.</li><li>More Tools를 선택합니다.</li><li>Rendering을 선택합니다.</li><li>‘Emulate CSS media type’ 드롭다운을 선택합니다.</li><li>‘screen’을 선택합니다.</li><li>페이지를 인쇄합니다.</li></ul>
+<p>브라우저가 페이지를 렌더링하는 방식을 조정한 후, 보이는 그대로 페이지를 인쇄할 수 있습니다.</p>
+<p>업데이트: 2020-04-06</p><h2>iMonnit Online 계정에서 네트워크의 기기 제거 방법</h2><p>iMonnit Online에서 네트워크의 기기를 제거할 수 있습니다. 제거한 기기는 이후 원하면 다른 네트워크에 추가할 수 있습니다. 센서를 제거한 네트워크의 게이트웨이는 네트워크를 Reform하는 것이 좋다는 점을 고려하십시오.</p>
+<h4>단계 요약</h4>
+<p>참고: 네트워크에서 기기를 제거하려면 관리자 권한이 필요합니다.</p>
+<ol><li><a href="https://www.imonnit.com/" rel="noopener" target="_blank">https://www.imonnit.com/</a> 계정에 로그인합니다.</li><li>기본 메뉴 왼쪽 하단의 Networks 탭을 클릭합니다.</li><li>센서가 이미 추가된 네트워크를 선택합니다.</li><li>줄임표(점 3개)를 클릭합니다.</li><li>Delete를 클릭합니다.</li></ol>
+<h4>게이트웨이 Reform</h4>
+<p>센서를 제거한 네트워크의 게이트웨이는 반드시 Reform하십시오. Reform하면 현재 Sensor List가 비워지고 네트워크의 센서 ID만 (다시) 다운로드되기 때문입니다. 자세한 내용은 ‘게이트웨이 네트워크 Reform’ 문서를 참고하십시오.</p>
+<h4>Sensor Start Date</h4>
+<p>네트워크에서 센서를 제거하면 그 센서의 Sensor Start Date가 재설정됩니다. 즉 이전에 센서 기록에서 볼 수 있던 측정값이 지워지고, 센서가 새 네트워크에 추가되는 날짜에 시작하도록 재설정됩니다.</p>
+<p>업데이트: 2020-04-13</p><h2>국가별 Notification Credit 비용</h2><p>Direct Delivery SMS 기능을 사용할 때(External Delivery와 Direct SMS의 차이에 관한 정보는 여기 참고), Monnit이 SMS 메시지를 전달하는 데 Notification Credit이 차감됩니다. 각 메시지에 차감되는 Notification Credit 수는 메시지가 전달되는 국가에 따라 다릅니다. 아래에 나열되어 있습니다.</p>
+<p>아프가니스탄: 2 / 알바니아: 5 / 알제리: 5 / 아메리칸사모아: 10 / 안도라: 1 / 앙골라: 2 / 앵귈라: 2 / 앤티가바부다: 1 / 아르헨티나: 5 / 아르메니아: 5 / 아루바: 2 / 호주: 2 / 오스트리아: 2 / 아제르바이잔: 5</p>
+<p>바하마: 2 / 바레인: 2 / 방글라데시: 1 / 바베이도스: 2 / 벨라루스: 2 / 벨기에: 5 / 벨리즈: 1 / 베냉: 2 / 버뮤다: 2 / 부탄: 1 / 볼리비아: 1 / 보스니아헤르체고비나: 1 / 보츠와나: 2 / 브라질: 2 / 영국령 인도양 지역: 미지원 / 영국령 버진아일랜드: 10 / 브루나이: 1 / 불가리아: 5 / 부르키나파소: 2 / 부룬디: 2</p>
+<p>캄보디아: 1 / 카메룬: 5 / 캐나다: 10 / 카보베르데: 1 / 카리브 네덜란드: 미지정 / 케이맨제도: 2 / 중앙아프리카공화국: 1 / 차드: 5 / 칠레: 5 / 중국: 2 / 콜롬비아: 5 / 코모로: 1 / 콩고민주공화국: 2 / 콩고공화국: 5 / 쿡제도: 2 / 코스타리카: 2 / 코트디부아르: 2 / 크로아티아: 2 / 쿠바: 2 / 퀴라소: 미지정 / 키프로스: 1 / 체코: 5</p>
+<p>덴마크: 1 / 지부티: 2 / 도미니카: 1 / 도미니카공화국: 5 / 에콰도르: 2 / 이집트: 2 / 엘살바도르: 2 / 적도기니: 1 / 에리트레아: 10 / 에스토니아: 5 / 에티오피아: 2</p>
+<p>포클랜드제도: 2 / 페로제도: 1 / 피지: 1 / 핀란드: 2 / 프랑스: 5 / 프랑스령 기아나: 8 / 프랑스령 폴리네시아: 1</p>
+<p>가봉: 5 / 감비아: 1 / 조지아: 1 / 독일: 2 / 가나: 2 / 지브롤터: 2 / 그리스: 5 / 그린란드: 1 / 그레나다: 1 / 과들루프: 5 / 괌: 1 / 과테말라: 2 / 기니: 2 / 기니비사우: 2 / 가이아나: 1</p>
+<p>아이티: 5 / 온두라스: 2 / 홍콩: 2 / 헝가리: 2</p>
+<p>아이슬란드: 2 / 인도: 1 / 인도네시아: 2 / 이란: 2 / 이라크: 1 / 아일랜드: 5 / 이스라엘: 1 / 이탈리아: 5</p>
+<p>자메이카: 1 / 일본: 5 / 요르단: 2</p>
+<p>카자흐스탄: 8 / 케냐: 5 / 키리바시: 10 / 쿠웨이트: 1 / 키르기스스탄: 2</p>
+<p>라오스: 1 / 라트비아: 5 / 레바논: 5 / 레소토: 2 / 라이베리아: 2 / 리비아: 2 / 리히텐슈타인: 2 / 리투아니아: 1 / 룩셈부르크: 1</p>
+<p>마카오: 2 / 마케도니아: 5 / 마다가스카르: 2 / 말라위: 2 / 말레이시아: 2 / 몰디브: 1 / 말리: 5 / 몰타: 1 / 마셜제도: 10 / 마르티니크: 5 / 모리타니: 5 / 모리셔스: 2 / 멕시코: 5 / 미크로네시아: 10 / 몰도바: 2 / 모나코: 1 / 몽골: 2 / 몬테네그로: 1 / 몬트세랫: 1 / 모로코: 2 / 모잠비크: 1 / 미얀마(버마): 10</p>
+<p>나미비아: 2 / 나우루: 10 / 네팔: 5 / 네덜란드: 5 / 뉴칼레도니아: 2 / 뉴질랜드: 5 / 니카라과: 2 / 니제르: 2 / 나이지리아: 5 / 니우에: 10 / 노퍽섬: 1 / 북한: 10 / 북마리아나제도: 10 / 노르웨이: 2</p>
+<p>오만: 5 / 파키스탄: 2 / 팔라우: 10 / 팔레스타인: 5 / 파나마: 5 / 파푸아뉴기니: 1 / 파라과이: 2 / 페루: 2 / 필리핀: 5 / 폴란드: 5 / 포르투갈: 2 / 푸에르토리코: 1</p>
+<p>카타르: 2 / 레위니옹: 8 / 루마니아: 5 / 러시아: 2 / 르완다: 2</p>
+<p>생바르텔레미: 10 / 세인트헬레나: 10 / 세인트키츠네비스: 2 / 세인트루시아: 1 / 생마르탱: 10 / 생피에르미클롱: 10 / 세인트빈센트그레나딘: 2 / 사모아: 2 / 산마리노: 2 / 상투메프린시페: 2 / 사우디아라비아: 2 / 세네갈: 5 / 세르비아: 1 / 세이셸: 5 / 시에라리온: 2 / 싱가포르: 2 / 신트마르턴: 1 / 슬로바키아: 5 / 슬로베니아: 5 / 솔로몬제도: 10 / 소말리아: 10 / 남아프리카공화국: 2 / 대한민국: 2 / 남수단: 1 / 스페인: 5 / 스리랑카: 2 / 수단: 2 / 수리남: 1 / 에스와티니(스와질란드): 1 / 스웨덴: 2 / 스위스: 2 / 시리아: 2</p>
+<p>대만: 2 / 타지키스탄: 1 / 탄자니아: 5 / 태국: 2 / 동티모르: 5 / 토고: 2 / 토켈라우: 10 / 통가: 1 / 트리니다드토바고: 2 / 튀니지: 1 / 터키: 2 / 투르크메니스탄: 5 / 터크스케이커스제도: 1 / 투발루: 10</p>
+<p>미국령 버진아일랜드: 1 / 우간다: 2 / 우크라이나: 5 / 아랍에미리트: 2 / 영국: 2 / 미국: 1 / 우루과이: 2 / 우즈베키스탄: 1</p>
+<p>바누아투: 5 / 바티칸시국: 10 / 베네수엘라: 2 / 베트남: 5 / 왈리스푸투나: 10 / 예멘: 5 / 잠비아: 5 / 짐바브웨: 5</p>
+<p>업데이트: 2020-08-27</p><h2>iMonnit Premiere 구독 추가</h2><h5>iMonnit Premiere란?</h5>
+<p>iMonnit Premiere는 무선 센서 네트워크를 위한 12개월 소프트웨어 구독입니다. iMonnit 계정을 iMonnit Premiere로 업그레이드하면 최소한의 연간 비용으로 추가 고급 기능이 더해집니다. 무료 iMonnit Basic 계정과 iMonnit Premiere 계정 사이에는 핵심적인 차이가 있습니다. 이 문서는 이 기능들을 자세히 설명하고 무료 Basic iMonnit 계정을 iMonnit Premiere로 업그레이드하는 방법을 안내합니다.</p>
+<p>구독 갱신에 관한 정보는 다음 문서를 참고하십시오: Premiere 구독 만료/갱신.</p>
+<h4>무료 Basic iMonnit 계정을 iMonnit Premiere로 업그레이드하는 단계 요약</h4>
+<ol><li>iMonnit Online 센서 포털에 로그인합니다.</li><li>‘Can Access Billing Pages’ 권한이 있는지 확인합니다.</li><li>기존 Monnit.com 스토어 계정을 연결하거나 새 스토어 계정을 생성합니다.</li><li>왼쪽 사이드바의 Settings 탭을 선택합니다.</li><li>Purchase Premiere 버튼을 선택합니다.</li><li>현재 계정에 추가된 센서 수에 맞는 Premiere 구독을 선택합니다.</li><li>Checkout 버튼을 선택합니다.</li><li>구독이 올바른지 확인하고 Purchase 버튼을 선택합니다.</li></ol>
+<h4>iMonnit Premiere의 핵심 기능</h4>
+<ul><li>10분 최소 하트비트(무료 Basic 계정은 120분)</li><li>무제한 사용자(무료 iMonnit Basic 계정은 1명)</li><li>Sensor Mapping 도구 접근</li><li>iMonnit REST API 및 WebHooks 접근</li><li>센서 고급 설정 접근</li><li>Advanced Notifications 접근</li></ul>
+<p>iMonnit Premiere의 기능은 탁월한 가치의 풍부한 기능 세트를 제공합니다. Monnit.com 스토어의 iMonnit Premiere 제품 페이지에 접근하려면 다음 링크를 방문하십시오.</p>
+<p><a href="https://www.monnit.com/Products/Software/Software/iMonnit-Premiere---Up-To-6-Sensors" rel="noopener" target="_blank">https://www.monnit.com/Products/Software/Software/iMonnit-Premiere---Up-To-6-Sensors</a></p>
+<p>구매 전 문의는 Monnit Sales(info@monnit.com), 기술 문의는 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-01-27</p><h2>iMonnit Online에서 Access Token 생성</h2><h4>Access Token이란</h4>
+<p>Access Token은 고유하게 생성된 영숫자 코드로, 기술 담당자가 지정된 기간(기본 24시간) 동안 iMonnit 계정에 접근할 수 있게 합니다. 문제가 해결되어 더 이상 접근을 허용하고 싶지 않으면 연장하거나 취소할 수 있습니다. 이 토큰은 EU GDPR 준수를 지원합니다. Monnit Support에 문의할 때, 지원 담당자가 계정 접근 권한이 있는지 확인하고 지원 담당자에게 임시 접근을 허용하기 위해 Access Token을 요청받을 수 있습니다.</p>
+<p>Access Token은 Monnit 지원이 계정 문제를 도울 수 있도록 24시간 유효한 영숫자 코드입니다. 문제가 해결되어 더 이상 접근을 허용하고 싶지 않으면 연장하거나 취소할 수 있습니다.</p>
+<h4>단계</h4>
+<p>iMonnit Online 계정에 로그인합니다.</p>
+<ol><li>사이드바 왼쪽 하단의 Settings를 클릭합니다.</li><li>Subscription 섹션으로 스크롤하여 Generate Token 버튼을 선택합니다.</li><li>계정 접근을 위해 지원 담당자에게 토큰을 제공합니다.</li></ol>
+<p>코드는 24시간 후 자동으로 만료됩니다. Extend 버튼을 선택하면 강제 만료 전 1회 1주일 연장 기간이 부여됩니다. 만료일 전에 접근을 종료하려면 Revoke Token 버튼을 선택하십시오.</p>
+<h4>토큰 연장</h4>
+<p>Account Access Token 영역의 Extend Token 버튼을 클릭하면 Access Token을 추가 7일(총 8일) 동안 허용되도록 연장할 수 있습니다.</p>
+<h4>Tech Access Cut Off</h4>
+<p>기술 담당자가 Access Token을 입력하면 연결된 계정(Linked Account)으로 계정에 접근할 수 있습니다. 또한 Access Token으로 네트워크 접근을 허용할 특정 날짜를 특정 네트워크에 대해 지정할 수 있습니다. 네트워크를 보면 ‘Tech Access Cut Off Date’ 필드가 보입니다. 날짜를 클릭하면 Access Token 사용 시 네트워크 접근이 허용되는 특정 날짜를 설정할 수 있습니다.</p>
+<p>업데이트: 2020-11-30</p><h2>iMonnit 데이터 백업</h2><p>Monnit은 자사 서버에서 정기적인 데이터 백업을 유지합니다. 다음 세부 사항으로 백업을 처리합니다.</p>
+<h4>전체 백업(Full Backups)</h4>
+<p>각 데이터베이스의 전체 백업이 주 1회 완료됩니다. 이 파일에는 프로세스 실행 시점의 선택된 데이터베이스의 모든 데이터가 포함됩니다. 이 백업을 데이터 센터에 2주간 로컬 저장합니다. 또한 백업을 암호화하여 지리적으로 이중화된 위치에 업로드하는 자동화 작업이 있습니다.</p>
+<h4>로그 파일 백업(Log File Backups)</h4>
+<p>데이터베이스의 각 트랜잭션을 기록하는 파일은 30분마다 백업됩니다. 이 파일에는 이전 로그 파일 백업 이후 발생한 모든 트랜잭션이 포함됩니다. 이 백업을 데이터 센터에 2주간 로컬 저장합니다. 또한 백업을 암호화하여 지리적으로 이중화된 위치에 업데이트하는 자동화 작업이 있습니다.</p>
+<h5>재해 복구(Disaster Recovery)</h5>
+<p>재해 복구용 백업은 지리적으로 이중화된 위치에 45일간 저장됩니다.</p>
+<p>업데이트: 2020-07-15</p><h2>iMonnit 모바일 App 다운로드</h2><p>iMonnit®은 센서와 게이트웨이의 모든 설정을 수정할 수 있는 Monnit의 온라인 인터페이스입니다. 이 사용하기 쉬운 플랫폼은 모바일 앱으로 제공되며 어떤 앱 스토어에서도 다운로드할 수 있어, 언제 어디서나 센서 활동을 볼 수 있습니다. 주소창에 <a href="https://www.imonnit.com" rel="noopener" target="_blank">https://www.imonnit.com</a> 을 입력하면 어떤 인터넷 브라우저에서도 iMonnit에 접근할 수 있습니다. 또한 iMonnit App을 스마트폰이나 태블릿에 다운로드할 수도 있습니다.</p>
+<p>iMonnit 앱은 Google Play와 Apple App Store 모두에서 제공됩니다. 다음 QR 코드를 사용하면 모바일 앱 다운로드 링크가 있는 페이지로 바로 연결되어 기기에 프로그램을 설치할 수 있는 곳으로 안내합니다.</p>
+<p>또는 iMonnit 사이트에 접속해 로그인 박스 하단의 직접 링크 중 하나를 선택할 수 있습니다.</p>
+<p>ANDROID</p>
+<p>링크를 선택해 Google Play 스토어로 이동하여 ‘iMonnit: Mobile Software’를 다운로드합니다. Install 버튼을 선택하면 스마트폰이나 태블릿으로 앱 다운로드가 시작됩니다.</p>
+<p>참고: 앱에는 Android 4.0 이상이 필요합니다.</p>
+<p>APPLE (iOS)</p>
+<p>Apple(iOS) 앱 링크를 선택하면 Mac 기기용 App Store로 이동합니다. 이 앱은 iPhone, iPad, iPod Touch에서 동작하며 무료로 다운로드할 수 있습니다. ‘iMonnit: Mobile Software’로 표시된 앱을 선택합니다. 앱을 다운로드하고 기기 등록을 시작하십시오.</p>
+<p>참고: 이 앱은 iOS 기기용 App Store에서만 제공되며 iOS 11.0 이상이 필요합니다.</p>
+<p>모바일 앱을 다운로드한 후, 웹 브라우저에서 iMonnit Online 센서 포털에 접근할 때 사용한 동일한 iMonnit Online 계정으로 로그인할 수 있습니다. 관련 문의는 언제든 Monnit Support에 문의하십시오.</p>
+<p>업데이트: 2020-02-17</p><h2>iMonnit Online의 Classic View와 New Look 전환</h2><p>iMonnit Online 포털은 현재 서로 다른 그래픽 사용자 인터페이스를 가진 두 가지 사용자 경험을 제공합니다. New Look 3.0 사이트는 모바일 보기에도 잘 맞는 현대적 디자인을 가집니다. iMonnit Classic View는 Monnit이 원래 설계한 사용자 인터페이스를 제공합니다. 두 보기 사이에는 사용자가 전환하게 만드는 몇 가지 차이가 있습니다. Monnit이 가까운 시일 내에 Classic View를 단계적으로 폐지할 예정이지만 현재는 접근 가능합니다. 아래 단계로 두 보기 사이를 전환할 수 있습니다.</p>
+<h4>New Look에서 Classic View로 전환</h4>
+<p>iMonnit Online 포털에 처음 로그인하면 New Look 사이트로 안내됩니다. Classic View로 전환하려면 아래 단계를 따르십시오.</p>
+<ul><li>iMonnit Online 포털에 로그인합니다.</li><li>페이지 오른쪽 상단의 ‘실루엣’ 아이콘을 클릭합니다.</li><li>‘Back to Classic View’를 선택합니다.</li><li>Classic View 사이트로 이동됩니다.</li></ul>
+<h4>Classic View에서 New Look으로 전환</h4>
+<p>Classic View 사용자 인터페이스에는 New Look 3.0 사이트로 전환하는 ‘New Look’이라는 탐색 바 옵션이 있습니다.</p>
+<p>Classic View에서:</p>
+<ul><li>탐색 바의 New Look 탭을 선택합니다.</li></ul>
+<p>업데이트: 2020-04-06</p><h2>iMonnit Online의 네트워크(Networks)</h2><h5>센서 네트워크 개요</h5>
+<p>iMonnit Online의 네트워크는 센서와 게이트웨이를 묶어 기기 간 통신을 허가합니다. 네트워크는 어떤 기기들이 함께 통신하도록 허용할지 정하는 수단입니다. 게이트웨이와 센서가 동일한 네트워크에 추가되면, 게이트웨이가 센서 ID를 다운로드하고 이후 그 센서가 게이트웨이와 통신하도록 허가합니다. 이 문서는 iMonnit Online 플랫폼에서 네트워크를 생성하는 과정을 안내합니다.</p>
+<p>네트워크는 기기를 위한 조직 구성 요소이기도 합니다. iMonnit Premiere 회원은 각자 게이트웨이와 고유한 센서 목록을 가진 여러 네트워크를 둘 수 있습니다. 기기는 한 번에 하나의 네트워크에만 추가할 수 있습니다. 여러 네트워크가 있으면 그 사이를 전환하여 추가된 기기를 볼 수 있습니다.</p>
+<h4>iMonnit의 네트워크 구성 설정</h4>
+<p>iMonnit Online의 네트워크에 대해 다음 구성을 사용할 수 있습니다.</p>
+<p>Name: 새 네트워크를 식별하는 이름입니다.</p>
+<p>Notifications Enabled: !!중요!! 이 박스를 체크하면 네트워크에서 알림이 전송되도록 설정됩니다.</p>
+<p>Holding Enabled: 이 박스를 체크하면 이 네트워크를 holding 네트워크로 설정합니다. 센서 한도가 적용되지 않으며 게이트웨이가 네트워크 Sensor List에 센서를 다운로드하지 않습니다.</p>
+<p>Install Tech Access Cut off Date: 설치 기간 동안 네트워크의 기기를 변경할 수 있는 옵션을 제공합니다. 날짜는 기본적으로 하루 전 과거로 설정됩니다.</p>
+<p>Device Xml Download: 네트워크의 기기 목록이 담긴 XML 파일을 컴퓨터나 모바일 기기로 다운로드합니다. 이 XML 파일은 iMonnit Enterprise 소프트웨어에 기기 목록을 업로드하는 데 사용할 수 있습니다.</p>
+<p>Add Device to Network: 이 새 네트워크에 기기를 추가합니다. 게이트웨이를 센서보다 먼저 네트워크에 추가해야 한다는 점을 기억하십시오.</p>
+<p>업데이트: 2020-01-28</p><h2>냉장 시스템을 위한 iMonnit 고급 Action</h2><p>이 동영상은 iMonnit에서 냉장 시스템의 센서를 위한 고급 Action을 생성하는 과정을 안내합니다.</p>
+<p>업데이트: 2020-10-20</p><h2>iMonnit Online 포털에서 사용자의 이메일 알림 비활성화 단계</h2><p>사용자는 iMonnit Online 포털에서 알림(alert) 알림과 System Maintenance 알림 전송을 비활성화할 수 있습니다. 아래 단계로 이를 수행합니다.</p>
+<p>iMonnit Online 포털의 이메일 수신 거부(Opt Out) 단계는 ‘iMonnit Online의 통신 수신 거부’ 문서를 참고하십시오.</p>
+<h4>단계</h4>
+<ul><li>알림을 비활성화할 사용자의 자격 증명으로 iMonnit Online 포털에 로그인합니다.</li><li>페이지 맨 오른쪽 상단의 ‘실루엣’ 아이콘을 클릭합니다.</li><li>사용자를 선택합니다.</li><li>Notifications 탭(확성기 아이콘)을 클릭합니다.</li><li>Notifications On/Off 토글 스위치를 클릭해 알림을 비활성화/활성화합니다.</li><li>save 버튼을 클릭합니다.</li></ul>
+<p>참고: Text Settings 토글 스위치에 Direct Delivery가 선택되어 있으면 반드시 External Delivery로 전환하십시오. 그러면 Notifications On/Off 스위치가 나타납니다. Direct Delivery가 선택되어 있으면 Notifications On/Off 토글 스위치가 나타나지 않습니다.</p>
+<p>알림을 비활성화하면 사용자는 iMonnit Online 포털에서 알림 알림이나 Maintenance 알림을 받지 않습니다.</p>
+<p>업데이트: 2020-07-16</p><h2>iMonnit Online에서 Action 비활성화(Deactivating)</h2><p>여러 이유로 Action 비활성화가 필요할 수 있습니다. 이 문서는 Action을 비활성화하고 이메일 및/또는 전화 알림을 비활성화하는 방법을 안내합니다.</p>
+<p>이벤트 비활성화</p>
+<ul><li>iMonnit을 엽니다.</li><li>기본 탐색 메뉴에서 Actions를 선택합니다.</li><li>계정의 모든 Action이 페이지에 표시됩니다.</li><li>Action의 녹색 점은 해당 알림이 활성 상태임을 의미합니다.</li><li>비활성화할 Action을 찾습니다. 녹색 점을 선택하면 흰색 배경으로 바뀝니다.</li><li>이제 Action이 비활성화되었습니다. 다시 활성화하려면 아이콘을 다시 선택합니다.</li></ul>
+<p>이벤트 알림에서 이메일 및/또는 전화 비활성화</p>
+<ul><li>iMonnit을 엽니다.</li><li>기본 탐색 메뉴에서 Actions 옵션을 선택합니다.</li><li>Actions 페이지에서 알림을 비활성화할 Action의 이름을 선택합니다.</li><li>Actions 탭을 선택합니다.</li><li>People to Notify 섹션을 찾습니다. 이 섹션에는 계정의 모든 사용자가 나열됩니다. iMonnit은 Email, SMS, Voice 세 가지 방식 중 어느 것으로든 알림을 보냅니다. 각각 같은 방식으로 설정·비활성화할 수 있습니다. 세 통신 방식 중 어느 것이든 아이콘이 녹색이면 이 이벤트의 알림이 그곳으로 전송됩니다.</li><li>비활성화하려면 녹색 아이콘을 선택합니다.</li><li>기본적으로 ‘No Delay’가 선택된 상자가 나타납니다. 위로 스크롤해 ‘Off’를 선택한 뒤 set 버튼을 선택합니다.</li><li>아이콘이 회색으로 바뀌어 비활성화되었음을 나타냅니다.</li></ul>
+<p>이 기능에 관한 추가 질문이 있으면 support@monnit.com 으로 이메일을 보내십시오.</p>
+<p>업데이트: 2020-07-13</p><h2>Action을 삭제해야 하는 경우</h2><p>아래 단계는 iMonnit Online 포털에서 Action을 삭제하는 단계를 제공합니다.</p>
+<ul><li>iMonnit Online 포털에 로그인합니다.</li><li>왼쪽 사이드바 기본 메뉴의 Actions 탭을 클릭합니다.</li><li>삭제할 Action의 이름을 클릭합니다.</li><li>Trigger 탭을 클릭합니다.</li><li>페이지 오른쪽의 Delete Action 버튼을 클릭합니다.</li></ul>
+<p>업데이트: 2020-03-09</p><h2>전체 센서 네트워크의 알림 활성화 및 비활성화</h2><p>이 문서는 네트워크의 모든 무선 센서에 대한 이메일·문자 알림을 활성화하거나 비활성화하는 방법을 이해하는 데 도움을 줍니다.</p>
+<p>iMonnit®에는 iMonnit 시스템에서 이메일·문자 메시지 알림 전송을 시작하거나 중지할 수 있는 전역 기능이 있습니다. 이 기능을 구성하려면 아래 단계를 따르십시오.</p>
+<ul><li>브라우저(Chrome 또는 Edge 권장)를 열고 www.imonnit.com 에서 iMonnit 계정에 로그인합니다.</li><li>화면 왼쪽의 기본 탐색 바에서 ‘Networks’를 선택합니다.</li><li>알림을 활성화/비활성화할 네트워크를 선택합니다.</li><li>‘Notifications Enabled’ 체크박스를 선택합니다.</li></ul>
+<p>알림을 활성화하려면 체크박스를 선택된 상태로, 비활성화하려면 선택 해제된 상태로 두십시오.</p>
+<ul><li>‘Save’를 선택합니다.</li></ul>
+<p>이 기능은 네트워크의 특정 센서 집합에서 알림을 원하지 않거나, 사용자가 네트워크의 센서로부터 알림을 받도록 하려는 경우 매우 유용합니다. 관련 질문이 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-07-15</p><h2>iMonnit Online의 통신 수신 거부(Opt Out) 단계</h2><p>Monnit은 iMonnit Online 포털을 통해 기기 알림과 유지보수 통신을 전송합니다. 일부 사용자는 iMonnit Online 포털의 모든 통신을 중지하기를 원할 수 있습니다. 그 방법은 이 문서에 있습니다.</p>
+<p>참고: 수신 거부는 Report 알림 수신자에서 제거하지는 않습니다. 그렇게 하려면 보고서 수신자에서 자신의 사용자를 제거해야 합니다.</p>
+<h4>단계</h4>
+<ul><li>여기 Opt Out 웹페이지를 방문합니다.</li><li>이메일 주소를 입력합니다.</li><li>수신 거부 사유를 선택합니다.</li><li>Unsubscribe를 클릭합니다.</li><li>확인 메시지가 보입니다.</li></ul>
+<p>업데이트: 2021-03-02</p><h2>계정 ID(Account ID) 확인</h2><h4>요약</h4>
+<p>모든 iMonnit Online 포털 계정에는 계정을 식별하는 데 참조할 수 있는 고유 Account ID가 있습니다. 이 문서는 Account ID를 확인하는 방법을 설명합니다.</p>
+<h4>Account ID 확인</h4>
+<ul><li>PC 브라우저에서 해당 계정에 속한 사용자 이름으로 iMonnit Online 포털에 로그인합니다.</li><li>Settings 탭 위에 커서를 올립니다.</li><li>URL 경로 미리보기에서 account ID를 확인합니다.</li><li>아래 예처럼 경로 뒤에 ID가 숫자로 표시됩니다.</li></ul>
+<p>업데이트: 2020-09-02</p><h2>Notify After Aware Period 알림 작동 방식</h2><p>이 문서는 Notify After Aware Period 알림이 작동하는 방식과 권장 설정을 설명합니다.</p>
+<h4>Notify After Aware Period</h4>
+<p>서버가 센서로부터 메시지를 받으면 그 센서에 할당된 알림을 찾습니다. 활성 ‘Notify After Aware Period’ 알림이 있다고 판단되면, 방금 받은 현재 데이터를 알림의 매개변수와 대조합니다. 이때 서버는 받은 현재 메시지를 기준으로 센서가 Aware 상태인지 계산합니다. 다음으로 이전 메시지와 비교하여 센서가 얼마나 오래 Aware 상태였는지 판단합니다. ‘Alert After’에 설정한 시간보다 오래 Aware 상태였으면 알림이 전송됩니다.</p>
+<p>Aware 메시지는 게이트웨이에서 통신을 트리거하지만 표준(비-Aware) 메시지는 그렇지 않습니다. 서버는 센서가 Aware 메시지를 전달했음을 몇 초 내에 알지만, 센서가 정상 상태로 돌아갔다면 그 메시지는 정규 하트비트까지 전달되지 않습니다. 비-Aware 메시지이므로 게이트웨이에서 대기열에 들어가 즉시 전달되지 않습니다. 이 때문에 서버는 센서가 여전히 Aware 모드인지 알 수 없습니다. 센서가 여전히 Aware 모드인지 알려면 센서의 다음 메시지를 기다려야 합니다.</p>
+<p>두 번째 메시지가 들어올 때 타이머가 이미 경과해 있도록, Notify After 타이머를 Aware 상태 하트비트보다 약간 짧게 설정할 것을 권장합니다.</p>
+<p>몇 가지 예:</p>
+<p>Aware 상태 하트비트: 30분 / Notify after 타이머: 29분</p>
+<p>오후 1:00 센서가 Aware 모드에 진입해 첫 Aware 측정값을 전송합니다.</p>
+<p>오후 1:30 센서가 여전히 Aware 모드이며 두 번째 Aware 측정값을 보냅니다. 서버가 이 메시지를 받아 센서가 30분간 Aware였다고 판단하며, 이는 29보다 길므로 알림이 전송됩니다.(오후 1:30, Aware 상태 30분 후)</p>
+<p>Aware 상태 하트비트: 60분 / Notify after 타이머: 30분</p>
+<p>오후 1:00 센서가 Aware 모드에 진입해 첫 Aware 측정값을 전송합니다.</p>
+<p>오후 2:00 센서가 여전히 Aware 모드이며 두 번째 Aware 측정값을 보냅니다. 서버가 센서가 60분간 Aware였다고 판단하며, 이는 30보다 길므로 알림이 전송됩니다.(오후 2:00, Aware 상태 60분 후)</p>
+<p>Aware 상태 하트비트: 30분 / Notify after 타이머: 31분</p>
+<p>오후 1:00 센서가 Aware 모드에 진입해 첫 Aware 측정값을 전송합니다.</p>
+<p>오후 1:30 센서가 여전히 Aware 모드이며 두 번째 Aware 측정값을 보냅니다. 서버가 센서가 30분간 Aware였다고 판단하며, 이는 31보다 짧으므로 알림이 전송되지 않습니다.</p>
+<p>오후 2:00 센서가 여전히 Aware 모드이며 측정값을 보냅니다. 서버가 센서가 60분간 Aware였다고 판단하며, 이는 31보다 길므로 알림이 전송됩니다.(오후 2:00, Aware 상태 60분 후)</p>
+<p>Aware 상태 하트비트: 15분 / Notify after 타이머: 29분</p>
+<p>오후 1:00 센서가 Aware 모드에 진입해 첫 Aware 측정값을 전송합니다.</p>
+<p>오후 1:15 센서가 여전히 Aware 모드이며 두 번째 Aware 측정값을 보냅니다. 서버가 센서가 15분간 Aware였다고 판단하며, 이는 29보다 짧으므로 알림이 전송되지 않습니다.</p>
+<p>오후 1:30 센서가 여전히 Aware 모드이며 측정값을 보냅니다. 서버가 센서가 30분간 Aware였다고 판단하며, 이는 29보다 길므로 알림이 전송됩니다.(오후 1:30, Aware 상태 30분 후)</p>
+<p>하트비트와 Notify After Aware Period 시간을 설정하는 구성 요소를 이해하는 것이 중요합니다. 그래야 센서의 Aware 상태를 활용해 이 알림 유형을 효과적으로 트리거할 수 있습니다.</p>
+<p>업데이트: 2020-11-16</p><h2>iMonnit Online - 기기 ‘not authorized to transfer’</h2><p>iMonnit Online에서 계정에 기기를 추가할 때 ‘Sensor ID: xxxxxx not authorized to transfer’ 오류가 보일 수 있습니다. 이 응답은 기기가 이미 iMonnit Online 포털의 다른 계정에 추가되었음을 나타냅니다. 기기를 다른 네트워크에 추가하려 하면, 기기가 다른 계정에 추가되는 것을 막는 보안 기능으로서 이 메시지가 보입니다.</p>
+<h4>확인할 사항</h4>
+<ul><li>입력하는 ID와 Security Code가 기기 라벨과 일치하는지 확인합니다.</li><li>기기를 이미 다른 네트워크에 추가하지 않았는지 확인합니다.</li><li>다른 iMonnit Online 계정이 있으면 그 계정에 기기를 추가했는지 확인합니다.</li></ul>
+<p>기기가 다른 계정에 추가되었다면, 그 계정의 관리자가 로그인하여 제거해야 합니다. 제거한 후 새 계정에 추가할 수 있습니다. Monnit은 기기가 이전에 추가된 계정의 이름은 제공할 수 있지만 다른 식별 정보는 기밀로 유지한다는 점에 유의해야 합니다. Monnit은 개인정보 및 보안 보호를 준수하며 보안 승인 없이는 정보를 제공하지 않습니다.</p>
+<h4>기기가 어느 계정에 추가되었는지 모르는 경우</h4>
+<p>기기가 이미 계정에 추가되었다면 support@monnit.com 으로 연락할 수 있습니다. 기기가 어느 계정에 추가되었는지 알려 드립니다. 기기를 다른 계정에 추가하려면 그 계정의 관리자 사용자가 로그인하여 기기를 제거해야 합니다.</p>
+<h4>최근 제3자로부터 기기를 구매한 경우</h4>
+<p>이전 사용자로부터 Monnit 기기를 구매했는데 그 사람의 계정에서 기기가 제거되지 않았을 수 있습니다. 이를 해결하려면 그 계정의 관리자에게 연락해 기기를 제거하도록 해야 합니다.</p>
+<h4>Monnit holding 계정</h4>
+<p>드물게 기기가 이전에 Monnit holding 계정에 추가되었을 수 있습니다(예: 기기가 수리를 위해 제출된 경우). 이 경우 Monnit Support가 holding 계정에서 기기를 제거하도록 도울 수 있습니다. support@monnit.com 으로 이메일을 보내 처리할 수 있습니다.</p>
+<p>업데이트: 2020-12-14</p><h2>iMonnit Online에서 서브 계정 관리</h2><p>iMonnit Online 포털은 Reseller 권한을 부여받은 계정이 서브 계정 또는 중첩 계정을 생성·관리하는 기능을 제공합니다. 이 권한을 받기 전에 고객은 요청된 reseller 양식을 작성해 영업 담당에게 제출해야 합니다. 양식이 완료되면 Monnit Support에 필요한 권한 부여를 요청할 수 있습니다. 권한이 적용되면 최상위 Reseller 계정의 Primary Contact 사용자에게 서브 계정 생성·조회 권한이 부여됩니다.</p>
+<h4>중첩 계정(Nested accounts)</h4>
+<p>서브 계정이 중첩 계정을 생성·관리할 권한을 가지려면 그 서브 계정에도 권한이 부여되어야 합니다. 이를 위해 Reseller 권한을 요청하는 계정 이름을 담아 support@monnit.com 으로 요청을 보내야 합니다. 적용되면 사용자가 Admin 탭에 접근해 중첩 계정(서브-서브 계정이라고도 함)을 생성할 수 있습니다.</p>
+<p>참고: 중첩 계정을 생성하려면, 중첩 계정을 추가하려는 상위 계정의 Reseller 권한을 가진 사용자가 로그인하여 계정을 생성해야 합니다. 최상위 Reseller 계정에서는 중첩 계정을 생성할 수 없으며, 그 경우 일반 서브 계정으로 생성됩니다.</p>
+<h4>추가 사용자를 위한 Admin 탭 접근 추가</h4>
+<p>최상위 계정의 추가 사용자가 서브 계정을 보고·관리·생성하기 위해 Admin 탭 접근이 필요한 경우가 있을 수 있습니다. Monnit은 최상위 Reseller 계정의 Primary Contact에 Admin 권한을 적용하지만, 추가 사용자에게는 제한적 요청에 따라 이 권한을 제공합니다. 추가 사용자가 이 권한을 받으려면 검토를 위해 support@monnit.com 으로 요청을 보내야 합니다. 검토를 위해 계정 이름과 사용자 이름을 제공해야 합니다.</p>
+<h4>Management Premiere 구독</h4>
+<p>Reseller/서브 계정 계층의 운영 특성 중 하나는 최상위 Reseller 계정이 서브 계정을 보고 관리할 수 있다는 점입니다. 다만 그렇게 할 때는 최상위 계정의 권한이 유지됩니다. 즉 최상위 계정에 Premiere 구독이 없으면, 서브 계정의 Premiere 기능이 그 사용자에게 서브 계정에서 제공되지 않습니다.</p>
+<p>예를 들어 최상위 Reseller 계정에 Premiere가 없으면, 센서의 고급 구성을 보거나 하트비트를 120분보다 잦게 설정할 수 없습니다. 이는 그들이 속한 최상위 계정과 그들이 보는 모든 서브 계정 모두에 적용됩니다. 서브 계정에 Premiere가 있어 그 계정의 사용자가 Premiere 기능으로 계정을 볼 수 있는 경우에도 마찬가지입니다. 따라서 최상위 Reseller 계정이 센서로 운영하지 않더라도 그 계정에 Premiere 구독을 유지하는 것이 일반적으로 중요합니다.</p>
+<p>이 계정에는 유료 Premiere 구독을 적용하거나, 추가 비용 없이 특별 Management Premiere 라이선스를 적용할 수 있습니다. Management 구독은 단일 사용자만 허용하며 계정에 센서를 추가할 수 없습니다. 따라서 계정을 센서 테스트에 사용할 예정이라면 좋은 옵션이 아닐 수 있습니다. 다만 단일 사용자로 서브 계정 관리에만 사용할 최상위 Reseller 계정에는 옵션이 될 수 있습니다. Management Premiere 라이선스를 요청하려면 최상위 Reseller 계정의 Primary Contact가 support@monnit.com 으로 요청을 보내야 합니다. 적용되면 구독이 1년 동안 적용되며, 구독 만료 시 동일한 갱신 요청을 support@monnit.com 으로 보내야 합니다.</p>
+<h4>iMonnit 포털에서 서브 계정 관리</h4>
+<p>적절한 권한이 계정에 추가되면, Reseller 권한을 가진 사용자가 ‘Admin’(Classic View에서는 ‘Administrator’)이라는 탭을 볼 수 있습니다. 이를 통해 서브 계정 관리 기능으로 이동합니다.</p>
+<p>서브 계정 생성</p>
+<ul><li>최상위 Reseller 계정에서 Reseller 권한을 가진 사용자로 iMonnit Online 포털에 로그인합니다.</li><li>사이드바의 Admin 탭을 선택합니다.</li><li>Portal을 선택합니다.</li><li>Create Sub-Account를 선택합니다.</li><li>서브 계정 정보를 입력합니다(약관 동의 체크박스를 반드시 체크).</li><li>Save를 클릭합니다.</li></ul>
+<p>서브 계정 조회</p>
+<ul><li>최상위 Reseller 계정에서 Reseller 권한을 가진 사용자로 iMonnit Online 포털에 로그인합니다.</li><li>사이드바의 Admin 탭을 선택합니다(자동으로 검색으로 이동).</li><li>Search를 선택합니다.</li><li>검색 필드 위의 Account 하위 탭을 선택합니다.</li><li>검색어를 입력합니다(또는 ‘All’ 버튼을 선택하면 모든 서브 계정이 표시됨).</li><li>‘View Account’ 아이콘(상자 안으로 향하는 화살표)을 선택합니다.</li></ul>
+<p>그러면 해당 계정으로 이동합니다.</p>
+<ul><li>계정에서 나가려면 사이드바의 Admin 탭을 다시 선택합니다. 그러면 현재 계정에서 나와 최상위 계정으로 돌아갑니다.</li></ul>
+<h4>Admin 계정으로 돌아가기</h4>
+<p>서브 계정에서 원하는 작업을 완료한 후 Admin 계정으로 돌아가야 합니다. 그러려면 (위 단계에서 언급한 대로) Admin 탭을 선택하면 됩니다. 다른 서브 계정에서 추가 계정 관리 작업을 수행하는 경우 항상 이를 하는 것이 중요합니다. 그렇지 않으면 한 서브 계정 안에서 다른 서브 계정을 관리하려 시도하게 될 수 있습니다.</p>
+<p>업데이트: 2021-01-19</p><h2>Maintenance 알림 내용 편집</h2><p>Monnit은 서버의 예정된 유지보수를 고객에게 알리기 위해 maintenance 알림을 전송합니다. Reseller 계정은 사용자에게 배포되기 전에 이러한 예정 유지보수 공지를 보고 편집할 수 있습니다. 유지보수 공지를 편집하면 사용자에게 더 맞춤화된 메시지를 제공할 수 있습니다.</p>
+<h4>요약:</h4>
+<p>유지보수 배너를 보려면 다음 단계를 따르십시오:</p>
+<ol><li>홈 메뉴에서 Administration 탭을 클릭합니다.</li><li>Settings 탭에 마우스를 올리거나 클릭합니다.</li><li>Maintenance 링크를 선택합니다.</li></ol>
+<h4>예정된 유지보수 기간(Upcoming Maintenance Windows)</h4>
+<p>공지를 클릭하면 공지가 확장되어 재정의(override) 옵션이 나타납니다:</p>
+<h5>Edit Description</h5>
+<ul><li>Description은 고객이 로그인할 때 보게 되는 메시지입니다.</li></ul>
+<h5>Edit Email Body</h5>
+<ul><li>Email Body는 예정된 유지보수를 알리기 위해 고객 이메일로 발송되는 메시지입니다.</li></ul>
+<h5>Edit SMS Description</h5>
+<ul><li>SMS Description은 SMS 문자 메시지에 가입한 고객에게 예정된 유지보수를 알리기 위해 발송되는 메시지입니다.</li><li>이 필드는 SMS 메시지 크기 제한으로 인해 120자라는 짧은 한도가 있습니다.</li></ul>
+<p>저장하는 것을 잊지 마십시오.</p>
+<p>예정 유지보수 기간은 기본 메시지를 보여 주므로 동일하게 보이지만, 표시 메시지는 변경되었습니다.</p>
+<p>이제 예정 유지보수 기간이 맞춤화되었습니다.</p>
+<p>업데이트: 2020-08-27</p><h2>SMS 알림에 사용자 지정 텍스트를 추가하고 기본 텍스트를 완전히 제거하려는 경우</h2><p>기본적으로 Monnit은 SMS 메시지 내용에 트리거 센서 ID, Notification 제목, Network ID를 포함합니다. 기본 내용을 완전히 대체하고 SMS 메시지에 사용자 지정 텍스트만 포함하려면, 이 문서가 그 방법을 자세히 안내합니다.</p>
+<h4>기본 메시지</h4>
+<p>기본 메시지에는 다음이 포함됩니다:</p>
+<ul><li>트리거 기기 유형</li><li>트리거 기기 이름</li><li>Action 이름</li><li>Action 텍스트</li><li>네트워크 이름</li></ul>
+<h4>사용자 지정 텍스트 추가</h4>
+<p>메시지에 사용자가 추가한 Text Override 값이 포함되지 않는 한 기본 메시지가 항상 포함됩니다. Text Override 값은 기본 객체와 연결되어 있으므로, 자신의 텍스트를 추가하려면 다음을 수행합니다:</p>
+<p>이 예에서는 TEST_TEST라는 텍스트를 SMS로 사용자에게 전달하려고 합니다.</p>
+<ol><li>Action의 Subject 필드에 원하는 사용자 지정 텍스트를 추가합니다.</li><li>Action의 Message 필드에 Text Override 값 설명자 {Subject}를 입력합니다.</li><li>Save를 클릭합니다.</li></ol>
+<p>Action이 트리거되면 Message 필드의 {Subject} 설명자가 Subject 필드의 사용자 지정 텍스트로 대체되고, 이 텍스트만 SMS 메시지에 포함됩니다.</p>
+<p>이는 SMS로 명령을 받아 실제 세계에서 동작을 실행하는 IP 기기처럼, 특정 코드를 SMS로 전달하려는 시나리오에 유용합니다. 관련 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-10-23</p><h2>Action Snooze - Jointly vs. Independently</h2><h4>요약</h4>
+<p>이 기능은 알림 snooze 시간과 활성화를 더 세밀하게 제어할 수 있게 합니다. ‘Independently’로 설정하면 여러 센서가 차례로 알림을 보낼 수 있습니다. ‘Jointly’로 설정하면 첫 번째 센서가 알림을 트리거한 후 snooze가 적용됩니다.</p>
+<p>필요에 맞게 이 기능을 구성하려면 다음 지침을 따르십시오:</p>
+<ol><li>구성할 알림을 선택합니다.</li></ol>
+<ul><li>imonnit.com 의 iMonnit 계정에 로그인합니다.</li><li>화면 왼쪽 탐색 메뉴에서 ‘Actions’를 선택합니다.</li><li>편집할 Action을 선택합니다.</li></ul>
+<ol><li>‘Snooze each trigger’를 원하는 구성으로 설정합니다.</li></ol>
+<ul><li>‘Actions’ 탭으로 이동합니다.</li><li>화면 왼쪽 하단의 ‘Snooze each trigger’ 섹션을 찾습니다.</li><li>원하는 구성으로 전환합니다.</li><li>‘Save’를 선택합니다.</li></ul>
+<p>참고: ‘Snooze each trigger’ 기능은 Action을 생성하는 동안이나 이미 생성한 후에 구성할 수 있습니다.</p>
+<p>이 구성 방법을 아는 것은 하나의 Action을 여러 센서에 사용하면서도 센서가 구성된 임계값을 벗어난 측정값을 가질 때마다 알림을 받고 싶을 때 매우 유용합니다. 또 다른 활용법은 여러 센서에 설정된 Action을 한 센서만 트리거할 때 snooze하는 것입니다. 관련 질문이 있으면 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-09-21</p><h2>습도 센서 Offset과 Action 트리거</h2><p>펌웨어 14.x 이상의 Alta 습도 센서는 센서 메모리에 저장되는 보정을 지원합니다. 모든 1세대 습도 센서와 펌웨어 14.x 이전의 Alta 습도 센서는 센서에 저장되는 보정을 지원하지 않습니다. 이런 초기 센서에 적용된 보정은 소프트웨어에 적용되는 Offset만 지원합니다. Action은 센서 단에서 센서가 보고한 값(Offset을 적용한 iMonnit 포털 표시 값이 아님)에 기반해 트리거됩니다. 따라서 사용자 관점에서는 iMonnit Online 포털에 측정값이 정확하게 표시되는데도, Action이 적용된 offset을 포함하지 않은 값으로 트리거되는 것을 볼 수 있습니다.</p>
+<p>Calibrate 기능으로 입력한 보정/Offset 값에 기반해 Action을 트리거하려면, 펌웨어 14.x 이상을 실행하는 더 새로운 Alta 센서가 필요합니다. 구형 센서는 보정/Offset 값에 기반해 Action을 트리거하지 않습니다.</p>
+<h4>이것이 문제가 되는 경우</h4>
+<p>적용된 보정/Offset에서 트리거되지 않았다고 의심되는 습도 센서 알림을 받은 경우:</p>
+<ol><li>센서 버전을 확인합니다:</li></ol>
+<ul><li>iMonnit Online 포털에 로그인합니다.</li><li>기본 메뉴에서 Networks를 선택합니다.</li><li>검토 중인 습도 센서가 있는 네트워크를 선택합니다.</li><li>나열된 센서를 찾습니다. RadioBand에 ‘Alta’가 포함되어 있는지 확인합니다. 펌웨어 버전을 확인하십시오. 아래 예는 펌웨어 버전 10.22.10.5를 실행하는 센서입니다.</li></ul>
+<p>‘Alta’라는 단어가 보이지 않으면 1세대 센서이며, 센서가 보정/Offset 값에 기반해 Action을 트리거하지 않습니다.</p>
+<p>펌웨어가 14.x.x.x 이하이면 센서가 보정/Offset 값에 기반해 Action을 트리거하지 않습니다.</p>
+<p>센서가 이전 버전이면 실제로 Action을 트리거한 데이터를 검토할 수 있습니다.</p>
+<ol><li>센서 Readings를 내보내 원시 데이터를 검토합니다.</li></ol>
+<ul><li>iMonnit Online 포털에 로그인합니다.</li><li>Sensors를 선택합니다.</li><li>적절한 네트워크를 선택합니다.</li><li>센서를 선택합니다.</li><li>Readings 탭을 선택합니다.</li><li>원하는 기간으로 날짜를 설정합니다.</li><li>클라우드 다운로드 아이콘을 선택해 데이터를 CSV로 내보냅니다.</li><li>CSV 파일의 ‘Raw Data’ 열에서 센서가 직접 전달한 측정값을 확인합니다. 소프트웨어 Offset이 적용되어 있으면 Raw Data 열과 Value/Formatted Value 열의 값이 다릅니다. Raw Data에는 센서 단에서 보고한 측정값이, Value/Formatted Value 열에는 포털을 통해 적용된 보정/Offset 값이 포함됩니다.</li></ul>
+<h4>센서 Calibrate 탭의 iMonnit 포털 차이</h4>
+<p>펌웨어 14.x 이상의 더 새로운 Alta 센서에서는 Calibrate 탭에 실제 측정값(Actual Reading)을 입력하는 대신 습도 및 온도 Offset이 표시됩니다. 이 필드에는 Monnit 센서 측정값과 기준 사이의 차이를 입력하고 저장하면, 센서의 다음 체크인에 offset이 적용됩니다. 예를 들어 센서 측정값이 20°C이고 기준이 18°C이면 ‘-2’를 입력하고 Save를 클릭합니다. 센서의 다음 체크인에서 -2°C offset을 적용합니다.</p>
+<p>펌웨어 14.x 이전의 초기 Gen1 및 Alta 센서에서는 Calibrate 탭에 실제 측정값(Actual Reading)을 입력하는 필드가 표시됩니다. 이 필드에는 기준 값을 입력하고 저장하면, 센서의 다음 체크인에 보정이 적용됩니다.</p>
+<h4>보정 입력 후</h4>
+<p>더 새로운 센서에서는 (대부분의 Monnit 센서처럼) 센서의 다음 체크인에 보정이 적용됩니다. 그러나 구형 센서에서는 보정/Offset이 소프트웨어에 즉시 적용됩니다. 따라서 센서의 Readings 탭에 표시된 측정값을 검토할 수 있으며, offset이 기록을 포함한 측정값에 즉시 영향을 줍니다.</p>
+<p>Monnit 하드웨어와 펌웨어의 개선으로 현재 습도 센서에 offset 적용 기능을 포함할 수 있게 되었습니다. 이는 하위 호환되지 않지만, 소프트웨어 개선으로 구형 센서에서도 이를 지원할 수 있게 되었습니다. 이 문서에 설명한 중요한 주의 사항이 따르지만, 작동 방식에 관한 제공 정보로 보정/Offset을 성공적으로 운영할 수 있을 것입니다. 추가 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-11-23</p><h2>습도 센서 데이터를 온도와 습도 측정값을 분리해 Excel로 내보내기</h2><h4>요약</h4>
+<p>이 문서는 Excel에서 그래프 작성·분석을 위해 습도와 온도를 2개 셀로 분리하는 방법을 설명합니다.</p>
+<p>다음 단계는 Monnit® 습도 센서 데이터를 내보내고 Microsoft Excel에서 스프레드시트를 수정하여 습도와 온도를 별도 값으로 표시하는 과정을 안내합니다. 습도와 온도 데이터를 독립적으로 차트화하려는 경우 유용합니다.</p>
+<p>시작하려면 iMonnit®(www.imonnit.com)의 무선 센서 네트워크 계정에 로그인한 뒤 ‘Sensor List’에서 데이터를 내보낼 습도 센서를 선택합니다. 센서 정보 창 오른쪽 상단의 날짜 박스를 클릭해 내보낼 데이터의 날짜 범위를 설정합니다. 다음으로 ‘Raw Data’를 선택 항목 중 하나로 포함하여 표시할 데이터를 선택한 뒤 export 탭을 선택합니다. ‘Data from This Sensor’를 선택한 다음 ‘Export Data’ 버튼을 클릭해 .csv 파일을 컴퓨터에 저장합니다.</p>
+<p>저장한 CSV 파일을 Microsoft Excel에서 엽니다. 습도 센서 데이터가 스프레드시트의 두 열에 나타납니다. ‘Text’ 열은 iMonnit 온라인 포털에 표시된 대로의 센서 정보(%RH @ 온도)를 보여 줍니다. 원시 센서 데이터는 ‘Raw Data’ 열에도 있으며, 첫 번째 숫자가 %RH이고 그 뒤에 섭씨 온도가 옵니다. 두 데이터 포인트는 쉼표로 구분됩니다. 차트 작성을 위해 이 데이터를 두 개의 개별 열로 분리하려면, 먼저 ‘Raw Data’ 열 뒤에 빈 열을 추가합니다. 이를 위해 ‘Raw Data’ 뒤의 열을 선택해 강조 표시합니다. 강조된 상태에서 Excel 메뉴의 ‘Insert’를 클릭한 뒤 ‘Column’을 선택합니다.</p>
+<p>다음으로 ‘Data’ 열을 강조한 뒤 Excel 메뉴의 ‘Data’를 선택하고 ‘Text to Columns’를 선택해 센서 데이터를 두 필드로 분리합니다.</p>
+<p>팝업 창에서 ‘Delimited’를 선택한 뒤 ‘Next’ 버튼을 클릭합니다.</p>
+<p>다음 화면에서 구분 기호로 ‘Comma’를 선택한 뒤 ‘Next’ 버튼을 클릭합니다.</p>
+<p>다음으로 ‘Finish’ 버튼을 클릭해 데이터 변경을 적용합니다. 이제 센서 데이터가 두 열로 분리됩니다. 열 이름을 원하는 대로 바꾸면 됩니다. 이제 Microsoft Excel에서 맞춤 보고서나 차트를 만들기 위한 별도의 습도·온도 데이터가 준비되었습니다.</p>
+<p>업데이트: 2020-08-27</p><h2>Classic View에서 여러 센서 동시 구성</h2><p>이 문서는 같은 유형의 센서를 같은 설정으로 구성하는 방법을 보여 줍니다.</p>
+<p>여러 센서를 동시에 구성하여 Monnit 무선 센서 설정을 더 쉽게 할 수 있다는 것을 아셨나요? iMonnit 시스템은 같은 유형의 센서를 동시에 구성할 수 있게 합니다. 시작하려면 선호하는 브라우저를 열고 www.imonnit.com 에서 iMonnit 계정에 로그인하십시오.</p>
+<h4>단계</h4>
+<ol><li>먼저 같은 유형의 모든 센서에 적용할 방식으로 센서 하나를 설정합니다. 이것이 ‘모델’ 센서가 됩니다.</li><li>센서 목록 창 하단의 ‘Configure Multiple Sensors’를 클릭합니다.</li><li>다음으로 창 패널 상단 탭에서 구성할 센서 유형을 선택합니다.</li><li>설정의 모델로 사용할 센서를 드롭다운에서 선택합니다.</li><li>모델 센서와 동일한 설정을 적용할 모든 센서를 드롭다운에서 선택합니다.</li><li>페이지 하단의 ‘Save All’을 클릭합니다.</li></ol>
+<p>센서들은 다음 체크인 후 구성 변경을 적용합니다.</p>
+<p>업데이트: 2020-10-30</p><h2>계정의 Primary Contact가 모든 사용자의 알림을 받기 시작하는 경우</h2><p>iMonnit Premiere는 여러 사용자를 지원하지만 무료 iMonnit Basic 구독은 단일 사용자만 지원합니다. 따라서 iMonnit 구독이 만료되면 계정의 추가 사용자가 비활성화되고, Premiere 구독이 갱신될 때까지 계정의 Primary Contact 사용자만 활성 상태가 됩니다. 이 경우 추가 사용자에게 알림을 보내도록 구성된 모든 Action이 계정의 Primary Contact로 리디렉션됩니다.</p>
+<p>따라서 계정의 Primary Contact인데 예기치 않게 많은 알림을 받는다면, Premiere 구독이 만료되어 추가 사용자가 비활성화되었는지 검토하십시오.</p>
+<p>업데이트: 2020-12-23</p><h2>Action을 트리거할 센서 추가</h2><p>Action이 센서로 트리거되려면 센서가 Action에 할당되어야 합니다. Action이 할당되면 센서가 조건을 트리거할 수 있습니다. 이를 간과하면 센서로 트리거되도록 구성되지 않은 Action을 생성할 수 있습니다. 이 문서는 Action에 트리거 기기가 있는지 확인하는 방법을 보여 줍니다.</p>
+<h4>단계 요약</h4>
+<ul><li>필요한 권한이 있는 사용자로 iMonnit Online 포털에 로그인합니다.</li><li>사이드바에서 Actions를 선택합니다.</li><li>편집할 Action을 선택합니다.</li><li>Action 메인 창 영역 상단의 Trigger 탭(오른쪽을 가리키는 두 화살표)을 클릭합니다.</li><li>Action Sensors 창에서 Action을 트리거할 센서의 체크 아이콘을 클릭합니다(활성화된 트리거 센서는 체크 표시가 녹색).</li></ul>
+<p>이후 Action의 Actions 탭을 검토해 원하는 사용자가 알림을 받는지 확인하는 것도 좋습니다. 관련 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-10-23</p><h2>iMonnit Online의 Charts 및 Min/Max/Average 표시</h2><p>iMonnit Online의 Charts 기능은 개별 데이터 포인트로 생성된 선 그래프 또는 Min/Max/Avg 그래프 선이 있는 집계 데이터로 생성된 선 그래프를 표시할 수 있습니다. 이는 센서 데이터를 검토할 때 강력한 도구가 될 수 있습니다. 7일 미만의 날짜 선택은 개별 데이터 포인트로 생성된 그래프 선을 표시합니다. 기간이 7일을 초과하면 집계 데이터(Min/Max/Avg)로 생성된 그래프 선이 표시됩니다.</p>
+<p>!!! 이 기능은 자동화되어 있어 비활성화할 수 없으며, Y축은 구성할 수 없습니다.</p>
+<p>업데이트: 2020-12-10</p><h2>사용자 지정 Email to SMS 통신사로 Action 전송 구성</h2><p>iMonnit의 Action은 SMS 알림을 받도록 구성된 사용자에게 SMS로 알림을 전달할 수 있습니다. 각 통신사의 Email to SMS 시스템을 활용해 이메일을 SMS로 변환하는 무료 SMS 알림(External Delivery)이 있습니다. iMonnit 시스템에서 이 SMS 기능 사용에는 비용이 없습니다. 이 시스템은 휴대전화 번호 통신사의 Email to SMS 시스템 사용을 요구하므로, 사용자의 External Provider SMS 구성에서 지원 통신사 목록에 통신사가 입력되어 있어야 합니다.</p>
+<p>무료 External Delivery SMS 알림을 사용하는 것의 대안은 Notification Credit을 결제하고 Direct SMS 시스템을 활용하는 것입니다. 다만 통신사가 External Provider 목록에 없는데도 무료 SMS를 시도하고 싶다면 이 문서가 유용할 수 있습니다.</p>
+<p>전 세계에 통신사가 매우 많아 Monnit이 모든 통신사를 External Provider 목록에 포함하는 것은 불가능합니다. 따라서 통신사의 Email to SMS 시스템을 사용해 휴대 기기로 SMS를 받도록 수동으로 구성을 시도하려는 시나리오가 있을 수 있습니다. 무료 SMS를 받도록 사용자를 구성하는 공식적인 방법은 External Provider 목록에서 통신사를 선택하는 것이지만, 수동으로 구성하는 것도 가능할 수 있습니다.</p>
+<h4>Email to SMS 제공자 수동 구성</h4>
+<p>이 구성은 Monnit의 이메일 알림(SMS가 아님)을 사용해 통신사의 Email to SMS 시스템으로 이메일을 보내고, 이것이 SMS로 변환되어 휴대 기기로 전달됩니다. 따라서 전화번호를 나타내는 이메일 주소로 이메일 알림을 보내도록 Action을 구성하게 됩니다. 포털에서 사용자가 SMS를 받도록 구성하는 것이 아니라, 통신사의 전화번호 이메일 주소로 전달되도록 구성한 이메일로 알림을 보내도록 구성하는 것입니다.</p>
+<h4>필요한 것</h4>
+<ul><li>통신사가 Email to SMS를 지원하는지 확인합니다(많은 통신사가 지원하지 않음).</li><li>통신사의 Email to SMS 도메인</li></ul>
+<p>이는 이메일 주소에서 ‘@’ 기호 뒤에 오는 부분입니다. 통신사에서 받아야 합니다. 미국의 예: Verizon ‘@vtext.com’, AT&amp;T SMS ‘@txt.att.com’, AT&amp;T MMS ‘@mms.att.com’, T-Mobile ‘@tmomail.net’, Sprint ‘@messaging.sprintpcs.com’.</p>
+<ul><li>필요한 번호 형식</li></ul>
+<p>각 통신사/국가에는 특정 자릿수의 특정 번호 형식이 필요합니다.</p>
+<p>위 정보로 휴대전화 번호에 대한 이메일 주소를 만들 수 있습니다. 예를 들어 8018887777@vtext.com (Email to SMS를 사용하는 미국 Verizon 번호 예시)과 같습니다.</p>
+<h4>Email to SMS 주소로 사용자 구성</h4>
+<p>사용자의 이메일 주소를 휴대전화 번호의 Email to SMS 주소로 구성하게 됩니다. 이 문서에 따라 사용자의 Notification 세부 정보를 편집하여 이 전화/주소를 사용자의 이메일 주소로 포함합니다.</p>
+<p>이는 사용자에서 표준 이메일 주소를 완전히 제거하므로 iMonnit에서 비밀번호 재설정 등의 활동이 제한될 수 있습니다. 이 특정 용도를 위해 두 번째 사용자를 생성하는 것이 좋을 수 있습니다.</p>
+<h4>휴대 기기 Email to SMS 주소로 이메일을 보내도록 Action 구성</h4>
+<p>사용자를 구성한 후, 사용자에게 이메일을 보내는 Action을 예약해야 합니다. 이 문서에 따라 Action을 생성합니다. Action을 구성할 때 다음 이미지처럼 봉투 아이콘을 선택해 이메일 전송 옵션을 선택합니다. SMS 아이콘은 선택하지 마십시오. 기술적으로 SMS를 구성하는 것이 아니기 때문입니다.</p>
+<h4>고려 사항</h4>
+<p>위 단계를 따른 후에도 전화로 SMS 알림을 받지 못하면, Notification Credit을 구매하고 Direct SMS 기능을 사용하는 것을 고려할 수 있습니다. 다만 휴대 기기로 SMS 메시지를 받기 시작하더라도, External Delivery나 Direct SMS를 받도록 사용자를 설정하는 것에 비해 메시지 수신에 약간의 지연이 있을 수 있습니다.</p>
+<p>업데이트: 2021-01-20</p><h2>iMonnit Online에서 날짜 형식 변경</h2><p>iMonnit Online은 사용자 선호에 맞출 수 있는 유연한 플랫폼입니다. 날짜 형식은 지역마다 다를 수 있으므로, 지역에 맞게 날짜 표시를 쉽게 구성할 수 있도록 했습니다.</p>
+<h4>날짜 형식 변경</h4>
+<ol><li>파란색 탐색 바에서 Settings를 선택합니다.</li><li>Account Settings 창 오른쪽 상단의 Preferences를 선택합니다.</li><li>필요에 가장 맞는 Date Format을 선택합니다.</li></ol>
+<p>참고: 데이터 내보내기는 선택한 날짜 형식을 따르지만, 보고서는 기본 형식(MM/DD/YYYY)으로 제공됩니다.</p>
+<p>업데이트: 2020-10-26</p><h2>Action이 트리거되는 동안 센서의 Action 일시 정지</h2><p>센서가 이미 Action을 트리거한 상태에서 그 센서의 Action을 일시 정지하려는 시나리오가 있을 수 있습니다. Action을 트리거한 센서에서 이를 하면 Action이 자동으로 Disarm/Rearm되고, 센서가 더 이상 그 Action을 트리거해 알림을 보내지 않습니다.</p>
+<h4>이 기능이 유용한 이유</h4>
+<p>센서 트리거의 결과로 알림을 보내는 중인 Action을 Disarm/Rearm하면서, 동시에 그 센서가 알림을 트리거하는 것을 무기한 일시 정지하려면, 버튼 하나를 클릭해 동시에 할 수 있습니다.</p>
+<h4>알아 둘 점</h4>
+<p>트리거 센서의 Pause 버튼을 다른 할당된 기기보다 먼저 클릭해야 합니다. 같은 Action에 여러 기기가 할당되어 있는 경우, 현재 알림을 트리거한 센서의 Action을 일시 정지해야만 Action이 Disarm/Rearm된다는 점에 유의해야 합니다. 따라서 여러 센서가 트리거하도록 구성된 Action에서 한 센서가 그 Action을 트리거했는데 다른 센서의 Pause 버튼을 먼저 클릭하면, Action이 Disarm/Rearm되지 않고 Snooze에 계속 전송됩니다. 이 경우 Snooze 전송을 멈추려면 Action을 수동으로 Disarm해야 합니다.</p>
+<p>업데이트: 2020-12-01</p><h2>사용자를 Action 수신자로 구성</h2><p>이미 Action을 생성했는데 다른 사용자를 그 Action의 수신자로 추가해야 하는 경우가 있을 수 있습니다. 이 문서는 그 단계를 제공합니다.</p>
+<h4>단계</h4>
+<ol><li>iMonnit Online 포털에 로그인합니다.</li><li>원하는 사용자가 생성되었고, 그 사용자의 Notification 세부 정보가 원하는 알림 유형으로 구성되었는지 확인합니다.</li><li>왼쪽 사이드바에서 Actions를 선택합니다.</li><li>수신자를 추가할 Action을 선택합니다.</li><li>오른쪽 상단 탐색의 Actions 탭을 선택합니다.</li><li>원하는 알림 유형의 아이콘을 선택해 원하는 사용자에게 알림이 전송되도록 활성화합니다.</li></ol>
+<p>참고: 사용자가 해당 알림 유형을 받도록 구성된 경우에만 알림 유형 아이콘(예: SMS)이 보입니다.</p>
+<ol><li>원하는 Delay 기간을 설정합니다(또는 No Delay 선택).</li><li>Set을 선택합니다.</li></ol>
+<p>이후 Action은 적용된 구성으로 구성된 사용자에게 전송됩니다. 관련 문의는 언제든 support@monnit.com 으로 연락하십시오.</p>
+<p>업데이트: 2020-11-03</p><h2>연결된 계정 접근 시 404 또는 453 오류</h2><p>Linked Account를 활용하는 사용자가 있는 경우, 연결이 시작된 이후 연결된 계정 중 하나가 삭제되었다면 어떤 연결된 계정에 접근하려 할 때 404 또는 453 오류가 발생할 수 있습니다.</p>
+<h4>해결</h4>
+<p>이를 해결하려면 Monnit Support에 연락해 끊어진 링크를 제거해야 합니다. 삭제된 계정으로의 끊어진 링크가 제거되면 사용자가 나머지 연결된 계정에 접근할 수 있어야 합니다. 이전에 삭제된 연결된 계정의 이름을 제공할 준비를 하십시오.</p>
+<p>업데이트: 2021-03-22</p><h2>iMonnit Online에서 센서 측정값에 메모(Notes) 추가</h2><p>iMonnit Online 포털은 기록된 측정값에 메모를 추가하는 기능을 제공합니다. 이는 센서가 기록한 이벤트에 대한 설명을 추가하거나, 보정 수행을 문서화하거나, 기타 유사한 이벤트에 유용할 수 있습니다. 메모를 생성한 후 사용자는 특정 날짜 범위의 기록된 메모를 내보내는 Report를 보거나 생성할 수 있습니다.</p>
+<h4>메모 추가</h4>
+<ul><li>iMonnit Online 포털에 로그인합니다.</li><li>탐색 메뉴에서 Sensors를 선택합니다.</li><li>원하는 센서를 선택합니다.</li><li>Readings 탭을 선택합니다.</li><li>원하는 날짜 범위에서 측정값 레코드를 찾습니다.</li><li>측정값을 클릭/선택합니다.</li><li>기록된 메모를 생성할 수 있는 페이지가 나타납니다.</li><li>메모 텍스트를 입력합니다.</li><li>Add를 클릭합니다.</li></ul>
+<p>메모를 추가한 후</p>
+<p>메모가 추가된 측정값은 안에 선이 있는 종이 아이콘으로 표시됩니다. 이렇게 연결된 메모가 있는 측정값을 식별할 수 있습니다.</p>
+<p>메모를 추가한 후에는, 메모가 추가된 측정값을 클릭하면 Sensor Message 창 오른쪽에서 볼 수 있습니다.</p>
+<h4>Logged Notes Report 생성</h4>
+<p>Sensor Readings 보기에서 메모에 접근하는 것 외에, 계정의 기록된 메모를 담은 Report를 생성할 수도 있습니다.</p>
+<ul><li>iMonnit Online 포털에 로그인합니다.</li><li>Reports를 선택합니다.</li><li>+ Add Report 버튼을 선택합니다.</li><li>Administrative 범주를 선택합니다.</li><li>Logged Notes Report를 선택합니다.</li><li>Report 이름을 지정합니다.</li><li>Report를 이메일로 받으려면 Send Report as Attachment 체크박스를 체크합니다.</li><li>From Date와 To Date를 선택합니다.</li><li>Save를 선택합니다.</li><li>Report가 실행되면 Report를 생성한 사용자에게 이메일이 전송됩니다.</li><li>해당 날짜 범위의 모든 기록된 메모를 담은 CSV 파일이 생성됩니다.</li></ul>
+<p>업데이트: 2021-05-04</p><p><a href="https://monnit.co.kr/pages/knowledgebase.html">← 지식베이스 전체</a></p>
+<hr style="margin:40px 0;border:none;border-top:1px solid #e5e8ef">
+<p class="muted">이 페이지는 검색·AI 크롤러를 위한 정적 콘텐츠 버전입니다. 인터랙티브 버전은 <a href="https://monnit.co.kr/">monnit.co.kr</a> 에서 확인하세요.</p>
+<p class="muted">문의: <a href="mailto:korea@monnit.com">korea@monnit.com</a> · 02-2088-1454</p>
+</body>
+</html>
