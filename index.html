@@ -44,7 +44,7 @@
   // 1) Google Analytics 4 — analytics.google.com 에서 측정 ID(G-XXXXXXXXXX) 발급 후 입력
   var GA4_ID = 'G-49THHRYKR4';        // 예: 'G-ABCD1234EF'
   // 2) (선택) Microsoft Clarity — clarity.microsoft.com 에서 프로젝트 ID 발급 후 입력 (히트맵·세션 녹화)
-  var CLARITY_ID = 'x38egtft64';    // 예: 'abcdefghij'
+  var CLARITY_ID = 'xikw9t2skq';    // 예: 'abcdefghij'
 
   if (GA4_ID) {
     var s=document.createElement('script'); s.async=true;
@@ -462,30 +462,100 @@
 
   <!-- ============ 8. 우리 현장 무엇부터 (신규 · 상담 CTA) ============ -->
   <section class="nh-section nh-finalcta-section">
+    <style>
+    .cta2-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:start}
+    .cta2-left .nh-eyebrow{display:inline-block}
+    .cta2-left h2{font-size:clamp(26px,3.6vw,40px);line-height:1.3;margin:12px 0 0;font-weight:800}
+    .cta2-left h2 em{color:#8FBFF7;font-style:normal}
+    .cta2-left .nh-head-sub{margin:14px 0 0;color:#9DB0C8;font-size:16px}
+    .cta2-steps{list-style:none;margin:28px 0 0;padding:0;border-top:1px solid rgba(255,255,255,.08)}
+    .cta2-steps li{display:flex;gap:14px;align-items:baseline;padding:15px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+    .cta2-steps b{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;color:#2DD4BF;flex:none;font-weight:500;letter-spacing:.06em}
+    .cta2-steps .t{color:#EAF1F9;font-weight:700;font-size:15.5px;margin-right:10px;white-space:nowrap}
+    .cta2-steps .d{color:#9DB0C8;font-size:13.5px}
+    .cta2-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+    .cta2-badges span{font-size:12.5px;color:#B9C8DB;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:7px 14px}
+    .cta2-badges span::before{content:"\2713  ";color:#2DD4BF;font-weight:700}
+    .cta2-contact{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);font-size:13.5px;color:#9DB0C8}
+    .cta2-contact a{color:#2DD4BF;font-weight:700;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:17px;text-decoration:none;letter-spacing:.02em}
+    .cta2-contact a.mail{font-size:14px}
+    .cta2-contact .hours{margin-left:10px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;color:#66788F}
+    .cta2-form .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .cta2-done{text-align:center;padding:36px 8px}
+    .cta2-done b{display:block;color:#2DD4BF;font-size:17px;margin-bottom:6px}
+    .cta2-done span{color:#9DB0C8;font-size:14px}
+    @media(max-width:900px){.cta2-grid{grid-template-columns:1fr;gap:34px}}
+    @media(max-width:560px){.cta2-form .frow{grid-template-columns:1fr}.cta2-steps .t{white-space:normal}}
+    </style>
     <div class="wrap">
-      <div class="nh-head">
-        <span class="nh-eyebrow" data-sc="home2.cta.kicker" data-sc-label="우리 현장 무엇부터 · 라벨">Get Started</span>
-        <h2 data-sc="home2.cta.head" data-sc-label="우리 현장 무엇부터 · 제목">우리 현장, <em>무엇부터</em> 보이게 할까요?</h2>
-        <p class="nh-head-sub" data-sc="home2.cta.sub" data-sc-label="우리 현장 무엇부터 · 설명">현장 상황에 맞는 센서 구성과 예상 비용을 안내해 드립니다.</p>
-      </div>
       <div class="mkfinder">
-        <div class="cta-grid">
-          <div class="assure">
-            <div data-sc="home2.cta.a1" data-sc-label="상담 · 보증1">24시간 내 회신</div>
-            <div data-sc="home2.cta.a2" data-sc-label="상담 · 보증2">현장 진단 무료</div>
-            <div data-sc="home2.cta.a3" data-sc-label="상담 · 보증3">영업 전화 없이 자료 먼저</div>
+        <div class="cta2-grid">
+          <div class="cta2-left">
+            <span class="nh-eyebrow" data-sc="home2.cta.kicker" data-sc-label="우리 현장 무엇부터 · 라벨">Get Started</span>
+            <h2 data-sc="home2.cta.head" data-sc-label="우리 현장 무엇부터 · 제목">우리 현장, <em>무엇부터</em> 보이게 할까요?</h2>
+            <p class="nh-head-sub" data-sc="home2.cta.sub" data-sc-label="우리 현장 무엇부터 · 설명">현장 상황에 맞는 센서 구성과 예상 비용을 안내해 드립니다.</p>
+            <ol class="cta2-steps">
+              <li><b>01</b><span class="t" data-sc="home2.cta.s1t" data-sc-label="상담 단계1 · 제목">신청 접수</span><span class="d" data-sc="home2.cta.s1d" data-sc-label="상담 단계1 · 설명">1분 — 아래 세 칸이면 충분합니다</span></li>
+              <li><b>02</b><span class="t" data-sc="home2.cta.s2t" data-sc-label="상담 단계2 · 제목">무료 현장 진단</span><span class="d" data-sc="home2.cta.s2d" data-sc-label="상담 단계2 · 설명">반나절 — 엔지니어가 설비·환경·통신 가용성 확인</span></li>
+              <li><b>03</b><span class="t" data-sc="home2.cta.s3t" data-sc-label="상담 단계3 · 제목">구성·견적 제안</span><span class="d" data-sc="home2.cta.s3d" data-sc-label="상담 단계3 · 설명">24시간 내 — 권장 센서 구성 + 예상 ROI 리포트 회신</span></li>
+            </ol>
+            <div class="cta2-badges">
+              <span data-sc="home2.cta.a1" data-sc-label="상담 · 보증1">24시간 내 회신</span>
+              <span data-sc="home2.cta.a2" data-sc-label="상담 · 보증2">현장 진단 무료</span>
+              <span data-sc="home2.cta.a3" data-sc-label="상담 · 보증3">영업 전화 없이 자료 먼저</span>
+            </div>
+            <div class="cta2-contact">
+              전화가 편하시면 지금 바로 —<br>
+              <a href="tel:0220881454">02-2088-1454</a> · <a class="mail" href="mailto:korea@monnit.com">korea@monnit.com</a><span class="hours">평일 09:00–18:00</span>
+            </div>
           </div>
-          <form class="lead" id="mk-leadForm">
-            <div><label for="f-co" data-sc="home2.cta.lblco" data-sc-label="상담 · 입력1 라벨">회사 · 시설명</label><input id="f-co" required placeholder="예) ○○물류센터"></div>
-            <div><label for="f-tel" data-sc="home2.cta.lbltel" data-sc-label="상담 · 입력2 라벨">연락처 (전화 또는 이메일)</label><input id="f-tel" required placeholder="010-0000-0000"></div>
+          <form class="lead cta2-form" id="mk-leadForm">
+            <div class="frow">
+              <div><label for="f-co" data-sc="home2.cta.lblco" data-sc-label="상담 · 입력1 라벨">회사 · 시설명</label><input id="f-co" required placeholder="예) ○○물류센터"></div>
+              <div><label for="f-tel" data-sc="home2.cta.lbltel" data-sc-label="상담 · 입력2 라벨">연락처</label><input id="f-tel" required placeholder="010-0000-0000"></div>
+            </div>
             <div><label for="f-type" data-sc="home2.cta.lbltype" data-sc-label="상담 · 입력3 라벨">시설 유형</label>
               <select id="f-type"><option>공장·제조</option><option>병원·제약</option><option>교회·학교·시설</option><option>물류·콜드체인</option><option>데이터센터</option><option>빌딩·부동산</option><option>기타</option></select></div>
             <button class="mkbtn mkbtn-primary" type="submit" data-sc="home2.cta.btn" data-sc-label="상담 · 버튼">무료 현장 진단 신청</button>
             <p class="fine" data-sc="home2.cta.fine" data-sc-label="상담 · 하단 안내">제출 정보는 상담 목적 외에 사용하지 않습니다.</p>
+            <p class="fine" id="mkLeadStatus" style="min-height:1em"></p>
           </form>
         </div>
       </div>
     </div>
+    <script>
+    (function(){
+      var f = document.getElementById('mk-leadForm');
+      if (!f) return;
+      f.addEventListener('submit', async function(e){
+        e.preventDefault();
+        var g = function(id){ return (document.getElementById(id) || {value:''}).value.trim(); };
+        var company = g('f-co'), contact = g('f-tel'), facility = g('f-type');
+        var status = document.getElementById('mkLeadStatus');
+        if (!company || !contact){ if (status) status.textContent = '회사·시설명과 연락처를 입력해 주세요.'; return; }
+        var payload = {
+          _subject: '[무료 현장 진단 신청] ' + company,
+          '회사/시설명': company,
+          '연락처': contact,
+          '이메일': contact.indexOf('@') > -1 ? contact : '',
+          '시설 유형': facility,
+          '접수 경로': '메인 하단 상담 폼'
+        };
+        var btn = f.querySelector('button[type=submit]');
+        if (status) status.textContent = '';
+        var result = (typeof sendLead === 'function') ? await sendLead(payload, btn) : false;
+        if (result === true){
+          f.innerHTML = '<div class="cta2-done"><b>접수 완료.</b><span>24시간 내 담당 컨설턴트가 연락드립니다.</span></div>';
+          if (window.gtag) gtag('event', 'generate_lead', { form: 'main_cta' });
+          if (window.clarity) clarity('event', 'lead_submit');
+        } else if (result === 'mailto'){
+          if (status) status.textContent = '메일 앱으로 신청 내용을 작성합니다. 전송 버튼을 눌러 완료해 주세요.';
+        } else {
+          if (status) status.textContent = '전송에 실패했습니다. korea@monnit.com 또는 02-2088-1454로 연락 주세요.';
+        }
+      });
+    })();
+    </script>
   </section>
 
 </section>
