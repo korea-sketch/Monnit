@@ -84,11 +84,11 @@
 
 ## 도입 사례 상세
 - [바이오의약품 제조 플랜트 (의료 · 바이오)](https://monnit.co.kr/pages/case-samsung-biologics.html)
-- [에너지·수처리 운영시설 (에너지)](https://monnit.co.kr/pages/case-Veolia.html)
-- [반도체·전자 제조시설 (반도체 R&D)](https://monnit.co.kr/pages/case-Samsung.html)
+- [에너지·수처리 운영시설 (에너지)](https://monnit.co.kr/pages/case-veolia.html)
+- [반도체·전자 제조시설 (반도체 R&D)](https://monnit.co.kr/pages/case-samsung.html)
 - [대형 데이터센터 (IT · 데이터센터)](https://monnit.co.kr/pages/case-microsoft.html)
 - [자동차 제조공정 (자동차 · 운송)](https://monnit.co.kr/pages/case-hyundai-motors.html)
-- [대형 복합건물 FM 운영 (건설 · 부동산)](https://monnit.co.kr/pages/case-HDC랩스.html)
+- [대형 복합건물 FM 운영 (건설 · 부동산)](https://monnit.co.kr/pages/case-hdc-labs.html)
 - [군·공공 인프라 운영시설 (국방 · 방위)](https://monnit.co.kr/pages/case-us-army.html)
 - [발전·에너지 설비 (발전 · 전력)](https://monnit.co.kr/pages/case-gs-eps.html)
 - [유통·리테일 콜드체인 (유통 · 리테일)](https://monnit.co.kr/pages/case-walmart.html)

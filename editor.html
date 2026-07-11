@@ -115,23 +115,31 @@
 
   <div id="dashPanel" style="display:none;margin:14px 0">
   <div style="font-size:14px;font-weight:800;color:#0b1a3a;margin:2px 0 10px">무엇을 수정하시겠어요?</div>
-  <div id="dashGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px">
-    <button class="dash-card" data-act="home">🏠<b>메인·About 문구/사진</b><span>히어로·솔루션·인사말·티커 등</span></button>
-    <button class="dash-card" data-tab="Cases">📖<b>도입 사례</b><span>고객 사례 27건 편집</span></button>
-    <button class="dash-card" data-tab="Products">📦<b>제품</b><span>센서 51종 이름·설명</span></button>
-    <button class="dash-card" data-tab="Promotions">🎁<b>프로모션</b><span>이벤트 배너·이미지</span></button>
-    <button class="dash-card" data-tab="FAQs">❓<b>FAQ</b><span>자주 묻는 질문</span></button>
-    <button class="dash-card" data-tab="Blog">✍️<b>블로그 · 보도</b><span>글 작성·수정</span></button>
-    <button class="dash-card" data-tab="InstallPhotos">📷<b>설치 사례 사진</b><span>현장 설치 갤러리</span></button>
-    <button class="dash-card" data-tab="Customers">🏢<b>고객사</b><span>레퍼런스 목록</span></button>
-    <button class="dash-card" data-act="seo">🔎<b>검색 노출(SEO)</b><span>구글 검색 제목·설명</span></button>
-    <button class="dash-card" data-act="all">⚙️<b>전체 섹션 보기</b><span>모든 탭 직접 선택</span></button>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;margin-bottom:14px">
+    <button class="dash-card big" data-tab="Applications">🧩<b>어플리케이션</b><span>용도별 활용 앱 (카드+상세 통합)</span></button>
+    <button class="dash-card big" data-tab="Blog">✍️<b>블로그 · 보도</b><span>글 작성·수정</span></button>
+    <button class="dash-card big" data-tab="homecases">📖<b>Use Case · 도입 사례</b><span>카드+상세 통합 편집</span></button>
+    <button class="dash-card big" data-tab="InstallPhotos">📷<b>설치 사례</b><span>현장 설치 사진 갤러리</span></button>
   </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px">
+    <button class="dash-card" data-act="home">🏠<b>메인·About 문구/사진</b><span>히어로·솔루션·인사말·티커</span></button>
+    <button class="dash-card" data-act="seo">🔎<b>검색 노출(SEO)</b><span>구글 검색 제목·설명</span></button>
+    <button class="dash-card" data-tab="Products">📦<b>제품</b><span>센서 이름·설명</span></button>
+    <button class="dash-card" data-tab="Promotions">🎁<b>프로모션</b><span>이벤트 배너</span></button>
+    <button class="dash-card" data-tab="FAQs">❓<b>FAQ</b><span>자주 묻는 질문</span></button>
+    <button class="dash-card" data-tab="Customers">🏢<b>고객사</b><span>레퍼런스 목록</span></button>
+  </div>
+  <div style="font-size:12.5px;font-weight:700;color:#78849a;margin:16px 0 8px">전체 섹션 바로가기</div>
+  <div id="dashAll" style="display:flex;flex-wrap:wrap;gap:7px"></div>
   <style>
   .dash-card{font:inherit;cursor:pointer;text-align:left;background:#fff;border:1px solid #e3e7ee;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:3px;transition:.15s}
   .dash-card:hover{border-color:#003087;box-shadow:0 4px 14px rgba(0,48,135,.10);transform:translateY(-1px)}
   .dash-card b{font-size:13.5px;color:#0b1a3a}
   .dash-card span{font-size:11.5px;color:#78849a}
+  .dash-card.big{padding:17px 16px;font-size:24px;border-width:1.5px}
+  .dash-card.big b{font-size:15px}
+  .dash-chip{font:inherit;cursor:pointer;background:#fff;border:1px solid #e3e7ee;border-radius:999px;padding:7px 14px;font-size:12.5px;color:#334;transition:.15s}
+  .dash-chip:hover{border-color:#003087;color:#003087}
   </style>
 </div>
 
@@ -230,7 +238,7 @@ async function tryUnlock(){
 }
 $('#gateBtn').onclick=tryUnlock;
 $('#gatePw').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
-if(sessionStorage.getItem('monnit_editor_ok')==='1'){ $('#gate').style.display='none'; $('#app').style.display=''; }
+if(sessionStorage.getItem('monnit_editor_ok')==='1'){ $('#gate').style.display='none'; $('#app').style.display=''; $('#dashPanel').style.display=''; setTimeout(function(){ try{ $('#loadBtn').click(); }catch(e){} }, 80); }
 
 function parseCSV(text){const rows=[];let row=[],f='',i=0,q=false;
   while(i<text.length){const c=text[i];
@@ -241,6 +249,9 @@ function parseCSV(text){const rows=[];let row=[],f='',i=0,q=false;
 function toObj(rows){const h=rows[0]||[];return{header:h,list:rows.slice(1).filter(r=>r.some(x=>x&&x.trim())).map(r=>{const o={};h.forEach((k,i)=>{if(k!=null)o[k]=(r[i]||'').trim();});return o;})};}
 async function gviz(id,tab){const u=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&_cb=${Date.now()}`;
   const r=await fetch(u);if(!r.ok)throw new Error(tab+' '+r.status);return toObj(parseCSV(await r.text()));}
+
+async function retryTab(){ const tab=$('#tabSel').value, id=$('#sheetId').value.trim(); try{ DATA[tab]=await gviz(id,tab); toast('다시 불러왔습니다'); fillRecords(); }catch(e){ toast('불러오기 실패 — 잠시 후 다시 시도해주세요'); } }
+window.retryTab=retryTab;
 
 const splitItems=s=>String(s||'').split(/\s*\|\|\s*|\r?\n/).map(x=>x.trim()).filter(Boolean);
 const splitFields=s=>String(s||'').split('::').map(x=>x.trim());
@@ -318,7 +329,7 @@ const LABELS={
   html:'프로모션 HTML',period:'행사 기간',badge:'뱃지(예: HOT, 이벤트)',ended:'종료 (내리려면 1 입력)',
   images:'상세 이미지 (여러 장 가능, 세로로 표시)',
   tagline:'한 줄 설명',headline:'헤드라인',note:'비고',question:'질문',answer:'답변',
-  url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'카드 썸네일 이미지',thumb:'썸네일',icon:'아이콘',
+  url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'카드 썸네일 이미지',thumb:'썸네일',icon:'아이콘',hero:'대표 카드 사진 (도입사례 카드 배너)',
   industry:'산업군',region:'지역',category:'분류',group:'그룹',cat:'카테고리',year:'연도',date:'날짜',
   client:'고객사',site:'설치 현장',sector:'섹터 / 산업',
   caption:'캡션',apps:'연결 앱',sensors:'센서',isnew:'신규 표시',popularity:'인기도',added:'추가일',
@@ -358,7 +369,7 @@ $('#loadBtn').onclick=async()=>{
   const id=$('#sheetId').value.trim();if(!id){toast('시트 ID 입력');return;}
   try{
     DATA={};
-    for(const tab of Object.keys(TABS)){ try{ DATA[tab]=await gviz(id,tab);}catch(e){ DATA[tab]={header:[],list:[]}; } }
+    for(const tab of Object.keys(TABS)){ try{ DATA[tab]=await gviz(id,tab);}catch(e){ try{ await new Promise(r=>setTimeout(r,600)); DATA[tab]=await gviz(id,tab); }catch(e2){ DATA[tab]={header:[],list:[]}; } } }
     CAT_OPTS=(DATA['AppCategories']&&DATA['AppCategories'].list||[]).map(o=>({v:o.key,l:o.name||o.key}));
     CASE_OPTS=(DATA['Cases']&&DATA['Cases'].list||[]).map(o=>({v:o.key,l:(o.name||o.key)+' ('+o.key+')'}));
     APP_NAME={};((DATA['Applications']&&DATA['Applications'].list)||[]).forEach(o=>{if(o.id)APP_NAME[o.id]=o.name||o.id;});
@@ -503,7 +514,7 @@ function renderForm(isNew, preset){
   let rec={};if(preset) rec=preset; else if(!isNew && $('#recSel').value!=='__new') rec=d.list[+$('#recSel').value]||{};
   window.__curRec=rec; window.__mergeDetail=false; window.__mergeKeyFrom=null; window.__curRecDetail=null;
   const form=$('#form');form.innerHTML='';
-  if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다.</div></div>';$('#outBox').style.display='none';return;}
+  if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다. <button class="btn-ghost" onclick="retryTab()">↻ 다시 시도</button></div></div>';$('#outBox').style.display='none';return;}
   const secMain=el('div');secMain.id='secMain';form.appendChild(secMain);
   const hiddenCount=renderFieldsInto(secMain, tab, cfg, rec);
   /* === 카드 탭 편집 시: 상세 탭 필드를 함께 렌더(키로 자동 매칭) === */
@@ -974,15 +985,18 @@ if($('#homeSave')) $('#homeSave').onclick=async()=>{
 (function(){
   function $(q){ return document.querySelector(q); }
   function ready(cb){ var t=setInterval(function(){ if($('#tabSel') && $('#tabSel').options.length){ clearInterval(t); cb(); } },200); setTimeout(function(){clearInterval(t);},15000); }
-  document.querySelectorAll('.dash-card').forEach(function(card){
-    card.onclick=function(){
-      var tab=card.dataset.tab, act=card.dataset.act;
-      $('#dashPanel').style.display='none';
-      if(act==='home'){ ready(function(){ $('#homeBtn').click(); }); return; }
-      if(act==='seo'){ ready(function(){ $('#seoBtn').click(); }); return; }
-      if(act==='all'){ ready(function(){ $('#pickBar').scrollIntoView({behavior:'smooth'}); }); return; }
-      ready(function(){ var t=$('#tabSel'); t.value=tab; t.dispatchEvent(new Event('change')); $('#pickBar').scrollIntoView({behavior:'smooth'}); });
-    };
+  function go(tab){ var t=$('#tabSel'); t.value=tab; if(t.value!==tab){ t.selectedIndex=0; } t.dispatchEvent(new Event('change')); $('#dashPanel').style.display='none'; $('#pickBar').scrollIntoView({behavior:'smooth'}); }
+  function act(a){ $('#dashPanel').style.display='none'; if(a==='home'){ $('#homeBtn').click(); } else if(a==='seo'){ $('#seoBtn').click(); } else { $('#pickBar').scrollIntoView({behavior:'smooth'}); } }
+  function bind(root){ root.querySelectorAll('.dash-card,.dash-chip').forEach(function(c){ c.onclick=function(){ var tab=c.dataset.tab, a=c.dataset.act; ready(function(){ a ? act(a) : go(tab); }); }; }); }
+  bind(document);
+  ready(function(){
+    var carded=['Applications','Blog','homecases','InstallPhotos','Products','Promotions','FAQs','Customers'];
+    var box=$('#dashAll'); if(!box) return; box.innerHTML='';
+    Array.prototype.forEach.call($('#tabSel').options, function(o){
+      if(carded.indexOf(o.value)>-1) return;
+      var b=document.createElement('button'); b.className='dash-chip'; b.dataset.tab=o.value; b.textContent=o.textContent; box.appendChild(b);
+    });
+    bind(box);
   });
   var hb=$('#dashHomeBtn');
   if(hb) hb.onclick=function(){ ['#homePanel','#seoPanel'].forEach(function(x){ var e=$(x); if(e) e.style.display='none'; }); $('#dashPanel').style.display=''; window.scrollTo({top:0,behavior:'smooth'}); };
