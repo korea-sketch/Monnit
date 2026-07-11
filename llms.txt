@@ -108,6 +108,8 @@
 - [한국환경공단 (국방·방위)](https://monnit.co.kr/pages/case-keco.html)
 - [신한대학교 (교육)](https://monnit.co.kr/pages/case-shinhan-univ.html)
 - [송현초등학교 (교육)](https://monnit.co.kr/pages/case-songhyun-elem.html)
+- [CBRE (건설 · 부동산)](https://monnit.co.kr/pages/case-cbre.html)
+- [ExxonMobil (에너지)](https://monnit.co.kr/pages/case-exxonmobil.html)
 
 ## 제품군
 - 무선 센서 (온도·진동·누수·전류·공기질 등 80여 종)

@@ -197,6 +197,9 @@ function page({ slug, title, desc, h1, bodyHtml, jsonld }) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${url}">
@@ -208,16 +211,6 @@ function page({ slug, title, desc, h1, bodyHtml, jsonld }) {
 <meta name="robots" content="index,follow">
 ${jsonld ? '<script type="application/ld+json">' + JSON.stringify(jsonld) + '</script>' : ''}
 <style>body{font-family:'Pretendard',system-ui,sans-serif;max-width:900px;margin:0 auto;padding:32px 20px;line-height:1.7;color:#1a2130;background:#fff}a{color:#2E5C9A}h1{font-size:30px}h2{font-size:22px;margin-top:36px;border-top:1px solid #e5e8ef;padding-top:24px}h3{font-size:17px;margin:20px 0 4px}.muted{color:#666}.back{display:inline-block;margin-bottom:20px;font-size:14px}nav.crumb{font-size:13px;color:#888;margin-bottom:8px}ul{padding-left:18px}li{margin:6px 0}.card{border:1px solid #e5e8ef;border-radius:10px;padding:16px 18px;margin:12px 0}</style>
-<script>
-(function(){
-  var GA4_ID='G-49THHRYKR4', CLARITY_ID='xikw9t2skq';
-  if(GA4_ID){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+GA4_ID;document.head.appendChild(s);
-  window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments);};gtag('js',new Date());gtag('config',GA4_ID);}
-  if(CLARITY_ID){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",CLARITY_ID);}
-})();
-<\/script>
 </head>
 <body>
 <nav class="crumb"><a href="${SITE}/">Monnit Korea</a> / ${esc(title.split('—')[0].trim())}</nav>
@@ -283,14 +276,14 @@ writePage('company', page({
     body += `<h2>${esc(CATNAME[cat.id] || cat.ko)} (${items.length})</h2>`;
     items.forEach(p => {
       body += `<div class="card"><h3>${esc(p.n)}</h3><p>${esc(p.d)}</p>${p.u ? `<p class="muted"><a href="${esc(p.u)}" rel="nofollow">데이터시트(PDF)</a></p>` : ''}</div>`;
-      itemLd.push({ '@type': 'Product', name: strip(p.n), description: strip(p.d), category: CATNAME[cat.id] || cat.ko, brand: { '@type': 'Brand', name: 'Monnit' } });
+      itemLd.push({ name: strip(p.n), description: strip(p.d) });
     });
   });
   writePage('products', page({
     slug: 'products', title: 'Monnit 제품 전체 — 무선 센서·게이트웨이·소프트웨어·액세서리',
     desc: `Monnit 산업용 IoT 제품 ${PRODUCTS.length}종 — 온도·진동·누수·전류 등 무선 센서, 게이트웨이, 통합관제 소프트웨어(iMonnit), 액세서리·연동장치 전체 목록.`,
     h1: '제품 — 감지에서 대응까지 하나로',
-    jsonld: { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: itemLd.map((it, i) => ({ '@type': 'ListItem', position: i + 1, item: it })) },
+    jsonld: { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement: itemLd.map((it, i) => ({ '@type': 'ListItem', position: i + 1, ...it })) },
     bodyHtml: body
   }), 'Monnit 제품 전체');
 })();
@@ -319,8 +312,7 @@ writePage('company', page({
   let idx = `<p>글로벌 기업들이 12개 산업 현장에서 선택한 검증된 도입 사례입니다.</p><ul>`;
   keys.forEach(id => {
     const c = CASE_DATA[id];
-    const cslug = ('case-' + id).toLowerCase();   // 파일명·URL은 소문자 통일 (Netlify 정규화 301 방지)
-    idx += `<li><a href="${SITE}/pages/${cslug}.html"><strong>${esc(c.name || id)}</strong></a> — ${esc(strip(c.tagline || ''))}</li>`;
+    idx += `<li><a href="${SITE}/pages/case-${esc(id)}.html"><strong>${esc(c.name || id)}</strong></a> — ${esc(strip(c.tagline || ''))}</li>`;
     // per-case page
     const q = (c.qs || []).map(x => `<li><strong>${esc(x.n)}</strong> — ${esc(x.l)}</li>`).join('');
     const ch = (c.challenges || []).map(x => `<li>${esc(strip(x))}</li>`).join('');
@@ -336,8 +328,8 @@ ${rs ? `<h2>성과</h2><ul>${rs}</ul>` : ''}
 ${q ? `<h2>핵심 성과 지표</h2><ul>${q}</ul>` : ''}
 ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <span class="muted">— ${esc(c.cite)}</span>` : ''}</p>` : ''}
 <p><a href="${SITE}/pages/cases.html">← 전체 도입 사례</a> · <a href="${SITE}/#case/${esc(id)}">인터랙티브 버전 보기</a></p>`;
-    writePage(cslug, page({
-      slug: cslug, title: `${strip(c.name || id)} 도입 사례 — ${strip(c.industry || '산업용')} 무선 IoT 모니터링 | Monnit Korea`,
+    writePage('case-' + id, page({
+      slug: 'case-' + id, title: `${strip(c.name || id)} 도입 사례 — ${strip(c.industry || '산업용')} 무선 IoT 모니터링 | Monnit Korea`,
       desc: (function(){ var nm=strip(c.name||id), ind=strip(c.industry||''), tg=strip(c.tagline||'');
         var d = nm + (ind?'('+ind+')':'') + '의 Monnit 산업용 무선 IoT 모니터링 도입 사례. ' + (tg?tg+(/[.。]$/.test(tg)?'':'.')+' ':'') + '실시간 데이터로 사고를 예방하고 설비·에너지 운영 효율을 높인 성과를 소개합니다.';
         return d.slice(0, 160); })(),
@@ -624,7 +616,7 @@ CORE_SLUGS.forEach(s => { const g = generated.find(x => x.loc.endsWith('/pages/'
 llms += `\n## 활용 분야 상세 (${APPS.length})\n`;
 APPS.forEach(a => { llms += `- [${strip(a.name)}](${SITE}/pages/app-${a.id}.html): ${strip(a.desc).slice(0, 90)}\n`; });
 llms += `\n## 도입 사례 상세\n`;
-Object.keys(CASE_DATA).forEach(id => { const c = CASE_DATA[id]; llms += `- [${strip(c.name || id)} (${strip(c.industry || '')})](${SITE}/pages/${('case-' + id).toLowerCase()}.html)\n`; });
+Object.keys(CASE_DATA).forEach(id => { const c = CASE_DATA[id]; llms += `- [${strip(c.name || id)} (${strip(c.industry || '')})](${SITE}/pages/case-${id}.html)\n`; });
 llms += `\n## 제품군\n- 무선 센서 (온도·진동·누수·전류·공기질 등 80여 종)\n- 게이트웨이 (센서 데이터 수집·전송)\n- 통합관제 소프트웨어 (iMonnit — 실시간 관제·자동제어)\n- 액세서리·연동장치\n\n`;
 llms += `## 대표 솔루션\n화재·안전 모니터링 · 설비 예지보전 · 누수·침수 감지 · 환경·공기질 관리 · 에너지 관리 · 대규모 시설 통합관제\n\n`;
 llms += `전체 본문 텍스트는 ${SITE}/llms-full.txt 에서 한 번에 읽을 수 있습니다.\n`;
@@ -659,7 +651,7 @@ full += `\n## 제품 (${PRODUCTS.length})\n`;
 full += `\n## 도입 사례 (${Object.keys(CASE_DATA).length})\n`;
 Object.keys(CASE_DATA).forEach(id => {
   const c = CASE_DATA[id];
-  full += `\n### ${strip(c.name || id)} (${strip(c.industry || '')})\nURL: ${SITE}/pages/${('case-' + id).toLowerCase()}.html\n${strip(c.tagline || '')}\n${c.about ? strip(c.about) + '\n' : ''}`;
+  full += `\n### ${strip(c.name || id)} (${strip(c.industry || '')})\nURL: ${SITE}/pages/case-${id}.html\n${strip(c.tagline || '')}\n${c.about ? strip(c.about) + '\n' : ''}`;
   if ((c.challenges || []).length) full += `당면 과제:\n${c.challenges.map(x => '- ' + strip(x)).join('\n')}\n`;
   if ((c.solutions || []).length) full += `적용 솔루션:\n${c.solutions.map(x => `- ${x.t}: ${strip(x.d || '')}`).join('\n')}\n`;
   if ((c.results || []).length) full += `성과:\n${c.results.map(x => `- ${x.n} ${x.l}`).join('\n')}\n`;
