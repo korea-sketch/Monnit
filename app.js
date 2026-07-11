@@ -728,6 +728,7 @@ function mapCases(rows){
       solutions: splitItems(o.solutions).map(it => { const f = splitFields(it); return { t:f[0]||'', d:f[1]||'' }; }),
       results: splitItems(o.results).map(it => { const f = splitFields(it); return { n:f[0]||'', l:f[1]||'' }; }),
       quote: o.quote||'', cite: o.cite||'',
+      hero: (o.hero||'').trim(),
       photos: parsePhotos(o.photos),
       featured: /^(true|1|y|yes|예|네|대표|featured)$/i.test(String(o.featured||'').trim())
     };
@@ -1238,7 +1239,7 @@ featuredCases.forEach(([caseId, c], idx) => {
   else if (c.qs && c.qs.length) apps = c.qs.map(q => q.l);
   else if (c.results && c.results.length) apps = c.results.map(r => r.l);
   apps = apps.filter(Boolean).slice(0, 4);
-  const _cardBg = CASE_HERO_BG[caseId] || ((c.photos && c.photos[0]) ? (c.photos[0].src || c.photos[0].url) : '');
+  const _cardBg = c.hero || CASE_HERO_BG[caseId] || ((c.photos && c.photos[0]) ? (c.photos[0].src || c.photos[0].url) : '');
   const card = document.createElement('article');
   card.className = 'featured-card';
   card.dataset.caseId = caseId;
@@ -1530,22 +1531,22 @@ applyPartnersFilter();
 
 /* ========== CASE STUDY DETAIL RENDER ========== */
 const CASE_HERO_BG = {
-  'us-army': 'images/img-30.jpg',
+  'us-army': 'images/case-hero-us-army.jpg',
   'exxonmobil': 'images/img-31.jpg',
-  'gs-eps': 'images/img-32.jpg',
-  'microsoft': 'images/img-33.jpg',
+  'gs-eps': 'images/case-hero-gs-eps.jpg',
+  'microsoft': 'images/case-hero-microsoft.jpg',
   'cbre': 'images/img-35.jpg',
   'walmart': 'images/img-36.jpg',
-  'hyundai-motors': 'images/img-37.jpg',
+  'hyundai-motors': 'images/case-hero-hyundai-motors.jpg',
   'samsung-biologics': 'images/img-45.jpg'
 };
 /* 카드 배너(가로형)에서 정사각형 사진의 핵심 피사체가 보이도록 표시 위치 보정 */
 const CASE_HERO_POS = {
-  'us-army': 'center 60%',
+  'us-army': 'center 28%',
   'exxonmobil': 'center 42%',
-  'gs-eps': 'center 82%',
+  'gs-eps': 'center 50%',
   'cbre': 'center 38%',
-  'hyundai-motors': 'center 72%'
+  'hyundai-motors': 'center 50%'
 };
 function renderCaseDetail(id) {
   const c = CASE_DATA[id];

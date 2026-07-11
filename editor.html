@@ -238,7 +238,7 @@ const TABS={
  'Cases':{title:'유즈케이스 / 활용사례',key:'key',display:'name',
    cols:{featured:'bool',title:'long',tagline:'long',about:'long',quote:'long',
      qs:{fields:['숫자','라벨']},challenges:'list',solutions:{fields:['제목','설명']},
-     results:{fields:['숫자','라벨']},photos:'photos',accent:'color',accentbg:'color'}},
+     results:{fields:['숫자','라벨']},hero:'media',photos:'photos',accent:'color',accentbg:'color'}},
  'Products':{title:'제품',key:null,display:'name',search:true,cols:{desc:'long',url:'url'}},
  'Photos':{title:'사진 (갤러리)',key:null,display:'__photodisp',search:true,cols:{url:'media'}},
  'Tech Support ':{title:'기술 지원 (Tech Support · 사이트 미연결)',key:null,display:'title',search:true,cols:{desc:'long'}},
@@ -252,7 +252,7 @@ const TABS={
  'FAQs':{title:'FAQ',key:null,display:'question',search:true,cols:{answer:'long'}},
  'NewsHighlights':{title:'뉴스 하이라이트',key:null,display:'title',cols:{desc:'long',url:'url'}},
  'AppCategories':{title:'앱 카테고리',key:'key',display:'name',cols:{}},
- 'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'ko',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
+ 'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'__scdisp',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
  'Logos':{title:'고객사 로고 (메인 하단 띠)',key:null,display:'name',search:true,cols:{name:'text',image:'media'}},
  'InstallPhotos':{title:'설치 사례 (Installation Photo · 설치 사진)',key:null,display:'title',search:true,cols:{desc:'long',images:'photos'}},
 };
@@ -307,7 +307,7 @@ const LABELS={
   challengelead:'과제 도입문',pains:'문제점',solutionlead:'솔루션 도입문',solutionparagraphs:'솔루션 단락',
   proposallead:'제안 도입문',phases:'추진 단계',roilead:'성과(ROI) 도입문',metrics:'성과 지표',
   before:'도입 전',after:'도입 후',datasheet:'데이터시트 PDF',
-  qs:'요약 수치',about:'개요',challenges:'과제',solutions:'솔루션',results:'성과',quote:'고객의 말',cite:'출처',
+  qs:'요약 수치',about:'개요',challenges:'과제',solutions:'솔루션',results:'성과',quote:'고객의 말',cite:'출처',hero:'메인 사진 (카드 대표 이미지)',
   file:'첨부 PDF',photos:'사진들',
 };
 
@@ -351,9 +351,18 @@ $('#recSel').onchange=()=>renderForm($('#recSel').value==='__new');
 $('#advFields').onchange=()=>{ if($('#form').children.length) renderForm($('#recSel').value==='__new'); };
 $('#newBtn').onclick=()=>{ const o=document.createElement('option');o.value='__new';$('#recSel').value='__new'; renderForm(true); };
 
+const SC_LABEL={
+ 'home2.sol1.img':'🖼 솔루션1 화재·안전 카드 사진','home2.sol2.img':'🖼 솔루션2 설비 예지보전 카드 사진',
+ 'home2.sol3.img':'🖼 솔루션3 누수·침수 카드 사진','home2.sol4.img':'🖼 솔루션4 환경·공기질 카드 사진',
+ 'home2.sol5.img':'🖼 솔루션5 에너지 관리 카드 사진','home2.sol6.img':'🖼 솔루션6 통합관제 카드 사진',
+ 'home2.hero.img':'🖼 메인 히어로 배경 사진','home2.why.img':'🖼 Why Monnit 섹션 사진',
+ 'home2.val1.img':'🖼 밸류1 카드 사진','home2.val2.img':'🖼 밸류2 카드 사진',
+ 'home2.val3.img':'🖼 밸류3 카드 사진','home2.val4.img':'🖼 밸류4 카드 사진',
+ 'about2.hero.img':'🖼 About 히어로 배경',
+ 'home2.ind1.img':'🖼 산업 · 국방 사진','home2.ind2.img':'🖼 산업 · 오일가스 사진','home2.ind3.img':'🖼 산업 · 발전소 사진','home2.ind4.img':'🖼 산업 · 데이터센터 사진','home2.ind5.img':'🖼 산업 · 인프라 사진','home2.ind6.img':'🖼 산업 · 대형 상업건물 사진','home2.ind7.img':'🖼 산업 · 물류창고 사진','home2.ind8.img':'🖼 산업 · 생산시설 사진','home2.svc1.img':'🖼 주요 서비스 · 센서 제작 사진','home2.svc2.img':'🖼 주요 서비스 · SW 개발 사진'};
 function recLabel(cfg,o,i){
   let d = cfg.display==='__appname' ? (APP_NAME[o.key]||o.key)
-        : cfg.display==='__photodisp' ? ((o.key||'')+' · '+(o.caption||'')) : (o[cfg.display]||'');
+        : cfg.display==='__photodisp' ? ((o.key||'')+' · '+(o.caption||'')) : cfg.display==='__scdisp' ? (SC_LABEL[o.key]||o.ko||o.key) : (o[cfg.display]||'');
   return cfg.key ? `${d||o[cfg.key]} (${o[cfg.key]})` : `${i+1}. ${d||'(행'+(i+1)+')'}`;
 }
 function fillRecords(){
