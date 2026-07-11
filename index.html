@@ -198,6 +198,39 @@
   </header>
 
   <!-- ============ 2. 핵심 가치 4개 ============ -->
+  <!-- ============ 라이브 센서 티커 ============ -->
+  <div class="sensor-ticker" aria-label="실시간 센서 데이터 예시">
+    <div class="st-track" id="stTrack"></div>
+  </div>
+  <script>
+  (function(){
+    var POOL=[
+      ['냉동창고 A','-18.1°C','정상',0],['냉동창고 A','-18.4°C','정상',0],['냉동창고 B','-21.2°C','정상',0],
+      ['3F 기계실 진동','0.8 mm/s','ISO 기준 내',0],['3F 기계실 진동','1.1 mm/s','ISO 기준 내',0],
+      ['서버룸 누수','감지 없음','',0],['지하 집수정 수위','32 %','정상',0],
+      ['공조기 #2 전류','12.6 A','정상',0],['공조기 #2 전류','12.9 A','정상',0],
+      ['백신 보관고 도어','열림 42초','알림',1],['클린룸 차압','+12.4 Pa','정상',0],
+      ['회의실 CO₂','684 ppm','정상',0],['전기실 온도','31.2°C','정상',0],
+      ['옥상 태양광 인버터','98.2 %','가동',0],['GMP 창고 습도','43 %RH','정상',0]
+    ];
+    var track=document.getElementById('stTrack'); if(!track) return;
+    var slots=[0,3,5,7,9]; // 초기 5종
+    function item(p){ return '<span class="st-item'+(p[3]?' warn':'')+'"><i></i>'+p[0]+' <b>'+p[1]+'</b> '+p[2]+'</span>'; }
+    function render(){ track.innerHTML=slots.map(function(i){return item(POOL[i]);}).join(''); }
+    render();
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var k=0;
+    setInterval(function(){
+      var slot=k++%slots.length, next=Math.floor(Math.random()*POOL.length);
+      if(slots.indexOf(next)>-1) next=(next+3)%POOL.length;
+      slots[slot]=next;
+      var el=track.children[slot]; if(!el){render();return;}
+      el.style.opacity=0;
+      setTimeout(function(){ el.outerHTML=item(POOL[slots[slot]]); track.children[slot].style.opacity=0; requestAnimationFrame(function(){ track.children[slot].style.opacity=1; }); },420);
+    },3800);
+  })();
+  </script>
+
   <section class="nh-section nh-values-section">
     <div class="wrap">
       <div class="nh-head">
