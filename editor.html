@@ -118,7 +118,7 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;margin-bottom:14px">
     <button class="dash-card big" data-tab="Applications">🧩<b>어플리케이션</b><span>용도별 활용 앱 (카드+상세 통합)</span></button>
     <button class="dash-card big" data-tab="Blog">✍️<b>블로그 · 보도</b><span>글 작성·수정</span></button>
-    <button class="dash-card big" data-tab="homecases">📖<b>Use Case · 도입 사례</b><span>카드+상세 통합 편집</span></button>
+    <button class="dash-card big" data-tab="Cases">📖<b>Use Case · 도입 사례</b><span>사례 27건 — 제목·내용·대표 사진</span></button>
     <button class="dash-card big" data-tab="InstallPhotos">📷<b>설치 사례</b><span>현장 설치 사진 갤러리</span></button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px">
@@ -329,7 +329,7 @@ const LABELS={
   html:'프로모션 HTML',period:'행사 기간',badge:'뱃지(예: HOT, 이벤트)',ended:'종료 (내리려면 1 입력)',
   images:'상세 이미지 (여러 장 가능, 세로로 표시)',
   tagline:'한 줄 설명',headline:'헤드라인',note:'비고',question:'질문',answer:'답변',
-  url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'카드 썸네일 이미지',thumb:'썸네일',icon:'아이콘',hero:'대표 카드 사진 (도입사례 카드 배너)',
+  url:'링크(URL)',link:'링크(URL)',photo:'사진',image:'카드 썸네일 이미지',thumb:'썸네일',icon:'아이콘',
   industry:'산업군',region:'지역',category:'분류',group:'그룹',cat:'카테고리',year:'연도',date:'날짜',
   client:'고객사',site:'설치 현장',sector:'섹터 / 산업',
   caption:'캡션',apps:'연결 앱',sensors:'센서',isnew:'신규 표시',popularity:'인기도',added:'추가일',
@@ -374,7 +374,7 @@ $('#loadBtn').onclick=async()=>{
     CASE_OPTS=(DATA['Cases']&&DATA['Cases'].list||[]).map(o=>({v:o.key,l:(o.name||o.key)+' ('+o.key+')'}));
     APP_NAME={};((DATA['Applications']&&DATA['Applications'].list)||[]).forEach(o=>{if(o.id)APP_NAME[o.id]=o.name||o.id;});
     const ts=$('#tabSel');ts.innerHTML='';
-    Object.entries(TABS).forEach(([k,c])=>{ if(k==='AppDetails'||k==='Cases') return; /* 앱/도입사례 카드에 통합 편집 */ const op=document.createElement('option');op.value=k;op.textContent=c.title+'  ('+((DATA[k]&&DATA[k].list.length)||0)+')';ts.appendChild(op);});
+    Object.entries(TABS).forEach(([k,c])=>{ if(k==='AppDetails') return; /* 앱 상세는 어플리케이션에 통합 편집 */ const op=document.createElement('option');op.value=k;op.textContent=c.title+'  ('+((DATA[k]&&DATA[k].list.length)||0)+')';ts.appendChild(op);});
     $('#pickBar').style.display='flex';
     $('#toolBar').style.display='flex';
     $('#loadStatus').textContent='로드 완료';
@@ -990,7 +990,7 @@ if($('#homeSave')) $('#homeSave').onclick=async()=>{
   function bind(root){ root.querySelectorAll('.dash-card,.dash-chip').forEach(function(c){ c.onclick=function(){ var tab=c.dataset.tab, a=c.dataset.act; ready(function(){ a ? act(a) : go(tab); }); }; }); }
   bind(document);
   ready(function(){
-    var carded=['Applications','Blog','homecases','InstallPhotos','Products','Promotions','FAQs','Customers'];
+    var carded=['Applications','Blog','Cases','InstallPhotos','Products','Promotions','FAQs','Customers'];
     var box=$('#dashAll'); if(!box) return; box.innerHTML='';
     Array.prototype.forEach.call($('#tabSel').options, function(o){
       if(carded.indexOf(o.value)>-1) return;
