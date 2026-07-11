@@ -481,7 +481,7 @@ function renderFieldsInto(container, tab, cfg, rec){
   const showList=(SHOW[tab]||null); let hiddenCount=0;
   header.forEach(col=>{
     if(col==null||String(col).trim()===''||col.endsWith('_en'))return;
-    if((tab==='AppDetails'||tab==='Cases') && col==='key') return; /* 상세 key = 카드 키로 자동연결 → 숨김 */
+    if((tab==='AppDetails'||tab==='Cases') && col==='key' && container.id==='secDetail') return; /* 통합(상세) 모드에서만 key 숨김 — 독립 탭에선 표시 */
     if(!adv && showList && !showList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     if(!adv && hideList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     const spec=cfg.cols[col];const isObj=spec&&typeof spec==='object';const hasEnCol=enSet.has(col+'_en');
