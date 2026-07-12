@@ -2730,6 +2730,18 @@ async function wpRequest(){
   // 백서 선택 + 이메일 입력을 마친 시점에 다운로드 제공
   // (클릭 제스처 안에서 즉시 열어 팝업 차단을 방지)
   if (dl) { try { window.open(dl, '_blank', 'noopener'); } catch(e){} }
+  // ★ PDF 열람 비밀번호 자동 발송 — 신청자 이메일로 (FormSubmit autoresponse)
+  try {
+    fetch(FORM_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({
+        email: v,
+        name: 'Monnit Korea',
+        _subject: '[자동발송 로그] 제안서 비밀번호 안내 — ' + wp.title,
+        _captcha: 'false',
+        제안서: wp.title,
+        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\nPDF 파일의 열람 비밀번호는 아래와 같습니다.\n\n■ 열람 비밀번호: mk2026\n\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
+      })}).catch(function(){});
+  } catch(e){}
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
   const ok = await sendLead({
     _subject: '[모닛코리아 웹사이트] 백서 신청 — ' + wp.title,
@@ -2739,7 +2751,7 @@ async function wpRequest(){
     출처: location.href
   }, btn);
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다. ' : '') + '입력하신 이메일(' + v + ')로도 자료를 보내드립니다.');
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다. ' : '') + 'PDF 열람 비밀번호를 입력하신 이메일(' + v + ')로 보내드렸습니다.');
     if (em) em.value = ''; if (sel) sel.value = '';
   } else if (ok === 'mailto') {
     alert((dl ? '다운로드가 시작되었습니다.\n' : '') + '메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
