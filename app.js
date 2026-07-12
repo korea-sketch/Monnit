@@ -45,6 +45,11 @@ const WEB3FORMS_KEY = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
 /* (대안) FormSubmit — 무제한 무료. 단, 최초 1회 활성화 메일 클릭 필요 */
 const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + encodeURIComponent(CONTACT_EMAIL);
 
+/* 제안서 비밀번호 발송용 Apps Script 웹앱 (korea@monnit.com 명의 발신)
+   — 배포 후 받은 웹 앱 URL을 아래에 붙여넣으면 자동 전환됩니다. 비어 있으면 FormSubmit 자동회신 사용 */
+const PW_MAIL_URL = "/sendpw"; /* CF Pages 경로 — 실패 시 Netlify 경로로 자동 폴백 */
+const PW_MAIL_TOKEN = "mnt-pw-2026-7f3k9";
+
 /* 폼 데이터를 실제로 전송하는 공통 함수 (AJAX — 페이지 이동 없음)
    반환값: true(서버 전송 성공) / 'mailto'(메일 앱으로 작성) / false(실패) */
 function buildMailto(payload){
@@ -2730,8 +2735,14 @@ async function wpRequest(){
   // 백서 선택 + 이메일 입력을 마친 시점에 다운로드 제공
   // (클릭 제스처 안에서 즉시 열어 팝업 차단을 방지)
   if (dl) { try { window.open(dl, '_blank', 'noopener'); } catch(e){} }
-  // ★ PDF 열람 비밀번호 자동 발송 — 신청자 이메일로 (FormSubmit autoresponse)
+  // ★ PDF 열람 비밀번호 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
   try {
+    if (PW_MAIL_URL) {
+      var _pwBody = JSON.stringify({ token: PW_MAIL_TOKEN, email: v, title: wp.title });
+      fetch(PW_MAIL_URL, { method:'POST', body: _pwBody })
+        .then(function(r){ if (r.status === 404 || r.status === 405) return fetch('/.netlify/functions/sendpw', { method:'POST', body: _pwBody }); })
+        .catch(function(){ fetch('/.netlify/functions/sendpw', { method:'POST', body: _pwBody }).catch(function(){}); });
+    } else
     fetch(FORM_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify({
         email: v,

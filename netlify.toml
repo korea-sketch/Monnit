@@ -34,3 +34,6 @@
   from = "/monnitblog/*"
   to = "https://blog.naver.com/monnitkorea"
   status = 301
+
+[functions]
+  directory = "netlify/functions"
