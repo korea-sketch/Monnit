@@ -246,7 +246,7 @@ function parseCSV(text){const rows=[];let row=[],f='',i=0,q=false;
     else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c!=='\r')f+=c;}
     i++;}
   if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
-function toObj(rows){const h=rows[0]||[];return{header:h,list:rows.slice(1).filter(r=>r.some(x=>x&&x.trim())).map(r=>{const o={};h.forEach((k,i)=>{if(k!=null)o[k]=(r[i]||'').trim();});return o;})};}
+function toObj(rows){const h=rows[0]||[];const list=[];for(let j=1;j<rows.length;j++){const r=rows[j];if(!r.some(x=>x&&x.trim()))continue;const o={};h.forEach((k,i)=>{if(k!=null)o[k]=(r[i]||'').trim();});o._row=j+1;/* 실제 시트 행 번호(빈 행 포함) — 삭제 시 정확한 행 지정용 */list.push(o);}return{header:h,list};}
 async function gviz(id,tab){const u=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&_cb=${Date.now()}`;
   const r=await fetch(u);if(!r.ok)throw new Error(tab+' '+r.status);return toObj(parseCSV(await r.text()));}
 
@@ -783,7 +783,7 @@ async function postAction(payload){
 async function deleteRecord(tab,cfg,o,i){
   if(!confirm('이 항목을 시트에서 삭제할까요?\n'+recLabel(cfg,o,i))) return;
   const payload={ action:'delete', tab };
-  if(cfg.key){ payload.keyCol=cfg.key; payload.keyVal=o[cfg.key]||''; } else { payload.rowIndex=i+1; }
+  if(cfg.key){ payload.keyCol=cfg.key; payload.keyVal=o[cfg.key]||''; } else { payload.rowIndex=(o._row!=null?o._row-1:i+1); /* 빈 행이 있어도 실제 시트 행을 삭제 */ }
   $('#manageStatus').textContent='삭제 중…';
   try{ const j=await postAction(payload);
     if(j&&j.ok){ DATA[tab].list.splice(i,1); buildManage(); fillRecords(); $('#manageStatus').textContent='✅ 삭제됨'; }

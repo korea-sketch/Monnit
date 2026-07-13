@@ -2859,11 +2859,7 @@ let WHITEPAPERS = [
   { icon:"▤", title:"Commercial HVACR", desc:"HVAC 설비 이상 감지와 예방 유지보수를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP005-HVAC-Remote-Monitoring-Solutions-Whitepaper.pdf", photo:"https://www.venwiz.com/wp-content/uploads/2024/06/HVAC-Focus-Guest-Blog.jpg" },
   { icon:"▤", title:"Data Center", desc:"데이터센터 설비 안정성과 운영 효율 향상을 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP006-Data-Center-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1742710726634-18e31a278fc2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGRhdGElMjBjZW50ZXJ8ZW58MHx8MHx8fDA%3D" },
   { icon:"▤", title:"Corporate Facilities", desc:"기업 시설 유지관리 최적화와 운영 비용 절감을 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP007-Corporate-Facilities-Whitepaper.pdf", photo:"https://static.vecteezy.com/system/resources/thumbnails/040/838/116/small/ai-generated-luxury-office-interior-with-panoramic-window-and-city-view-photo.jpg" },
-  { icon:"▤", title:"Agriculture", desc:"온실·농업 시설 환경 최적화를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP008-Agriculture-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1661962692059-55d5a4319814?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YWdyaWN1bHR1cmV8ZW58MHx8MHx8fDA%3D" },
-  { icon:"▤", title:"시설 관리 IoT 도입 가이드", desc:"HVAC·보일러·전력 등 설비 모니터링으로 운영비를 절감하는 방법.", url:"https://blog.naver.com/monnitkorea" },
-  { icon:"◷", title:"식품 서비스 콜드체인 백서", desc:"온도 규정 준수와 식품 안전을 위한 무선 온도 모니터링 전략.", url:"https://blog.naver.com/monnitkorea" },
-  { icon:"⛏", title:"예지보전 ROI 백서", desc:"진동·전류 데이터 기반 예지보전이 만들어내는 투자 수익.", url:"https://blog.naver.com/monnitkorea" },
-  { icon:"⌖", title:"산업 IoT 보안 백서", desc:"Encrypt-RF® 기반 엔드투엔드 데이터 보안 아키텍처.", url:"https://blog.naver.com/monnitkorea" }
+  { icon:"▤", title:"Agriculture", desc:"온실·농업 시설 환경 최적화를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP008-Agriculture-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1661962692059-55d5a4319814?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YWdyaWN1bHR1cmV8ZW58MHx8MHx8fDA%3D" }
 ];
 let FAQS = [
   { q:'센서 무선 통신 거리는 얼마나 되나요?', a:'ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다.' },
