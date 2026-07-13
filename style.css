@@ -6197,9 +6197,10 @@ body{
   .featured-card .fc-media{ height:120px; flex-basis:120px; }
   .featured-card .fc-body{ padding:15px 14px 18px; }
   .featured-card .num{ font-size:11px; margin-bottom:8px; }
-  .featured-card .logo{ font-size:16px; margin-bottom:10px; line-height:1.2; }
+  /* 제목 1줄/2줄 차이로 태그·이하 요소가 어긋나지 않게 제목 높이를 2줄로 고정 → 좌우 정렬 통일 */
+  .featured-card .logo{ font-size:16px; margin-bottom:10px; line-height:1.2; min-height:38.4px; }
   .featured-card .tag{ font-size:10.5px; padding:3px 8px; margin-bottom:12px; }
-  .featured-card .headline{ font-size:14px; line-height:1.35; margin-bottom:12px; }
+  .featured-card .headline{ font-size:14px; line-height:1.35; margin-bottom:12px; min-height:38px; }
   .app-list{ padding-top:12px; }
   .app-list li{ font-size:11.5px; padding:5px 0; gap:8px; }
 
@@ -6236,9 +6237,9 @@ body{
   .cpage h2.about-sec-head{ font-size:23px; line-height:1.28; word-break:keep-all; }
   .cpage h2.about-sec-head .sub{ font-size:10.5px; letter-spacing:.05em; margin-top:7px; }
 
-  /* About — 왜 Monnit 6개: 2열, 카드가 내용만큼만 → 빈 공간 없이 균형 */
-  .about-why-grid{ grid-template-columns:repeat(2,1fr) !important; gap:12px; align-items:start; }
-  .about-why-grid .why-card{ padding:18px 16px 18px; }
+  /* About — 왜 Monnit 6개: 2열, 같은 행은 같은 높이 + 내용을 세로 중앙 배치해 균형 */
+  .about-why-grid{ grid-template-columns:repeat(2,1fr) !important; gap:12px; align-items:stretch; }
+  .about-why-grid .why-card{ padding:18px 16px; justify-content:center; }
   .about-why-grid .why-num{ font-size:30px; margin-bottom:2px; }
   .about-why-grid .why-card h4{ font-size:15px; margin:7px 0 8px; }
   .about-why-grid .why-card p{ font-size:12.5px; line-height:1.55; }
@@ -6249,9 +6250,9 @@ body{
   .mkfinder table.cmp{ display:block; min-width:0; width:100%; }
   .mkfinder .cmp thead{ display:none; }
   .mkfinder .cmp tbody{ display:block; }
-  /* 각 행 = 카드: 항목 헤더(전폭) + 유선/무선 2열 (무선 칸을 넓혀 불필요한 줄바꿈 최소화) */
+  /* 각 행 = 카드: 항목 헤더(전폭) + 유선/무선 2열 (좌우 균등) */
   .mkfinder .cmp tbody tr{
-    display:grid !important; grid-template-columns:0.82fr 1.18fr;
+    display:grid !important; grid-template-columns:1fr 1fr;
     grid-template-areas:"head head" "old mon";
     background:var(--surface) !important; border:1px solid var(--line);
     border-radius:13px; overflow:hidden; margin-bottom:11px; padding:0 !important;
