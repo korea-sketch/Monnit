@@ -6243,8 +6243,8 @@ body{
 
   /* About — 왜 Monnit 6개: 2열, 같은 행은 같은 높이 + 내용을 세로 중앙 배치해 균형 */
   .about-why-grid{ grid-template-columns:repeat(2,1fr) !important; gap:12px; align-items:stretch !important; }
-  /* Safari 포함 전 브라우저에서 같은 행 두 카드 높이 강제 통일 + 내용 세로 중앙 */
-  .about-why-grid .why-card{ padding:18px 16px; height:100%; align-self:stretch; display:flex; flex-direction:column; justify-content:center; }
+  /* 같은 행 두 카드 높이 통일 + 내용은 위(상단) 정렬 → 번호·제목이 좌우 같은 높이에 오도록 */
+  .about-why-grid .why-card{ padding:18px 16px; height:100%; align-self:stretch; display:flex; flex-direction:column; justify-content:flex-start; }
   .about-why-grid .why-num{ font-size:30px; margin-bottom:2px; }
   .about-why-grid .why-card h4{ font-size:15px; margin:7px 0 8px; }
   .about-why-grid .why-card p{ font-size:12.5px; line-height:1.55; }
