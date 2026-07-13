@@ -246,7 +246,7 @@ function parseCSV(text){const rows=[];let row=[],f='',i=0,q=false;
     else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c!=='\r')f+=c;}
     i++;}
   if(f.length||row.length){row.push(f);rows.push(row);}return rows;}
-function toObj(rows){const h=rows[0]||[];return{header:h,list:rows.slice(1).filter(r=>r.some(x=>x&&x.trim())).map(r=>{const o={};h.forEach((k,i)=>{if(k!=null)o[k]=(r[i]||'').trim();});return o;})};}
+function toObj(rows){const h=rows[0]||[];const list=[];for(let j=1;j<rows.length;j++){const r=rows[j];if(!r.some(x=>x&&x.trim()))continue;const o={};h.forEach((k,i)=>{if(k!=null)o[k]=(r[i]||'').trim();});o._row=j+1;/* 실제 시트 행 번호(빈 행 포함) — 삭제 시 정확한 행 지정용 */list.push(o);}return{header:h,list};}
 async function gviz(id,tab){const u=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&_cb=${Date.now()}`;
   const r=await fetch(u);if(!r.ok)throw new Error(tab+' '+r.status);return toObj(parseCSV(await r.text()));}
 
@@ -388,9 +388,7 @@ $('#advFields').onchange=()=>{ if($('#form').children.length) renderForm($('#rec
 $('#newBtn').onclick=()=>{ const o=document.createElement('option');o.value='__new';$('#recSel').value='__new'; renderForm(true); };
 
 const SC_LABEL={
- 'home2.sol1.img':'🖼 솔루션1 화재·안전 카드 사진','home2.sol2.img':'🖼 솔루션2 설비 예지보전 카드 사진',
- 'home2.sol3.img':'🖼 솔루션3 누수·침수 카드 사진','home2.sol4.img':'🖼 솔루션4 환경·공기질 카드 사진',
- 'home2.sol5.img':'🖼 솔루션5 에너지 관리 카드 사진','home2.sol6.img':'🖼 솔루션6 통합관제 카드 사진',
+ /* 대표 솔루션 6개 카드 사진은 Our Solution 라이브 티저로 대체되어 제거됨 (2026-07 개편) */
  'home2.hero.img':'🖼 메인 히어로 배경 사진','home2.why.img':'🖼 Why Monnit 섹션 사진',
  'home2.val1.img':'🖼 밸류1 카드 사진','home2.val2.img':'🖼 밸류2 카드 사진',
  'home2.val3.img':'🖼 밸류3 카드 사진','home2.val4.img':'🖼 밸류4 카드 사진',
@@ -785,7 +783,7 @@ async function postAction(payload){
 async function deleteRecord(tab,cfg,o,i){
   if(!confirm('이 항목을 시트에서 삭제할까요?\n'+recLabel(cfg,o,i))) return;
   const payload={ action:'delete', tab };
-  if(cfg.key){ payload.keyCol=cfg.key; payload.keyVal=o[cfg.key]||''; } else { payload.rowIndex=i+1; }
+  if(cfg.key){ payload.keyCol=cfg.key; payload.keyVal=o[cfg.key]||''; } else { payload.rowIndex=(o._row!=null?o._row-1:i+1); /* 빈 행이 있어도 실제 시트 행을 삭제 */ }
   $('#manageStatus').textContent='삭제 중…';
   try{ const j=await postAction(payload);
     if(j&&j.ok){ DATA[tab].list.splice(i,1); buildManage(); fillRecords(); $('#manageStatus').textContent='✅ 삭제됨'; }
@@ -873,8 +871,9 @@ function homeGroup(key){
   if(key.startsWith('home2.val'))  return '━ 메인 · ② 핵심 가치 4개 (제목·설명·사진)';
   if(key.startsWith('home2.metric')) return '━ 메인 · ③ 신뢰 지표 (숫자 라벨)';
   if(key.startsWith('home2.why'))  return '━ 메인 · ④ Why Monnit (제목·3강점·배경사진)';
-  if(key.startsWith('home2.sol'))  return '━ 메인 · ⑤ 대표 솔루션 6개 (이름·설명·사진)';
+  if(key.startsWith('home2.sol'))  return '━ 메인 · ⑤ Our Solution 티저 (라벨·제목·설명)';
   if(key.startsWith('home2.finder')) return '━ 메인 · ⑤-1 솔루션 파인더 (라벨·제목·질문)';
+  if(key.startsWith('home2.catbrowse')) return '━ 메인 · ⑤-2 카테고리 바로가기 (제목·설명)';
   if(key.startsWith('home2.cases')) return '━ 메인 · ⑥ 고객사·도입사례 제목';
   if(key.startsWith('home2.proc'))  return '━ 메인 · ⑦ 진단부터 인계까지 (4단계 · 제목·설명)';
   if(key.startsWith('home2.cta'))   return '━ 메인 · ⑧ 우리 현장 무엇부터 (상담 문구·폼)';

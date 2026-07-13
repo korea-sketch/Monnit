@@ -16,6 +16,10 @@
 
   /* 강조(<em>/<br>/<span>)가 들어간 헤드라인: textContent(정규화) → 영문 innerHTML */
   var HTML_DICT = {
+    /* ── Our Solution 라이브 티저 & 카테고리 바로가기 (2026-07) ── */
+    '센서 데이터가 살아 움직이는 통합관제': 'Integrated Monitoring, <em>Alive</em> with Sensor Data',
+    '또는 카테고리로 바로 찾기': 'Or Browse <em>by Category</em>',
+    'Our Solution 자세히 보기 →': 'Explore Our Solution →',
     /* ── 홈 리디자인 헤드라인 (2026 개편) ── */
     '보이지 않는 위험까지데이터로 관리합니다': 'Manage Even Unseen Risks<br>with <em style="font-style:normal">Data</em>',
     '대표 솔루션': 'Featured <em>Solutions</em>',
@@ -62,6 +66,12 @@
 
   /* 일반 라벨/문단 사전 (정규화 KO → EN). 사전에 없는 문구는 한국어로 남습니다(기술문서 등). */
   var DICT = {
+    /* ── Our Solution 라이브 티저 & 카테고리 바로가기 (2026-07) ── */
+    "측정 → 분석 → 자동제어. 진동·온도·전류 데이터가 실시간으로 이상을 감지합니다.": "Sense → Analyze → Act. Vibration, temperature, and current data detect anomalies in real time.",
+    "진동 예지보전 · 회전설비 실시간 통합관제": "Vibration Predictive Maintenance · Live Rotating-Equipment Monitoring",
+    "측정 → 분석 → 자동제어, 전체 솔루션 살펴보기": "Sense → Analyze → Act — explore the full solution",
+    "6개 분야로 정리된 어플리케이션을 눌러, 필터링된 사례를 바로 확인하세요.": "Tap one of the 6 categories to jump straight to filtered applications.",
+    "전체 어플리케이션 보기 →": "View all applications →",
     /* ── 홈 리디자인 라벨/문단 (2026 개편) ── */
     "산업용 무선 IoT · 통합관제 · AI 예지보전": "Industrial Wireless IoT · Integrated Monitoring · AI Predictive Maintenance",
     "산업용 무선 IoT 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링하고 사고를 예방합니다.": "Real-time monitoring of fire, water leaks, equipment anomalies, and environmental data with industrial wireless IoT sensors and an integrated control platform — preventing incidents before they happen.",
@@ -1961,6 +1971,9 @@ Object.assign(HTML_DICT, {
   "현장이 검증한 산업용 IoT 파트너": "The Industrial IoT Partner<br><em>Proven in the Field</em>",
   "현장이 검증한산업용 IoT 파트너": "The Industrial IoT Partner<br><em>Proven in the Field</em>",
   "현장의 문제를 푸는 대표 솔루션": "Featured Solutions That <em>Solve Field Problems</em>",
+  "현장의 문제를 푸는 대표 어플리케이션": "Featured Applications That <em>Solve Field Problems</em>",
+  "현장의 문제를 푸는대표 어플리케이션": "Featured Applications That <em>Solve Field Problems</em>",
+  "현장의 문제를 푸는 대표 어플리케이션": "Featured Applications That <em>Solve Field Problems</em>",
   "30초 만에 우리 현장 솔루션 찾기": "Find <em>Your Solution</em> in 30 Seconds",
   "진단부터 인계까지, 2~3일": "From Assessment to <em>Handover</em>, in 2–3 Days",
   "우리 현장, 무엇부터 보이게 할까요?": "Your Site — <em>What Should You See First?</em>"
