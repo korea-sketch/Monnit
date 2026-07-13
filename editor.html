@@ -72,7 +72,7 @@
 <div id="app" style="display:none">
 <header>
   <h1>Monnit 콘텐츠 편집기</h1>
-  <p>탭 선택 → 항목 선택 → 폼 편집 → <b>시트에 바로 저장</b>(자동 반영). 사진은 <b>이미지 업로드</b>나 URL을 넣고 <b>미리보기</b>로 확인하세요. 자동 저장이 안 되면 <b>행 만들기(수동 복사)</b>로 시트에 붙여넣어도 됩니다.</p>
+  <p>아래에서 <b>무엇을 고칠지</b> 선택하면 바로 편집 화면으로 이동합니다. 수정 후 <b>저장</b>을 누르면 사이트에 자동 반영됩니다.</p>
 </header>
 
 <div class="wrap">
@@ -101,6 +101,7 @@
     <button class="btn-ghost" id="dupBtn" title="현재 항목을 복제해 새로 저장">📄 복제</button>
     <button class="btn-ghost" id="previewBtn" title="사이트에서 어떻게 보이는지 미리보기">👁 미리보기</button>
     <button class="btn-ghost" id="manageBtn" title="순서 바꾸기 / 삭제">↕ 순서·삭제</button>
+    <button class="btn-ghost" id="dashHomeBtn" title="작업 선택 화면으로">🏠 처음으로</button>
   </div>
 
   <div class="bar" id="toolBar" style="display:none">
@@ -112,7 +113,37 @@
     <label style="display:flex;align-items:center;gap:5px;white-space:nowrap" title="잘 안 쓰는 기술 항목까지 모두 표시"><input type="checkbox" id="advFields"> 고급 항목 보기</label>
   </div>
 
-  <div id="seoPanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
+  <div id="dashPanel" style="display:none;margin:14px 0">
+  <div style="font-size:14px;font-weight:800;color:#0b1a3a;margin:2px 0 10px">무엇을 수정하시겠어요?</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;margin-bottom:14px">
+    <button class="dash-card big" data-tab="Applications">🧩<b>어플리케이션</b><span>용도별 활용 앱 (카드+상세 통합)</span></button>
+    <button class="dash-card big" data-tab="Blog">✍️<b>블로그 · 보도</b><span>글 작성·수정</span></button>
+    <button class="dash-card big" data-tab="Cases">📖<b>Use Case · 도입 사례</b><span>사례 27건 — 제목·내용·대표 사진</span></button>
+    <button class="dash-card big" data-tab="InstallPhotos">📷<b>설치 사례</b><span>현장 설치 사진 갤러리</span></button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px">
+    <button class="dash-card" data-act="home">🏠<b>메인·About 문구/사진</b><span>히어로·솔루션·인사말·티커</span></button>
+    <button class="dash-card" data-act="seo">🔎<b>검색 노출(SEO)</b><span>구글 검색 제목·설명</span></button>
+    <button class="dash-card" data-tab="Products">📦<b>제품</b><span>센서 이름·설명</span></button>
+    <button class="dash-card" data-tab="Promotions">🎁<b>프로모션</b><span>이벤트 배너</span></button>
+    <button class="dash-card" data-tab="FAQs">❓<b>FAQ</b><span>자주 묻는 질문</span></button>
+    <button class="dash-card" data-tab="Customers">🏢<b>고객사</b><span>레퍼런스 목록</span></button>
+  </div>
+  <div style="font-size:12.5px;font-weight:700;color:#78849a;margin:16px 0 8px">전체 섹션 바로가기</div>
+  <div id="dashAll" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+  <style>
+  .dash-card{font:inherit;cursor:pointer;text-align:left;background:#fff;border:1px solid #e3e7ee;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:3px;transition:.15s}
+  .dash-card:hover{border-color:#003087;box-shadow:0 4px 14px rgba(0,48,135,.10);transform:translateY(-1px)}
+  .dash-card b{font-size:13.5px;color:#0b1a3a}
+  .dash-card span{font-size:11.5px;color:#78849a}
+  .dash-card.big{padding:17px 16px;font-size:24px;border-width:1.5px}
+  .dash-card.big b{font-size:15px}
+  .dash-chip{font:inherit;cursor:pointer;background:#fff;border:1px solid #e3e7ee;border-radius:999px;padding:7px 14px;font-size:12.5px;color:#334;transition:.15s}
+  .dash-chip:hover{border-color:#003087;color:#003087}
+  </style>
+</div>
+
+<div id="seoPanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
     <div style="font-size:13px;font-weight:700;margin-bottom:8px">빠른 SEO (검색 노출용 — 메인 페이지 제목·설명)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <label style="font-size:12px">제목 (한국어)<input id="seoTitleKo" style="width:100%"></label>
@@ -201,11 +232,13 @@ async function tryUnlock(){
   if(sessionStorage.getItem('monnit_editor_ok')==='1' || (pw && await sha256(pw)===PASS_HASH)){
     sessionStorage.setItem('monnit_editor_ok','1');
     $('#gate').style.display='none'; $('#app').style.display='';
+    $('#dashPanel').style.display='';
+    setTimeout(function(){ try{ $('#loadBtn').click(); }catch(e){} }, 80);
   } else { $('#gateErr').textContent='비밀번호가 올바르지 않습니다.'; }
 }
 $('#gateBtn').onclick=tryUnlock;
 $('#gatePw').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
-if(sessionStorage.getItem('monnit_editor_ok')==='1'){ $('#gate').style.display='none'; $('#app').style.display=''; }
+if(sessionStorage.getItem('monnit_editor_ok')==='1'){ $('#gate').style.display='none'; $('#app').style.display=''; $('#dashPanel').style.display=''; setTimeout(function(){ try{ $('#loadBtn').click(); }catch(e){} }, 80); }
 
 function parseCSV(text){const rows=[];let row=[],f='',i=0,q=false;
   while(i<text.length){const c=text[i];
@@ -216,6 +249,9 @@ function parseCSV(text){const rows=[];let row=[],f='',i=0,q=false;
 function toObj(rows){const h=rows[0]||[];return{header:h,list:rows.slice(1).filter(r=>r.some(x=>x&&x.trim())).map(r=>{const o={};h.forEach((k,i)=>{if(k!=null)o[k]=(r[i]||'').trim();});return o;})};}
 async function gviz(id,tab){const u=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&_cb=${Date.now()}`;
   const r=await fetch(u);if(!r.ok)throw new Error(tab+' '+r.status);return toObj(parseCSV(await r.text()));}
+
+async function retryTab(){ const tab=$('#tabSel').value, id=$('#sheetId').value.trim(); try{ DATA[tab]=await gviz(id,tab); toast('다시 불러왔습니다'); fillRecords(); }catch(e){ toast('불러오기 실패 — 잠시 후 다시 시도해주세요'); } }
+window.retryTab=retryTab;
 
 const splitItems=s=>String(s||'').split(/\s*\|\|\s*|\r?\n/).map(x=>x.trim()).filter(Boolean);
 const splitFields=s=>String(s||'').split('::').map(x=>x.trim());
@@ -238,7 +274,7 @@ const TABS={
  'Cases':{title:'유즈케이스 / 활용사례',key:'key',display:'name',
    cols:{featured:'bool',title:'long',tagline:'long',about:'long',quote:'long',
      qs:{fields:['숫자','라벨']},challenges:'list',solutions:{fields:['제목','설명']},
-     results:{fields:['숫자','라벨']},photos:'photos',accent:'color',accentbg:'color'}},
+     results:{fields:['숫자','라벨']},hero:'media',photos:'photos',accent:'color',accentbg:'color'}},
  'Products':{title:'제품',key:null,display:'name',search:true,cols:{desc:'long',url:'url'}},
  'Photos':{title:'사진 (갤러리)',key:null,display:'__photodisp',search:true,cols:{url:'media'}},
  'Tech Support ':{title:'기술 지원 (Tech Support · 사이트 미연결)',key:null,display:'title',search:true,cols:{desc:'long'}},
@@ -252,7 +288,7 @@ const TABS={
  'FAQs':{title:'FAQ',key:null,display:'question',search:true,cols:{answer:'long'}},
  'NewsHighlights':{title:'뉴스 하이라이트',key:null,display:'title',cols:{desc:'long',url:'url'}},
  'AppCategories':{title:'앱 카테고리',key:'key',display:'name',cols:{}},
- 'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'ko',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
+ 'SiteContent':{title:'메인/About us 본문·사진',key:'key',display:'__scdisp',search:true,cols:{view:'text',kind:'text',ko:'long',en:'long',image:'media'}},
  'Logos':{title:'고객사 로고 (메인 하단 띠)',key:null,display:'name',search:true,cols:{name:'text',image:'media'}},
  'InstallPhotos':{title:'설치 사례 (Installation Photo · 설치 사진)',key:null,display:'title',search:true,cols:{desc:'long',images:'photos'}},
 };
@@ -307,7 +343,7 @@ const LABELS={
   challengelead:'과제 도입문',pains:'문제점',solutionlead:'솔루션 도입문',solutionparagraphs:'솔루션 단락',
   proposallead:'제안 도입문',phases:'추진 단계',roilead:'성과(ROI) 도입문',metrics:'성과 지표',
   before:'도입 전',after:'도입 후',datasheet:'데이터시트 PDF',
-  qs:'요약 수치',about:'개요',challenges:'과제',solutions:'솔루션',results:'성과',quote:'고객의 말',cite:'출처',
+  qs:'요약 수치',about:'개요',challenges:'과제',solutions:'솔루션',results:'성과',quote:'고객의 말',cite:'출처',hero:'메인 사진 (카드 대표 이미지)',
   file:'첨부 PDF',photos:'사진들',
 };
 
@@ -333,12 +369,12 @@ $('#loadBtn').onclick=async()=>{
   const id=$('#sheetId').value.trim();if(!id){toast('시트 ID 입력');return;}
   try{
     DATA={};
-    for(const tab of Object.keys(TABS)){ try{ DATA[tab]=await gviz(id,tab);}catch(e){ DATA[tab]={header:[],list:[]}; } }
+    for(const tab of Object.keys(TABS)){ try{ DATA[tab]=await gviz(id,tab);}catch(e){ try{ await new Promise(r=>setTimeout(r,600)); DATA[tab]=await gviz(id,tab); }catch(e2){ DATA[tab]={header:[],list:[]}; } } }
     CAT_OPTS=(DATA['AppCategories']&&DATA['AppCategories'].list||[]).map(o=>({v:o.key,l:o.name||o.key}));
     CASE_OPTS=(DATA['Cases']&&DATA['Cases'].list||[]).map(o=>({v:o.key,l:(o.name||o.key)+' ('+o.key+')'}));
     APP_NAME={};((DATA['Applications']&&DATA['Applications'].list)||[]).forEach(o=>{if(o.id)APP_NAME[o.id]=o.name||o.id;});
     const ts=$('#tabSel');ts.innerHTML='';
-    Object.entries(TABS).forEach(([k,c])=>{ if(k==='AppDetails'||k==='Cases') return; /* 앱/도입사례 카드에 통합 편집 */ const op=document.createElement('option');op.value=k;op.textContent=c.title+'  ('+((DATA[k]&&DATA[k].list.length)||0)+')';ts.appendChild(op);});
+    Object.entries(TABS).forEach(([k,c])=>{ if(k==='AppDetails') return; /* 앱 상세는 어플리케이션에 통합 편집 */ const op=document.createElement('option');op.value=k;op.textContent=c.title+'  ('+((DATA[k]&&DATA[k].list.length)||0)+')';ts.appendChild(op);});
     $('#pickBar').style.display='flex';
     $('#toolBar').style.display='flex';
     $('#loadStatus').textContent='로드 완료';
@@ -351,9 +387,16 @@ $('#recSel').onchange=()=>renderForm($('#recSel').value==='__new');
 $('#advFields').onchange=()=>{ if($('#form').children.length) renderForm($('#recSel').value==='__new'); };
 $('#newBtn').onclick=()=>{ const o=document.createElement('option');o.value='__new';$('#recSel').value='__new'; renderForm(true); };
 
+const SC_LABEL={
+ /* 대표 솔루션 6개 카드 사진은 Our Solution 라이브 티저로 대체되어 제거됨 (2026-07 개편) */
+ 'home2.hero.img':'🖼 메인 히어로 배경 사진','home2.why.img':'🖼 Why Monnit 섹션 사진',
+ 'home2.val1.img':'🖼 밸류1 카드 사진','home2.val2.img':'🖼 밸류2 카드 사진',
+ 'home2.val3.img':'🖼 밸류3 카드 사진','home2.val4.img':'🖼 밸류4 카드 사진',
+ 'about2.hero.img':'🖼 About 히어로 배경',
+ 'home2.ind1.img':'🖼 산업 · 국방 사진','home2.ind2.img':'🖼 산업 · 오일가스 사진','home2.ind3.img':'🖼 산업 · 발전소 사진','home2.ind4.img':'🖼 산업 · 데이터센터 사진','home2.ind5.img':'🖼 산업 · 인프라 사진','home2.ind6.img':'🖼 산업 · 대형 상업건물 사진','home2.ind7.img':'🖼 산업 · 물류창고 사진','home2.ind8.img':'🖼 산업 · 생산시설 사진','home2.svc1.img':'🖼 주요 서비스 · 센서 제작 사진','home2.svc2.img':'🖼 주요 서비스 · SW 개발 사진'};
 function recLabel(cfg,o,i){
   let d = cfg.display==='__appname' ? (APP_NAME[o.key]||o.key)
-        : cfg.display==='__photodisp' ? ((o.key||'')+' · '+(o.caption||'')) : (o[cfg.display]||'');
+        : cfg.display==='__photodisp' ? ((o.key||'')+' · '+(o.caption||'')) : cfg.display==='__scdisp' ? (SC_LABEL[o.key]||o.ko||o.key) : (o[cfg.display]||'');
   return cfg.key ? `${d||o[cfg.key]} (${o[cfg.key]})` : `${i+1}. ${d||'(행'+(i+1)+')'}`;
 }
 function fillRecords(){
@@ -436,7 +479,7 @@ function renderFieldsInto(container, tab, cfg, rec){
   const showList=(SHOW[tab]||null); let hiddenCount=0;
   header.forEach(col=>{
     if(col==null||String(col).trim()===''||col.endsWith('_en'))return;
-    if((tab==='AppDetails'||tab==='Cases') && col==='key') return; /* 상세 key = 카드 키로 자동연결 → 숨김 */
+    if((tab==='AppDetails'||tab==='Cases') && col==='key' && container.id==='secDetail') return; /* 통합(상세) 모드에서만 key 숨김 — 독립 탭에선 표시 */
     if(!adv && showList && !showList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     if(!adv && hideList.includes(col) && col!==cfg.key){ hiddenCount++; return; }
     const spec=cfg.cols[col];const isObj=spec&&typeof spec==='object';const hasEnCol=enSet.has(col+'_en');
@@ -469,7 +512,7 @@ function renderForm(isNew, preset){
   let rec={};if(preset) rec=preset; else if(!isNew && $('#recSel').value!=='__new') rec=d.list[+$('#recSel').value]||{};
   window.__curRec=rec; window.__mergeDetail=false; window.__mergeKeyFrom=null; window.__curRecDetail=null;
   const form=$('#form');form.innerHTML='';
-  if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다.</div></div>';$('#outBox').style.display='none';return;}
+  if(!header.length){form.innerHTML='<div class="card"><div class="body">이 탭을 불러오지 못했습니다. <button class="btn-ghost" onclick="retryTab()">↻ 다시 시도</button></div></div>';$('#outBox').style.display='none';return;}
   const secMain=el('div');secMain.id='secMain';form.appendChild(secMain);
   const hiddenCount=renderFieldsInto(secMain, tab, cfg, rec);
   /* === 카드 탭 편집 시: 상세 탭 필드를 함께 렌더(키로 자동 매칭) === */
@@ -828,17 +871,19 @@ function homeGroup(key){
   if(key.startsWith('home2.val'))  return '━ 메인 · ② 핵심 가치 4개 (제목·설명·사진)';
   if(key.startsWith('home2.metric')) return '━ 메인 · ③ 신뢰 지표 (숫자 라벨)';
   if(key.startsWith('home2.why'))  return '━ 메인 · ④ Why Monnit (제목·3강점·배경사진)';
-  if(key.startsWith('home2.sol'))  return '━ 메인 · ⑤ 대표 솔루션 6개 (이름·설명·사진)';
+  if(key.startsWith('home2.sol'))  return '━ 메인 · ⑤ Our Solution 티저 (라벨·제목·설명)';
+  if(key.startsWith('home2.finder')) return '━ 메인 · ⑤-1 솔루션 파인더 (라벨·제목·질문)';
+  if(key.startsWith('home2.catbrowse')) return '━ 메인 · ⑤-2 카테고리 바로가기 (제목·설명)';
   if(key.startsWith('home2.cases')) return '━ 메인 · ⑥ 고객사·도입사례 제목';
-  if(key.startsWith('home2.flow')||key.startsWith('home2.prod')) return '━ 메인 · ⑦ 작동방식+제품 (감지→대응 · 제품 보기)';
-  if(key.startsWith('home2.awards')) return '━ 메인 · ⑨ 수상·인증';
-  if(key.startsWith('home2.final')) return '━ 메인 · ⑩ 하단 상담 CTA (제목·설명·버튼·배경)';
+  if(key.startsWith('home2.proc'))  return '━ 메인 · ⑦ 진단부터 인계까지 (4단계 · 제목·설명)';
+  if(key.startsWith('home2.cta'))   return '━ 메인 · ⑧ 우리 현장 무엇부터 (상담 문구·폼)';
   /* ===== About us (about2.*) ===== */
   if(key.startsWith('about2.title')||key.startsWith('about2.p')||key.startsWith('about2.partner')||key.startsWith('about2.hero')) return '▣ About us · Ⓐ 상단 소개 (대제목·문단·대표사진)';
   if(key.startsWith('about2.stat')) return '▣ About us · Ⓑ 지표 (Since 2010·64,000+ 등)';
   if(key.startsWith('about2.feat')) return '▣ About us · Ⓒ 4가지 강조 (고신뢰성 등)';
   if(key.startsWith('about2.r')||key==='about2.why.head') return '▣ About us · Ⓓ 왜 Monnit인가 6가지';
   if(key.startsWith('about2.step')||key==='about2.mfg.head') return '▣ About us · Ⓔ 설계→제조·검증 3단계';
+  if(key.startsWith('about2.cmp')) return '▣ About us · Ⓕ 유선/무선 비교표';
   /* ===== 구버전 호환 (혹시 남아있을 경우) ===== */
   if(key.startsWith('home.')) return '⑫ (구버전) 기타';
   return '⑫ 기타';
@@ -934,6 +979,27 @@ if($('#homeSave')) $('#homeSave').onclick=async()=>{
   if(ok>0){ inputs.forEach(inp=>{ if(keys.includes(inp.dataset.hk)) inp.dataset.orig=inp.value.trim(); }); }
   if($('#previewPanel') && $('#previewPanel').style.display!=='none') setTimeout(loadPreview,1500);
 };
+</script>
+<script>
+(function(){
+  function $(q){ return document.querySelector(q); }
+  function ready(cb){ var t=setInterval(function(){ if($('#tabSel') && $('#tabSel').options.length){ clearInterval(t); cb(); } },200); setTimeout(function(){clearInterval(t);},15000); }
+  function go(tab){ var t=$('#tabSel'); t.value=tab; if(t.value!==tab){ t.selectedIndex=0; } t.dispatchEvent(new Event('change')); $('#dashPanel').style.display='none'; $('#pickBar').scrollIntoView({behavior:'smooth'}); }
+  function act(a){ $('#dashPanel').style.display='none'; if(a==='home'){ $('#homeBtn').click(); } else if(a==='seo'){ $('#seoBtn').click(); } else { $('#pickBar').scrollIntoView({behavior:'smooth'}); } }
+  function bind(root){ root.querySelectorAll('.dash-card,.dash-chip').forEach(function(c){ c.onclick=function(){ var tab=c.dataset.tab, a=c.dataset.act; ready(function(){ a ? act(a) : go(tab); }); }; }); }
+  bind(document);
+  ready(function(){
+    var carded=['Applications','Blog','Cases','InstallPhotos','Products','Promotions','FAQs','Customers'];
+    var box=$('#dashAll'); if(!box) return; box.innerHTML='';
+    Array.prototype.forEach.call($('#tabSel').options, function(o){
+      if(carded.indexOf(o.value)>-1) return;
+      var b=document.createElement('button'); b.className='dash-chip'; b.dataset.tab=o.value; b.textContent=o.textContent; box.appendChild(b);
+    });
+    bind(box);
+  });
+  var hb=$('#dashHomeBtn');
+  if(hb) hb.onclick=function(){ ['#homePanel','#seoPanel'].forEach(function(x){ var e=$(x); if(e) e.style.display='none'; }); $('#dashPanel').style.display=''; window.scrollTo({top:0,behavior:'smooth'}); };
+})();
 </script>
 </body>
 </html>

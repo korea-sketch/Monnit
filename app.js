@@ -45,6 +45,11 @@ const WEB3FORMS_KEY = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
 /* (대안) FormSubmit — 무제한 무료. 단, 최초 1회 활성화 메일 클릭 필요 */
 const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + encodeURIComponent(CONTACT_EMAIL);
 
+/* 제안서 비밀번호 발송용 Apps Script 웹앱 (korea@monnit.com 명의 발신)
+   — 배포 후 받은 웹 앱 URL을 아래에 붙여넣으면 자동 전환됩니다. 비어 있으면 FormSubmit 자동회신 사용 */
+const PW_MAIL_URL = "/sendpw"; /* CF Pages 경로 — 실패 시 Netlify 경로로 자동 폴백 */
+const PW_MAIL_TOKEN = "mnt-pw-2026-7f3k9";
+
 /* 폼 데이터를 실제로 전송하는 공통 함수 (AJAX — 페이지 이동 없음)
    반환값: true(서버 전송 성공) / 'mailto'(메일 앱으로 작성) / false(실패) */
 function buildMailto(payload){
@@ -728,6 +733,7 @@ function mapCases(rows){
       solutions: splitItems(o.solutions).map(it => { const f = splitFields(it); return { t:f[0]||'', d:f[1]||'' }; }),
       results: splitItems(o.results).map(it => { const f = splitFields(it); return { n:f[0]||'', l:f[1]||'' }; }),
       quote: o.quote||'', cite: o.cite||'',
+      hero: (o.hero||'').trim(),
       photos: parsePhotos(o.photos),
       featured: /^(true|1|y|yes|예|네|대표|featured)$/i.test(String(o.featured||'').trim())
     };
@@ -1238,7 +1244,7 @@ featuredCases.forEach(([caseId, c], idx) => {
   else if (c.qs && c.qs.length) apps = c.qs.map(q => q.l);
   else if (c.results && c.results.length) apps = c.results.map(r => r.l);
   apps = apps.filter(Boolean).slice(0, 4);
-  const _cardBg = CASE_HERO_BG[caseId] || ((c.photos && c.photos[0]) ? (c.photos[0].src || c.photos[0].url) : '');
+  const _cardBg = c.hero || CASE_HERO_BG[caseId] || ((c.photos && c.photos[0]) ? (c.photos[0].src || c.photos[0].url) : '');
   const card = document.createElement('article');
   card.className = 'featured-card';
   card.dataset.caseId = caseId;
@@ -1530,22 +1536,22 @@ applyPartnersFilter();
 
 /* ========== CASE STUDY DETAIL RENDER ========== */
 const CASE_HERO_BG = {
-  'us-army': 'images/img-30.jpg',
+  'us-army': 'images/case-hero-us-army.jpg',
   'exxonmobil': 'images/img-31.jpg',
-  'gs-eps': 'images/img-32.jpg',
-  'microsoft': 'images/img-33.jpg',
+  'gs-eps': 'images/case-hero-gs-eps.jpg',
+  'microsoft': 'images/case-hero-microsoft.jpg',
   'cbre': 'images/img-35.jpg',
   'walmart': 'images/img-36.jpg',
-  'hyundai-motors': 'images/img-37.jpg',
+  'hyundai-motors': 'images/case-hero-hyundai-motors.jpg',
   'samsung-biologics': 'images/img-45.jpg'
 };
 /* 카드 배너(가로형)에서 정사각형 사진의 핵심 피사체가 보이도록 표시 위치 보정 */
 const CASE_HERO_POS = {
-  'us-army': 'center 60%',
+  'us-army': 'center 28%',
   'exxonmobil': 'center 42%',
-  'gs-eps': 'center 82%',
+  'gs-eps': 'center 50%',
   'cbre': 'center 38%',
-  'hyundai-motors': 'center 72%'
+  'hyundai-motors': 'center 50%'
 };
 function renderCaseDetail(id) {
   const c = CASE_DATA[id];
@@ -2729,6 +2735,24 @@ async function wpRequest(){
   // 백서 선택 + 이메일 입력을 마친 시점에 다운로드 제공
   // (클릭 제스처 안에서 즉시 열어 팝업 차단을 방지)
   if (dl) { try { window.open(dl, '_blank', 'noopener'); } catch(e){} }
+  // ★ PDF 열람 비밀번호 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
+  try {
+    if (PW_MAIL_URL) {
+      var _pwBody = JSON.stringify({ token: PW_MAIL_TOKEN, email: v, title: wp.title });
+      fetch(PW_MAIL_URL, { method:'POST', body: _pwBody })
+        .then(function(r){ if (r.status === 404 || r.status === 405) return fetch('/.netlify/functions/sendpw', { method:'POST', body: _pwBody }); })
+        .catch(function(){ fetch('/.netlify/functions/sendpw', { method:'POST', body: _pwBody }).catch(function(){}); });
+    } else
+    fetch(FORM_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({
+        email: v,
+        name: 'Monnit Korea',
+        _subject: '[자동발송 로그] 제안서 비밀번호 안내 — ' + wp.title,
+        _captcha: 'false',
+        제안서: wp.title,
+        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\nPDF 파일의 열람 비밀번호는 아래와 같습니다.\n\n■ 열람 비밀번호: mk2026\n\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
+      })}).catch(function(){});
+  } catch(e){}
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
   const ok = await sendLead({
     _subject: '[모닛코리아 웹사이트] 백서 신청 — ' + wp.title,
@@ -2738,7 +2762,7 @@ async function wpRequest(){
     출처: location.href
   }, btn);
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다. ' : '') + '입력하신 이메일(' + v + ')로도 자료를 보내드립니다.');
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다. ' : '') + 'PDF 열람 비밀번호를 입력하신 이메일(' + v + ')로 보내드렸습니다.');
     if (em) em.value = ''; if (sel) sel.value = '';
   } else if (ok === 'mailto') {
     alert((dl ? '다운로드가 시작되었습니다.\n' : '') + '메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');

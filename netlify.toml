@@ -23,3 +23,17 @@
   for = "/robots.txt"
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
+
+# 구 Wix 사이트 경로 정리 — 검색 색인에 남은 옛 블로그 URL을 네이버 블로그로 301
+[[redirects]]
+  from = "/monnitblog"
+  to = "https://blog.naver.com/monnitkorea"
+  status = 301
+
+[[redirects]]
+  from = "/monnitblog/*"
+  to = "https://blog.naver.com/monnitkorea"
+  status = 301
+
+[functions]
+  directory = "netlify/functions"

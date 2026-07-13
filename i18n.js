@@ -16,6 +16,10 @@
 
   /* 강조(<em>/<br>/<span>)가 들어간 헤드라인: textContent(정규화) → 영문 innerHTML */
   var HTML_DICT = {
+    /* ── Our Solution 라이브 티저 & 카테고리 바로가기 (2026-07) ── */
+    '센서 데이터가 살아 움직이는 통합관제': 'Integrated Monitoring, <em>Alive</em> with Sensor Data',
+    '또는 카테고리로 바로 찾기': 'Or Browse <em>by Category</em>',
+    'Our Solution 자세히 보기 →': 'Explore Our Solution →',
     /* ── 홈 리디자인 헤드라인 (2026 개편) ── */
     '보이지 않는 위험까지데이터로 관리합니다': 'Manage Even Unseen Risks<br>with <em style="font-style:normal">Data</em>',
     '대표 솔루션': 'Featured <em>Solutions</em>',
@@ -62,6 +66,12 @@
 
   /* 일반 라벨/문단 사전 (정규화 KO → EN). 사전에 없는 문구는 한국어로 남습니다(기술문서 등). */
   var DICT = {
+    /* ── Our Solution 라이브 티저 & 카테고리 바로가기 (2026-07) ── */
+    "측정 → 분석 → 자동제어. 진동·온도·전류 데이터가 실시간으로 이상을 감지합니다.": "Sense → Analyze → Act. Vibration, temperature, and current data detect anomalies in real time.",
+    "진동 예지보전 · 회전설비 실시간 통합관제": "Vibration Predictive Maintenance · Live Rotating-Equipment Monitoring",
+    "측정 → 분석 → 자동제어, 전체 솔루션 살펴보기": "Sense → Analyze → Act — explore the full solution",
+    "6개 분야로 정리된 어플리케이션을 눌러, 필터링된 사례를 바로 확인하세요.": "Tap one of the 6 categories to jump straight to filtered applications.",
+    "전체 어플리케이션 보기 →": "View all applications →",
     /* ── 홈 리디자인 라벨/문단 (2026 개편) ── */
     "산업용 무선 IoT · 통합관제 · AI 예지보전": "Industrial Wireless IoT · Integrated Monitoring · AI Predictive Maintenance",
     "산업용 무선 IoT 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링하고 사고를 예방합니다.": "Real-time monitoring of fire, water leaks, equipment anomalies, and environmental data with industrial wireless IoT sensors and an integrated control platform — preventing incidents before they happen.",
@@ -294,7 +304,7 @@
     "신형 ALTA / ALTA XL Ethernet Gateway 4K 발표": "New ALTA / ALTA XL Ethernet Gateway 4K Announced",
     "대규모 센서 네트워크를 위한 차세대 게이트웨이를 출시했습니다.": "Launched the next-generation gateway for large-scale sensor networks.",
     "실제 고객사에 제안했던 산업별 제안서를 그대로 제공합니다. 업종별 과제 정의부터 솔루션 구성, 도입 효과까지 담겨 있어 — 프로젝트가 어떻게 설계되고 진행되는지 구체적으로 확인하실 수 있습니다.": "Actual industry proposals we presented to real clients \u2014 covering problem definition, solution design, and expected impact by sector, so you can see exactly how a project is scoped and delivered.",
-    "필요한 산업별 제안서를 선택하고 이메일을 입력해 신청하시면, 입력하신 주소로 PDF를 보내드리며 선택하신 제안서의 다운로드가 바로 시작됩니다.": "Select the proposal you need, enter your email, and submit \u2014 we'll email the PDF and your chosen proposal will begin downloading immediately.",
+    "필요한 산업별 제안서를 선택하고 이메일을 입력해 신청하시면, 입력하신 주소로 PDF 열람 비밀번호를 보내드리며 선택하신 제안서의 다운로드가 바로 시작됩니다.": "Select the proposal you need, enter your email, and submit \u2014 we'll email the PDF password to your address, and your download will begin immediately.",
     "시설 관리 IoT 도입 가이드": "Facility Management IoT Adoption Guide",
     "HVAC·보일러·전력 등 설비 모니터링으로 운영비를 절감하는 방법.": "How to cut operating costs by monitoring HVAC, boilers, power, and more.",
     "콜드체인 온도 모니터링 제안서": "Cold-Chain Temperature Monitoring Proposal",
@@ -1953,6 +1963,219 @@
   "센서 → AI 자동제어 구성도Edge AI control architecture": "Sensor → AI Auto-Control<span class=\"sub\">Edge AI control architecture</span>"
 });
 
+
+/* ── 2026-07-12 보강: 홈·About 잔존 문구 일괄 등록 ── */
+Object.assign(HTML_DICT, {
+  "보이지 않는 위험까지 데이터로 관리합니다": "Manage Even Unseen Risks<br>with <em style=\"font-style:normal\">Data</em>",
+  "데이터가 만드는 네 가지 변화": "Four Changes <em>Data Creates</em>",
+  "현장이 검증한 산업용 IoT 파트너": "The Industrial IoT Partner<br><em>Proven in the Field</em>",
+  "현장이 검증한산업용 IoT 파트너": "The Industrial IoT Partner<br><em>Proven in the Field</em>",
+  "현장의 문제를 푸는 대표 솔루션": "Featured Solutions That <em>Solve Field Problems</em>",
+  "현장의 문제를 푸는 대표 어플리케이션": "Featured Applications That <em>Solve Field Problems</em>",
+  "현장의 문제를 푸는대표 어플리케이션": "Featured Applications That <em>Solve Field Problems</em>",
+  "현장의 문제를 푸는 대표 어플리케이션": "Featured Applications That <em>Solve Field Problems</em>",
+  "30초 만에 우리 현장 솔루션 찾기": "Find <em>Your Solution</em> in 30 Seconds",
+  "진단부터 인계까지, 2~3일": "From Assessment to <em>Handover</em>, in 2–3 Days",
+  "우리 현장, 무엇부터 보이게 할까요?": "Your Site — <em>What Should You See First?</em>"
+});
+Object.assign(DICT, {
+  "활용 사례": "Use Cases",
+  "산업별 제안서 보기": "View Industry Proposals",
+  "Case Studies · 도입 사례": "Case Studies",
+  "Installation Photo · 설치 사례": "Installation Photos",
+  "도입 사례": "Case Studies",
+  "산업별 제안서": "Industry Proposals",
+  "년+": "yrs+",
+  "종+": "types+",
+  "년": "yrs",
+  "건": "cases",
+  "현장 검증 경력": "Field-Proven Experience",
+  "무선 센서 라인업": "Wireless Sensor Lineup",
+  "배터리 수명": "Battery Life",
+  "냉동창고 A": "Cold Storage A",
+  "냉동창고 B": "Cold Storage B",
+  "3F 기계실 진동": "3F Machine Room Vibration",
+  "서버룸 누수": "Server Room Leak",
+  "감지 없음": "None Detected",
+  "지하 집수정 수위": "Basement Sump Level",
+  "공조기 #2 전류": "AHU #2 Current",
+  "백신 보관고 도어": "Vaccine Fridge Door",
+  "열림 42초": "Open 42s",
+  "알림": "Alert",
+  "정상": "Normal",
+  "ISO 기준 내": "Within ISO",
+  "클린룸 차압": "Cleanroom Diff. Pressure",
+  "회의실 CO₂": "Meeting Room CO₂",
+  "전기실 온도": "Electrical Room Temp",
+  "옥상 태양광 인버터": "Rooftop PV Inverter",
+  "가동": "Running",
+  "GMP 창고 습도": "GMP Warehouse Humidity",
+  "시설과 고민을 선택하면 맞는 구성과 기대 효과를 바로 보여드립니다.": "Pick your facility and concern — we will show the right setup and expected impact instantly.",
+  "Q1 · 어떤 시설을 운영하시나요?": "Q1 · What type of facility do you operate?",
+  "Q2 · 가장 고민되는 것은?": "Q2 · What concerns you most?",
+  "공장·제조": "Factory · Manufacturing",
+  "병원·제약": "Hospital · Pharma",
+  "물류·콜드체인": "Logistics · Cold Chain",
+  "빌딩·부동산": "Building · Real Estate",
+  "매장": "Retail",
+  "농수산": "Agri · Fishery",
+  "교회·학교·시설": "Church · School · Facility",
+  "데이터센터": "Data Center",
+  "인프라": "Infrastructure",
+  "건설": "Construction",
+  "화재 예방": "Fire Prevention",
+  "누수·동파": "Leak · Freeze",
+  "설비 고장": "Equipment Failure",
+  "공조기": "HVAC",
+  "에너지 절감": "Energy Saving",
+  "운영효율화": "Operational Efficiency",
+  "통합관제": "Unified Monitoring",
+  "사고예방": "Accident Prevention",
+  "공사도, 운영 중단도 없습니다. 무료 현장 진단으로 시작해 2~3일 뒤, 첫 알림이 담당자 휴대폰에 도착합니다.": "No construction, no downtime. Starting with a free on-site assessment, the first alert reaches your phone in 2–3 days.",
+  "단 4단계면 충분합니다. 무료 현장 진단으로 시작해 운영팀 인계까지 순서대로 진행됩니다.": "Four steps are all it takes — from a free on-site assessment to handover to your operations team.",
+  "현장 평가": "Site Assessment",
+  "설치 & 페어링": "Install & Pairing",
+  "플랫폼 설정": "Platform Setup",
+  "교육 & 인계": "Training & Handover",
+  "반나절 · 무료": "Half-day · Free",
+  "1일": "1 day",
+  "2시간": "2 hours",
+  "반나절": "Half-day",
+  "설비·환경·통신을 점검하고 최적 센서 배치를 설계합니다.": "We inspect equipment, environment and connectivity, then design the optimal sensor layout.",
+  "천공·배선 공사 없이 부착·연동 — 운영은 멈추지 않습니다.": "Mounted and connected with no drilling or wiring — operations never stop.",
+  "현장 기준으로 알림을 설정하고 실제 경보로 검증합니다.": "Alerts are tuned to your site standards and verified with real alarm tests.",
+  "운영팀 교육과 보고서 자동화까지 세팅해 인계합니다.": "We train your team, set up automated reports, and hand over.",
+  "배치 설계안 · 견적서": "Layout Plan · Quotation",
+  "실시간 데이터 수신 시작": "Live Data Streaming Begins",
+  "첫 경보, 담당자 휴대폰 도착": "First Alert on Your Phone",
+  "운영 매뉴얼 · 자동 보고서": "Ops Manual · Automated Reports",
+  "현장 상황에 맞는 센서 구성과 예상 비용을 안내해 드립니다.": "We will guide you through the right sensor setup and estimated cost for your site.",
+  "신청 접수": "Request Received",
+  "1분 — 아래 세 칸이면 충분합니다": "1 min — the three fields below are all we need",
+  "무료 현장 진단": "Free On-site Assessment",
+  "반나절 — 엔지니어가 설비·환경·통신 가용성 확인": "Half a day — our engineer checks equipment, environment and connectivity",
+  "구성·견적 제안": "Setup & Quote Proposal",
+  "24시간 내 — 권장 센서 구성 + 예상 ROI 리포트 회신": "Within 24 hrs — recommended sensor setup + expected ROI report",
+  "전화가 편하시면 지금 바로 —": "Prefer a call? Reach us now —",
+  "평일 09:00–18:00": "Weekdays 09:00–18:00",
+  "회사 · 시설명": "Company · Facility",
+  "연락처 (전화 또는 이메일)": "Contact (phone or email)",
+  "시설 유형": "Facility Type",
+  "무료 현장 진단 신청": "Request Free On-site Assessment",
+  "제출 정보는 상담 목적 외에 사용하지 않습니다.": "Your information is used for consultation purposes only.",
+  "24시간 내 회신": "Reply within 24 hrs",
+  "현장 진단 무료": "Free on-site assessment",
+  "영업 전화 없이 자료 먼저": "Materials first, no sales calls",
+  "예) ○○물류센터": "e.g. ABC Logistics Center",
+  "Monnit Korea는 AI와 IoT 기술을 기반으로 현장의 위험을 예측하고, 운영 효율을 높이며, 지속 가능한 환경을 만들어가는 통합 솔루션 기업입니다.": "Monnit Korea is an integrated solutions company that predicts field risks, improves operational efficiency, and builds sustainable environments on AI and IoT technology.",
+  "저희는 단순히 데이터를 수집하거나 문제를 진단하는 것에 머물지 않습니다. AI 분석과 Patrol 기반의 현장 운영 솔루션을 통해": "We do not stop at collecting data or diagnosing problems. Through AI analytics and Patrol-based field operations,",
+  "사고를 예방": "we prevent accidents",
+  "운영 비용 절감과 에너지 최적화": "reduce operating costs and optimize energy",
+  "하고,": " and ",
+  "까지 고객의 문제를 끝까지 책임지고 해결합니다.": "— taking responsibility for solving your problems to the end.",
+  "현장마다 문제는 다르지만, 고객이 원하는 결과는 같습니다.": "Every site has different problems, but every customer wants the same outcome.",
+  "더 안전하게, 더 효율적으로, 더 스마트하게": "Safer, more efficient, smarter",
+  "운영하는 것.": " operations.",
+  "Monnit Korea는 글로벌 기술력과 현장 경험을 바탕으로 고객의": "With global technology and field experience, Monnit Korea will be your",
+  "가장 신뢰받는 문제 해결 파트너": "most trusted problem-solving partner",
+  "가 되겠습니다.": ".",
+  "감사합니다.": "Thank you.",
+  "Monnit Korea 대표이사": "CEO, Monnit Korea",
+  "염정훈": "Jeonghun Yeom",
+  "삼성전자": "Samsung Electronics",
+  "네이버": "NAVER",
+  "LG전자": "LG Electronics",
+  "삼성바이오로직스": "Samsung Biologics",
+  "한화솔루션": "Hanwha Solutions",
+  "롯데건설": "Lotte E&C",
+  "이마트": "E-mart",
+  "베올리아": "Veolia",
+  "HDC랩스": "HDC Labs",
+  "LG에너지솔루션": "LG Energy Solution",
+  "한국타이어": "Hankook Tire",
+  "HL만도": "HL Mando",
+  "현대엔지니어링": "Hyundai Engineering",
+  "삼성엔지니어링": "Samsung Engineering",
+  "롯데월드": "Lotte World",
+  "청와대": "Cheong Wa Dae",
+  "주한미군": "US Forces Korea",
+  "SK브로드밴드": "SK Broadband",
+  "GC녹십자": "GC Biopharma",
+  "삼성에스원": "Samsung S-1",
+  "한화에너지": "Hanwha Energy",
+  "동원": "Dongwon",
+  "대한전선": "Taihan Cable",
+  "도레이첨단소재": "Toray Advanced Materials",
+  "삼천리": "Samchully",
+  "안랩": "AhnLab",
+  "롯데마트": "Lotte Mart",
+  "던킨도너츠": "Dunkin Donuts",
+  "호반건설": "Hoban Construction",
+  "한양대구리병원": "Hanyang Univ. Guri Hospital",
+  "순천향대서울병원": "Soonchunhyang Univ. Seoul Hospital",
+  "세종대학교": "Sejong University",
+  "인하대학교": "Inha University"
+});
+
+
+Object.assign(DICT, {
+  "운영비용": "Operating Cost",
+  "인건비 + 유지보수 계약": "Labor + maintenance contracts",
+  "저비용 구독형 · 점검 시간 -90%": "Low-cost subscription · inspection time −90%",
+  "수년 단위 회수": "Payback over several years",
+  "평균 6개월~1년 내 회수": "Payback in 6–12 months on average",
+  "투자회수": "ROI",
+  "ROI": "ROI"
+});
+Object.assign(HTML_DICT, { "기존 유선 방식과 무선 IoT 비교": "Wired Legacy vs. <em>Wireless IoT</em>" });
+/* ── About 페이지 보강 ── */
+Object.assign(HTML_DICT, {
+  "왜 Monnit인가6 reasons · proven at 90,000+ global deployments": "Why <em>Monnit</em><span class=\"sub\">6 reasons · proven at 90,000+ global deployments</span>",
+  "설계부터 제조·검증까지In-house engineering · manufacturing · QA": "From Design to <em>Manufacturing &amp; QA</em><span class=\"sub\">In-house engineering · manufacturing · QA</span>",
+  "기존 유선 방식과 무선 IoT 비교Wired legacy vs. Monnit wireless IoT": "Wired Legacy vs. <em>Wireless IoT</em><span class=\"sub\">Wired legacy vs. Monnit wireless IoT</span>"
+});
+Object.assign(DICT, {
+  "Monnit Korea는": "Monnit Korea is an",
+  "AI와 IoT 기술": "AI & IoT technology",
+  "을 기반으로 현장의 위험을 예측하고, 운영 효율을 높이며, 지속 가능한 환경을 만들어가는 통합 솔루션 기업입니다.": "-driven integrated solutions company that predicts field risks, improves operational efficiency, and builds sustainable environments.",
+  "IoT 태동기부터 센싱 기술 개발": "Sensing technology since the dawn of IoT",
+  "전 세계 고객사": "Global customers",
+  "2,000+ 제품": "2,000+ Products",
+  "130여 개국에 공급": "Supplied to 130+ countries",
+  "750억 / 일": "75B / day",
+  "고신뢰성": "High Reliability",
+  "산업용 등급의 검증된 품질": "Proven industrial-grade quality",
+  "정확한 데이터 기반 즉각 대응": "Instant response on accurate data",
+  "비용 절감 & 지속가능성": "Cost Saving & Sustainability",
+  "에너지 효율 최적화·탄소 저감": "Energy optimization · carbon reduction",
+  "글로벌 네트워크": "Global Network",
+  "130여 개국 공급 검증된 IoT": "IoT proven across 130+ countries",
+  "항목": "Item",
+  "기존 유선 방식": "Wired Legacy",
+  "Monnit 무선 IoT": "Monnit Wireless IoT",
+  "설치": "Installation",
+  "수일~수주 배선 공사": "Days to weeks of wiring work",
+  "센서당 15분, 부착만으로 가동": "15 min per sensor — mount and go",
+  "유지보수": "Maintenance",
+  "정기 방문 점검 인력 필요": "Requires periodic on-site inspections",
+  "원격 진단 · 배터리 최대 10년": "Remote diagnostics · up to 10-yr battery",
+  "공사": "Construction",
+  "배관·전기·방폭 구간 공사비 급증": "Costs soar in piping, electrical & Ex zones",
+  "공사 불필요 — 구축비 최대 1/30": "No construction — up to 1/30 the cost",
+  "확장성": "Scalability",
+  "증설 시 재공사": "Re-construction to expand",
+  "센서 추가 즉시 반영": "Add sensors, live instantly",
+  "실시간성": "Real-time",
+  "순회 점검 주기에 의존": "Depends on patrol intervals",
+  "24/7 초 단위 감시 · 즉시 알림": "24/7 second-level monitoring · instant alerts",
+  "즉각 대응": "Instant Response",
+  "신속한 설치": "Rapid Installation",
+  "15분 내 셀프 설치": "Self-install in 15 minutes",
+  "무선·무배선으로 어디든": "Wireless — anywhere, no cabling",
+  "정밀 센싱": "Precision Sensing",
+  "연구·산업 등급 정확도": "Research & industrial-grade accuracy"
+});
+
   var LANG = (function () { try { return localStorage.getItem('mlang') || 'ko'; } catch (e) { return 'ko'; } })();
   var busy = false;
   var handled = new WeakSet();
@@ -1962,7 +2185,8 @@
     if (LANG !== 'en' || !root) return;
     // 1) 헤드라인 요소 (innerHTML 교체)
     if (root.querySelectorAll) {
-      var els = root.querySelectorAll(HEADLINE_SEL);
+      var els = Array.prototype.slice.call(root.querySelectorAll(HEADLINE_SEL));
+      if (root.matches && root.matches(HEADLINE_SEL)) els.unshift(root);
       for (var i = 0; i < els.length; i++) {
         var el = els[i], key = norm(el.textContent);
         if (HTML_DICT[key]) {
@@ -2028,6 +2252,11 @@
     if (LANG !== 'en' || busy) return;
     busy = true;
     muts.forEach(function (m) {
+      if (m.target && m.target.nodeType === 1 && m.target.matches && m.target.matches(HEADLINE_SEL)) {
+        if (/[가-힣]/.test(m.target.textContent || '')) { /* 시트가 한글로 다시 쓴 경우만 재번역 — EN 출력 자체는 건드리지 않음(__ko 보존) */
+          handled.delete(m.target); m.target.__ko = null; translateTree(m.target);
+        }
+      }
       for (var i = 0; i < m.addedNodes.length; i++) {
         var node = m.addedNodes[i];
         if (node.nodeType === 1) translateTree(node);
