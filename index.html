@@ -325,6 +325,79 @@
     </div>
   </section>
 
+  <!-- ============ 5-1. Solution Finder (신규) ============ -->
+  <section class="nh-section nh-finder-section">
+    <div class="wrap">
+      <div class="nh-head">
+        <span class="nh-eyebrow" data-sc="home2.finder.kicker" data-sc-label="솔루션 파인더 · 라벨">Solution Finder</span>
+        <h2 data-sc="home2.finder.head" data-sc-label="솔루션 파인더 · 제목">30초 만에 <em>우리 현장 솔루션</em> 찾기</h2>
+        <p class="nh-head-sub" data-sc="home2.finder.sub" data-sc-label="솔루션 파인더 · 설명">시설과 고민을 선택하면 맞는 구성과 기대 효과를 바로 보여드립니다.</p>
+      </div>
+      <div class="mkfinder">
+        <div id="mk-wizard" class="wiz-wrap">
+          <div class="wiz-box">
+        <div class="wiz-panel">
+          <p class="q" data-sc="home2.finder.q1" data-sc-label="솔루션 파인더 · 질문1">Q1 · 어떤 시설을 운영하시나요?</p>
+          <div class="opts" id="wizFac" role="radiogroup" aria-label="시설 선택">
+            <button class="opt" data-v="factory">공장·제조</button>
+            <button class="opt" data-v="hospital">병원·제약</button>
+            <button class="opt" data-v="logistics">물류·콜드체인</button>
+            <button class="opt" data-v="dc">데이터센터</button>
+            <button class="opt" data-v="building">빌딩·부동산</button>
+            <button class="opt" data-v="infra">인프라</button>
+            <button class="opt" data-v="retail">매장</button>
+            <button class="opt" data-v="agri">농수산</button>
+            <button class="opt" data-v="construction">건설</button>
+            <button class="opt" data-v="church">교회·학교·시설</button>
+          </div>
+        </div>
+        <div class="wiz-panel">
+          <p class="q" data-sc="home2.finder.q2" data-sc-label="솔루션 파인더 · 질문2">Q2 · 가장 고민되는 것은?</p>
+          <div class="opts" id="wizCon" role="radiogroup" aria-label="고민 선택">
+            <button class="opt" data-v="fire">화재</button>
+            <button class="opt" data-v="leak">누수·동파</button>
+            <button class="opt" data-v="equip">설비 고장</button>
+            <button class="opt" data-v="hvac">공조기</button>
+            <button class="opt" data-v="energy">에너지</button>
+            <button class="opt" data-v="ops">운영효율화</button>
+            <button class="opt" data-v="control">통합관제</button>
+            <button class="opt" data-v="safety">사고예방</button>
+          </div>
+        </div>
+        <div class="wiz-result" id="wizOut" aria-live="polite">
+          <p class="tagline" id="rTag"></p>
+          <h3 id="rTitle"></h3>
+          <p id="rDesc"></p>
+          <div class="wiz-meta">
+            <div><b>센서 구성</b><span id="rSensors"></span></div>
+            <div class="fx"><b>기대 효과</b><span id="rFx"></span></div>
+            <div><b>설치</b><span>공사 없이 15분 · 운영 중단 0</span></div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
+            <a class="mkbtn mkbtn-primary" id="rCta" data-nav="contact" style="cursor:pointer">이 구성으로 무료 상담</a>
+            <a class="mkbtn mkbtn-outline" id="rMore" href="#">상세 보기</a>
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nh-catbrowse">
+        <div class="nh-catchips">
+          <button class="nh-catchip" data-go-apps="env">환경 모니터링</button>
+          <button class="nh-catchip" data-go-apps="cold">콜드체인 &amp; 물류</button>
+          <button class="nh-catchip" data-go-apps="health">의료 &amp; 실험실</button>
+          <button class="nh-catchip" data-go-apps="indus">산업 &amp; 제조</button>
+          <button class="nh-catchip" data-go-apps="fac">시설 &amp; 자산</button>
+          <button class="nh-catchip" data-go-apps="agri">농업 &amp; 야외</button>
+        </div>
+        <div class="nh-catbrowse-foot">
+          <button class="nh-link-btn" data-nav="applications">전체 어플리케이션 보기 →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 5. 대표 솔루션 → Our Solution 라이브 티저 ============ -->
   <section class="nh-section nh-solutions-section">
     <div class="wrap">
@@ -429,82 +502,6 @@
   })();
   </script>
 
-  <!-- ============ 5-1. Solution Finder (신규) ============ -->
-  <section class="nh-section nh-finder-section">
-    <div class="wrap">
-      <div class="nh-head">
-        <span class="nh-eyebrow" data-sc="home2.finder.kicker" data-sc-label="솔루션 파인더 · 라벨">Solution Finder</span>
-        <h2 data-sc="home2.finder.head" data-sc-label="솔루션 파인더 · 제목">30초 만에 <em>우리 현장 솔루션</em> 찾기</h2>
-        <p class="nh-head-sub" data-sc="home2.finder.sub" data-sc-label="솔루션 파인더 · 설명">시설과 고민을 선택하면 맞는 구성과 기대 효과를 바로 보여드립니다.</p>
-      </div>
-      <div class="mkfinder">
-        <div id="mk-wizard" class="wiz-wrap">
-          <div class="wiz-box">
-        <div class="wiz-panel">
-          <p class="q" data-sc="home2.finder.q1" data-sc-label="솔루션 파인더 · 질문1">Q1 · 어떤 시설을 운영하시나요?</p>
-          <div class="opts" id="wizFac" role="radiogroup" aria-label="시설 선택">
-            <button class="opt" data-v="factory">공장·제조</button>
-            <button class="opt" data-v="hospital">병원·제약</button>
-            <button class="opt" data-v="logistics">물류·콜드체인</button>
-            <button class="opt" data-v="dc">데이터센터</button>
-            <button class="opt" data-v="building">빌딩·부동산</button>
-            <button class="opt" data-v="infra">인프라</button>
-            <button class="opt" data-v="retail">매장</button>
-            <button class="opt" data-v="agri">농수산</button>
-            <button class="opt" data-v="construction">건설</button>
-            <button class="opt" data-v="church">교회·학교·시설</button>
-          </div>
-        </div>
-        <div class="wiz-panel">
-          <p class="q" data-sc="home2.finder.q2" data-sc-label="솔루션 파인더 · 질문2">Q2 · 가장 고민되는 것은?</p>
-          <div class="opts" id="wizCon" role="radiogroup" aria-label="고민 선택">
-            <button class="opt" data-v="fire">화재</button>
-            <button class="opt" data-v="leak">누수·동파</button>
-            <button class="opt" data-v="equip">설비 고장</button>
-            <button class="opt" data-v="hvac">공조기</button>
-            <button class="opt" data-v="energy">에너지</button>
-            <button class="opt" data-v="ops">운영효율화</button>
-            <button class="opt" data-v="control">통합관제</button>
-            <button class="opt" data-v="safety">사고예방</button>
-          </div>
-        </div>
-        <div class="wiz-result" id="wizOut" aria-live="polite">
-          <p class="tagline" id="rTag"></p>
-          <h3 id="rTitle"></h3>
-          <p id="rDesc"></p>
-          <div class="wiz-meta">
-            <div><b>센서 구성</b><span id="rSensors"></span></div>
-            <div class="fx"><b>기대 효과</b><span id="rFx"></span></div>
-            <div><b>설치</b><span>공사 없이 15분 · 운영 중단 0</span></div>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
-            <a class="mkbtn mkbtn-primary" id="rCta" data-nav="contact" style="cursor:pointer">이 구성으로 무료 상담</a>
-            <a class="mkbtn mkbtn-outline" id="rMore" href="#">상세 보기</a>
-          </div>
-        </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="nh-catbrowse">
-        <div class="nh-catbrowse-head">
-          <h3 data-sc="home2.catbrowse.head" data-sc-label="카테고리 바로가기 · 제목">또는 <em>카테고리로 살펴보기</em></h3>
-        </div>
-        <div class="nh-catchips">
-          <button class="nh-catchip" data-go-apps="env">환경 모니터링</button>
-          <button class="nh-catchip" data-go-apps="cold">콜드체인 &amp; 물류</button>
-          <button class="nh-catchip" data-go-apps="health">의료 &amp; 실험실</button>
-          <button class="nh-catchip" data-go-apps="indus">산업 &amp; 제조</button>
-          <button class="nh-catchip" data-go-apps="fac">시설 &amp; 자산</button>
-          <button class="nh-catchip" data-go-apps="agri">농업 &amp; 야외</button>
-        </div>
-        <div class="nh-catbrowse-foot">
-          <button class="nh-link-btn" data-nav="applications">전체 어플리케이션 보기 →</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ 6. 주요 고객사 & 도입 사례 ============ -->
   <section class="nh-section nh-cases-section">
     <div class="wrap">
@@ -600,6 +597,20 @@
     .cta2-done span{color:#9DB0C8;font-size:14px}
     @media(max-width:900px){.cta2-grid{grid-template-columns:1fr;gap:34px}}
     @media(max-width:560px){.cta2-form .frow{grid-template-columns:1fr}.cta2-steps .t{white-space:normal}}
+    /* 모바일: 좌측 카피 가운데 정렬 + 전화/이메일 카드형 재디자인 */
+    @media(max-width:640px){
+      .cta2-left{text-align:center}
+      .cta2-left .nh-eyebrow{padding-left:0}
+      .cta2-left .nh-eyebrow::before{display:none}
+      .cta2-flow{justify-content:center;gap:8px 10px}
+      .cta2-contact{border-top:1px solid rgba(255,255,255,.08);padding-top:20px;text-align:center}
+      .cta2-contact .cta2-clines{flex-direction:row;flex-wrap:nowrap;justify-content:center;align-items:center;gap:8px;margin-top:14px}
+      .cta2-contact a.cline{width:auto;justify-content:center;gap:7px;padding:8px 13px;border:1px solid rgba(45,212,191,.30);border-radius:999px;background:rgba(45,212,191,.06);font-size:13px;white-space:nowrap}
+      .cta2-contact a.cline.mail{font-size:12px}
+      .cta2-contact a.cline .cic{width:24px;height:24px}
+      .cta2-contact a.cline .cic svg{width:13px;height:13px}
+      .cta2-contact a.cline .hours{display:none}
+    }
     </style>
     <div class="wrap">
       <div class="mkfinder">
