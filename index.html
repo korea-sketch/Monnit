@@ -488,10 +488,16 @@
 
       <div class="nh-catbrowse">
         <div class="nh-catbrowse-head">
-          <h3 data-sc="home2.catbrowse.head" data-sc-label="카테고리 바로가기 · 제목">또는 <em>카테고리로 바로 찾기</em></h3>
-          <p data-sc="home2.catbrowse.sub" data-sc-label="카테고리 바로가기 · 설명">6개 분야로 정리된 어플리케이션을 눌러, 필터링된 사례를 바로 확인하세요.</p>
+          <h3 data-sc="home2.catbrowse.head" data-sc-label="카테고리 바로가기 · 제목">또는 <em>카테고리로 살펴보기</em></h3>
         </div>
-        <div class="cat-cards" id="homeCatCards"></div>
+        <div class="nh-catchips">
+          <button class="nh-catchip" data-go-apps="env">환경 모니터링</button>
+          <button class="nh-catchip" data-go-apps="cold">콜드체인 &amp; 물류</button>
+          <button class="nh-catchip" data-go-apps="health">의료 &amp; 실험실</button>
+          <button class="nh-catchip" data-go-apps="indus">산업 &amp; 제조</button>
+          <button class="nh-catchip" data-go-apps="fac">시설 &amp; 자산</button>
+          <button class="nh-catchip" data-go-apps="agri">농업 &amp; 야외</button>
+        </div>
         <div class="nh-catbrowse-foot">
           <button class="nh-link-btn" data-nav="applications">전체 어플리케이션 보기 →</button>
         </div>
@@ -519,7 +525,7 @@
   </section>
 
   <!-- ============ 7. 진단부터 인계까지 (신규 · 프로세스) ============ -->
-  <section class="nh-section nh-process-section">
+  <section class="nh-section nh-process-section proc-vA">
     <div class="wrap">
       <div class="nh-head">
         <span class="nh-eyebrow" data-sc="home2.proc.kicker" data-sc-label="진단부터 인계까지 · 라벨">Process</span>
@@ -529,25 +535,25 @@
       <div class="mkfinder">
         <div class="proc-panel">
           <div class="pp-cell">
-            <span class="pp-step">STEP 1<i>반나절 · 무료</i></span>
+            <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3.2h6V4"/><path d="m9 12 2 2 4-4"/></svg></span><span class="pp-step">STEP 1<i>반나절 · 무료</i></span>
             <h3 data-sc="home2.proc1.t" data-sc-label="프로세스 1 · 제목">현장 평가</h3>
             <p data-sc="home2.proc1.s" data-sc-label="프로세스 1 · 한줄설명">설비·환경·통신을 점검하고 최적 센서 배치를 설계합니다.</p>
             <span class="pp-out" data-sc="home2.proc1.o" data-sc-label="프로세스 1 · 결과물">배치 설계안 · 견적서</span>
           </div>
           <div class="pp-cell">
-            <span class="pp-step">STEP 2<i>1일</i></span>
+            <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8 15.5a5.5 5.5 0 0 1 8 0"/><circle cx="12" cy="19" r="1.1" fill="currentColor" stroke="none"/></svg></span><span class="pp-step">STEP 2<i>1일</i></span>
             <h3 data-sc="home2.proc2.t" data-sc-label="프로세스 2 · 제목">설치 &amp; 페어링</h3>
             <p data-sc="home2.proc2.s" data-sc-label="프로세스 2 · 한줄설명">천공·배선 공사 없이 부착·연동 — 운영은 멈추지 않습니다.</p>
             <span class="pp-out" data-sc="home2.proc2.o" data-sc-label="프로세스 2 · 결과물">실시간 데이터 수신 시작</span>
           </div>
           <div class="pp-cell">
-            <span class="pp-step">STEP 3<i>2시간</i></span>
+            <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="9" cy="8" r="2.4" fill="var(--bg)"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="15" cy="16" r="2.4" fill="var(--bg)"/></svg></span><span class="pp-step">STEP 3<i>2시간</i></span>
             <h3 data-sc="home2.proc3.t" data-sc-label="프로세스 3 · 제목">플랫폼 설정</h3>
             <p data-sc="home2.proc3.s" data-sc-label="프로세스 3 · 한줄설명">현장 기준으로 알림을 설정하고 실제 경보로 검증합니다.</p>
             <span class="pp-out" data-sc="home2.proc3.o" data-sc-label="프로세스 3 · 결과물">첫 경보, 담당자 휴대폰 도착</span>
           </div>
           <div class="pp-cell is-last">
-            <span class="pp-step">STEP 4<i>2시간</i></span>
+            <span class="pp-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 5l9 3.5-9 3.5z"/><path d="M7 10.5v4c0 1.4 2.4 2.6 5 2.6s5-1.2 5-2.6v-4"/><path d="M21 8.5v4.5"/></svg></span><span class="pp-step">STEP 4<i>2시간</i></span>
             <h3 data-sc="home2.proc4.t" data-sc-label="프로세스 4 · 제목">교육 &amp; 인계</h3>
             <p data-sc="home2.proc4.s" data-sc-label="프로세스 4 · 한줄설명">운영팀 교육과 보고서 자동화까지 세팅해 인계합니다.</p>
             <span class="pp-out" data-sc="home2.proc4.o" data-sc-label="프로세스 4 · 결과물">운영 매뉴얼 · 자동 보고서</span>
@@ -571,6 +577,10 @@
     .cta2-steps b{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;color:#2DD4BF;flex:none;font-weight:500;letter-spacing:.06em}
     .cta2-steps .t{color:#EAF1F9;font-weight:700;font-size:15.5px;margin-right:0;white-space:nowrap;flex:none;min-width:112px}
     .cta2-steps .d{color:#9DB0C8;font-size:13.5px}
+    .cta2-flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin:24px 0 0;padding:18px 0 0;border-top:1px solid rgba(255,255,255,.08)}
+    .cta2-flow > span{display:inline-flex;align-items:center;gap:8px;color:#EAF1F9;font-weight:700;font-size:14.5px}
+    .cta2-flow b{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;color:#2DD4BF;font-weight:500}
+    .cta2-flow i{color:#5B6C84;font-style:normal;font-size:13px}
     .cta2-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
     .cta2-badges span{font-size:12.5px;color:#B9C8DB;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:7px 14px}
     .cta2-badges span::before{content:"\2713  ";color:#2DD4BF;font-weight:700}
@@ -597,15 +607,15 @@
           <div class="cta2-left">
             <span class="nh-eyebrow" data-sc="home2.cta.kicker" data-sc-label="우리 현장 무엇부터 · 라벨">Get Started</span>
             <h2 data-sc="home2.cta.head" data-sc-label="우리 현장 무엇부터 · 제목">우리 현장, <em>무엇부터</em> 보이게 할까요?</h2>
-            <p class="nh-head-sub" data-sc="home2.cta.sub" data-sc-label="우리 현장 무엇부터 · 설명">현장 상황에 맞는 센서 구성과 예상 비용을 안내해 드립니다.</p>
-            <ol class="cta2-steps">
-              <li><b>01</b><span class="t" data-sc="home2.cta.s1t" data-sc-label="상담 단계1 · 제목">신청 접수</span><span class="d" data-sc="home2.cta.s1d" data-sc-label="상담 단계1 · 설명">1분 — 아래 세 칸이면 충분합니다</span></li>
-              <li><b>02</b><span class="t" data-sc="home2.cta.s2t" data-sc-label="상담 단계2 · 제목">무료 현장 진단</span><span class="d" data-sc="home2.cta.s2d" data-sc-label="상담 단계2 · 설명">반나절 — 엔지니어가 설비·환경·통신 가용성 확인</span></li>
-              <li><b>03</b><span class="t" data-sc="home2.cta.s3t" data-sc-label="상담 단계3 · 제목">구성·견적 제안</span><span class="d" data-sc="home2.cta.s3d" data-sc-label="상담 단계3 · 설명">24시간 내 — 권장 센서 구성 + 예상 ROI 리포트 회신</span></li>
-            </ol>
-            
+            <p class="nh-head-sub" data-sc="home2.cta.sub" data-sc-label="우리 현장 무엇부터 · 설명">현장에 맞는 센서 구성과 예상 비용을 무료로 안내해 드립니다.</p>
+            <div class="cta2-flow">
+              <span><b>01</b><span data-sc="home2.cta.s1t" data-sc-label="상담 단계1 · 제목">신청 접수</span></span>
+              <i aria-hidden="true">→</i>
+              <span><b>02</b><span data-sc="home2.cta.s2t" data-sc-label="상담 단계2 · 제목">무료 현장 진단</span></span>
+              <i aria-hidden="true">→</i>
+              <span><b>03</b><span data-sc="home2.cta.s3t" data-sc-label="상담 단계3 · 제목">구성·견적 제안</span></span>
+            </div>
             <div class="cta2-contact">
-              전화가 편하시면 지금 바로 —
               <div class="cta2-clines">
                 <a class="cline" href="tel:0220881454"><span class="cic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>02-2088-1454<span class="hours">평일 09:00–18:00</span></a>
                 <a class="cline mail" href="mailto:korea@monnit.com"><span class="cic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>korea@monnit.com</a>

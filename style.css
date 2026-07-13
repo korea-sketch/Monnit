@@ -5397,10 +5397,18 @@ body{
   .nh-head{ margin-bottom:38px; }
   .nh-hero{ min-height:auto; }
   .nh-hero-inner{ padding:96px 24px 72px; }
-  .nh-values{ grid-template-columns:1fr; }
+  /* 모바일: 핵심가치 4개는 2×2 컴팩트 */
+  .nh-values{ grid-template-columns:repeat(2,1fr); gap:14px; }
+  .nh-value-media{ aspect-ratio:1/1; border-radius:12px; }
+  .nh-value h3{ font-size:14.5px; margin-top:10px; }
+  .nh-value p{ font-size:12.5px; line-height:1.5; }
+  .nh-value-no{ font-size:14px; left:11px; bottom:9px; }
   .nh-solutions{ grid-template-columns:1fr; }
   .nh-products,.nh-prodgrid{ grid-template-columns:1fr; }
-  .nh-metrics{ grid-template-columns:1fr; }
+  /* 모바일: 신뢰지표 4개도 2×2 컴팩트 */
+  .nh-metrics{ grid-template-columns:repeat(2,1fr); gap:30px 16px; }
+  .nh-metric-num{ font-size:32px; }
+  .nh-metric-lbl{ margin-top:8px; font-size:11.5px; }
   .nh-metric + .nh-metric::before{ display:none; }
   .nh-awards{ grid-template-columns:1fr; }
   .nh-flow{ grid-template-columns:1fr; gap:32px; }
@@ -5841,8 +5849,26 @@ body{
   .pp-cell:nth-child(n+3){ border-top:1px solid var(--line); }
 }
 @media (max-width:560px){
-  .proc-panel{ grid-template-columns:1fr; }
-  .pp-cell + .pp-cell{ border-left:none; border-top:1px solid var(--line); }
+  /* 모바일: 진단→인계를 컴팩트한 번호형 타임라인으로 (긴 설명문 숨김) */
+  .proc-panel{ grid-template-columns:1fr; border:none; background:transparent; border-radius:0; overflow:visible; margin-top:28px; counter-reset:pp; }
+  .pp-cell{ display:flex; flex-direction:column; padding:0 0 24px 54px; position:relative; counter-increment:pp; border:none !important; }
+  .pp-cell + .pp-cell{ border:none; }
+  /* 세로 연결선 */
+  .pp-cell::after{ content:""; position:absolute; left:17px; top:40px; bottom:0; width:2px; background:var(--line); }
+  .pp-cell.is-last::after{ display:none; }
+  /* 번호 원형 배지 (데스크톱 상단 바 ::before 를 모바일에서 재정의) */
+  .pp-cell::before{ content:counter(pp); left:0; top:0; right:auto; width:36px; height:36px; border-radius:50%;
+    background:var(--surface-2); border:1px solid #33465F; color:#8FBFF7;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--fd); font-weight:800; font-size:15px; letter-spacing:0; }
+  .pp-cell.is-last::before{ background:rgba(228,177,92,.12); border-color:#7a5f2e; color:#E4B15C; }
+  .pp-cell h3{ order:1; margin:6px 0 0; font-size:16.5px; }
+  .pp-step{ order:2; margin-top:8px; font-size:0; }
+  .pp-step i{ font-size:11px; color:#9fb2cc; letter-spacing:.02em; background:rgba(255,255,255,.06);
+    border:1px solid var(--line); border-radius:999px; padding:3px 10px; }
+  .pp-cell.is-last .pp-step i{ color:#E4B15C; border-color:rgba(228,177,92,.4); }
+  .pp-cell p{ display:none; }
+  .pp-out{ order:3; margin-top:9px; font-size:12px; }
 }
 
 /* ===== 라이브 센서 티커 ===== */
@@ -6058,4 +6084,71 @@ body{
 .nh-catbrowse-foot .nh-link-btn:hover{
   background:linear-gradient(180deg,#6BA0DE,#5A93D6); color:#fff; transform:translateY(-2px);
   box-shadow:0 20px 40px -16px rgba(74,130,196,.85);
+}
+
+/* ── 카테고리 바로가기: 심플 칩 방식(카드 대체) ── */
+.nh-catchips{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:820px; margin:0 auto; }
+.nh-catchip{ font-family:var(--fd); font-weight:600; font-size:14.5px; letter-spacing:-0.01em; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:11px 20px; cursor:pointer;
+  transition:border-color .18s, background .18s, color .18s, transform .18s; }
+.nh-catchip:hover{ border-color:var(--accent); color:var(--accent-dark); background:var(--surface-2); transform:translateY(-2px); }
+.nh-catbrowse-head{ margin-bottom:22px; }
+@media (max-width:600px){
+  .nh-catchips{ gap:8px; }
+  .nh-catchip{ font-size:13px; padding:9px 15px; }
+}
+
+/* ── 모바일: 주요 도입사례 3개를 가로 스와이프 캐러셀로 ── */
+@media (max-width:640px){
+  .home-cases{
+    display:flex; grid-template-columns:none;
+    overflow-x:auto; scroll-snap-type:x mandatory;
+    gap:12px; padding:2px 0 14px; margin:0;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    scroll-padding-left:0;
+  }
+  .home-cases::-webkit-scrollbar{ display:none; }
+  .home-cases > *{ flex:0 0 86%; scroll-snap-align:start; }
+}
+
+
+/* 프로세스 단계 아이콘 — 기본(데스크톱)은 숨김, 모바일 아이콘 디자인에서만 표시 */
+.pp-ico{ display:none; }
+
+/* ============================================================
+   진단→인계 모바일 — 아이콘 기반 디자인 2종 (proc-vA / proc-vB)
+   ============================================================ */
+@media (max-width:560px){
+  /* 공통: 단계별 아이콘 색상 */
+  .proc-vA .pp-cell:nth-child(1) .pp-ico,.proc-vB .pp-cell:nth-child(1) .pp-ico{ color:#7CB6F0; background:rgba(91,157,232,.14); border:1px solid rgba(91,157,232,.32); }
+  .proc-vA .pp-cell:nth-child(2) .pp-ico,.proc-vB .pp-cell:nth-child(2) .pp-ico{ color:#43D9C0; background:rgba(45,212,191,.14); border:1px solid rgba(45,212,191,.32); }
+  .proc-vA .pp-cell:nth-child(3) .pp-ico,.proc-vB .pp-cell:nth-child(3) .pp-ico{ color:#B49BF3; background:rgba(155,124,239,.16); border:1px solid rgba(155,124,239,.34); }
+  .proc-vA .pp-cell:nth-child(4) .pp-ico,.proc-vB .pp-cell:nth-child(4) .pp-ico{ color:#EDBE6A; background:rgba(228,177,92,.16); border:1px solid rgba(228,177,92,.36); }
+  .proc-vA .pp-step i,.proc-vB .pp-step i{ font-size:10.5px; color:#E4B15C; background:none; border:none; padding:0; }
+
+  /* ===== A: 아이콘 타임라인 (컬러 타일 + 연결선) ===== */
+  .proc-vA .proc-panel{ display:block; background:transparent; border:none; border-radius:0; overflow:visible; margin-top:26px; }
+  .proc-vA .pp-cell{ display:grid; grid-template-columns:44px 1fr; column-gap:16px; padding:0 0 22px !important; position:relative; border:none !important; }
+  .proc-vA .pp-cell::before{ display:none; }
+  .proc-vA .pp-cell::after{ content:""; position:absolute; left:21px; top:52px; bottom:2px; width:2px; background:var(--line); }
+  .proc-vA .pp-cell.is-last::after{ display:none; }
+  .proc-vA .pp-ico{ display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:13px; grid-column:1; grid-row:1 / span 3; align-self:start; }
+  .proc-vA .pp-ico svg{ width:22px; height:22px; }
+  .proc-vA .pp-step{ grid-column:2; grid-row:1; margin:0; font-size:10.5px; letter-spacing:.06em; color:#7FA9DC; display:flex; align-items:center; gap:9px; }
+  .proc-vA .pp-cell.is-last .pp-step{ color:#DCB56A; }
+  .proc-vA .pp-cell h3{ grid-column:2; grid-row:2; margin:4px 0 0; font-size:16.5px; }
+  .proc-vA .pp-cell p{ display:none; }
+  .proc-vA .pp-out{ grid-column:2; grid-row:3; margin-top:8px; font-size:12px; }
+
+  /* ===== B: 아이콘 리스트 카드 (분리 카드) ===== */
+  .proc-vB .proc-panel{ display:flex; flex-direction:column; gap:10px; background:transparent; border:none; border-radius:0; overflow:visible; margin-top:26px; }
+  .proc-vB .pp-cell{ display:grid; grid-template-columns:48px 1fr; column-gap:15px; align-content:center; padding:15px 16px !important; border:1px solid var(--line) !important; border-radius:14px; background:linear-gradient(180deg,#141c2e,#0f1626); box-shadow:0 12px 26px -20px rgba(0,0,0,.8); }
+  .proc-vB .pp-cell::before,.proc-vB .pp-cell::after{ display:none; }
+  .proc-vB .pp-ico{ display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:13px; grid-column:1; grid-row:1 / span 3; align-self:center; }
+  .proc-vB .pp-ico svg{ width:24px; height:24px; }
+  .proc-vB .pp-step{ grid-column:2; grid-row:1; margin:0; font-size:10.5px; letter-spacing:.06em; color:#7FA9DC; display:flex; align-items:center; gap:9px; }
+  .proc-vB .pp-cell.is-last .pp-step{ color:#DCB56A; }
+  .proc-vB .pp-cell h3{ grid-column:2; grid-row:2; margin:3px 0 0; font-size:16px; }
+  .proc-vB .pp-cell p{ display:none; }
+  .proc-vB .pp-out{ grid-column:2; grid-row:3; margin-top:6px; font-size:11.5px; }
 }
