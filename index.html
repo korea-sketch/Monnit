@@ -1233,8 +1233,9 @@
     <div class="wrap-mid">
       <div class="crumb">About us / Our solution</div>
       <h2 class="seo-h1">감지하고, 분석하고, <em>스스로 제어합니다</em></h2>
-      <p class="lead">측정 → 전송 → 결정. 무선 센서 플랫폼이 현장 데이터를 모아 원하는 소프트웨어와 AI 자동제어로 연결합니다.</p>
+      <p class="lead">현장의 온도·진동·전류 같은 데이터를 무선으로 수집하고, AI가 분석해 이상을 예측하며, 필요하면 설비를 자동으로 제어합니다. 아래에서 작동 원리와 실제 대시보드를 확인해 보세요.</p>
 
+      <h2>핵심 사양<span class="sub">무선 성능 · 보안 · 배터리 한눈에 보기</span></h2>
       <div class="sol-spec sol-stats-top">
         <div class="spec-col">
           <div class="spec-h"><span class="spec-ic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8.5 8.5a5 5 0 0 0 0 7M5.8 5.8a9 9 0 0 0 0 12.4M15.5 8.5a5 5 0 0 1 0 7M18.2 5.8a9 9 0 0 1 0 12.4"/></svg></span>무선 성능 · 연동</div>
@@ -1308,12 +1309,12 @@
 
       <h2>현장 통합 대시보드<span class="sub">iMonnit dashboards</span></h2>
       <div class="soldash-tabs">
-        <button class="soldash-tab active" data-tab="vib" type="button">진동 예지보전</button>
-        <button class="soldash-tab" data-tab="hvac" type="button">HVAC 예지보전</button>
-        <button class="soldash-tab" data-tab="scube" type="button">SCUBE 통합관제</button>
+        <button class="soldash-tab active" data-tab="hvac" type="button">HVAC 예지보전</button>
+        <button class="soldash-tab" data-tab="vib" type="button">진동 예지보전</button>
+        <button class="soldash-tab" data-tab="scube" type="button">현장 통합관제</button>
       </div>
 
-      <div class="soldash-panel active" id="soldash-vib">
+      <div class="soldash-panel" id="soldash-vib">
         <div class="dash">
           <div class="dash-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">진동 예지보전 · 회전설비 통합관제</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
           <div class="vibx dark">
@@ -1437,85 +1438,176 @@
           <div class="dash-foot">전 설비 진동·온도를 AI가 상시 학습 — 정상/주의/비정상 자동 판정, 임계 초과 시 즉시 알림·패트롤 연계</div>
         </div>
       </div>
-      <div class="soldash-panel" id="soldash-hvac">
+      <div class="soldash-panel active" id="soldash-hvac">
         <div class="dash">
           <div class="dash-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">HVAC 자율제어 · 공조기(AHU) + 급기/환기 계통</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
-          <div class="ahu-schem">
-            <svg viewBox="0 0 940 250" preserveAspectRatio="xMidYMid meet">
-              <!-- return air loop -->
-              <path class="as-ret" d="M872 150 V40 H150 V70"/>
-              <text class="as-flab" x="500" y="32">환기 (RA) · 25.1°C</text>
-              <!-- OA intake -->
-              <g class="as-arrow"><path d="M26 122 H66"/><path d="M58 114 l10 8 -10 8"/></g>
-              <text class="as-lab" x="20" y="150">외기 OA</text>
-              <text class="as-val warm" x="20" y="167">31.2°C</text>
-              <!-- AHU casing -->
-              <rect class="as-case" x="70" y="78" width="640" height="92" rx="12"/>
-              <!-- stage separators -->
-              <line class="as-sep" x1="172" y1="78" x2="172" y2="170"/>
-              <line class="as-sep" x1="300" y1="78" x2="300" y2="170"/>
-              <line class="as-sep" x1="430" y1="78" x2="430" y2="170"/>
-              <line class="as-sep" x1="560" y1="78" x2="560" y2="170"/>
-              <!-- airflow dashes through casing -->
-              <path class="as-flow" d="M82 124 H700"/>
-              <!-- stage 1: OA damper -->
-              <g class="as-damper"><line x1="100" y1="92" x2="145" y2="108"/><line x1="100" y1="108" x2="145" y2="124"/><line x1="100" y1="124" x2="145" y2="140"/><line x1="100" y1="140" x2="145" y2="156"/></g>
-              <text class="as-stage" x="121" y="190">외기댐퍼</text>
-              <text class="as-mini" x="121" y="205">35%</text>
-              <!-- stage 2: pre-filter (WARN) -->
-              <g class="as-filter warn"><rect x="196" y="90" width="80" height="68" rx="5"/><path d="M200 96 l72 56 M200 112 l72 56 M200 128 l72 24 M216 90 l60 46 M236 90 l40 30"/></g>
-              <g class="as-warn"><circle cx="236" cy="70" r="12"/><path d="M236 64 v6 M236 75 v.5" stroke="#0A1130" stroke-width="2.4" stroke-linecap="round"/></g>
-              <text class="as-stage warn" x="236" y="190">프리필터</text>
-              <text class="as-mini warn" x="236" y="205">152Pa 막힘</text>
-              <!-- stage 3: cooling coil -->
-              <g class="as-coil cool"><path d="M312 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M338 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M364 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M390 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/></g>
-              <text class="as-stage" x="365" y="190">냉방코일</text>
-              <text class="as-mini cool" x="365" y="205">밸브 60% · 12.0°C</text>
-              <!-- stage 4: heating coil -->
-              <g class="as-coil heat"><path d="M455 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M485 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/><path d="M515 96 q14 8 0 16 q-14 8 0 16 q14 8 0 16 q-14 8 0 16 q14 8 0 12"/></g>
-              <text class="as-stage" x="495" y="190">난방코일</text>
-              <text class="as-mini" x="495" y="205">대기</text>
-              <!-- stage 5: supply fan -->
-              <circle class="as-fan-r" cx="635" cy="124" r="42"/>
-              <g class="as-fan">
-                <g transform="translate(635 124)">
-                  <path d="M0 0 C 8 -22 26 -26 34 -16 C 20 -14 8 -6 0 0Z"/>
-                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(72)"/>
-                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(144)"/>
-                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(216)"/>
-                  <path d="M0 0 C 22 -8 26 -26 16 -34 C 14 -20 6 -8 0 0Z" transform="rotate(288)"/>
-                </g>
+          <div class="twin-shell">
+<div class="twin-scroll">
+        <div class="twin-stage" id="hvStage">
+
+          <!-- z1: casing / duct background -->
+          <svg class="twin-svg" viewBox="0 0 1120 440" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <linearGradient id="caseg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#26344f"/><stop offset="1" stop-color="#161f31"/>
+              </linearGradient>
+              <linearGradient id="ductg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#182238"/><stop offset="1" stop-color="#0f1728"/>
+              </linearGradient>
+            </defs>
+            <!-- return air duct (top) -->
+            <path d="M900 150 V70 H210 V150" fill="url(#ductg)" stroke="#26344f" stroke-width="2" opacity=".55"/>
+            <rect x="210" y="62" width="690" height="20" rx="6" fill="#141d2f" stroke="#26344f" stroke-width="1.5" opacity=".7"/>
+            <text x="555" y="76" text-anchor="middle" fill="#8ea0bd" font-size="12" font-family="var(--mono)">환기 RA · 25.1°C</text>
+            <!-- OA intake mouth -->
+            <path d="M18 210 h52 v70 h-52 z" fill="#141d2f" stroke="#26344f" stroke-width="1.5"/>
+            <text x="44" y="300" text-anchor="middle" fill="#8ea0bd" font-size="12">외기 OA</text>
+            <text x="44" y="316" text-anchor="middle" fill="#e8b552" font-size="12" font-weight="700">31.2°C</text>
+            <!-- AHU casing -->
+            <rect x="72" y="150" width="694" height="180" rx="14" fill="url(#caseg)" stroke="#33456a" stroke-width="2"/>
+            <rect x="82" y="160" width="674" height="160" rx="9" fill="#0c1626" stroke="#20304c" stroke-width="1.5"/>
+            <!-- stage dividers -->
+            <g stroke="#20304c" stroke-width="1.4" opacity=".8">
+              <line x1="210" y1="160" x2="210" y2="320"/>
+              <line x1="330" y1="160" x2="330" y2="320"/>
+              <line x1="452" y1="160" x2="452" y2="320"/>
+              <line x1="566" y1="160" x2="566" y2="320"/>
+              <line x1="726" y1="160" x2="726" y2="320"/>
+            </g>
+            <!-- indoor room shell -->
+            <rect x="830" y="150" width="262" height="180" rx="14" fill="url(#caseg)" stroke="#2c7a63" stroke-width="2"/>
+            <rect x="840" y="160" width="242" height="160" rx="9" fill="#0b1a1f" stroke="#1e4d43" stroke-width="1.5"/>
+            <!-- supply duct connector -->
+            <path d="M766 224 h64 M766 256 h64" stroke="#26344f" stroke-width="2" opacity=".6"/>
+            <!-- stage labels -->
+            <g font-family="var(--mono)" font-size="12" text-anchor="middle">
+              <text x="146" y="352" fill="#9fb0cc">외기댐퍼</text><text x="146" y="368" fill="#7f8fac" font-size="11">35% 개도</text>
+              <text x="270" y="352" fill="#e8b552">프리필터</text><text x="270" y="368" fill="#e8b552" font-size="11">152Pa 막힘</text>
+              <text x="391" y="352" fill="#9fb0cc">냉방코일</text><text x="391" y="368" fill="#7cc0ff" font-size="11">밸브 60% · 12.0°C</text>
+              <text x="509" y="352" fill="#9fb0cc">난방코일</text><text x="509" y="368" fill="#5b6a86" font-size="11">대기</text>
+              <text x="646" y="352" fill="#9fb0cc">급기팬</text><text x="646" y="368" fill="#e8b552" font-size="11">78% · 4.2A ↑</text>
+              <text x="961" y="352" fill="#7bf0c0">실내</text><text x="961" y="368" fill="#7f8fac" font-size="11">23.5°C · 45% · 쾌적</text>
+            </g>
+          </svg>
+
+          <!-- z3: particle canvas -->
+          <canvas class="twin-particles" id="hvPcv" width="1120" height="440"></canvas>
+
+          <!-- z5: optional real image layers (auto-show on load, else SVG remains) -->
+          <div class="twin-assets" id="hvAssets"></div>
+
+          <!-- z4: equipment (glows, moving parts) -->
+          <svg class="twin-eq" viewBox="0 0 1120 440" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <radialGradient id="coolglow" cx="50%" cy="80%" r="70%">
+                <stop offset="0" stop-color="#59b6ff" stop-opacity=".9"/><stop offset="1" stop-color="#59b6ff" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="heatglow" cx="50%" cy="60%" r="70%">
+                <stop offset="0" stop-color="#ff9a3c" stop-opacity=".85"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="warnglow" cx="50%" cy="50%" r="60%">
+                <stop offset="0" stop-color="#e8b552" stop-opacity=".5"/><stop offset="1" stop-color="#e8b552" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="coolflow" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0" stop-color="#7cc0ff" stop-opacity="0"/><stop offset=".5" stop-color="#7cc0ff" stop-opacity=".9"/><stop offset="1" stop-color="#7cc0ff" stop-opacity="0"/>
+              </linearGradient>
+              <clipPath id="coolclip"><rect x="336" y="164" width="112" height="152" rx="6"/></clipPath>
+            </defs>
+
+            <!-- OA damper: frame + blades group (rotated by 35% open) -->
+            <g id="damperG" class="eqgrp" data-eq="damper">
+              <rect class="eqhl" x="90" y="158" width="112" height="164" rx="8" fill="none" stroke="#5b9de8" stroke-width="2" opacity="0"/>
+              <g id="damperBlades" transform="translate(146 240)"></g>
+            </g>
+
+            <!-- pre-filter (clogged / warn) -->
+            <g id="filterG" class="eqgrp" data-eq="filter">
+              <ellipse id="filterGlow" cx="270" cy="240" rx="80" ry="105" fill="url(#warnglow)" opacity=".0"/>
+              <rect class="eqhl" x="214" y="158" width="112" height="164" rx="8" fill="none" stroke="#e8b552" stroke-width="2" opacity="0"/>
+              <rect x="224" y="172" width="92" height="136" rx="5" fill="#171a12" stroke="#5c5327" stroke-width="1.5"/>
+              <g stroke="#6a5f30" stroke-width="6" opacity=".55">
+                <line x1="234" y1="172" x2="234" y2="308"/><line x1="248" y1="172" x2="248" y2="308"/>
+                <line x1="262" y1="172" x2="262" y2="308"/><line x1="276" y1="172" x2="276" y2="308"/>
+                <line x1="290" y1="172" x2="290" y2="308"/><line x1="304" y1="172" x2="304" y2="308"/>
               </g>
-              <circle class="as-fan-hub" cx="635" cy="124" r="7"/>
-              <text class="as-stage warn2" x="635" y="190">급기팬</text>
-              <text class="as-mini warn2" x="635" y="205">78% · 4.2A↑</text>
-              <!-- SA out to room -->
-              <g class="as-arrow sa"><path d="M712 124 H772"/><path d="M764 116 l10 8 -10 8"/></g>
-              <rect class="as-room" x="784" y="86" width="132" height="78" rx="10"/>
-              <text class="as-room-l" x="850" y="118">실내</text>
-              <text class="as-room-v" x="850" y="142">23.5°C · 45%</text>
-              <text class="as-lab sa" x="742" y="150">급기 SA</text>
-              <text class="as-val cool" x="742" y="167">23.8°C</text>
-            </svg>
-            <div class="ahu-schem-cap">AI 자율제어 공조기(AHU) 계통 · 외기 → 프리필터 → 냉/난방코일 → 급기팬 → 급기/환기 · 실시간 센서 연동</div>
+              <line x1="224" y1="242" x2="316" y2="234" stroke="#4a4320" stroke-width="4" opacity=".5"/>
+              <!-- floating warning icon -->
+              <g id="filterWarn" transform="translate(270 150)">
+                <path d="M0 -13 L13 10 H-13 Z" fill="#e8b552" stroke="#0a1020" stroke-width="1.5"/>
+                <path d="M0 -5 V4 M0 7 v.4" stroke="#0a1020" stroke-width="2.4" stroke-linecap="round"/>
+              </g>
+            </g>
+
+            <!-- cooling coil (blue upward flow) -->
+            <g id="coolG" class="eqgrp" data-eq="cool">
+              <ellipse cx="392" cy="240" rx="72" ry="96" fill="url(#coolglow)" id="coolGlow" opacity=".55"/>
+              <rect class="eqhl" x="336" y="158" width="112" height="164" rx="8" fill="none" stroke="#7cc0ff" stroke-width="2" opacity="0"/>
+              <g clip-path="url(#coolclip)">
+                <rect x="336" y="164" width="112" height="152" fill="#0a1c2c"/>
+                <g stroke="#2e5f86" stroke-width="7" opacity=".8">
+                  <line x1="352" y1="164" x2="352" y2="316"/><line x1="370" y1="164" x2="370" y2="316"/>
+                  <line x1="388" y1="164" x2="388" y2="316"/><line x1="406" y1="164" x2="406" y2="316"/>
+                  <line x1="424" y1="164" x2="424" y2="316"/><line x1="440" y1="164" x2="440" y2="316"/>
+                </g>
+                <!-- upward flowing light -->
+                <rect id="coolFlow" x="336" y="164" width="112" height="70" fill="url(#coolflow)" opacity=".8"/>
+              </g>
+              <rect x="336" y="164" width="112" height="152" rx="6" fill="none" stroke="#3f7cad" stroke-width="1.5"/>
+            </g>
+
+            <!-- heating coil (idle / dark, pre-wired for future orange) -->
+            <g id="heatG" class="eqgrp is-idle" data-eq="heat">
+              <ellipse cx="509" cy="240" rx="64" ry="90" fill="url(#heatglow)" id="heatGlow" opacity="0"/>
+              <rect class="eqhl" x="456" y="158" width="106" height="164" rx="8" fill="none" stroke="#ff9a3c" stroke-width="2" opacity="0"/>
+              <rect x="462" y="170" width="94" height="140" rx="6" fill="#12100c" stroke="#3a3324" stroke-width="1.5"/>
+              <g stroke="#5a4a2c" stroke-width="7" opacity=".5" id="heatFins">
+                <line x1="478" y1="170" x2="478" y2="310"/><line x1="498" y1="170" x2="498" y2="310"/>
+                <line x1="518" y1="170" x2="518" y2="310"/><line x1="538" y1="170" x2="538" y2="310"/>
+              </g>
+            </g>
+
+            <!-- supply fan: housing + rotating blades + status ring -->
+            <g id="fanG" class="eqgrp" data-eq="fan">
+              <rect class="eqhl" x="572" y="158" width="150" height="164" rx="8" fill="none" stroke="#e8b552" stroke-width="2" opacity="0"/>
+              <circle cx="646" cy="240" r="66" fill="#0e1a2b" stroke="#2a3a58" stroke-width="3"/>
+              <circle cx="646" cy="240" r="66" fill="none" stroke="#e8b552" stroke-width="2.5" id="fanRing" opacity=".85" stroke-dasharray="2 6"/>
+              <g id="fanBlades" transform="translate(646 240)"></g>
+              <circle cx="646" cy="240" r="12" fill="#1a2740" stroke="#3a4d73" stroke-width="2"/>
+              <circle cx="646" cy="240" r="4" fill="#5b9de8"/>
+            </g>
+
+            <!-- indoor room supply diffuser -->
+            <g id="roomG" class="eqgrp" data-eq="room">
+              <rect class="eqhl" x="836" y="156" width="250" height="168" rx="10" fill="none" stroke="#3fd7c0" stroke-width="2" opacity="0"/>
+              <rect x="852" y="176" width="60" height="12" rx="3" fill="#123" stroke="#2c7a63" stroke-width="1.2"/>
+              <g stroke="#2c7a63" stroke-width="1.4" opacity=".6"><line x1="858" y1="176" x2="858" y2="188"/><line x1="870" y1="176" x2="870" y2="188"/><line x1="882" y1="176" x2="882" y2="188"/><line x1="894" y1="176" x2="894" y2="188"/><line x1="906" y1="176" x2="906" y2="188"/></g>
+            </g>
+          </svg>
+
+          <!-- z6: sensor nodes -->
+          <div class="twin-nodes" id="hvNodes"></div>
+          <div class="flash-line" id="hvFlash"></div>
+        </div>
+      </div>
+          <div class="twin-cap">외기 → 프리필터 → 냉/난방코일 → 급기팬 → 급기 · 실내 → 환기 리턴 &nbsp;·&nbsp; 실시간 센서 연동 &nbsp;·&nbsp; <span class="warnpill">⚠ 프리필터 차압 152Pa (임계 초과)</span></div>
           </div>
           <div class="hvac2-grid">
             <div class="hsens">
               <div class="hsens-h">현재 센서 데이터</div>
               <div class="hsens-list">
-                <div class="hsv"><span>외기온도</span><b>31.2°C</b></div>
-                <div class="hsv"><span>급기온도</span><b>23.8°C</b></div>
-                <div class="hsv"><span>환기온도</span><b>25.1°C</b></div>
-                <div class="hsv"><span>실내 온/습도</span><b>23.5°C·45%</b></div>
-                <div class="hsv"><span>냉방코일 출구</span><b>12.0°C</b></div>
-                <div class="hsv bad"><span>프리필터 차압</span><b>152Pa ⚠</b></div>
-                <div class="hsv"><span>급기팬 속도</span><b>78%</b></div>
-                <div class="hsv warn"><span>급기팬 전류</span><b>4.2A ↑</b></div>
+                <div class="hsv" data-eq="damper"><span>외기온도</span><b>31.2°C</b></div>
+                <div class="hsv" data-eq="supply"><span>급기온도</span><b>23.8°C</b></div>
+                <div class="hsv" data-eq="return"><span>환기온도</span><b>25.1°C</b></div>
+                <div class="hsv" data-eq="room"><span>실내 온/습도</span><b>23.5°C·45%</b></div>
+                <div class="hsv" data-eq="cool"><span>냉방코일 출구</span><b>12.0°C</b></div>
+                <div class="hsv bad" data-eq="filter"><span>프리필터 차압</span><b>152Pa ⚠</b></div>
+                <div class="hsv" data-eq="fan"><span>급기팬 속도</span><b>78%</b></div>
+                <div class="hsv warn" data-eq="fan"><span>급기팬 전류</span><b>4.2A ↑</b></div>
               </div>
             </div>
             <div class="ins-card hi hdiag">
               <div class="ins-h">AI 진단 &amp; 조치 · 프리필터</div>
-              <p><b>프리필터 차압 152Pa</b> — 임계 150Pa 초과, 막힘 진행(잔여수명 8%).</p>
+              <p><b class="clickable" id="hvDiagFilter">프리필터 차압 152Pa</b> — 임계 150Pa 초과, 막힘 진행(잔여수명 8%).</p>
               <div class="diag-row"><span>영향</span><b>급기 풍량 ↓ · 팬 전류 4.2A 상승</b></div>
               <div class="diag-act"><b>권고 조치</b> 프리필터 교체(D-3) · 교체 전 팬 정압 보정 · 차압 알람 유지</div>
               <div class="hopt"><span class="h2-chip cool">냉방밸브 60%·급기 12°C</span><span class="h2-chip">외기댐퍼 35%·외기냉방</span><span class="h2-chip save">에너지 17% 절감</span></div>
@@ -1526,7 +1618,7 @@
       </div>
       <div class="soldash-panel" id="soldash-scube">
         <div class="scube">
-          <div class="dash-top scube-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">통합관제 · 서울 9개 현장 · 진동·화재·정전·공조·보일러 예지보전</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
+          <div class="dash-top scube-top"><span class="dash-dots"><i></i><i></i><i></i></span><span class="dash-title">현장 통합관제 · 서울 9개 현장 · 진동·화재·정전·공조·보일러 예지보전</span><span class="dash-clock dash-mono"></span><span class="dash-live">LIVE</span></div>
           <div class="scube-body">
             <div class="scube-map">
               <div class="kmap-wrap seoul">
@@ -1572,18 +1664,21 @@
           </div>
         </div>
       </div>
-      <h2>센서 → AI 자동제어 구성도<span class="sub">Edge AI control architecture</span></h2>
-      <p class="lead sol-mini">센서 데이터가 AI 판단을 거쳐 설비를 자동 제어합니다. 엣지 게이트웨이는 서버 없이 현장 BMS에 직접 명령합니다.</p>
+      <h2>AI 자동제어<span class="sub">데이터 → 판단 → 실행 · Edge AI control</span></h2>
+      <p class="lead sol-mini">Monnit은 데이터를 보여주는 데서 멈추지 않습니다. AI가 이상을 스스로 판단하고, 엣지 게이트웨이가 서버를 거치지 않고 설비에 직접 명령을 내립니다. 센서 신호가 실제 제어 동작으로 이어지는 4단계 파이프라인을 살펴보세요.</p>
       <div class="ai-arch">
-        <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M8.3 8.3a5.2 5.2 0 0 0 0 7.4M5.6 5.6a9 9 0 0 0 0 12.8M15.7 8.3a5.2 5.2 0 0 1 0 7.4M18.4 5.6a9 9 0 0 1 0 12.8"/></svg></span><div><span class="ai-ln">L1 · SENSE</span><span class="ai-ld">설비 데이터 24시간 측정 · 온도·진동·전류·압력·가스</span></div></div><div class="ai-chips"><span>온도</span><span>진동</span><span>전류</span><span>누수</span><span>CO2</span><span>압력</span><span>Dry Contact</span></div></div>
+        <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M8.3 8.3a5.2 5.2 0 0 0 0 7.4M5.6 5.6a9 9 0 0 0 0 12.8M15.7 8.3a5.2 5.2 0 0 1 0 7.4M18.4 5.6a9 9 0 0 1 0 12.8"/></svg></span><div><span class="ai-ln">L1 · SENSE</span><span class="ai-ld">80종+ 무선 센서가 온도·진동·전류·압력·가스를 24시간 측정합니다. 배선 없이 부착만으로 데이터 수집이 시작됩니다.</span></div></div><div class="ai-chips"><span>온도</span><span>진동</span><span>전류</span><span>누수</span><span>CO2</span><span>압력</span><span>Dry Contact</span></div></div>
         <div class="ai-flow"><span class="ai-flow-dot"></span>FHSS 무선 · AES-128 암호화</div>
-        <div class="ai-layer edge"><div class="ai-lhead"><span class="ai-lic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7.5" y="7.5" width="9" height="9" rx="2"/><circle cx="12" cy="12" r="1.9" fill="currentColor" stroke="none"/><path d="M10 7.5V5M14 7.5V5M10 19v-2.5M14 19v-2.5M7.5 10H5M7.5 14H5M19 10h-2.5M19 14h-2.5"/></svg></span><div><span class="ai-ln">L2 · EDGE GATEWAY</span><span class="ai-ld">수집·암호화·로컬 룰 실행 · 서버 없이 현장 판단</span></div></div><div class="ai-chips"><span>게이트웨이</span><span>엣지 AI 엔진</span><span>로컬 룰</span><span>오프라인 버퍼</span></div><div class="ai-decision">임계 초과 → 즉시 BMS 명령 <em>&lt;200ms</em> (서버 통신 없이)</div></div>
+        <div class="ai-layer edge"><div class="ai-lhead"><span class="ai-lic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7.5" y="7.5" width="9" height="9" rx="2"/><circle cx="12" cy="12" r="1.9" fill="currentColor" stroke="none"/><path d="M10 7.5V5M14 7.5V5M10 19v-2.5M14 19v-2.5M7.5 10H5M7.5 14H5M19 10h-2.5M19 14h-2.5"/></svg></span><div><span class="ai-ln">L2 · EDGE GATEWAY</span><span class="ai-ld">센서 신호를 암호화·수집하고, 사전 설정한 임계값을 현장에서 즉시 판단합니다. 인터넷·정전 상황에도 로컬 룰이 계속 동작합니다.</span></div></div><div class="ai-chips"><span>게이트웨이</span><span>엣지 AI 엔진</span><span>로컬 룰</span><span>오프라인 버퍼</span></div><div class="ai-decision">임계 초과 → 즉시 BMS 명령 <em>&lt;200ms</em> (서버 통신 없이)</div></div>
         <div class="ai-flow"><span class="ai-flow-dot"></span>MQTT · REST API · Modbus / BACnet</div>
-        <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 18.5a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.4A3.6 3.6 0 0 1 16.5 18.5z"/><circle cx="11.8" cy="14" r="1.7"/><path d="M11.8 12v-.7M11.8 16.7V16M13.6 14h-.7M10.6 14h-.7"/></svg></span><div><span class="ai-ln">L3 · CLOUD</span><span class="ai-ld">ML 예지보전·이상 탐지·에너지 최적화 패턴 학습</span></div></div><div class="ai-chips"><span>AI 이상 탐지</span><span>ML 예지보전</span><span>에너지 최적화</span><span>패턴 학습</span></div><div class="ai-decision cloud">750억/일 학습 → 고장 <em>D-7~D-30</em> 사전 예측</div></div>
+        <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 18.5a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.4A3.6 3.6 0 0 1 16.5 18.5z"/><circle cx="11.8" cy="14" r="1.7"/><path d="M11.8 12v-.7M11.8 16.7V16M13.6 14h-.7M10.6 14h-.7"/></svg></span><div><span class="ai-ln">L3 · CLOUD</span><span class="ai-ld">하루 750억 건의 데이터를 학습해 설비별 정상 패턴을 모델링합니다. 베어링 마모·모터 고장 징후를 7~30일 전에 포착합니다.</span></div></div><div class="ai-chips"><span>AI 이상 탐지</span><span>ML 예지보전</span><span>에너지 최적화</span><span>패턴 학습</span></div><div class="ai-decision cloud">750억/일 학습 → 고장 <em>D-7~D-30</em> 사전 예측</div></div>
         <div class="ai-flow"><span class="ai-flow-dot"></span>자동 제어 명령 · 알림 발송</div>
-        <div class="ai-layer act"><div class="ai-lhead"><span class="ai-lic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h7M16 8h4"/><path d="M4 16h4M13 16h7"/><circle cx="13" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span><div><span class="ai-ln">L4 · ACTUATE & NOTIFY</span><span class="ai-ld">BMS·SCADA 자동제어 + 멀티채널 즉시 알림</span></div></div><div class="ai-chips"><span>BMS 연동</span><span>SCADA</span><span>액추에이터</span><span>SMS/Email</span><span>모바일</span><span>패트롤 출동</span></div></div>
+        <div class="ai-layer act"><div class="ai-lhead"><span class="ai-lic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h7M16 8h4"/><path d="M4 16h4M13 16h7"/><circle cx="13" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span><div><span class="ai-ln">L4 · ACTUATE & NOTIFY</span><span class="ai-ld">판단 결과를 BMS·SCADA에 자동 명령으로 전달하고, 동시에 담당자에게 SMS·전화·앱으로 통보합니다. 필요 시 패트롤 출동까지 연결됩니다.</span></div></div><div class="ai-chips"><span>BMS 연동</span><span>SCADA</span><span>액추에이터</span><span>SMS/Email</span><span>모바일</span><span>패트롤 출동</span></div></div>
       </div>
+      <p class="ai-edge-note">이 구조의 핵심은 <strong>엣지(Edge)</strong>입니다. 대부분의 IoT는 데이터를 클라우드로 보내 판단하지만, Monnit 엣지 게이트웨이는 현장에서 직접 판단해 <strong>200ms 안에</strong> 설비를 제어합니다. 인터넷이 끊겨도 제어는 멈추지 않고, 클라우드는 그 사이 쌓인 데이터를 학습해 다음 고장을 미리 예측합니다.</p>
 
+      <h2>핵심 역량<span class="sub">What sets Monnit apart</span></h2>
+      <p class="lead sol-mini">단순 모니터링을 넘어, 서버 없는 엣지 제어와 AI 예지보전으로 사고를 사전에 막습니다.</p>
       <div class="ai-feats">
         <div class="ai-feat"><span class="aif-ic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7.5A2.8 2.8 0 0 0 6.7 10 2.6 2.6 0 0 0 6 15a2.8 2.8 0 0 0 3.5 2M14.5 7.5A2.8 2.8 0 0 1 17.3 10 2.6 2.6 0 0 1 18 15a2.8 2.8 0 0 1-3.5 2M12 6.5v12"/></svg></span><h4>이상 탐지 · 예지보전</h4><p>진동·전류·온도 데이터의 패턴을 AI가 지속 학습. 베어링 마모, 임박한 모터 고장을 7–30일 전에 경고해 계획 정비를 가능하게 합니다.</p><span class="aif-badge"><i class="d ok"></i>LIVE · 750억/일 학습</span></div>
         <div class="ai-feat"><span class="aif-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13.5h5.2L9 21l8-11h-5.4z"/></svg></span><h4>엣지 자동제어</h4><p>클라우드 통신 없이 엣지 게이트웨이가 현장 판단. 임계값 도달 즉시 BMS·SCADA에 명령을 내려 200ms 이내 응답. 정전·네트워크 장애에도 제어 유지.</p><span class="aif-badge"><i class="d acc"></i>EDGE · 서버 불필요</span></div>
@@ -1591,6 +1686,8 @@
         <div class="ai-feat"><span class="aif-ic ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15a6 6 0 0 0-12 0l-1.6 2.4A.6.6 0 0 0 4.9 18h14.2a.6.6 0 0 0 .5-.6L18 15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><h4>멀티채널 즉시 알림</h4><p>SMS·이메일·전화·모바일 푸시·API 웹훅 — 조건 위반 즉시 담당자에게 전달. 알림 우선순위·수신자·에스컬레이션 경로를 자유롭게 설정.</p><span class="aif-badge"><i class="d warn"></i>ALERT · &lt;5초 발송</span></div>
       </div>
 
+      <h2>AI 판단 로그<span class="sub">AI decision log · live</span></h2>
+      <p class="lead sol-mini">플랫폼이 실시간으로 내리는 판단과 자동 제어 동작을 그대로 보여줍니다.</p>
       <div class="ai-log" id="aiLog"><div class="ai-log-h">AI DECISION LOG — LIVE</div></div>
 
       <div style="margin-top:36px;"><button class="cta-primary" data-nav="applications">산업별 적용 사례 보기</button></div>
@@ -2091,6 +2188,260 @@
   }
   function init(){ pick('wizFac',function(v){fac=v}); pick('wizCon',function(v){con=v}); bindLead(); }
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+
+<!-- HVAC 디지털 트윈 스크립트 (솔루션 HVAC 예지보전 중앙 구성도) -->
+<script>
+(function(){
+  'use strict';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W=1120, H=440;
+
+  /* ---------- optional image asset slots (path + placement in 1120x440 space) ---------- */
+  var ASSET_SLOTS = [
+    {file:'ahu_frame.webp',        x:72,  y:150, w:694, h:180, z:0},
+    {file:'return_air_duct.webp',  x:210, y:60,  w:690, h:26,  z:0},
+    {file:'damper_frame.webp',     x:92,  y:162, w:108, h:156, z:1},
+    {file:'prefilter_clogged.webp',x:220, y:168, w:100, h:144, z:1},
+    {file:'cooling_coil_body.webp',x:336, y:164, w:112, h:152, z:1},
+    {file:'cooling_coil_glow.webp',x:336, y:164, w:112, h:152, z:2, id:'imgCoolGlow'},
+    {file:'heating_coil_body.webp',x:462, y:170, w:94,  h:140, z:1},
+    {file:'heating_coil_glow.webp',x:462, y:170, w:94,  h:140, z:2, id:'imgHeatGlow', o:0},
+    {file:'fan_housing.webp',      x:580, y:174, w:132, h:132, z:1},
+    {file:'indoor_room.webp',      x:840, y:160, w:242, h:160, z:1}
+  ];
+  var assetsEl = document.getElementById('hvAssets');
+  ASSET_SLOTS.forEach(function(s){
+    var img = new Image();
+    img.className='hvac-asset'; if(s.id) img.id=s.id;
+    img.style.left=(s.x/W*100)+'%'; img.style.top=(s.y/H*100)+'%';
+    img.style.width=(s.w/W*100)+'%'; img.style.height=(s.h/H*100)+'%';
+    if(s.o!=null) img.style.opacity=s.o;
+    img.onload=function(){ img.classList.add('ok'); };
+    img.onerror=function(){ /* keep SVG fallback, no broken icon */ };
+    img.src='assets/hvac/'+s.file;
+    assetsEl.appendChild(img);
+  });
+
+  /* ---------- damper blades (35% open) ---------- */
+  (function(){
+    var g=document.getElementById('damperBlades'); if(!g) return;
+    var open=0.35, ang=(1-open)*78; // 0%→~78° (closed/flat), 100%→0° (open along flow)
+    var ns='http://www.w3.org/2000/svg';
+    for(var i=-3;i<=3;i++){
+      var bl=document.createElementNS(ns,'rect');
+      bl.setAttribute('x',-26); bl.setAttribute('y',i*22-4);
+      bl.setAttribute('width',52); bl.setAttribute('height',9); bl.setAttribute('rx',3);
+      bl.setAttribute('fill','#2a3a58'); bl.setAttribute('stroke','#43597f'); bl.setAttribute('stroke-width','1.2');
+      bl.setAttribute('transform','rotate('+ang+' 0 '+(i*22)+')');
+      g.appendChild(bl);
+    }
+  })();
+
+  /* ---------- fan blades ---------- */
+  (function(){
+    var g=document.getElementById('fanBlades'); if(!g) return;
+    var ns='http://www.w3.org/2000/svg';
+    for(var i=0;i<9;i++){
+      var p=document.createElementNS(ns,'path');
+      p.setAttribute('d','M0 0 C 20 -10 40 -30 30 -52 C 22 -34 8 -14 0 0 Z');
+      p.setAttribute('fill', i%2? '#33456a':'#3d5480');
+      p.setAttribute('opacity','.92');
+      p.setAttribute('transform','rotate('+(i*40)+')');
+      g.appendChild(p);
+    }
+  })();
+
+  /* ---------- sensor nodes ---------- */
+  var NODES=[
+    {x:44, y:245, s:'ok',  eq:'damper', k:'외기온도',     v:'31.2°C'},
+    {x:270,y:150, s:'bad', eq:'filter', k:'프리필터 차압', v:'152 Pa ⚠'},
+    {x:392,y:300, s:'ok',  eq:'cool',   k:'냉방코일 출구', v:'12.0°C'},
+    {x:646,y:168, s:'ok',  eq:'fan',    k:'급기팬 속도',   v:'78%'},
+    {x:700,y:300, s:'warn',eq:'fan',    k:'급기팬 전류',   v:'4.2 A ↑'},
+    {x:800,y:240, s:'ok',  eq:'supply', k:'급기온도',     v:'23.8°C'},
+    {x:555,y:72,  s:'ok',  eq:'return', k:'환기온도',     v:'25.1°C'},
+    {x:961,y:245, s:'ok',  eq:'room',   k:'실내 온/습도', v:'23.5°C · 45%'}
+  ];
+  var nodesEl=document.getElementById('hvNodes');
+  NODES.forEach(function(n){
+    var d=document.createElement('div');
+    d.className='snode '+n.s; d.dataset.eq=n.eq;
+    d.style.left=(n.x/W*100)+'%'; d.style.top=(n.y/H*100)+'%';
+    d.innerHTML='<span class="ring"></span><span class="dot"></span>'+
+      '<span class="tip"><b>'+n.k+'</b><span class="v">'+n.v+'</span></span>';
+    nodesEl.appendChild(d);
+  });
+
+  /* ---------- particle system (canvas) ---------- */
+  var cv=document.getElementById('hvPcv'), ctx=cv.getContext('2d');
+  var DPR=Math.min(window.devicePixelRatio||1, 2);
+  function sizeCanvas(){ cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  sizeCanvas();
+
+  // color anchors along x for supply air
+  var ANCH=[
+    {x:90, c:[120,135,158]},   // 외기 회청
+    {x:270,c:[150,196,224]},   // 필터 옅은청
+    {x:392,c:[86,168,255]},    // 냉방 후 밝은파랑
+    {x:560,c:[86,168,255]},    // 난방 대기 → 유지
+    {x:700,c:[60,216,196]},    // 팬 후 청록
+    {x:900,c:[128,240,192]}    // 실내 민트
+  ];
+  function colAt(x){
+    if(x<=ANCH[0].x) return ANCH[0].c;
+    for(var i=1;i<ANCH.length;i++){
+      if(x<=ANCH[i].x){
+        var a=ANCH[i-1],b=ANCH[i],t=(x-a.x)/(b.x-a.x);
+        return [a.c[0]+(b.c[0]-a.c[0])*t, a.c[1]+(b.c[1]-a.c[1])*t, a.c[2]+(b.c[2]-a.c[2])*t];
+      }
+    }
+    return ANCH[ANCH.length-1].c;
+  }
+  function rnd(a,b){ return a+(b-a)*(((Math.sin(seed++*12.9898)*43758.5453)%1+1)%1); }
+  var seed=7.13;
+
+  var supply=[], ret=[];
+  var NS = reduce? 34 : 82, NR = reduce? 10 : 26;
+  for(var i=0;i<NS;i++) supply.push(newSupply(true));
+  for(var j=0;j<NR;j++) ret.push(newRet(true));
+
+  function newSupply(init){
+    return { x: init? rnd(90,900): 90, y: 240 + rnd(-46,46),
+      r: rnd(1.1,2.8), sp: rnd(.5,1.0), a: rnd(.25,.7), vy: 0 };
+  }
+  function newRet(init){
+    return { x: init? rnd(230,880):880, y: 71 + rnd(-5,5), r: rnd(1,2.2), sp: rnd(.25,.5), a: rnd(.15,.4) };
+  }
+
+  function speedFactor(x){
+    if(x>=214 && x<=326) return 0.5;   // clogged filter slows air
+    if(x>700) return 1.25;             // after fan faster
+    return 1;
+  }
+
+  var t=0;
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    // supply
+    for(var i=0;i<supply.length;i++){
+      var p=supply[i];
+      p.x += p.sp*speedFactor(p.x)*1.4;
+      if(p.x>824){ // enter room: spread + drift + fade
+        p.vy += (p.y<240?0.02:-0.02)*0 + rnd(-.05,.05);
+        p.y += (p.x-824)*0.006* (p.y<240?-1:1) + p.vy;
+      }
+      if(p.x>1060 || p.y<150 || p.y>330){ supply[i]=newSupply(false); continue; }
+      var c=colAt(p.x);
+      var glow=(p.x>824)?1.4:1;
+      ctx.beginPath();
+      ctx.fillStyle='rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+p.a+')';
+      ctx.arc(p.x,p.y,p.r*glow,0,6.283); ctx.fill();
+    }
+    // return (top duct, slow purple-gray, right→left)
+    for(var k=0;k<ret.length;k++){
+      var q=ret[k];
+      q.x -= q.sp*1.2;
+      if(q.x<215){ ret[k]=newRet(false); continue; }
+      ctx.beginPath();
+      ctx.fillStyle='rgba(150,140,178,'+q.a+')';
+      ctx.arc(q.x,q.y,q.r,0,6.283); ctx.fill();
+    }
+    t++;
+    if(!reduce) raf=requestAnimationFrame(frame);
+  }
+  var raf;
+  if(reduce){ frame(); } else { raf=requestAnimationFrame(frame); }
+
+  /* ---------- fan rotation + cooling flow + warning pulses ---------- */
+  var fan=document.getElementById('fanBlades');
+  var coolFlow=document.getElementById('coolFlow');
+  var coolGlow=document.getElementById('coolGlow');
+  var imgCoolGlow=document.getElementById('imgCoolGlow');
+  var fanRing=document.getElementById('fanRing');
+  var filterGlow=document.getElementById('filterGlow');
+  var filterWarn=document.getElementById('filterWarn');
+  var fanG=document.getElementById('fanG');
+  var ang=0, ringDash=0, ft=0;
+  var fanBaseSpeed = 78/100 * 3.4; // deg per frame baseline for 78%
+
+  function eqLoop(ts){
+    ft++;
+    // fan: heavy industrial spin with gentle speed wobble + micro-vibration
+    var wobble = 1 + Math.sin(ft*0.012)*0.06;
+    ang = (ang + (reduce?0:fanBaseSpeed*wobble)) % 360;
+    if(fan) fan.setAttribute('transform','translate(646 240) rotate('+ang+')');
+    // micro vibration (elevated current)
+    if(fanG && !reduce){
+      var vx=Math.sin(ft*0.9)*0.5, vy=Math.cos(ft*1.1)*0.4;
+      fanG.setAttribute('transform','translate('+vx.toFixed(2)+' '+vy.toFixed(2)+')');
+    }
+    // status ring slow rotation
+    if(fanRing && !reduce){ ringDash=(ringDash+0.4)%8; fanRing.setAttribute('stroke-dashoffset', ringDash); }
+    // cooling coil upward flow
+    if(coolFlow){ var yy=316 - ((ft*0.9)%160); coolFlow.setAttribute('y', yy); }
+    // cool glow pulse (valve 60%)
+    var cg=0.4 + 0.18*(0.5+0.5*Math.sin(ft*0.03));
+    if(coolGlow) coolGlow.setAttribute('opacity', cg.toFixed(3));
+    if(imgCoolGlow && imgCoolGlow.classList.contains('ok')) imgCoolGlow.style.opacity=(0.55+0.25*(0.5+0.5*Math.sin(ft*0.03))).toFixed(3);
+    // filter warning gentle pulse (2.5s)
+    if(filterGlow){ var fg=0.18+0.22*(0.5+0.5*Math.sin(ft*0.02513)); filterGlow.setAttribute('opacity',fg.toFixed(3)); }
+    if(filterWarn && !reduce){ var fy=150+Math.sin(ft*0.03)*4; filterWarn.setAttribute('transform','translate(270 '+fy.toFixed(2)+')'); }
+    if(!reduce) requestAnimationFrame(eqLoop);
+  }
+  if(reduce){ eqLoop(); } else { requestAnimationFrame(eqLoop); }
+
+  /* ---------- two-way highlight linking ---------- */
+  function eqGroups(eq){
+    return Array.prototype.slice.call(document.querySelectorAll('.eqgrp[data-eq="'+eq+'"]'));
+  }
+  function setHL(eq,on){
+    document.querySelectorAll('.eqgrp[data-eq="'+eq+'"]').forEach(function(g){ g.classList.toggle('hl',on); });
+    document.querySelectorAll('#soldash-hvac .hsv[data-eq="'+eq+'"]').forEach(function(c){ c.classList.toggle('hl',on); });
+    document.querySelectorAll('.snode[data-eq="'+eq+'"]').forEach(function(nd){ nd.classList.toggle('pin',on); });
+  }
+  // data cards → equipment
+  document.querySelectorAll('#soldash-hvac .hsv[data-eq]').forEach(function(c){
+    var eq=c.dataset.eq;
+    c.addEventListener('mouseenter',function(){ setHL(eq,true); });
+    c.addEventListener('mouseleave',function(){ setHL(eq,false); });
+  });
+  // equipment (nodes / groups) → cards. Use nodes (they have pointer events)
+  document.querySelectorAll('.snode[data-eq]').forEach(function(nd){
+    var eq=nd.dataset.eq;
+    nd.addEventListener('mouseenter',function(){ setHL(eq,true); });
+    nd.addEventListener('mouseleave',function(){ setHL(eq,false); });
+    nd.addEventListener('click',function(){ setHL(eq,true); setTimeout(function(){ setHL(eq,false); },1800); });
+  });
+
+  /* ---------- AI diagnosis → filter focus + connector flash ---------- */
+  var diagFilter=document.getElementById('hvDiagFilter');
+  var flash=document.getElementById('hvFlash');
+  var stage=document.getElementById('hvStage');
+  if(diagFilter){
+    diagFilter.addEventListener('click',function(){
+      setHL('filter',true);
+      // draw connector from AI card up to filter node
+      var srect=stage.getBoundingClientRect();
+      var frect=diagFilter.getBoundingClientRect();
+      // filter node is at (270,150) in 1120x440
+      var fx=srect.left + 270/W*srect.width, fy=srect.top + 150/H*srect.height;
+      var ox=frect.left+frect.width/2, oy=frect.top;
+      var dx=ox-fx, dy=oy-fy, len=Math.sqrt(dx*dx+dy*dy), a=Math.atan2(dy,dx)*180/Math.PI;
+      flash.style.left=(fx-srect.left)+'px'; flash.style.top=(fy-srect.top)+'px';
+      flash.style.width=len+'px'; flash.style.transform='rotate('+a+'deg)';
+      flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
+      setTimeout(function(){ setHL('filter',false); },1900);
+    });
+  }
+
+  /* ---------- clock ---------- */
+  function tick(){
+    var d=new Date(); function p(n){return (n<10?'0':'')+n;}
+    var el=document.getElementById('clk'); if(el) el.textContent=p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  }
+  tick(); setInterval(tick,1000);
 })();
 </script>
 </body>

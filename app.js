@@ -3615,6 +3615,30 @@ async function boot() {
 }
 boot();
 
+/* ===== 블로그 인사이트: 터치 기기에서 탭하면 오버레이 표시(레이오버), '자세히 보기'는 이동 ===== */
+(function(){
+  const isTouch = () => window.matchMedia && window.matchMedia('(hover: none)').matches;
+  document.addEventListener('click', function(e){
+    if (!isTouch()) return;
+    const card = e.target.closest && e.target.closest('.blog-card.has-insight');
+    if (!card) {
+      // 카드 밖 탭 → 열린 오버레이 닫기
+      document.querySelectorAll('.blog-card.has-insight.insight-open').forEach(c=>c.classList.remove('insight-open'));
+      return;
+    }
+    const onLink = e.target.closest('.blog-insight .b-link');
+    if (card.classList.contains('insight-open')) {
+      if (onLink) return;                 // 요약 안의 '자세히 보기 →' → 링크 이동 허용
+      e.preventDefault(); e.stopPropagation();
+      card.classList.remove('insight-open');   // 다시 탭하면 닫힘
+    } else {
+      e.preventDefault(); e.stopPropagation();  // 첫 탭: 링크 이동 막고 오버레이 열기
+      document.querySelectorAll('.blog-card.has-insight.insight-open').forEach(c=>c.classList.remove('insight-open'));
+      card.classList.add('insight-open');
+    }
+  }, true);
+})();
+
 /* ===== scroll reveal (fade-up) — fails open (all visible) on any error ===== */
 (function(){
   try {
