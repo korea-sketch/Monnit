@@ -1799,7 +1799,7 @@
   "케이싱 표면": "Casing surface",
   "주파수": "Frequency",
   "회전수": "RPM",
-  "AI 진단 · ISO 20826-3": "AI Diagnosis · ISO 20826-3",
+  "AI 진단 · ISO 20816-3": "AI Diagnosis · ISO 20816-3",
   "검출 항목": "Detected Items",
   "종합 위험도": "Overall Risk",
   "불균형": "Imbalance",

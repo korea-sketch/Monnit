@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Monnit Korea build v73 · 2026-07-15 · v72 기반 · 진동차트에서 온도·주파수 라인 제거 (Crest Factor X/Y/Z 스파이크만 유지) -->
+<!-- Monnit Korea build v79 · 2026-07-16 · v78 기반 · 모터 센서 포인트 맥박(하트비트) 애니메이션(퍼지는 링+박동) 추가 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -39,7 +39,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=73">
+<link rel="stylesheet" href="style.css?v=79">
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
@@ -98,7 +98,7 @@
 <!-- ========== TOP NAV ========== -->
 <nav class="topnav">
   <div class="topnav-inner">
-    <a class="brand" data-nav="home"><img class="brand-logo" src="images/img-01.png" alt="Monnit"><span class="brand-kr">KOREA</span></a>
+    <a class="brand" data-nav="home"><img class="brand-logo" src="images/img-01.png" alt="Monnit"></a>
     <ul class="nav-links" id="navLinks">
       <li class="nav-item">
         <button class="nav-link has-caret">About us</button>
@@ -154,6 +154,15 @@
     </ul>
     <button class="nav-promo-btn" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button>
     <button class="nav-cta" data-nav="contact">상담 신청</button>
+    <div class="nav-search" id="navSearch">
+      <button class="nav-search-btn" id="navSearchBtn" type="button" aria-label="사이트 검색" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></button>
+      <div class="nav-search-box" id="navSearchBox">
+        <svg class="nav-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input type="text" id="siteSearch" class="nav-search-input" placeholder="검색…" autocomplete="off" spellcheck="false" aria-label="사이트 검색">
+        <button class="nav-search-clear" id="siteSearchClear" type="button" aria-label="지우기">&times;</button>
+        <div class="nav-search-panel" id="siteSearchPanel" role="listbox"></div>
+      </div>
+    </div>
     <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
   </div>
 </nav>
@@ -1367,10 +1376,10 @@
                     <rect x="222" y="92" width="86" height="34" rx="9" fill="#3C476A"/>
                     <circle cx="360" cy="177" r="58" fill="#2C3654"/><circle cx="360" cy="177" r="34" fill="#222B45"/>
                     <rect x="404" y="166" width="74" height="24" rx="8" fill="#2C3654"/>
-                    <g class="vx-dot bad"><circle cx="133" cy="150" r="17"/><svg x="124" y="141" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></g>
-                    <g class="vx-dot warn"><circle cx="265" cy="108" r="17"/><svg x="256" y="99" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="17" r="2.5" fill="#fff" stroke="none"/><path d="M12 3v11" stroke="#fff" stroke-width="2.4"/></svg></g>
-                    <g class="vx-dot ok"><circle cx="255" cy="200" r="17"/><svg x="246" y="191" width="18" height="18" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></g>
-                    <g class="vx-dot bad sm"><circle cx="430" cy="135" r="15"/><svg x="422" y="127" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></g>
+                    <g class="vx-dot bad" data-si="0" tabindex="0" role="button" aria-label="구동측 베어링 센서"><circle class="vx-ping" cx="133" cy="150" r="17"/><circle class="vx-node" cx="133" cy="150" r="17"/><svg x="124" y="141" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></g>
+                    <g class="vx-dot warn" data-si="1" tabindex="0" role="button" aria-label="고정자 권선 센서"><circle class="vx-ping" cx="265" cy="108" r="17"/><circle class="vx-node" cx="265" cy="108" r="17"/><svg x="256" y="99" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="17" r="2.5" fill="#fff" stroke="none"/><path d="M12 3v11" stroke="#fff" stroke-width="2.4"/></svg></g>
+                    <g class="vx-dot ok" data-si="2" tabindex="0" role="button" aria-label="전류 전력 센서"><circle class="vx-ping" cx="255" cy="200" r="17"/><circle class="vx-node" cx="255" cy="200" r="17"/><svg x="246" y="191" width="18" height="18" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></g>
+                    <g class="vx-dot bad sm" data-si="3" tabindex="0" role="button" aria-label="부하측 베어링 센서"><circle class="vx-ping" cx="430" cy="135" r="15"/><circle class="vx-node" cx="430" cy="135" r="15"/><svg x="422" y="127" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 4 12 2-6h7"/></svg></g>
                   </svg>
                   <div class="vx-live">
                     <span class="vx-live-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18a6 6 0 0 0 0-12M12 22a10 10 0 0 0 0-20"/><circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
@@ -1387,7 +1396,7 @@
               </div>
 
               <div class="vx-card vx-diag">
-                <div class="vx-card-h">AI 진단 · ISO 20826-3<div class="vx-seg"><button class="active" type="button">Day</button><button type="button">Week</button><button type="button">Month</button></div></div>
+                <div class="vx-card-h">AI 진단 · ISO 20816-3<div class="vx-seg"><button class="active" type="button">Day</button><button type="button">Week</button><button type="button">Month</button></div></div>
                 <div class="vx-diag-top">
                   <div class="vx-donut-wrap">
                     <svg class="vx-donut" viewBox="0 0 140 140">
@@ -2464,10 +2473,198 @@
   </div>
 </footer>
 
-<script src="data.js?v=73"></script>
-  <script src="app.js?v=73"></script>
-  <script src="i18n.js?v=73"></script>
-  <script>console.log('%cMonnit Korea build v73 · 2026-07-15','color:#3fd7c0');</script>
+<script src="data.js?v=79"></script>
+  <script src="app.js?v=79"></script>
+  <script src="i18n.js?v=79"></script>
+  <script>console.log('%cMonnit Korea build v79 · 2026-07-16','color:#3fd7c0');</script>
+
+<script>
+/* ===== 사이트 검색 (헤더) — 페이지·제품·활용사례·도입사례 통합 검색 ===== */
+(function(){
+  var wrap=document.getElementById('navSearch'); if(!wrap) return;
+  var input=document.getElementById('siteSearch');
+  var panel=document.getElementById('siteSearchPanel');
+  var clearBtn=document.getElementById('siteSearchClear');
+  var openBtn=document.getElementById('navSearchBtn');
+  if(!input||!panel) return;
+
+  var IC={
+    page:'<path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v6h6"/>',
+    product:'<path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 22V12"/>',
+    app:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    cas:'<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="m9 14 2 2 4-4"/>'
+  };
+  function svg(k){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(IC[k]||IC.page)+'</svg>'; }
+
+  var PAGES=[
+    {t:'회사 소개',sub:'Who we are · 몬닛 코리아',kw:'회사소개 about who we are monnit 몬닛 코리아 소개',nav:'who-we-are'},
+    {t:'솔루션',sub:'Our Solution · HVAC 디지털 트윈 · 예지보전',kw:'솔루션 solution hvac 디지털트윈 예지보전 진동 crest factor 통합관제',nav:'our-solution'},
+    {t:'사업 영역',sub:'What we do',kw:'사업영역 what we do 서비스',nav:'what-we-do'},
+    {t:'수상 내역',sub:'Awards · 인증',kw:'수상 award 인증 certification',nav:'awards'},
+    {t:'전체 제품',sub:'All Products · 센서·게이트웨이·SW',kw:'제품 products 센서 게이트웨이 소프트웨어 액세서리',nav:'products'},
+    {t:'도입 사례',sub:'Case Studies',kw:'도입사례 case study 고객 레퍼런스',nav:'stories'},
+    {t:'활용 사례',sub:'Applications · 산업별 활용',kw:'활용사례 application 산업 애플리케이션',nav:'applications'},
+    {t:'파트너',sub:'Partners',kw:'파트너 partners 협력',nav:'partners'},
+    {t:'블로그',sub:'Blog',kw:'블로그 blog 소식',nav:'blog'},
+    {t:'뉴스레터',sub:'Newsletter',kw:'뉴스레터 newsletter',nav:'newsletter'},
+    {t:'산업별 제안서',sub:'Proposal · Whitepaper',kw:'제안서 백서 proposal whitepaper 자료',nav:'whitepaper'},
+    {t:'문의하기',sub:'Contact Us · 상담 신청',kw:'문의 상담 contact 연락 견적',nav:'contact'},
+    {t:'자주 묻는 질문',sub:'FAQs',kw:'faq 질문 자주묻는 궁금',nav:'faqs'},
+    {t:'기술 지원',sub:'Tech Support',kw:'기술지원 support guides 설치 가이드',nav:'guides'},
+    {t:'기술 문서',sub:'Knowledgebase',kw:'기술문서 knowledgebase kb 문서 매뉴얼',nav:'knowledgebase'},
+    {t:'프로모션',sub:'Promotions · 이벤트',kw:'프로모션 promotion 할인 이벤트',nav:'promotions'}
+  ];
+
+  function stripTags(s){ return (s||'').replace(/<[^>]+>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim(); }
+  function buildIndex(){
+    var idx=[];
+    PAGES.forEach(function(p){ idx.push({t:p.t,sub:p.sub,kw:(p.kw||'')+' '+p.sub,type:'페이지',ic:'page',act:function(){ navigate(p.nav); }}); });
+    try{ if(typeof PRODUCT_CATS!=='undefined'&&PRODUCT_CATS){ PRODUCT_CATS.forEach(function(c){ idx.push({t:c.ko,sub:'제품 카테고리',kw:c.id+' 제품',type:'제품',ic:'product',act:function(){ goToProductCat(c.id); }}); }); } }catch(e){}
+    try{ if(typeof PRODUCTS!=='undefined'&&PRODUCTS){ PRODUCTS.forEach(function(p){ idx.push({t:p.n,sub:stripTags(p.d),kw:(p.c+' '+(p.g||'')+' '+p.d),type:'제품',ic:'product',act:function(){ goToProductCat(p.c); }}); }); } }catch(e){}
+    try{ if(typeof APPS!=='undefined'&&APPS){ APPS.forEach(function(a){ idx.push({t:a.name,sub:stripTags(a.desc),kw:(a.cat+' '+(a.sensors||'')+' '+a.desc),type:'활용',ic:'app',act:function(){ navigate('app/'+a.id); }}); }); } }catch(e){}
+    try{ if(typeof CASE_DATA!=='undefined'&&CASE_DATA){ Object.keys(CASE_DATA).forEach(function(id){ var c=CASE_DATA[id]; if(!c) return; idx.push({t:stripTags(c.name||c.title||id),sub:stripTags((c.industry?c.industry+' · ':'')+(c.tagline||c.title||'')),kw:stripTags((c.name||'')+' '+(c.title||'')+' '+(c.industry||'')+' '+(c.tagline||'')),type:'사례',ic:'cas',act:function(){ navigate('case/'+id); }}); }); } }catch(e){}
+    return idx;
+  }
+
+  function norm(s){ return (s||'').toString().toLowerCase().replace(/\s+/g,' ').trim(); }
+  function score(it,q){
+    var t=norm(it.t), sub=norm(it.sub), kw=norm(it.kw);
+    if(t===q) return 100;
+    if(t.indexOf(q)===0) return 82;
+    if(t.indexOf(q)>=0) return 64;
+    if(sub.indexOf(q)>=0) return 42;
+    if(kw.indexOf(q)>=0) return 26;
+    return 0;
+  }
+  function hi(text,q){
+    var t=text||'', lt=t.toLowerCase(), i=lt.indexOf(q);
+    if(i<0||!q) return esc(t);
+    return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length));
+  }
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  var results=[], activeIdx=-1;
+  var TYPE_ORDER={'페이지':0,'제품':1,'활용':2,'사례':3};
+  var TYPE_COLOR={'페이지':'#4A82C4','제품':'#17C6D8','활용':'#9B7CF2','사례':'#F2A63A'};
+  function shorten(s,n){ s=(s||'').trim(); if(s.length<=n) return s; return s.slice(0,n).replace(/[\s,·。.\-]+$/,'')+'…'; }
+
+  function runQuery(q){
+    q=norm(q);
+    if(!q){ results=[]; wrap.classList.remove('show-results'); panel.innerHTML=''; return; }
+    var idx=buildIndex(), scored=[];
+    for(var i=0;i<idx.length;i++){ var s=score(idx[i],q); if(s>0) scored.push({it:idx[i],s:s}); }
+    scored.sort(function(a,b){ if(b.s!==a.s) return b.s-a.s; return (TYPE_ORDER[a.it.type]||9)-(TYPE_ORDER[b.it.type]||9); });
+    results=scored.slice(0,10).map(function(x){ return x.it; });
+    activeIdx=-1;
+    renderPanel(q);
+  }
+  function renderPanel(q){
+    if(!results.length){ panel.innerHTML='<div class="ss-empty">‘'+esc(q)+'’에 대한 결과가 없습니다.</div>'; wrap.classList.add('show-results'); return; }
+    var html='';
+    results.forEach(function(it,i){
+      var tc=TYPE_COLOR[it.type]||'#4A82C4';
+      html+='<button type="button" class="ss-item'+(i===activeIdx?' active':'')+'" data-i="'+i+'" role="option" style="--tc:'+tc+'">'
+          +'<span class="ss-item-ico">'+svg(it.ic)+'</span>'
+          +'<span class="ss-item-tx"><span class="ss-item-t">'+hi(it.t,q)+'</span>'+(it.sub?'<span class="ss-item-s">'+esc(shorten(it.sub,24))+'</span>':'')+'</span>'
+          +'<span class="ss-item-tag">'+esc(it.type)+'</span></button>';
+    });
+    panel.innerHTML=html;
+    wrap.classList.add('show-results');
+    panel.querySelectorAll('.ss-item').forEach(function(btn){
+      btn.addEventListener('mousedown', function(e){ e.preventDefault(); go(+btn.dataset.i); });
+    });
+  }
+  function go(i){
+    var it=results[i]; if(!it) return;
+    closeAll(); input.value=''; wrap.classList.remove('has-q');
+    try{ it.act(); }catch(e){}
+  }
+  function closeAll(){ wrap.classList.remove('show-results'); wrap.classList.remove('m-open'); if(openBtn) openBtn.setAttribute('aria-expanded','false'); }
+  function setActive(n){
+    if(!results.length) return;
+    activeIdx=(n+results.length)%results.length;
+    var items=panel.querySelectorAll('.ss-item');
+    items.forEach(function(el,j){ el.classList.toggle('active', j===activeIdx); });
+    var cur=items[activeIdx]; if(cur) cur.scrollIntoView({block:'nearest'});
+  }
+
+  input.addEventListener('input', function(){
+    wrap.classList.toggle('has-q', !!input.value);
+    runQuery(input.value);
+  });
+  input.addEventListener('focus', function(){ if(input.value){ runQuery(input.value); } });
+  input.addEventListener('keydown', function(e){
+    if(e.key==='ArrowDown'){ e.preventDefault(); setActive(activeIdx+1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); setActive(activeIdx-1); }
+    else if(e.key==='Enter'){ if(results.length){ e.preventDefault(); go(activeIdx>=0?activeIdx:0); } }
+    else if(e.key==='Escape'){ input.value=''; wrap.classList.remove('has-q'); closeAll(); input.blur(); }
+  });
+  clearBtn.addEventListener('click', function(){ input.value=''; wrap.classList.remove('has-q'); runQuery(''); input.focus(); });
+  if(openBtn){ openBtn.addEventListener('click', function(){
+    var open=wrap.classList.toggle('m-open'); openBtn.setAttribute('aria-expanded', open?'true':'false');
+    if(open){ setTimeout(function(){ input.focus(); }, 30); } else { wrap.classList.remove('show-results'); }
+  }); }
+  document.addEventListener('click', function(e){ if(!wrap.contains(e.target)){ closeAll(); } });
+})();
+</script>
+
+<script>
+/* ===== 모터 센서 포인트 호버 툴팁 (솔루션 진동 대시보드) ===== */
+(function(){
+  var stage=document.querySelector('#soldash-vib .vx-stage'); if(!stage) return;
+  var dots=stage.querySelectorAll('.vx-motor .vx-dot'); if(!dots.length) return;
+
+  var SENSORS=[
+    {name:'구동측 베어링',id:'DE-01',st:'bad', m:[{l:'진동속도',b:4.62,u:'mm/s',d:2,j:0.16},{l:'베어링 온도',b:73,u:'°C',d:0,j:0.6}]},
+    {name:'고정자 권선',  id:'WT-02',st:'warn',m:[{l:'권선 온도',b:78,u:'°C',d:0,j:0.7},{l:'진동속도',b:2.14,u:'mm/s',d:2,j:0.1}]},
+    {name:'전류·전력',    id:'CT-03',st:'ok',  m:[{l:'전류',b:12.5,u:'A',d:1,j:0.22},{l:'역률(PF)',b:0.92,u:'',d:2,j:0.012}]},
+    {name:'부하측 베어링',id:'NDE-04',st:'bad',m:[{l:'진동속도',b:5.08,u:'mm/s',d:2,j:0.18},{l:'케이싱 온도',b:68,u:'°C',d:0,j:0.5}]}
+  ];
+  var STLABEL={ok:'정상',warn:'경고',bad:'위험'};
+  function rnd(a,b){ return a+Math.random()*(b-a); }
+  var cvals=SENSORS.map(function(s){ return s.m.map(function(m){ return m.b; }); });
+
+  var tip=document.createElement('div'); tip.className='vx-tip'; stage.appendChild(tip);
+  var cur=-1;
+
+  function fmt(m,v){ return v.toFixed(m.d)+(m.u?(' '+m.u):''); }
+  function render(i){
+    var s=SENSORS[i]; if(!s) return;
+    var rows=s.m.map(function(m,mi){ var vc=(mi===0?(s.st==='bad'?' bad':s.st==='warn'?' warn':''):''); return '<div class="vx-tip-row"><span>'+m.l+'</span><b class="'+vc.trim()+'">'+fmt(m,cvals[i][mi])+'</b></div>'; }).join('');
+    tip.innerHTML='<div class="vx-tip-h vx-tip-'+s.st+'"><span class="vx-tip-name">'+s.name+'</span><span class="vx-tip-badge">'+STLABEL[s.st]+'</span></div>'
+      +'<div class="vx-tip-id">Sensor ID: '+s.id+'</div>'+rows;
+  }
+  function place(g){
+    var el=g.querySelector('.vx-node')||g.querySelector('circle')||g;
+    var r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+    var cx=r.left+r.width/2-sr.left, cy=r.top-sr.top;
+    tip.style.left=cx+'px'; tip.style.top='0px'; tip.classList.remove('flip');
+    var th=tip.offsetHeight, tw=tip.offsetWidth, top=cy-th-12, flip=false;
+    if(top<4){ top=(r.bottom-sr.top)+12; flip=true; }
+    var half=tw/2, lx=Math.max(half+6, Math.min(sr.width-half-6, cx));
+    tip.style.left=lx+'px'; tip.style.top=top+'px'; tip.classList.toggle('flip',flip);
+  }
+  function show(i,g){ cur=i; render(i); tip.classList.add('show'); place(g); }
+  function hide(){ cur=-1; tip.classList.remove('show'); }
+
+  dots.forEach(function(g){
+    var i=+g.getAttribute('data-si');
+    g.addEventListener('mouseenter', function(){ show(i,g); });
+    g.addEventListener('mouseleave', hide);
+    g.addEventListener('focus', function(){ show(i,g); });
+    g.addEventListener('blur', hide);
+    g.addEventListener('click', function(e){ e.stopPropagation(); if(cur===i) hide(); else show(i,g); });
+    g.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(cur===i) hide(); else show(i,g); } });
+  });
+  document.addEventListener('click', function(e){ if(cur>=0 && !e.target.closest('.vx-dot')) hide(); });
+
+  // 실시간 값 지터 — 툴팁이 열려 있으면 갱신
+  setInterval(function(){
+    for(var i=0;i<SENSORS.length;i++){ SENSORS[i].m.forEach(function(m,mi){ cvals[i][mi]=m.b+rnd(-m.j,m.j); }); }
+    if(cur>=0){ var g=stage.querySelector('.vx-dot[data-si="'+cur+'"]'); render(cur); if(g) place(g); }
+  }, 1100);
+})();
+</script>
 
 <script>
 /* ===== Solution Finder (신규 위저드) — 원본 이식용 독립 스크립트 ===== */
