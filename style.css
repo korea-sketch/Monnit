@@ -5032,6 +5032,30 @@ body{
   .vx-elec{grid-template-columns:1fr 1fr}
   .vx-diag-top{flex-direction:column;text-align:center}
   .vx-diag-side{width:100%}
+  /* 회전설비 통합관제 테이블 — 모바일 폭 맞춤(온도 잘림 방지) */
+  .vx-ftable{padding:12px 12px 14px;gap:7px}
+  .vx-fr{grid-template-columns:9px minmax(0,1fr) auto auto auto;gap:8px;padding:10px 12px}
+  .vx-fn{font-size:12.5px;min-width:0;line-height:1.25}
+  .vx-fb{font-size:10px;padding:4px 7px}
+  .vx-frms{font-size:15px}
+  .vx-frms small{font-size:9.5px;margin-left:2px}
+  .vx-ft{font-size:12px}
+  /* 카드 헤더 & 범례 줄바꿈 허용 */
+  .vibx .vx-card-h{flex-wrap:wrap;gap:6px 10px;font-size:14px;padding:14px 14px 0}
+  .vx-fleet-sum{gap:8px 12px;font-size:11px;flex-wrap:wrap}
+  /* ACTIVE ALERTS — 카드 여백 축소, 타임스탬프 잘림 방지 */
+  .vx-al{margin:10px 12px 0;padding:11px 12px}
+  .vx-al-top{flex-wrap:wrap}
+  .vx-al-top b{font-size:11px}
+  .vx-al-top em{font-size:11px}
+  .vx-al-t{font-size:13.5px}
+  .vx-al-d{font-size:11.5px}
+  /* ROI 계산기 — 2단→1단, 가로 넘침 방지 */
+  .calc-2col{grid-template-columns:1fr;gap:10px}
+  .calc-in,.calc-out{min-width:0;padding:16px}
+  .calc-res{gap:8px}
+  .calc-res>div{padding:14px 6px;min-width:0}
+  .calc-res b{font-size:23px}
 }
 @media (prefers-reduced-motion:reduce){
   .vx-dot.bad:not(.sm),.vx-livedot{animation:none!important}
