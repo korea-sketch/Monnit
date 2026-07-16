@@ -6455,3 +6455,16 @@ body{
 .vx-tip-row b.bad{color:var(--vx-bad-d)}
 .vx-tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(12,18,40,.97)}
 .vx-tip.flip::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:rgba(12,18,40,.97)}
+
+/* 모바일: 라이브 리딩 박스를 모터 위에 겹치지 않고 아래로 흐르게 */
+@media (max-width:760px){
+  .vx-stage{padding:8px 8px 10px}
+  .vx-live{position:static;left:auto;right:auto;bottom:auto;margin-top:10px;gap:12px;padding:12px 14px}
+  .vx-live-ic{width:38px;height:38px}
+  .vx-live-ic svg{width:20px;height:20px}
+  .vx-live-id b{font-size:14px}
+  .vx-live-id small{font-size:11.5px;white-space:nowrap}
+  .vx-live-v b{font-size:21px}
+  .vx-live-v b .u{font-size:12.5px}
+  .vx-live-v #vxLiveVal{min-width:0}
+}
