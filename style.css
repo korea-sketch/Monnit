@@ -6423,6 +6423,7 @@ body{
   .nav-search.m-open .nav-search-box{display:flex}
   .nav-search-panel{position:fixed;top:116px;left:12px;right:12px;width:auto;max-width:none}
 }
+<<<<<<< HEAD
 
 /* ============ 모터 센서 포인트 호버 툴팁 ============ */
 .vx-motor .vx-dot{cursor:pointer;outline:none}
@@ -6455,3 +6456,5 @@ body{
 .vx-tip-row b.bad{color:var(--vx-bad-d)}
 .vx-tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(12,18,40,.97)}
 .vx-tip.flip::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:rgba(12,18,40,.97)}
+=======
+>>>>>>> 5c6d2a4667055f09a5384a5e5676194f55764660
