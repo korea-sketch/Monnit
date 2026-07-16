@@ -5035,6 +5035,8 @@ body{
 }
 @media (prefers-reduced-motion:reduce){
   .vx-dot.bad:not(.sm),.vx-livedot{animation:none!important}
+  .vx-motor .vx-dot .vx-ping{animation:none!important;opacity:0}
+  .vx-motor .vx-dot .vx-node{animation:none!important}
 }
 
 
@@ -6424,9 +6426,19 @@ body{
 
 /* ============ 모터 센서 포인트 호버 툴팁 ============ */
 .vx-motor .vx-dot{cursor:pointer;outline:none}
-.vx-motor .vx-dot circle{transition:transform .15s ease}
-.vx-motor .vx-dot:hover circle,.vx-motor .vx-dot:focus-visible circle{transform:scale(1.14);transform-box:fill-box;transform-origin:center}
-.vx-motor .vx-dot:focus-visible circle{stroke:#fff;stroke-width:2}
+.vx-motor .vx-dot .vx-node{transform-box:fill-box;transform-origin:center;animation:vxbeat 1.7s ease-in-out infinite}
+.vx-motor .vx-dot:hover .vx-node,.vx-motor .vx-dot:focus-visible .vx-node{animation:none;transform:scale(1.16);transition:transform .15s ease}
+.vx-motor .vx-dot:focus-visible .vx-node{stroke:#fff;stroke-width:2}
+/* 맥박처럼 퍼지는 링 */
+.vx-motor .vx-dot .vx-ping{fill:none!important;stroke-width:2.4;transform-box:fill-box;transform-origin:center;pointer-events:none;animation:vxping 1.7s ease-out infinite}
+.vx-motor .vx-dot.bad .vx-ping{stroke:var(--vx-bad)}
+.vx-motor .vx-dot.warn .vx-ping{stroke:var(--vx-warn)}
+.vx-motor .vx-dot.ok .vx-ping{stroke:var(--vx-ok)}
+.vx-motor .vx-dot[data-si="1"] .vx-ping,.vx-motor .vx-dot[data-si="1"] .vx-node{animation-delay:.42s}
+.vx-motor .vx-dot[data-si="2"] .vx-ping,.vx-motor .vx-dot[data-si="2"] .vx-node{animation-delay:.85s}
+.vx-motor .vx-dot[data-si="3"] .vx-ping,.vx-motor .vx-dot[data-si="3"] .vx-node{animation-delay:.24s}
+@keyframes vxping{0%{transform:scale(.7);opacity:.6}70%{opacity:0}100%{transform:scale(2.5);opacity:0}}
+@keyframes vxbeat{0%,42%,100%{transform:scale(1)}10%{transform:scale(1.16)}22%{transform:scale(1)}31%{transform:scale(1.1)}}
 .vx-tip{position:absolute;left:0;top:0;transform:translate(-50%,0);min-width:172px;max-width:230px;background:rgba(12,18,40,.97);border:1px solid var(--vx-line);border-radius:12px;box-shadow:0 16px 36px rgba(0,0,0,.55);padding:11px 13px;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .14s ease;z-index:30}
 .vx-tip.show{opacity:1;visibility:visible}
 .vx-tip-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:3px}
