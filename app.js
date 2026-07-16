@@ -3736,19 +3736,20 @@ boot();
     var fleetBase=[4.12,2.84,2.10,1.33,0.91,0.67], fEl=[];
     for(var i=0;i<6;i++) fEl.push(document.getElementById('vxF'+(i+1)));
     var svg=panel.querySelector('.vx-chart svg'); if(!svg) return;
-    var paths=[svg.querySelector('.vx-sp.s1'),svg.querySelector('.vx-sp.s2'),svg.querySelector('.vx-sp.s3'),svg.querySelector('.vx-sp.s4')];
-    var N=130, base=288, L=18, R=982, xs=[];
+    var paths=[svg.querySelector('.vx-sp.s1'),svg.querySelector('.vx-sp.s2'),svg.querySelector('.vx-sp.s3')];
+    var N=130, base=288, top=30, L=44, R=956, xs=[];
     for(var i=0;i<N;i++) xs.push(+(L+(R-L)*i/(N-1)).toFixed(1));
     function envAmp(t){ if(t<0.16) return rnd(0.02,0.06); if(t<0.6) return rnd(0.05,0.16); if(t<0.82) return rnd(0.2,0.42); return rnd(0.55,0.98); }
-    var buf=[[],[],[],[]];
-    for(var i=0;i<N;i++){ var t=i/(N-1); for(var k=0;k<4;k++) buf[k].push(Math.min(envAmp(t)*(1-0.1*k)*rnd(0.7,1.15),1)); }
-    function path(arr){ var d=''; for(var i=0;i<N;i++){ var y=base-arr[i]*(base-22); d+='M'+xs[i]+' '+base+'L'+xs[i]+' '+y.toFixed(1); } return d; }
-    function draw(){ for(var k=0;k<4;k++) if(paths[k]) paths[k].setAttribute('d', path(buf[k])); }
-    function nextCrit(k){ return Math.min(rnd(0.5,1.0)*(1-0.1*k)*rnd(0.7,1.2),1); }
+    // s1/s2/s3 = Crest Factor X/Y/Z (스파이크)
+    var buf=[[],[],[]];
+    for(var i=0;i<N;i++){ var t=i/(N-1); for(var k=0;k<3;k++) buf[k].push(Math.min(envAmp(t)*(1-0.08*k)*rnd(0.7,1.15),1)); }
+    function spike(arr){ var d=''; for(var i=0;i<N;i++){ var y=base-arr[i]*(base-top); d+='M'+xs[i]+' '+base+'L'+xs[i]+' '+y.toFixed(1); } return d; }
+    function draw(){ for(var k=0;k<3;k++) if(paths[k]) paths[k].setAttribute('d', spike(buf[k])); }
+    function nextCrit(k){ return Math.min(rnd(0.5,1.0)*(1-0.08*k)*rnd(0.7,1.2),1); }
     draw();
     function tick(){
       if(!on()) return;
-      for(var k=0;k<4;k++){ buf[k].shift(); buf[k].push(nextCrit(k)); }
+      for(var k=0;k<3;k++){ buf[k].shift(); buf[k].push(nextCrit(k)); }
       draw();
       if(lv){ var v=rnd(0.66,1.05); if(Math.random()<0.15) v=rnd(1.1,1.55); lv.textContent=v.toFixed(2); lv.style.color = v>1.1 ? '#FF8190' : '#fff'; }
       if(volt) volt.textContent=rnd(381.2,384.4).toFixed(2);
@@ -3773,7 +3774,7 @@ boot();
       var t=new Date().toLocaleTimeString((document.documentElement.getAttribute('lang')==='en')?'en-US':'ko-KR',{hour12:false});
       var l=lines[li%lines.length]; li++;
       var row=document.createElement('div'); row.className='ai-log-row';
-      row.innerHTML='<span class="t">['+t+']</span> <span class="k">'+l[0]+'</span> '+l[1];
+      row.innerHTML='<span class="t">['+t+']</span> <span class="k k-'+l[0]+'">'+l[0]+'</span> '+l[1];
       logEl.appendChild(row);
       var rows=logEl.querySelectorAll('.ai-log-row'); if(rows.length>5) rows[0].remove();
     }
