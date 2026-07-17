@@ -3608,14 +3608,18 @@ function renderAll() {
   if (window.MonnitI18N) window.MonnitI18N.refresh();
 }
 async function boot() {
-  // 1) 기본 데이터로 즉시 렌더 + 초기 라우팅 — 시트 로드를 기다리지 않음(느린 망에서도 빈 화면/홈 고정 방지)
+  // 시트 로드를 최대 3초까지만 대기(무한 대기·빈 화면·홈 고정 방지) → 그 뒤 딱 1회 렌더 + 초기 라우팅.
+  // (렌더를 두 번 하면 append 방식 목록이 중복되므로 반드시 1회만 렌더한다)
+  try {
+    await Promise.race([
+      (async () => { await alignSheetToWriter(); await loadSheetData(); })(),
+      new Promise(function(res){ setTimeout(res, 3000); })
+    ]);
+  } catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
   renderAll();
   const initHash = window.location.hash.replace('#', '');
   if (initHash) navigate(initHash);
   try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
-  // 2) 구글 시트 로드 후 최신 콘텐츠로 갱신(백그라운드)
-  try { await alignSheetToWriter(); await loadSheetData(); renderAll(); }
-  catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
 }
 boot();
 
