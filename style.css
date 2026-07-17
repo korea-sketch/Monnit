@@ -6548,3 +6548,29 @@ body{
   }
   .prod-grid .prod-card{ padding:14px 13px 13px; }
 }
+
+/* ================= 앱/사례 상세페이지 모바일 레이아웃 수정 (v86) ================= */
+@media (max-width:780px){
+  /* 210px + 1fr 2단 그리드가 모바일에서 안 무너져 본문이 한 글자씩 쪼개지던 문제 → 1단으로 */
+  .case-row{ grid-template-columns:1fr; gap:14px; }
+  .case-row .side{ position:static; top:auto; }
+  .case-section{ padding:34px 0; }
+  .case-content, .case-content > p{ max-width:none; }
+  .case-side-title{ font-size:19px; margin-bottom:8px; }
+  /* 단계(PHASE) 카드도 좁은 폭에서 태그열 축소 */
+  .phase{ grid-template-columns:64px 1fr; gap:12px; }
+  .phase-title{ font-size:15px; }
+  .roi-metrics{ grid-template-columns:1fr 1fr; }
+}
+
+/* 사례(use case) 상세 상단 지표 3개가 큰 숫자 때문에 가로로 넘치던 문제 (v86) */
+@media (max-width:760px){
+  .qs-row{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; margin-top:18px; }
+  .qs{ padding:16px 8px 8px 0; }
+  .qs:not(:first-child){ padding-left:12px; }
+  .qs-num{ font-size:23px; }
+  .qs-lbl{ font-size:10px; letter-spacing:.04em; margin-top:6px; }
+}
+@media (max-width:400px){
+  .qs-num{ font-size:20px; }
+}
