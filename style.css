@@ -6492,3 +6492,59 @@ body{
   .vx-live-v b .u{font-size:12.5px}
   .vx-live-v #vxLiveVal{min-width:0}
 }
+
+/* ================= 모바일 홈 가독성 최적화 (v82) ================= */
+@media (max-width:600px){
+  /* 섹션 리듬: 과한 여백 정리 + 스티키 헤더 오프셋 */
+  .nh-section{ padding:48px 0; scroll-margin-top:74px; }
+  .nh-head{ margin-bottom:26px; }
+  .nh-head h2{ font-size:26px; line-height:1.22; text-wrap:balance; }
+  .nh-eyebrow{ margin-bottom:12px; }
+  /* 본문 가독성 — 작은 글씨 키우고 줄간격 확보 */
+  .nh-head-sub{ font-size:14.5px; line-height:1.72; word-break:keep-all; }
+  .nh-value h3{ font-size:15px; }
+  .nh-value p{ font-size:13px; line-height:1.62; word-break:keep-all; }
+  .nh-why-list h3{ font-size:16.5px; }
+  .nh-why-list p{ font-size:13.5px; line-height:1.62; word-break:keep-all; }
+  .nh-why-list li{ padding:18px 0; gap:13px; }
+  .nh-hero-lede{ font-size:15px; line-height:1.66; word-break:keep-all; }
+  .nh-hero-cta{ gap:10px; margin-top:28px; }
+  .nh-hero-stats{ margin-top:36px; padding-top:24px; }
+
+  /* 대표 솔루션 라이브 티저: 밀도 낮추기(장식 요소 정리, 차트 축소) */
+  .nhlt-vibx .vx-tl-rows{ display:none; }         /* 장식용 타임라인 바 4줄 숨김 */
+  .nhlt-vibx .vx-chart-leg{ padding-top:4px; }
+  .nhlt-vibx .vx-chart svg{ height:132px; }
+  .nhlt-vibx .vx-card.vx-tl{ padding-bottom:4px; }
+  .nhlt-vibx .vx-card-h{ padding:12px 13px 0; }
+  .nhlt-body{ gap:12px; }
+}
+
+/* ========= 전 뷰 공통 모바일 안전망 (v83 · 참고: 프리렌더 모바일 최적화 스니펫) ========= */
+@media (max-width:640px){
+  /* 한글 어색한 줄바꿈 방지 — 전 페이지 본문/제목 공통 */
+  main h1, main h2, main h3, main h4, main h5, main p, main li,
+  main figcaption, main [class$="-desc"], main [class$="-sub"], main [class*="lede"]{
+    word-break:keep-all;
+  }
+  /* 미디어·표 가로 넘침 방지 */
+  main img, main video, main iframe{ max-width:100%; }
+  main table{ display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+/* ========= 활용사례·제품 목록 모바일 압축 (v84 · 설명 접기) ========= */
+@media (max-width:640px){
+  /* 활용사례(인덱스형): 설명 1줄로 접기 → 카드 높이↓·스캔 용이 (상세는 탭하면 확인) */
+  .app-card .app-desc{
+    display:-webkit-box; -webkit-line-clamp:1; line-clamp:1;
+    -webkit-box-orient:vertical; overflow:hidden; margin:2px 0 0;
+  }
+  .app-card{ gap:8px !important; }
+  .apps-grid{ margin-bottom:48px; }
+  /* 제품(카드형): 설명 2줄로 접기 → 카드 높이 균일·컴팩트 */
+  .prod-grid .prod-card p{
+    display:-webkit-box; -webkit-line-clamp:2; line-clamp:2;
+    -webkit-box-orient:vertical; overflow:hidden; flex:none;
+  }
+  .prod-grid .prod-card{ padding:14px 13px 13px; }
+}
