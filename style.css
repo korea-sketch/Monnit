@@ -6560,7 +6560,14 @@ body{
   /* 단계(PHASE) 카드도 좁은 폭에서 태그열 축소 */
   .phase{ grid-template-columns:64px 1fr; gap:12px; }
   .phase-title{ font-size:15px; }
+  /* 예상 ROI: 3개일 때 마지막 카드가 한 줄 전체 채우기 → 빈 칸(밝은 배경 삐져나옴) 제거 */
   .roi-metrics{ grid-template-columns:1fr 1fr; }
+  .roi-metrics .roi-card:last-child:nth-child(odd){ grid-column:1 / -1; }
+  /* 하단 맞춤제안 CTA: 2단→1단, 과한 상하 여백 축소, 버튼 좌측 정렬, 설명 가독성 */
+  .app-cta{ padding:40px 0; }
+  .app-cta .wrap{ grid-template-columns:1fr; gap:16px; align-items:start; }
+  .app-cta-btn{ align-self:start; }
+  .app-cta p{ color:rgba(12,18,32,0.6); }
 }
 
 /* 사례(use case) 상세 상단 지표 3개가 큰 숫자 때문에 가로로 넘치던 문제 (v86) */
