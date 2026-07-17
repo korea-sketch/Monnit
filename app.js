@@ -912,7 +912,9 @@ function eachSlot(cb){
         cb(key, el, el.tagName === 'IMG' ? 'img' : 'text');
       });
     } else {
-      let ti=0; root.querySelectorAll(SLOT_TEXT_SEL).forEach(function(el){ cb(base+'#t'+(ti++), el, 'text'); });
+      /* 위치 기반 슬롯 — 텍스트에 data-sc(고정 키)가 박혀 있으면 그 키를 우선(DOM 순서 변경에도 매핑 유지).
+         단, 고정 키는 반드시 '{base}#t{index}' 형태(내가 주입한 위치키와 동일)여야 위치 인덱스 ti도 함께 소비해 정렬이 어긋나지 않음. */
+      let ti=0; root.querySelectorAll(SLOT_TEXT_SEL).forEach(function(el){ const dsc=el.getAttribute('data-sc'); cb((dsc && dsc.indexOf(base+'#t')===0) ? dsc : (base+'#t'+ti), el, 'text'); ti++; });
       let ii=0; root.querySelectorAll('img').forEach(function(el){ cb(base+'#i'+(ii++), el, 'img'); });
     }
   });
@@ -1165,6 +1167,8 @@ function navigate(target) {
       guideModule.reset();
     }
   }
+  // 뷰를 열 때마다 최신 시트 본문(SiteContent)을 다시 적용 → 어떤 화면이든 시트 값이 항상 반영
+  try { if (typeof applySiteContent === 'function' && SITE_CONTENT && Object.keys(SITE_CONTENT).length) applySiteContent(); } catch(e){}
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -1217,7 +1221,10 @@ window.addEventListener('popstate', () => {
 });
 
 /* ========== STORIES / AWARDS / PARTNERS (시트 데이터로 렌더) ========== */
+function bindOnce(el, ev, fn){ if(el && !el.__bound){ el.addEventListener(ev, fn); el.__bound = true; } }
 function renderData() {
+/* 재렌더(구글 시트 로드 후) 시 목록 중복 방지 — append 대상 컨테이너를 먼저 비운다 */
+['featuredGrid','filterBar','cardsGrid','awardCatBars','yearChips','catChips','awardsList','regionChips','partnersList'].forEach(function(_id){ var _e=document.getElementById(_id); if(_e) _e.innerHTML=''; });
 /* ========== STORIES VIEW ========== */
 const featuredGrid = document.getElementById('featuredGrid');
 const _labelToKey = {}; Object.entries(INDUSTRIES).forEach(([k,v]) => { _labelToKey[v.label] = k; });
@@ -1313,7 +1320,7 @@ CUSTOMERS.forEach(c => {
   cardsGrid.appendChild(card);
 });
 
-filterBar.addEventListener('click', e => {
+bindOnce(filterBar, 'click', e => {
   const btn = e.target.closest('.filter-btn');
   if (!btn) return;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1401,7 +1408,7 @@ function applyAwardsFilter() {
   });
 }
 
-yearChips.addEventListener('click', e => {
+bindOnce(yearChips, 'click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   document.querySelectorAll('#yearChips .chip').forEach(c => c.classList.remove('active'));
@@ -1410,7 +1417,7 @@ yearChips.addEventListener('click', e => {
   applyAwardsFilter();
 });
 
-catChips.addEventListener('click', e => {
+bindOnce(catChips, 'click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   document.querySelectorAll('#catChips .chip').forEach(c => c.classList.remove('active'));
@@ -1485,7 +1492,7 @@ regions.forEach(r => {
     + '<span class="wm-tip">'+(REGION_KO[r]||'')+' <b>'+REGION_LABELS[r]+'</b> · '+ct+'곳</span>';
   wmPins.appendChild(btn);
 });
-regionGrid.addEventListener('click', e => {
+bindOnce(regionGrid, 'click', e => {
   const hit = e.target.closest('.wm-pin, .wm-region');
   if (!hit) return;
   const r = hit.dataset.region;
@@ -1519,14 +1526,14 @@ function applyPartnersFilter() {
   resetBtn.classList.toggle('visible', currentRegion !== 'all');
 }
 
-regionChips.addEventListener('click', e => {
+bindOnce(regionChips, 'click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   currentRegion = btn.dataset.region;
   applyPartnersFilter();
 });
 
-resetBtn.addEventListener('click', () => {
+bindOnce(resetBtn, 'click', () => {
   currentRegion = 'all';
   applyPartnersFilter();
 });
@@ -3608,18 +3615,17 @@ function renderAll() {
   if (window.MonnitI18N) window.MonnitI18N.refresh();
 }
 async function boot() {
-  // 시트 로드를 최대 3초까지만 대기(무한 대기·빈 화면·홈 고정 방지) → 그 뒤 딱 1회 렌더 + 초기 라우팅.
-  // (렌더를 두 번 하면 append 방식 목록이 중복되므로 반드시 1회만 렌더한다)
-  try {
-    await Promise.race([
-      (async () => { await alignSheetToWriter(); await loadSheetData(); })(),
-      new Promise(function(res){ setTimeout(res, 3000); })
-    ]);
-  } catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
+  // 1) 기본 데이터로 즉시 렌더 + 초기 라우팅 (빠른 첫 화면 · 느린 망에서도 빈 화면/홈 고정 없음)
   renderAll();
   const initHash = window.location.hash.replace('#', '');
   if (initHash) navigate(initHash);
   try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
+  // 2) 구글 시트/에디터 데이터가 로드되면 최신 값으로 "다시 렌더 + 본문(SiteContent) 재적용"
+  //    → 렌더 함수가 모두 멱등(idempotent)이라 중복 없이 시트 변경이 반드시 반영된다.
+  try { await alignSheetToWriter(); await loadSheetData(); }
+  catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
+  renderAll();
+  try { if (typeof applySiteContent === 'function' && SITE_CONTENT && Object.keys(SITE_CONTENT).length) applySiteContent(); } catch(e){}
 }
 boot();
 

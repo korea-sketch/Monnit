@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Monnit Korea build v89 · 2026-07-17 · v88 기반 · Microsoft Clarity 프로젝트 ID 수정(x38egtft64 → xikw9t2skq) -->
+<!-- Monnit Korea build v92 · 2026-07-17 · v91 기반 · 솔루션/사업영역 뷰에 고정 data-sc 키 주입(위치 이동에도 SiteContent 매핑 유지) -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -39,7 +39,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=89">
+<link rel="stylesheet" href="style.css?v=92">
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
@@ -1267,10 +1267,10 @@
   <div class="cpage">
     <div class="wrap-mid">
       <div class="crumb">About us / Our solution</div>
-      <h2 class="seo-h1">감지하고, 분석하고, <em>스스로 제어합니다</em></h2>
-      <p class="lead">현장의 온도·진동·전류 같은 데이터를 무선으로 수집하고, AI가 분석해 이상을 예측하며, 필요하면 설비를 자동으로 제어합니다. 아래에서 작동 원리와 실제 대시보드를 확인해 보세요.</p>
+      <h2 data-sc="our-solution#t0" class="seo-h1">감지하고, 분석하고, <em>스스로 제어합니다</em></h2>
+      <p data-sc="our-solution#t1" class="lead">현장의 온도·진동·전류 같은 데이터를 무선으로 수집하고, AI가 분석해 이상을 예측하며, 필요하면 설비를 자동으로 제어합니다. 아래에서 작동 원리와 실제 대시보드를 확인해 보세요.</p>
 
-      <h2>핵심 사양<span class="sub">무선 성능 · 보안 · 배터리 한눈에 보기</span></h2>
+      <h2 data-sc="our-solution#t2">핵심 사양<span class="sub">무선 성능 · 보안 · 배터리 한눈에 보기</span></h2>
       <div class="sol-spec sol-stats-top">
         <div class="spec-col">
           <div class="spec-h"><span class="spec-ic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8.5 8.5a5 5 0 0 0 0 7M5.8 5.8a9 9 0 0 0 0 12.4M15.5 8.5a5 5 0 0 1 0 7M18.2 5.8a9 9 0 0 1 0 12.4"/></svg></span>무선 성능 · 연동</div>
@@ -1308,18 +1308,18 @@
         </div>
       </div>
 
-      <p class="spec-note">※ 통신 거리, 배터리 수명, 센서 연결 수, 인증 항목은 모델 및 현장 환경에 따라 달라질 수 있습니다.</p>
+      <p data-sc="our-solution#t3" class="spec-note">※ 통신 거리, 배터리 수명, 센서 연결 수, 인증 항목은 모델 및 현장 환경에 따라 달라질 수 있습니다.</p>
 
-      <h2>어떻게 작동하는가<span class="sub">Sense → Transmit → Act</span></h2>
+      <h2 data-sc="our-solution#t4">어떻게 작동하는가<span class="sub">Sense → Transmit → Act</span></h2>
       <div class="hmw">
-        <div class="hmw-step"><span class="hmw-badge">01 · SENSE</span><span class="hmw-ico ic-cyan"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="25" width="23" height="14" rx="2.5"/><circle cx="11.5" cy="32" r="1.6" fill="currentColor" stroke="none"/><path d="M23 25v-7"/><path d="M28.5 13a9 9 0 0 1 0 14M33.5 8.5a16 16 0 0 1 0 23M38.5 4a23 23 0 0 1 0 32"/></svg></span><h3>80+ 무선 센서</h3><p>온도·진동·전류·가스 등 현장 물리량을 FHSS 무선으로 측정.</p><div class="hmw-tags"><span>FHSS</span><span>AES-128</span><span>로컬 저장</span></div></div>
+        <div class="hmw-step"><span class="hmw-badge">01 · SENSE</span><span class="hmw-ico ic-cyan"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="25" width="23" height="14" rx="2.5"/><circle cx="11.5" cy="32" r="1.6" fill="currentColor" stroke="none"/><path d="M23 25v-7"/><path d="M28.5 13a9 9 0 0 1 0 14M33.5 8.5a16 16 0 0 1 0 23M38.5 4a23 23 0 0 1 0 32"/></svg></span><h3 data-sc="our-solution#t5">80+ 무선 센서</h3><p data-sc="our-solution#t6">온도·진동·전류·가스 등 현장 물리량을 FHSS 무선으로 측정.</p><div class="hmw-tags"><span>FHSS</span><span>AES-128</span><span>로컬 저장</span></div></div>
         <span class="hmw-arrow"><svg viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line class="flowline" x1="2" y1="12" x2="50" y2="12"/><path d="M44 6l8 6-8 6"/><circle r="3" cx="2" cy="12" fill="currentColor" stroke="none"><animate attributeName="cx" values="2;50" dur="1.9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.9s" repeatCount="indefinite"/></circle></svg></span>
-        <div class="hmw-step"><span class="hmw-badge">02 · TRANSMIT</span><span class="hmw-ico ic-blue"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 22v-8M31 22v-8"/><circle cx="17" cy="11.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="31" cy="11.5" r="1.6" fill="currentColor" stroke="none"/><path d="M20.5 9.5a5 5 0 0 1 7 0"/><rect x="9" y="22" width="30" height="15" rx="3"/><path d="M14 30h16"/><circle cx="34" cy="30" r="1.9" fill="currentColor" stroke="none"/></svg></span><h3>게이트웨이</h3><p>다수 센서를 암호화·수집해 전송. 오프라인 버퍼로 보호.</p><div class="hmw-tags"><span>MQTT</span><span>멀티 클라우드</span><span>오프라인 버퍼</span><span>FOTA</span></div><span class="hmw-note">* PoE·WiFi 센서는 게이트웨이 불필요</span></div>
+        <div class="hmw-step"><span class="hmw-badge">02 · TRANSMIT</span><span class="hmw-ico ic-blue"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 22v-8M31 22v-8"/><circle cx="17" cy="11.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="31" cy="11.5" r="1.6" fill="currentColor" stroke="none"/><path d="M20.5 9.5a5 5 0 0 1 7 0"/><rect x="9" y="22" width="30" height="15" rx="3"/><path d="M14 30h16"/><circle cx="34" cy="30" r="1.9" fill="currentColor" stroke="none"/></svg></span><h3 data-sc="our-solution#t7">게이트웨이</h3><p data-sc="our-solution#t8">다수 센서를 암호화·수집해 전송. 오프라인 버퍼로 보호.</p><div class="hmw-tags"><span>MQTT</span><span>멀티 클라우드</span><span>오프라인 버퍼</span><span>FOTA</span></div><span class="hmw-note">* PoE·WiFi 센서는 게이트웨이 불필요</span></div>
         <span class="hmw-arrow"><svg viewBox="0 0 64 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line class="flowline" x1="2" y1="12" x2="50" y2="12"/><path d="M44 6l8 6-8 6"/><circle r="3" cx="2" cy="12" fill="currentColor" stroke="none"><animate attributeName="cx" values="2;50" dur="1.9s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1.9s" repeatCount="indefinite"/></circle></svg></span>
-        <div class="hmw-step"><span class="hmw-badge">03 · ACT</span><span class="hmw-ico ic-violet"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9a6 6 0 0 0-6 6 5 5 0 0 0-2 9 5 5 0 0 0 8 4 5 5 0 0 0 5-1"/><path d="M29 9a6 6 0 0 1 6 6 5 5 0 0 1 2 9 5 5 0 0 1-8 4 5 5 0 0 1-5-1"/><path d="M24 9v28"/></svg></span><h3>플랫폼 · AI</h3><p>분석·알림·AI 예지보전·자동제어. 엣지는 서버 없이 BMS 직접 제어.</p><div class="hmw-tags"><span>AI 예지보전</span><span>BMS/BACnet</span><span>REST API</span><span>엣지 제어</span></div></div>
+        <div class="hmw-step"><span class="hmw-badge">03 · ACT</span><span class="hmw-ico ic-violet"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9a6 6 0 0 0-6 6 5 5 0 0 0-2 9 5 5 0 0 0 8 4 5 5 0 0 0 5-1"/><path d="M29 9a6 6 0 0 1 6 6 5 5 0 0 1 2 9 5 5 0 0 1-8 4 5 5 0 0 1-5-1"/><path d="M24 9v28"/></svg></span><h3 data-sc="our-solution#t9">플랫폼 · AI</h3><p data-sc="our-solution#t10">분석·알림·AI 예지보전·자동제어. 엣지는 서버 없이 BMS 직접 제어.</p><div class="hmw-tags"><span>AI 예지보전</span><span>BMS/BACnet</span><span>REST API</span><span>엣지 제어</span></div></div>
       </div>
 
-      <h2>배터리 수명 계산기<span class="sub">Battery life calculator</span></h2>
+      <h2 data-sc="our-solution#t11">배터리 수명 계산기<span class="sub">Battery life calculator</span></h2>
       <div class="calc">
         <div class="calc-in">
           <label>배터리 타입</label>
@@ -1342,7 +1342,7 @@
         </div>
       </div>
 
-      <h2>현장 통합 대시보드<span class="sub">iMonnit dashboards</span></h2>
+      <h2 data-sc="our-solution#t12">현장 통합 대시보드<span class="sub">iMonnit dashboards</span></h2>
       <div class="soldash-tabs">
         <button class="soldash-tab active" data-tab="hvac" type="button">HVAC 예지보전</button>
         <button class="soldash-tab" data-tab="vib" type="button">진동 예지보전</button>
@@ -1655,8 +1655,8 @@
 </style>
 
   <span class="mh-eyebrow">Our Solution · AI HVAC 예지보전</span>
-  <h2 class="mh-title">공조기(AHU)가 스스로 <em>진단하고 제어</em>합니다</h2>
-  <p class="mh-desc">외기 유입부터 급기·환기까지 공조기 전 계통을 실시간 디지털 트윈으로 감시합니다. 프리필터·코일·팬의 이상을 AI가 진단하고 조치를 안내하며, <b style="color:#cdd9ee">각 설비를 클릭하면</b> 실제 장비 사진과 상세 상태·조치를 확인할 수 있습니다.</p>
+  <h2 data-sc="our-solution#t13" class="mh-title">공조기(AHU)가 스스로 <em>진단하고 제어</em>합니다</h2>
+  <p data-sc="our-solution#t14" class="mh-desc">외기 유입부터 급기·환기까지 공조기 전 계통을 실시간 디지털 트윈으로 감시합니다. 프리필터·코일·팬의 이상을 AI가 진단하고 조치를 안내하며, <b style="color:#cdd9ee">각 설비를 클릭하면</b> 실제 장비 사진과 상세 상태·조치를 확인할 수 있습니다.</p>
   <div class="mh-legend">
     <span><i class="ok"></i>정상</span><span><i class="warn"></i>주의</span><span><i class="bad"></i>경보</span>
     <span class="tip">설비 클릭 → 확대 · 상세</span>
@@ -1972,7 +1972,7 @@
             </div>
             <div class="scube-side">
               <div class="scube-counts"><span class="sc-c normal"><b>5</b>정상</span><span class="sc-c warning"><b>2</b>주의</span><span class="sc-c alert"><b>2</b>경보</span></div>
-              <div class="ins-card hi"><div class="ins-h">AI 인사이트</div><p>송파 복합몰 화재센서 온도 급상승 — <b>즉시 현장 확인</b> 권고. 구로 모터 베어링 마모 패턴 감지, <b>7일 내 정비</b> 예측.</p></div>
+              <div class="ins-card hi"><div class="ins-h">AI 인사이트</div><p data-sc="our-solution#t15">송파 복합몰 화재센서 온도 급상승 — <b>즉시 현장 확인</b> 권고. 구로 모터 베어링 마모 패턴 감지, <b>7일 내 정비</b> 예측.</p></div>
               <div class="ins-card"><div class="ins-h">진동 모니터링 · 상위 설비</div>
                 <div class="vbar alert"><span class="vb-n">구로 모터 #M-02</span><span class="vb"><i style="width:90%"></i></span><b id="scVib1">4.12</b></div>
                 <div class="vbar warn"><span class="vb-n">성동 펌프 #P-07</span><span class="vb"><i style="width:62%"></i></span><b id="scVib2">2.84</b></div>
@@ -2007,8 +2007,8 @@
           </div>
         </div>
       </div>
-      <h2>AI 자동제어<span class="sub">데이터 → 판단 → 실행 · Edge AI control</span></h2>
-      <p class="lead sol-mini">Monnit은 데이터를 보여주는 데서 멈추지 않습니다. AI가 이상을 스스로 판단하고, 엣지 게이트웨이가 서버를 거치지 않고 설비에 직접 명령을 내립니다. 센서 신호가 실제 제어 동작으로 이어지는 4단계 파이프라인을 살펴보세요.</p>
+      <h2 data-sc="our-solution#t16">AI 자동제어<span class="sub">데이터 → 판단 → 실행 · Edge AI control</span></h2>
+      <p data-sc="our-solution#t17" class="lead sol-mini">Monnit은 데이터를 보여주는 데서 멈추지 않습니다. AI가 이상을 스스로 판단하고, 엣지 게이트웨이가 서버를 거치지 않고 설비에 직접 명령을 내립니다. 센서 신호가 실제 제어 동작으로 이어지는 4단계 파이프라인을 살펴보세요.</p>
       <div class="ai-arch">
         <div class="ai-layer"><div class="ai-lhead"><span class="ai-lic ic-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M8.3 8.3a5.2 5.2 0 0 0 0 7.4M5.6 5.6a9 9 0 0 0 0 12.8M15.7 8.3a5.2 5.2 0 0 1 0 7.4M18.4 5.6a9 9 0 0 1 0 12.8"/></svg></span><div><span class="ai-ln">L1 · SENSE</span><span class="ai-ld">80종+ 무선 센서가 온도·진동·전류·압력·가스를 24시간 측정합니다. 배선 없이 부착만으로 데이터 수집이 시작됩니다.</span></div></div><div class="ai-chips"><span>온도</span><span>진동</span><span>전류</span><span>누수</span><span>CO2</span><span>압력</span><span>Dry Contact</span></div></div>
         <div class="ai-flow"><span class="ai-flow-dot"></span>FHSS 무선 · AES-128 암호화</div>
@@ -2018,19 +2018,19 @@
         <div class="ai-flow"><span class="ai-flow-dot"></span>자동 제어 명령 · 알림 발송</div>
         <div class="ai-layer act"><div class="ai-lhead"><span class="ai-lic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h7M16 8h4"/><path d="M4 16h4M13 16h7"/><circle cx="13" cy="8" r="2.4"/><circle cx="10" cy="16" r="2.4"/></svg></span><div><span class="ai-ln">L4 · ACTUATE & NOTIFY</span><span class="ai-ld">판단 결과를 BMS·SCADA에 자동 명령으로 전달하고, 동시에 담당자에게 SMS·전화·앱으로 통보합니다. 필요 시 패트롤 출동까지 연결됩니다.</span></div></div><div class="ai-chips"><span>BMS 연동</span><span>SCADA</span><span>액추에이터</span><span>SMS/Email</span><span>모바일</span><span>패트롤 출동</span></div></div>
       </div>
-      <p class="ai-edge-note">이 구조의 핵심은 <strong>엣지(Edge)</strong>입니다. 대부분의 IoT는 데이터를 클라우드로 보내 판단하지만, Monnit 엣지 게이트웨이는 현장에서 직접 판단해 <strong>200ms 안에</strong> 설비를 제어합니다. 인터넷이 끊겨도 제어는 멈추지 않고, 클라우드는 그 사이 쌓인 데이터를 학습해 다음 고장을 미리 예측합니다.</p>
+      <p data-sc="our-solution#t18" class="ai-edge-note">이 구조의 핵심은 <strong>엣지(Edge)</strong>입니다. 대부분의 IoT는 데이터를 클라우드로 보내 판단하지만, Monnit 엣지 게이트웨이는 현장에서 직접 판단해 <strong>200ms 안에</strong> 설비를 제어합니다. 인터넷이 끊겨도 제어는 멈추지 않고, 클라우드는 그 사이 쌓인 데이터를 학습해 다음 고장을 미리 예측합니다.</p>
 
       <div class="sol-loghead">AI 판단 로그<span class="sub">AI decision log · live</span></div>
       <div class="lead sol-mini">플랫폼이 실시간으로 내리는 판단과 자동 제어 동작을 그대로 흘려보냅니다. 예지보전 진단(AI_PRED) · 엣지 자동제어(EDGE_CTL) · 에너지 최적화(ENERGY_OPT) · 알림 발송(ALERT_SEND) · 패트롤 출동(PATROL_REQ)이 실제 운영처럼 이어집니다.</div>
       <div class="ai-log" id="aiLog"><div class="ai-log-h"><span class="ai-log-dot"></span>AI DECISION LOG — LIVE</div></div>
 
-      <h2>핵심 역량<span class="sub">What sets Monnit apart</span></h2>
-      <p class="lead sol-mini">단순 모니터링을 넘어, 서버 없는 엣지 제어와 AI 예지보전으로 사고를 사전에 막습니다.</p>
+      <h2 data-sc="our-solution#t19">핵심 역량<span class="sub">What sets Monnit apart</span></h2>
+      <p data-sc="our-solution#t20" class="lead sol-mini">단순 모니터링을 넘어, 서버 없는 엣지 제어와 AI 예지보전으로 사고를 사전에 막습니다.</p>
       <div class="ai-feats">
-        <div class="ai-feat"><span class="aif-ic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7.5A2.8 2.8 0 0 0 6.7 10 2.6 2.6 0 0 0 6 15a2.8 2.8 0 0 0 3.5 2M14.5 7.5A2.8 2.8 0 0 1 17.3 10 2.6 2.6 0 0 1 18 15a2.8 2.8 0 0 1-3.5 2M12 6.5v12"/></svg></span><h4>이상 탐지 · 예지보전</h4><p>진동·전류·온도 데이터의 패턴을 AI가 지속 학습. 베어링 마모, 임박한 모터 고장을 7–30일 전에 경고해 계획 정비를 가능하게 합니다.</p><span class="aif-badge"><i class="d ok"></i>LIVE · 750억/일 학습</span></div>
-        <div class="ai-feat"><span class="aif-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13.5h5.2L9 21l8-11h-5.4z"/></svg></span><h4>엣지 자동제어</h4><p>클라우드 통신 없이 엣지 게이트웨이가 현장 판단. 임계값 도달 즉시 BMS·SCADA에 명령을 내려 200ms 이내 응답. 정전·네트워크 장애에도 제어 유지.</p><span class="aif-badge"><i class="d acc"></i>EDGE · 서버 불필요</span></div>
-        <div class="ai-feat"><span class="aif-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a2 2 0 0 0-2 2v7.2a3.6 3.6 0 1 0 4 0V6a2 2 0 0 0-2-2z"/><circle cx="12" cy="16.6" r="1.5" fill="currentColor" stroke="none"/></svg></span><h4>HVAC AI 에너지 최적화</h4><p>공조 센서 데이터 + 외기 조건 + 재실 패턴을 AI가 분석해 댐퍼·팬 속도를 자동 조정. 기존 대비 15–25% 에너지 절감.</p><span class="aif-badge"><i class="d ok"></i>AI · 평균 17% 절감</span></div>
-        <div class="ai-feat"><span class="aif-ic ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15a6 6 0 0 0-12 0l-1.6 2.4A.6.6 0 0 0 4.9 18h14.2a.6.6 0 0 0 .5-.6L18 15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><h4>멀티채널 즉시 알림</h4><p>SMS·이메일·전화·모바일 푸시·API 웹훅 — 조건 위반 즉시 담당자에게 전달. 알림 우선순위·수신자·에스컬레이션 경로를 자유롭게 설정.</p><span class="aif-badge"><i class="d warn"></i>ALERT · &lt;5초 발송</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7.5A2.8 2.8 0 0 0 6.7 10 2.6 2.6 0 0 0 6 15a2.8 2.8 0 0 0 3.5 2M14.5 7.5A2.8 2.8 0 0 1 17.3 10 2.6 2.6 0 0 1 18 15a2.8 2.8 0 0 1-3.5 2M12 6.5v12"/></svg></span><h4 data-sc="our-solution#t21">이상 탐지 · 예지보전</h4><p data-sc="our-solution#t22">진동·전류·온도 데이터의 패턴을 AI가 지속 학습. 베어링 마모, 임박한 모터 고장을 7–30일 전에 경고해 계획 정비를 가능하게 합니다.</p><span class="aif-badge"><i class="d ok"></i>LIVE · 750억/일 학습</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13.5h5.2L9 21l8-11h-5.4z"/></svg></span><h4 data-sc="our-solution#t23">엣지 자동제어</h4><p data-sc="our-solution#t24">클라우드 통신 없이 엣지 게이트웨이가 현장 판단. 임계값 도달 즉시 BMS·SCADA에 명령을 내려 200ms 이내 응답. 정전·네트워크 장애에도 제어 유지.</p><span class="aif-badge"><i class="d acc"></i>EDGE · 서버 불필요</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a2 2 0 0 0-2 2v7.2a3.6 3.6 0 1 0 4 0V6a2 2 0 0 0-2-2z"/><circle cx="12" cy="16.6" r="1.5" fill="currentColor" stroke="none"/></svg></span><h4 data-sc="our-solution#t25">HVAC AI 에너지 최적화</h4><p data-sc="our-solution#t26">공조 센서 데이터 + 외기 조건 + 재실 패턴을 AI가 분석해 댐퍼·팬 속도를 자동 조정. 기존 대비 15–25% 에너지 절감.</p><span class="aif-badge"><i class="d ok"></i>AI · 평균 17% 절감</span></div>
+        <div class="ai-feat"><span class="aif-ic ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15a6 6 0 0 0-12 0l-1.6 2.4A.6.6 0 0 0 4.9 18h14.2a.6.6 0 0 0 .5-.6L18 15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><h4 data-sc="our-solution#t27">멀티채널 즉시 알림</h4><p data-sc="our-solution#t28">SMS·이메일·전화·모바일 푸시·API 웹훅 — 조건 위반 즉시 담당자에게 전달. 알림 우선순위·수신자·에스컬레이션 경로를 자유롭게 설정.</p><span class="aif-badge"><i class="d warn"></i>ALERT · &lt;5초 발송</span></div>
       </div>
 
       <div style="margin-top:36px;"><button class="cta-primary" data-nav="applications">산업별 적용 사례 보기</button></div>
@@ -2045,11 +2045,11 @@
   <div class="cpage">
     <div class="wrap-mid">
       <div class="crumb">About us / What we do</div>
-      <h2 class="seo-h1">현장이 필요로 하는 <em>모든 것</em>을 합니다</h2>
-      <p class="lead">단순 센서 공급을 넘어, 컨설팅부터 커스텀 제작·소프트웨어 개발·시스템 연동·예지보전까지
+      <h2 data-sc="what-we-do#t0" class="seo-h1">현장이 필요로 하는 <em>모든 것</em>을 합니다</h2>
+      <p data-sc="what-we-do#t1" class="lead">단순 센서 공급을 넘어, 컨설팅부터 커스텀 제작·소프트웨어 개발·시스템 연동·예지보전까지
       산업 IoT의 전 과정을 책임집니다.</p>
 
-      <h2>사업 영역<span class="sub">Industries we serve</span></h2>
+      <h2 data-sc="what-we-do#t2">사업 영역<span class="sub">Industries we serve</span></h2>
       <div class="ind-grid">
         <article class="ind-card clickable" data-go-case="us-army" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-30.jpg" data-sc="home2.ind1.img" data-sc-label="산업 · 국방 사진" alt="국방"><span class="ind-name">국방</span></div><div class="cap">미군 부대 핵심 전략 자산 모니터링</div></article>
         <article class="ind-card clickable" data-go-case="exxonmobil" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-31.jpg" data-sc="home2.ind2.img" data-sc-label="산업 · 오일가스 사진" alt="오일가스"><span class="ind-name">오일가스</span></div><div class="cap">정유·석유화학 설비 안전 감시</div></article>
@@ -2061,14 +2061,14 @@
         <article class="ind-card clickable" data-go-case="samsung-biologics" role="button" tabindex="0"><div class="ind-photo"><img src="images/img-37.jpg" data-sc="home2.ind8.img" data-sc-label="산업 · 생산시설 사진" alt="생산시설"><span class="ind-name">생산시설</span></div><div class="cap">반도체·제약·자동차 등 정밀 생산 라인</div></article>
       </div>
 
-      <h2>주요 서비스<span class="sub">Core services</span></h2>
+      <h2 data-sc="what-we-do#t3">주요 서비스<span class="sub">Core services</span></h2>
       <div class="svc-grid">
-        <article class="svc-card clickable" data-go-contact="맞춤형 무선 센서 제작(OEM·ODM)" role="button" tabindex="0"><div class="ph"><span class="n">01</span><img src="images/img-38.jpg" data-sc="home2.svc1.img" data-sc-label="주요 서비스 · 센서 제작 사진" alt="맞춤형 무선 센서 제작"></div><div class="tx"><h4>맞춤형 무선 센서 제작 (OEM · ODM)</h4><p>자동 제어가 가능한 커스텀 무선 센서를 현장 요구에 맞춰 설계·제작합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="프로젝트별 소프트웨어 커스텀 개발" role="button" tabindex="0"><div class="ph"><span class="n">02</span><img src="images/img-39.jpg" data-sc="home2.svc2.img" data-sc-label="주요 서비스 · SW 개발 사진" alt=""></div><div class="tx"><h4>프로젝트별 소프트웨어 커스텀 개발</h4><p>대시보드·관제·자동화 로직을 프로젝트 단위로 맞춤 구현합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="설비 예지보전 패트롤 서비스" role="button" tabindex="0"><div class="ph"><span class="n">03</span><img src="images/img-40.jpg" alt=""></div><div class="tx"><h4>설비 예지보전 패트롤 서비스</h4><p>진동·온도 데이터를 기반으로 한 정기 점검 패트롤로 고장을 사전에 차단합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="레거시·관제 시스템 연동(SI)" role="button" tabindex="0"><div class="ph"><span class="n">04</span><img src="images/img-41.jpg" alt=""></div><div class="tx"><h4>레거시 및 관제 시스템 연동 (SI)</h4><p>기존 관제·SCADA·MES 시스템과 ALTA 데이터를 매끄럽게 통합합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="AI 분석용 빅데이터 제공·분석" role="button" tabindex="0"><div class="ph"><span class="n">05</span><img src="images/img-42.jpg" alt=""></div><div class="tx"><h4>AI 분석용 맞춤형 빅데이터 제공 / 분석</h4><p>AI 예지보전을 위한 정제된 데이터 셋을 구축하고 분석 모델을 제공합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="전문 컨설팅 기반 솔루션 제안" role="button" tabindex="0"><div class="ph"><span class="n">06</span><img src="images/img-43.jpg" alt=""></div><div class="tx"><h4>전문 컨설팅 기반 솔루션 제안</h4><p>현장을 이해하는 엔지니어가 직접 진단하고 최적의 해결책과 솔루션을 제시합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="맞춤형 무선 센서 제작(OEM·ODM)" role="button" tabindex="0"><div class="ph"><span class="n">01</span><img src="images/img-38.jpg" data-sc="home2.svc1.img" data-sc-label="주요 서비스 · 센서 제작 사진" alt="맞춤형 무선 센서 제작"></div><div class="tx"><h4 data-sc="what-we-do#t4">맞춤형 무선 센서 제작 (OEM · ODM)</h4><p data-sc="what-we-do#t5">자동 제어가 가능한 커스텀 무선 센서를 현장 요구에 맞춰 설계·제작합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="프로젝트별 소프트웨어 커스텀 개발" role="button" tabindex="0"><div class="ph"><span class="n">02</span><img src="images/img-39.jpg" data-sc="home2.svc2.img" data-sc-label="주요 서비스 · SW 개발 사진" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t6">프로젝트별 소프트웨어 커스텀 개발</h4><p data-sc="what-we-do#t7">대시보드·관제·자동화 로직을 프로젝트 단위로 맞춤 구현합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="설비 예지보전 패트롤 서비스" role="button" tabindex="0"><div class="ph"><span class="n">03</span><img src="images/img-40.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t8">설비 예지보전 패트롤 서비스</h4><p data-sc="what-we-do#t9">진동·온도 데이터를 기반으로 한 정기 점검 패트롤로 고장을 사전에 차단합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="레거시·관제 시스템 연동(SI)" role="button" tabindex="0"><div class="ph"><span class="n">04</span><img src="images/img-41.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t10">레거시 및 관제 시스템 연동 (SI)</h4><p data-sc="what-we-do#t11">기존 관제·SCADA·MES 시스템과 ALTA 데이터를 매끄럽게 통합합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="AI 분석용 빅데이터 제공·분석" role="button" tabindex="0"><div class="ph"><span class="n">05</span><img src="images/img-42.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t12">AI 분석용 맞춤형 빅데이터 제공 / 분석</h4><p data-sc="what-we-do#t13">AI 예지보전을 위한 정제된 데이터 셋을 구축하고 분석 모델을 제공합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="전문 컨설팅 기반 솔루션 제안" role="button" tabindex="0"><div class="ph"><span class="n">06</span><img src="images/img-43.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t14">전문 컨설팅 기반 솔루션 제안</h4><p data-sc="what-we-do#t15">현장을 이해하는 엔지니어가 직접 진단하고 최적의 해결책과 솔루션을 제시합니다.</p></div></article>
       </div>
     </div>
   </div>
@@ -2473,10 +2473,10 @@
   </div>
 </footer>
 
-<script src="data.js?v=89"></script>
-  <script src="app.js?v=89"></script>
-  <script src="i18n.js?v=89"></script>
-  <script>console.log('%cMonnit Korea build v89 · 2026-07-17','color:#3fd7c0');</script>
+<script src="data.js?v=92"></script>
+  <script src="app.js?v=92"></script>
+  <script src="i18n.js?v=92"></script>
+  <script>console.log('%cMonnit Korea build v92 · 2026-07-17','color:#3fd7c0');</script>
 
 <script>
 /* ===== 사이트 검색 (헤더) — 페이지·제품·활용사례·도입사례 통합 검색 ===== */
