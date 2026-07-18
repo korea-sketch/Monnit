@@ -5174,10 +5174,11 @@ body{
 .promo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
 .promo-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
 .promo-card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 14px 36px rgba(0,0,0,.28); }
-.promo-thumb { width: 100%; flex-shrink: 0; overflow: hidden; background: var(--bg-deep); display: flex; align-items: center; justify-content: center; font-size: 38px; color: var(--accent-dark); min-height: 180px; max-height: 320px; }
-.promo-thumb:not(.has-img) { aspect-ratio: 16/9; background: linear-gradient(135deg, var(--accent-soft), var(--bg-deep)); }
+/* 썸네일 높이 통일 — 업로드 사진 비율과 무관하게 모든 카드가 동일한 16:9 (사진은 꽉 채워 크롭) */
+.promo-thumb { width: 100%; flex-shrink: 0; overflow: hidden; background: var(--bg-deep); display: flex; align-items: center; justify-content: center; font-size: 38px; color: var(--accent-dark); aspect-ratio: 16/9; }
+.promo-thumb:not(.has-img) { background: linear-gradient(135deg, var(--accent-soft), var(--bg-deep)); }
 .promo-thumb.has-img { background: var(--bg-deep); }
-.promo-thumb img { width: 100%; height: auto; max-height: 320px; object-fit: contain; display: block; }
+.promo-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 .promo-body { padding: 22px 22px 24px; display: flex; flex-direction: column; flex: 1; }
 .promo-badge { display: inline-block; align-self: flex-start; font-family: var(--fm); font-size: 11px; letter-spacing: .06em; color: var(--accent-dark); background: var(--accent-soft); border: 1px solid var(--line); padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; }
 .promo-body h3 { font-family: var(--fd); font-weight: 600; font-size: 20px; line-height: 1.3; color: var(--ink); margin: 0 0 8px; }

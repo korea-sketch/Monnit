@@ -594,10 +594,24 @@ writePage('contact', page({
 <h3>상담은 어떻게 신청하나요?</h3><p>이메일 korea@monnit.com 또는 전화 02-2088-1454로 문의해 주세요.</p>`
 }), '상담·문의');
 
+/* ---------- 오래된(구 슬러그) 페이지 자동 정리 — 중복 콘텐츠·404 방지 ----------
+   build.js 는 매 빌드마다 최신 데이터로 pages/*.html 를 새로 쓰지만, 예전 빌드에서
+   만들어진 구 슬러그 파일(예: 고객사 key 변경 전 case-Samsung.html)은 남아 배포됩니다.
+   이번 빌드에서 생성되지 않은 pages/*.html 는 삭제해 색인 중복을 막습니다. */
+const _keepFiles = new Set(generated.map(g => g.loc.split('/pages/')[1]));
+try {
+  fs.readdirSync(OUT_PAGES).forEach(f => {
+    if (f.endsWith('.html') && !_keepFiles.has(f)) {
+      fs.unlinkSync(path.join(OUT_PAGES, f));
+      console.log('[clean] 구 페이지 삭제:', f);
+    }
+  });
+} catch (e) { console.warn('[clean] pages 정리 중 오류:', e.message); }
+
 /* ---------- robots.txt ---------- */
 const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'CCBot', 'Applebot-Extended', 'Bytespider', 'Amazonbot', 'meta-externalagent', 'cohere-ai'];
 let robots = '# Monnit Korea — 모든 검색·AI 크롤러 허용\n';
-robots += 'User-agent: *\nAllow: /\n\n';
+robots += 'User-agent: *\nAllow: /\nDisallow: /editor.html\n\n';
 AI_BOTS.forEach(b => { robots += `User-agent: ${b}\nAllow: /\n\n`; });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);

@@ -1,6 +1,7 @@
 # Monnit Korea — 모든 검색·AI 크롤러 허용
 User-agent: *
 Allow: /
+Disallow: /editor.html
 
 User-agent: GPTBot
 Allow: /

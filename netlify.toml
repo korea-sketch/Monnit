@@ -35,5 +35,21 @@
   to = "https://blog.naver.com/monnitkorea"
   status = 301
 
+# 구 슬러그(대소문자·한글) 케이스 페이지 → 정식 소문자 URL 301 (색인 중복·404 정리)
+[[redirects]]
+  from = "/pages/case-Samsung.html"
+  to = "/pages/case-samsung.html"
+  status = 301
+
+[[redirects]]
+  from = "/pages/case-Veolia.html"
+  to = "/pages/case-veolia.html"
+  status = 301
+
+[[redirects]]
+  from = "/pages/case-HDC랩스.html"
+  to = "/pages/case-hdc-labs.html"
+  status = 301
+
 [functions]
   directory = "netlify/functions"

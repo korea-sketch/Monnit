@@ -1,2 +1,7 @@
 /monnitblog https://blog.naver.com/monnitkorea 301
 /monnitblog/* https://blog.naver.com/monnitkorea 301
+
+# 구 슬러그(대소문자·한글) 케이스 페이지 → 정식 소문자 URL 301 (색인 중복·404 정리)
+/pages/case-Samsung.html /pages/case-samsung.html 301
+/pages/case-Veolia.html /pages/case-veolia.html 301
+/pages/case-HDC랩스.html /pages/case-hdc-labs.html 301
