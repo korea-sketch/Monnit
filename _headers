@@ -9,3 +9,28 @@
   Content-Type: text/plain; charset=utf-8
 /robots.txt
   Content-Type: text/plain; charset=utf-8
+
+# ===== 캐싱 =====
+# JS·CSS·트윈 조각은 ?v= 로 버전 관리되므로 장기 캐시(변경 시 ?v 만 올리면 새로 받음) → 재방문·다중 페이지 이동이 즉시
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+/views/*
+  Cache-Control: public, max-age=31536000, immutable
+# 폰트
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+# 아이콘·로고 등 정적 이미지(버전 없음) — 하루 캐시로 갱신은 빨리, 재방문은 캐시
+/images/*
+  Cache-Control: public, max-age=86400
+/assets/*
+  Cache-Control: public, max-age=86400
+/*.png
+  Cache-Control: public, max-age=86400
+/*.jpg
+  Cache-Control: public, max-age=86400
+/*.webp
+  Cache-Control: public, max-age=86400
+/*.svg
+  Cache-Control: public, max-age=86400

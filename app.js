@@ -57,6 +57,29 @@ function ensureDataJS(cb){
   };
   document.head.appendChild(s);
 }
+/* 솔루션 페이지 HVAC 디지털 트윈 스크립트(약 400KB) — #our-solution 진입 시 1회만 로드
+   (홈·광고 등에서는 로드하지 않아 초기 파싱/실행 부담을 없앰) */
+function ensureSolutionTwin(){
+  if (window.__twinLoaded || window.__twinLoading) return;
+  var mount = document.getElementById('mhTwin');
+  if (!mount) return;   // 컨테이너 없으면 스킵
+  window.__twinLoading = true;
+  var loadScript = function(){
+    var s = document.createElement('script');
+    s.src = 'js/solution-twin.js?v=102'; s.async = true;
+    s.onload = function(){ window.__twinLoaded = true; };
+    s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
+    document.head.appendChild(s);
+  };
+  if (mount.__filled){ loadScript(); return; }
+  // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
+  fetch('views/solution-twin.html?v=102').then(function(r){ return r.ok ? r.text() : ''; })
+    .then(function(html){
+      if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
+      else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
+    })
+    .catch(function(){ window.__twinLoading = false; console.warn('[solution-twin] fragment 로드 실패'); });
+}
 
 /* ★★★ Google Forms 방식 (구글 인증·차단 없음 / 응답이 구글시트에 자동 저장) ★★★
    설정: 구글폼을 만들고(질문: 이름/회사명·이메일·전화번호·산업군·문의항목·문의내용),
@@ -1197,6 +1220,9 @@ function navigate(target) {
     const navBtn = document.querySelector(`.nav-link[data-nav="${target}"]`);
     if (navBtn) navBtn.classList.add('active');
     window.location.hash = target === 'home' ? '' : target;
+
+    // 솔루션 페이지 진입 시에만 HVAC 디지털 트윈 스크립트 지연 로드
+    if (target === 'our-solution' && typeof ensureSolutionTwin === 'function') { ensureSolutionTwin(); }
 
     // 다른 메뉴를 거쳐 다시 들어왔을 때 기술지원/기술문서는 항상 초기 화면으로
     if (target === 'promotions' && typeof closePromo === 'function') { closePromo(); }
