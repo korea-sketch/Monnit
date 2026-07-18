@@ -10,6 +10,54 @@
    ============================================================ */
 const CONTACT_EMAIL = "korea@monnit.com";   // ← 수신 이메일 주소
 
+/* ============================================================
+   대용량 data.js(지식베이스·가이드 ~1.5MB) 지연 로딩
+   — 홈·광고·대부분 페이지는 이 데이터가 필요 없으므로, 지식베이스/가이드를
+     실제로 열 때만 data.js를 내려받아 초기 로딩을 크게 줄인다.
+   ============================================================ */
+window.KNOWLEDGEBASE = window.KNOWLEDGEBASE || [];  // data.js 로드 전 안전 기본값
+window.GUIDES        = window.GUIDES || [];
+window.__KB_BASE     = window.__KB_BASE || [];
+/* 지식베이스: 시트 행(__kbRows)과 data.js 본문(__KB_BASE)을 병합해 KNOWLEDGEBASE 구성 */
+function rebuildKB(){
+  try{
+    var base = window.__KB_BASE || [];
+    var rows = window.__kbRows || null;
+    if (rows && rows.length && typeof mapKnowledgebase === 'function'){
+      var m = mapKnowledgebase(rows);
+      if (m.length){
+        var byTitle = {}; base.forEach(function(d){ byTitle[(d.title||'').trim()] = d; });
+        window.KNOWLEDGEBASE = m.map(function(row,i){ var mt = byTitle[(row.title||'').trim()]; return Object.assign({ id:'kb'+i, body: mt?mt.body:'' }, row); });
+        return;
+      }
+    }
+    window.KNOWLEDGEBASE = base.slice();   // 시트 KB 행이 없으면 data.js 원본 사용
+  }catch(e){ console.warn('[rebuildKB]', e); }
+}
+/* data.js를 필요 시 1회만 동적 로드 후 콜백 */
+function ensureDataJS(cb){
+  if (window.__DATA_READY){ rebuildKB(); if(cb) cb(); return; }
+  window.__dataCbs = window.__dataCbs || [];
+  if (cb) window.__dataCbs.push(cb);
+  if (window.__dataLoading) return;
+  window.__dataLoading = true;
+  var s = document.createElement('script');
+  s.src = 'data.js?v=98'; s.async = true;
+  s.onload = function(){
+    window.__DATA_READY = true;
+    rebuildKB();                                   // 본문 병합
+    (window.__dataCbs||[]).forEach(function(f){ try{ f&&f(); }catch(e){} });
+    window.__dataCbs = [];
+  };
+  s.onerror = function(){
+    window.__dataLoading = false;
+    console.warn('[data.js] 로드 실패 — 지식베이스/가이드 표시 불가');
+    (window.__dataCbs||[]).forEach(function(f){ try{ f&&f(); }catch(e){} });
+    window.__dataCbs = [];
+  };
+  document.head.appendChild(s);
+}
+
 /* ★★★ Google Forms 방식 (구글 인증·차단 없음 / 응답이 구글시트에 자동 저장) ★★★
    설정: 구글폼을 만들고(질문: 이름/회사명·이메일·전화번호·산업군·문의항목·문의내용),
         '미리 채워진 링크 받기'로 각 칸의 entry.번호 를 알아내 아래에 넣으세요.
@@ -1083,14 +1131,10 @@ async function loadSheetData(){
   add('news',          r => { const m = mapNews(r);          if (m.length) NEWS_HIGHLIGHTS = m; });
   add('faqs',          r => { const m = mapFaqs(r);          if (m.length) FAQS = m; });
   add('knowledgebase', r => {
-    const m = mapKnowledgebase(r);
-    if (m.length){
-      const byTitle = {}; KNOWLEDGEBASE.forEach(d => { byTitle[(d.title||'').trim()] = d; });
-      KNOWLEDGEBASE = m.map((row,i) => {
-        const match = byTitle[(row.title||'').trim()];
-        return Object.assign({ id:'kb'+i, body: match ? match.body : '' }, row);
-      });
-    }
+    // 시트 행은 즉시 보관하고, 본문(data.js)이 이미 로드됐을 때만 병합.
+    // data.js 미로드 시엔 지식베이스 진입 시 ensureDataJS→rebuildKB가 병합한다.
+    window.__kbRows = r;
+    if (window.__DATA_READY) rebuildKB();
   });
   add('photos',        r => { const m = mapPhotos(r);        if (hasKeys(m)) PHOTOS = Object.assign({}, PHOTOS, m); });
   add('products',      r => { const m = mapProducts(r);      if (m.length) PRODUCTS = m; });
@@ -1161,10 +1205,13 @@ function navigate(target) {
       kbState.page = 1; kbState.docId = null; kbState.ret = null;
       const ks = document.getElementById('kbSearch'); if (ks) ks.value = '';
       const kc = document.getElementById('kbSearchClear'); if (kc) kc.style.display = 'none';
-      if (typeof renderKnowledgebase === 'function') renderKnowledgebase();
+      // data.js(지식베이스 본문)를 이 시점에만 로드 → 로드 후 렌더
+      if (!window.__DATA_READY){ const _g=document.getElementById('kbGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">지식베이스를 불러오는 중…</div>'; }
+      ensureDataJS(function(){ if (typeof renderKnowledgebase === 'function') renderKnowledgebase(); });
     }
     if (target === 'guides' && typeof guideModule !== 'undefined' && guideModule.reset) {
-      guideModule.reset();
+      if (!window.__DATA_READY){ const _g=document.getElementById('gGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">가이드를 불러오는 중…</div>'; }
+      ensureDataJS(function(){ if (guideModule && guideModule.reset) guideModule.reset(); });
     }
   }
   // 뷰를 열 때마다 최신 시트 본문(SiteContent)을 다시 적용 → 어떤 화면이든 시트 값이 항상 반영

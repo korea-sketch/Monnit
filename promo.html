@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<!-- Monnit Korea · 범용 프로모션 랜딩 (광고용 초경량) · /promo.html?id={프로모션ID}
+     · 내용은 Promotions 시트에서 자동 로드(편집 가능). 즉시 렌더용 기본 문구는 아래 FALLBACK 참고. -->
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monnit Korea 프로모션</title>
+<meta name="description" content="Monnit 무선 IoT 알리미 프로모션 — 실시간 감지·즉시 알림. 공사 없이 15분 설치. 무료 상담 신청.">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Monnit Korea 프로모션 — 실시간 감지·즉시 알림">
+<meta property="og:description" content="무선 IoT 센서로 위험을 즉시 감지·알림. 공사 없이 15분 설치. 무료 상담.">
+<meta property="og:image" content="https://monnit.co.kr/images/promo-fire.jpg">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://docs.google.com">
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T8H73VW');</script>
+<script>
+(function(){var G='G-49THHRYKR4';var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+G;document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',G);
+(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,'clarity','script','x38egtft64');})();
+</script>
+<style>
+:root{
+  --bg:#0B1220; --card:#122139; --line:#22344f; --ink:#F3F7FC; --sub:#AEBFD6; --muted:#8598b4;
+  --accent:#FF5A2C; --accent2:#FF8A3D; --teal:#3FD7C0;
+  --sans:-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:560px;margin:0 auto;padding:0 18px}
+.bar{position:sticky;top:0;z-index:20;background:rgba(11,18,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-weight:800;letter-spacing:-.02em;font-size:18px}
+.logo b{color:var(--teal)}
+.bar-call{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#fff;background:var(--accent);padding:8px 14px;border-radius:999px}
+.hero{background:radial-gradient(120% 90% at 50% 0%, #1a2740 0%, var(--bg) 62%);padding:34px 0 30px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 40% at 50% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:7px;background:color-mix(in srgb, var(--accent) 16%, transparent);color:var(--accent2);border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);font-size:12.5px;font-weight:800;letter-spacing:.03em;padding:6px 13px;border-radius:999px;margin-bottom:16px}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+h1{font-size:clamp(27px,7vw,38px);line-height:1.2;font-weight:900;letter-spacing:-.03em;margin-bottom:14px}
+.lead{font-size:16.5px;color:var(--sub);max-width:32ch;margin:0 auto 10px}
+.period{font-size:13px;color:var(--muted);margin-bottom:20px}
+.period b{color:var(--accent2)}
+.cta-row{display:flex;flex-direction:column;gap:10px;max-width:340px;margin:0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:54px;border-radius:13px;font-size:16.5px;font-weight:800;border:0;cursor:pointer;font-family:inherit;transition:transform .12s,filter .12s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;box-shadow:0 12px 30px -10px color-mix(in srgb, var(--accent) 70%, transparent)}
+.btn-call{background:#16233c;color:#fff;border:1px solid var(--line)}
+.hero-note{margin-top:16px;font-size:13px;color:var(--muted)}
+.hero-note b{color:var(--teal)}
+.benes{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:26px 0 4px}
+.bene{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:center}
+.bene .ic{width:40px;height:40px;margin:0 auto 9px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, var(--accent) 14%, transparent);color:var(--accent2)}
+.bene .ic svg{width:22px;height:22px}
+.bene h3{font-size:15px;font-weight:800;margin-bottom:3px}
+.bene p{font-size:12.5px;color:var(--muted);line-height:1.45}
+.sec-h{text-align:center;font-size:20px;font-weight:800;letter-spacing:-.02em;margin:34px 0 6px}
+.sec-sub{text-align:center;font-size:13.5px;color:var(--muted);margin-bottom:16px}
+.poster{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0d1728;margin:8px 0 6px;min-height:120px}
+.poster img{width:100%;height:auto}
+.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:22px 0 6px}
+.trust span{font-size:12px;color:var(--sub);background:#101d33;border:1px solid var(--line);padding:6px 11px;border-radius:999px}
+.trust b{color:var(--teal)}
+.form-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 20px;margin:16px 0 8px}
+.form-card h2{font-size:19px;font-weight:900;text-align:center;letter-spacing:-.02em}
+.form-card .sub{text-align:center;color:var(--sub);font-size:13.5px;margin:6px 0 18px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.field input,.field select{width:100%;height:50px;background:#0c1626;border:1px solid var(--line);border-radius:11px;color:#fff;padding:0 14px;font-size:16px;font-family:inherit}
+.field input:focus,.field select:focus{outline:2px solid var(--accent);border-color:transparent}
+.form-card .btn-primary{width:100%;margin-top:6px}
+.form-ok{display:none;text-align:center;padding:26px 6px}
+.form-ok .big{font-size:19px;font-weight:900;color:var(--teal);margin-bottom:6px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.privacy{text-align:center;font-size:11.5px;color:var(--muted);margin-top:12px}
+.sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(11,18,32,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:9px}
+.sticky-cta .btn{height:50px;flex:1;font-size:15.5px}
+.sticky-cta .btn-call{flex:0 0 130px}
+footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 0 120px}
+footer a{color:var(--sub);text-decoration:underline}
+.spacer{height:20px}
+@media(min-width:600px){ .benes{grid-template-columns:repeat(4,1fr)} .sticky-cta{display:none} footer{padding-bottom:40px} }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8H73VW" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="bar"><div class="wrap">
+  <a class="logo" href="/">Monnit<b>.</b></a>
+  <a class="bar-call" href="tel:0220881454">📞 전화 상담</a>
+</div></div>
+
+<section class="hero"><div class="wrap">
+  <span class="badge"><span class="dot"></span><span id="pBadge">이벤트</span></span>
+  <h1 id="pTitle">프로모션</h1>
+  <p class="lead" id="pDesc">무선 IoT 센서로 위험을 실시간 감지하고 즉시 알립니다.</p>
+  <p class="period" id="pPeriod" style="display:none"></p>
+  <div class="cta-row">
+    <button class="btn btn-primary" onclick="scrollForm('hero')">무료 상담 신청 →</button>
+    <a class="btn btn-call" href="tel:0220881454">📞 02-2088-1454 바로 전화</a>
+  </div>
+  <p class="hero-note">설치 <b>15분</b> · 운영 중단 <b>0</b> · 전국 시공</p>
+</div></section>
+
+<div class="wrap">
+  <div class="benes">
+    <div class="bene"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>실시간 감지</h3><p>이상 징후를 24시간 즉시 포착</p></div>
+    <div class="bene"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><h3>즉시 알림</h3><p>휴대폰·SMS·전화로 담당자에게 통보</p></div>
+    <div class="bene"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>오경보 최소화</h3><p>AI 필터링으로 잘못된 경보 감소</p></div>
+    <div class="bene"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14 0"/><path d="M8.5 16.1a6 6 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 20 0"/><line x1="12" y1="20" x2="12" y2="20"/></svg></div><h3>무선 간편설치</h3><p>배선 공사 없이 15분 설치</p></div>
+  </div>
+
+  <h2 class="sec-h" id="pSecH">자세히 보기</h2>
+  <p class="sec-sub">아래에서 제품과 혜택을 확인하세요</p>
+  <div class="poster" id="pPoster"><!-- 포스터(시트 이미지)는 로드 후 삽입 --></div>
+
+  <div class="trust">
+    <span>글로벌 <b>130+</b>개국</span>
+    <span>고객사 <b>64,000+</b></span>
+    <span>2010년 설립</span>
+    <span>방산급 신뢰성</span>
+  </div>
+
+  <div class="form-card" id="apply">
+    <div id="formLive">
+      <h2>무료 현장 상담 신청</h2>
+      <p class="sub">담당 컨설턴트가 24시간 내 연락드립니다.</p>
+      <form id="leadForm">
+        <div class="field"><label for="lf-name">이름 / 회사명</label><input id="lf-name" name="name" type="text" autocomplete="organization" placeholder="예) 홍길동 / 모닛물류" required></div>
+        <div class="field"><label for="lf-tel">연락처</label><input id="lf-tel" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="예) 010-1234-5678" required></div>
+        <div class="field"><label for="lf-fac">시설 유형 (선택)</label>
+          <select id="lf-fac" name="facility"><option value="">선택 안 함</option><option>물류·창고</option><option>공장·제조</option><option>빌딩·오피스</option><option>병원·제약</option><option>학교·공공</option><option>교회·종교시설</option><option>기타</option></select>
+        </div>
+        <input class="hp" type="text" name="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit" class="btn btn-primary" id="lf-submit">신청하고 혜택 받기 →</button>
+      </form>
+      <p class="privacy">제출 시 상담 목적의 개인정보 수집·이용에 동의합니다.</p>
+    </div>
+    <div class="form-ok" id="formOk">
+      <div class="big">✅ 신청이 접수되었습니다.</div>
+      <p style="color:var(--sub);font-size:14px">24시간 내 담당 컨설턴트가 연락드립니다.<br>급하시면 <a href="tel:0220881454" style="color:#fff;text-decoration:underline">02-2088-1454</a>로 전화 주세요.</p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<footer>
+  Monnit Korea · 산업용 무선 IoT 모니터링<br>
+  <a href="tel:0220881454">02-2088-1454</a> · <a href="mailto:korea@monnit.com">korea@monnit.com</a><br>
+  <a href="/">전체 사이트 보기 →</a>
+</footer>
+
+<div class="sticky-cta">
+  <button class="btn btn-primary" onclick="scrollForm('sticky')">무료 상담 신청</button>
+  <a class="btn btn-call" href="tel:0220881454">📞 전화</a>
+</div>
+
+<script>
+/* ===== [설정] ===== */
+var SHEET_ID='1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
+var STATICFORMS_URL='https://api.staticforms.dev/submit', STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472', WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
+/* 시트 로드 전에도 즉시 렌더되도록 하는 기본 문구 + 테마색 + 최적화 로컬 이미지(있으면) */
+var THEME={fire:'#FF5A2C',flame:'#FF5A2C',water:'#3B82F6',elect:'#F59E0B',church:'#3FD7C0'};
+var LOCAL_IMG={fire:'/images/promo-fire.webp'};   // 미리 최적화한 로컬 이미지가 있는 프로모션
+var FALLBACK={
+  fire:{title:'실시간 소방 알리미!',desc:'0.1초 만에 화재 징후를 감지해 담당자에게 즉시 알립니다.',badge:'NEW'},
+  flame:{title:'무선 불꽃감지기 출시 특가 프로모션!',desc:'초정밀 무선 불꽃감지기로 즉시 화재 징조를 대처하세요.',badge:'HOT'},
+  water:{title:'실시간 침수 알리미!',desc:'누수·침수를 사전 감지해 피해를 최소화합니다.',badge:'HOT'},
+  elect:{title:'실시간 정전 알리미!',desc:'정전·차단기 트립을 실시간 모니터링합니다.',badge:'HOT'},
+  church:{title:'스마트 교회 알리미',desc:'우리 교회를 24시간 지키는 든든한 파수꾼.',badge:'NEW'}
+};
+
+function qs(k){try{return new URLSearchParams(location.search).get(k)||'';}catch(e){return '';}}
+var PID=(qs('id')||'fire').trim().toLowerCase();
+var CUR={id:PID, title:'', desc:'', badge:'', period:'', image:''};
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function setText(id,v){var e=document.getElementById(id);if(e&&v!=null&&String(v).trim()!=='')e.textContent=v;}
+
+function applyTheme(){var c=THEME[PID]; if(c){document.documentElement.style.setProperty('--accent',c);
+  // 밝은 보조색 = 살짝 밝게
+  document.documentElement.style.setProperty('--accent2',c);}
+}
+function paintPoster(url){
+  var box=document.getElementById('pPoster'); if(!box||!url)return;
+  box.innerHTML='<img src="'+esc(url)+'" loading="lazy" decoding="async" alt="'+esc(CUR.title||'프로모션')+'">';
+}
+function render(){
+  document.title=(CUR.title||'프로모션')+' | Monnit Korea';
+  setText('pTitle',CUR.title); setText('pDesc',CUR.desc); setText('pBadge',CUR.badge||'이벤트');
+  if(CUR.period){ var pe=document.getElementById('pPeriod'); if(pe){pe.innerHTML='기간 <b>'+esc(CUR.period)+'</b>'; pe.style.display='';} }
+  setText('pSecH',(CUR.title||'프로모션'));
+  var img=LOCAL_IMG[PID]||CUR.image;
+  if(img) paintPoster(img);
+}
+
+/* 1) 폴백으로 즉시 렌더 */
+applyTheme();
+(function(){var f=FALLBACK[PID]||{title:'Monnit 프로모션',desc:'무선 IoT 센서로 위험을 실시간 감지·즉시 알림.',badge:'이벤트'};
+  CUR.title=f.title;CUR.desc=f.desc;CUR.badge=f.badge;})();
+render();
+
+/* 2) Promotions 시트만 경량 fetch → 최신 내용으로 갱신(편집 즉시 반영). 실패해도 폴백 유지 */
+(function(){
+  var url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&sheet=Promotions&_cb='+Date.now();
+  fetch(url,{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){
+    if(!t)return; var rows=parseCSV(t); if(rows.length<2)return;
+    var head=rows[0].map(function(h){return h.trim().toLowerCase();});
+    var col=function(o,name){var i=head.indexOf(name);return i>=0?(o[i]||'').trim():'';};
+    for(var i=1;i<rows.length;i++){var o=rows[i];
+      if((col(o,'id')||'').toLowerCase()===PID){
+        var ended=(col(o,'ended')||'').toLowerCase();
+        if(ended==='1'||ended==='true')break; // 종료된 프로모션이면 시트값 무시(폴백 유지)
+        CUR.title=col(o,'title')||CUR.title;
+        CUR.desc=col(o,'desc')||CUR.desc;
+        CUR.badge=col(o,'badge')||CUR.badge;
+        CUR.period=col(o,'period')||CUR.period;
+        var images=(col(o,'images')||'').split('||').map(function(s){return (s.split('::')[0]||'').trim();}).filter(Boolean);
+        CUR.image=images[0]||col(o,'image')||CUR.image;
+        break;
+      }
+    }
+    render();
+  }).catch(function(){});
+})();
+/* 사이트와 동일한 CSV 파서(따옴표·개행 대응) */
+function parseCSV(text){var rows=[],row=[],field='',i=0,inQ=false;text=text.replace(/^﻿/,'');
+  while(i<text.length){var ch=text[i];
+    if(inQ){if(ch==='"'){if(text[i+1]==='"'){field+='"';i+=2;continue;}inQ=false;i++;continue;}field+=ch;i++;continue;}
+    if(ch==='"'){inQ=true;i++;continue;}
+    if(ch===','){row.push(field);field='';i++;continue;}
+    if(ch==='\r'){i++;continue;}
+    if(ch==='\n'){row.push(field);rows.push(row);row=[];field='';i++;continue;}
+    field+=ch;i++;}
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  return rows.filter(function(r){return r.some(function(c){return String(c).trim()!=='';});});
+}
+
+/* ===== CTA / 리드 ===== */
+function adSource(){try{var p=new URLSearchParams(location.search);var parts=['promo='+PID];['utm_source','utm_medium','utm_campaign','fbclid'].forEach(function(k){var v=p.get(k);if(v)parts.push(k+'='+v);});return parts.join(' · ');}catch(e){return 'promo='+PID;}}
+function scrollForm(where){try{if(window.gtag)gtag('event','cta_click',{location:where,promo:PID});}catch(e){}
+  var el=document.getElementById('apply');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){var n=document.getElementById('lf-name');if(n)n.focus({preventScroll:true});},450);}
+document.getElementById('leadForm').addEventListener('submit',function(e){
+  e.preventDefault();var f=e.target;if(f.honeypot&&f.honeypot.value)return;
+  var name=(f.name.value||'').trim(),tel=(f.phone.value||'').trim(),fac=(f.facility.value||'').trim();
+  if(!name||!tel)return;
+  var btn=document.getElementById('lf-submit');btn.disabled=true;btn.textContent='전송 중…';
+  var src=adSource(), promoName=CUR.title||PID;
+  var payload={apiKey:STATICFORMS_KEY,subject:'[프로모션 LP] '+promoName+' 상담 신청',replyTo:'@',honeypot:'',
+    email:tel,'이름/회사명':name,'전화번호':tel,'이메일':tel,'산업군':fac,
+    '문의항목':'프로모션: '+promoName,'문의내용':'프로모션 랜딩 상담 신청 · 시설:'+(fac||'미기재'),'출처':src};
+  function done(){try{if(window.gtag)gtag('event','generate_lead',{form:'promo_lp',promo:PID,value:1});if(window.clarity)clarity('event','lead_submit');if(window.dataLayer)dataLayer.push({event:'generate_lead',promo:PID});}catch(e){}
+    document.getElementById('formLive').style.display='none';var ok=document.getElementById('formOk');ok.style.display='block';ok.scrollIntoView({behavior:'smooth',block:'center'});}
+  fetch(STATICFORMS_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json().catch(function(){return{success:r.ok};});})
+    .then(function(j){if(j&&(j.success||j.ok))done();else web3();}).catch(web3);
+  function web3(){fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:'[프로모션 LP] '+promoName+' 상담 신청',from_name:name,이름회사:name,전화번호:tel,시설:fac,출처:src})})
+    .then(done).catch(function(){window.location.href='mailto:korea@monnit.com?subject='+encodeURIComponent('[프로모션] '+promoName+' 상담 신청')+'&body='+encodeURIComponent('이름/회사: '+name+'\n연락처: '+tel+'\n시설: '+fac+'\n출처: '+src);done();});}
+});
+</script>
+</body>
+</html>

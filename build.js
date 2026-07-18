@@ -620,6 +620,7 @@ fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
 const urls = [
   { loc: SITE + '/', pri: '1.0' },
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
+  { loc: SITE + '/promo/fire', pri: '0.7' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' }))
 ];
 let sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
