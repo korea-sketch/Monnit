@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Monnit Korea build v92 · 2026-07-17 · v91 기반 · 솔루션/사업영역 뷰에 고정 data-sc 키 주입(위치 이동에도 SiteContent 매핑 유지) -->
+<!-- Monnit Korea build v94 · 2026-07-18 · v93 기반 · 솔루션 파인더 카테고리 개편(시설 13 + 증상형 고민 10, 시설별 맞춤) + 라벨/링크 editor(SiteContent) 편집 지원 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -39,7 +39,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=92">
+<link rel="stylesheet" href="style.css?v=94">
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
@@ -366,32 +366,64 @@
       <div class="mkfinder">
         <div id="mk-wizard" class="wiz-wrap">
           <div class="wiz-box">
-        <div class="wiz-panel">
+        <div class="wiz-panel is-active" id="wizPanelFac">
           <p class="q" data-sc="home2.finder.q1" data-sc-label="솔루션 파인더 · 질문1">Q1 · 어떤 시설을 운영하시나요?</p>
           <div class="opts" id="wizFac" role="radiogroup" aria-label="시설 선택">
-            <button class="opt" data-v="factory">공장·제조</button>
-            <button class="opt" data-v="hospital">병원·제약</button>
-            <button class="opt" data-v="logistics">물류·콜드체인</button>
-            <button class="opt" data-v="dc">데이터센터</button>
-            <button class="opt" data-v="building">빌딩·부동산</button>
-            <button class="opt" data-v="infra">인프라</button>
-            <button class="opt" data-v="retail">매장</button>
-            <button class="opt" data-v="agri">농수산</button>
-            <button class="opt" data-v="construction">건설</button>
-            <button class="opt" data-v="church">교회·학교·시설</button>
+            <button class="opt" data-v="factory" data-sc="finder.fac.factory" data-sc-label="파인더 · 시설 · 공장·제조">공장·제조</button>
+            <button class="opt" data-v="logistics" data-sc="finder.fac.logistics" data-sc-label="파인더 · 시설 · 물류·창고·콜드체인">물류·창고·콜드체인</button>
+            <button class="opt" data-v="pharma" data-sc="finder.fac.pharma" data-sc-label="파인더 · 시설 · 병원·제약·바이오">병원·제약·바이오</button>
+            <button class="opt" data-v="datacenter" data-sc="finder.fac.datacenter" data-sc-label="파인더 · 시설 · 데이터센터·통신">데이터센터·통신</button>
+            <button class="opt" data-v="office" data-sc="finder.fac.office" data-sc-label="파인더 · 시설 · 빌딩·오피스">빌딩·오피스</button>
+            <button class="opt" data-v="resident" data-sc="finder.fac.resident" data-sc-label="파인더 · 시설 · 주거·아파트">주거·아파트</button>
+            <button class="opt" data-v="hotel" data-sc="finder.fac.hotel" data-sc-label="파인더 · 시설 · 호텔·리조트">호텔·리조트</button>
+            <button class="opt" data-v="retail" data-sc="finder.fac.retail" data-sc-label="파인더 · 시설 · 리테일·매장·외식">리테일·매장·외식</button>
+            <button class="opt" data-v="public" data-sc="finder.fac.public" data-sc-label="파인더 · 시설 · 학교·공공기관">학교·공공기관</button>
+            <button class="opt" data-v="agri" data-sc="finder.fac.agri" data-sc-label="파인더 · 시설 · 농축수산">농축수산</button>
+            <button class="opt" data-v="energy" data-sc="finder.fac.energy" data-sc-label="파인더 · 시설 · 에너지·발전·인프라">에너지·발전·인프라</button>
+            <button class="opt" data-v="construction" data-sc="finder.fac.construction" data-sc-label="파인더 · 시설 · 건설·현장">건설·현장</button>
+            <button class="opt" data-v="etc" data-sc="finder.fac.etc" data-sc-label="파인더 · 시설 · 그 외 시설">그 외 시설</button>
           </div>
         </div>
-        <div class="wiz-panel">
+        <div class="wiz-panel is-locked" id="wizPanelCon">
           <p class="q" data-sc="home2.finder.q2" data-sc-label="솔루션 파인더 · 질문2">Q2 · 가장 고민되는 것은?</p>
+          <p class="wiz-hint" id="wizHint">← 먼저 시설을 선택하면, 그 현장에 맞는 고민 항목을 보여드립니다.</p>
           <div class="opts" id="wizCon" role="radiogroup" aria-label="고민 선택">
-            <button class="opt" data-v="fire">화재</button>
-            <button class="opt" data-v="leak">누수·동파</button>
-            <button class="opt" data-v="equip">설비 고장</button>
-            <button class="opt" data-v="hvac">공조기</button>
-            <button class="opt" data-v="energy">에너지</button>
-            <button class="opt" data-v="ops">운영효율화</button>
-            <button class="opt" data-v="control">통합관제</button>
-            <button class="opt" data-v="safety">사고예방</button>
+            <button class="opt" data-v="fire" data-sc="finder.con.fire" data-sc-label="파인더 · 고민 · 화재·과열">화재·과열</button>
+            <button class="opt" data-v="leak" data-sc="finder.con.leak" data-sc-label="파인더 · 고민 · 누수·침수·동파">누수·침수·동파</button>
+            <button class="opt" data-v="temp" data-sc="finder.con.temp" data-sc-label="파인더 · 고민 · 온도·습도 관리">온도·습도 관리</button>
+            <button class="opt" data-v="cold" data-sc="finder.con.cold" data-sc-label="파인더 · 고민 · 냉장·콜드체인">냉장·콜드체인</button>
+            <button class="opt" data-v="equip" data-sc="finder.con.equip" data-sc-label="파인더 · 고민 · 설비 고장·예지보전">설비 고장·예지보전(진동)</button>
+            <button class="opt" data-v="power" data-sc="finder.con.power" data-sc-label="파인더 · 고민 · 전력·에너지 절감">전력·에너지 절감</button>
+            <button class="opt" data-v="air" data-sc="finder.con.air" data-sc-label="파인더 · 고민 · 공기질·환경">공기질·환경</button>
+            <button class="opt" data-v="security" data-sc="finder.con.security" data-sc-label="파인더 · 고민 · 보안·출입">보안·출입</button>
+            <button class="opt" data-v="control" data-sc="finder.con.control" data-sc-label="파인더 · 고민 · 통합관제·원격감시">통합관제·원격감시</button>
+            <button class="opt" data-v="comply" data-sc="finder.con.comply" data-sc-label="파인더 · 고민 · 규정·온도기록">규정·온도기록(컴플라이언스)</button>
+          </div>
+          <div id="finderCfg" hidden aria-hidden="true">
+            <!-- 결과 '상세 보기' 링크 — editor(SiteContent)에서 수정 가능. 시설 링크가 기본, 고민 링크를 채우면 우선 적용. 값 예: app/manufact · applications · https://... -->
+            <span data-sc="finder.link.fac.factory" data-sc-label="파인더 · 링크 · 시설 · 공장·제조">app/manufact</span>
+            <span data-sc="finder.link.fac.logistics" data-sc-label="파인더 · 링크 · 시설 · 물류·창고·콜드체인">app/logistics</span>
+            <span data-sc="finder.link.fac.pharma" data-sc-label="파인더 · 링크 · 시설 · 병원·제약·바이오">app/vaccine</span>
+            <span data-sc="finder.link.fac.datacenter" data-sc-label="파인더 · 링크 · 시설 · 데이터센터·통신">app/datacenter</span>
+            <span data-sc="finder.link.fac.office" data-sc-label="파인더 · 링크 · 시설 · 빌딩·오피스">app/facility</span>
+            <span data-sc="finder.link.fac.resident" data-sc-label="파인더 · 링크 · 시설 · 주거·아파트">app/facility</span>
+            <span data-sc="finder.link.fac.hotel" data-sc-label="파인더 · 링크 · 시설 · 호텔·리조트">app/facility</span>
+            <span data-sc="finder.link.fac.retail" data-sc-label="파인더 · 링크 · 시설 · 리테일·매장·외식">app/retail</span>
+            <span data-sc="finder.link.fac.public" data-sc-label="파인더 · 링크 · 시설 · 학교·공공기관">app/facility</span>
+            <span data-sc="finder.link.fac.agri" data-sc-label="파인더 · 링크 · 시설 · 농축수산">app/greenhouse</span>
+            <span data-sc="finder.link.fac.energy" data-sc-label="파인더 · 링크 · 시설 · 에너지·발전·인프라">app/energy</span>
+            <span data-sc="finder.link.fac.construction" data-sc-label="파인더 · 링크 · 시설 · 건설·현장">app/construct</span>
+            <span data-sc="finder.link.fac.etc" data-sc-label="파인더 · 링크 · 시설 · 그 외 시설">applications</span>
+            <span data-sc="finder.link.con.fire" data-sc-label="파인더 · 링크 · 고민 · 화재·과열"></span>
+            <span data-sc="finder.link.con.leak" data-sc-label="파인더 · 링크 · 고민 · 누수·침수·동파">app/leak</span>
+            <span data-sc="finder.link.con.temp" data-sc-label="파인더 · 링크 · 고민 · 온도·습도 관리"></span>
+            <span data-sc="finder.link.con.cold" data-sc-label="파인더 · 링크 · 고민 · 냉장·콜드체인"></span>
+            <span data-sc="finder.link.con.equip" data-sc-label="파인더 · 링크 · 고민 · 설비 고장·예지보전"></span>
+            <span data-sc="finder.link.con.power" data-sc-label="파인더 · 링크 · 고민 · 전력·에너지 절감">app/energy</span>
+            <span data-sc="finder.link.con.air" data-sc-label="파인더 · 링크 · 고민 · 공기질·환경"></span>
+            <span data-sc="finder.link.con.security" data-sc-label="파인더 · 링크 · 고민 · 보안·출입"></span>
+            <span data-sc="finder.link.con.control" data-sc-label="파인더 · 링크 · 고민 · 통합관제·원격감시"></span>
+            <span data-sc="finder.link.con.comply" data-sc-label="파인더 · 링크 · 고민 · 규정·온도기록"></span>
           </div>
         </div>
         <div class="wiz-result" id="wizOut" aria-live="polite">
@@ -2473,10 +2505,10 @@
   </div>
 </footer>
 
-<script src="data.js?v=92"></script>
-  <script src="app.js?v=92"></script>
-  <script src="i18n.js?v=92"></script>
-  <script>console.log('%cMonnit Korea build v92 · 2026-07-17','color:#3fd7c0');</script>
+<script src="data.js?v=94"></script>
+  <script src="app.js?v=94"></script>
+  <script src="i18n.js?v=94"></script>
+  <script>console.log('%cMonnit Korea build v94 · 2026-07-18','color:#3fd7c0');</script>
 
 <script>
 /* ===== 사이트 검색 (헤더) — 페이지·제품·활용사례·도입사례 통합 검색 ===== */
@@ -2667,46 +2699,102 @@
 </script>
 
 <script>
-/* ===== Solution Finder (신규 위저드) — 원본 이식용 독립 스크립트 ===== */
+/* ===== Solution Finder v2 — 시설별 맞춤 고민(Q2) 세분화 ===== */
 (function(){
+  /* 고민(증상) 기반 결과 카드 — 라벨은 버튼 텍스트(editor 수정 가능)에서 읽고, 여기선 설명·센서·효과만 정의 */
   var REC={
-    fire:{tag:'화재 예방',title:'실시간 화재 알림 시스템',desc:'열·연기 감지를 무선 연동해 0.1초 내 경보를 전파합니다. 무인 시간대에도 담당자 휴대폰·SMS·전화로 즉시 통보됩니다.',sensors:'온도 · 연기 연동 · 경보 릴레이',fx:'0.1초 화재경보 전파'},
-    leak:{tag:'누수 예방',title:'무선 누수 감지 솔루션',desc:'로프·스팟 센서로 서버룸·기계실·배관의 누수를 실시간 감시하고, 피해 확산 전에 알립니다.',sensors:'누수 로프 · 스팟 감지 · 온습도',fx:'-75% 누수 대응 시간'},
+    fire:{tag:'화재·과열 예방',title:'실시간 화재·과열 감시',desc:'열·연기·과열을 무선 연동해 0.1초 내 경보를 전파합니다. 무인 시간대에도 담당자 휴대폰·SMS·전화로 즉시 통보됩니다.',sensors:'온도 · 연기 연동 · 경보 릴레이',fx:'0.1초 경보 전파'},
+    leak:{tag:'누수·침수·동파 예방',title:'무선 누수·침수·동파 감지',desc:'로프·스팟 센서로 서버룸·기계실·배관·저수조의 누수·침수·동파 위험을 실시간 감시하고, 피해 확산 전에 알립니다.',sensors:'누수 로프 · 스팟 감지 · 온도',fx:'-75% 누수 대응 시간'},
+    temp:{tag:'온·습도 관리',title:'온·습도 실시간 모니터링',desc:'보관·생산·재실 공간의 온도와 습도를 24시간 감시하고, 설정 범위를 벗어나면 즉시 경보합니다.',sensors:'온도 · 습도',fx:'설정 이탈 즉시 경보'},
+    cold:{tag:'냉장·콜드체인',title:'냉장·콜드체인 실시간 감시',desc:'냉장·냉동 설비와 콜드체인 구간의 온·습도를 24시간 감시하고, 규정 이탈 시 즉시 경보합니다. 자동 기록으로 HACCP·GMP 증빙까지 간편합니다.',sensors:'저온 · 온습도 · 도어',fx:'온도 이탈 즉시 경보'},
     equip:{tag:'설비 예지보전',title:'진동·전류 AI 예지보전',desc:'모터·펌프·공조 설비의 진동과 전류 파형을 AI가 학습해 고장 징후를 2~4주 전에 경보합니다.',sensors:'진동 · 전류 · 온도',fx:'-40% 비계획 정지'},
-    energy:{tag:'에너지 절감',title:'설비 에너지 모니터링',desc:'설비별 전력 사용과 가동 패턴을 계측해 낭비 구간을 특정하고 최적 운전을 제안합니다.',sensors:'전류 · 전력량 · 온도',fx:'-15% 에너지 사용량'},
-    hvac:{tag:'공조·냉난방 관리',title:'공조기·냉난방 설비 감시',desc:'AHU·냉동기·보일러의 온습도·차압·전류를 실시간 감시해 이상 운전과 에너지 낭비를 잡아냅니다.',sensors:'온도 · 습도 · 차압 · 전류',fx:'-30% 공조 에너지'},
-    ops:{tag:'운영 효율화',title:'설비 운영 효율화 플랫폼',desc:'가동률·상태·환경 데이터를 한 화면에 모아 순회 점검을 원격 모니터링으로 전환합니다.',sensors:'전류 · 가동 · 온습도',fx:'-90% 점검 시간'},
-    control:{tag:'통합 관제',title:'다현장 통합 관제 플랫폼',desc:'여러 설비와 현장을 단일 대시보드로 통합 가시화하고, 이상은 우선순위로 알립니다.',sensors:'멀티 센서 · 게이트웨이',fx:'단일 플랫폼 통합'},
-    safety:{tag:'사고 예방',title:'사고 예방 통합 감시',desc:'화재·누수·설비 이상을 24/7 감시하고 즉시 경보해, 사고가 커지기 전에 차단합니다.',sensors:'화재 · 누수 · 진동 · 도어',fx:'사고 위험 사전 차단'}
+    power:{tag:'전력·에너지 절감',title:'전력·에너지 모니터링',desc:'설비별 전력 사용과 가동 패턴을 계측해 낭비 구간을 특정하고 최적 운전을 제안합니다.',sensors:'전류 · 전력량',fx:'-15% 에너지 사용량'},
+    air:{tag:'공기질·환경',title:'공기질·환경 모니터링',desc:'CO₂·미세먼지·온습도·VOC를 실시간 측정해 재실 환경을 관리하고 환기를 자동으로 최적화합니다.',sensors:'CO₂ · 미세먼지 · 온습도',fx:'환기·쾌적도 최적화'},
+    security:{tag:'보안·출입 감시',title:'출입·보안 통합 감시',desc:'도어·모션·자산 태그를 감지해 무단 출입과 자산 이탈을 실시간으로 경보합니다.',sensors:'도어 · 모션 · 자산 태그',fx:'무단 출입 즉시 감지'},
+    control:{tag:'통합관제·원격감시',title:'다현장 통합 관제 플랫폼',desc:'여러 설비와 현장을 단일 대시보드로 통합 가시화하고, 이상은 우선순위로 원격 알림합니다.',sensors:'멀티 센서 · 게이트웨이',fx:'단일 플랫폼 통합'},
+    comply:{tag:'규정·온도기록',title:'규정·온도기록 자동화',desc:'온도·습도·가동 데이터를 자동 기록·보관해 HACCP·GMP·산업안전 규정 증빙을 간소화하고 감사 대응을 자동화합니다.',sensors:'온도 · 습도 · 자동 기록',fx:'기록 자동화·감사 대응'}
   };
-  var FAC={factory:'공장·제조',hospital:'병원·제약',church:'교회·학교·시설',logistics:'물류·콜드체인',dc:'데이터센터',building:'빌딩·부동산',infra:'인프라',retail:'매장',agri:'농수산',construction:'건설'};
+  var ALL_CONS=['fire','leak','temp','cold','equip','power','air','security','control','comply'];
+  var FAC={factory:'공장·제조',logistics:'물류·창고·콜드체인',pharma:'병원·제약·바이오',datacenter:'데이터센터·통신',office:'빌딩·오피스',resident:'주거·아파트',hotel:'호텔·리조트',retail:'리테일·매장·외식',public:'학교·공공기관',agri:'농축수산',energy:'에너지·발전·인프라',construction:'건설·현장',etc:'그 외 시설'};
   var FCTX={
     factory:{eg:'모터·펌프·공조기·전력 설비',sensor:'진동',app:'manufact'},
-    hospital:{eg:'백신 보관고·클린룸·콜드체인',sensor:'저온',app:'hospital'},
     logistics:{eg:'냉동·냉장 창고·수송 차량',sensor:'저온',app:'logistics'},
-    dc:{eg:'서버 랙·HVAC·전력·누수 구간',sensor:'차압',app:'datacenter'},
-    building:{eg:'공조·전기실·주차·환경 설비',sensor:'전류',app:'facility'},
-    infra:{eg:'수처리·펌프장·통신·전력 설비',sensor:'전류',app:'energy'},
-    retail:{eg:'냉장 쇼케이스·주방·백룸 창고',sensor:'저온',app:'grocery'},
+    pharma:{eg:'백신·검체 보관고·클린룸',sensor:'저온',app:'vaccine'},
+    datacenter:{eg:'서버 랙·HVAC·전력·누수 구간',sensor:'차압',app:'datacenter'},
+    office:{eg:'공조·전기실·주차·환경 설비',sensor:'전류',app:'facility'},
+    resident:{eg:'세대·기계실·주차장·저수조',sensor:'온습도',app:'facility'},
+    hotel:{eg:'객실·주방·수영장·기계실',sensor:'온습도',app:'facility'},
+    retail:{eg:'냉장 쇼케이스·주방·백룸 창고',sensor:'저온',app:'retail'},
+    public:{eg:'교실·강당·기계실·급식실',sensor:'도어',app:'facility'},
     agri:{eg:'양식장·축사·저장고·온실',sensor:'온습도',app:'greenhouse'},
+    energy:{eg:'수처리·펌프장·변전·발전 설비',sensor:'전류',app:'energy'},
     construction:{eg:'가설 전기·양중 장비·환경·안전',sensor:'진동',app:'construct'},
-    church:{eg:'예배당·주방·기계실·주차장',sensor:'도어',app:'facility'}
+    etc:{eg:'현장 설비',sensor:'',app:'applications'}
   };
-  var CON_APP={leak:'leak',hvac:'hvac',energy:'energy'};
+  /* 시설별로 자주 발생하는 고민(증상)을 우선순위 순으로 노출 (Q1 선택 → Q2 재구성) */
+  var FAC_CONCERNS={
+    factory:['equip','power','fire','temp','control','comply','air','security'],
+    logistics:['cold','temp','equip','comply','power','fire','control','security'],
+    pharma:['cold','temp','comply','air','equip','control','fire','security'],
+    datacenter:['temp','leak','fire','power','equip','control','security','comply'],
+    office:['temp','power','air','fire','leak','control','security','equip'],
+    resident:['leak','fire','temp','air','security','control','power','comply'],
+    hotel:['temp','fire','air','leak','power','security','control','comply'],
+    retail:['cold','temp','power','fire','air','comply','control','equip'],
+    public:['fire','air','temp','security','power','leak','control','comply'],
+    agri:['temp','cold','air','equip','power','control','comply','leak'],
+    energy:['equip','power','control','leak','fire','temp','security','comply'],
+    construction:['security','equip','fire','power','control','temp','air','comply'],
+    etc:ALL_CONS.slice()
+  };
   var fac=null,con=null;
-  function pick(id,cb){var g=document.getElementById(id);if(!g)return;g.addEventListener('click',function(e){var b=e.target.closest('.opt');if(!b)return;g.querySelectorAll('.opt').forEach(function(o){o.classList.remove('on')});b.classList.add('on');cb(b.dataset.v);render();});}
+  function getLink(key){ var el=document.querySelector('[data-sc="'+key+'"]'); return el ? el.textContent.trim() : ''; }
+  function facLabelOf(v){ var b=document.querySelector('#wizFac .opt[data-v="'+v+'"]'); return b?b.textContent.trim():(FAC[v]||v); }
+  /* 정적 버튼을 시설에 맞게 표시/정렬 (라벨은 그대로 유지 → editor 편집 반영) */
+  function applyFacility(){
+    var list=FAC_CONCERNS[fac]||ALL_CONS;
+    var g=document.getElementById('wizCon'); if(!g)return;
+    g.querySelectorAll('.opt').forEach(function(b){
+      var idx=list.indexOf(b.dataset.v);
+      b.classList.remove('on');
+      if(idx<0){ b.style.display='none'; }
+      else {
+        b.style.display=''; b.style.order=idx;
+        b.classList.remove('wiz-in'); void b.offsetWidth;
+        b.style.animationDelay=(idx*0.03).toFixed(2)+'s'; b.classList.add('wiz-in');
+      }
+    });
+    if(con && list.indexOf(con)>=0){ var cb=g.querySelector('.opt[data-v="'+con+'"]'); if(cb) cb.classList.add('on'); }
+  }
+  function onFac(btn){
+    fac=btn.dataset.v;
+    var list=FAC_CONCERNS[fac]||ALL_CONS;
+    con=(con && list.indexOf(con)>=0)?con:null;   // 이전 고민이 이 시설에도 있으면 유지, 아니면 초기화
+    applyFacility();
+    var pc=document.getElementById('wizPanelCon'); if(pc){pc.classList.remove('is-locked');pc.classList.add('is-active');}
+    var pf=document.getElementById('wizPanelFac'); if(pf){pf.classList.remove('is-active');}
+    var hint=document.getElementById('wizHint'); if(hint){hint.innerHTML='<b>'+btn.textContent.trim()+'</b> 현장에서 자주 발생하는 문제예요. 하나를 선택하세요.';}
+    if(con){ render(); } else { var out=document.getElementById('wizOut'); if(out) out.classList.remove('show'); }
+  }
+  function go(route){ if(!route)return; if(/^https?:/i.test(route)){ window.open(route,'_blank'); return; } route=route.replace(/^#/,''); if(typeof navigate==='function') navigate(route); else location.hash=route; }
   function render(){if(!fac||!con)return;
     var base=REC[con]||{}, ctx=FCTX[fac]||{eg:'현장 설비',sensor:'',app:'facility'};
     var set=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
-    var title=FAC[fac]+' · '+base.title;
+    var facLabel=facLabelOf(fac);
+    var conBtn=document.querySelector('#wizCon .opt[data-v="'+con+'"]');
+    var conLabel=conBtn?conBtn.textContent.trim():(base.tag||con);
+    var title=facLabel+' · '+base.title;
     var desc=base.desc+' 특히 '+ctx.eg+'에 맞춰 센서를 구성합니다.';
     var sensors=base.sensors+(ctx.sensor && base.sensors.indexOf(ctx.sensor)<0 ? ' · '+ctx.sensor : '');
-    set('rTag',FAC[fac]+' × '+base.tag);set('rTitle',title);set('rDesc',desc);set('rSensors',sensors);set('rFx',base.fx);
-    var appId=CON_APP[con]||ctx.app||'facility';
-    var m=document.getElementById('rMore');if(m){m.setAttribute('href','#');m.onclick=function(e){e.preventDefault();if(typeof navigate==='function')navigate('app/'+appId);};m.textContent='활용분야 상세 보기';}
+    set('rTag',facLabel+' × '+conLabel);set('rTitle',title);set('rDesc',desc);set('rSensors',sensors);set('rFx',base.fx);
+    /* 결과 링크: 고민별 링크(있으면) → 시설별 링크 → 기본 활용분야 (모두 editor 수정 가능) */
+    var route=(getLink('finder.link.con.'+con)||getLink('finder.link.fac.'+fac)||('app/'+(ctx.app||'facility'))).trim();
+    var m=document.getElementById('rMore');if(m){m.setAttribute('href','#');m.onclick=function(e){e.preventDefault();go(route);};m.textContent='활용분야 상세 보기';}
     var out=document.getElementById('wizOut');if(out){out.classList.add('show');out.scrollIntoView({behavior:'smooth',block:'nearest'});}
-    var sel=document.getElementById('f-type');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===FAC[fac]){sel.selectedIndex=i;break;}}}
+    var sel=document.getElementById('f-type');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===facLabel){sel.selectedIndex=i;break;}}}
   }
+  function pickFac(){var g=document.getElementById('wizFac');if(!g)return;g.addEventListener('click',function(e){var b=e.target.closest('.opt');if(!b)return;g.querySelectorAll('.opt').forEach(function(o){o.classList.remove('on')});b.classList.add('on');onFac(b);});}
+  function pickCon(){var g=document.getElementById('wizCon');if(!g)return;g.addEventListener('click',function(e){if(!fac)return;var b=e.target.closest('.opt');if(!b||b.style.display==='none')return;g.querySelectorAll('.opt').forEach(function(o){o.classList.remove('on')});b.classList.add('on');con=b.dataset.v;render();});}
   function bindLead(){
     var form=document.getElementById('mk-leadForm');
     if(!form||form._bound)return; form._bound=true;
@@ -2718,7 +2806,7 @@
       if(typeof sendLead==='function'){Promise.resolve(sendLead(payload,btn)).then(done).catch(done);}else{done();}
     });
   }
-  function init(){ pick('wizFac',function(v){fac=v}); pick('wizCon',function(v){con=v}); bindLead(); }
+  function init(){ pickFac(); pickCon(); bindLead(); }
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();
 </script>
