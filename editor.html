@@ -111,6 +111,7 @@
     <button class="btn-ghost" id="galleryBtn" title="기존 사진 중에서 골라 넣기">🖼 사진 갤러리</button>
     <button class="btn-ghost" id="homeBtn" title="메인페이지·About us의 문구와 사진을 이름표 보고 쉽게 수정">🏠 메인·About us 편집</button>
     <button class="btn-ghost" id="seoBtn" title="검색 노출용 제목·설명">🔎 SEO</button>
+    <button class="btn-ghost" id="matchBtn" title="솔루션 파인더: 시설×고민 → 활용분야(어플리케이션) 연결 편집">🎯 파인더 매칭</button>
     <label style="display:flex;align-items:center;gap:5px;white-space:nowrap" title="잘 안 쓰는 기술 항목까지 모두 표시"><input type="checkbox" id="advFields"> 고급 항목 보기</label>
   </div>
 
@@ -125,6 +126,7 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px">
     <button class="dash-card" data-act="home">🏠<b>메인·About 문구/사진</b><span>히어로·솔루션·인사말·티커</span></button>
     <button class="dash-card" data-act="seo">🔎<b>검색 노출(SEO)</b><span>구글 검색 제목·설명</span></button>
+    <button class="dash-card" data-act="match">🎯<b>솔루션 파인더 매칭</b><span>시설×고민 → 활용분야 연결</span></button>
     <button class="dash-card" data-tab="Products">📦<b>제품</b><span>센서 이름·설명</span></button>
     <button class="dash-card" data-tab="Promotions">🎁<b>프로모션</b><span>이벤트 배너</span></button>
     <button class="dash-card" data-tab="FAQs">❓<b>FAQ</b><span>자주 묻는 질문</span></button>
@@ -169,6 +171,30 @@
       <button class="btn-ghost btn-sm" id="homeClose">닫기</button>
       <span class="status" id="homeStatus"></span>
     </div>
+  </div>
+
+  <div id="matchPanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">🎯 솔루션 파인더 매칭 — 시설 × 고민 → 활용분야(어플리케이션) 연결</div>
+    <div class="hint" style="margin:6px 0 10px">메인페이지 <b>솔루션 파인더</b>에서 시설과 고민을 고르면 열리는 <b>‘활용분야 상세’</b> 링크를 조합별로 지정합니다. 각 칸에서 어플리케이션을 고르면 그 조합의 상세 페이지로 연결됩니다. <b>비워두면(＝기본값)</b> 기존 고민별→시설별 기본 링크로 자동 연결됩니다. 회색 <b>·</b> 칸은 해당 시설에서 노출되지 않는 고민이라 지정할 필요가 없습니다. 저장하려면 상단에 <b>저장 URL(Apps Script)</b>이 채워져 있어야 합니다.</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" id="matchSave" style="background:#0a7d33">매칭 저장</button>
+      <button class="btn-ghost btn-sm" id="matchReload">다시 불러오기</button>
+      <button class="btn-ghost btn-sm" id="matchCopy">JSON 복사</button>
+      <button class="btn-ghost btn-sm" id="matchClear">전체 비우기</button>
+      <button class="btn-ghost btn-sm" id="matchClose">닫기</button>
+      <span class="status" id="matchStatus"></span>
+    </div>
+    <div id="matchGrid" style="overflow:auto;max-height:70vh"></div>
+    <style>
+      #matchGrid table.mf-table{border-collapse:separate;border-spacing:0;font-size:12px}
+      #matchGrid th,#matchGrid td{border:1px solid #e6eaf0;padding:4px;vertical-align:middle}
+      #matchGrid thead th{position:sticky;top:0;z-index:2;background:#f2f5fa;color:#0b1a3a;font-weight:700;text-align:center;white-space:nowrap}
+      #matchGrid th.mf-corner{position:sticky;left:0;z-index:3;background:#eef2f8}
+      #matchGrid th.mf-rowh{position:sticky;left:0;z-index:1;background:#f7f9fc;color:#0b1a3a;font-weight:700;text-align:left;white-space:nowrap;min-width:132px}
+      #matchGrid td.mf-off{background:#f6f7f9;color:#c2c9d4;text-align:center}
+      #matchGrid select.mf-sel{font:inherit;font-size:11.5px;max-width:190px;padding:3px;border:1px solid #d7dde7;border-radius:6px;background:#fff}
+      #matchGrid select.mf-sel.mf-set{border-color:#0a7d33;background:#f2fbf4}
+    </style>
   </div>
 
   <div id="galleryPanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
@@ -954,6 +980,83 @@ async function saveSiteContentRow(key, ko, en, image){
   if(j&&j.ok){ const ix=d.list.findIndex(o=>String(o.key||'')===key); if(ix>=0)d.list[ix]=obj; else d.list.push(obj); return true; }
   return false;
 }
+/* ===== 🎯 솔루션 파인더 매칭 그리드 (시설 × 고민 → 활용분야 링크) ===== */
+const MF_FAC=[['factory','공장·제조'],['logistics','물류·창고·콜드체인'],['pharma','병원·제약·바이오'],['datacenter','데이터센터·통신'],['office','빌딩·오피스'],['resident','주거·아파트'],['hotel','호텔·리조트'],['retail','리테일·매장·외식'],['public','학교·공공기관'],['agri','농축수산'],['energy','에너지·발전·인프라'],['construction','건설·현장'],['etc','그 외 시설']];
+const MF_CON=[['fire','화재·과열'],['leak','누수·침수·동파'],['temp','온도·습도 관리'],['cold','냉장·콜드체인'],['equip','설비 고장·예지보전'],['power','전력·에너지 절감'],['air','공기질·환경'],['security','보안·출입'],['control','통합관제·원격감시'],['comply','규정·온도기록']];
+const MF_ALLCON=MF_CON.map(x=>x[0]);
+/* index.html의 FAC_CONCERNS와 동일 — 시설별로 노출되는 고민 목록 */
+const MF_FACCON={factory:['equip','power','fire','temp','control','comply','air','security'],logistics:['cold','temp','equip','comply','power','fire','control','security'],pharma:['cold','temp','comply','air','equip','control','fire','security'],datacenter:['temp','leak','fire','power','equip','control','security','comply'],office:['temp','power','air','fire','leak','control','security','equip'],resident:['leak','fire','temp','air','security','control','power','comply'],hotel:['temp','fire','air','leak','power','security','control','comply'],retail:['cold','temp','power','fire','air','comply','control','equip'],public:['fire','air','temp','security','power','leak','control','comply'],agri:['temp','cold','air','equip','power','control','comply','leak'],energy:['equip','power','control','leak','fire','temp','security','comply'],construction:['security','equip','fire','power','control','temp','air','comply'],etc:MF_ALLCON.slice()};
+let MF_DATA={};   // { fac: { con: route } }
+function mfSelect(fac,con){
+  const sel=el('select','mf-sel'); sel.dataset.fac=fac; sel.dataset.con=con;
+  const o0=el('option'); o0.value=''; o0.textContent='— 기본값(상속) —'; sel.appendChild(o0);
+  const oa=el('option'); oa.value='applications'; oa.textContent='전체 어플리케이션 목록'; sel.appendChild(oa);
+  const cats=((DATA['AppCategories']&&DATA['AppCategories'].list)||[]);
+  const catName={}; cats.forEach(c=>{ const k=String(c.key||'').trim(); if(k) catName[k]=(c.name||k); });
+  const apps=((DATA['Applications']&&DATA['Applications'].list)||[]).filter(a=>a&&a.id);
+  const byCat={}; apps.forEach(a=>{ const c=String(a.cat||'').trim()||'기타'; (byCat[c]=byCat[c]||[]).push(a); });
+  const order=cats.map(c=>String(c.key||'').trim()).filter(Boolean);
+  Object.keys(byCat).forEach(c=>{ if(order.indexOf(c)<0) order.push(c); });
+  order.forEach(c=>{ if(!byCat[c]) return; const og=el('optgroup'); og.label=(catName[c]||c);
+    byCat[c].forEach(a=>{ const op=el('option'); op.value='app/'+a.id; op.textContent=(a.name||a.id)+' ('+a.id+')'; og.appendChild(op); });
+    sel.appendChild(og); });
+  const cur=(MF_DATA[fac]&&MF_DATA[fac][con])||'';
+  if(cur){ let has=false; sel.querySelectorAll('option').forEach(op=>{ if(op.value===cur) has=true; });
+    if(!has){ const oc=el('option'); oc.value=cur; oc.textContent='기타: '+cur; sel.appendChild(oc); } sel.value=cur; }
+  if(sel.value) sel.classList.add('mf-set');
+  sel.onchange=()=>{ sel.classList.toggle('mf-set', !!sel.value); };
+  return sel;
+}
+function mfRenderGrid(){
+  const box=$('#matchGrid'); if(!box) return; box.innerHTML='';
+  const table=el('table','mf-table'), thead=el('thead'), htr=el('tr');
+  const corner=el('th','mf-corner','시설 \\ 고민'); htr.appendChild(corner);
+  MF_CON.forEach(([,cl])=>{ const th=el('th'); th.textContent=cl; htr.appendChild(th); });
+  thead.appendChild(htr); table.appendChild(thead);
+  const tb=el('tbody');
+  MF_FAC.forEach(([fv,fl])=>{
+    const tr=el('tr'), rh=el('th','mf-rowh'); rh.textContent=fl; tr.appendChild(rh);
+    const allowed=MF_FACCON[fv]||MF_ALLCON;
+    MF_CON.forEach(([cv])=>{ const td=el('td');
+      if(allowed.indexOf(cv)>=0){ td.appendChild(mfSelect(fv,cv)); }
+      else { td.className='mf-off'; td.textContent='·'; td.title='이 시설에서는 노출되지 않는 고민입니다'; }
+      tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+  table.appendChild(tb); box.appendChild(table);
+}
+function mfLoad(){
+  MF_DATA={}; let raw='';
+  const r=(typeof scRow==='function')?scRow('finder.matrix'):null; if(r&&r.ko) raw=String(r.ko).trim();
+  if(raw){ try{ MF_DATA=JSON.parse(raw)||{}; }catch(e){ MF_DATA={}; } }
+  mfRenderGrid();
+  const st=$('#matchStatus'); if(st) st.textContent = raw ? '현재 매칭을 불러왔습니다. 칸을 바꾸면 색이 표시됩니다.' : '저장된 조합별 매칭이 없습니다 — 비어있는 칸은 기본값으로 연결됩니다.';
+}
+function mfCollect(){
+  const out={};
+  $('#matchGrid').querySelectorAll('select.mf-sel').forEach(sel=>{
+    const v=(sel.value||'').trim(); if(v){ const f=sel.dataset.fac, c=sel.dataset.con; (out[f]=out[f]||{})[c]=v; }
+  });
+  return out;
+}
+async function mfSave(){
+  if(!DATA['SiteContent']){ $('#matchStatus').textContent='먼저 시트를 불러오세요 (SiteContent 탭 필요)'; return; }
+  const obj=mfCollect(); const json=JSON.stringify(obj);
+  $('#matchStatus').textContent='저장 중…';
+  try{
+    const ok=await saveSiteContentRow('finder.matrix', json, '', '');
+    let n=0; Object.keys(obj).forEach(f=>n+=Object.keys(obj[f]).length);
+    $('#matchStatus').innerHTML = ok ? ('✅ 매칭 저장됨 · '+n+'개 조합 지정 · 사이트 새로고침 시 반영') : '실패 — 저장 URL/토큰을 확인하세요';
+  }catch(e){ $('#matchStatus').textContent='연결 실패'; }
+}
+function mfOpen(){ const p=$('#matchPanel'); if(!p) return; p.style.display='block'; if(!DATA['SiteContent']) $('#matchStatus').textContent='먼저 시트를 불러오세요 (SiteContent 탭 필요)'; mfLoad(); p.scrollIntoView({behavior:'smooth',block:'start'}); }
+if($('#matchBtn')) $('#matchBtn').onclick=()=>{ const p=$('#matchPanel'); const show=p.style.display==='none'; if(show) mfOpen(); else p.style.display='none'; };
+if($('#matchClose')) $('#matchClose').onclick=()=>{ $('#matchPanel').style.display='none'; };
+if($('#matchReload')) $('#matchReload').onclick=()=>mfLoad();
+if($('#matchSave')) $('#matchSave').onclick=()=>mfSave();
+if($('#matchClear')) $('#matchClear').onclick=()=>{ if(!confirm('그리드의 모든 칸을 기본값(상속)으로 되돌릴까요? (저장 전까지는 시트에 반영되지 않습니다)')) return; $('#matchGrid').querySelectorAll('select.mf-sel').forEach(s=>{ s.value=''; s.classList.remove('mf-set'); }); $('#matchStatus').textContent='모두 비웠습니다 — 저장해야 반영됩니다.'; };
+if($('#matchCopy')) $('#matchCopy').onclick=()=>{ const json=JSON.stringify(mfCollect(),null,0); const ta=el('textarea'); ta.value=json; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); toast('JSON 복사됨 — index.html finder.matrix 또는 시트에 붙여넣기 가능'); }catch(e){ toast('복사 실패'); } ta.remove(); };
+
 if($('#homeBtn')) $('#homeBtn').onclick=()=>{ const p=$('#homePanel'); const show=p.style.display==='none'; p.style.display=show?'block':'none'; if(show){ if(!DATA['SiteContent']) $('#homeStatus').textContent='먼저 시트를 불러오세요 (SiteContent 탭 필요)'; loadHome(); } };
 if($('#homeClose')) $('#homeClose').onclick=()=>{ $('#homePanel').style.display='none'; };
 if($('#homeReload')) $('#homeReload').onclick=()=>loadHome();
@@ -986,7 +1089,7 @@ if($('#homeSave')) $('#homeSave').onclick=async()=>{
   function $(q){ return document.querySelector(q); }
   function ready(cb){ var t=setInterval(function(){ if($('#tabSel') && $('#tabSel').options.length){ clearInterval(t); cb(); } },200); setTimeout(function(){clearInterval(t);},15000); }
   function go(tab){ var t=$('#tabSel'); t.value=tab; if(t.value!==tab){ t.selectedIndex=0; } t.dispatchEvent(new Event('change')); $('#dashPanel').style.display='none'; $('#pickBar').scrollIntoView({behavior:'smooth'}); }
-  function act(a){ $('#dashPanel').style.display='none'; if(a==='home'){ $('#homeBtn').click(); } else if(a==='seo'){ $('#seoBtn').click(); } else { $('#pickBar').scrollIntoView({behavior:'smooth'}); } }
+  function act(a){ $('#dashPanel').style.display='none'; if(a==='home'){ $('#homeBtn').click(); } else if(a==='seo'){ $('#seoBtn').click(); } else if(a==='match'){ if(typeof mfOpen==='function') mfOpen(); } else { $('#pickBar').scrollIntoView({behavior:'smooth'}); } }
   function bind(root){ root.querySelectorAll('.dash-card,.dash-chip').forEach(function(c){ c.onclick=function(){ var tab=c.dataset.tab, a=c.dataset.act; ready(function(){ a ? act(a) : go(tab); }); }; }); }
   bind(document);
   ready(function(){
@@ -999,7 +1102,7 @@ if($('#homeSave')) $('#homeSave').onclick=async()=>{
     bind(box);
   });
   var hb=$('#dashHomeBtn');
-  if(hb) hb.onclick=function(){ ['#homePanel','#seoPanel'].forEach(function(x){ var e=$(x); if(e) e.style.display='none'; }); $('#dashPanel').style.display=''; window.scrollTo({top:0,behavior:'smooth'}); };
+  if(hb) hb.onclick=function(){ ['#homePanel','#seoPanel','#matchPanel'].forEach(function(x){ var e=$(x); if(e) e.style.display='none'; }); $('#dashPanel').style.display=''; window.scrollTo({top:0,behavior:'smooth'}); };
 })();
 </script>
 </body>
