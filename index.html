@@ -42,7 +42,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=98">
+<link rel="stylesheet" href="style.css?v=99">
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
@@ -427,6 +427,10 @@
             <span data-sc="finder.link.con.security" data-sc-label="파인더 · 링크 · 고민 · 보안·출입"></span>
             <span data-sc="finder.link.con.control" data-sc-label="파인더 · 링크 · 고민 · 통합관제·원격감시"></span>
             <span data-sc="finder.link.con.comply" data-sc-label="파인더 · 링크 · 고민 · 규정·온도기록"></span>
+            <!-- 시설×고민 조합별 매칭(활용분야 링크) — editor '솔루션 파인더 매칭' 그리드에서 편집.
+                 값은 시설코드→{고민코드: 링크} JSON. 링크는 app/<id> · applications · https://... 형식.
+                 빈칸이면 아래 고민별/시설별 링크로 자동 상속됨. -->
+            <span data-sc="finder.matrix" data-sc-label="파인더 · 조합별 매칭(JSON)">{"factory":{"equip":"app/manufact","power":"app/facility","fire":"app/temp","temp":"app/temp","control":"app/facility","comply":"app/temp","air":"app/air","security":"app/facility"},"logistics":{"cold":"app/cold-chain","temp":"app/logistics","equip":"app/manufact","comply":"app/cold-chain","power":"app/facility","fire":"app/temp","control":"app/logistics","security":"app/facility"},"pharma":{"cold":"app/pharma-cold","temp":"app/vaccine","comply":"app/lab","air":"app/hospital","equip":"app/manufact","control":"app/hospital","fire":"app/temp","security":"app/facility"},"datacenter":{"temp":"app/datacenter","leak":"app/leak","fire":"app/temp","power":"app/facility","equip":"app/manufact","control":"app/datacenter","security":"app/facility","comply":"app/datacenter"},"office":{"temp":"app/facility","power":"app/facility","air":"app/air","fire":"app/temp","leak":"app/leak","control":"app/facility","security":"app/facility","equip":"app/hvac"},"resident":{"leak":"app/leak","fire":"app/temp","temp":"app/facility","air":"app/air","security":"app/facility","control":"app/facility","power":"app/facility","comply":"app/temp"},"hotel":{"temp":"app/hospitality","fire":"app/temp","air":"app/air","leak":"app/leak","power":"app/facility","security":"app/hospitality","control":"app/hospitality","comply":"app/temp"},"retail":{"cold":"app/refrig","temp":"app/refrig","power":"app/facility","fire":"app/temp","air":"app/air","comply":"app/food","control":"app/facility","equip":"app/hvac"},"public":{"fire":"app/temp","air":"app/air","temp":"app/facility","security":"app/facility","power":"app/facility","leak":"app/leak","control":"app/facility","comply":"app/temp"},"agri":{"temp":"app/greenhouse","cold":"app/cold-chain","air":"app/greenhouse","equip":"app/manufact","power":"app/facility","control":"app/livestock","comply":"app/temp","leak":"app/leak"},"energy":{"equip":"app/manufact","power":"app/solar","control":"app/facility","leak":"app/leak","fire":"app/temp","temp":"app/temp","security":"app/facility","comply":"app/temp"},"construction":{"security":"app/construct","equip":"app/manufact","fire":"app/temp","power":"app/facility","control":"app/construct","temp":"app/construct","air":"app/air","comply":"app/construct"},"etc":{"fire":"app/temp","leak":"app/leak","temp":"app/temp","cold":"app/cold-chain","equip":"app/manufact","power":"app/facility","air":"app/air","security":"app/facility","control":"app/facility","comply":"app/temp"}}</span>
           </div>
         </div>
         <div class="wiz-result" id="wizOut" aria-live="polite">
@@ -1014,7 +1018,7 @@
     <div class="wrap">
       <div class="case-row">
         <div class="side">
-          <div class="case-step">01 / Customer Profile</div>
+          <div class="case-step">01 / RISK PROFILE</div>
           <div class="case-side-title">고객사 프로필</div>
           <div class="case-side-desc">이 솔루션을 도입하는 일반적인 조직과 운영 환경.</div>
         </div>
@@ -1027,7 +1031,7 @@
     <div class="wrap">
       <div class="case-row">
         <div class="side">
-          <div class="case-step">02 / Challenge</div>
+          <div class="case-step">02 / PROBLEM</div>
           <div class="case-side-title">현재의 문제점</div>
           <div class="case-side-desc">기존 운영 방식의 한계와 비즈니스 리스크.</div>
         </div>
@@ -1040,7 +1044,7 @@
     <div class="wrap">
       <div class="case-row">
         <div class="side">
-          <div class="case-step">03 / Solution</div>
+          <div class="case-step">03 / DETECTION</div>
           <div class="case-side-title">Monnit 솔루션</div>
           <div class="case-side-desc">기술적 접근과 데이터 흐름의 핵심.</div>
         </div>
@@ -1053,7 +1057,7 @@
     <div class="wrap">
       <div class="case-row">
         <div class="side">
-          <div class="case-step">04 / Proposal</div>
+          <div class="case-step">04 / DEPLOYMENT</div>
           <div class="case-side-title">제안 단계</div>
           <div class="case-side-desc">파일럿부터 본격 운영까지의 권장 도입 경로.</div>
         </div>
@@ -1066,7 +1070,7 @@
     <div class="wrap">
       <div class="case-row">
         <div class="side">
-          <div class="case-step">05 / Expected ROI</div>
+          <div class="case-step">05 / ROI</div>
           <div class="case-side-title">예상 ROI</div>
           <div class="case-side-desc">정량화 가능한 비즈니스 임팩트와 회수 기간.</div>
         </div>
@@ -2032,7 +2036,7 @@
 </footer>
 
   <!-- data.js(지식베이스·가이드 ~1.5MB)는 더 이상 선로딩하지 않음 → app.js가 해당 페이지 진입 시에만 동적 로드 -->
-  <script src="app.js?v=102"></script>
+  <script src="app.js?v=103"></script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
@@ -2281,6 +2285,16 @@
   };
   var fac=null,con=null;
   function getLink(key){ var el=document.querySelector('[data-sc="'+key+'"]'); return el ? el.textContent.trim() : ''; }
+  /* 시설×고민 조합별 매칭(editor 그리드에서 저장). 값이 있으면 최우선 적용, 없으면 상속. */
+  function getMatrixLink(f,c){
+    try{
+      var el=document.querySelector('[data-sc="finder.matrix"]');
+      if(!el) return '';
+      var raw=(el.textContent||'').trim(); if(!raw) return '';
+      var m=JSON.parse(raw);
+      return (m && m[f] && m[f][c]) ? String(m[f][c]).trim() : '';
+    }catch(e){ return ''; }
+  }
   function facLabelOf(v){ var b=document.querySelector('#wizFac .opt[data-v="'+v+'"]'); return b?b.textContent.trim():(FAC[v]||v); }
   /* 정적 버튼을 시설에 맞게 표시/정렬 (라벨은 그대로 유지 → editor 편집 반영) */
   function applyFacility(){
@@ -2319,8 +2333,8 @@
     var desc=base.desc+' 특히 '+ctx.eg+'에 맞춰 센서를 구성합니다.';
     var sensors=base.sensors+(ctx.sensor && base.sensors.indexOf(ctx.sensor)<0 ? ' · '+ctx.sensor : '');
     set('rTag',facLabel+' × '+conLabel);set('rTitle',title);set('rDesc',desc);set('rSensors',sensors);set('rFx',base.fx);
-    /* 결과 링크: 고민별 링크(있으면) → 시설별 링크 → 기본 활용분야 (모두 editor 수정 가능) */
-    var route=(getLink('finder.link.con.'+con)||getLink('finder.link.fac.'+fac)||('app/'+(ctx.app||'facility'))).trim();
+    /* 결과 링크 우선순위: 조합별 매칭(그리드) → 고민별 링크 → 시설별 링크 → 기본 활용분야 (모두 editor 수정 가능) */
+    var route=(getMatrixLink(fac,con)||getLink('finder.link.con.'+con)||getLink('finder.link.fac.'+fac)||('app/'+(ctx.app||'facility'))).trim();
     var m=document.getElementById('rMore');if(m){m.setAttribute('href','#');m.onclick=function(e){e.preventDefault();go(route);};m.textContent='활용분야 상세 보기';}
     var out=document.getElementById('wizOut');if(out){out.classList.add('show');out.scrollIntoView({behavior:'smooth',block:'nearest'});}
     var sel=document.getElementById('f-type');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===facLabel){sel.selectedIndex=i;break;}}}
