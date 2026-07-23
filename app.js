@@ -2560,17 +2560,6 @@ function renderAppDetail(id) {
   if (!app) { navigate('applications'); return; }
   const det = APP_DETAILS[id] || DEFAULT_APP_DETAIL;
 
-  // Redesign B — per-page semantic accent (--hz). Category default, hazard override by id.
-  (function(){
-    const HZ = { env:'#33C1FF', cold:'#4FA9E8', health:'#46C89A', indus:'#FF6A45', fac:'#5C93D6', agri:'#63C56A' };
-    let hz = HZ[app.cat] || '#5C93D6';
-    if (/leak|water|flood|누수|침수/i.test(id)) hz = '#33C1FF';
-    else if (/energy|solar|power|electr|정전|전력/i.test(id)) hz = '#FFC24B';
-    else if (/fire|heat|thermal|화재|과열/i.test(id)) hz = '#FF6A45';
-    const _vd = document.getElementById('view-app-detail');
-    if (_vd) _vd.style.setProperty('--hz', hz);
-  })();
-
   document.getElementById('appd-cat-tag').innerHTML =
     `<span class="app-tag ${app.cat}">${CATEGORIES[app.cat].label}</span>`;
   document.getElementById('appd-name').textContent = app.name;
