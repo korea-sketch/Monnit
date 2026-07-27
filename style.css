@@ -5177,6 +5177,60 @@ body{
 /* 외부 랜딩페이지로 연결되는 프로모션 카드(<a>) — article 카드와 동일하게 보이도록 */
 a.promo-card { text-decoration: none; color: inherit; }
 a.promo-card:hover, a.promo-card:focus-visible { text-decoration: none; color: inherit; }
+
+/* ── 종료·시작 전 프로모션 카드 ─────────────────────────────── */
+.promo-card-ended, .promo-card-upcoming { cursor: pointer; }
+.promo-card-ended .promo-thumb img { filter: grayscale(1) brightness(.55); }
+.promo-card-upcoming .promo-thumb img { filter: grayscale(.45) brightness(.72); }
+.promo-card-ended .promo-body, .promo-card-upcoming .promo-body { opacity: .62; }
+.promo-card-ended:hover, .promo-card-upcoming:hover { transform: none; box-shadow: none; }
+.promo-card-ended:hover .promo-body, .promo-card-upcoming:hover .promo-body { opacity: .8; }
+.promo-thumb { position: relative; }
+.promo-stamp { position: absolute; top: 12px; left: 12px; z-index: 2; font-size: 12px; font-weight: 800;
+  letter-spacing: .04em; padding: 5px 12px; border-radius: 999px; backdrop-filter: blur(6px); }
+.promo-stamp-ended { background: rgba(15,20,30,.82); color: #cfd6e2; border: 1px solid rgba(255,255,255,.18); }
+.promo-stamp-soon  { background: rgba(43,132,245,.92); color: #fff; border: 1px solid rgba(255,255,255,.24); }
+
+/* ── 종료·시작 전 안내창 ────────────────────────────────────── */
+.pg-ov { position: fixed; inset: 0; z-index: 9000; background: rgba(6,10,18,.72);
+  backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; transition: opacity .2s ease; }
+.pg-ov.show { opacity: 1; }
+.pg-box { position: relative; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto;
+  background: var(--surface, #131b28); border: 1px solid var(--line, #26344a); border-radius: 20px;
+  padding: 30px 26px 22px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.55);
+  transform: translateY(14px) scale(.98); transition: transform .22s cubic-bezier(.22,1,.36,1); }
+.pg-ov.show .pg-box { transform: none; }
+.pg-x { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--ink-soft, #8fa2bd); font-size: 16px; cursor: pointer; }
+.pg-x:hover { background: rgba(255,255,255,.07); color: #fff; }
+.pg-icon { font-size: 36px; line-height: 1; margin-bottom: 12px; }
+.pg-head { font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
+.pg-lead { font-size: 14.5px; line-height: 1.6; color: var(--ink-soft, #aebfd6); word-break: keep-all; }
+.pg-lead b { color: var(--ink, #f3f7fc); }
+.pg-hl { color: var(--accent-dark, #3b8ff5) !important; }
+.pg-sub { margin-top: 18px; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft, #aebfd6);
+  padding-top: 16px; border-top: 1px solid var(--line, #26344a); word-break: keep-all; }
+.pg-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; text-align: left; }
+.pg-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 13px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line, #26344a); transition: .16s; }
+.pg-item:hover { border-color: var(--accent-dark, #3b8ff5); background: rgba(59,143,245,.1); }
+.pg-thumb { flex: 0 0 54px; height: 40px; border-radius: 9px; overflow: hidden; background: rgba(0,0,0,.3);
+  display: flex; align-items: center; justify-content: center; color: var(--accent-dark, #3b8ff5); }
+.pg-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pg-txt { flex: 1; min-width: 0; }
+.pg-txt b { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.35; word-break: keep-all; }
+.pg-txt small { display: block; font-size: 11.5px; color: var(--ink-soft, #8fa2bd); margin-top: 2px; }
+.pg-arrow { flex: 0 0 auto; color: var(--accent-dark, #3b8ff5); font-weight: 700; }
+.pg-foot { display: flex; gap: 8px; margin-top: 20px; }
+.pg-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; height: 46px;
+  border-radius: 12px; font-size: 14.5px; font-weight: 700; border: 0; cursor: pointer; font-family: inherit; }
+.pg-btn-ghost { background: transparent; border: 1px solid var(--line, #26344a); color: var(--ink-soft, #aebfd6); }
+.pg-btn-ghost:hover { color: #fff; border-color: var(--line-strong, #3a4c68); }
+.pg-btn-main { background: var(--accent-dark, #3b8ff5); color: #fff; text-decoration: none; }
+.pg-btn-main:hover { filter: brightness(1.08); }
+.pg-note { margin-top: 12px; font-size: 11.5px; color: var(--ink-soft, #8fa2bd); }
+@media (max-width: 520px){ .pg-box { padding: 26px 18px 18px; } .pg-foot { flex-direction: column; } }
 /* 썸네일 높이 통일 — 업로드 사진 비율과 무관하게 모든 카드가 동일한 16:9 (사진은 꽉 채워 크롭) */
 .promo-thumb { width: 100%; flex-shrink: 0; overflow: hidden; background: var(--bg-deep); display: flex; align-items: center; justify-content: center; font-size: 38px; color: var(--accent-dark); aspect-ratio: 16/9; }
 .promo-thumb:not(.has-img) { background: linear-gradient(135deg, var(--accent-soft), var(--bg-deep)); }

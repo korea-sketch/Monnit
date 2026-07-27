@@ -1207,7 +1207,7 @@ function navigate(target) {
     window.location.hash = target;
     // PROMOS가 아직 로드 안 됐으면(특히 모바일 저속망) 로드 후 열도록 재시도
     const tryOpen = (n) => {
-      if (PROMOS && PROMOS.length){ openPromo(promoId, true); }
+      if (PROMOS && PROMOS.length){ openPromo(promoId, true); }   // openPromo 안에서 기간 검사 후 차단
       else if (n > 0){ setTimeout(() => tryOpen(n-1), 300); }
       else { if (typeof closePromo === 'function') closePromo(true); }
     };
@@ -2921,15 +2921,106 @@ const BUILTIN_PROMOS = [{
   period: '8월 한정',
   badge: 'NEW',
   desc: '무료 컨설팅 후 핵심 설비에 센서를 무상 설치. 한 달 데이터를 보고 도입을 결정하세요.',
-  image: '/images/field-1-pump-1440.jpg',
+  image: '/images/promo-consulting-banner.jpg',
   images: [],
   link: '/promo/consulting',
+  start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
+  end:   '2026-08-31',   // 한국시간 이 날 24:00 까지
   order: 0
 }];
 PROMOS = BUILTIN_PROMOS.slice();
+
+/* ═══════════════════════════════════════════════════════════════════
+   프로모션 기간(한국시간 KST 고정) — 방문자 기기 시간대와 무관하게 동작
+   · start/end 열이 있으면 그 값을 쓰고, 없으면 period 문구에서 자동 추출
+   · 상태: upcoming(시작 전) / active(진행 중) / ended(종료)
+   ═══════════════════════════════════════════════════════════════════ */
+/* KST 기준 특정 날짜의 자정을 UTC 타임스탬프로 (KST = UTC+9) */
+function kstMidnight(y, m, d){ return Date.UTC(y, m - 1, d, -9, 0, 0, 0); }
+function kstToday(){
+  const n = new Date(Date.now() + 9 * 3600000);
+  return { y: n.getUTCFullYear(), m: n.getUTCMonth() + 1, d: n.getUTCDate() };
+}
+/* 'YYYY-MM-DD' | 'YYYY.M.D' | 'M/D' | 'M월 D일' → {y,m,d} (연도 없으면 추론) */
+function parseKDate(str, baseYear){
+  if (!str) return null;
+  const t = String(str).trim();
+  let m = t.match(/(20\d{2})\s*[-./년]\s*(\d{1,2})\s*[-./월]\s*(\d{1,2})/);
+  if (m) return { y:+m[1], m:+m[2], d:+m[3] };
+  m = t.match(/(\d{1,2})\s*[/.월]\s*(\d{1,2})/);
+  if (m){
+    const mo = +m[1], da = +m[2];
+    if (mo < 1 || mo > 12 || da < 1 || da > 31) return null;
+    let y = baseYear || kstToday().y;
+    // 지난 6개월보다 더 과거로 계산되면 내년으로 간주 (연말·연초 대응)
+    if (kstMidnight(y, mo, da) < Date.now() - 182 * 86400000) y += 1;
+    return { y:y, m:mo, d:da };
+  }
+  return null;
+}
+/* period 문구에서 시작·종료일 추출
+   지원: '7/30까지' '~8/31' '8/1 ~ 8/31' '2026.08.01 ~ 08.31' '8월 한정' '8월 1일 ~ 8월 31일' */
+function parsePeriodRange(period){
+  const out = { start:null, end:null };
+  if (!period) return out;
+  const t = String(period).replace(/\s+/g, ' ').trim();
+
+  // 'N월 한정' → 그 달 1일 ~ 말일
+  let m = t.match(/(\d{1,2})\s*월\s*한정/);
+  if (m){
+    const mo = +m[1]; let y = kstToday().y;
+    if (kstMidnight(y, mo, 1) < Date.now() - 182 * 86400000) y += 1;
+    out.start = { y:y, m:mo, d:1 };
+    out.end   = { y:y, m:mo, d:new Date(Date.UTC(y, mo, 0)).getUTCDate() };
+    return out;
+  }
+  // 범위 표기 (~ 또는 - 로 구분)
+  const parts = t.split(/\s*[~–—]\s*|\s+-\s+/);
+  if (parts.length >= 2){
+    const a = parseKDate(parts[0]);
+    let b = parseKDate(parts[1]);
+    if (a && !b){ // '8/1 ~ 31' 처럼 뒤에 일자만 있는 경우
+      const dd = (parts[1].match(/(\d{1,2})/) || [])[1];
+      if (dd) b = { y:a.y, m:a.m, d:+dd };
+    }
+    if (a) out.start = a;
+    if (b) out.end = b;
+    if (out.start || out.end) return out;
+  }
+  // '…까지' 단일 종료일
+  if (/까지/.test(t)){ out.end = parseKDate(t); return out; }
+  // 그 외 날짜 하나만 있으면 종료일로 간주
+  out.end = parseKDate(t);
+  return out;
+}
+/* 프로모션 객체에 startTs/endTs/status 부여 */
+function applyPromoSchedule(p){
+  const fromPeriod = parsePeriodRange(p.period);
+  const s = parseKDate(p.start) || fromPeriod.start;
+  const e = parseKDate(p.end)   || fromPeriod.end;
+  p.startTs = s ? kstMidnight(s.y, s.m, s.d) : null;               // 시작일 00:00 KST
+  p.endTs   = e ? kstMidnight(e.y, e.m, e.d) + 86400000 : null;    // 종료일 24:00 KST (당일 포함)
+  p.startLabel = s ? (s.y + '년 ' + s.m + '월 ' + s.d + '일') : '';
+  p.endLabel   = e ? (e.y + '년 ' + e.m + '월 ' + e.d + '일') : '';
+  const now = Date.now();
+  if (p.forcedEnded)                    p.status = 'ended';
+  else if (p.endTs   && now >= p.endTs) p.status = 'ended';
+  else if (p.startTs && now <  p.startTs) p.status = 'upcoming';
+  else                                  p.status = 'active';
+  return p;
+}
+/* 지금 신청 가능한 프로모션 / 곧 시작하는 프로모션 */
+function activePromos(){ return PROMOS.filter(p => p.status === 'active'); }
+function upcomingPromos(){
+  return PROMOS.filter(p => p.status === 'upcoming').sort((a,b) => (a.startTs||0) - (b.startTs||0));
+}
 function mapPromotions(rows){
-  const out = rows.filter(o => (o.title || o.html || o.images || o.image) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
+  const out = rows.filter(o => (o.title || o.html || o.images || o.image))
     .map(o => ({
+      // 시트의 ended 열은 '기간과 무관하게 강제 종료' 스위치로 씁니다
+      forcedEnded: /^(1|true|y|yes)$/i.test(String(o.ended||'').trim()),
+      start: (o.start||'').trim(),
+      end: (o.end||'').trim(),
       id: (o.id||'').trim(),
       title: o.title||'',
       html: o.html||'',
@@ -2944,8 +3035,11 @@ function mapPromotions(rows){
     }))
     .sort((a,b) => a.order - b.order);
   // 시트에 없는 내장 프로모션을 합칩니다 (시트 우선)
-  BUILTIN_PROMOS.forEach(b => { if (!out.some(p => p.id === b.id)) out.push(b); });
-  return out.sort((a,b) => a.order - b.order);
+  BUILTIN_PROMOS.forEach(b => { if (!out.some(p => p.id === b.id)) out.push(Object.assign({}, b)); });
+  out.forEach(applyPromoSchedule);
+  // 진행 중 → 시작 전 → 종료 순으로 정렬하고, 같은 상태 안에서는 order 순
+  const rank = { active:0, upcoming:1, ended:2 };
+  return out.sort((a,b) => (rank[a.status] - rank[b.status]) || (a.order - b.order));
 }
 let NEWS_HIGHLIGHTS = [
   { title:'2026 IoT Sensor Company of the Year 수상', desc:'Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.', url:'https://blog.naver.com/monnitkorea' },
@@ -3033,6 +3127,82 @@ function renderBlog(){
   }).join('');
   renderPager(el, 'blogPager', total, per, pageState.blog, g=>{ pageState.blog=g; renderBlog(); el.scrollIntoView({behavior:'smooth',block:'start'}); });
 }
+/* ═══════════════════════════════════════════════════════════════════
+   종료·시작 전 프로모션 안내창
+   · 종료된 프로모션 → 지금 진행 중인 혜택으로 유도
+   · 시작 전 프로모션 → 오픈 예정일 안내
+   ═══════════════════════════════════════════════════════════════════ */
+function closePromoGate(){
+  const el = document.getElementById('promoGate');
+  if (el){ el.classList.remove('show'); setTimeout(()=>el.remove(), 200); }
+  document.body.style.overflow = '';
+}
+function showPromoGate(p){
+  closePromoGate();
+  const ended = p.status === 'ended';
+  const alts  = activePromos().filter(x => x.id !== p.id);
+  const soon  = upcomingPromos().filter(x => x.id !== p.id);
+
+  let head, lead;
+  if (ended){
+    head = '종료된 프로모션입니다';
+    lead = `<b>${esc(p.title)}</b> 은(는) ${p.endLabel ? esc(p.endLabel) + '자로 ' : ''}접수가 마감되었습니다.`;
+  } else {
+    head = '아직 시작 전인 프로모션입니다';
+    lead = `<b>${esc(p.title)}</b> 은(는) <b class="pg-hl">${esc(p.startLabel)}</b> 부터 신청하실 수 있습니다.`;
+  }
+
+  let bodyHtml = '';
+  if (alts.length){
+    bodyHtml += `<div class="pg-sub">${ended ? '지금 진행 중인 혜택으로 안내해 드릴까요?' : '먼저 진행 중인 혜택을 살펴보셔도 좋습니다.'}</div>`;
+    bodyHtml += '<div class="pg-list">' + alts.slice(0,3).map(a => {
+      const href = a.link ? esc(a.link) : ('#promotions/' + esc(a.id));
+      const thumb = a.image ? `<img src="${esc(a.image)}" alt="" loading="lazy">` : '<span class="pg-ico">◆</span>';
+      return `<a class="pg-item" href="${href}" data-gate-go="${esc(a.id)}">
+        <span class="pg-thumb">${thumb}</span>
+        <span class="pg-txt"><b>${esc(a.title)}</b><small>${esc(a.period || '진행 중')}</small></span>
+        <span class="pg-arrow">→</span></a>`;
+    }).join('') + '</div>';
+  } else if (soon.length || !ended){
+    const n = soon[0] || p;
+    bodyHtml += `<div class="pg-sub">현재 신청 가능한 프로모션이 없습니다.<br>
+      <b class="pg-hl">${esc(n.startLabel || '곧')}</b> 에 <b>${esc(n.title)}</b> 이(가) 시작됩니다. 조금만 기다려 주세요.</div>`;
+  } else {
+    bodyHtml += '<div class="pg-sub">새로운 프로모션을 준비하고 있습니다.<br>준비되는 대로 이곳에서 가장 먼저 안내드리겠습니다.</div>';
+  }
+
+  const wrap = document.createElement('div');
+  wrap.id = 'promoGate';
+  wrap.className = 'pg-ov';
+  wrap.innerHTML = `<div class="pg-box" role="dialog" aria-modal="true" aria-label="${esc(head)}">
+      <button class="pg-x" type="button" aria-label="닫기">✕</button>
+      <div class="pg-icon">${ended ? '🔒' : '⏳'}</div>
+      <h3 class="pg-head">${esc(head)}</h3>
+      <p class="pg-lead">${lead}</p>
+      ${bodyHtml}
+      <div class="pg-foot">
+        <button class="pg-btn pg-btn-ghost" type="button" data-gate-close>닫기</button>
+        <a class="pg-btn pg-btn-main" href="#contact" data-gate-close>상담 문의하기</a>
+      </div>
+      <p class="pg-note">문의 02-2088-1454 · korea@monnit.com</p>
+    </div>`;
+  document.body.appendChild(wrap);
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(()=> wrap.classList.add('show'));
+
+  wrap.addEventListener('click', e => {
+    if (e.target === wrap || e.target.closest('.pg-x') || e.target.closest('[data-gate-close]')) closePromoGate();
+  });
+  wrap.querySelectorAll('[data-gate-go]').forEach(a => a.addEventListener('click', () => {
+    try { if (window.gtag) gtag('event', 'promo_gate_redirect', { from: p.id, to: a.getAttribute('data-gate-go') }); } catch(e){}
+    closePromoGate();
+  }));
+  document.addEventListener('keydown', function esc2(e){
+    if (e.key === 'Escape'){ closePromoGate(); document.removeEventListener('keydown', esc2); }
+  });
+  try { if (window.gtag) gtag('event', 'promo_gate_view', { promo: p.id, state: p.status }); } catch(e){}
+}
+
 /* ===== PROMOTIONS ===== */
 function renderPromotions(){
   const grid = document.getElementById('promoGrid');
@@ -3041,10 +3211,15 @@ function renderPromotions(){
   const countEl = document.getElementById('promoHeroCount');
   if (countEl) {
     let _lang='ko'; try{ _lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
-    if (PROMOS.length) {
+    const nActive = activePromos().length, up = upcomingPromos()[0];
+    if (nActive) {
       countEl.textContent = (_lang==='en')
-        ? `${PROMOS.length} promotion${PROMOS.length>1?'s':''} currently running · apply before they sell out`
-        : `현재 ${PROMOS.length}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`;
+        ? `${nActive} promotion${nActive>1?'s':''} currently running · apply before they sell out`
+        : `현재 ${nActive}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`;
+    } else if (up) {
+      countEl.textContent = (_lang==='en')
+        ? `Next promotion opens on ${up.startLabel} · stay tuned`
+        : `${up.startLabel}에 새 프로모션이 시작됩니다 · 조금만 기다려 주세요`;
     } else {
       countEl.textContent = (_lang==='en') ? 'New promotions are on the way' : '새로운 프로모션을 준비하고 있습니다';
     }
@@ -3056,35 +3231,36 @@ function renderPromotions(){
   }
   if (empty) empty.style.display = 'none';
   grid.innerHTML = PROMOS.map(p => {
-    const thumb = p.image
-      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
-      : `<div class="promo-thumb">◆</div>`;
-    const badge = p.badge ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
-    const period = p.period ? `<div class="promo-period">${esc(p.period)}</div>` : '';
-    if (p.link){
-      // 외부 URL(https://…) 이든 사이트 내부 경로(/promo/consulting) 든 그대로 사용
-      const ext = p.link.indexOf('http') === 0;
-      return `<a class="promo-card" href="${esc(p.link)}"${ext ? ' target="_blank" rel="noopener"' : ''} data-promo-link="${esc(p.id)}">
-        ${thumb}
-        <div class="promo-body">
-          ${badge}
-          <h3>${esc(p.title)}</h3>
-          ${period}
-          <p>${esc(p.desc)}</p>
-          <span class="b-link">자세히 보기 →</span>
-        </div>
-      </a>`;
-    }
-    return `<article class="promo-card" data-promo="${esc(p.id)}" role="button" tabindex="0">
-      ${thumb}
+    const off = p.status !== 'active';                    // 종료 또는 시작 전 → 진입 차단
+    const stateCls = off ? ' promo-card-' + p.status : '';
+    const stamp = p.status === 'ended'
+      ? '<span class="promo-stamp promo-stamp-ended">종료</span>'
+      : (p.status === 'upcoming' ? '<span class="promo-stamp promo-stamp-soon">시작 전</span>' : '');
+    const thumb = (p.image
+      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">${stamp}</div>`
+      : `<div class="promo-thumb">◆${stamp}</div>`);
+    const badge = p.badge && p.status === 'active' ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
+    let periodTxt = p.period || '';
+    if (p.status === 'upcoming' && p.startLabel) periodTxt = p.startLabel + ' 오픈 예정';
+    else if (p.status === 'ended') periodTxt = (p.endLabel ? p.endLabel + ' 종료' : '종료된 프로모션');
+    const period = periodTxt ? `<div class="promo-period">${esc(periodTxt)}</div>` : '';
+    const cta = p.status === 'active' ? '자세히 보기 →'
+              : (p.status === 'upcoming' ? '오픈 알림 받기 →' : '진행 중인 혜택 보기 →');
+    const body = `
       <div class="promo-body">
         ${badge}
         <h3>${esc(p.title)}</h3>
         ${period}
         <p>${esc(p.desc)}</p>
-        <span class="b-link">자세히 보기 →</span>
-      </div>
-    </article>`;
+        <span class="b-link">${cta}</span>
+      </div>`;
+    // 진행 중 + 랜딩 링크가 있을 때만 실제 <a> 로 이동시킵니다
+    if (p.link && !off){
+      const ext = p.link.indexOf('http') === 0;
+      return `<a class="promo-card" href="${esc(p.link)}"${ext ? ' target="_blank" rel="noopener"' : ''} data-promo-link="${esc(p.id)}">${thumb}${body}</a>`;
+    }
+    return `<article class="promo-card${stateCls}" data-promo="${esc(p.id)}" role="button" tabindex="0"
+             aria-disabled="${off ? 'true' : 'false'}">${thumb}${body}</article>`;
   }).join('');
   grid.querySelectorAll('[data-promo-link]').forEach(card => {
     card.addEventListener('click', () => {
@@ -3092,7 +3268,12 @@ function renderPromotions(){
     });
   });
   grid.querySelectorAll('[data-promo]').forEach(card => {
-    const open = () => openPromo(card.getAttribute('data-promo'));
+    const id = card.getAttribute('data-promo');
+    const open = () => {
+      const p = PROMOS.find(x => x.id === id);
+      if (p && p.status !== 'active'){ showPromoGate(p); return; }   // 종료·시작 전 → 안내창
+      openPromo(id);
+    };
     card.addEventListener('click', open);
     card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
   });
@@ -3101,19 +3282,27 @@ function renderPromotions(){
   if (sel){
     const cur = sel.value;
     sel.innerHTML = '<option value="">— 프로모션을 선택하세요 —</option>'
-      + PROMOS.map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
+      + activePromos().map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
       + '<option value="기타/미정">기타 · 아직 정하지 않음</option>';
     if (cur) sel.value = cur;
   }
 }
 function openPromo(id, fromHash){
   const p = PROMOS.find(x => x.id === id);
-  if (p && p.link){ window.location.href = p.link; return; }
   if (!p) {
     // 존재하지 않는 프로모션 id → 목록으로 안전 복귀 (빈 페이지 방지)
     if (typeof closePromo === 'function') closePromo(fromHash);
     return;
   }
+  // 기간이 지났거나 아직 시작 전이면 상세로 들어가지 못하게 막고 안내창을 띄웁니다
+  // (주소창에 #promotions/fire 를 직접 입력해도 동일하게 차단됩니다)
+  if (p.status !== 'active'){
+    if (typeof closePromo === 'function') closePromo(true);
+    try { history.replaceState(null, '', '#promotions'); } catch(e){}
+    showPromoGate(p);
+    return;
+  }
+  if (p.link){ window.location.href = p.link; return; }
   const view = document.getElementById('promoDetail');
   const body = document.getElementById('promoDetailBody');
   const titleEl = document.getElementById('promoDetailTitle');

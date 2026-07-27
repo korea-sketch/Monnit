@@ -2,6 +2,8 @@
 User-agent: *
 Allow: /
 Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: GPTBot
 Allow: /

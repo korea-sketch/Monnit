@@ -6,7 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* 광고 랜딩 가속 — #promotions/{id} 해시로 직접 들어오면 무거운 SPA 대신 초경량 정적 랜딩(promo.html)으로 즉시 이동 (utm·fbclid 유지). SPA 내부 이동에는 영향 없음. */
 (function(){try{var h=location.hash||'';var m=h.match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T8H73VW');</script>
+<!-- ===== 쿠키 동의 (Google Consent Mode v2) — GTM/GA4/Clarity 보다 반드시 먼저 =====
+     동의 전에는 광고·분석 쿠키를 저장하지 않습니다.
+     설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
+<script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html'};</script>
+<script src="/js/monnit-consent.js?v=1"></script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -47,30 +51,14 @@
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
 
-<!-- ===== 사이트 유입 분석 (무료) — 아래 ID만 채우면 작동, 비워두면 아무것도 로드 안 함 ===== -->
+<!-- 해시 라우팅(메뉴 이동)도 페이지뷰로 집계 — 분석 동의가 있을 때만 전송됩니다 -->
 <script>
-(function(){
-  // 1) Google Analytics 4 — analytics.google.com 에서 측정 ID(G-XXXXXXXXXX) 발급 후 입력
-  var GA4_ID = 'G-49THHRYKR4';        // 예: 'G-ABCD1234EF'
-  // 2) (선택) Microsoft Clarity — clarity.microsoft.com 에서 프로젝트 ID 발급 후 입력 (히트맵·세션 녹화)
-  var CLARITY_ID = 'xikw9t2skq';    // Microsoft Clarity 프로젝트 ID (모넷코리아)
-
-  if (GA4_ID) {
-    var s=document.createElement('script'); s.async=true;
-    s.src='https://www.googletagmanager.com/gtag/js?id='+GA4_ID; document.head.appendChild(s);
-    window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);};
-    gtag('js', new Date()); gtag('config', GA4_ID);
-    // 해시 라우팅(메뉴 이동)도 각각 페이지뷰로 집계
-    window.addEventListener('hashchange', function(){
-      gtag('event','page_view',{ page_location:location.href, page_path:location.pathname+location.hash, page_title:document.title });
-    });
-  }
-  if (CLARITY_ID) {
-    (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",CLARITY_ID);
-  }
-})();
+window.addEventListener('hashchange', function(){
+  try{
+    if (window.MonnitConsent && !window.MonnitConsent.state.analytics) return;
+    if (window.gtag) gtag('event','page_view',{ page_location:location.href, page_path:location.pathname+location.hash, page_title:document.title });
+  }catch(e){}
+});
 </script>
 </head>
 <body>
@@ -2027,7 +2015,7 @@
     </div>
   </div>
   <div class="wrap footer-base">
-    <span>© 2026 Monnit Korea. All rights reserved.</span>
+    <span>© 2026 Monnit Korea. All rights reserved. <a href="/privacy.html" style="color:inherit;text-decoration:underline;margin-left:10px">개인정보처리방침</a> <a href="#" data-cookie-settings style="color:inherit;text-decoration:underline;margin-left:8px">쿠키 설정</a></span>
     <span class="foot-contact">
       <a href="mailto:korea@monnit.com" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>korea@monnit.com</a>
       <a href="tel:0220881454" class="fc-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>02-2088-1454</a>

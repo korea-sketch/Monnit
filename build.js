@@ -615,7 +615,7 @@ try {
 /* ---------- robots.txt ---------- */
 const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'CCBot', 'Applebot-Extended', 'Bytespider', 'Amazonbot', 'meta-externalagent', 'cohere-ai'];
 let robots = '# Monnit Korea — 모든 검색·AI 크롤러 허용\n';
-robots += 'User-agent: *\nAllow: /\nDisallow: /editor.html\n\n';
+robots += 'User-agent: *\nAllow: /\nDisallow: /editor.html\nDisallow: /church\nDisallow: /church/\n\n';
 AI_BOTS.forEach(b => { robots += `User-agent: ${b}\nAllow: /\n\n`; });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
@@ -626,6 +626,7 @@ const urls = [
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
   { loc: SITE + '/promo/fire', pri: '0.7' },
   { loc: SITE + '/promo/consulting', pri: '0.9' },
+  { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' }))
 ];
 let sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';

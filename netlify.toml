@@ -35,6 +35,22 @@
   to = "https://blog.naver.com/monnitkorea"
   status = 301
 
+# 교회 전단 QR 전용 랜딩 — 검색엔진 색인 차단
+[[headers]]
+  for = "/church/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[redirects]]
+  from = "/church"
+  to = "/church/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/church/"
+  to = "/church/index.html"
+  status = 200
+
 # 프로모션 랜딩: 회전설비 AI 예지보전 1개월 무료 체험 (컨설팅)
 # ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다
 [[redirects]]
