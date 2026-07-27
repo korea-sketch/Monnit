@@ -2910,8 +2910,25 @@ let BLOG = [
   { date:'2025.10.24', title:'겨울철 설비 동파, 스마트하게 막는 법', body:'온도·누수 센서를 결합한 조기 경보로 한파 시즌의 배관 동파와 누수 피해를 예방하는 방법을 소개합니다.', thumb:'◇', url:'https://blog.naver.com/monnitkorea' }
 ];
 let PROMOS = [];
+/* ── 사이트 내장 프로모션 ─────────────────────────────────────────────
+   Promotions 시트에 행이 없어도 프로모션 목록에 항상 노출됩니다.
+   시트에 같은 id(consulting) 행을 추가하면 시트 값이 우선 적용됩니다.
+   내리고 싶으면 아래 배열을 [] 로 비우세요. */
+const BUILTIN_PROMOS = [{
+  id: 'consulting',
+  title: '회전설비 AI 예지보전 1개월 무료 체험',
+  html: '',
+  period: '8월 한정',
+  badge: 'NEW',
+  desc: '무료 컨설팅 후 핵심 설비에 센서를 무상 설치. 한 달 데이터를 보고 도입을 결정하세요.',
+  image: '/images/field-1-pump-1440.jpg',
+  images: [],
+  link: '/promo/consulting',
+  order: 0
+}];
+PROMOS = BUILTIN_PROMOS.slice();
 function mapPromotions(rows){
-  return rows.filter(o => (o.title || o.html || o.images || o.image) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
+  const out = rows.filter(o => (o.title || o.html || o.images || o.image) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
     .map(o => ({
       id: (o.id||'').trim(),
       title: o.title||'',
@@ -2926,6 +2943,9 @@ function mapPromotions(rows){
       order: parseInt(o.order,10) || 999
     }))
     .sort((a,b) => a.order - b.order);
+  // 시트에 없는 내장 프로모션을 합칩니다 (시트 우선)
+  BUILTIN_PROMOS.forEach(b => { if (!out.some(p => p.id === b.id)) out.push(b); });
+  return out.sort((a,b) => a.order - b.order);
 }
 let NEWS_HIGHLIGHTS = [
   { title:'2026 IoT Sensor Company of the Year 수상', desc:'Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.', url:'https://blog.naver.com/monnitkorea' },

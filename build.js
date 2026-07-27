@@ -161,7 +161,11 @@ const PARTNERS = __src ? __src.PARTNERS : (extract('let PARTNERS =') || []);
 const CUSTOMERS = __src ? __src.CUSTOMERS : (extract('let CUSTOMERS =') || []);
 const BLOG = __src ? __src.BLOG : (extract('let BLOG =') || []);
 const WHITEPAPERS = __src ? __src.WHITEPAPERS : (extract('let WHITEPAPERS =') || []);
-const PROMOS = __src ? __src.PROMOS : (extract('let PROMOS =') || []);
+let PROMOS = __src ? __src.PROMOS : (extract('let PROMOS =') || []);
+/* app.js 의 내장 프로모션(시트에 없는 항목)을 정적 페이지에도 반영 */
+const BUILTIN_PROMOS = extract('const BUILTIN_PROMOS =') || [];
+BUILTIN_PROMOS.forEach(b => { if (!PROMOS.some(p => p.id === b.id)) PROMOS.push(b); });
+PROMOS = PROMOS.sort((a, b) => (parseInt(a.order,10)||999) - (parseInt(b.order,10)||999));
 
 /* ---------- data.js 에서 지식베이스/가이드 로드 ---------- */
 let KNOWLEDGEBASE = [], GUIDES = [];
