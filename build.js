@@ -127,7 +127,7 @@ function convertSheet(D, prodCats) {
     PARTNERS: D.Partners.filter(r => r.name).map(r => ({ n: r.name, r: r.region || '', d: r.desc || '', url: r.url || '' })),
     BLOG: D.Blog.filter(r => r.title).map(r => ({ date: r.date || '', title: r.title, body: r.body || '', thumb: r.thumb || '', url: r.url || '' })),
     WHITEPAPERS: D.Whitepapers.filter(r => r.title).map(r => ({ icon: r.icon || '', title: r.title, desc: r.desc || '', url: r.url || '' })),
-    PROMOS: D.Promotions.filter(r => r.title).map(r => ({ id: r.id || '', title: r.title, period: r.period || '', badge: r.badge || '', ended: /^(true|1)$/i.test(r.ended || ''), desc: r.desc || '', order: r.order || '' }))
+    PROMOS: D.Promotions.filter(r => r.title).map(r => ({ id: r.id || '', title: r.title, period: r.period || '', badge: r.badge || '', ended: /^(true|1)$/i.test(r.ended || ''), desc: r.desc || '', link: r.link || '', order: r.order || '' }))
   };
 }
 
@@ -558,7 +558,7 @@ const KB_SLUGS = {};
   if (!PROMOS.length) return;
   const act = PROMOS.filter(p => !p.ended), ended = PROMOS.filter(p => p.ended);
   let body = `<p>이미지 배너로 안내되는 프로모션 내용을 텍스트로 제공합니다. 신청·상세: <a href="${SITE}/#promotions">monnit.co.kr 프로모션</a></p>`;
-  const block = (p) => `<h2>${esc(strip(p.title))}${p.badge ? ` <span class="muted">[${esc(p.badge)}]</span>` : ''}${p.ended ? ' <span class="muted">(종료)</span>' : ''}</h2>${p.desc ? `<p>${esc(strip(p.desc))}</p>` : ''}${p.period ? `<p class="muted">기간: ${esc(p.period)}</p>` : ''}<p><a href="${SITE}/#promotions/${esc(p.id)}">프로모션 상세·신청 →</a></p>`;
+  const block = (p) => `<h2>${esc(strip(p.title))}${p.badge ? ` <span class="muted">[${esc(p.badge)}]</span>` : ''}${p.ended ? ' <span class="muted">(종료)</span>' : ''}</h2>${p.desc ? `<p>${esc(strip(p.desc))}</p>` : ''}${p.period ? `<p class="muted">기간: ${esc(p.period)}</p>` : ''}<p><a href="${p.link ? (p.link.indexOf('http')===0 ? p.link : SITE + p.link) : SITE + '/#promotions/' + esc(p.id)}">프로모션 상세·신청 →</a></p>`;
   act.forEach(p => body += block(p));
   if (ended.length) { body += `<h2>종료된 프로모션</h2>`; ended.forEach(p => body += block(p)); }
   writePage('promotions', page({
@@ -621,6 +621,7 @@ const urls = [
   { loc: SITE + '/', pri: '1.0' },
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
   { loc: SITE + '/promo/fire', pri: '0.7' },
+  { loc: SITE + '/promo/consulting', pri: '0.9' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' }))
 ];
 let sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';

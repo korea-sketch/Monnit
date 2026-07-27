@@ -2919,6 +2919,7 @@ function mapPromotions(rows){
       period: o.period||'',
       badge: o.badge||'',
       desc: o.desc||'',
+      link: (o.link||'').trim(),   // 값이 있으면 카드 클릭 시 해당 랜딩페이지로 이동
       image: normalizeImageUrl(o.image||''),
       // 상세 페이지용 이미지들 (||로 여러 장 구분). 각 항목의 ':: 캡션' 부분은 제거. images 없으면 image 한 장 사용
       images: (o.images||'').split('||').map(s=>normalizeImageUrl((s.split('::')[0]||'').trim())).filter(Boolean),
@@ -3040,6 +3041,20 @@ function renderPromotions(){
       : `<div class="promo-thumb">◆</div>`;
     const badge = p.badge ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
     const period = p.period ? `<div class="promo-period">${esc(p.period)}</div>` : '';
+    if (p.link){
+      // 외부 URL(https://…) 이든 사이트 내부 경로(/promo/consulting) 든 그대로 사용
+      const ext = p.link.indexOf('http') === 0;
+      return `<a class="promo-card" href="${esc(p.link)}"${ext ? ' target="_blank" rel="noopener"' : ''} data-promo-link="${esc(p.id)}">
+        ${thumb}
+        <div class="promo-body">
+          ${badge}
+          <h3>${esc(p.title)}</h3>
+          ${period}
+          <p>${esc(p.desc)}</p>
+          <span class="b-link">자세히 보기 →</span>
+        </div>
+      </a>`;
+    }
     return `<article class="promo-card" data-promo="${esc(p.id)}" role="button" tabindex="0">
       ${thumb}
       <div class="promo-body">
@@ -3051,6 +3066,11 @@ function renderPromotions(){
       </div>
     </article>`;
   }).join('');
+  grid.querySelectorAll('[data-promo-link]').forEach(card => {
+    card.addEventListener('click', () => {
+      try { if (window.gtag) gtag('event', 'promo_card_click', { promo: card.getAttribute('data-promo-link') }); } catch(e){}
+    });
+  });
   grid.querySelectorAll('[data-promo]').forEach(card => {
     const open = () => openPromo(card.getAttribute('data-promo'));
     card.addEventListener('click', open);
@@ -3068,6 +3088,7 @@ function renderPromotions(){
 }
 function openPromo(id, fromHash){
   const p = PROMOS.find(x => x.id === id);
+  if (p && p.link){ window.location.href = p.link; return; }
   if (!p) {
     // 존재하지 않는 프로모션 id → 목록으로 안전 복귀 (빈 페이지 방지)
     if (typeof closePromo === 'function') closePromo(fromHash);
