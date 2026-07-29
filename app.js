@@ -2601,6 +2601,8 @@ function comingSoonLabel(id){
     const raw=el?(el.textContent||'').trim():'';
     if(raw){
       const cfg=JSON.parse(raw);
+      // 준비 중인 신규 어플리케이션 이름표 (finder.config 의 soon 목록)
+      if(cfg.soon && cfg.soon[id]) return cfg.soon[id];
       const hit=[].concat(cfg.fac||[],cfg.con||[]).find(x=>('app/'+String(x.app||''))===('app/'+id)||String(x.id||'')===id);
       if(hit&&hit.ko) return hit.ko;
     }
