@@ -10,7 +10,7 @@
      동의 전에는 광고·분석 쿠키를 저장하지 않습니다.
      설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html'};</script>
-<script src="/js/monnit-consent.js?v=103"></script>
+<script src="/js/monnit-consent.js?v=104"></script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -46,7 +46,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=103">
+<link rel="stylesheet" href="style.css?v=104">
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
@@ -418,6 +418,9 @@ window.addEventListener('hashchange', function(){
             <!-- 시설×고민 조합별 매칭(활용분야 링크) — editor '솔루션 파인더 매칭' 그리드에서 편집.
                  값은 시설코드→{고민코드: 링크} JSON. 링크는 app/<id> · applications · https://... 형식.
                  빈칸이면 아래 고민별/시설별 링크로 자동 상속됨. -->
+            <!-- 파인더 Q1(시설)·Q2(고민) 목록 — /editor 의 "파인더 항목" 패널에서 편집합니다.
+                 비워두면 아래 기본 목록(정적 버튼)이 그대로 쓰입니다. -->
+            <span data-sc="finder.config" data-sc-label="파인더 · 항목 목록(JSON)"></span>
             <span data-sc="finder.matrix" data-sc-label="파인더 · 조합별 매칭(JSON)">{"factory":{"equip":"app/manufact","power":"app/facility","fire":"app/temp","temp":"app/temp","control":"app/facility","comply":"app/temp","air":"app/air","security":"app/facility"},"logistics":{"cold":"app/cold-chain","temp":"app/logistics","equip":"app/manufact","comply":"app/cold-chain","power":"app/facility","fire":"app/temp","control":"app/logistics","security":"app/facility"},"pharma":{"cold":"app/pharma-cold","temp":"app/vaccine","comply":"app/lab","air":"app/hospital","equip":"app/manufact","control":"app/hospital","fire":"app/temp","security":"app/facility"},"datacenter":{"temp":"app/datacenter","leak":"app/leak","fire":"app/temp","power":"app/facility","equip":"app/manufact","control":"app/datacenter","security":"app/facility","comply":"app/datacenter"},"office":{"temp":"app/facility","power":"app/facility","air":"app/air","fire":"app/temp","leak":"app/leak","control":"app/facility","security":"app/facility","equip":"app/hvac"},"resident":{"leak":"app/leak","fire":"app/temp","temp":"app/facility","air":"app/air","security":"app/facility","control":"app/facility","power":"app/facility","comply":"app/temp"},"hotel":{"temp":"app/hospitality","fire":"app/temp","air":"app/air","leak":"app/leak","power":"app/facility","security":"app/hospitality","control":"app/hospitality","comply":"app/temp"},"retail":{"cold":"app/refrig","temp":"app/refrig","power":"app/facility","fire":"app/temp","air":"app/air","comply":"app/food","control":"app/facility","equip":"app/hvac"},"public":{"fire":"app/temp","air":"app/air","temp":"app/facility","security":"app/facility","power":"app/facility","leak":"app/leak","control":"app/facility","comply":"app/temp"},"agri":{"temp":"app/greenhouse","cold":"app/cold-chain","air":"app/greenhouse","equip":"app/manufact","power":"app/facility","control":"app/livestock","comply":"app/temp","leak":"app/leak"},"energy":{"equip":"app/manufact","power":"app/solar","control":"app/facility","leak":"app/leak","fire":"app/temp","temp":"app/temp","security":"app/facility","comply":"app/temp"},"construction":{"security":"app/construct","equip":"app/manufact","fire":"app/temp","power":"app/facility","control":"app/construct","temp":"app/construct","air":"app/air","comply":"app/construct"},"etc":{"fire":"app/temp","leak":"app/leak","temp":"app/temp","cold":"app/cold-chain","equip":"app/manufact","power":"app/facility","air":"app/air","security":"app/facility","control":"app/facility","comply":"app/temp"}}</span>
           </div>
         </div>
@@ -2024,11 +2027,11 @@ window.addEventListener('hashchange', function(){
 </footer>
 
   <!-- data.js(지식베이스·가이드 ~1.5MB)는 더 이상 선로딩하지 않음 → app.js가 해당 페이지 진입 시에만 동적 로드 -->
-  <script src="app.js?v=103"></script>
+  <script src="app.js?v=104"></script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
-    function load(){var s=document.createElement('script');s.src='i18n.js?v=103';s.defer=true;document.head.appendChild(s);}
+    function load(){var s=document.createElement('script');s.src='i18n.js?v=104';s.defer=true;document.head.appendChild(s);}
     if(lang==='en'){load();}else{(window.requestIdleCallback||function(f){setTimeout(f,1500);})(load);}
   })();
   </script>
@@ -2272,6 +2275,84 @@ window.addEventListener('hashchange', function(){
     etc:ALL_CONS.slice()
   };
   var fac=null,con=null;
+
+  /* ══════════════════════════════════════════════════════════════
+     파인더 항목 설정 (에디터에서 편집)
+     · SiteContent 의 finder.config 행에 JSON 이 있으면 그 값으로
+       Q1(시설)·Q2(고민) 목록을 다시 만듭니다 — 이름 변경·추가·삭제·순서까지.
+     · 값이 없으면 위에 적힌 기본 목록을 그대로 씁니다 (기존 동작과 동일).
+     · 스키마
+         { "fac":[{id,ko,en,eg,sensor,app,cons:[고민id...]}],
+           "con":[{id,ko,en,tag,title,desc,sensors,fx}] }
+     ══════════════════════════════════════════════════════════════ */
+  var DEF_FAC=FAC, DEF_FCTX=FCTX, DEF_FACCON=FAC_CONCERNS, DEF_REC=REC, DEF_CONS=ALL_CONS.slice();
+  var CON_ORDER=ALL_CONS.slice();            // Q2 버튼을 그릴 순서
+  function _lang(){ try{ return localStorage.getItem('mlang')||'ko'; }catch(e){ return 'ko'; } }
+  function _esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function readCfg(){
+    try{
+      var el=document.querySelector('[data-sc="finder.config"]');
+      if(!el) return null;
+      var raw=(el.textContent||'').trim(); if(!raw) return null;
+      var o=JSON.parse(raw);
+      if(!o || (!Array.isArray(o.fac) && !Array.isArray(o.con))) return null;
+      return o;
+    }catch(e){ return null; }
+  }
+  /* 설정 → 내부 자료구조로 반영하고 버튼을 다시 그립니다 */
+  function applyCfg(){
+    var cfg=readCfg(), L=_lang();
+    if(cfg && Array.isArray(cfg.con) && cfg.con.length){
+      var rec={}, order=[];
+      cfg.con.forEach(function(c){
+        var id=String(c.id||'').trim(); if(!id) return;
+        var d=DEF_REC[id]||{};
+        rec[id]={ tag:c.tag||d.tag||'', title:c.title||d.title||(c.ko||id),
+                  desc:c.desc||d.desc||'', sensors:c.sensors||d.sensors||'', fx:c.fx||d.fx||'' };
+        order.push(id);
+      });
+      REC=rec; ALL_CONS=order.slice(); CON_ORDER=order.slice();
+    } else { REC=DEF_REC; ALL_CONS=DEF_CONS.slice(); CON_ORDER=DEF_CONS.slice(); }
+
+    if(cfg && Array.isArray(cfg.fac) && cfg.fac.length){
+      var fmap={}, fctx={}, fcon={};
+      cfg.fac.forEach(function(f){
+        var id=String(f.id||'').trim(); if(!id) return;
+        var d=DEF_FCTX[id]||{};
+        fmap[id]=(L==='en'&&f.en)?f.en:(f.ko||DEF_FAC[id]||id);
+        fctx[id]={ eg:f.eg||d.eg||'현장 설비', sensor:(f.sensor!=null?f.sensor:(d.sensor||'')), app:f.app||d.app||'facility' };
+        var cs=Array.isArray(f.cons)&&f.cons.length ? f.cons : (DEF_FACCON[id]||ALL_CONS);
+        fcon[id]=cs.filter(function(c){ return ALL_CONS.indexOf(c)>=0; });
+        if(!fcon[id].length) fcon[id]=ALL_CONS.slice();
+      });
+      FAC=fmap; FCTX=fctx; FAC_CONCERNS=fcon;
+    } else { FAC=DEF_FAC; FCTX=DEF_FCTX; FAC_CONCERNS=DEF_FACCON; }
+
+    renderOpts('wizFac','finder.fac.', '파인더 · 시설 · ', Object.keys(FAC).map(function(k){ return [k,FAC[k]]; }), cfg&&cfg.fac);
+    var conPairs=CON_ORDER.map(function(id){
+      var c=(cfg&&cfg.con||[]).filter(function(x){ return String(x.id||'').trim()===id; })[0];
+      var label=c ? ((L==='en'&&c.en)?c.en:(c.ko||(REC[id]&&REC[id].title)||id)) : null;
+      return [id, label];
+    });
+    renderOpts('wizCon','finder.con.', '파인더 · 고민 · ', conPairs, cfg&&cfg.con);
+    if(fac && !FAC[fac]) { fac=null; con=null; }
+    if(fac) applyFacility();
+  }
+  /* 버튼 목록 다시 그리기 — 설정이 없으면 HTML 기본 버튼을 건드리지 않습니다 */
+  function renderOpts(gridId, keyPrefix, labelPrefix, pairs, hasCfg){
+    var g=document.getElementById(gridId); if(!g || !hasCfg) return;
+    var cur=g.querySelector('.opt.on'); var curV=cur?cur.dataset.v:'';
+    var html='';
+    pairs.forEach(function(pr){
+      var id=pr[0], label=pr[1];
+      if(label==null){ var ex=g.querySelector('.opt[data-v="'+id+'"]'); label=ex?ex.textContent.trim():id; }
+      html+='<button class="opt'+(id===curV?' on':'')+'" data-v="'+_esc(id)+'"'
+          +  ' data-sc="'+_esc(keyPrefix+id)+'" data-sc-label="'+_esc(labelPrefix+label)+'">'+_esc(label)+'</button>';
+    });
+    g.innerHTML=html;
+  }
+  /* 시트 본문이 적용된 뒤 app.js 가 불러줍니다 */
+  window.MK_FINDER_REFRESH=function(){ try{ applyCfg(); }catch(e){} };
   function getLink(key){ var el=document.querySelector('[data-sc="'+key+'"]'); return el ? el.textContent.trim() : ''; }
   /* 시설×고민 조합별 매칭(editor 그리드에서 저장). 값이 있으면 최우선 적용, 없으면 상속. */
   function getMatrixLink(f,c){
@@ -2340,7 +2421,7 @@ window.addEventListener('hashchange', function(){
       if(typeof sendLead==='function'){Promise.resolve(sendLead(payload,btn)).then(done).catch(done);}else{done();}
     });
   }
-  function init(){ pickFac(); pickCon(); bindLead(); }
+  function init(){ pickFac(); pickCon(); bindLead(); try{ applyCfg(); }catch(e){} }
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();
 </script>

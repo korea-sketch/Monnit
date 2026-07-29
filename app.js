@@ -53,7 +53,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = 'data.js?v=103'; s.async = true;
+  s.src = 'data.js?v=104'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -77,14 +77,14 @@ function ensureSolutionTwin(){
   window.__twinLoading = true;
   var loadScript = function(){
     var s = document.createElement('script');
-    s.src = 'js/solution-twin.js?v=103'; s.async = true;
+    s.src = 'js/solution-twin.js?v=104'; s.async = true;
     s.onload = function(){ window.__twinLoaded = true; };
     s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
     document.head.appendChild(s);
   };
   if (mount.__filled){ loadScript(); return; }
   // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
-  fetch('views/solution-twin.html?v=103').then(function(r){ return r.ok ? r.text() : ''; })
+  fetch('views/solution-twin.html?v=104').then(function(r){ return r.ok ? r.text() : ''; })
     .then(function(html){
       if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
       else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
@@ -1048,6 +1048,8 @@ function applySiteContentNow(){
     // 없으면 HTML 기본 링크(linktr.ee)를 그대로 유지.
     if(url){ document.querySelectorAll('.cta-download').forEach(a=>{ a.setAttribute('href',url); }); }
   })();
+  /* 파인더 Q1·Q2 목록(finder.config)이 시트에서 들어왔으면 버튼을 다시 그립니다 */
+  try{ if(typeof window.MK_FINDER_REFRESH==='function') window.MK_FINDER_REFRESH(); }catch(e){}
   if(!_siteToggleHooked){
     const lt=document.getElementById('langToggle');
     if(lt){ lt.addEventListener('click', function(){ setTimeout(applySiteContent, 90); }); _siteToggleHooked=true; }
@@ -1215,6 +1217,15 @@ function navigate(target) {
     window.location.hash = target;
   } else if (target.startsWith('app/')) {
     const appId = target.slice(4);
+    // 아직 내용이 없는 활용분야는 빈 화면 대신 '준비 중' 안내로 보냅니다
+    if (!APPS.some(a => a.id === appId)) {
+      renderComingSoon(appId);
+      document.getElementById('view-coming').classList.add('active');
+      { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
+      window.location.hash = target;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
     renderAppDetail(appId);
     document.getElementById('view-app-detail').classList.add('active');
     { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
@@ -2576,6 +2587,71 @@ homeCases.querySelectorAll('.home-case-card').forEach(card => {
 renderHomeCases();
 
 /* ========== APP DETAIL RENDERING ========== */
+/* ═══════════════════════════════════════════════════════════════════
+   준비 중 콘텐츠 안내 화면
+   · 파인더에서 아직 상세 페이지가 없는 활용분야를 고른 경우에 표시합니다.
+   · 빈 화면으로 튕기지 않고 상담·전화로 이어주고, 다른 콘텐츠도 안내합니다.
+   · 나중에 에디터에서 해당 어플리케이션을 추가하면 이 화면은 자동으로
+     사라지고 정상 상세 페이지가 열립니다 (별도 작업 불필요).
+   ═══════════════════════════════════════════════════════════════════ */
+function comingSoonLabel(id){
+  // 파인더 설정(finder.config)에 이름이 있으면 그 이름을 씁니다
+  try{
+    const el=document.querySelector('[data-sc="finder.config"]');
+    const raw=el?(el.textContent||'').trim():'';
+    if(raw){
+      const cfg=JSON.parse(raw);
+      const hit=[].concat(cfg.fac||[],cfg.con||[]).find(x=>('app/'+String(x.app||''))===('app/'+id)||String(x.id||'')===id);
+      if(hit&&hit.ko) return hit.ko;
+    }
+  }catch(e){}
+  return '';
+}
+function renderComingSoon(id){
+  let v=document.getElementById('view-coming');
+  if(!v){
+    v=document.createElement('section');
+    v.className='view'; v.id='view-coming';
+    (document.querySelector('main')||document.body).appendChild(v);
+  }
+  let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+  const en=(lang==='en');
+  const name=comingSoonLabel(id);
+  const t=en?{
+    kicker:'Coming soon', head:'We are preparing this content',
+    lead:'This solution page is being updated. Tell us about your site and our engineer will send you the right sensor set-up and a quote first.',
+    cta1:'Request a free site review', cta2:'Call 02-2088-1454',
+    more:'Meanwhile, have a look at these', a1:'All applications', a2:'Customer stories', a3:'Products', a4:'Home'
+  }:{
+    kicker:'준비 중', head:'콘텐츠를 업데이트하고 있습니다',
+    lead:'이 솔루션 페이지는 현재 내용을 정리하고 있습니다. 곧 도움이 될 만한 내용으로 찾아뵙겠습니다.<br>급하시면 현장 상황만 남겨 주세요 — 담당 엔지니어가 맞는 센서 구성과 예상 비용을 먼저 보내드립니다.',
+    cta1:'무료 현장 진단 신청', cta2:'전화 상담 02-2088-1454',
+    more:'그동안 이런 내용도 함께 살펴보세요', a1:'전체 활용분야', a2:'도입 사례', a3:'제품 라인업', a4:'홈으로'
+  };
+  v.innerHTML =
+    '<div class="wrap" style="max-width:760px;margin:0 auto;padding:72px 20px 96px;text-align:center">'
+    + '<div style="font-size:12px;letter-spacing:.14em;color:var(--accent,#2e6fe0);font-weight:700;margin-bottom:14px">'+esc(t.kicker).toUpperCase()+'</div>'
+    + (name?'<div style="display:inline-block;font-size:13px;padding:6px 14px;border-radius:999px;background:rgba(46,111,224,.12);color:var(--accent,#2e6fe0);margin-bottom:16px">'+esc(name)+'</div>':'')
+    + '<h1 style="font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.03em;line-height:1.35;margin:0 0 16px">'+esc(t.head)+'</h1>'
+    + '<p style="font-size:15px;line-height:1.8;color:var(--ink-soft,#8598b4);word-break:keep-all;margin:0 0 30px">'+t.lead+'</p>'
+    + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:38px">'
+    +   '<a href="#contact" data-nav="contact" class="cs-cta" style="display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:12px;background:var(--accent,#2e6fe0);color:#fff;font-weight:700;font-size:15px;white-space:nowrap">'+esc(t.cta1)+' →</a>'
+    +   '<a href="tel:02-2088-1454" style="display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:12px;border:1.5px solid rgba(133,152,180,.4);color:inherit;font-weight:700;font-size:15px;white-space:nowrap">'+esc(t.cta2)+'</a>'
+    + '</div>'
+    + '<div style="font-size:13px;color:var(--ink-soft,#8598b4);margin-bottom:14px">'+esc(t.more)+'</div>'
+    + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
+    +   ['applications:'+t.a1,'stories:'+t.a2,'products:'+t.a3,'home:'+t.a4].map(function(p){
+          var k=p.slice(0,p.indexOf(':')), l=p.slice(p.indexOf(':')+1);
+          return '<button class="cs-link" data-go="'+k+'" style="background:none;border:1px solid rgba(133,152,180,.3);border-radius:999px;padding:9px 16px;font-size:13.5px;color:inherit;cursor:pointer;font-family:inherit">'+esc(l)+'</button>';
+        }).join('')
+    + '</div></div>';
+  v.querySelectorAll('.cs-link').forEach(function(b){
+    b.onclick=function(){ navigate(b.dataset.go); };
+  });
+  const c=v.querySelector('.cs-cta');
+  if(c) c.onclick=function(e){ e.preventDefault(); navigate('contact'); };
+  try{ if(window.gtag) gtag('event','coming_soon_view',{app_id:id}); }catch(e){}
+}
 function renderAppDetail(id) {
   const app = APPS.find(a => a.id === id);
   if (!app) { navigate('applications'); return; }

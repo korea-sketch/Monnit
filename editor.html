@@ -111,6 +111,7 @@
     <button class="btn-ghost" id="galleryBtn" title="기존 사진 중에서 골라 넣기">🖼 사진 갤러리</button>
     <button class="btn-ghost" id="homeBtn" title="메인페이지·About us의 문구와 사진을 이름표 보고 쉽게 수정">🏠 메인·About us 편집</button>
     <button class="btn-ghost" id="seoBtn" title="검색 노출용 제목·설명">🔎 SEO</button>
+    <button class="btn-ghost" id="finderBtn" title="솔루션 파인더 Q1(시설)·Q2(고민) 항목을 이름 변경·추가·삭제·순서변경">🧭 파인더 항목</button>
     <button class="btn-ghost" id="matchBtn" title="솔루션 파인더: 시설×고민 → 활용분야(어플리케이션) 연결 편집">🎯 파인더 매칭</button>
     <label style="display:flex;align-items:center;gap:5px;white-space:nowrap" title="잘 안 쓰는 기술 항목까지 모두 표시"><input type="checkbox" id="advFields"> 고급 항목 보기</label>
   </div>
@@ -126,6 +127,7 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px">
     <button class="dash-card" data-act="home">🏠<b>메인·About 문구/사진</b><span>히어로·솔루션·인사말·티커</span></button>
     <button class="dash-card" data-act="seo">🔎<b>검색 노출(SEO)</b><span>구글 검색 제목·설명</span></button>
+    <button class="dash-card" data-act="finder">🧭<b>파인더 항목 편집</b><span>시설·고민 이름/추가/삭제/순서</span></button>
     <button class="dash-card" data-act="match">🎯<b>솔루션 파인더 매칭</b><span>시설×고민 → 활용분야 연결</span></button>
     <button class="dash-card" data-tab="Products">📦<b>제품</b><span>센서 이름·설명</span></button>
     <button class="dash-card" data-tab="Promotions">🎁<b>프로모션</b><span>이벤트 배너</span></button>
@@ -173,6 +175,51 @@
     </div>
   </div>
 
+  <div id="finderPanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">🧭 솔루션 파인더 항목 — Q1 시설 · Q2 고민</div>
+    <div class="hint" style="margin:6px 0 10px">메인페이지 파인더의 <b>Q1(시설)</b>·<b>Q2(고민)</b> 버튼을 직접 관리합니다. 이름을 바꾸고, 새 항목을 추가하고, 필요 없는 건 지우고, <b>≡ 를 끌어 순서</b>를 바꿀 수 있습니다. 시설마다 <b>어떤 고민을 보여줄지</b>도 체크로 정합니다. 저장하면 사이트 파인더가 이 목록 그대로 다시 그려집니다. <b>ID</b>는 내부 연결용이라 한 번 정하면 바꾸지 마세요(바꾸면 매칭이 끊깁니다).</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" id="fdSave" style="background:#0a7d33">항목 저장</button>
+      <button class="btn-ghost btn-sm" id="fdReload">다시 불러오기</button>
+      <button class="btn-ghost btn-sm" id="fdReset">기본값으로 되돌리기</button>
+      <button class="btn-ghost btn-sm" id="fdClose">닫기</button>
+      <span class="status" id="fdStatus"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" id="fdCols">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <b style="font-size:12.5px">Q1 · 시설</b><span class="status" id="fdFacCount"></span>
+          <button class="btn-ghost btn-sm" id="fdFacAdd" style="margin-left:auto">+ 시설 추가</button>
+        </div>
+        <div id="fdFacList"></div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <b style="font-size:12.5px">Q2 · 고민</b><span class="status" id="fdConCount"></span>
+          <button class="btn-ghost btn-sm" id="fdConAdd" style="margin-left:auto">+ 고민 추가</button>
+        </div>
+        <div id="fdConList"></div>
+      </div>
+    </div>
+    <style>
+      #finderPanel .fd-item{border:1px solid #e3e7ee;border-radius:8px;background:#fff;margin-bottom:7px}
+      #finderPanel .fd-head{display:flex;align-items:center;gap:7px;padding:7px 9px}
+      #finderPanel .fd-grip{cursor:grab;color:#9aa;font-size:14px;user-select:none;flex:none}
+      #finderPanel .fd-name{flex:1;min-width:0;font-size:12.5px;padding:5px 7px;border:1px solid #dfe4ec;border-radius:6px}
+      #finderPanel .fd-id{width:88px;flex:none;font-size:11px;color:#6b7a90;padding:5px 6px;border:1px solid #eef1f6;border-radius:6px;background:#f7f9fc;font-family:ui-monospace,monospace}
+      #finderPanel .fd-more{background:none;border:0;color:#7a8798;cursor:pointer;font-size:12px;padding:3px 5px}
+      #finderPanel .fd-body{display:none;padding:2px 9px 9px;border-top:1px dashed #eef1f6}
+      #finderPanel .fd-item.open .fd-body{display:block}
+      #finderPanel .fd-row{display:flex;gap:6px;align-items:center;margin-top:6px}
+      #finderPanel .fd-row label{font-size:11px;color:#6b7a90;width:76px;flex:none}
+      #finderPanel .fd-row input,#finderPanel .fd-row textarea{flex:1;font-size:12px;padding:5px 7px;border:1px solid #dfe4ec;border-radius:6px;font-family:inherit}
+      #finderPanel .fd-cons{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+      #finderPanel .fd-cons label{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;background:#f4f7fb;border:1px solid #e3e9f2;border-radius:999px;padding:3px 9px;cursor:pointer;width:auto}
+      #finderPanel .fd-cons label.on{background:#e8f4ec;border-color:#9fd0b2}
+      #finderPanel .fd-drag{opacity:.4}
+      @media(max-width:900px){#fdCols{grid-template-columns:1fr}}
+    </style>
+  </div>
   <div id="matchPanel" style="display:none;margin:10px 0;border:1px solid #e3e7ee;border-radius:8px;padding:12px;background:#fafbfc">
     <div style="font-size:13px;font-weight:700;margin-bottom:4px">🎯 솔루션 파인더 매칭 — 시설 × 고민 → 활용분야(어플리케이션) 연결</div>
     <div class="hint" style="margin:6px 0 10px">메인페이지 <b>솔루션 파인더</b>에서 시설과 고민을 고르면 열리는 <b>‘활용분야 상세’</b> 링크를 조합별로 지정합니다. 각 칸에서 어플리케이션을 고르면 그 조합의 상세 페이지로 연결됩니다. <b>비워두면(＝기본값)</b> 기존 고민별→시설별 기본 링크로 자동 연결됩니다. 회색 <b>·</b> 칸은 해당 시설에서 노출되지 않는 고민이라 지정할 필요가 없습니다. 저장하려면 상단에 <b>저장 URL(Apps Script)</b>이 채워져 있어야 합니다.</div>
@@ -481,7 +528,21 @@ function fieldsWidget(col,names,koVal,enVal,hasEn,preview,photos){
   const ko=splitItems(koVal).map(splitFields), en=splitItems(enVal).map(splitFields);
   const list=el('div','items');host.appendChild(list);
   function add(k,e){
-    const it=el('div','item');const hd=el('div','itemhead');hd.innerHTML=`<b>항목 ${list.children.length+1}</b>`;
+    const it=el('div','item');const hd=el('div','itemhead');
+    /* 사진 칸은 ≡ 를 끌어 순서를 바꿀 수 있습니다 (저장 시 이 순서 그대로 들어갑니다) */
+    if(photos){
+      const grip=el('span','ph-grip','≡'); grip.title='끌어서 순서 바꾸기'; grip.draggable=true;
+      grip.style.cssText='cursor:grab;color:#9aa;font-size:15px;user-select:none;margin-right:7px';
+      grip.addEventListener('dragstart',ev=>{ ev.dataTransfer.effectAllowed='move'; list.__drag=it; it.style.opacity='.4'; });
+      grip.addEventListener('dragend',()=>{ it.style.opacity='1'; list.__drag=null; renum(); });
+      hd.appendChild(grip);
+      it.addEventListener('dragover',ev=>{ ev.preventDefault(); ev.dataTransfer.dropEffect='move';
+        const m=list.__drag; if(!m||m===it) return;
+        const r=it.getBoundingClientRect(), after=(ev.clientY-r.top)>r.height/2;
+        list.insertBefore(m, after?it.nextSibling:it); });
+      it.addEventListener('drop',ev=>{ ev.preventDefault(); renum(); });
+    }
+    const nb=el('b'); nb.textContent='항목 '+(list.children.length+1); hd.appendChild(nb);
     const del=el('button','btn-red btn-sm','삭제');del.onclick=()=>{it.remove();renum();};hd.appendChild(del);it.appendChild(hd);
     const cols=hasEn?[['한국어',k||[],0],['ENGLISH',e||[],1]]:[['',k||[],0]];
     const tc=el('div',hasEn?'twocol':'');
@@ -492,7 +553,7 @@ function fieldsWidget(col,names,koVal,enVal,hasEn,preview,photos){
       tc.appendChild(sd);});
     it.appendChild(tc);list.appendChild(it);
   }
-  function renum(){[...list.children].forEach((it,i)=>it.querySelector('.itemhead b').textContent='항목 '+(i+1));}
+  function renum(){[...list.children].forEach((it,i)=>{const b=it.querySelector('.itemhead b'); if(b) b.textContent='항목 '+(i+1)+(photos&&i===0?' · 대표':'');});}
   const n=Math.max(ko.length,en.length,0);for(let i=0;i<n;i++)add(ko[i],en[i]);
   const a=el('button','btn-ghost btn-sm','＋ 항목 추가');a.onclick=()=>add([],[]);host.appendChild(a);
   return host;
@@ -519,7 +580,7 @@ function renderFieldsInto(container, tab, cfg, rec){
     if(isObj){
       body.appendChild(fieldsWidget(col,spec.fields,rec[col]||'',rec[col+'_en']||'',hasEnCol,false,false));
     } else if(kind==='photos'){
-      body.appendChild(el('div','hint','이미지 URL(직접 호스팅 / 구글드라이브 "링크 있는 모든 사용자" 공유 / Dropbox)을 넣으세요. 셀에 이미지를 직접 넣으면 작동하지 않습니다.'));
+      body.appendChild(el('div','hint','이미지 URL(직접 호스팅 / 구글드라이브 "링크 있는 모든 사용자" 공유 / Dropbox)을 넣으세요. 셀에 이미지를 직접 넣으면 작동하지 않습니다. <b>≡ 를 끌어 순서를 바꿀 수 있고, 맨 위가 대표 사진</b>입니다. 사진을 바꾸려면 URL 칸만 새 주소로 덮어쓰면 됩니다.'));
       body.appendChild(fieldsWidget(col,['사진 URL','캡션'],rec[col]||'','',false,true,true));
     } else if(kind==='list'){
       const p=el('div','pair');p.appendChild(listWidget(col,hasEnCol?'한국어':(LABELS[col]||'값'),rec[col]||''));if(hasEnCol)p.appendChild(listWidget(col+'_en','ENGLISH',rec[col+'_en']||''));body.appendChild(p);
@@ -568,10 +629,11 @@ function collect(root){ root=root||document; const map={};
   root.querySelectorAll('[data-col]').forEach(el=>{let v=el.value;if(['text','long'].includes(el.dataset.kind))v=String(v).replace(/\r?\n/g,' ').trim();map[el.dataset.col]=v;});
   root.querySelectorAll('[data-list]').forEach(el=>{map[el.dataset.list]=splitLines(el.value).join('||');});
   root.querySelectorAll('[data-fields-col]').forEach(host=>{const col=host.dataset.fieldsCol;const hasEn=host.dataset.fieldsEn==='1';const ko=[],en=[];
-    host.querySelectorAll('.item').forEach(it=>{const k=[],e=[];it.querySelectorAll('input').forEach(inp=>{const s=+inp.dataset.side||0,fi=+inp.dataset.fi;(s?e:k)[fi]=(inp.value||'').trim();});if(k.some(x=>x&&x.trim()))ko.push(joinFields(k));if(hasEn&&e.some(x=>x&&x.trim()))en.push(joinFields(e));});
+    host.querySelectorAll('.item').forEach(it=>{const k=[],e=[];it.querySelectorAll('input').forEach(inp=>{if(inp.type==='file'||inp.dataset.fi==null)return;const s=+inp.dataset.side||0,fi=+inp.dataset.fi;(s?e:k)[fi]=(inp.value||'').trim();});if(k.some(x=>x&&x.trim()))ko.push(joinFields(k));if(hasEn&&e.some(x=>x&&x.trim()))en.push(joinFields(e));});
     map[col]=ko.join('||');if(hasEn)map[col+'_en']=en.join('||');});
   root.querySelectorAll('[data-photos-col]').forEach(host=>{const col=host.dataset.photosCol;const arr=[];
-    host.querySelectorAll('.item').forEach(it=>{const ins=it.querySelectorAll('input');const u=(ins[0]&&ins[0].value||'').trim(),cap=(ins[1]&&ins[1].value||'').trim();if(u)arr.push(cap?(u+' :: '+cap):u);});
+    /* 업로드용 file input 이 사이에 끼어 있어 캡션이 유실되던 문제 수정 — 글자 칸만 읽습니다 */
+    host.querySelectorAll('.item').forEach(it=>{const ins=[...it.querySelectorAll('input')].filter(x=>x.type!=='file');const u=(ins[0]&&ins[0].value||'').trim(),cap=(ins[1]&&ins[1].value||'').trim();if(u)arr.push(cap?(u+' :: '+cap):u);});
     map[col]=arr.join('||');});
   return map;
 }
@@ -786,17 +848,22 @@ $('#manageClose').onclick=()=>{ $('#managePanel').style.display='none'; };
 function buildManage(){
   const tab=$('#tabSel').value, cfg=TABS[tab], d=DATA[tab]||{list:[]}; const ol=$('#manageList'); ol.innerHTML='';
   if(!cfg.key){ $('#manageStatus').textContent='이 섹션은 ID(key)가 없어 순서 변경은 지원하지 않습니다. 삭제만 가능합니다.'; }
-  else { $('#manageStatus').textContent='행을 끌어서 순서를 바꾼 뒤 "순서 저장". (Apps Script 새 버전 배포 필요)'; }
+  else { $('#manageStatus').textContent='행을 끌어서 순서를 바꾼 뒤 "순서 저장"을 누르세요. 저장하면 order 열이 1,2,3… 으로 다시 매겨져 사이트에 그대로 반영됩니다.'; }
   (d.list||[]).forEach((o,i)=>{
     const li=el('li'); li.draggable=!!cfg.key; li.dataset.key=cfg.key?(o[cfg.key]||''):''; li.dataset.idx=i;
     li.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #e3e7ee;border-radius:7px;margin-bottom:5px;background:#fff;cursor:'+(cfg.key?'grab':'default');
     li.innerHTML='<span style="color:#9aa">≡</span><span style="flex:1;font-size:12.5px">'+recLabel(cfg,o,i).replace(/</g,'&lt;')+'</span>';
     const del=el('button','btn-red btn-sm','삭제'); del.onclick=()=>deleteRecord(tab,cfg,o,i); li.appendChild(del);
     if(cfg.key){
-      li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',i);li.style.opacity='.4';});
-      li.addEventListener('dragend',()=>li.style.opacity='1');
-      li.addEventListener('dragover',e=>e.preventDefault());
-      li.addEventListener('drop',e=>{e.preventDefault();const from=+e.dataTransfer.getData('text/plain');const to=i;if(from===to)return;const items=[...ol.children];const moving=items[from];ol.insertBefore(moving,from<to?items[to].nextSibling:items[to]);});
+      /* 위치를 DOM 에서 그때그때 읽습니다 — 여러 번 끌어도 순서가 어긋나지 않습니다 */
+      li.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain',li.dataset.key||''); e.dataTransfer.effectAllowed='move'; ol.__drag=li; li.style.opacity='.4'; });
+      li.addEventListener('dragend',()=>{ li.style.opacity='1'; ol.__drag=null; [...ol.children].forEach(x=>x.style.borderTopColor='#e3e7ee'); });
+      li.addEventListener('dragover',e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move';
+        const m=ol.__drag; if(!m||m===li) return;
+        const r=li.getBoundingClientRect(), after=(e.clientY-r.top)>r.height/2;
+        ol.insertBefore(m, after?li.nextSibling:li); });
+      li.addEventListener('drop',e=>{ e.preventDefault();
+        $('#manageStatus').textContent='순서를 바꿨습니다 — "순서 저장"을 눌러야 사이트에 반영됩니다'; });
     }
     ol.appendChild(li);
   });
@@ -980,12 +1047,191 @@ async function saveSiteContentRow(key, ko, en, image){
   if(j&&j.ok){ const ix=d.list.findIndex(o=>String(o.key||'')===key); if(ix>=0)d.list[ix]=obj; else d.list.push(obj); return true; }
   return false;
 }
+/* ═══════════════════════════════════════════════════════════════════
+   🧭 파인더 항목 편집 — Q1(시설) · Q2(고민) 이름/추가/삭제/순서
+   · 저장 위치: SiteContent 의 finder.config 행 (JSON 한 줄)
+   · 비워두면 사이트는 index.html 의 기본 목록을 씁니다
+   ═══════════════════════════════════════════════════════════════════ */
+const FD_DEF_FAC=[
+ {id:'factory',ko:'공장·제조',eg:'모터·펌프·공조기·전력 설비',sensor:'진동',app:'manufact',cons:['equip','power','fire','temp','control','comply','air','security']},
+ {id:'logistics',ko:'물류·창고·콜드체인',eg:'냉동·냉장 창고·수송 차량',sensor:'저온',app:'logistics',cons:['cold','temp','equip','comply','power','fire','control','security']},
+ {id:'pharma',ko:'병원·제약·바이오',eg:'백신·검체 보관고·클린룸',sensor:'저온',app:'vaccine',cons:['cold','temp','comply','air','equip','control','fire','security']},
+ {id:'datacenter',ko:'데이터센터·통신',eg:'서버 랙·HVAC·전력·누수 구간',sensor:'차압',app:'datacenter',cons:['temp','leak','fire','power','equip','control','security','comply']},
+ {id:'office',ko:'빌딩·오피스',eg:'공조·전기실·주차·환경 설비',sensor:'전류',app:'facility',cons:['temp','power','air','fire','leak','control','security','equip']},
+ {id:'resident',ko:'주거·아파트',eg:'세대·기계실·주차장·저수조',sensor:'온습도',app:'facility',cons:['leak','fire','temp','air','security','control','power','comply']},
+ {id:'hotel',ko:'호텔·리조트',eg:'객실·주방·수영장·기계실',sensor:'온습도',app:'facility',cons:['temp','fire','air','leak','power','security','control','comply']},
+ {id:'retail',ko:'리테일·매장·외식',eg:'냉장 쇼케이스·주방·백룸 창고',sensor:'저온',app:'retail',cons:['cold','temp','power','fire','air','comply','control','equip']},
+ {id:'public',ko:'학교·공공기관',eg:'교실·강당·기계실·급식실',sensor:'도어',app:'facility',cons:['fire','air','temp','security','power','leak','control','comply']},
+ {id:'agri',ko:'농축수산',eg:'양식장·축사·저장고·온실',sensor:'온습도',app:'greenhouse',cons:['temp','cold','air','equip','power','control','comply','leak']},
+ {id:'energy',ko:'에너지·발전·인프라',eg:'수처리·펌프장·변전·발전 설비',sensor:'전류',app:'energy',cons:['equip','power','control','leak','fire','temp','security','comply']},
+ {id:'construction',ko:'건설·현장',eg:'가설 전기·양중 장비·환경·안전',sensor:'진동',app:'construct',cons:['security','equip','fire','power','control','temp','air','comply']},
+ {id:'etc',ko:'그 외 시설',eg:'현장 설비',sensor:'',app:'applications',cons:['fire','leak','temp','cold','equip','power','air','security','control','comply']}
+];
+const FD_DEF_CON=[
+ {id:'fire',ko:'화재·과열',tag:'화재·과열 예방',title:'실시간 화재·과열 감시',sensors:'온도 · 연기 연동 · 경보 릴레이',fx:'0.1초 경보 전파'},
+ {id:'leak',ko:'누수·침수·동파',tag:'누수·침수·동파 예방',title:'무선 누수·침수·동파 감지',sensors:'누수 로프 · 스팟 감지 · 온도',fx:'-75% 누수 대응 시간'},
+ {id:'temp',ko:'온도·습도 관리',tag:'온·습도 관리',title:'온·습도 실시간 모니터링',sensors:'온도 · 습도',fx:'설정 이탈 즉시 경보'},
+ {id:'cold',ko:'냉장·콜드체인',tag:'냉장·콜드체인',title:'냉장·콜드체인 실시간 감시',sensors:'저온 · 온습도 · 도어',fx:'온도 이탈 즉시 경보'},
+ {id:'equip',ko:'설비 고장·예지보전(진동)',tag:'설비 예지보전',title:'진동·전류 AI 예지보전',sensors:'진동 · 전류 · 온도',fx:'-40% 비계획 정지'},
+ {id:'power',ko:'전력·에너지 절감',tag:'전력·에너지 절감',title:'전력·에너지 모니터링',sensors:'전류 · 전력량',fx:'-15% 에너지 사용량'},
+ {id:'air',ko:'공기질·환경',tag:'공기질·환경',title:'공기질·환경 모니터링',sensors:'CO₂ · 미세먼지 · 온습도',fx:'환기·쾌적도 최적화'},
+ {id:'security',ko:'보안·출입',tag:'보안·출입 감시',title:'출입·보안 통합 감시',sensors:'도어 · 모션 · 자산 태그',fx:'무단 출입 즉시 감지'},
+ {id:'control',ko:'통합관제·원격감시',tag:'통합관제·원격감시',title:'다현장 통합 관제 플랫폼',sensors:'멀티 센서 · 게이트웨이',fx:'단일 플랫폼 통합'},
+ {id:'comply',ko:'규정·온도기록(컴플라이언스)',tag:'규정·온도기록',title:'규정·온도기록 자동화',sensors:'온도 · 습도 · 자동 기록',fx:'기록 자동화·감사 대응'}
+];
+let FD={fac:[],con:[]};
+
+/* 내부 ID 는 영문·숫자만 사용합니다 (한글 이름이면 fac-1 / con-1 형태로 자동 생성) */
+function fdSlug(s,pre){ const a=String(s||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,24);
+  return a || ((pre||'item')+'-'+Date.now().toString(36).slice(-4)); }
+function fdUniqId(list,base,pre){ const seed=fdSlug(base,pre);
+  let id=seed,n=2; while(list.some(x=>x.id===id)){ id=seed+'-'+(n++); } return id; }
+function fdAppOptions(sel,cur){
+  const apps=((DATA['Applications']&&DATA['Applications'].list)||[]).filter(a=>a&&a.id);
+  const o0=el('option'); o0.value=''; o0.textContent='— 지정 안 함 —'; sel.appendChild(o0);
+  const oa=el('option'); oa.value='applications'; oa.textContent='전체 어플리케이션 목록'; sel.appendChild(oa);
+  apps.forEach(a=>{ const op=el('option'); op.value=a.id; op.textContent=(a.name||a.id)+' ('+a.id+')'; sel.appendChild(op); });
+  if(cur){ let has=false; sel.querySelectorAll('option').forEach(op=>{ if(op.value===cur) has=true; });
+    if(!has){ const oc=el('option'); oc.value=cur; oc.textContent='기타: '+cur; sel.appendChild(oc); } }
+  sel.value=cur||'';
+}
+function fdRow(kind,it,idx){
+  const wrap=el('div','fd-item'); wrap.draggable=false; wrap.dataset.id=it.id; wrap.dataset.kind=kind;
+  const head=el('div','fd-head');
+  const grip=el('span','fd-grip','≡'); grip.title='끌어서 순서 바꾸기'; grip.draggable=true; head.appendChild(grip);
+  const name=el('input','fd-name'); name.value=it.ko||''; name.placeholder='화면에 보이는 이름';
+  name.oninput=()=>{ it.ko=name.value; };
+  head.appendChild(name);
+  const id=el('input','fd-id'); id.value=it.id; id.title='내부 ID — 바꾸면 기존 매칭이 끊깁니다'; id.readOnly=true; head.appendChild(id);
+  const more=el('button','fd-more','⋯'); more.type='button'; more.title='세부 설정'; more.onclick=()=>wrap.classList.toggle('open'); head.appendChild(more);
+  const del=el('button','btn-red btn-sm','삭제'); del.type='button';
+  del.onclick=()=>{ if(!confirm('“'+(it.ko||it.id)+'” 항목을 목록에서 뺄까요?\n(저장을 눌러야 사이트에 반영됩니다)')) return;
+    const arr=(kind==='fac')?FD.fac:FD.con; const i=arr.findIndex(x=>x.id===it.id); if(i>=0) arr.splice(i,1);
+    if(kind==='con') FD.fac.forEach(f=>{ f.cons=(f.cons||[]).filter(c=>c!==it.id); });
+    fdRender(); fdMark('삭제했습니다 — 저장해야 반영됩니다'); };
+  head.appendChild(del);
+  wrap.appendChild(head);
+
+  const body=el('div','fd-body');
+  const row=(label,key,ph,tag)=>{ const r=el('div','fd-row'); const l=el('label'); l.textContent=label; r.appendChild(l);
+    const inp=el(tag||'input'); inp.value=it[key]||''; inp.placeholder=ph||''; inp.oninput=()=>{ it[key]=inp.value; }; r.appendChild(inp); body.appendChild(r); return inp; };
+  row('영문 이름','en','English label (선택)');
+  if(kind==='fac'){
+    row('현장 예시','eg','예: 모터·펌프·공조기');
+    row('추가 센서','sensor','예: 진동');
+    const r=el('div','fd-row'); const l=el('label'); l.textContent='기본 활용분야'; r.appendChild(l);
+    const sel=el('select'); sel.style.cssText='flex:1;font-size:12px;padding:5px 7px;border:1px solid #dfe4ec;border-radius:6px';
+    fdAppOptions(sel,it.app||''); sel.onchange=()=>{ it.app=sel.value; }; r.appendChild(sel); body.appendChild(r);
+    const hint=el('div'); hint.className='hint'; hint.style.cssText='margin:9px 0 3px;font-size:11.5px'; hint.textContent='이 시설에서 보여줄 고민 (순서도 이 순서대로 노출됩니다)';
+    body.appendChild(hint);
+    const cons=el('div','fd-cons');
+    FD.con.forEach(c=>{ const lb=el('label'); const cb=el('input'); cb.type='checkbox';
+      cb.checked=(it.cons||[]).indexOf(c.id)>=0; if(cb.checked) lb.classList.add('on');
+      cb.onchange=()=>{ it.cons=it.cons||[]; const i=it.cons.indexOf(c.id);
+        if(cb.checked&&i<0) it.cons.push(c.id); else if(!cb.checked&&i>=0) it.cons.splice(i,1);
+        lb.classList.toggle('on',cb.checked); fdMark('변경됨 — 저장해야 반영됩니다'); };
+      lb.appendChild(cb); lb.appendChild(document.createTextNode(c.ko||c.id)); cons.appendChild(lb); });
+    body.appendChild(cons);
+  } else {
+    row('결과 태그','tag','예: 화재·과열 예방');
+    row('결과 제목','title','예: 실시간 화재·과열 감시');
+    const ta=row('결과 설명','desc','결과 카드에 들어갈 설명','textarea'); ta.rows=2;
+    row('센서 구성','sensors','예: 온도 · 연기 연동');
+    row('기대 효과','fx','예: 0.1초 경보 전파');
+  }
+  wrap.appendChild(body);
+
+  /* 드래그 순서 변경 */
+  grip.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain',kind+':'+idx); e.dataTransfer.effectAllowed='move'; wrap.classList.add('fd-drag'); });
+  grip.addEventListener('dragend',()=>wrap.classList.remove('fd-drag'));
+  wrap.addEventListener('dragover',e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+  wrap.addEventListener('drop',e=>{ e.preventDefault();
+    const raw=String(e.dataTransfer.getData('text/plain')||''); const [k,fi]=raw.split(':');
+    if(k!==kind) return; const from=+fi, to=idx; if(isNaN(from)||from===to) return;
+    const arr=(kind==='fac')?FD.fac:FD.con; const [m]=arr.splice(from,1); arr.splice(to,0,m);
+    fdRender(); fdMark('순서 변경됨 — 저장해야 반영됩니다'); });
+  return wrap;
+}
+function fdRender(){
+  const fl=$('#fdFacList'), cl=$('#fdConList'); if(!fl||!cl) return;
+  fl.innerHTML=''; cl.innerHTML='';
+  FD.fac.forEach((it,i)=>fl.appendChild(fdRow('fac',it,i)));
+  FD.con.forEach((it,i)=>cl.appendChild(fdRow('con',it,i)));
+  $('#fdFacCount').textContent=FD.fac.length+'개';
+  $('#fdConCount').textContent=FD.con.length+'개';
+}
+function fdMark(msg){ const st=$('#fdStatus'); if(st) st.textContent=msg||''; }
+function fdClone(o){ return JSON.parse(JSON.stringify(o)); }
+function fdLoad(){
+  let raw=''; const r=(typeof scRow==='function')?scRow('finder.config'):null; if(r&&r.ko) raw=String(r.ko).trim();
+  let cfg=null; if(raw){ try{ cfg=JSON.parse(raw); }catch(e){ cfg=null; } }
+  if(cfg && (Array.isArray(cfg.fac)||Array.isArray(cfg.con))){
+    FD={ fac:(cfg.fac||[]).map(x=>Object.assign({cons:[]},x)), con:(cfg.con||[]).map(x=>Object.assign({},x)) };
+    if(!FD.con.length) FD.con=fdClone(FD_DEF_CON);
+    if(!FD.fac.length) FD.fac=fdClone(FD_DEF_FAC);
+    fdMark('저장된 항목을 불러왔습니다.');
+  } else {
+    FD={ fac:fdClone(FD_DEF_FAC), con:fdClone(FD_DEF_CON) };
+    fdMark('아직 저장된 항목이 없어 현재 사이트 기본값을 보여줍니다.');
+  }
+  fdRender();
+}
+async function fdSave(){
+  if(!DATA['SiteContent']){ fdMark('먼저 시트를 불러오세요 (SiteContent 탭 필요)'); return; }
+  const bad=FD.fac.filter(f=>!(f.ko||'').trim()).concat(FD.con.filter(c=>!(c.ko||'').trim()));
+  if(bad.length){ fdMark('이름이 비어 있는 항목이 있습니다 — 채운 뒤 저장하세요'); return; }
+  FD.fac.forEach(f=>{ if(!f.cons||!f.cons.length) f.cons=FD.con.map(c=>c.id); });
+  const json=JSON.stringify({fac:FD.fac,con:FD.con});
+  fdMark('저장 중…');
+  try{
+    const ok=await saveSiteContentRow('finder.config', json, '', '');
+    fdMark(ok ? ('✅ 저장됨 · 시설 '+FD.fac.length+'개 · 고민 '+FD.con.length+'개 · 사이트 새로고침 시 반영') : '실패 — 저장 URL/토큰을 확인하세요');
+    if(ok && typeof mfLoad==='function' && $('#matchPanel') && $('#matchPanel').style.display!=='none') mfLoad();
+  }catch(e){ fdMark('연결 실패'); }
+}
+if($('#fdFacAdd')) $('#fdFacAdd').onclick=()=>{ const nm=prompt('추가할 시설 이름을 입력하세요 (예: 대형 건물)'); if(!nm) return;
+  FD.fac.push({id:fdUniqId(FD.fac,nm,'fac'),ko:nm.trim(),en:'',eg:'현장 설비',sensor:'',app:'',cons:FD.con.map(c=>c.id)});
+  fdRender(); fdMark('추가됨 — 저장해야 반영됩니다'); };
+if($('#fdConAdd')) $('#fdConAdd').onclick=()=>{ const nm=prompt('추가할 고민 이름을 입력하세요 (예: 시설 에너지 절감)'); if(!nm) return;
+  const id=fdUniqId(FD.con,nm,'con');
+  FD.con.push({id,ko:nm.trim(),en:'',tag:nm.trim(),title:nm.trim(),desc:'',sensors:'',fx:''});
+  FD.fac.forEach(f=>{ f.cons=f.cons||[]; });
+  fdRender(); fdMark('추가됨 — 각 시설에서 노출 여부를 체크한 뒤 저장하세요'); };
+if($('#fdReset')) $('#fdReset').onclick=()=>{ if(!confirm('사이트 기본 목록으로 되돌릴까요? (저장 전까지는 반영되지 않습니다)')) return;
+  FD={fac:fdClone(FD_DEF_FAC),con:fdClone(FD_DEF_CON)}; fdRender(); fdMark('기본값으로 되돌렸습니다 — 저장해야 반영됩니다'); };
+function fdOpen(){ const p=$('#finderPanel'); if(!p) return; p.style.display='block';
+  if(!DATA['SiteContent']) fdMark('먼저 시트를 불러오세요 (SiteContent 탭 필요)');
+  fdLoad(); p.scrollIntoView({behavior:'smooth',block:'start'}); }
+if($('#finderBtn')) $('#finderBtn').onclick=()=>{ const p=$('#finderPanel'); if(p.style.display==='none') fdOpen(); else p.style.display='none'; };
+if($('#fdClose')) $('#fdClose').onclick=()=>{ $('#finderPanel').style.display='none'; };
+if($('#fdReload')) $('#fdReload').onclick=()=>fdLoad();
+if($('#fdSave')) $('#fdSave').onclick=()=>fdSave();
+
 /* ===== 🎯 솔루션 파인더 매칭 그리드 (시설 × 고민 → 활용분야 링크) ===== */
-const MF_FAC=[['factory','공장·제조'],['logistics','물류·창고·콜드체인'],['pharma','병원·제약·바이오'],['datacenter','데이터센터·통신'],['office','빌딩·오피스'],['resident','주거·아파트'],['hotel','호텔·리조트'],['retail','리테일·매장·외식'],['public','학교·공공기관'],['agri','농축수산'],['energy','에너지·발전·인프라'],['construction','건설·현장'],['etc','그 외 시설']];
-const MF_CON=[['fire','화재·과열'],['leak','누수·침수·동파'],['temp','온도·습도 관리'],['cold','냉장·콜드체인'],['equip','설비 고장·예지보전'],['power','전력·에너지 절감'],['air','공기질·환경'],['security','보안·출입'],['control','통합관제·원격감시'],['comply','규정·온도기록']];
-const MF_ALLCON=MF_CON.map(x=>x[0]);
+let MF_FAC=[['factory','공장·제조'],['logistics','물류·창고·콜드체인'],['pharma','병원·제약·바이오'],['datacenter','데이터센터·통신'],['office','빌딩·오피스'],['resident','주거·아파트'],['hotel','호텔·리조트'],['retail','리테일·매장·외식'],['public','학교·공공기관'],['agri','농축수산'],['energy','에너지·발전·인프라'],['construction','건설·현장'],['etc','그 외 시설']];
+let MF_CON=[['fire','화재·과열'],['leak','누수·침수·동파'],['temp','온도·습도 관리'],['cold','냉장·콜드체인'],['equip','설비 고장·예지보전'],['power','전력·에너지 절감'],['air','공기질·환경'],['security','보안·출입'],['control','통합관제·원격감시'],['comply','규정·온도기록']];
+let MF_ALLCON=MF_CON.map(x=>x[0]);
+/* 파인더 항목(finder.config)이 저장돼 있으면 그 목록을 따릅니다 */
+function mfSyncFromConfig(){
+  let raw=''; const r=(typeof scRow==='function')?scRow('finder.config'):null; if(r&&r.ko) raw=String(r.ko).trim();
+  if(!raw) return false;
+  let cfg=null; try{ cfg=JSON.parse(raw); }catch(e){ return false; }
+  if(!cfg||(!Array.isArray(cfg.fac)&&!Array.isArray(cfg.con))) return false;
+  if(Array.isArray(cfg.con)&&cfg.con.length){
+    MF_CON=cfg.con.map(c=>[String(c.id||''),String(c.ko||c.id||'')]).filter(x=>x[0]);
+    MF_ALLCON=MF_CON.map(x=>x[0]);
+  }
+  if(Array.isArray(cfg.fac)&&cfg.fac.length){
+    MF_FAC=cfg.fac.map(f=>[String(f.id||''),String(f.ko||f.id||'')]).filter(x=>x[0]);
+    MF_FACCON={};
+    cfg.fac.forEach(f=>{ const id=String(f.id||''); if(!id) return;
+      const cs=(Array.isArray(f.cons)&&f.cons.length?f.cons:MF_ALLCON).filter(c=>MF_ALLCON.indexOf(c)>=0);
+      MF_FACCON[id]=cs.length?cs:MF_ALLCON.slice(); });
+  }
+  return true;
+}
 /* index.html의 FAC_CONCERNS와 동일 — 시설별로 노출되는 고민 목록 */
-const MF_FACCON={factory:['equip','power','fire','temp','control','comply','air','security'],logistics:['cold','temp','equip','comply','power','fire','control','security'],pharma:['cold','temp','comply','air','equip','control','fire','security'],datacenter:['temp','leak','fire','power','equip','control','security','comply'],office:['temp','power','air','fire','leak','control','security','equip'],resident:['leak','fire','temp','air','security','control','power','comply'],hotel:['temp','fire','air','leak','power','security','control','comply'],retail:['cold','temp','power','fire','air','comply','control','equip'],public:['fire','air','temp','security','power','leak','control','comply'],agri:['temp','cold','air','equip','power','control','comply','leak'],energy:['equip','power','control','leak','fire','temp','security','comply'],construction:['security','equip','fire','power','control','temp','air','comply'],etc:MF_ALLCON.slice()};
+let MF_FACCON={factory:['equip','power','fire','temp','control','comply','air','security'],logistics:['cold','temp','equip','comply','power','fire','control','security'],pharma:['cold','temp','comply','air','equip','control','fire','security'],datacenter:['temp','leak','fire','power','equip','control','security','comply'],office:['temp','power','air','fire','leak','control','security','equip'],resident:['leak','fire','temp','air','security','control','power','comply'],hotel:['temp','fire','air','leak','power','security','control','comply'],retail:['cold','temp','power','fire','air','comply','control','equip'],public:['fire','air','temp','security','power','leak','control','comply'],agri:['temp','cold','air','equip','power','control','comply','leak'],energy:['equip','power','control','leak','fire','temp','security','comply'],construction:['security','equip','fire','power','control','temp','air','comply'],etc:MF_ALLCON.slice()};
 let MF_DATA={};   // { fac: { con: route } }
 function mfSelect(fac,con){
   const sel=el('select','mf-sel'); sel.dataset.fac=fac; sel.dataset.con=con;
@@ -1026,6 +1272,7 @@ function mfRenderGrid(){
   table.appendChild(tb); box.appendChild(table);
 }
 function mfLoad(){
+  mfSyncFromConfig();
   MF_DATA={}; let raw='';
   const r=(typeof scRow==='function')?scRow('finder.matrix'):null; if(r&&r.ko) raw=String(r.ko).trim();
   if(raw){ try{ MF_DATA=JSON.parse(raw)||{}; }catch(e){ MF_DATA={}; } }
@@ -1089,7 +1336,7 @@ if($('#homeSave')) $('#homeSave').onclick=async()=>{
   function $(q){ return document.querySelector(q); }
   function ready(cb){ var t=setInterval(function(){ if($('#tabSel') && $('#tabSel').options.length){ clearInterval(t); cb(); } },200); setTimeout(function(){clearInterval(t);},15000); }
   function go(tab){ var t=$('#tabSel'); t.value=tab; if(t.value!==tab){ t.selectedIndex=0; } t.dispatchEvent(new Event('change')); $('#dashPanel').style.display='none'; $('#pickBar').scrollIntoView({behavior:'smooth'}); }
-  function act(a){ $('#dashPanel').style.display='none'; if(a==='home'){ $('#homeBtn').click(); } else if(a==='seo'){ $('#seoBtn').click(); } else if(a==='match'){ if(typeof mfOpen==='function') mfOpen(); } else { $('#pickBar').scrollIntoView({behavior:'smooth'}); } }
+  function act(a){ $('#dashPanel').style.display='none'; if(a==='home'){ $('#homeBtn').click(); } else if(a==='seo'){ $('#seoBtn').click(); } else if(a==='match'){ if(typeof mfOpen==='function') mfOpen(); } else if(a==='finder'){ if(typeof fdOpen==='function') fdOpen(); } else { $('#pickBar').scrollIntoView({behavior:'smooth'}); } }
   function bind(root){ root.querySelectorAll('.dash-card,.dash-chip').forEach(function(c){ c.onclick=function(){ var tab=c.dataset.tab, a=c.dataset.act; ready(function(){ a ? act(a) : go(tab); }); }; }); }
   bind(document);
   ready(function(){
