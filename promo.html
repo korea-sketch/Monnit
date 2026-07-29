@@ -167,7 +167,10 @@ var SHEET_ID='1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
 var STATICFORMS_URL='https://api.staticforms.dev/submit', STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472', WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
 /* 시트 로드 전에도 즉시 렌더되도록 하는 기본 문구 + 테마색 + 최적화 로컬 이미지(있으면) */
 var THEME={fire:'#FF5A2C',flame:'#FF5A2C',water:'#3B82F6',elect:'#F59E0B',church:'#3FD7C0'};
-var LOCAL_IMG={fire:'/images/promo-fire.webp'};   // 미리 최적화한 로컬 이미지가 있는 프로모션
+var LOCAL_IMG={                                    // 미리 최적화한 로컬 이미지가 있는 프로모션
+  fire:'/images/promo-fire.webp', flame:'/images/promo-flame.webp', water:'/images/promo-water.webp',
+  elect:'/images/promo-elect.webp', church:'/images/promo-church.webp', soil:'/images/promo-soil.webp'
+};
 var FALLBACK={
   fire:{title:'실시간 소방 알리미!',desc:'0.1초 만에 화재 징후를 감지해 담당자에게 즉시 알립니다.',badge:'NEW'},
   flame:{title:'무선 불꽃감지기 출시 특가 프로모션!',desc:'초정밀 무선 불꽃감지기로 즉시 화재 징조를 대처하세요.',badge:'HOT'},

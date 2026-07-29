@@ -6,66 +6,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- ═══════════════════════════════════════════════════════════════════
-     QR 전용 입장 게이트
-     · 전단지 QR( /church/?k=CODE )로 들어온 경우에만 열람할 수 있습니다.
-     · 페이지를 벗어나면 같은 브라우저에서는 다시 열 수 없습니다.
-     · 아래 CONFIG 값만 바꾸면 코드·유예시간을 조정할 수 있습니다.
+     프로모션 랜딩 설정 (2026-07 개편)
+     · [변경] '한 번만 열람' 잠금은 제거했습니다. 나갔다 돌아와도 그대로 열립니다.
+     · 대신 마감 카운트다운 · 스크롤 연동 하단바 · 이탈 시도 팝업으로 신청을 유도합니다.
+     · ▼ 아래 PROMO_DEADLINE 한 줄만 바꾸면 마감일이 전체에 반영됩니다.
      ═══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(w,d){
-  var CFG = {
-    keys: ['MNK5230','CHURCH2026'],  // 전단 QR 에 넣을 코드 (?k=코드) · 여러 개 등록 가능
-    store: 'mnk_church_pass_v1',
-    graceSec: 120,                   // 전화·개인정보방침 등으로 잠깐 벗어난 뒤 돌아올 수 있는 시간(초)
-    devBypass: 'MNKPREVIEW',         // 내부 확인용 코드 (?k=MNKPREVIEW · 이탈해도 잠기지 않음)
-    allowRescan: false               // true 로 바꾸면 이탈 후에도 QR 재스캔 시 다시 열람 가능
-  };
-  function get(){ try{ return JSON.parse(w.localStorage.getItem(CFG.store)||'null'); }catch(e){ return null; } }
-  function set(o){ try{ w.localStorage.setItem(CFG.store, JSON.stringify(o)); }catch(e){} }
-  function param(k){ try{ return new URLSearchParams(location.search).get(k)||''; }catch(e){ return ''; } }
+  /* ── 혜택 마감 시각 (한국시간 KST 고정) ──────────────────────────
+     방문자 기기의 시간대와 무관하게 항상 같은 시각에 마감됩니다.
+     형식: [연, 월, 일, 시] · 아래는 2026년 8월 31일 24:00(=9월 1일 0시) 마감 */
+  w.PROMO_DEADLINE_KST = [2026, 9, 1, 0];
 
-  var key = (param('k')||'').trim().toUpperCase();
-  var st  = get();
-  var preview = key === CFG.devBypass || (st && st.preview);
-  var valid = preview || CFG.keys.indexOf(key) >= 0;
-
-  var mode = 'allow';
-  if (st && st.closed && !preview && !(CFG.allowRescan && valid)) mode = 'closed';   // 이미 이탈한 방문자
-  else if (valid)                        mode = 'allow';   // QR 로 새로 입장
-  else if (st && !st.closed)             mode = 'allow';   // 같은 방문 중 새로고침
-  else                                   mode = 'noqr';    // QR 없이 직접 접근
-
-  w.MNK_CHURCH = { mode: mode, preview: preview };
-
-  if (mode === 'allow'){
-    set({ opened: st && st.opened ? st.opened : Date.now(), closed:false, preview: preview });
-    // 주소창에서 코드 제거 → 링크를 복사해 퍼뜨려도 재사용되지 않습니다
-    if (key) {
-      try{
-        var q = new URLSearchParams(location.search);
-        q.delete('k');                                  // 코드만 지우고 utm 등은 그대로 둡니다
-        var qs = q.toString();
-        history.replaceState(null,'', location.pathname + (qs ? '?' + qs : '') + location.hash);
-      }catch(e){}
+  /* ── QR 코드 파라미터 정리 ───────────────────────────────────────
+     ?k=MNK5230 은 유입 경로 집계용으로만 쓰고 주소창에서는 지웁니다.
+     (더 이상 입장 조건이 아니므로 코드가 없어도 정상 열람됩니다) */
+  try{
+    var q = new URLSearchParams(location.search);
+    var k = (q.get('k')||'').trim().toUpperCase();
+    if (k){
+      w.MNK_ENTRY_CODE = k;
+      try{ sessionStorage.setItem('mnk_entry_code', k); }catch(e){}
+      q.delete('k');
+      var qs = q.toString();
+      history.replaceState(null,'', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    } else {
+      try{ w.MNK_ENTRY_CODE = sessionStorage.getItem('mnk_entry_code') || ''; }catch(e){ w.MNK_ENTRY_CODE=''; }
     }
-  } else {
-    // 본문이 잠깐이라도 보이지 않도록 즉시 감춥니다 (안내 화면만 따로 되살립니다)
-    d.documentElement.style.visibility = 'hidden';
-  }
-
-  /* ── 이탈 감지 ─────────────────────────────────────────────── */
-  var INTENT = 'mnk_church_intent';
-  w.MNK_CHURCH.keepAlive = function(){ try{ sessionStorage.setItem(INTENT, String(Date.now())); }catch(e){} };
-  function recentIntent(){
-    try{ var t=+sessionStorage.getItem(INTENT)||0; return Date.now()-t < CFG.graceSec*1000; }catch(e){ return false; }
-  }
-  w.addEventListener('pagehide', function(e){
-    if (mode !== 'allow' || preview) return;
-    if (e.persisted) return;          // bfcache 로 잠시 대기 → 돌아올 수 있음
-    if (recentIntent()) return;       // 전화·처리방침 등 허용된 이동
-    var cur = get() || {};
-    cur.closed = true; cur.closedAt = Date.now(); set(cur);
-  });
+  }catch(e){}
 })(window, document);
 </script>
 <!-- 쿠키 동의 (사이트 공통 규정 적용) -->
@@ -307,9 +275,13 @@ footer{background:#081430;color:#8fa2c8;padding:34px 0 108px;font-size:13px;text
 footer a{color:#c9d6ee}
 
 /* ── 모바일 하단 고정 CTA ─────────────── */
-.floatbar{position:fixed;left:0;right:0;bottom:0;z-index:120;background:rgba(10,26,60,.97);backdrop-filter:blur(6px);padding:11px 16px calc(11px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
-.floatbar .f-tel{flex:1;max-width:160px;border:1px solid rgba(255,255,255,.4);color:#fff;padding:13px;font-size:15px;border-radius:11px;text-align:center;font-weight:700}
-.floatbar .f-go{flex:2;max-width:330px;background:var(--gold);color:var(--navy-deep);padding:13px;font-size:16px;border-radius:11px;text-align:center;font-weight:900}
+.floatbar{position:fixed;left:0;right:0;bottom:0;z-index:120;background:rgba(10,26,60,.97);backdrop-filter:blur(6px);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:stretch;gap:10px;justify-content:center;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
+/* 두 버튼을 같은 높이·같은 정렬 규칙으로 통일 — 세로 중앙 정렬이 서로 어긋나지 않도록 flex 로 맞춥니다 */
+.floatbar .f-tel,.floatbar .f-go{display:flex;align-items:center;justify-content:center;gap:6px;
+  min-height:50px;padding:0 14px;line-height:1.2;border-radius:11px;text-align:center;
+  white-space:nowrap;overflow:hidden;box-sizing:border-box}
+.floatbar .f-tel{flex:0 0 auto;width:104px;border:1px solid rgba(255,255,255,.4);color:#fff;font-size:15px;font-weight:700}
+.floatbar .f-go{flex:1 1 auto;max-width:330px;background:var(--gold);color:var(--navy-deep);font-size:16px;font-weight:900;letter-spacing:-.02em}
 
 
 /* ── 모션·인터랙션 ─────────────── */
@@ -580,9 +552,9 @@ footer a{color:#333}
   .promo-entry .code-row{display:block;margin-top:24px}
   .promo-entry .code-box{width:100%;margin-top:10px}
   .promo-entry .promo-status{margin-top:12px;text-align:center}
-  .floatbar{padding-left:12px;padding-right:12px}
-  .floatbar .f-tel{max-width:112px}
-  .floatbar .f-go{min-width:0;font-size:14px}
+  .floatbar{padding-left:12px;padding-right:12px;gap:8px}
+  .floatbar .f-tel{width:88px;font-size:14px;padding:0 8px}
+  .floatbar .f-go{min-width:0;font-size:15px;padding:0 10px}
 }
 @media (max-width:419px){
   .hero h1{font-size:28px}
@@ -594,72 +566,152 @@ footer a{color:#333}
 </style>
 </head>
 <body>
-<!-- ── QR 전용 안내 배너 (한 번 나가면 다시 열 수 없음) ────────── -->
-<div id="mnkOnceBar" style="display:none;position:sticky;top:0;z-index:200;background:#122f63;color:#fff;
-  font-size:12.5px;font-weight:700;text-align:center;padding:9px 14px;line-height:1.5;letter-spacing:-.01em">
-  <span style="opacity:.9">📄 전단지 QR 전용 페이지입니다 —</span>
-  <b style="color:#e8c964">이 화면을 벗어나면 다시 열 수 없습니다.</b>
-  <span style="opacity:.75;display:block;font-weight:500;margin-top:2px">보시는 동안 상담 신청을 마쳐 주세요.</span>
+<!-- ── 혜택 마감 카운트다운 바 ───────────────────────────────────
+     마감 시각은 <head> 의 PROMO_DEADLINE_KST 한 곳에서만 관리합니다. -->
+<div id="mnkDeadlineBar" style="position:sticky;top:0;z-index:200;background:linear-gradient(90deg,#122f63,#1c4590);color:#fff;
+  font-size:13px;font-weight:700;text-align:center;padding:9px 14px;line-height:1.5;letter-spacing:-.01em">
+  <span id="mnkDlLabel" style="opacity:.92">선착순 50곳 한정 혜택 마감까지</span>
+  <b id="mnkDlClock" style="color:#e8c964;font-variant-numeric:tabular-nums;margin-left:6px">—</b>
+  <span id="mnkDlSub" style="opacity:.78;display:block;font-weight:500;margin-top:2px">첫 1개월 60% 할인 + 설치비 전액 지원</span>
 </div>
 
-<!-- ── 입장 차단 화면 ─────────────────────────────────────────── -->
-<div id="mnkGateScreen" style="display:none;visibility:visible;position:fixed;inset:0;z-index:99999;background:#0d2249;color:#fff;
-  align-items:center;justify-content:center;padding:26px;text-align:center;
+<!-- ── 이탈 시도 팝업 (1회만 노출) ───────────────────────────── -->
+<div id="mnkExitModal" role="dialog" aria-modal="true" aria-labelledby="mnkExitTitle" style="display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(8,16,36,.62);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px;
   font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif">
-  <div style="max-width:400px">
-    <div id="mnkGateIcon" style="font-size:44px;margin-bottom:16px">🔒</div>
-    <h1 id="mnkGateTitle" style="font-size:23px;font-weight:800;letter-spacing:-.03em;margin-bottom:12px;line-height:1.35">열람이 종료되었습니다</h1>
-    <p id="mnkGateDesc" style="font-size:14.5px;line-height:1.75;color:#c3d0e6;word-break:keep-all;margin-bottom:26px">
-      이 안내 페이지는 전단지 QR을 통해 <b style="color:#e8c964">한 번만</b> 열람하실 수 있습니다.<br>
-      다시 보시려면 전단지의 QR 코드를 새로 스캔해 주세요.
+  <div style="width:100%;max-width:392px;background:#fff;color:#1b2437;border-radius:18px;padding:26px 22px 20px;box-shadow:0 24px 64px rgba(0,0,0,.34);text-align:center">
+    <div style="font-size:36px;line-height:1;margin:0 0 12px">🙏</div>
+    <h2 id="mnkExitTitle" style="font-size:19px;font-weight:800;letter-spacing:-.03em;line-height:1.45;margin:0 0 10px">
+      잠깐만요, <span style="color:#2e6fe0">연락처만</span> 남겨 두세요
+    </h2>
+    <p style="font-size:13.5px;line-height:1.7;color:#5a6478;word-break:keep-all;margin:0 0 14px">
+      교회명과 연락처만 남기시면 담당자가 먼저 연락드립니다.
     </p>
-    <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:18px 20px;margin-bottom:20px">
-      <div style="font-size:12.5px;color:#9fb2d0;margin-bottom:8px">상담은 전화로도 바로 도와드립니다</div>
-      <a href="tel:02-2088-1454" style="display:block;font-size:21px;font-weight:800;color:#e8c964;text-decoration:none;letter-spacing:-.02em">02-2088-1454</a>
-      <div style="font-size:12px;color:#9fb2d0;margin-top:6px">평일 09:00–18:00 · korea@monnit.com</div>
+    <div style="background:#f4f8fd;border:1px solid #dbe6f5;border-radius:12px;padding:12px 14px;margin:0 0 12px">
+      <div style="font-size:13.5px;font-weight:800;color:#122f63;line-height:1.55;word-break:keep-all">
+        첫 1개월 60% 할인 <span style="color:#8a94a8;font-weight:400">+</span> 설치비 전액 지원
+      </div>
+      <div id="mnkExitClock" style="font-size:12px;color:#5a6478;margin-top:6px;font-variant-numeric:tabular-nums">&nbsp;</div>
     </div>
-    <a href="https://monnit.co.kr/" style="display:inline-block;font-size:13.5px;color:#9fb2d0;text-decoration:underline">모넷코리아 홈페이지 보기 →</a>
+    <button type="button" id="mnkExitGo" class="btn" style="width:100%;min-height:52px;background:#122f63;color:#fff;font-size:16px;font-weight:800;border-radius:12px;margin:0 0 9px;white-space:nowrap">
+      30초 만에 신청하기 →
+    </button>
+    <a href="tel:02-2088-1454" id="mnkExitTel" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:50px;border:1.5px solid #e3e8f1;color:#122f63;font-size:15px;font-weight:700;border-radius:12px;margin:0 0 16px;white-space:nowrap;box-sizing:border-box">
+      📞 전화 상담 02-2088-1454
+    </a>
+    <button type="button" id="mnkExitClose" style="background:none;border:0;color:#8a94a8;font-size:13px;font-family:inherit;cursor:pointer;text-decoration:underline">
+      괜찮습니다, 더 둘러볼게요
+    </button>
   </div>
 </div>
+
 <script>
+/* ═══════════════════════════════════════════════════════════════════
+   마감 카운트다운 — 상단 바 + 이탈 팝업에 같은 값을 표시
+   · 마감 시각은 <head> 의 PROMO_DEADLINE_KST 한 곳에서만 관리합니다.
+   · KST(UTC+9) 고정이라 해외·시차 기기에서도 같은 숫자가 보입니다.
+   · 마감이 지나면 자동으로 '마감되었습니다' 문구로 바뀝니다.
+   ═══════════════════════════════════════════════════════════════════ */
 (function(){
-  var m = (window.MNK_CHURCH||{}).mode;
-  var sc = document.getElementById('mnkGateScreen');
-  var bar = document.getElementById('mnkOnceBar');
+  var D = window.PROMO_DEADLINE_KST || [2026,9,1,0];
+  var END = Date.UTC(D[0], D[1]-1, D[2], (D[3]||0) - 9, 0, 0);   // KST → UTC
+  var bar   = document.getElementById('mnkDeadlineBar');
+  var clock = document.getElementById('mnkDlClock');
+  var label = document.getElementById('mnkDlLabel');
+  var sub   = document.getElementById('mnkDlSub');
+  var mini  = document.getElementById('mnkExitClock');
+  var pad = function(n){ return (n<10?'0':'') + n; };
 
-  if (m === 'allow'){
-    if (bar) bar.style.display = 'block';
-    document.documentElement.style.visibility = '';
-    return;
+  function tick(){
+    var left = END - Date.now();
+    if (left <= 0){
+      if (label) label.textContent = '이번 회차 혜택이 마감되었습니다';
+      if (clock) clock.textContent = '';
+      if (sub)   sub.textContent = '다음 회차 안내를 원하시면 아래에서 연락처를 남겨 주세요';
+      if (mini)  mini.textContent = '';
+      clearInterval(iv);
+      return;
+    }
+    var s = Math.floor(left/1000), dday = Math.floor(s/86400);
+    var txt = (dday > 0 ? dday + '일 ' : '') + pad(Math.floor(s%86400/3600)) + ':' + pad(Math.floor(s%3600/60)) + ':' + pad(s%60);
+    if (clock) clock.textContent = txt;
+    if (mini)  mini.textContent = '마감까지 ' + txt;
+  }
+  tick();
+  var iv = setInterval(tick, 1000);
+  /* 백그라운드 탭에서 돌아왔을 때 즉시 보정 */
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) tick(); });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   이탈 시도 팝업 — 세션당 1회만
+   · PC : 마우스가 브라우저 상단 밖으로 나갈 때
+   · 모바일 : 빠른 상향 스크롤(주소창/뒤로가기 접근 동작) 감지
+   · 이미 신청을 마쳤거나 신청 폼을 보고 있는 중에는 뜨지 않습니다.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var KEY = 'mnk_church_exit_shown';
+  var modal = document.getElementById('mnkExitModal');
+  if (!modal) return;
+  var shown = false, armed = false, atForm = false;
+  try{ if (sessionStorage.getItem(KEY) === '1') shown = true; }catch(e){}
+  try{ if (localStorage.getItem('mnk_church_submitted') === '1') shown = true; }catch(e){}
+
+  /* 신청 폼이 화면에 보이는 동안에는 방해하지 않습니다 */
+  var applyEl = document.getElementById('apply');
+  if (applyEl && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(en){ atForm = en[0].isIntersecting; }, {threshold:.15}).observe(applyEl);
   }
 
-  /* ── 차단: 본문은 감춘 채 안내 화면만 보여줍니다 ────────────── */
-  if (m === 'noqr'){
-    document.getElementById('mnkGateIcon').textContent = '📄';
-    document.getElementById('mnkGateTitle').textContent = '전단지 QR로만 열람할 수 있습니다';
-    document.getElementById('mnkGateDesc').innerHTML =
-      '이 페이지는 배포된 <b style="color:#e8c964">전단지의 QR 코드</b>를 통해서만 접속하실 수 있습니다.<br>전단지를 가지고 계시다면 QR을 스캔해 주세요.';
+  function open(reason){
+    if (shown || atForm) return;
+    shown = true;
+    try{ sessionStorage.setItem(KEY,'1'); }catch(e){}
+    modal.style.display = 'flex';
+    document.documentElement.style.overflow = 'hidden';
+    try{ if(window.gtag) gtag('event','exit_intent_shown',{promo:'church',reason:reason}); }catch(e){}
   }
-  document.title = (m === 'noqr' ? 'QR 전용 페이지' : '열람 종료') + ' | Monnit Korea';
+  function close(){
+    modal.style.display = 'none';
+    document.documentElement.style.overflow = '';
+  }
 
-  /* html 전체는 hidden 상태(헤드에서 설정) · 안내 화면만 visible 로 되돌립니다 */
-  sc.style.display = 'flex';
-  sc.style.visibility = 'visible';
-  document.documentElement.style.overflow = 'hidden';
+  document.getElementById('mnkExitClose').addEventListener('click', function(){
+    close();
+    try{ if(window.gtag) gtag('event','exit_intent_dismiss',{promo:'church'}); }catch(e){}
+  });
+  document.getElementById('mnkExitGo').addEventListener('click', function(){
+    close();
+    try{ if(window.gtag) gtag('event','exit_intent_cta',{promo:'church'}); }catch(e){}
+    if (typeof scrollForm === 'function') scrollForm('exit_modal');
+  });
+  document.getElementById('mnkExitTel').addEventListener('click', function(){
+    try{ if(window.gtag) gtag('event','exit_intent_tel',{promo:'church'}); }catch(e){}
+  });
+  modal.addEventListener('click', function(e){ if (e.target === modal) close(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modal.style.display === 'flex') close(); });
 
-  /* 본문이 파싱된 뒤 안내 화면만 남기고 모두 제거합니다 */
-  function strip(){
-    var body = document.body; if (!body) return;
-    [].slice.call(body.children).forEach(function(el){
-      if (el === sc || el.tagName === 'SCRIPT') return;
-      el.parentNode.removeChild(el);
+  /* 페이지를 조금이라도 본 뒤에만 작동 (즉시 이탈에는 띄우지 않음) */
+  setTimeout(function(){ armed = true; }, 6000);
+
+  /* PC — 마우스가 창 위쪽으로 빠져나갈 때 */
+  if (window.matchMedia && matchMedia('(pointer: fine)').matches){
+    document.addEventListener('mouseout', function(e){
+      if (!armed || e.relatedTarget || e.clientY > 6) return;
+      open('mouseout');
     });
-    body.style.margin = '0';
-    body.style.background = '#0d2249';
+  } else {
+    /* 모바일 — 빠른 상향 스크롤(주소창 노출·뒤로가기 제스처 직전 동작) */
+    var lastY = window.scrollY, lastT = Date.now();
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY, t = Date.now(), dt = t - lastT;
+      if (dt > 40){
+        var v = (lastY - y) / dt;                       // 위로 올리는 속도(px/ms)
+        if (armed && v > 1.6 && y < 320) open('fast_scroll_up');
+        lastY = y; lastT = t;
+      }
+    }, {passive:true});
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', strip);
-  else strip();
-  window.addEventListener('load', strip);
 })();
 </script>
 
@@ -1167,13 +1219,13 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
       if(window.clarity)clarity('event','lead_submit');
       if(window.dataLayer)dataLayer.push({event:'generate_lead',promo:PID,form_name:'church_qr'});
     }catch(e){}
+    try{ localStorage.setItem('mnk_church_submitted','1'); }catch(e){}   /* 신청 완료 → 이탈 팝업 더 이상 노출 안 함 */
     document.getElementById('formLive').style.display='none';
     var ok=document.getElementById('formOk');ok.style.display='block';ok.scrollIntoView({behavior:'smooth',block:'center'});
   }
   function unlock(){btn.disabled=false;btn.textContent=promoCode===PROMO_CODE?'할인가로 무료 상담 신청':'무료 현장 상담 신청';}
   function openMail(){
     unlock();
-    if(window.MNK_CHURCH&&MNK_CHURCH.keepAlive)MNK_CHURCH.keepAlive();  /* 메일앱 전환은 이탈로 보지 않음 */
     window.location.href='mailto:'+CONTACT_EMAIL+'?subject='+encodeURIComponent(payload._subject)
       +'&body='+encodeURIComponent('교회명/성함: '+name+'\n연락처: '+tel+'\n규모: '+(fac||'-')+'\n코드: '+promoCode
         +'\n개인정보 수집·이용: 동의\n마케팅 수신: '+marketing+'\n신청 시각: '+now+'\n출처: '+src);
@@ -1198,12 +1250,6 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
     .catch(function(){return tryWeb3();});
 });
 
-/* ── 이탈 방지: 허용된 이동은 잠금 처리하지 않습니다 ───────────── */
-document.addEventListener('click',function(e){
-  var a=e.target.closest&&e.target.closest('a[href^="tel:"],a[href^="mailto:"],a[href$="privacy.html"],a[target="_blank"]');
-  if(a&&window.MNK_CHURCH&&MNK_CHURCH.keepAlive)MNK_CHURCH.keepAlive();
-},true);
-
 /* ── 입력 중 이탈 시 브라우저 확인창 ─────────────────────────── */
 (function(){
   var dirty=false;
@@ -1220,6 +1266,57 @@ document.addEventListener('click',function(e){
 /* 신청 영역에서는 하단 고정바 숨김 */
 (function(){var fb=document.getElementById('floatbar');
   new IntersectionObserver(function(en){fb.style.display=en[0].isIntersecting?'none':'flex';},{threshold:.12}).observe(document.getElementById('apply'));})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   스크롤 연동 하단바 — 많이 읽은 사람일수록 메시지를 강하게
+   · 0~45%  : 무료체험 신청 →            (기본)
+   · 45~75% : 이번 달 설치 신청 →        (한 번 반짝)
+   · 75%~   : 마감 전 신청하기 →         (한 번 반짝)
+   문구만 바뀌고 동작은 동일합니다. 모션 최소화 설정이면 반짝임은 생략.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var go = document.querySelector('#floatbar .f-go');
+  if (!go) return;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var STAGES = [
+    { at:0,   text:'무료체험 신청 →' },
+    { at:.45, text:'이번 달 설치 신청 →' },
+    { at:.75, text:'마감 전 신청하기 →' }
+  ];
+  /* 좁은 화면에서 두 줄로 깨지지 않도록 한 줄 고정 + 넘치면 글자만 살짝 축소 */
+  go.style.whiteSpace = 'nowrap';
+  go.style.overflow = 'hidden';
+  go.style.textOverflow = 'clip';
+  var cur = -1, ticking = false;
+
+  if (!reduce && !document.getElementById('mnkPulseCSS')){
+    var st = document.createElement('style'); st.id = 'mnkPulseCSS';
+    st.textContent = '@keyframes mnkPulse{0%,100%{transform:scale(1)}38%{transform:scale(1.055)}}' +
+                     '.mnk-pulse{animation:mnkPulse .62s ease-in-out 2}';
+    document.head.appendChild(st);
+  }
+
+  function update(){
+    ticking = false;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? window.scrollY / h : 0;
+    var idx = 0;
+    for (var i = STAGES.length - 1; i >= 0; i--){ if (p >= STAGES[i].at){ idx = i; break; } }
+    if (idx === cur) return;
+    cur = idx;
+    go.textContent = STAGES[idx].text;
+    if (idx > 0 && !reduce){
+      go.classList.remove('mnk-pulse');
+      void go.offsetWidth;                    // 애니메이션 재시작
+      go.classList.add('mnk-pulse');
+    }
+    try{ if(window.gtag) gtag('event','cta_stage',{promo:'church',stage:idx}); }catch(e){}
+  }
+  window.addEventListener('scroll', function(){
+    if (!ticking){ ticking = true; requestAnimationFrame(update); }
+  }, {passive:true});
+  update();
+})();
 /* 모션: 스크롤 리빌 + 3D 틸트 (모션 최소화 설정 시 비활성) */
 (function(){
   if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){

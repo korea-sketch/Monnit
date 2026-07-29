@@ -2951,6 +2951,21 @@ const BUILTIN_PROMOS = [{
 }];
 PROMOS = BUILTIN_PROMOS.slice();
 
+/* ── 프로모션 대표 이미지(카드 썸네일) 로컬 파일 지정 ─────────────────
+   여기에 id 가 있으면 구글 시트의 image 열보다 이 파일이 우선합니다.
+   · 이유: 외부 이미지 호스트(ibb.co 등)는 느리고 링크가 끊길 수 있어,
+     사이트 안에 최적화한 webp 를 두고 직접 서빙합니다. (장당 약 900KB → 80KB)
+   · 파일 위치: /images/promo-{id}.webp  (og:image 용 .jpg 도 같이 있습니다)
+   · 다시 시트로 관리하고 싶은 프로모션은 아래에서 해당 줄만 지우면 됩니다. */
+const PROMO_LOCAL_IMG = {
+  fire:   '/images/promo-fire.webp',    // 물류센터 화재예방 알리미
+  flame:  '/images/promo-flame.webp',   // 무선 불꽃감지기 출시 특가
+  water:  '/images/promo-water.webp',   // 실시간 침수 알리미
+  elect:  '/images/promo-elect.webp',   // 실시간 정전 알리미
+  church: '/images/promo-church.webp',  // 스마트 교회 알리미
+  soil:   '/images/promo-soil.webp'     // 산사태 사전감지 솔루션
+};
+
 /* ═══════════════════════════════════════════════════════════════════
    프로모션 기간(한국시간 KST 고정) — 방문자 기기 시간대와 무관하게 동작
    · start/end 열이 있으면 그 값을 쓰고, 없으면 period 문구에서 자동 추출
@@ -3016,6 +3031,7 @@ function parsePeriodRange(period){
 }
 /* 프로모션 객체에 startTs/endTs/status 부여 */
 function applyPromoSchedule(p){
+  if (PROMO_LOCAL_IMG[p.id]) p.image = PROMO_LOCAL_IMG[p.id];   // 대표 이미지 로컬 파일 우선
   const fromPeriod = parsePeriodRange(p.period);
   const s = parseKDate(p.start) || fromPeriod.start;
   const e = parseKDate(p.end)   || fromPeriod.end;
