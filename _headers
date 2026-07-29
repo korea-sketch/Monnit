@@ -20,13 +20,19 @@
   Content-Type: text/plain; charset=utf-8
 
 # ===== 캐싱 =====
-# JS·CSS·트윈 조각은 ?v= 로 버전 관리되므로 장기 캐시(변경 시 ?v 만 올리면 새로 받음) → 재방문·다중 페이지 이동이 즉시
+# JS·CSS 는 ?v= 로 버전 관리합니다. 다만 ?v 를 올리지 않고 배포하면
+# immutable 캐시 때문에 브라우저가 최대 1년간 옛 파일을 계속 써서
+# 도메인·기기별로 화면이 달라지는 사고가 납니다(2026-07 monnit.co.kr/monnit.ai 사례).
+# → immutable 대신 stale-while-revalidate 를 씁니다.
+#   · 캐시가 있으면 즉시 표시(체감 속도 동일)
+#   · 동시에 백그라운드로 새 파일을 받아 다음 방문부터 자동 최신화
+#   · ?v 를 올리면 그 즉시 새 파일을 받습니다
 /*.css
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
 /*.js
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
 /views/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
 # 폰트
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable

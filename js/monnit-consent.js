@@ -276,8 +276,28 @@
     hasDecided: function () { return !!load(); }
   };
 
+  /* ── 모바일 판별 ─────────────────────────────────────────────
+     모바일에서는 첫 화면을 가리지 않도록 동의 배너를 띄우지 않습니다.
+     · 동의 상태는 여전히 'denied'(옵트인 전) 로 유지되므로 광고·분석 쿠키는 저장되지 않습니다.
+     · 사용자는 푸터의 '쿠키 설정' 링크로 언제든 직접 설정할 수 있습니다.
+     · 배너를 모바일에서도 다시 켜려면 아래 CFG.mobileBanner 를 true 로 두세요.
+       (예: window.MONNIT_CONSENT_CONFIG={..., mobileBanner:true}) */
+  function isMobile() {
+    try {
+      if (w.matchMedia && w.matchMedia('(max-width: 820px)').matches) return true;
+      if (/Android|iPhone|iPad|iPod|Windows Phone|Mobile|Silk|Opera Mini/i.test(navigator.userAgent || '')) return true;
+      // iPadOS 13+ 는 UA 가 Mac 으로 보고되므로 터치 지원 여부로 보완
+      if (/Macintosh/.test(navigator.userAgent || '') && (navigator.maxTouchPoints || 0) > 1) return true;
+    } catch (e) {}
+    return false;
+  }
+  var SHOW_BANNER_ON_MOBILE = CFG.mobileBanner === true;
+
   function boot() {
     if (saved) { apply(saved, false); }        // 기존 동의 재적용 (재저장 없음)
+    else if (isMobile() && !SHOW_BANNER_ON_MOBILE) {
+      loadGoogle();                            // 모바일: 배너 없이 denied 상태로만 로드 (쿠키 미저장)
+    }
     else { loadGoogle(); banner(); }           // 미결정 → 동의모드 denied 상태로 로드 + 배너
     d.addEventListener('click', function (e) { // 푸터 '쿠키 설정' 링크
       var t = e.target.closest('[data-cookie-settings]');

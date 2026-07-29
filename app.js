@@ -1,3 +1,14 @@
+/* ── 개발용 디버그 로그 스위치 ─────────────────────────────────────────
+   기본은 꺼짐(운영). 켜려면 주소 뒤에 ?debug=1 을 붙이거나
+   콘솔에서 localStorage.setItem('monnit_debug','1') 후 새로고침. */
+var MONNIT_DEBUG = (function(){
+  try{
+    if (new URLSearchParams(location.search).get('debug') === '1'){ localStorage.setItem('monnit_debug','1'); return true; }
+    if (new URLSearchParams(location.search).get('debug') === '0'){ localStorage.removeItem('monnit_debug'); return false; }
+    return localStorage.getItem('monnit_debug') === '1';
+  }catch(e){ return false; }
+})();
+function dlog(){ if (MONNIT_DEBUG) console.log.apply(console, arguments); }
 /* ============================================================
    ========== 상담/문의 폼 수신 설정 (FORM DELIVERY) ==========
    ▼ 여기 이메일 한 줄만 바꾸면, 모든 상담신청·구독·백서신청이
@@ -42,7 +53,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = 'data.js?v=98'; s.async = true;
+  s.src = 'data.js?v=103'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -66,14 +77,14 @@ function ensureSolutionTwin(){
   window.__twinLoading = true;
   var loadScript = function(){
     var s = document.createElement('script');
-    s.src = 'js/solution-twin.js?v=102'; s.async = true;
+    s.src = 'js/solution-twin.js?v=103'; s.async = true;
     s.onload = function(){ window.__twinLoaded = true; };
     s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
     document.head.appendChild(s);
   };
   if (mount.__filled){ loadScript(); return; }
   // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
-  fetch('views/solution-twin.html?v=102').then(function(r){ return r.ok ? r.text() : ''; })
+  fetch('views/solution-twin.html?v=103').then(function(r){ return r.ok ? r.text() : ''; })
     .then(function(html){
       if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
       else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
@@ -989,43 +1000,43 @@ function eachSlot(cb){
       let ii=0; root.querySelectorAll('img').forEach(function(el){ cb(base+'#i'+(ii++), el, 'img'); });
     }
   });
-  console.log('[eachSlot] 총', homeCount, '개 홈 슬롯 처리됨');
+  dlog('[eachSlot] 총', homeCount, '개 홈 슬롯 처리됨');
 }
 function mapSiteContent(rows){
   const out = {};
-  console.log('[mapSC] rows 개수:', rows?.length || 0);
+  dlog('[mapSC] rows 개수:', rows?.length || 0);
   rows.forEach(function(o){ 
     const k=(o.key||'').trim(); 
-    if(!k) { console.log('[mapSC] row key 비움:', o); return; }
+    if(!k) { dlog('[mapSC] row key 비움:', o); return; }
     out[k]={ ko:o.ko||'', en:o.en||'', image:o.image||'' };
-    console.log('[mapSC] ✓', k, '→', (o.ko||'').slice(0,30));
+    dlog('[mapSC] ✓', k, '→', (o.ko||'').slice(0,30));
   });
-  console.log('[mapSC] 완료:', Object.keys(out).length, '개 key');
+  dlog('[mapSC] 완료:', Object.keys(out).length, '개 key');
   return out;
 }
-function applySiteContent(){
-  console.log('[ASC] 시작 — SITE_CONTENT:', Object.keys(SITE_CONTENT||{}).length, '개');
-  if(!SITE_CONTENT || !Object.keys(SITE_CONTENT).length){ console.warn('[ASC] ❌ SITE_CONTENT 비어있음'); return; }
-  console.log('[ASC] SITE_CONTENT keys:', Object.keys(SITE_CONTENT).slice(0,10).join(', '), '...');
+function applySiteContentNow(){
+  dlog('[ASC] 시작 — SITE_CONTENT:', Object.keys(SITE_CONTENT||{}).length, '개');
+  if(!SITE_CONTENT || !Object.keys(SITE_CONTENT).length){ MONNIT_DEBUG && console.warn('[ASC] ❌ SITE_CONTENT 비어있음'); return; }
+  dlog('[ASC] SITE_CONTENT keys:', Object.keys(SITE_CONTENT).slice(0,10).join(', '), '...');
   let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
-  console.log('[ASC] 언어:', lang);
+  dlog('[ASC] 언어:', lang);
   let applied=0, skipped=0, slotCount=0;
   eachSlot(function(key, el, kind){
     slotCount++;
     const row = SITE_CONTENT[key];
-    if(!row){ console.log('[ASC-skip]', key); skipped++; return; }
+    if(!row){ dlog('[ASC-skip]', key); skipped++; return; }
     if(kind==='img'){
       if(row.image && row.image.trim()){ const u=normalizeImageUrl(row.image.trim()); if(el.getAttribute('src')!==u){ el.setAttribute('src',u); applied++; } }
     } else {
       const val = (lang==='en' && row.en && row.en.trim()) ? row.en : row.ko;
       if(val!=null && String(val).trim()!==''){ 
-        console.log('[ASC✓]', key, '→', val.slice(0,40)); 
+        dlog('[ASC✓]', key, '→', val.slice(0,40)); 
         el.innerHTML=val; 
         applied++; 
       }
     }
   });
-  console.log('[ASC] 완료: 총슬롯', slotCount, '| 적용', applied, '| 스킵', skipped);
+  dlog('[ASC] 완료: 총슬롯', slotCount, '| 적용', applied, '| 스킵', skipped);
   (function(){
     const st=SITE_CONTENT['seo#title']; if(st){ const v=(lang==='en'&&st.en&&st.en.trim())?st.en:st.ko; if(v&&v.trim()) document.title=v.trim(); }
     const sd=SITE_CONTENT['seo#description']; if(sd){ const v=(lang==='en'&&sd.en&&sd.en.trim())?sd.en:sd.ko; if(v&&v.trim()){ let m=document.querySelector('meta[name="description"]'); if(!m){ m=document.createElement('meta'); m.setAttribute('name','description'); document.head.appendChild(m); } m.setAttribute('content', v.trim()); } }
@@ -1041,6 +1052,16 @@ function applySiteContent(){
     const lt=document.getElementById('langToggle');
     if(lt){ lt.addEventListener('click', function(){ setTimeout(applySiteContent, 90); }); _siteToggleHooked=true; }
   }
+}
+
+
+/* applySiteContent(): 같은 프레임에 여러 번 불려도 실제 적용은 1회만 (중복 재적용 방지) */
+let _ascPending = false;
+function applySiteContent(){
+  if (_ascPending) return;
+  _ascPending = true;
+  const run = () => { _ascPending = false; try { applySiteContentNow(); } catch(e){ console.warn('[ASC] 적용 실패:', e); } };
+  (window.requestAnimationFrame || setTimeout)(run, 0);
 }
 
 /* Photos (현장 사진) — 한 행 = 사진 1장.  열: key, url, caption, order
@@ -1162,8 +1183,8 @@ async function loadSheetData(){
   add('photos',        r => { const m = mapPhotos(r);        if (hasKeys(m)) PHOTOS = Object.assign({}, PHOTOS, m); });
   add('products',      r => { const m = mapProducts(r);      if (m.length) PRODUCTS = m; });
   add('homecases',     r => { const m = mapHomeCases(r);     if (m.length) HOME_CASES = m; });
-  add('logos',         r => { const m = mapLogos(r);         console.log('[add-logos]',m?.length); if(m&&m.length) renderLogos(m); else console.log('[Logos] 데이터 없음'); });
-  add('sitecontent',   r => { console.log('[add-sitecontent] 로드 시작, rows:', r?.length); const sc = mapSiteContent(r); SITE_CONTENT = sc; console.log('[add-sitecontent] 맵핑 완료, 100ms 후 apply'); setTimeout(applySiteContent, 100); });
+  add('logos',         r => { const m = mapLogos(r);         dlog('[add-logos]',m?.length); if(m&&m.length) renderLogos(m); else dlog('[Logos] 데이터 없음'); });
+  add('sitecontent',   r => { dlog('[add-sitecontent] 로드 시작, rows:', r?.length); const sc = mapSiteContent(r); SITE_CONTENT = sc; dlog('[add-sitecontent] 맵핑 완료, 100ms 후 apply'); setTimeout(applySiteContent, 100); });
 
   const results = await Promise.allSettled(jobs);
   results.forEach((res, idx) => {
@@ -1172,7 +1193,7 @@ async function loadSheetData(){
     }
   });
   // 연결 상태 진단: 콘솔에서 시트가 실제로 반영됐는지 바로 확인 가능
-  console.info('[CONTENT_SHEET] 로드 요약 — homecases:' + (HOME_CASES ? HOME_CASES.length : 0)
+  MONNIT_DEBUG && console.info('[CONTENT_SHEET] 로드 요약 — homecases:' + (HOME_CASES ? HOME_CASES.length : 0)
     + '행, cases:' + Object.keys(CASE_DATA).length + '개, products:' + PRODUCTS.length
     + '개, customers:' + CUSTOMERS.length + '개  (sheetId=' + CONTENT_SHEET.sheetId + ')');
   if (!HOME_CASES || !HOME_CASES.length){
@@ -2475,15 +2496,15 @@ function mapLogos(rows){
 }
 let _logosRendered = false;
 function renderLogos(list){
-  if(!list || !list.length){ console.log('[Logos] 데이터 없음'); return; }
-  if(_logosRendered){ console.log('[Logos] 이미 렌더링됨 (중복 호출 방지)'); return; }
+  if(!list || !list.length){ dlog('[Logos] 데이터 없음'); return; }
+  if(_logosRendered){ dlog('[Logos] 이미 렌더링됨 (중복 호출 방지)'); return; }
   // 흰색 통일 보장: 시트에 외부 URL(컬러) 로고가 하나라도 있으면 배포된 정적 흰색 로고 마퀴를 그대로 유지.
   // 시트를 흰색 로컬 로고(images/clogo-*.png)로 갱신한 경우에만 시트 기준으로 렌더링.
   var allLocal = list.every(function(it){ return !it.image || /^images\//.test(String(it.image)); });
-  if(!allLocal){ console.log('[Logos] 외부 URL 감지 → 배포된 흰색 로고 유지(시트 무시)'); return; }
+  if(!allLocal){ dlog('[Logos] 외부 URL 감지 → 배포된 흰색 로고 유지(시트 무시)'); return; }
   const track = document.querySelector('.logo-marquee .logo-track');
   if(!track){ console.warn('[Logos] DOM 요소 없음'); return; }
-  console.log('[Logos] 렌더링:', list.length, '개');
+  dlog('[Logos] 렌더링:', list.length, '개');
   const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const slide = it => {
     const src = it.image ? (typeof normalizeImageUrl==='function'? normalizeImageUrl(it.image) : it.image) : '';
@@ -2495,7 +2516,7 @@ function renderLogos(list){
   const html = list.map(slide).join('');
   track.innerHTML = html + html;
   _logosRendered = true;
-  console.log('[Logos] 완료');
+  dlog('[Logos] 완료');
 }
 
 function renderHomeCases() {

@@ -171,8 +171,25 @@ PROMOS = PROMOS.sort((a, b) => (parseInt(a.order,10)||999) - (parseInt(b.order,1
 let KNOWLEDGEBASE = [], GUIDES = [];
 try {
   const DATAJS = fs.readFileSync(path.join(__dirname, 'data.js'), 'utf8');
-  const r = (new Function(DATAJS + '\n;return { KB: (typeof KNOWLEDGEBASE !== "undefined") ? KNOWLEDGEBASE : [], G: (typeof GUIDES !== "undefined") ? GUIDES : [] };'))();
-  KNOWLEDGEBASE = r.KB; GUIDES = r.G;
+  /* data.js 는 브라우저용이라 값을 window.__KB_BASE / window.GUIDES 에 담는다.
+     Node 에는 window 가 없어 예전 코드는 "window is not defined" 로 통째로 실패했고,
+     그 결과 knowledgebase, guides, kb- 및 guide- 계열 15개 페이지가 생성되지 않았다.
+     생성되지 않은 pages 하위 html 은 아래 정리 단계에서 삭제되므로 배포본이 404 가 됐다.
+     window/document 를 흉내 낸 샌드박스를 넣어 값만 안전하게 꺼낸다. */
+  const win = {};
+  const doc = {
+    addEventListener() {}, removeEventListener() {},
+    querySelector() { return null; }, querySelectorAll() { return []; },
+    getElementById() { return null; },
+    createElement() { return { style: {}, setAttribute() {}, appendChild() {} }; },
+    head: { appendChild() {} }, body: { appendChild() {} }
+  };
+  (new Function('window', 'self', 'globalThis', 'document', 'location', 'navigator', DATAJS))(
+    win, win, win, doc, { href: '', hostname: '' }, { userAgent: '' }
+  );
+  KNOWLEDGEBASE = win.__KB_BASE || win.KNOWLEDGEBASE || [];
+  GUIDES        = win.GUIDES    || [];
+  console.log(`[build] data.js 로드 OK — 지식베이스 ${KNOWLEDGEBASE.length}건, 가이드 ${GUIDES.length}건`);
 } catch (e) { console.warn('[build] data.js 로드 실패(지식베이스 생략):', e.message); }
 
 /* 본문 HTML 새니타이즈 — script/iframe/이벤트핸들러 제거 */
@@ -619,6 +636,115 @@ robots += 'User-agent: *\nAllow: /\nDisallow: /editor.html\nDisallow: /church\nD
 AI_BOTS.forEach(b => { robots += `User-agent: ${b}\nAllow: /\n\n`; });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
+
+/* ---------- 구 사이트 URL 301 리다이렉트 (_redirects 자동 관리) ----------
+   2026-07 구조 개편으로 /apps, /cases, /company 등이 /pages/*.html 로 바뀌었으나
+   리다이렉트가 없어 Google 색인 URL 대부분이 404 였다.
+   아래 마커 사이 구간만 매 빌드마다 교체하므로, 마커 밖에 직접 적은 규칙은 보존된다.
+
+   ※ Netlify 는 "먼저 매칭되는 규칙"이 이기고 리다이렉트를 연쇄 적용하지 않는다.
+      그래서 대문자·한글 구 슬러그와 허브 페이지 규칙을 와일드카드보다 위에 둔다. */
+const RD_BEGIN = '# >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>';
+const RD_END   = '# <<< AUTO-LEGACY-REDIRECTS <<<';
+
+const LEGACY_RULES = `
+# --- 구 슬러그(대문자·한글): 와일드카드로는 소문자 파일을 못 찾으므로 먼저 처리
+/cases/Samsung        /pages/case-samsung.html    301
+/cases/samsung        /pages/case-samsung.html    301
+/cases/Veolia         /pages/case-veolia.html     301
+/cases/HDC랩스         /pages/case-hdc-labs.html   301
+/cases/hdc랩스         /pages/case-hdc-labs.html   301
+
+# --- 허브(목록) 페이지
+/apps                 /pages/solutions.html       301
+/apps/                /pages/solutions.html       301
+/cases                /pages/cases.html           301
+/cases/               /pages/cases.html           301
+/company              /pages/company.html         301
+/company/             /pages/company.html         301
+/browse               /pages/solutions.html       301
+/browse/              /pages/solutions.html       301
+/faq                  /pages/contact.html         301
+/faq/                 /pages/contact.html         301
+/whitepapers          /pages/blog.html            301
+/whitepapers/         /pages/blog.html            301
+
+# --- 상세 페이지 (구 슬러그와 신 파일명이 1:1 대응 — 87개 일괄)
+/apps/*               /pages/app-:splat.html      301
+/cases/*              /pages/case-:splat.html     301
+
+# --- 구 Wix 잔존 경로
+/kakaoalarm           /pages/contact.html         301
+/kakaoalarm/          /pages/contact.html         301
+/manual               /pages/guides.html          301
+/consultingpromotion  /promo/consulting           301
+`;
+
+try {
+  const RD_PATH = path.join(__dirname, '_redirects');
+  let rd = fs.existsSync(RD_PATH) ? fs.readFileSync(RD_PATH, 'utf8') : '';
+  const bi = rd.indexOf(RD_BEGIN), ei = rd.indexOf(RD_END);
+  if (bi !== -1 && ei !== -1 && ei > bi) rd = rd.slice(0, bi) + rd.slice(ei + RD_END.length);
+  rd = rd.replace(/\s+$/, '');
+  rd += '\n\n' + RD_BEGIN + '\n' + LEGACY_RULES.trim() + '\n' + RD_END + '\n';
+  fs.writeFileSync(RD_PATH, rd);
+
+  const _n = LEGACY_RULES.split('\n').filter(l => l.trim().startsWith('/')).length;
+  console.log(`[build] _redirects 갱신 — 구 URL 301 규칙 ${_n}개`);
+} catch (e) { console.warn('[build] _redirects 갱신 실패:', e.message); }
+
+/* ---------- 404.html (Netlify 가 미매칭 요청에 자동으로 사용) ---------- */
+try {
+  const NOTFOUND = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, follow">
+<title>페이지를 찾을 수 없습니다 — Monnit Korea</title>
+<style>
+  :root{--ink:#111;--soft:#666;--line:#e5e5e5;--accent:#0b5fff}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+       color:var(--ink);background:#fff;line-height:1.65;
+       display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px}
+  .wrap{max-width:640px;width:100%}
+  .code{font-size:13px;letter-spacing:.12em;color:var(--soft);text-transform:uppercase}
+  h1{font-size:28px;margin:8px 0 12px;line-height:1.3}
+  p{color:var(--soft);margin:0 0 28px}
+  ul{list-style:none;padding:0;margin:0 0 28px;border-top:1px solid var(--line)}
+  li{border-bottom:1px solid var(--line)}
+  li a{display:block;padding:14px 4px;color:var(--ink);text-decoration:none;font-weight:600}
+  li a span{display:block;font-weight:400;font-size:13px;color:var(--soft);margin-top:2px}
+  li a:hover{color:var(--accent)}
+  .home{display:inline-block;padding:12px 22px;background:var(--ink);color:#fff;
+        text-decoration:none;border-radius:6px;font-weight:600}
+  .foot{margin-top:32px;font-size:13px;color:var(--soft)}
+  .foot a{color:var(--soft)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="code">404</div>
+    <h1>찾으시는 페이지가 없습니다</h1>
+    <p>주소가 바뀌었거나 삭제된 페이지입니다. 아래에서 원하시는 내용을 찾아보세요.</p>
+    <ul>
+      <li><a href="/pages/solutions.html">활용 분야 60선<span>산업별 IoT 모니터링 활용 사례</span></a></li>
+      <li><a href="/pages/cases.html">도입 사례<span>글로벌 기업 도입 성과</span></a></li>
+      <li><a href="/pages/products.html">제품<span>센서·게이트웨이·소프트웨어</span></a></li>
+      <li><a href="/pages/company.html">회사 소개<span>Monnit Korea 소개</span></a></li>
+      <li><a href="/pages/knowledgebase.html">기술 지식베이스<span>설치·설정·문제 해결 문서</span></a></li>
+      <li><a href="/pages/contact.html">상담·문의<span>자주 묻는 질문 · 문의하기</span></a></li>
+    </ul>
+    <a class="home" href="/">메인으로 돌아가기</a>
+    <div class="foot">문의 <a href="mailto:korea@monnit.com">korea@monnit.com</a> · <a href="tel:0220881454">02-2088-1454</a></div>
+  </div>
+</body>
+</html>
+`;
+  fs.writeFileSync(path.join(__dirname, '404.html'), NOTFOUND);
+  console.log('[build] 404.html 생성');
+} catch (e) { console.warn('[build] 404.html 생성 실패:', e.message); }
 
 /* ---------- sitemap.xml ---------- */
 const urls = [
