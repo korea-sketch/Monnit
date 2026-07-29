@@ -1211,6 +1211,15 @@ function navigate(target) {
 
   if (target.startsWith('case/')) {
     const caseId = target.slice(5);
+    // 아직 내용이 없는 사례는 빈 화면 대신 '준비 중' 안내로 보냅니다
+    if (!CASE_DATA[caseId]) {
+      renderCaseComingSoon(caseId);
+      document.getElementById('view-coming').classList.add('active');
+      { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
+      window.location.hash = target;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
     renderCaseDetail(caseId);
     document.getElementById('view-case').classList.add('active');
     { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
@@ -2609,6 +2618,54 @@ function comingSoonLabel(id){
   }catch(e){}
   return '';
 }
+/* 준비 중 화면 — 활용분야·도입사례·프로모션 등 어디서든 같은 모양으로 씁니다.
+   opts = { kind, title, sub, back:[[route,라벨],...] } · 값이 없으면 활용분야 기준 기본값 */
+function comingSoonHTML(opts){
+  opts = opts || {};
+  let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+  const en=(lang==='en');
+  const title = opts.title || (en?'Preparing this page':'준비 중입니다');
+  const sub   = opts.sub || (en
+    ? 'Page in preparation. Send us your site details and we will reply with a sensor set-up and estimate within 24 hours.'
+    : '상세 페이지를 준비 중입니다.<br>현장 상황을 남겨 주시면 <b>24시간 안에</b> 센서 구성과 예상 비용을 보내드립니다.');
+  const back = opts.back || [['applications',en?'All applications':'전체 활용분야'],
+                             ['stories',en?'Customer stories':'도입 사례'],
+                             ['products',en?'Products':'제품'],['home',en?'Home':'홈']];
+  return ''
+    + '<div style="max-width:520px;margin:0 auto;padding:'+(opts.pad||'96px 20px 112px')+';text-align:center">'
+    + '<div style="font-size:12px;letter-spacing:.16em;font-weight:700;color:var(--accent-dark,#6B9FD6);margin-bottom:18px">'
+    +   (en?'IN PREPARATION':'준비 중')+'</div>'
+    + '<h2 style="font-size:clamp(23px,3.6vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.35;margin:0 0 16px">'+title+'</h2>'
+    + '<p style="font-size:15px;line-height:1.8;color:var(--ink-mid,#B7BECD);word-break:keep-all;margin:0 0 32px">'+sub+'</p>'
+    + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px">'
+    +   '<button type="button" class="cs-cta" style="display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border:0;border-radius:13px;background:var(--accent,#4A82C4);color:#fff;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;white-space:nowrap">'
+    +     (en?'Free site review →':'무료 현장 진단 신청 →')+'</button>'
+    +   '<a href="tel:02-2088-1454" style="display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 24px;border-radius:13px;border:1.5px solid var(--line,#26304A);color:var(--ink,#EEF1F6);font-weight:700;font-size:15px;white-space:nowrap">'
+    +     (en?'Call 02-2088-1454':'전화 상담')+'</a>'
+    + '</div>'
+    + '<p style="font-size:12.5px;color:var(--ink-soft,#838C9E);margin:0 0 44px">'+(en?'Free of charge':'진단 무료')+'</p>'
+    + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
+    +   back.map(function(p){ return '<button type="button" class="cs-link" data-go="'+esc(p[0])+'" style="background:none;border:1px solid var(--line,#26304A);border-radius:999px;padding:9px 16px;font-size:13px;color:var(--ink-soft,#838C9E);cursor:pointer;font-family:inherit">'+esc(p[1])+'</button>'; }).join('')
+    + '</div></div>';
+}
+/* 준비 중 화면의 버튼 동작 연결 (상담 폼에 맥락을 미리 채워 줍니다) */
+function bindComingSoon(root, ctx){
+  ctx = ctx || {};
+  root.querySelectorAll('.cs-link').forEach(function(b){ b.onclick=function(){ navigate(b.dataset.go); }; });
+  const c=root.querySelector('.cs-cta');
+  if(c) c.onclick=function(){
+    navigate('contact');
+    setTimeout(function(){
+      try{
+        const sel=document.getElementById('c-industry')||document.getElementById('f-type');
+        if(sel&&ctx.facLabel){ for(let i=0;i<sel.options.length;i++){ if(sel.options[i].text.indexOf(ctx.facLabel)>=0){ sel.selectedIndex=i; break; } } }
+        const msg=document.getElementById('c-message');
+        if(msg&&!msg.value&&ctx.memo) msg.value=ctx.memo;
+      }catch(e){}
+    },400);
+  };
+}
+
 function renderComingSoon(id){
   let v=document.getElementById('view-coming');
   if(!v){
@@ -2618,41 +2675,39 @@ function renderComingSoon(id){
   }
   let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
   const en=(lang==='en');
+  const pick=(window.MK_PICK||{});
+  const facL=(pick.facLabel||'').trim();
+  const conL=(pick.conLabel||'').trim();
   const name=comingSoonLabel(id);
-  const t=en?{
-    kicker:'Coming soon', head:'We are preparing this content',
-    lead:'This solution page is being updated. Tell us about your site and our engineer will send you the right sensor set-up and a quote first.',
-    cta1:'Request a free site review', cta2:'Call 02-2088-1454',
-    more:'Meanwhile, have a look at these', a1:'All applications', a2:'Customer stories', a3:'Products', a4:'Home'
-  }:{
-    kicker:'준비 중', head:'콘텐츠를 업데이트하고 있습니다',
-    lead:'이 솔루션 페이지는 현재 내용을 정리하고 있습니다. 곧 도움이 될 만한 내용으로 찾아뵙겠습니다.<br>급하시면 현장 상황만 남겨 주세요 — 담당 엔지니어가 맞는 센서 구성과 예상 비용을 먼저 보내드립니다.',
-    cta1:'무료 현장 진단 신청', cta2:'전화 상담 02-2088-1454',
-    more:'그동안 이런 내용도 함께 살펴보세요', a1:'전체 활용분야', a2:'도입 사례', a3:'제품 라인업', a4:'홈으로'
-  };
-  v.innerHTML =
-    '<div class="wrap" style="max-width:760px;margin:0 auto;padding:72px 20px 96px;text-align:center">'
-    + '<div style="font-size:12px;letter-spacing:.14em;color:var(--accent,#2e6fe0);font-weight:700;margin-bottom:14px">'+esc(t.kicker).toUpperCase()+'</div>'
-    + (name?'<div style="display:inline-block;font-size:13px;padding:6px 14px;border-radius:999px;background:rgba(46,111,224,.12);color:var(--accent,#2e6fe0);margin-bottom:16px">'+esc(name)+'</div>':'')
-    + '<h1 style="font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.03em;line-height:1.35;margin:0 0 16px">'+esc(t.head)+'</h1>'
-    + '<p style="font-size:15px;line-height:1.8;color:var(--ink-soft,#8598b4);word-break:keep-all;margin:0 0 30px">'+t.lead+'</p>'
-    + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:38px">'
-    +   '<a href="#contact" data-nav="contact" class="cs-cta" style="display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:12px;background:var(--accent,#2e6fe0);color:#fff;font-weight:700;font-size:15px;white-space:nowrap">'+esc(t.cta1)+' →</a>'
-    +   '<a href="tel:02-2088-1454" style="display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:12px;border:1.5px solid rgba(133,152,180,.4);color:inherit;font-weight:700;font-size:15px;white-space:nowrap">'+esc(t.cta2)+'</a>'
-    + '</div>'
-    + '<div style="font-size:13px;color:var(--ink-soft,#8598b4);margin-bottom:14px">'+esc(t.more)+'</div>'
-    + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
-    +   ['applications:'+t.a1,'stories:'+t.a2,'products:'+t.a3,'home:'+t.a4].map(function(p){
-          var k=p.slice(0,p.indexOf(':')), l=p.slice(p.indexOf(':')+1);
-          return '<button class="cs-link" data-go="'+k+'" style="background:none;border:1px solid rgba(133,152,180,.3);border-radius:999px;padding:9px 16px;font-size:13.5px;color:inherit;cursor:pointer;font-family:inherit">'+esc(l)+'</button>';
-        }).join('')
-    + '</div></div>';
-  v.querySelectorAll('.cs-link').forEach(function(b){
-    b.onclick=function(){ navigate(b.dataset.go); };
-  });
-  const c=v.querySelector('.cs-cta');
-  if(c) c.onclick=function(e){ e.preventDefault(); navigate('contact'); };
-  try{ if(window.gtag) gtag('event','coming_soon_view',{app_id:id}); }catch(e){}
+  const both=(facL&&conL);
+
+  /* 제목 — 파인더로 왔으면 고른 조합, 아니면 활용분야 이름 */
+  const title = both ? (esc(facL)+' <em>'+esc(conL)+'</em>')
+              : (name ? esc(name) : (en?'Preparing this page':'준비 중입니다'));
+
+  v.innerHTML = '<div class="wrap">' + comingSoonHTML({ title:title }) + '</div>';
+  bindComingSoon(v, { facLabel:facL, memo: both ? (facL+' · '+conL+' 관련 구성과 예상 비용 문의') : (name? name+' 관련 문의':'') });
+  try{ if(window.gtag) gtag('event','coming_soon_view',{kind:'app',app_id:id,fac:pick.fac||'',con:pick.con||''}); }catch(e){}
+}
+
+/* 도입 사례가 아직 없을 때 — 같은 화면을 사례 문구로 */
+function renderCaseComingSoon(id){
+  let v=document.getElementById('view-coming');
+  if(!v){ v=document.createElement('section'); v.className='view'; v.id='view-coming';
+    (document.querySelector('main')||document.body).appendChild(v); }
+  let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+  const en=(lang==='en');
+  const cu=(typeof CUSTOMERS!=='undefined'?CUSTOMERS:[]).find(c=>String(c.key||'')===String(id));
+  const nm=(cu&&cu.n)?cu.n:'';
+  v.innerHTML = '<div class="wrap">' + comingSoonHTML({
+    title: nm ? (esc(nm)+' <em>'+(en?'case study':'도입 사례')+'</em>') : (en?'Case study in preparation':'도입 사례를 준비 중입니다'),
+    sub: en ? 'This case study is being written. Tell us about your site and we will share a similar reference and an estimate within 24 hours.'
+            : '이 사례는 현재 정리 중입니다.<br>현장 상황을 남겨 주시면 <b>비슷한 사례</b>와 예상 구성을 24시간 안에 보내드립니다.',
+    back: [['stories',en?'Other case studies':'다른 도입 사례'],['applications',en?'All applications':'전체 활용분야'],
+           ['products',en?'Products':'제품'],['home',en?'Home':'홈']]
+  }) + '</div>';
+  bindComingSoon(v, { memo: nm ? (nm+' 도입 사례와 비슷한 구성 문의') : '' });
+  try{ if(window.gtag) gtag('event','coming_soon_view',{kind:'case',case_id:id}); }catch(e){}
 }
 function renderAppDetail(id) {
   const app = APPS.find(a => a.id === id);
@@ -3431,7 +3486,17 @@ function openPromo(id, fromHash){
   } else if (p.html && p.html.trim()){
     body.innerHTML = p.html;
   } else {
-    body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink-soft)">등록된 상세 내용이 없습니다.</div>`;
+    let _lg='ko'; try{ _lg=localStorage.getItem('mlang')||'ko'; }catch(e){}
+    const _en=(_lg==='en');
+    body.innerHTML = comingSoonHTML({
+      pad:'56px 20px 24px',
+      title: esc(p.title||'') || (_en?'Details in preparation':'상세 내용을 준비 중입니다'),
+      sub: _en ? 'Details are being prepared. Leave your contact and we will send the full offer within 24 hours.'
+               : '상세 내용을 준비 중입니다.<br>연락처를 남겨 주시면 <b>24시간 안에</b> 자세한 혜택 안내를 보내드립니다.',
+      back: [['promotions',_en?'Other promotions':'다른 프로모션'],['applications',_en?'All applications':'전체 활용분야'],
+             ['home',_en?'Home':'홈']]
+    });
+    bindComingSoon(body, { memo: (p.title||'')+' 프로모션 문의' });
   }
   // 상세 하단에 '이 프로모션 신청하기' 버튼
   const applyBtn = document.getElementById('promoDetailApply');

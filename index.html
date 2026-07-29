@@ -2391,7 +2391,14 @@ window.addEventListener('hashchange', function(){
     var hint=document.getElementById('wizHint'); if(hint){hint.innerHTML='<b>'+btn.textContent.trim()+'</b> 현장에서 자주 발생하는 문제예요. 하나를 선택하세요.';}
     if(con){ render(); } else { var out=document.getElementById('wizOut'); if(out) out.classList.remove('show'); }
   }
-  function go(route){ if(!route)return; if(/^https?:/i.test(route)){ window.open(route,'_blank'); return; } route=route.replace(/^#/,''); if(typeof navigate==='function') navigate(route); else location.hash=route; }
+  function go(route){
+    /* 준비 중 화면에서 '무엇을 고른 사람인지' 그대로 쓰기 위해 선택값을 넘깁니다 */
+    try{
+      window.MK_PICK = { fac:fac, con:con, facLabel:facLabelOf(fac),
+        conLabel:(document.querySelector('#wizCon .opt[data-v="'+con+'"]')||{textContent:''}).textContent.trim(),
+        rec:(REC[con]||{}) };
+    }catch(e){}
+    if(!route)return; if(/^https?:/i.test(route)){ window.open(route,'_blank'); return; } route=route.replace(/^#/,''); if(typeof navigate==='function') navigate(route); else location.hash=route; }
   function render(){if(!fac||!con)return;
     var base=REC[con]||{}, ctx=FCTX[fac]||{eg:'현장 설비',sensor:'',app:'facility'};
     var set=function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
