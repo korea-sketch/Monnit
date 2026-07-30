@@ -53,7 +53,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = 'data.js?v=104'; s.async = true;
+  s.src = '/data.js?v=106'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -77,14 +77,14 @@ function ensureSolutionTwin(){
   window.__twinLoading = true;
   var loadScript = function(){
     var s = document.createElement('script');
-    s.src = 'js/solution-twin.js?v=104'; s.async = true;
+    s.src = 'js/solution-twin.js?v=106'; s.async = true;
     s.onload = function(){ window.__twinLoaded = true; };
     s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
     document.head.appendChild(s);
   };
   if (mount.__filled){ loadScript(); return; }
   // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
-  fetch('views/solution-twin.html?v=104').then(function(r){ return r.ok ? r.text() : ''; })
+  fetch('/views/solution-twin.html?v=106').then(function(r){ return r.ok ? r.text() : ''; })
     .then(function(html){
       if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
       else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
@@ -1204,6 +1204,43 @@ async function loadSheetData(){
 }
 
 /* ========== NAVIGATION ========== */
+/* ═══════════════════════════════════════════════════════════════════
+   경로(Path) 라우팅  — 2026-07 해시 라우팅에서 전환
+   ------------------------------------------------------------------
+   화면 이름 ↔ 주소
+     home             →  /
+     stories          →  /stories
+     app/temp         →  /app/temp
+     case/samsung     →  /case/samsung
+     promotions/fire  →  /promotions/fire
+   · 주소는 history.pushState 로 바꾸므로 새로고침·공유·뒤로가기가 모두 됩니다.
+   · 예전 #해시 주소로 들어와도 부팅 때 같은 경로로 조용히 바꿔 줍니다.
+   ═══════════════════════════════════════════════════════════════════ */
+const ROUTE_PREFIX = '';                 // 하위 폴더 배포 시에만 사용 (예: '/site')
+function routeToPath(target){
+  const t = String(target||'').replace(/^[#/]+/,'').replace(/\/+$/,'');
+  return (!t || t==='home') ? (ROUTE_PREFIX||'/') : (ROUTE_PREFIX + '/' + t);
+}
+function pathToRoute(pathname){
+  let p = String(pathname||'/');
+  if (ROUTE_PREFIX && p.indexOf(ROUTE_PREFIX)===0) p = p.slice(ROUTE_PREFIX.length);
+  p = p.replace(/^\/+|\/+$/g,'');
+  if (!p) return 'home';
+  p = p.replace(/\.html$/,'');           // 혹시 남은 .html 주소도 받아 줍니다
+  return decodeURIComponent(p);
+}
+let _navSilent = false;                  // 뒤로가기 처리 중에는 주소를 다시 쌓지 않습니다
+function setURL(target, replace){
+  if (_navSilent) return;
+  try{
+    const url = routeToPath(target) + location.search;
+    if (location.pathname + location.search !== url){
+      history[replace ? 'replaceState' : 'pushState']({ route:String(target||'') }, '', url);
+    }
+    if (typeof window.MK_TRACK_PAGEVIEW === 'function') window.MK_TRACK_PAGEVIEW();
+  }catch(e){}
+}
+
 function navigate(target) {
   // target: "stories", "applications", "awards", "partners", "case/{id}", or "app/{id}"
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1216,14 +1253,14 @@ function navigate(target) {
       renderCaseComingSoon(caseId);
       document.getElementById('view-coming').classList.add('active');
       { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
-      window.location.hash = target;
+      setURL(target);
       window.scrollTo({ top: 0, behavior: 'instant' });
       return;
     }
     renderCaseDetail(caseId);
     document.getElementById('view-case').classList.add('active');
     { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
-    window.location.hash = target;
+    setURL(target);
   } else if (target.startsWith('app/')) {
     const appId = target.slice(4);
     // 아직 내용이 없는 활용분야는 빈 화면 대신 '준비 중' 안내로 보냅니다
@@ -1231,21 +1268,21 @@ function navigate(target) {
       renderComingSoon(appId);
       document.getElementById('view-coming').classList.add('active');
       { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
-      window.location.hash = target;
+      setURL(target);
       window.scrollTo({ top: 0, behavior: 'instant' });
       return;
     }
     renderAppDetail(appId);
     document.getElementById('view-app-detail').classList.add('active');
     { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
-    window.location.hash = target;
+    setURL(target);
   } else if (target.startsWith('promotions/')) {
     // 프로모션 상세 딥링크 (#promotions/{id}) — 빈 페이지 방지
     const promoId = decodeURIComponent(target.slice('promotions/'.length));
     document.getElementById('view-promotions').classList.add('active');
     const pnav = document.querySelector('.nav-promo-btn') || document.querySelector('[data-nav="promotions"]');
     if (pnav) pnav.classList.add('active');
-    window.location.hash = target;
+    setURL(target);
     // PROMOS가 아직 로드 안 됐으면(특히 모바일 저속망) 로드 후 열도록 재시도
     const tryOpen = (n) => {
       if (PROMOS && PROMOS.length){ openPromo(promoId, true); }   // openPromo 안에서 기간 검사 후 차단
@@ -1260,7 +1297,7 @@ function navigate(target) {
     _view.classList.add('active');
     const navBtn = document.querySelector(`.nav-link[data-nav="${target}"]`);
     if (navBtn) navBtn.classList.add('active');
-    window.location.hash = target === 'home' ? '' : target;
+    setURL(target);
 
     // 솔루션 페이지 진입 시에만 HVAC 디지털 트윈 스크립트 지연 로드
     if (target === 'our-solution' && typeof ensureSolutionTwin === 'function') { ensureSolutionTwin(); }
@@ -1288,6 +1325,8 @@ function navigate(target) {
 
 document.querySelectorAll('[data-nav]').forEach(el => {
   el.addEventListener('click', e => {
+    // Ctrl/Cmd/Shift+클릭·가운데 버튼은 브라우저에 맡겨 새 탭으로 열리게 둡니다
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
     e.preventDefault();
     navigate(el.dataset.nav);
   });
@@ -1328,10 +1367,11 @@ document.querySelectorAll('[data-go-case]').forEach(el => {
   el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
 });
 
+/* 뒤로/앞으로 — 주소를 다시 쌓지 않고 화면만 되돌립니다 */
 window.addEventListener('popstate', () => {
-  const hash = window.location.hash.replace('#', '');
-  if (!hash) navigate('home');
-  else navigate(hash);
+  const route = pathToRoute(location.pathname);
+  _navSilent = true;
+  try { navigate(route); } finally { _navSilent = false; }
 });
 
 /* ========== STORIES / AWARDS / PARTNERS (시트 데이터로 렌더) ========== */
@@ -1657,14 +1697,14 @@ applyPartnersFilter();
 
 /* ========== CASE STUDY DETAIL RENDER ========== */
 const CASE_HERO_BG = {
-  'us-army': 'images/case-hero-us-army.jpg',
-  'exxonmobil': 'images/img-31.jpg',
-  'gs-eps': 'images/case-hero-gs-eps.jpg',
-  'microsoft': 'images/case-hero-microsoft.jpg',
-  'cbre': 'images/img-35.jpg',
-  'walmart': 'images/img-36.jpg',
-  'hyundai-motors': 'images/case-hero-hyundai-motors.jpg',
-  'samsung-biologics': 'images/img-45.jpg'
+  'us-army': '/images/case-hero-us-army.jpg',
+  'exxonmobil': '/images/img-31.jpg',
+  'gs-eps': '/images/case-hero-gs-eps.jpg',
+  'microsoft': '/images/case-hero-microsoft.jpg',
+  'cbre': '/images/img-35.jpg',
+  'walmart': '/images/img-36.jpg',
+  'hyundai-motors': '/images/case-hero-hyundai-motors.jpg',
+  'samsung-biologics': '/images/img-45.jpg'
 };
 /* 카드 배너(가로형)에서 정사각형 사진의 핵심 피사체가 보이도록 표시 위치 보정 */
 const CASE_HERO_POS = {
@@ -3513,7 +3553,7 @@ function openPromo(id, fromHash){
   view.style.display = 'block';
   // 브라우저 뒤로가기 연동: 상세를 히스토리에 추가 (해시에 프로모션 id)
   if (!fromHash){
-    try { history.pushState({promo:id}, '', '#promotions/' + encodeURIComponent(id)); } catch(e){}
+    setURL('promotions/' + encodeURIComponent(id));
   }
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -3526,12 +3566,12 @@ function closePromo(toHash){
   if (body) body.innerHTML = '';
   // 목록으로 돌아가면 해시도 목록 상태로 (뒤로가기가 아닌 버튼 클릭 시)
   if (!toHash){
-    try { if ((location.hash||'').indexOf('#promotions/')===0) history.pushState(null, '', '#promotions'); } catch(e){}
+    if (pathToRoute(location.pathname).indexOf('promotions/')===0) setURL('promotions');
   }
 }
-// 브라우저 뒤로/앞으로 버튼 대응
+// 브라우저 뒤로/앞으로 버튼 대응 (프로모션 상세)
 window.addEventListener('popstate', function(){
-  const h = (location.hash||'').replace('#','');
+  const h = pathToRoute(location.pathname);
   if (h.indexOf('promotions/')===0){
     const id = decodeURIComponent(h.slice('promotions/'.length));
     if (typeof navigate==='function') navigate('promotions');
@@ -4098,10 +4138,20 @@ function renderAll() {
   if (window.MonnitI18N) window.MonnitI18N.refresh();
 }
 async function boot() {
+  /* SSG 로 심어 둔 크롤러용 본문은 SPA 가 뜨면 치웁니다 (같은 내용을 두 번 보여주지 않도록) */
+  try { const _ssg = document.getElementById('ssg-content'); if (_ssg) _ssg.remove(); } catch(e){}
   // 1) 기본 데이터로 즉시 렌더 + 초기 라우팅 (빠른 첫 화면 · 느린 망에서도 빈 화면/홈 고정 없음)
   renderAll();
-  const initHash = window.location.hash.replace('#', '');
-  if (initHash) navigate(initHash);
+  /* 주소에서 첫 화면을 정합니다.
+     예전 #해시 주소(#app/temp)로 들어오면 같은 경로(/app/temp)로 바꿔 줍니다. */
+  let initRoute = pathToRoute(location.pathname);
+  const legacyHash = (location.hash || '').replace(/^#/, '').trim();
+  if (legacyHash && initRoute === 'home'){
+    initRoute = legacyHash;
+    try { history.replaceState(null, '', routeToPath(initRoute) + location.search); } catch(e){}
+  }
+  if (initRoute && initRoute !== 'home') navigate(initRoute);
+  else setURL('home', true);
   try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
   // 2) 구글 시트/에디터 데이터가 로드되면 최신 값으로 "다시 렌더 + 본문(SiteContent) 재적용"
   //    → 렌더 함수가 모두 멱등(idempotent)이라 중복 없이 시트 변경이 반드시 반영된다.

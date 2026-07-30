@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* 광고 랜딩 가속 — #promotions/{id} 해시로 직접 들어오면 무거운 SPA 대신 초경량 정적 랜딩(promo.html)으로 즉시 이동 (utm·fbclid 유지). SPA 내부 이동에는 영향 없음. */
-(function(){try{var h=location.hash||'';var m=h.match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
+(function(){try{var m=(location.pathname||'').match(/^\/promotions\/([^/?&]+)\/?$/)||(location.hash||'').match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
 <!-- ===== 쿠키 동의 (Google Consent Mode v2) — GTM/GA4/Clarity 보다 반드시 먼저 =====
      동의 전에는 광고·분석 쿠키를 저장하지 않습니다.
      설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html'};</script>
-<script src="/js/monnit-consent.js?v=104"></script>
+<script src="/js/monnit-consent.js?v=106"></script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -46,19 +46,23 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=104">
+<link rel="stylesheet" href="/style.css?v=106">
+<style>a.nav-link,a.nav-promo-btn,a.btn,a[data-nav]{text-decoration:none}
+a.nav-link{display:inline-block}
+a[data-nav]{cursor:pointer}</style>
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
 <meta name="google-site-verification" content="lDZgEQqX3qLvn-VhtOunmmuyQs7UHppV-iZnEZw7Xhs">
 
-<!-- 해시 라우팅(메뉴 이동)도 페이지뷰로 집계 — 분석 동의가 있을 때만 전송됩니다 -->
+<!-- 화면 이동(경로 변경)을 페이지뷰로 집계 — 분석 동의가 있을 때만 전송됩니다 -->
 <script>
-window.addEventListener('hashchange', function(){
+window.MK_TRACK_PAGEVIEW = function(){
   try{
     if (window.MonnitConsent && !window.MonnitConsent.state.analytics) return;
-    if (window.gtag) gtag('event','page_view',{ page_location:location.href, page_path:location.pathname+location.hash, page_title:document.title });
+    if (window.gtag) gtag('event','page_view',{ page_location:location.href, page_path:location.pathname, page_title:document.title });
   }catch(e){}
-});
+};
+window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEVIEW, 0); });
 </script>
 </head>
 <body>
@@ -69,18 +73,18 @@ window.addEventListener('hashchange', function(){
     <h2 class="seo-h1">Monnit Korea — 산업용 무선 IoT 센서·통합관제·AI 예지보전</h2>
     <p>산업용 무선 IoT 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링하고 사고를 예방합니다. 2010년 설립, 130여 개국·64,000여 고객사, 하루 750억 건 데이터 처리, 방산 전용 신뢰성.</p>
     <p>정적(크롤러용) 페이지:
-      <a href="/pages/company.html">회사 소개</a> ·
-      <a href="/pages/products.html">제품</a> ·
-      <a href="/pages/solutions.html">활용 분야 (60개 상세)</a> ·
-      <a href="/pages/cases.html">도입 사례</a> ·
-      <a href="/pages/customers.html">고객사</a> ·
-      <a href="/pages/awards.html">수상·인증</a> ·
-      <a href="/pages/partners.html">글로벌 파트너</a> ·
-      <a href="/pages/knowledgebase.html">기술 지식베이스</a> ·
-      <a href="/pages/guides.html">기술지원 가이드</a> ·
-      <a href="/pages/blog.html">블로그·백서</a> ·
-      <a href="/pages/promotions.html">프로모션</a> ·
-      <a href="/pages/contact.html">상담·문의</a>
+      <a href="/who-we-are">회사 소개</a> ·
+      <a href="/products">제품</a> ·
+      <a href="/applications">활용 분야 (60개 상세)</a> ·
+      <a href="/stories">도입 사례</a> ·
+      <a href="/customers">고객사</a> ·
+      <a href="/awards">수상·인증</a> ·
+      <a href="/partners">글로벌 파트너</a> ·
+      <a href="/knowledgebase">기술 지식베이스</a> ·
+      <a href="/guides">기술지원 가이드</a> ·
+      <a href="/blog">블로그·백서</a> ·
+      <a href="/promotions">프로모션</a> ·
+      <a href="/contact">상담·문의</a>
     </p>
     <p>문의: <a href="mailto:korea@monnit.com">korea@monnit.com</a> · 02-2088-1454</p>
   </div>
@@ -89,23 +93,23 @@ window.addEventListener('hashchange', function(){
 <!-- ========== TOP NAV ========== -->
 <nav class="topnav">
   <div class="topnav-inner">
-    <a class="brand" data-nav="home"><img fetchpriority="high" decoding="async" class="brand-logo" src="images/img-01.png" alt="Monnit"></a>
+    <a class="brand" data-nav="home"><img fetchpriority="high" decoding="async" class="brand-logo" src="/images/img-01.png" alt="Monnit"></a>
     <ul class="nav-links" id="navLinks">
       <li class="nav-item">
         <button class="nav-link has-caret">About us</button>
         <div class="nav-dd">
           <div class="dd-meta">회사 소개</div>
-          <button data-nav="who-we-are">Who we are · 회사 소개</button>
-          <button data-nav="our-solution">Our solution · 솔루션</button>
-          <button data-nav="what-we-do">What we do · 사업 영역</button>
-          <button data-nav="awards">Award · 수상 내역</button>
+          <a href="/who-we-are" data-nav="who-we-are">Who we are · 회사 소개</a>
+          <a href="/our-solution" data-nav="our-solution">Our solution · 솔루션</a>
+          <a href="/what-we-do" data-nav="what-we-do">What we do · 사업 영역</a>
+          <a href="/awards" data-nav="awards">Award · 수상 내역</a>
         </div>
       </li>
       <li class="nav-item">
-        <button class="nav-link has-caret" data-nav="products">Products</button>
+        <a href="/products" class="nav-link has-caret" data-nav="products">Products</a>
         <div class="nav-dd">
           <div class="dd-meta">제품</div>
-          <button data-nav="products">All Products · 전체 제품</button>
+          <a href="/products" data-nav="products">All Products · 전체 제품</a>
           <button data-product-cat="sensors">Sensors · 센서</button>
           <button data-product-cat="gateways">Gateways · 게이트웨이</button>
           <button data-product-cat="software">Software · 소프트웨어</button>
@@ -116,35 +120,35 @@ window.addEventListener('hashchange', function(){
         <button class="nav-link has-caret">Use case</button>
         <div class="nav-dd">
           <div class="dd-meta">활용 사례</div>
-          <button data-nav="stories">Case Studies · 도입 사례</button>
-          <a class="nav-dd-a" href="installation-photos.html">Installation Photo · 설치 사례</a>
+          <a href="/stories" data-nav="stories">Case Studies · 도입 사례</a>
+          <a class="nav-dd-a" href="/installation-photos.html">Installation Photo · 설치 사례</a>
         </div>
       </li>
-      <li class="nav-item"><button class="nav-link" data-nav="applications">Applications</button></li>
-      <li class="nav-item"><button class="nav-link" data-nav="partners">Partners</button></li>
+      <li class="nav-item"><a href="/applications" class="nav-link" data-nav="applications">Applications</a></li>
+      <li class="nav-item"><a href="/partners" class="nav-link" data-nav="partners">Partners</a></li>
       <li class="nav-item">
         <button class="nav-link has-caret">Resources</button>
         <div class="nav-dd">
           <div class="dd-meta">자료실</div>
-          <button data-nav="blog">Blog · 블로그</button>
-          <button data-nav="newsletter">Newsletter · 뉴스레터</button>
-          <button data-nav="whitepaper">Proposal · 산업별 제안서</button>
+          <a href="/blog" data-nav="blog">Blog · 블로그</a>
+          <a href="/newsletter" data-nav="newsletter">Newsletter · 뉴스레터</a>
+          <a href="/whitepaper" data-nav="whitepaper">Proposal · 산업별 제안서</a>
         </div>
       </li>
       <li class="nav-item">
         <button class="nav-link has-caret">Support</button>
         <div class="nav-dd">
           <div class="dd-meta">고객 지원</div>
-          <button data-nav="contact">Contact Us · 문의</button>
-          <button data-nav="faqs">FAQs · 자주 묻는 질문</button>
-        <button data-nav="guides">Tech Support · 기술지원</button>
-          <button data-nav="knowledgebase">Knowledgebase · 기술 문서</button>
+          <a href="/contact" data-nav="contact">Contact Us · 문의</a>
+          <a href="/faqs" data-nav="faqs">FAQs · 자주 묻는 질문</a>
+        <a href="/guides" data-nav="guides">Tech Support · 기술지원</a>
+          <a href="/knowledgebase" data-nav="knowledgebase">Knowledgebase · 기술 문서</a>
         </div>
       </li>
-      <li class="nav-item nav-item-mobile-promo"><button class="nav-link" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button></li>
+      <li class="nav-item nav-item-mobile-promo"><a href="/promotions" class="nav-link" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</a></li>
     </ul>
-    <button class="nav-promo-btn" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</button>
-    <button class="nav-cta" data-nav="contact">상담 신청</button>
+    <a href="/promotions" class="nav-promo-btn" data-nav="promotions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</a>
+    <a href="/contact" class="nav-cta" data-nav="contact">상담 신청</a>
     <div class="nav-search" id="navSearch">
       <button class="nav-search-btn" id="navSearchBtn" type="button" aria-label="사이트 검색" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></button>
       <div class="nav-search-box" id="navSearchBox">
@@ -189,9 +193,9 @@ window.addEventListener('hashchange', function(){
       <h1 class="nh-hero-title" data-sc="home2.hero.title" data-sc-label="히어로 · 메인 제목">보이지 않는 위험까지<br><em>데이터</em>로 관리합니다</h1>
       <p class="nh-hero-lede" data-sc="home2.hero.lede" data-sc-label="히어로 · 설명문">산업용 무선 IoT 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링하고 사고를 예방합니다.</p>
       <div class="nh-hero-cta">
-        <button class="nh-btn nh-btn-primary" data-nav="contact" data-sc="home2.hero.cta1" data-sc-label="히어로 · 버튼1">맞춤 상담</button>
-        <button class="nh-btn nh-btn-glass" data-nav="stories" data-sc="home2.hero.cta2" data-sc-label="히어로 · 버튼2">도입 사례 보기</button>
-        <button class="nh-btn nh-btn-glass" data-nav="whitepaper" data-sc="home2.hero.cta3" data-sc-label="히어로 · 버튼3">산업별 제안서 보기</button>
+        <a href="/contact" class="nh-btn nh-btn-primary" data-nav="contact" data-sc="home2.hero.cta1" data-sc-label="히어로 · 버튼1">맞춤 상담</a>
+        <a href="/stories" class="nh-btn nh-btn-glass" data-nav="stories" data-sc="home2.hero.cta2" data-sc-label="히어로 · 버튼2">도입 사례 보기</a>
+        <a href="/whitepaper" class="nh-btn nh-btn-glass" data-nav="whitepaper" data-sc="home2.hero.cta3" data-sc-label="히어로 · 버튼3">산업별 제안서 보기</a>
       </div>
       <dl class="nh-hero-stats">
         <div><dt><span class="cu" data-to="15">15</span><span class="nh-hs-u">년+</span></dt><dd data-sc="home2.hs1" data-sc-label="히어로지표1">현장 검증 경력</dd></div>
@@ -263,22 +267,22 @@ window.addEventListener('hashchange', function(){
       </div>
       <div class="nh-grid nh-values">
         <article class="nh-value">
-          <div class="nh-value-media"><img src="images/img-04.jpg" alt="현장 설비를 점검하는 작업자" loading="lazy" data-sc="home2.val1.img" data-sc-label="핵심가치1 · 사진"><span class="nh-value-no">01</span></div>
+          <div class="nh-value-media"><img src="/images/img-04.jpg" alt="현장 설비를 점검하는 작업자" loading="lazy" data-sc="home2.val1.img" data-sc-label="핵심가치1 · 사진"><span class="nh-value-no">01</span></div>
           <h3 data-sc="home2.val1.t" data-sc-label="핵심가치1 · 제목">사고 예방</h3>
           <p data-sc="home2.val1.d" data-sc-label="핵심가치1 · 설명">실시간 모니터링과 즉시 알림으로 화재·누수·사고를 미리 막습니다.</p>
         </article>
         <article class="nh-value">
-          <div class="nh-value-media"><img src="images/img-40.jpg" alt="태블릿으로 설비 데이터를 확인하는 엔지니어" loading="lazy" data-sc="home2.val2.img" data-sc-label="핵심가치2 · 사진"><span class="nh-value-no">02</span></div>
+          <div class="nh-value-media"><img src="/images/img-40.jpg" alt="태블릿으로 설비 데이터를 확인하는 엔지니어" loading="lazy" data-sc="home2.val2.img" data-sc-label="핵심가치2 · 사진"><span class="nh-value-no">02</span></div>
           <h3 data-sc="home2.val2.t" data-sc-label="핵심가치2 · 제목">설비 이상 조기 감지</h3>
           <p data-sc="home2.val2.d" data-sc-label="핵심가치2 · 설명">진동·전류·온도 변화를 감지해 설비가 멈추기 전에 대응합니다.</p>
         </article>
         <article class="nh-value">
-          <div class="nh-value-media"><img src="images/img-03.jpg" alt="태블릿으로 데이터 분석 리포트를 보는 모습" loading="lazy" data-sc="home2.val3.img" data-sc-label="핵심가치3 · 사진"><span class="nh-value-no">03</span></div>
+          <div class="nh-value-media"><img src="/images/img-03.jpg" alt="태블릿으로 데이터 분석 리포트를 보는 모습" loading="lazy" data-sc="home2.val3.img" data-sc-label="핵심가치3 · 사진"><span class="nh-value-no">03</span></div>
           <h3 data-sc="home2.val3.t" data-sc-label="핵심가치3 · 제목">에너지·운영 비용 절감</h3>
           <p data-sc="home2.val3.d" data-sc-label="핵심가치3 · 설명">설비 가동과 에너지 사용을 최적화해 운영 비용을 낮춥니다.</p>
         </article>
         <article class="nh-value">
-          <div class="nh-value-media"><img src="images/img-05.jpg" alt="AI 예측 분석 대시보드 화면" loading="lazy" data-sc="home2.val4.img" data-sc-label="핵심가치4 · 사진"><span class="nh-value-no">04</span></div>
+          <div class="nh-value-media"><img src="/images/img-05.jpg" alt="AI 예측 분석 대시보드 화면" loading="lazy" data-sc="home2.val4.img" data-sc-label="핵심가치4 · 사진"><span class="nh-value-no">04</span></div>
           <h3 data-sc="home2.val4.t" data-sc-label="핵심가치4 · 제목">AI 기반 자동제어</h3>
           <p data-sc="home2.val4.d" data-sc-label="핵심가치4 · 설명">AI가 데이터를 분석해 설비를 자동으로 제어합니다.</p>
         </article>
@@ -288,7 +292,7 @@ window.addEventListener('hashchange', function(){
 
   <!-- ============ 3. 신뢰 지표 ============ -->
   <section class="nh-section nh-metrics-section">
-    <div class="nh-metrics-bg" aria-hidden="true"><img loading="lazy" decoding="async" src="images/img-42.jpg" alt=""><span></span></div>
+    <div class="nh-metrics-bg" aria-hidden="true"><img loading="lazy" decoding="async" src="/images/img-42.jpg" alt=""><span></span></div>
     <div class="wrap">
       <div class="nh-metrics">
         <div class="nh-metric">
@@ -313,7 +317,7 @@ window.addEventListener('hashchange', function(){
 
   <!-- ============ 4. WHY MONNIT (full-bleed image · icon rows) ============ -->
   <section class="nh-section nh-why-section">
-    <div class="nh-why-bg" aria-hidden="true"><img src="images/why-ai.jpg" alt="" loading="lazy" data-sc="home2.why.img" data-sc-label="Why Monnit · 배경 사진"></div>
+    <div class="nh-why-bg" aria-hidden="true"><img src="/images/why-ai.jpg" alt="" loading="lazy" data-sc="home2.why.img" data-sc-label="Why Monnit · 배경 사진"></div>
     <div class="wrap nh-why-inner">
       <div class="nh-why-copy">
         <div class="nh-head nh-head-left">
@@ -341,7 +345,7 @@ window.addEventListener('hashchange', function(){
             <p data-sc="home2.why3.d" data-sc-label="Why3 · 설명">수천~수만 개 사이트를 단일 플랫폼으로 안정적으로 통합 관제합니다.</p></div>
           </li>
         </ul>
-        <button class="nh-link-btn" data-nav="who-we-are">기술 경쟁력 더 보기 →</button>
+        <a href="/who-we-are" class="nh-link-btn" data-nav="who-we-are">기술 경쟁력 더 보기 →</a>
       </div>
     </div>
   </section>
@@ -452,7 +456,7 @@ window.addEventListener('hashchange', function(){
           <button class="nh-catchip" data-go-apps="agri">농업 &amp; 야외</button>
         </div>
         <div class="nh-catbrowse-foot">
-          <button class="nh-link-btn" data-nav="applications">전체 어플리케이션 보기 →</button>
+          <a href="/applications" class="nh-link-btn" data-nav="applications">전체 어플리케이션 보기 →</a>
         </div>
       </div>
     </div>
@@ -467,7 +471,7 @@ window.addEventListener('hashchange', function(){
         <p class="nh-head-sub" data-sc="home2.sol.sub" data-sc-label="대표 솔루션 · 설명">측정 → 분석 → 자동제어. 진동·온도·전류 데이터가 실시간으로 이상을 감지합니다.</p>
       </div>
 
-      <button class="nhlt" data-nav="our-solution" aria-label="Our Solution 페이지로 이동 — 실시간 진동 예지보전 대시보드 보기">
+      <a href="/our-solution" class="nhlt" data-nav="our-solution" aria-label="Our Solution 페이지로 이동 — 실시간 진동 예지보전 대시보드 보기">
         <div class="nhlt-top">
           <span class="nhlt-dots"><i></i><i></i><i></i></span>
           <span class="nhlt-title">진동 예지보전 · 회전설비 실시간 통합관제</span>
@@ -522,7 +526,7 @@ window.addEventListener('hashchange', function(){
           <span class="nhlt-cta-t">측정 → 분석 → 자동제어, 전체 솔루션 살펴보기</span>
           <span class="nhlt-cta-b">Our Solution 자세히 보기 <b>→</b></span>
         </div>
-      </button>
+      </a>
     </div>
   </section>
   <script>
@@ -576,12 +580,12 @@ window.addEventListener('hashchange', function(){
       </div>
     </div>
     <div class="logo-marquee" aria-label="국내 주요 고객사 로고">
-      <div class="logo-track"><div class="logo-slide"><img src="images/clogo-samsung.png" alt="삼성전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성전자');"><span>삼성전자</span></div><div class="logo-slide"><img src="images/clogo-sk-hynix.png" alt="SK하이닉스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK하이닉스');"><span>SK하이닉스</span></div><div class="logo-slide"><img src="images/clogo-hyundai.png" alt="현대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대');"><span>현대</span></div><div class="logo-slide"><img src="images/clogo-kakao.png" alt="카카오" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','카카오');"><span>카카오</span></div><div class="logo-slide"><img src="images/clogo-naver.png" alt="네이버" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','네이버');"><span>네이버</span></div><div class="logo-slide"><img src="images/clogo-lg-elec.png" alt="LG전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG전자');"><span>LG전자</span></div><div class="logo-slide"><img src="images/clogo-samsung-bio.png" alt="삼성바이오로직스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성바이오로직스');"><span>삼성바이오로직스</span></div><div class="logo-slide"><img src="images/clogo-kolon.png" alt="코오롱" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','코오롱');"><span>코오롱</span></div><div class="logo-slide"><img src="images/clogo-hanwha-sol.png" alt="한화솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화솔루션');"><span>한화솔루션</span></div><div class="logo-slide"><img src="images/clogo-gseps.png" alt="GS EPS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GS EPS');"><span>GS EPS</span></div><div class="logo-slide"><img src="images/clogo-lotte.png" alt="롯데건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데건설');"><span>롯데건설</span></div><div class="logo-slide"><img src="images/clogo-emart.png" alt="이마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','이마트');"><span>이마트</span></div><div class="logo-slide"><img src="images/clogo-3m.png" alt="3M" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','3M');"><span>3M</span></div><div class="logo-slide"><img src="images/clogo-veolia.png" alt="베올리아" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','베올리아');"><span>베올리아</span></div><div class="logo-slide"><img src="images/clogo-hdc.png" alt="HDC랩스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HDC랩스');"><span>HDC랩스</span></div><div class="logo-slide"><img src="images/clogo-sk-shieldus.png" alt="SK쉴더스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK쉴더스');"><span>SK쉴더스</span></div><div class="logo-slide"><img src="images/clogo-samsung-sds.png" alt="삼성SDS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성SDS');"><span>삼성SDS</span></div><div class="logo-slide"><img src="images/clogo-lg-ess.png" alt="LG에너지솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG에너지솔루션');"><span>LG에너지솔루션</span></div><div class="logo-slide"><img src="images/clogo-hankook.png" alt="한국타이어" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한국타이어');"><span>한국타이어</span></div><div class="logo-slide"><img src="images/clogo-mando.png" alt="HL만도" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HL만도');"><span>HL만도</span></div><div class="logo-slide"><img src="images/clogo-hyundai-enc.png" alt="현대엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대엔지니어링');"><span>현대엔지니어링</span></div><div class="logo-slide"><img src="images/clogo-samsung-eng.png" alt="삼성엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성엔지니어링');"><span>삼성엔지니어링</span></div><div class="logo-slide"><img src="images/clogo-lotteworld.png" alt="롯데월드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데월드');"><span>롯데월드</span></div><div class="logo-slide"><img src="images/clogo-lx.png" alt="LX" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LX');"><span>LX</span></div><div class="logo-slide"><img src="images/clogo-etri.png" alt="ETRI" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','ETRI');"><span>ETRI</span></div><div class="logo-slide"><img src="images/clogo-kaist.png" alt="KAIST" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','KAIST');"><span>KAIST</span></div><div class="logo-slide"><img src="images/clogo-cheongwadae.png" alt="청와대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','청와대');"><span>청와대</span></div><div class="logo-slide"><img src="images/clogo-usfk.png" alt="주한미군" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','주한미군');"><span>주한미군</span></div><div class="logo-slide"><img src="images/clogo-sk-gas.png" alt="SK가스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK가스');"><span>SK가스</span></div><div class="logo-slide"><img src="images/clogo-sk-bb.png" alt="SK브로드밴드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK브로드밴드');"><span>SK브로드밴드</span></div><div class="logo-slide"><img src="images/clogo-gc.png" alt="GC녹십자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GC녹십자');"><span>GC녹십자</span></div><div class="logo-slide"><img src="images/clogo-samsung-s1.png" alt="삼성에스원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성에스원');"><span>삼성에스원</span></div><div class="logo-slide"><img src="images/clogo-hanwha-energy.png" alt="한화에너지" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화에너지');"><span>한화에너지</span></div><div class="logo-slide"><img src="images/clogo-dongwon.png" alt="동원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','동원');"><span>동원</span></div><div class="logo-slide"><img src="images/clogo-pulmuone.png" alt="풀무원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','풀무원');"><span>풀무원</span></div><div class="logo-slide"><img src="images/clogo-taihan.png" alt="대한전선" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','대한전선');"><span>대한전선</span></div><div class="logo-slide"><img src="images/clogo-toray.png" alt="도레이첨단소재" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','도레이첨단소재');"><span>도레이첨단소재</span></div><div class="logo-slide"><img src="images/clogo-samchully.png" alt="삼천리" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼천리');"><span>삼천리</span></div><div class="logo-slide"><img src="images/clogo-ahnlab.png" alt="안랩" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','안랩');"><span>안랩</span></div><div class="logo-slide"><img src="images/clogo-lottemart.png" alt="롯데마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데마트');"><span>롯데마트</span></div><div class="logo-slide"><img src="images/clogo-dunkin.png" alt="던킨도너츠" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','던킨도너츠');"><span>던킨도너츠</span></div><div class="logo-slide"><img src="images/clogo-auntieannes.png" alt="Auntie Anne&#x27;s" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','Auntie Anne&#x27;s');"><span>Auntie Anne&#x27;s</span></div><div class="logo-slide"><img src="images/clogo-hoban.png" alt="호반건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','호반건설');"><span>호반건설</span></div><div class="logo-slide"><img src="images/clogo-hanyang-hosp.png" alt="한양대구리병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한양대구리병원');"><span>한양대구리병원</span></div><div class="logo-slide"><img src="images/clogo-sch-hosp.png" alt="순천향대서울병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','순천향대서울병원');"><span>순천향대서울병원</span></div><div class="logo-slide"><img src="images/clogo-sejong.png" alt="세종대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','세종대학교');"><span>세종대학교</span></div><div class="logo-slide"><img src="images/clogo-inha.png" alt="인하대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','인하대학교');"><span>인하대학교</span></div><div class="logo-slide"><img src="images/clogo-samsung.png" alt="삼성전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성전자');"><span>삼성전자</span></div><div class="logo-slide"><img src="images/clogo-sk-hynix.png" alt="SK하이닉스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK하이닉스');"><span>SK하이닉스</span></div><div class="logo-slide"><img src="images/clogo-hyundai.png" alt="현대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대');"><span>현대</span></div><div class="logo-slide"><img src="images/clogo-kakao.png" alt="카카오" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','카카오');"><span>카카오</span></div><div class="logo-slide"><img src="images/clogo-naver.png" alt="네이버" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','네이버');"><span>네이버</span></div><div class="logo-slide"><img src="images/clogo-lg-elec.png" alt="LG전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG전자');"><span>LG전자</span></div><div class="logo-slide"><img src="images/clogo-samsung-bio.png" alt="삼성바이오로직스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성바이오로직스');"><span>삼성바이오로직스</span></div><div class="logo-slide"><img src="images/clogo-kolon.png" alt="코오롱" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','코오롱');"><span>코오롱</span></div><div class="logo-slide"><img src="images/clogo-hanwha-sol.png" alt="한화솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화솔루션');"><span>한화솔루션</span></div><div class="logo-slide"><img src="images/clogo-gseps.png" alt="GS EPS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GS EPS');"><span>GS EPS</span></div><div class="logo-slide"><img src="images/clogo-lotte.png" alt="롯데건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데건설');"><span>롯데건설</span></div><div class="logo-slide"><img src="images/clogo-emart.png" alt="이마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','이마트');"><span>이마트</span></div><div class="logo-slide"><img src="images/clogo-3m.png" alt="3M" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','3M');"><span>3M</span></div><div class="logo-slide"><img src="images/clogo-veolia.png" alt="베올리아" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','베올리아');"><span>베올리아</span></div><div class="logo-slide"><img src="images/clogo-hdc.png" alt="HDC랩스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HDC랩스');"><span>HDC랩스</span></div><div class="logo-slide"><img src="images/clogo-sk-shieldus.png" alt="SK쉴더스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK쉴더스');"><span>SK쉴더스</span></div><div class="logo-slide"><img src="images/clogo-samsung-sds.png" alt="삼성SDS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성SDS');"><span>삼성SDS</span></div><div class="logo-slide"><img src="images/clogo-lg-ess.png" alt="LG에너지솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG에너지솔루션');"><span>LG에너지솔루션</span></div><div class="logo-slide"><img src="images/clogo-hankook.png" alt="한국타이어" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한국타이어');"><span>한국타이어</span></div><div class="logo-slide"><img src="images/clogo-mando.png" alt="HL만도" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HL만도');"><span>HL만도</span></div><div class="logo-slide"><img src="images/clogo-hyundai-enc.png" alt="현대엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대엔지니어링');"><span>현대엔지니어링</span></div><div class="logo-slide"><img src="images/clogo-samsung-eng.png" alt="삼성엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성엔지니어링');"><span>삼성엔지니어링</span></div><div class="logo-slide"><img src="images/clogo-lotteworld.png" alt="롯데월드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데월드');"><span>롯데월드</span></div><div class="logo-slide"><img src="images/clogo-lx.png" alt="LX" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LX');"><span>LX</span></div><div class="logo-slide"><img src="images/clogo-etri.png" alt="ETRI" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','ETRI');"><span>ETRI</span></div><div class="logo-slide"><img src="images/clogo-kaist.png" alt="KAIST" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','KAIST');"><span>KAIST</span></div><div class="logo-slide"><img src="images/clogo-cheongwadae.png" alt="청와대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','청와대');"><span>청와대</span></div><div class="logo-slide"><img src="images/clogo-usfk.png" alt="주한미군" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','주한미군');"><span>주한미군</span></div><div class="logo-slide"><img src="images/clogo-sk-gas.png" alt="SK가스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK가스');"><span>SK가스</span></div><div class="logo-slide"><img src="images/clogo-sk-bb.png" alt="SK브로드밴드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK브로드밴드');"><span>SK브로드밴드</span></div><div class="logo-slide"><img src="images/clogo-gc.png" alt="GC녹십자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GC녹십자');"><span>GC녹십자</span></div><div class="logo-slide"><img src="images/clogo-samsung-s1.png" alt="삼성에스원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성에스원');"><span>삼성에스원</span></div><div class="logo-slide"><img src="images/clogo-hanwha-energy.png" alt="한화에너지" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화에너지');"><span>한화에너지</span></div><div class="logo-slide"><img src="images/clogo-dongwon.png" alt="동원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','동원');"><span>동원</span></div><div class="logo-slide"><img src="images/clogo-pulmuone.png" alt="풀무원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','풀무원');"><span>풀무원</span></div><div class="logo-slide"><img src="images/clogo-taihan.png" alt="대한전선" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','대한전선');"><span>대한전선</span></div><div class="logo-slide"><img src="images/clogo-toray.png" alt="도레이첨단소재" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','도레이첨단소재');"><span>도레이첨단소재</span></div><div class="logo-slide"><img src="images/clogo-samchully.png" alt="삼천리" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼천리');"><span>삼천리</span></div><div class="logo-slide"><img src="images/clogo-ahnlab.png" alt="안랩" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','안랩');"><span>안랩</span></div><div class="logo-slide"><img src="images/clogo-lottemart.png" alt="롯데마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데마트');"><span>롯데마트</span></div><div class="logo-slide"><img src="images/clogo-dunkin.png" alt="던킨도너츠" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','던킨도너츠');"><span>던킨도너츠</span></div><div class="logo-slide"><img src="images/clogo-auntieannes.png" alt="Auntie Anne&#x27;s" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','Auntie Anne&#x27;s');"><span>Auntie Anne&#x27;s</span></div><div class="logo-slide"><img src="images/clogo-hoban.png" alt="호반건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','호반건설');"><span>호반건설</span></div><div class="logo-slide"><img src="images/clogo-hanyang-hosp.png" alt="한양대구리병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한양대구리병원');"><span>한양대구리병원</span></div><div class="logo-slide"><img src="images/clogo-sch-hosp.png" alt="순천향대서울병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','순천향대서울병원');"><span>순천향대서울병원</span></div><div class="logo-slide"><img src="images/clogo-sejong.png" alt="세종대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','세종대학교');"><span>세종대학교</span></div><div class="logo-slide"><img src="images/clogo-inha.png" alt="인하대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','인하대학교');"><span>인하대학교</span></div></div></div></div>
+      <div class="logo-track"><div class="logo-slide"><img src="/images/clogo-samsung.png" alt="삼성전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성전자');"><span>삼성전자</span></div><div class="logo-slide"><img src="/images/clogo-sk-hynix.png" alt="SK하이닉스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK하이닉스');"><span>SK하이닉스</span></div><div class="logo-slide"><img src="/images/clogo-hyundai.png" alt="현대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대');"><span>현대</span></div><div class="logo-slide"><img src="/images/clogo-kakao.png" alt="카카오" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','카카오');"><span>카카오</span></div><div class="logo-slide"><img src="/images/clogo-naver.png" alt="네이버" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','네이버');"><span>네이버</span></div><div class="logo-slide"><img src="/images/clogo-lg-elec.png" alt="LG전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG전자');"><span>LG전자</span></div><div class="logo-slide"><img src="/images/clogo-samsung-bio.png" alt="삼성바이오로직스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성바이오로직스');"><span>삼성바이오로직스</span></div><div class="logo-slide"><img src="/images/clogo-kolon.png" alt="코오롱" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','코오롱');"><span>코오롱</span></div><div class="logo-slide"><img src="/images/clogo-hanwha-sol.png" alt="한화솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화솔루션');"><span>한화솔루션</span></div><div class="logo-slide"><img src="/images/clogo-gseps.png" alt="GS EPS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GS EPS');"><span>GS EPS</span></div><div class="logo-slide"><img src="/images/clogo-lotte.png" alt="롯데건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데건설');"><span>롯데건설</span></div><div class="logo-slide"><img src="/images/clogo-emart.png" alt="이마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','이마트');"><span>이마트</span></div><div class="logo-slide"><img src="/images/clogo-3m.png" alt="3M" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','3M');"><span>3M</span></div><div class="logo-slide"><img src="/images/clogo-veolia.png" alt="베올리아" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','베올리아');"><span>베올리아</span></div><div class="logo-slide"><img src="/images/clogo-hdc.png" alt="HDC랩스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HDC랩스');"><span>HDC랩스</span></div><div class="logo-slide"><img src="/images/clogo-sk-shieldus.png" alt="SK쉴더스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK쉴더스');"><span>SK쉴더스</span></div><div class="logo-slide"><img src="/images/clogo-samsung-sds.png" alt="삼성SDS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성SDS');"><span>삼성SDS</span></div><div class="logo-slide"><img src="/images/clogo-lg-ess.png" alt="LG에너지솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG에너지솔루션');"><span>LG에너지솔루션</span></div><div class="logo-slide"><img src="/images/clogo-hankook.png" alt="한국타이어" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한국타이어');"><span>한국타이어</span></div><div class="logo-slide"><img src="/images/clogo-mando.png" alt="HL만도" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HL만도');"><span>HL만도</span></div><div class="logo-slide"><img src="/images/clogo-hyundai-enc.png" alt="현대엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대엔지니어링');"><span>현대엔지니어링</span></div><div class="logo-slide"><img src="/images/clogo-samsung-eng.png" alt="삼성엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성엔지니어링');"><span>삼성엔지니어링</span></div><div class="logo-slide"><img src="/images/clogo-lotteworld.png" alt="롯데월드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데월드');"><span>롯데월드</span></div><div class="logo-slide"><img src="/images/clogo-lx.png" alt="LX" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LX');"><span>LX</span></div><div class="logo-slide"><img src="/images/clogo-etri.png" alt="ETRI" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','ETRI');"><span>ETRI</span></div><div class="logo-slide"><img src="/images/clogo-kaist.png" alt="KAIST" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','KAIST');"><span>KAIST</span></div><div class="logo-slide"><img src="/images/clogo-cheongwadae.png" alt="청와대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','청와대');"><span>청와대</span></div><div class="logo-slide"><img src="/images/clogo-usfk.png" alt="주한미군" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','주한미군');"><span>주한미군</span></div><div class="logo-slide"><img src="/images/clogo-sk-gas.png" alt="SK가스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK가스');"><span>SK가스</span></div><div class="logo-slide"><img src="/images/clogo-sk-bb.png" alt="SK브로드밴드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK브로드밴드');"><span>SK브로드밴드</span></div><div class="logo-slide"><img src="/images/clogo-gc.png" alt="GC녹십자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GC녹십자');"><span>GC녹십자</span></div><div class="logo-slide"><img src="/images/clogo-samsung-s1.png" alt="삼성에스원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성에스원');"><span>삼성에스원</span></div><div class="logo-slide"><img src="/images/clogo-hanwha-energy.png" alt="한화에너지" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화에너지');"><span>한화에너지</span></div><div class="logo-slide"><img src="/images/clogo-dongwon.png" alt="동원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','동원');"><span>동원</span></div><div class="logo-slide"><img src="/images/clogo-pulmuone.png" alt="풀무원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','풀무원');"><span>풀무원</span></div><div class="logo-slide"><img src="/images/clogo-taihan.png" alt="대한전선" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','대한전선');"><span>대한전선</span></div><div class="logo-slide"><img src="/images/clogo-toray.png" alt="도레이첨단소재" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','도레이첨단소재');"><span>도레이첨단소재</span></div><div class="logo-slide"><img src="/images/clogo-samchully.png" alt="삼천리" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼천리');"><span>삼천리</span></div><div class="logo-slide"><img src="/images/clogo-ahnlab.png" alt="안랩" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','안랩');"><span>안랩</span></div><div class="logo-slide"><img src="/images/clogo-lottemart.png" alt="롯데마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데마트');"><span>롯데마트</span></div><div class="logo-slide"><img src="/images/clogo-dunkin.png" alt="던킨도너츠" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','던킨도너츠');"><span>던킨도너츠</span></div><div class="logo-slide"><img src="/images/clogo-auntieannes.png" alt="Auntie Anne&#x27;s" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','Auntie Anne&#x27;s');"><span>Auntie Anne&#x27;s</span></div><div class="logo-slide"><img src="/images/clogo-hoban.png" alt="호반건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','호반건설');"><span>호반건설</span></div><div class="logo-slide"><img src="/images/clogo-hanyang-hosp.png" alt="한양대구리병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한양대구리병원');"><span>한양대구리병원</span></div><div class="logo-slide"><img src="/images/clogo-sch-hosp.png" alt="순천향대서울병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','순천향대서울병원');"><span>순천향대서울병원</span></div><div class="logo-slide"><img src="/images/clogo-sejong.png" alt="세종대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','세종대학교');"><span>세종대학교</span></div><div class="logo-slide"><img src="/images/clogo-inha.png" alt="인하대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','인하대학교');"><span>인하대학교</span></div><div class="logo-slide"><img src="/images/clogo-samsung.png" alt="삼성전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성전자');"><span>삼성전자</span></div><div class="logo-slide"><img src="/images/clogo-sk-hynix.png" alt="SK하이닉스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK하이닉스');"><span>SK하이닉스</span></div><div class="logo-slide"><img src="/images/clogo-hyundai.png" alt="현대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대');"><span>현대</span></div><div class="logo-slide"><img src="/images/clogo-kakao.png" alt="카카오" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','카카오');"><span>카카오</span></div><div class="logo-slide"><img src="/images/clogo-naver.png" alt="네이버" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','네이버');"><span>네이버</span></div><div class="logo-slide"><img src="/images/clogo-lg-elec.png" alt="LG전자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG전자');"><span>LG전자</span></div><div class="logo-slide"><img src="/images/clogo-samsung-bio.png" alt="삼성바이오로직스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성바이오로직스');"><span>삼성바이오로직스</span></div><div class="logo-slide"><img src="/images/clogo-kolon.png" alt="코오롱" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','코오롱');"><span>코오롱</span></div><div class="logo-slide"><img src="/images/clogo-hanwha-sol.png" alt="한화솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화솔루션');"><span>한화솔루션</span></div><div class="logo-slide"><img src="/images/clogo-gseps.png" alt="GS EPS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GS EPS');"><span>GS EPS</span></div><div class="logo-slide"><img src="/images/clogo-lotte.png" alt="롯데건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데건설');"><span>롯데건설</span></div><div class="logo-slide"><img src="/images/clogo-emart.png" alt="이마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','이마트');"><span>이마트</span></div><div class="logo-slide"><img src="/images/clogo-3m.png" alt="3M" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','3M');"><span>3M</span></div><div class="logo-slide"><img src="/images/clogo-veolia.png" alt="베올리아" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','베올리아');"><span>베올리아</span></div><div class="logo-slide"><img src="/images/clogo-hdc.png" alt="HDC랩스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HDC랩스');"><span>HDC랩스</span></div><div class="logo-slide"><img src="/images/clogo-sk-shieldus.png" alt="SK쉴더스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK쉴더스');"><span>SK쉴더스</span></div><div class="logo-slide"><img src="/images/clogo-samsung-sds.png" alt="삼성SDS" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성SDS');"><span>삼성SDS</span></div><div class="logo-slide"><img src="/images/clogo-lg-ess.png" alt="LG에너지솔루션" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LG에너지솔루션');"><span>LG에너지솔루션</span></div><div class="logo-slide"><img src="/images/clogo-hankook.png" alt="한국타이어" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한국타이어');"><span>한국타이어</span></div><div class="logo-slide"><img src="/images/clogo-mando.png" alt="HL만도" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','HL만도');"><span>HL만도</span></div><div class="logo-slide"><img src="/images/clogo-hyundai-enc.png" alt="현대엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','현대엔지니어링');"><span>현대엔지니어링</span></div><div class="logo-slide"><img src="/images/clogo-samsung-eng.png" alt="삼성엔지니어링" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성엔지니어링');"><span>삼성엔지니어링</span></div><div class="logo-slide"><img src="/images/clogo-lotteworld.png" alt="롯데월드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데월드');"><span>롯데월드</span></div><div class="logo-slide"><img src="/images/clogo-lx.png" alt="LX" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','LX');"><span>LX</span></div><div class="logo-slide"><img src="/images/clogo-etri.png" alt="ETRI" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','ETRI');"><span>ETRI</span></div><div class="logo-slide"><img src="/images/clogo-kaist.png" alt="KAIST" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','KAIST');"><span>KAIST</span></div><div class="logo-slide"><img src="/images/clogo-cheongwadae.png" alt="청와대" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','청와대');"><span>청와대</span></div><div class="logo-slide"><img src="/images/clogo-usfk.png" alt="주한미군" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','주한미군');"><span>주한미군</span></div><div class="logo-slide"><img src="/images/clogo-sk-gas.png" alt="SK가스" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK가스');"><span>SK가스</span></div><div class="logo-slide"><img src="/images/clogo-sk-bb.png" alt="SK브로드밴드" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','SK브로드밴드');"><span>SK브로드밴드</span></div><div class="logo-slide"><img src="/images/clogo-gc.png" alt="GC녹십자" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','GC녹십자');"><span>GC녹십자</span></div><div class="logo-slide"><img src="/images/clogo-samsung-s1.png" alt="삼성에스원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼성에스원');"><span>삼성에스원</span></div><div class="logo-slide"><img src="/images/clogo-hanwha-energy.png" alt="한화에너지" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한화에너지');"><span>한화에너지</span></div><div class="logo-slide"><img src="/images/clogo-dongwon.png" alt="동원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','동원');"><span>동원</span></div><div class="logo-slide"><img src="/images/clogo-pulmuone.png" alt="풀무원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','풀무원');"><span>풀무원</span></div><div class="logo-slide"><img src="/images/clogo-taihan.png" alt="대한전선" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','대한전선');"><span>대한전선</span></div><div class="logo-slide"><img src="/images/clogo-toray.png" alt="도레이첨단소재" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','도레이첨단소재');"><span>도레이첨단소재</span></div><div class="logo-slide"><img src="/images/clogo-samchully.png" alt="삼천리" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','삼천리');"><span>삼천리</span></div><div class="logo-slide"><img src="/images/clogo-ahnlab.png" alt="안랩" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','안랩');"><span>안랩</span></div><div class="logo-slide"><img src="/images/clogo-lottemart.png" alt="롯데마트" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','롯데마트');"><span>롯데마트</span></div><div class="logo-slide"><img src="/images/clogo-dunkin.png" alt="던킨도너츠" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','던킨도너츠');"><span>던킨도너츠</span></div><div class="logo-slide"><img src="/images/clogo-auntieannes.png" alt="Auntie Anne&#x27;s" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','Auntie Anne&#x27;s');"><span>Auntie Anne&#x27;s</span></div><div class="logo-slide"><img src="/images/clogo-hoban.png" alt="호반건설" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','호반건설');"><span>호반건설</span></div><div class="logo-slide"><img src="/images/clogo-hanyang-hosp.png" alt="한양대구리병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','한양대구리병원');"><span>한양대구리병원</span></div><div class="logo-slide"><img src="/images/clogo-sch-hosp.png" alt="순천향대서울병원" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','순천향대서울병원');"><span>순천향대서울병원</span></div><div class="logo-slide"><img src="/images/clogo-sejong.png" alt="세종대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','세종대학교');"><span>세종대학교</span></div><div class="logo-slide"><img src="/images/clogo-inha.png" alt="인하대학교" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentNode.classList.add('logo-fallback');this.parentNode.setAttribute('data-name','인하대학교');"><span>인하대학교</span></div></div></div></div>
     </div>
     <div class="wrap">
       <div class="home-cases" id="homeCases"></div>
       <div class="nh-more">
-        <button class="nh-link-btn" data-nav="stories">전체 도입 사례 보기 →</button>
+        <a href="/stories" class="nh-link-btn" data-nav="stories">전체 도입 사례 보기 →</a>
       </div>
     </div>
   </section>
@@ -795,7 +799,7 @@ window.addEventListener('hashchange', function(){
       <div class="featured-grid" id="featuredGrid"></div>
     </div>
     <div class="wrap">
-      <a class="install-link" href="installation-photos.html">
+      <a class="install-link" href="/installation-photos.html">
         <div class="il-txt">
           <div class="install-link-k">Installation Photos · 설치 사례</div>
           <div class="install-link-t">실제 설치 현장 사진 갤러리를 확인하세요</div>
@@ -820,7 +824,7 @@ window.addEventListener('hashchange', function(){
   <section class="cta-block">
     <div class="wrap">
       <h2>당신의 산업에<br><em>가장 잘 맞는 솔루션</em>을 제안합니다.</h2>
-      <button class="big-cta-btn" data-nav="contact">상담 신청</button>
+      <a href="/contact" class="big-cta-btn" data-nav="contact">상담 신청</a>
     </div>
   </section>
 </section>
@@ -929,13 +933,13 @@ window.addEventListener('hashchange', function(){
 
   <section class="join">
     <div class="wrap-mid join-inner">
-      <figure class="join-figure"><img loading="lazy" decoding="async" src="images/img-10.jpg" alt="Monnit 본사 — Commercial Remote Monitoring Solutions"></figure>
+      <figure class="join-figure"><img loading="lazy" decoding="async" src="/images/img-10.jpg" alt="Monnit 본사 — Commercial Remote Monitoring Solutions"></figure>
       <div class="join-body">
         <div class="join-text">
           <h2>당신의 지역에서, <em>다음 파트너</em>가 되어 주세요.</h2>
           <p>Monnit과 함께 산업용 IoT 솔루션을 전 세계에 공급하는 파트너 네트워크에 합류하세요.</p>
         </div>
-        <button class="join-btn" data-nav="contact">파트너 문의</button>
+        <a href="/contact" class="join-btn" data-nav="contact">파트너 문의</a>
       </div>
     </div>
   </section>
@@ -1104,7 +1108,7 @@ window.addEventListener('hashchange', function(){
         <h2 style="margin-top:16px;" id="appd-cta-title">이 솔루션, <em>우리 환경</em>에서 어떻게 작동할까요?</h2>
         <p>환경과 규모를 알려주시면 권장 센서 구성·예상 ROI·견적을 24시간 내에 보내드립니다.</p>
       </div>
-      <button class="app-cta-btn" data-nav="contact">맞춤 제안 받기</button>
+      <a href="/contact" class="app-cta-btn" data-nav="contact">맞춤 제안 받기</a>
     </div>
   </section>
 </section>
@@ -1147,7 +1151,7 @@ window.addEventListener('hashchange', function(){
       <div class="crumb">About us / Who we are</div>
       <div class="about-hero2">
         <figure class="ah-media">
-          <img loading="lazy" decoding="async" src="images/about-hero-pulse.svg" alt="센서 노드가 허브로 신호를 보내는 Monnit 무선 모니터링 네트워크">
+          <img loading="lazy" decoding="async" src="/images/about-hero-pulse.svg" alt="센서 노드가 허브로 신호를 보내는 Monnit 무선 모니터링 네트워크">
         </figure>
         <div class="ah-copy">
           <span class="nh-eyebrow">About us</span>
@@ -1241,7 +1245,7 @@ window.addEventListener('hashchange', function(){
       <h2 class="about-sec-head" data-sc="about2.mfg.head" data-sc-label="About · 제조 섹션제목">설계부터 <em>제조·검증</em>까지<span class="sub">In-house engineering · manufacturing · QA</span></h2>
       <div class="step-flow about-step-flow">
         <figure class="step-card">
-          <div class="step-media"><img src="images/img-10.jpg" alt="Monnit Korea 본사 · R&amp;D 센터" loading="lazy" data-sc="about2.step1.img" data-sc-label="About 제조1 · 사진"></div>
+          <div class="step-media"><img src="/images/img-10.jpg" alt="Monnit Korea 본사 · R&amp;D 센터" loading="lazy" data-sc="about2.step1.img" data-sc-label="About 제조1 · 사진"></div>
           <div class="step-body">
             <div class="step-top"><span class="step-idx">01</span><span class="step-kicker">HQ · R&amp;D</span></div>
             <h3 class="step-title" data-sc="about2.step1.t" data-sc-label="About 제조1 · 제목">본사 센터</h3>
@@ -1249,7 +1253,7 @@ window.addEventListener('hashchange', function(){
           </div>
         </figure>
         <figure class="step-card">
-          <div class="step-media"><img src="images/img-12.jpg" alt="PCB · 회로 설계 엔지니어링" loading="lazy" data-sc="about2.step2.img" data-sc-label="About 제조2 · 사진"></div>
+          <div class="step-media"><img src="/images/img-12.jpg" alt="PCB · 회로 설계 엔지니어링" loading="lazy" data-sc="about2.step2.img" data-sc-label="About 제조2 · 사진"></div>
           <div class="step-body">
             <div class="step-top"><span class="step-idx">02</span><span class="step-kicker">Engineering · QA</span></div>
             <h3 class="step-title" data-sc="about2.step2.t" data-sc-label="About 제조2 · 제목">PCB 회로 설계</h3>
@@ -1257,7 +1261,7 @@ window.addEventListener('hashchange', function(){
           </div>
         </figure>
         <figure class="step-card">
-          <div class="step-media"><img src="images/img-11.jpg" alt="자체 생산 라인 · SMT" loading="lazy" data-sc="about2.step3.img" data-sc-label="About 제조3 · 사진"></div>
+          <div class="step-media"><img src="/images/img-11.jpg" alt="자체 생산 라인 · SMT" loading="lazy" data-sc="about2.step3.img" data-sc-label="About 제조3 · 사진"></div>
           <div class="step-body">
             <div class="step-top"><span class="step-idx">03</span><span class="step-kicker">Manufacturing</span></div>
             <h3 class="step-title" data-sc="about2.step3.t" data-sc-label="About 제조3 · 제목">자체 생산 라인</h3>
@@ -1586,7 +1590,7 @@ window.addEventListener('hashchange', function(){
         <div class="ai-feat"><span class="aif-ic ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15a6 6 0 0 0-12 0l-1.6 2.4A.6.6 0 0 0 4.9 18h14.2a.6.6 0 0 0 .5-.6L18 15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><h4 data-sc="our-solution#t27">멀티채널 즉시 알림</h4><p data-sc="our-solution#t28">SMS·이메일·전화·모바일 푸시·API 웹훅 — 조건 위반 즉시 담당자에게 전달. 알림 우선순위·수신자·에스컬레이션 경로를 자유롭게 설정.</p><span class="aif-badge"><i class="d warn"></i>ALERT · &lt;5초 발송</span></div>
       </div>
 
-      <div style="margin-top:36px;"><button class="cta-primary" data-nav="applications">산업별 적용 사례 보기</button></div>
+      <div style="margin-top:36px;"><a href="/applications" class="cta-primary" data-nav="applications">산업별 적용 사례 보기</a></div>
     </div>
   </div>
 </section>
@@ -1604,24 +1608,24 @@ window.addEventListener('hashchange', function(){
 
       <h2 data-sc="what-we-do#t2">사업 영역<span class="sub">Industries we serve</span></h2>
       <div class="ind-grid">
-        <article class="ind-card clickable" data-go-case="us-army" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-30.jpg" data-sc="home2.ind1.img" data-sc-label="산업 · 국방 사진" alt="국방"><span class="ind-name">국방</span></div><div class="cap">미군 부대 핵심 전략 자산 모니터링</div></article>
-        <article class="ind-card clickable" data-go-case="exxonmobil" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-31.jpg" data-sc="home2.ind2.img" data-sc-label="산업 · 오일가스 사진" alt="오일가스"><span class="ind-name">오일가스</span></div><div class="cap">정유·석유화학 설비 안전 감시</div></article>
-        <article class="ind-card clickable" data-go-case="gs-eps" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-32.jpg" data-sc="home2.ind3.img" data-sc-label="산업 · 발전소 사진" alt="발전소"><span class="ind-name">발전소</span></div><div class="cap">전력 생산 설비 상태 진단</div></article>
-        <article class="ind-card clickable" data-go-case="microsoft" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-33.jpg" data-sc="home2.ind4.img" data-sc-label="산업 · 데이터센터 사진" alt="데이터센터"><span class="ind-name">데이터센터</span></div><div class="cap">온습도·전력·누수 통합 관제</div></article>
-        <article class="ind-card clickable" data-go-case="cbre" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-34.jpg" data-sc="home2.ind5.img" data-sc-label="산업 · 인프라 사진" alt="인프라"><span class="ind-name">인프라</span></div><div class="cap">고속도로·기차·공항·항만·댐·공공시설</div></article>
-        <article class="ind-card clickable" data-go-case="cbre" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-35.jpg" data-sc="home2.ind6.img" data-sc-label="산업 · 대형 상업건물 사진" alt="대형 상업건물"><span class="ind-name">대형 상업건물</span></div><div class="cap">스마트 빌딩 에너지·환경 관리</div></article>
-        <article class="ind-card clickable" data-go-case="walmart" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-36.jpg" data-sc="home2.ind7.img" data-sc-label="산업 · 물류창고 사진" alt="물류창고"><span class="ind-name">물류창고</span></div><div class="cap">콜드체인·재고 환경 모니터링</div></article>
-        <article class="ind-card clickable" data-go-case="samsung-biologics" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="images/img-37.jpg" data-sc="home2.ind8.img" data-sc-label="산업 · 생산시설 사진" alt="생산시설"><span class="ind-name">생산시설</span></div><div class="cap">반도체·제약·자동차 등 정밀 생산 라인</div></article>
+        <article class="ind-card clickable" data-go-case="us-army" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-30.jpg" data-sc="home2.ind1.img" data-sc-label="산업 · 국방 사진" alt="국방"><span class="ind-name">국방</span></div><div class="cap">미군 부대 핵심 전략 자산 모니터링</div></article>
+        <article class="ind-card clickable" data-go-case="exxonmobil" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-31.jpg" data-sc="home2.ind2.img" data-sc-label="산업 · 오일가스 사진" alt="오일가스"><span class="ind-name">오일가스</span></div><div class="cap">정유·석유화학 설비 안전 감시</div></article>
+        <article class="ind-card clickable" data-go-case="gs-eps" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-32.jpg" data-sc="home2.ind3.img" data-sc-label="산업 · 발전소 사진" alt="발전소"><span class="ind-name">발전소</span></div><div class="cap">전력 생산 설비 상태 진단</div></article>
+        <article class="ind-card clickable" data-go-case="microsoft" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-33.jpg" data-sc="home2.ind4.img" data-sc-label="산업 · 데이터센터 사진" alt="데이터센터"><span class="ind-name">데이터센터</span></div><div class="cap">온습도·전력·누수 통합 관제</div></article>
+        <article class="ind-card clickable" data-go-case="cbre" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-34.jpg" data-sc="home2.ind5.img" data-sc-label="산업 · 인프라 사진" alt="인프라"><span class="ind-name">인프라</span></div><div class="cap">고속도로·기차·공항·항만·댐·공공시설</div></article>
+        <article class="ind-card clickable" data-go-case="cbre" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-35.jpg" data-sc="home2.ind6.img" data-sc-label="산업 · 대형 상업건물 사진" alt="대형 상업건물"><span class="ind-name">대형 상업건물</span></div><div class="cap">스마트 빌딩 에너지·환경 관리</div></article>
+        <article class="ind-card clickable" data-go-case="walmart" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-36.jpg" data-sc="home2.ind7.img" data-sc-label="산업 · 물류창고 사진" alt="물류창고"><span class="ind-name">물류창고</span></div><div class="cap">콜드체인·재고 환경 모니터링</div></article>
+        <article class="ind-card clickable" data-go-case="samsung-biologics" role="button" tabindex="0"><div class="ind-photo"><img loading="lazy" decoding="async" src="/images/img-37.jpg" data-sc="home2.ind8.img" data-sc-label="산업 · 생산시설 사진" alt="생산시설"><span class="ind-name">생산시설</span></div><div class="cap">반도체·제약·자동차 등 정밀 생산 라인</div></article>
       </div>
 
       <h2 data-sc="what-we-do#t3">주요 서비스<span class="sub">Core services</span></h2>
       <div class="svc-grid">
-        <article class="svc-card clickable" data-go-contact="맞춤형 무선 센서 제작(OEM·ODM)" role="button" tabindex="0"><div class="ph"><span class="n">01</span><img loading="lazy" decoding="async" src="images/img-38.jpg" data-sc="home2.svc1.img" data-sc-label="주요 서비스 · 센서 제작 사진" alt="맞춤형 무선 센서 제작"></div><div class="tx"><h4 data-sc="what-we-do#t4">맞춤형 무선 센서 제작 (OEM · ODM)</h4><p data-sc="what-we-do#t5">자동 제어가 가능한 커스텀 무선 센서를 현장 요구에 맞춰 설계·제작합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="프로젝트별 소프트웨어 커스텀 개발" role="button" tabindex="0"><div class="ph"><span class="n">02</span><img loading="lazy" decoding="async" src="images/img-39.jpg" data-sc="home2.svc2.img" data-sc-label="주요 서비스 · SW 개발 사진" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t6">프로젝트별 소프트웨어 커스텀 개발</h4><p data-sc="what-we-do#t7">대시보드·관제·자동화 로직을 프로젝트 단위로 맞춤 구현합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="설비 예지보전 패트롤 서비스" role="button" tabindex="0"><div class="ph"><span class="n">03</span><img loading="lazy" decoding="async" src="images/img-40.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t8">설비 예지보전 패트롤 서비스</h4><p data-sc="what-we-do#t9">진동·온도 데이터를 기반으로 한 정기 점검 패트롤로 고장을 사전에 차단합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="레거시·관제 시스템 연동(SI)" role="button" tabindex="0"><div class="ph"><span class="n">04</span><img loading="lazy" decoding="async" src="images/img-41.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t10">레거시 및 관제 시스템 연동 (SI)</h4><p data-sc="what-we-do#t11">기존 관제·SCADA·MES 시스템과 ALTA 데이터를 매끄럽게 통합합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="AI 분석용 빅데이터 제공·분석" role="button" tabindex="0"><div class="ph"><span class="n">05</span><img loading="lazy" decoding="async" src="images/img-42.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t12">AI 분석용 맞춤형 빅데이터 제공 / 분석</h4><p data-sc="what-we-do#t13">AI 예지보전을 위한 정제된 데이터 셋을 구축하고 분석 모델을 제공합니다.</p></div></article>
-        <article class="svc-card clickable" data-go-contact="전문 컨설팅 기반 솔루션 제안" role="button" tabindex="0"><div class="ph"><span class="n">06</span><img loading="lazy" decoding="async" src="images/img-43.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t14">전문 컨설팅 기반 솔루션 제안</h4><p data-sc="what-we-do#t15">현장을 이해하는 엔지니어가 직접 진단하고 최적의 해결책과 솔루션을 제시합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="맞춤형 무선 센서 제작(OEM·ODM)" role="button" tabindex="0"><div class="ph"><span class="n">01</span><img loading="lazy" decoding="async" src="/images/img-38.jpg" data-sc="home2.svc1.img" data-sc-label="주요 서비스 · 센서 제작 사진" alt="맞춤형 무선 센서 제작"></div><div class="tx"><h4 data-sc="what-we-do#t4">맞춤형 무선 센서 제작 (OEM · ODM)</h4><p data-sc="what-we-do#t5">자동 제어가 가능한 커스텀 무선 센서를 현장 요구에 맞춰 설계·제작합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="프로젝트별 소프트웨어 커스텀 개발" role="button" tabindex="0"><div class="ph"><span class="n">02</span><img loading="lazy" decoding="async" src="/images/img-39.jpg" data-sc="home2.svc2.img" data-sc-label="주요 서비스 · SW 개발 사진" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t6">프로젝트별 소프트웨어 커스텀 개발</h4><p data-sc="what-we-do#t7">대시보드·관제·자동화 로직을 프로젝트 단위로 맞춤 구현합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="설비 예지보전 패트롤 서비스" role="button" tabindex="0"><div class="ph"><span class="n">03</span><img loading="lazy" decoding="async" src="/images/img-40.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t8">설비 예지보전 패트롤 서비스</h4><p data-sc="what-we-do#t9">진동·온도 데이터를 기반으로 한 정기 점검 패트롤로 고장을 사전에 차단합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="레거시·관제 시스템 연동(SI)" role="button" tabindex="0"><div class="ph"><span class="n">04</span><img loading="lazy" decoding="async" src="/images/img-41.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t10">레거시 및 관제 시스템 연동 (SI)</h4><p data-sc="what-we-do#t11">기존 관제·SCADA·MES 시스템과 ALTA 데이터를 매끄럽게 통합합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="AI 분석용 빅데이터 제공·분석" role="button" tabindex="0"><div class="ph"><span class="n">05</span><img loading="lazy" decoding="async" src="/images/img-42.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t12">AI 분석용 맞춤형 빅데이터 제공 / 분석</h4><p data-sc="what-we-do#t13">AI 예지보전을 위한 정제된 데이터 셋을 구축하고 분석 모델을 제공합니다.</p></div></article>
+        <article class="svc-card clickable" data-go-contact="전문 컨설팅 기반 솔루션 제안" role="button" tabindex="0"><div class="ph"><span class="n">06</span><img loading="lazy" decoding="async" src="/images/img-43.jpg" alt=""></div><div class="tx"><h4 data-sc="what-we-do#t14">전문 컨설팅 기반 솔루션 제안</h4><p data-sc="what-we-do#t15">현장을 이해하는 엔지니어가 직접 진단하고 최적의 해결책과 솔루션을 제시합니다.</p></div></article>
       </div>
     </div>
   </div>
@@ -1842,7 +1846,7 @@ window.addEventListener('hashchange', function(){
       <h2 class="seo-h1">도입 문의 &amp; <em>상담 신청</em></h2>
       <p class="lead">현장 진단부터 맞춤 솔루션 제안까지, 전문 엔지니어가 직접 상담해 드립니다.
       아래 양식을 남겨 주시면 빠르게 연락드리겠습니다.</p>
-      <figure class="contact-figure"><img loading="lazy" decoding="async" src="images/img-44.jpg" alt="Monnit Korea 엔지니어링·제조 현장"></figure>
+      <figure class="contact-figure"><img loading="lazy" decoding="async" src="/images/img-44.jpg" alt="Monnit Korea 엔지니어링·제조 현장"></figure>
       <div class="contact-grid">
         <dl class="contact-info">
           <dt>Email</dt><dd><a href="mailto:korea@monnit.com">korea@monnit.com</a></dd>
@@ -1979,41 +1983,41 @@ window.addEventListener('hashchange', function(){
 <footer class="site-footer">
   <div class="wrap">
     <div class="brand-col">
-      <div class="fb-logo"><img loading="lazy" decoding="async" class="fb-logo-img" src="images/img-01.png" alt="Monnit"><span style="color:var(--accent);font-size:14px;font-family:var(--fm);">KOREA</span></div>
+      <div class="fb-logo"><img loading="lazy" decoding="async" class="fb-logo-img" src="/images/img-01.png" alt="Monnit"><span style="color:var(--accent);font-size:14px;font-family:var(--fm);">KOREA</span></div>
       <p>Expert Consulting. Integrated Solutions.<br>현장을 이해하는 전문가 그룹의 맞춤형 무선 IoT 통합 솔루션 파트너.</p>
     </div>
     <div>
       <h5>About us</h5>
       <ul>
-        <li><button data-nav="who-we-are">Who we are</button></li>
-        <li><button data-nav="our-solution">Our solution</button></li>
-        <li><button data-nav="what-we-do">What we do</button></li>
-        <li><button data-nav="awards">Award</button></li>
+        <li><a href="/who-we-are" data-nav="who-we-are">Who we are</a></li>
+        <li><a href="/our-solution" data-nav="our-solution">Our solution</a></li>
+        <li><a href="/what-we-do" data-nav="what-we-do">What we do</a></li>
+        <li><a href="/awards" data-nav="awards">Award</a></li>
       </ul>
     </div>
     <div>
       <h5>Solutions</h5>
       <ul>
-        <li><button data-nav="stories">Use case</button></li>
-        <li><button data-nav="applications">Applications</button></li>
-        <li><button data-nav="partners">Partners</button></li>
+        <li><a href="/stories" data-nav="stories">Use case</a></li>
+        <li><a href="/applications" data-nav="applications">Applications</a></li>
+        <li><a href="/partners" data-nav="partners">Partners</a></li>
       </ul>
     </div>
     <div>
       <h5>Resources</h5>
       <ul>
-        <li><button data-nav="blog">Blog</button></li>
-        <li><button data-nav="newsletter">Newsletter</button></li>
-        <li><button data-nav="whitepaper">산업별 제안서</button></li>
+        <li><a href="/blog" data-nav="blog">Blog</a></li>
+        <li><a href="/newsletter" data-nav="newsletter">Newsletter</a></li>
+        <li><a href="/whitepaper" data-nav="whitepaper">산업별 제안서</a></li>
       </ul>
     </div>
     <div>
       <h5>Support</h5>
       <ul>
-        <li><button data-nav="contact">Contact Us</button></li>
-        <li><button data-nav="faqs">FAQs</button></li>
-        <li><button data-nav="guides">Tech Support</button></li>
-        <li><button data-nav="knowledgebase">Knowledgebase</button></li>
+        <li><a href="/contact" data-nav="contact">Contact Us</a></li>
+        <li><a href="/faqs" data-nav="faqs">FAQs</a></li>
+        <li><a href="/guides" data-nav="guides">Tech Support</a></li>
+        <li><a href="/knowledgebase" data-nav="knowledgebase">Knowledgebase</a></li>
       </ul>
     </div>
   </div>
@@ -2027,11 +2031,11 @@ window.addEventListener('hashchange', function(){
 </footer>
 
   <!-- data.js(지식베이스·가이드 ~1.5MB)는 더 이상 선로딩하지 않음 → app.js가 해당 페이지 진입 시에만 동적 로드 -->
-  <script src="app.js?v=104"></script>
+  <script src="/app.js?v=106"></script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
-    function load(){var s=document.createElement('script');s.src='i18n.js?v=104';s.defer=true;document.head.appendChild(s);}
+    function load(){var s=document.createElement('script');s.src='i18n.js?v=106';s.defer=true;document.head.appendChild(s);}
     if(lang==='en'){load();}else{(window.requestIdleCallback||function(f){setTimeout(f,1500);})(load);}
   })();
   </script>

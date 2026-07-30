@@ -86,20 +86,24 @@
   status = 301
 
 # 구 슬러그(대소문자·한글) 케이스 페이지 → 정식 소문자 URL 301 (색인 중복·404 정리)
+# 구 슬러그(대문자·한글) → 새 경로로 한 번에 (연쇄 리다이렉트 방지)
 [[redirects]]
   from = "/pages/case-Samsung.html"
-  to = "/pages/case-samsung.html"
+  to = "/case/samsung"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/pages/case-Veolia.html"
-  to = "/pages/case-veolia.html"
+  to = "/case/veolia"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/pages/case-HDC랩스.html"
-  to = "/pages/case-hdc-labs.html"
+  to = "/case/hdc-labs"
   status = 301
+  force = true
 
 [functions]
   directory = "netlify/functions"
