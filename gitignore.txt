@@ -1,0 +1,24 @@
+# 시스템/임시/백업 파일만 제외 — 빌드 산출물(pages/, robots.txt, sitemap.xml, llms*.txt)은
+# AI 크롤러가 반드시 읽어야 하므로 저장소에 포함합니다.
+.DS_Store
+_gsdata_/
+images/_logo_orig/
+
+# SSG 로 생성되는 경로별 폴더 (/who-we-are/, /app/temp/ …)
+# Netlify 가 배포할 때마다 build.js 로 다시 만듭니다. 24MB 라 저장소에는 넣지 않습니다.
+/who-we-are/
+/products/
+/applications/
+/stories/
+/customers/
+/awards/
+/partners/
+/blog/
+/knowledgebase/
+/guides/
+/contact/
+/promotions/
+/app/
+/case/
+/kb/
+/guide/
