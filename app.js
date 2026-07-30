@@ -53,7 +53,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = '/data.js?v=108'; s.async = true;
+  s.src = '/data.js?v=109'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -77,14 +77,14 @@ function ensureSolutionTwin(){
   window.__twinLoading = true;
   var loadScript = function(){
     var s = document.createElement('script');
-    s.src = 'js/solution-twin.js?v=108'; s.async = true;
+    s.src = 'js/solution-twin.js?v=109'; s.async = true;
     s.onload = function(){ window.__twinLoaded = true; };
     s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
     document.head.appendChild(s);
   };
   if (mount.__filled){ loadScript(); return; }
   // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
-  fetch('/views/solution-twin.html?v=108').then(function(r){ return r.ok ? r.text() : ''; })
+  fetch('/views/solution-twin.html?v=109').then(function(r){ return r.ok ? r.text() : ''; })
     .then(function(html){
       if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
       else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
@@ -3124,8 +3124,9 @@ const BUILTIN_PROMOS = [{
 }];
 PROMOS = BUILTIN_PROMOS.slice();
 
-/* ── 프로모션 대표 이미지(카드 썸네일) 로컬 파일 지정 ─────────────────
-   여기에 id 가 있으면 구글 시트의 image 열보다 이 파일이 우선합니다.
+/* ── 프로모션 대표 이미지(카드 썸네일) 기본값 ───────────────────────
+   에디터(시트)의 image 값이 비어 있을 때만 쓰는 예비 이미지입니다.
+   에디터에서 이미지를 넣으면 무조건 그 값이 화면에 나옵니다.
    · 이유: 외부 이미지 호스트(ibb.co 등)는 느리고 링크가 끊길 수 있어,
      사이트 안에 최적화한 webp 를 두고 직접 서빙합니다. (장당 약 900KB → 80KB)
    · 파일 위치: /images/promo-{id}.webp  (og:image 용 .jpg 도 같이 있습니다)
@@ -3204,7 +3205,7 @@ function parsePeriodRange(period){
 }
 /* 프로모션 객체에 startTs/endTs/status 부여 */
 function applyPromoSchedule(p){
-  if (PROMO_LOCAL_IMG[p.id]) p.image = PROMO_LOCAL_IMG[p.id];   // 대표 이미지 로컬 파일 우선
+  if (!String(p.image || '').trim() && PROMO_LOCAL_IMG[p.id]) p.image = PROMO_LOCAL_IMG[p.id];   // 에디터 값이 항상 우선. 비어 있을 때만 내장 이미지
   const fromPeriod = parsePeriodRange(p.period);
   const s = parseKDate(p.start) || fromPeriod.start;
   let   e = parseKDate(p.end)   || fromPeriod.end;

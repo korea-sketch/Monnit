@@ -20,7 +20,7 @@
      동의 전에는 광고·분석 쿠키를 저장하지 않습니다.
      설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'x38egtft64',privacyUrl:'/privacy.html'};</script>
-<script src="/js/monnit-consent.js?v=108"></script>
+<script src="/js/monnit-consent.js?v=109"></script>
 <style>
 :root{
   --bg:#0B1220; --card:#122139; --line:#22344f; --ink:#F3F7FC; --sub:#AEBFD6; --muted:#8598b4;
@@ -167,7 +167,7 @@ var SHEET_ID='1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
 var STATICFORMS_URL='https://api.staticforms.dev/submit', STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472', WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
 /* 시트 로드 전에도 즉시 렌더되도록 하는 기본 문구 + 테마색 + 최적화 로컬 이미지(있으면) */
 var THEME={fire:'#FF5A2C',flame:'#FF5A2C',water:'#3B82F6',elect:'#F59E0B',church:'#3FD7C0'};
-var LOCAL_IMG={                                    // 미리 최적화한 로컬 이미지가 있는 프로모션
+var LOCAL_IMG={                                    // 에디터 image 칸이 비었을 때만 쓰는 예비 이미지
   fire:'/images/promo-fire.webp', flame:'/images/promo-flame.webp', water:'/images/promo-water.webp',
   elect:'/images/promo-elect.webp', church:'/images/promo-church.webp', soil:'/images/promo-soil.webp'
 };
@@ -199,7 +199,7 @@ function render(){
   setText('pTitle',CUR.title); setText('pDesc',CUR.desc); setText('pBadge',CUR.badge||'이벤트');
   if(CUR.period){ var pe=document.getElementById('pPeriod'); if(pe){pe.innerHTML='기간 <b>'+esc(CUR.period)+'</b>'; pe.style.display='';} }
   setText('pSecH',(CUR.title||'프로모션'));
-  var img=LOCAL_IMG[PID]||CUR.image;
+  var img=(CUR.image&&String(CUR.image).trim())||LOCAL_IMG[PID];   // 에디터 값이 항상 우선
   if(img) paintPoster(img);
 }
 
