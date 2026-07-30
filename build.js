@@ -758,8 +758,6 @@ const LEGACY_RULES = (function(){
 /faq/                 /faqs                301
 /whitepapers          /whitepaper          301
 /whitepapers/         /whitepaper          301
-/customers            /stories             301
-/customers/           /stories             301
 
 # --- 상세 페이지 (구 슬러그 → 새 경로)
 /apps/*               /app/:splat          301
@@ -875,7 +873,6 @@ try {
 const urls = [
   { loc: SITE + '/', pri: '1.0' },
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
-  { loc: SITE + '/promo/fire', pri: '0.7' },
   { loc: SITE + '/promo/consulting', pri: '0.9' },
   { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' }))

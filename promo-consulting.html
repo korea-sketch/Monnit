@@ -9,7 +9,7 @@
      동의 전에는 광고·분석 쿠키를 저장하지 않습니다.
      설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'x38egtft64',privacyUrl:'/privacy.html'};</script>
-<script src="/js/monnit-consent.js?v=106"></script>
+<script src="/js/monnit-consent.js?v=108"></script>
 <title>회전설비 AI 예지보전 1개월 무료 체험 | 모넷코리아</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" media="print" onload="this.media='all'">
@@ -508,6 +508,24 @@
   .fcard .ic{margin-bottom:16px}
   .fcard .ft{font-size:18px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.4px}
   .fcard .fd{font-size:14px;color:var(--mut);line-height:1.5}
+
+  /* 자료 버튼 (진동 사양 · 제품 카탈로그) */
+  .docrow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .docbtn{display:flex;align-items:center;gap:14px;width:100%;padding:18px 20px;border-radius:16px;
+    background:rgba(255,255,255,.03);border:1px solid var(--hair);color:var(--ink);
+    font-family:inherit;text-align:left;cursor:pointer;transition:.15s}
+  .docbtn:hover{border-color:rgba(51,143,255,.5);background:rgba(51,143,255,.06)}
+  .docbtn .dic{flex:none;width:44px;height:44px;border-radius:12px;background:rgba(51,143,255,.13);
+    display:flex;align-items:center;justify-content:center}
+  .docbtn .dic svg{width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:1.8;
+    stroke-linecap:round;stroke-linejoin:round}
+  .docbtn .dtx{flex:1;min-width:0}
+  .docbtn .dtx b{display:block;font-size:16px;font-weight:800;letter-spacing:-.3px;color:#fff;
+    line-height:1.35;word-break:keep-all}
+  .docbtn .dtx small{display:block;font-size:13px;color:var(--mut);margin-top:5px;line-height:1.5;word-break:keep-all}
+  .docbtn .dar{flex:none;color:var(--green);font-weight:800;font-size:17px}
+  @media(max-width:760px){ .docrow{grid-template-columns:1fr;gap:10px} .docbtn{padding:15px 16px}
+    .docbtn .dtx b{font-size:15px} .docbtn .dtx small{font-size:12.5px} }
 
   /* LINE ICONS · SVG mask (픽셀 정합 + currentColor 상속) */
   .line-icon{position:relative;display:block;width:22px;height:22px;flex:none;background-color:currentColor;color:var(--green);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;border:0;border-radius:0;box-shadow:none;transform:none;margin:0}
@@ -1471,6 +1489,19 @@
         <div class="fd" data-k="feat-10">진동·온도·전류·누수 등 다양한 응용</div>
       </div>
     </div>
+
+    <div class="docrow">
+      <button class="docbtn" type="button" data-mkd-spec="vibration">
+        <span class="dic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h2.2l1.8-5 3 11 3-15 2.8 13 1.6-4H21"/></svg></span>
+        <span class="dtx"><b>센서 스펙 보기</b><small>측정 축·주파수·측정 범위와 ISO 10816 기준을 표로 확인</small></span>
+        <span class="dar" aria-hidden="true">→</span>
+      </button>
+      <button class="docbtn" type="button" data-mkd-catalog>
+        <span class="dic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span>
+        <span class="dtx"><b>카탈로그 보기</b><small>Monnit 전 제품 51종 · 데이터시트를 바로 열어 볼 수 있습니다</small></span>
+        <span class="dar" aria-hidden="true">→</span>
+      </button>
+    </div>
   </div></section>
 
   <section class="support" id="support"><div class="wrap">
@@ -2108,6 +2139,360 @@ function renderEx(k){
     })
     .catch(function(){/* 시트 실패 시 원본 문구 유지 */});
 })();
+</script>
+
+<script>
+window.MKDOCS_CTA='#apply';window.MKDOCS_PRODUCTS='/products';
+/* ─────────────────────────────────────────────────────────────
+   자료 팝업 — 진동 센서 사양 · Monnit 제품 카탈로그
+   이 페이지 안에서만 동작하며, 다른 파일에 의존하지 않습니다.
+   버튼에 data-mkd-spec="vibration" / data-mkd-catalog 만 붙이면 열립니다.
+   ───────────────────────────────────────────────────────────── */
+(function(){
+'use strict';
+if (window.MKDOCS) return;
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function ga(ev, o){ try{ if(window.gtag) gtag('event', ev, o||{}); }catch(e){} }
+
+/* ── 센서 사양 (출처: Monnit 데이터시트 · 지식베이스) ─────────── */
+var SPECS = {
+  vibration: {
+    title: '진동 센서 사양',
+    sub: 'ALTA® 무선 진동 센서 — 표준형 · 고급형',
+    match: /진동|예지보전|회전설비|회전기기|vibration/i,
+    cols: ['항목', 'Standard 진동계', 'Advanced 진동계'],
+    rows: [
+      ['측정 축',        '1축',                          '3축 (X·Y·Z)'],
+      ['측정 항목',      '진동 속도 (mm/s)',              '가속도 · 속도 · 변위 · 가속도 피크'],
+      ['주파수 범위',    '10 ~ 200 Hz (600~12,000 RPM)',  '25 ~ 12,800 Hz'],
+      ['측정 범위',      '0 ~ 600 mm/s',                  '가속도 0~65,530 mm/s² · 속도 0~655.35 mm/s'],
+      ['가속도계 레인지', '—',                            '2 · 4 · 8 · 16 G 선택'],
+      ['샘플링',        '—',                             '25 Hz ~ 12.8 kHz · 측정당 256 샘플 (FFT)'],
+      ['추가 지표',      '—',                             '주파수(Hz/RPM) · 파고율 · 듀티 사이클 · 온도'],
+      ['측정 주기',      '설정 가능',                      '1초 ~ 12시간 설정 가능'],
+      ['적용 규격',      'ISO 10816-1 측정에 적합',         'ISO 10816 + 고조파 분석'],
+      ['설치',          '자석 또는 볼트 부착',             '자석 또는 볼트 부착 · 리드선형 옵션']
+    ],
+    common: [
+      ['무선 통신', 'ALTA 900MHz — 비가시선 벽 12장 관통 1,200ft 이상 (XL 게이트웨이 2,000ft 이상)'],
+      ['배터리',   '단일 AA 배터리로 최대 10년 (진동 센서는 측정 주기에 따라 수년)'],
+      ['보안',     'AES-128 암호화 · 센서~게이트웨이 구간 보안 전송'],
+      ['오프라인', '통신 두절 시 센서 자체에 최대 4,000건 저장 후 복구되면 자동 전송'],
+      ['알림',     '임계값 초과 시 즉시 전송(Aware State) · SMS·이메일·API 연동']
+    ],
+    note: 'ISO 10816-3 은 진동 값을 Zone A(신규 가동) · B(연속 운전 가능) · C(제한적 운전) · D(위험) 네 구간으로 구분합니다. Monnit 표준 진동계는 이 판정에 필요한 측정 범위를 모두 포함합니다.',
+    docs: [
+      { t:'Advanced 진동계 데이터시트 (PDF)',  u:'https://monnit.blob.core.windows.net/site/documents/sensors/accelerometers/advanced-vibration/AC-ADV-ADS-01.pdf' },
+      { t:'Advanced 진동계 사용 가이드 (PDF)', u:'https://monnit.blob.core.windows.net/site/documents/sensors/accelerometers/advanced-vibration/AC-AV2-AUG.pdf' }
+    ]
+  }
+};
+
+/* ── 제품 카탈로그 ─────────────────────────────────────────── */
+var CAT_TABS = [{"id":"sensors","ko":"센서"},{"id":"gateways","ko":"게이트웨이"},{"id":"software","ko":"소프트웨어"},{"id":"accessories","ko":"액세서리"}];
+var CAT_GRPS = [{"id":"env","ko":"환경"},{"id":"power","ko":"전력"},{"id":"motion","ko":"모션·보안"},{"id":"mech","ko":"기계·진동"},{"id":"level","ko":"레벨·누수"},{"id":"gas","ko":"가스·안전"},{"id":"iface","ko":"인터페이스·계측"}];
+var CATALOG  = [{"c":"sensors","g":"env","n":"온도","d":"-200~+370°C 범위, 식품·백신·HVAC·데이터센터 등 온도 모니터링. NIST 인증 옵션.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/temperature/standard/TS-ST-ADS-01.pdf"},{"c":"sensors","g":"env","n":"습도","d":"시설·전시·데이터센터의 상대습도(RH) 원격 모니터링. NIST 인증 옵션.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/humidity/HU-RH-ADS-01.pdf"},{"c":"sensors","g":"env","n":"공기질","d":"PM1·PM2.5·PM10 농도 측정으로 실내 공기질 관리.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/air-quality/AQ-P25A-ADS-01.pdf"},{"c":"sensors","g":"env","n":"풍속","d":"기류 속도·온도·고도 측정(병원·클린룸 등).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/air-velocity/PS-AV-ADS-01.pdf"},{"c":"sensors","g":"env","n":"차압","d":"두 지점의 압력차 측정(클린룸·제약·주방·HVAC).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/differential-air-pressure/PS-DP-ADS-01.pdf"},{"c":"sensors","g":"env","n":"토양 수분","d":"토양 수분장력·온도 측정으로 관개 최적화.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/soil-moisture/WS-WM-ADS.pdf"},{"c":"sensors","g":"env","n":"조도 (Lux)","d":"조도(Lux) 측정 — 박물관·약품·식품 등 빛에 민감한 자산 관리(0~83,000 lux).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/light-meter/LS-LM-ADS-01.pdf"},{"c":"sensors","g":"env","n":"조도 (PAR·광합성)","d":"PAR(광합성유효광) 측정 — 작물·재배 조명의 광량 관리(389~692nm).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/light-meter/par/LS-PAR-ADS.pdf"},{"c":"sensors","g":"power","n":"AC 전류계","d":"전류·전력 소비를 원격 측정해 설비 상태·HVAC 성능 진단.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/current-meters/CM-ADS-01.pdf"},{"c":"sensors","g":"power","n":"3상 전류계","d":"산업용 3상 전력 소비 모니터링. 20/150/500A 모델 제공(데이터시트 공통).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/three-phase-current-meters/3P-ADS-01.pdf"},{"c":"sensors","g":"power","n":"200VDC 미터","d":"0~200VDC 직류 전압을 정밀 측정(미터형).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/voltage-detection/200-VDC-meter/VM-200-ADS-01.pdf"},{"c":"sensors","g":"power","n":"200VDC 감지","d":"200VDC 전원의 On/Off 상태 감지(감지형).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/voltage-detection/200-volt-detection/VD-200-ADS-01.pdf"},{"c":"sensors","g":"power","n":"500VAC 미터","d":"0~500VAC 교류 전압을 정밀 측정(미터형).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/voltage-detection/500-VAC-meter/VM-500-ADS-01.pdf"},{"c":"sensors","g":"power","n":"500VAC 감지","d":"500VAC 전원의 On/Off 상태 감지(감지형).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/voltage-detection/500-volt-detection/VD-AC-ADS-01.pdf"},{"c":"sensors","g":"motion","n":"모션·점유","d":"PIR 기반 사람·동물 움직임 및 공간 점유 감지.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/pir-motion/MS-IR-ADS-01.pdf"},{"c":"sensors","g":"motion","n":"개폐(도어)","d":"문·창·캐비닛의 개폐 및 비인가 출입을 즉시 알림.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/open-closed/OC-ST-ADS-01.pdf"},{"c":"sensors","g":"motion","n":"버튼","d":"버튼을 누르면 즉시 알림(호출·점검 확인용).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/button-press/PB-ST-ADS-01.pdf"},{"c":"sensors","g":"motion","n":"차량 감지","d":"차량 진출입·대기시간 감지 및 카운트.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/vehicle-detection/VS-TT-ADS-01.pdf"},{"c":"sensors","g":"mech","n":"가속도·진동계","d":"3축 진동·주파수·속도·변위·가속도 측정으로 설비 예지보전.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/accelerometers/advanced-vibration/AC-ADV-ADS-01.pdf"},{"c":"sensors","g":"mech","n":"열전대","d":"K타입 등 고온 공정을 최대 400°C까지 측정.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/thermocouple/TS-TC-ADS-01.pdf"},{"c":"sensors","g":"mech","n":"저항","d":"최대 250kΩ 저항 측정, 산업·과학 장비용.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/resistance/RS-ST-ADS-01.pdf"},{"c":"sensors","g":"level","n":"누수 — 로프형","d":"워터 로프로 라인 전체의 누수를 감지(연장 가능).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/water-detection/rope/WS-WR-ADS-01.pdf"},{"c":"sensors","g":"level","n":"누수 — 프로브형(Detect+)","d":"프로브형 — 누수 유무에 더해 수위 단계까지 감지.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/water-detection/detect-plus/WS-WP-ADS-01.pdf"},{"c":"sensors","g":"level","n":"누수 — 퍽형(디스크)","d":"디스크(퍽)형 — 바닥에 놓아 물 고임을 감지.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/water-detection/disc/WS-PS-ADS-01.pdf"},{"c":"sensors","g":"level","n":"누수 — 전선형(Detect)","d":"전선(스팟)형 — 특정 지점의 누수 유무를 감지.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/water-detection/detect/WS-WD-ADS-01.pdf"},{"c":"sensors","g":"level","n":"압력계","d":"기체·액체·증기 라인 압력 측정. 50/300/750/3000 PSIG 모델(데이터시트 공통).","u":"https://monnit.blob.core.windows.net/site/documents/sensors/pressure-meters/PS-000-ADS-01.pdf"},{"c":"sensors","g":"level","n":"초음파 거리","d":"액위·재고·통행 감지를 위한 거리 측정.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/ultrasonic-ranging/US-ST-ADS-01.pdf"},{"c":"sensors","g":"level","n":"프로판 탱크","d":"R3D 게이지 연동으로 프로판 잔량을 원격 모니터링.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/propane-tank-level/HE-MG-ADS-01.pdf"},{"c":"sensors","g":"gas","n":"일산화탄소(CO)","d":"일산화탄소(CO) 농도 감지 및 임계 초과 시 알림.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/gas-detection/CO/GS-C1-ADS-01.pdf"},{"c":"sensors","g":"gas","n":"이산화탄소(CO2)","d":"이산화탄소(CO2) 농도 감지 — 실내 공기질·환기 관리.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/gas-detection/CO2/GS-C2-ADS-01.pdf"},{"c":"sensors","g":"gas","n":"황화수소(H2S)","d":"황화수소(H2S) 농도 감지 — 작업장 안전·규정 준수.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/gas-detection/H2S/GS-H2S-ADS-01.pdf"},{"c":"sensors","g":"iface","n":"드라이컨택","d":"건접점(Dry Contact) 개폐 상태 모니터링.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/interface-meters/dry-contact/DC-CF-ADS-01.pdf"},{"c":"sensors","g":"iface","n":"5채널 드라이컨택","d":"건접점 5채널 입력 — 여러 접점을 한 센서로 모니터링.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/interface-meters/5-input/DC-05-ADS.pdf"},{"c":"sensors","g":"iface","n":"0-5VDC","d":"0~5VDC 아날로그 전압 입력 계측.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/interface-meters/5-VDC/VM-005-ADS-01.pdf"},{"c":"sensors","g":"iface","n":"0-10VDC","d":"0~10VDC 아날로그 전압 입력 계측.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/interface-meters/5-VDC/VM-005-ADS-01.pdf"},{"c":"sensors","g":"iface","n":"0-20mA","d":"0~20mA 아날로그 전류 루프 입력 계측.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/interface-meters/20mA/MA-020-ADS-01.pdf"},{"c":"sensors","g":"iface","n":"저항 브리지","d":"저항 브리지 입력 — 로드셀·스트레인게이지 등 아날로그 계측기 연결.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/interface-meters/resistive-bridge/RS-BR-ADS.pdf"},{"c":"sensors","g":"iface","n":"펄스 카운터 — 싱글","d":"단일 펄스 입력 카운트 — 미터·스위치·릴레이.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/pulse-counter/PC-01-ADS-01.pdf"},{"c":"sensors","g":"iface","n":"펄스 카운터 — 듀얼","d":"2채널 펄스 카운트 — 한전 전력량계 등 연결.","u":"https://monnit.blob.core.windows.net/site/documents/sensors/pulse-counter/PC-02-ADS.pdf"},{"c":"gateways","g":"","n":"북미 IoT 셀룰러 게이트웨이","d":"4G LTE CAT-M1/NB2 기반 원거리 셀룰러 IoT 연결.","u":"https://monnit.blob.core.windows.net/site/documents/gateways/4G-LTE/LTE-CCE-ND-ADS-01.pdf"},{"c":"gateways","g":"","n":"인터내셔널 셀룰러 게이트웨이","d":"약 90개국 지원 ALTA IoT 셀룰러 게이트웨이(SIM 카드 정보 별도 안내).","u":"https://monnit.blob.core.windows.net/site/documents/gateways/IoT/CME-CCE-ADS.pdf"},{"c":"gateways","g":"","n":"이더넷 게이트웨이","d":"최대 100~4,000개 센서 수용, PC 없이 iMonnit 연동.","u":"https://monnit.blob.core.windows.net/site/documents/gateways/EGW4/EGW-CCE-EGW4-ADS-01.pdf"},{"c":"gateways","g":"","n":"시리얼 Modbus 게이트웨이","d":"RS-232C·RS-485 Modbus 인프라에 센서 최대 50개 연동.","u":"https://monnit.blob.core.windows.net/site/documents/gateways/serial-modbus/SG-SMG-ADS-01.pdf"},{"c":"gateways","g":"","n":"센서 어댑터 (USB)","d":"USB로 PC·서드파티 게이트웨이에 무선 센서 연동.","u":"https://monnit.blob.core.windows.net/site/documents/gateways/sensor-adapter/WSA-USB-ADS-01.pdf"},{"c":"software","g":"","n":"iMonnit 클라우드 관리 SW","d":"클라우드 기반 센서 구성·관리·알림(소프트웨어 비교표 제공).","u":"https://monnit.blob.core.windows.net/site/documents/global/IM-SCS-01-iMonnit-Software-Comparison.pdf"},{"c":"software","g":"","n":"iMonnit Express 독립형 SW","d":"오프라인 PC 단독 실행(10~100개 규모).","u":"https://monnit.blob.core.windows.net/site/documents/software/Express/IM-EX-MDS-01.pdf"},{"c":"software","g":"","n":"온프레미스 엔터프라이즈","d":"대규모 센서망용 온프레미스 데이터 호스팅·관리.","u":"https://monnit.blob.core.windows.net/site/documents/software/Enterprise/IM-E-MUG-01-User.pdf"},{"c":"software","g":"","n":"Monnit Mine","d":"오픈 플랫폼 — 디바이스를 커스텀 호스트/IP로 연동.","u":"https://monnit.blob.core.windows.net/site/documents/software/Mine/IM-M-GSGJ-01.pdf"},{"c":"accessories","g":"","n":"사이트 서베이 툴","d":"설치 전 ALTA 신호 신뢰도를 사전 진단.","u":"https://monnit.blob.core.windows.net/site/documents/accessories/site-survey/SS-ST-ADS.pdf"},{"c":"accessories","g":"","n":"컨트롤 유닛","d":"원격 제어용 컨트롤 유닛 — 임계 조건에서 장비를 자동 제어.","u":"https://monnit.blob.core.windows.net/site/documents/accessories/facility-accessories/CTL-00-ADS.pdf"},{"c":"accessories","g":"","n":"로컬 경보기","d":"현장 로컬 경보기 — 임계 초과 시 현장에서 소리·시각 경보.","u":"https://monnit.blob.core.windows.net/site/documents/accessories/local-alert/AV-LA-ADS.pdf"}];
+
+/* ── 스타일 (한 번만 주입) ─────────────────────────────────── */
+var CSS = [
+'.mkd-ov{position:fixed;inset:0;z-index:9400;background:rgba(6,10,18,.74);backdrop-filter:blur(6px);',
+'  display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s ease;',
+'  font-family:inherit;-webkit-font-smoothing:antialiased}',
+'.mkd-ov.on{opacity:1}',
+'.mkd-box{position:relative;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;text-align:left;',
+'  background:#131b28;border:1px solid #26344a;border-radius:20px;padding:26px 24px 20px;color:#f3f7fc;',
+'  box-shadow:0 30px 80px rgba(0,0,0,.55);transform:translateY(14px) scale(.98);',
+'  transition:transform .22s cubic-bezier(.22,1,.36,1)}',
+'.mkd-ov.on .mkd-box{transform:none}',
+'.mkd-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border:0;border-radius:10px;',
+'  background:transparent;color:#8fa2bd;font-size:16px;cursor:pointer;font-family:inherit}',
+'.mkd-x:hover{background:rgba(255,255,255,.07);color:#fff}',
+'.mkd-head{padding-right:34px;margin-bottom:16px}',
+'.mkd-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.1em;padding:4px 10px;',
+'  border-radius:999px;background:rgba(59,143,245,.16);color:#5aa2f7;margin-bottom:9px}',
+'.mkd-title{font-size:21px;font-weight:800;letter-spacing:-.02em;margin:0 0 5px;color:#f3f7fc}',
+'.mkd-sub{font-size:13px;line-height:1.55;color:#8fa2bd;margin:0;word-break:keep-all}',
+'.mkd-tablewrap{overflow-x:auto;border:1px solid #26344a;border-radius:13px}',
+'.mkd-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:460px}',
+'.mkd-table th,.mkd-table td{padding:9px 12px;text-align:left;vertical-align:top;',
+'  border-bottom:1px solid #26344a;line-height:1.5;word-break:keep-all}',
+'.mkd-table tr:last-child td{border-bottom:0}',
+'.mkd-table thead th{background:rgba(255,255,255,.045);font-weight:700;font-size:12px;color:#f3f7fc;white-space:nowrap}',
+'.mkd-k{width:108px;color:#8fa2bd;font-weight:600;white-space:nowrap}',
+'.mkd-table td{color:#dfe8f4}',
+'.mkd-sect{margin:20px 0 9px;font-size:12px;font-weight:800;letter-spacing:.04em;color:#5aa2f7}',
+'.mkd-common{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}',
+'.mkd-common li{display:flex;gap:11px;font-size:12.5px;line-height:1.55}',
+'.mkd-common b{flex:0 0 76px;color:#8fa2bd;font-weight:600}',
+'.mkd-common span{flex:1;color:#dfe8f4;word-break:keep-all}',
+'.mkd-note{margin:14px 0 0;padding:11px 13px;border-radius:11px;background:rgba(255,255,255,.035);',
+'  border:1px solid #26344a;font-size:12px;line-height:1.6;color:#aebfd6;word-break:keep-all}',
+'.mkd-docs{display:flex;flex-direction:column;gap:7px}',
+'.mkd-doc{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;',
+'  background:rgba(255,255,255,.04);border:1px solid #26344a;font-size:12.5px;font-weight:600;',
+'  color:#dfe8f4;text-decoration:none;transition:.16s}',
+'.mkd-doc:hover{border-color:#3b8ff5;background:rgba(59,143,245,.1)}',
+'.mkd-doc>span:nth-child(2){flex:1;word-break:keep-all}',
+'.mkd-pdf{flex:0 0 auto;font-size:9.5px;font-weight:800;letter-spacing:.04em;padding:3px 7px;',
+'  border-radius:5px;background:rgba(239,68,68,.16);color:#f87171}',
+'.mkd-search{margin-bottom:11px}',
+'.mkd-search input{width:100%;height:42px;padding:0 14px;border-radius:12px;background:rgba(0,0,0,.24);',
+'  border:1px solid #26344a;color:#f3f7fc;font-size:13.5px;font-family:inherit;box-sizing:border-box}',
+'.mkd-search input:focus{outline:none;border-color:#3b8ff5}',
+'.mkd-search input::placeholder{color:#6c7f99}',
+'.mkd-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}',
+'.mkd-tab{padding:7px 13px;border-radius:999px;border:1px solid #26344a;background:transparent;',
+'  color:#aebfd6;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:.16s}',
+'.mkd-tab em{font-style:normal;opacity:.55;margin-left:4px;font-size:11px}',
+'.mkd-tab:hover{color:#fff;border-color:#3a4c68}',
+'.mkd-tab.on{background:#3b8ff5;border-color:#3b8ff5;color:#fff}',
+'.mkd-tab.dim{opacity:.4}',
+'.mkd-list{max-height:42vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}',
+'.mkd-grp{margin:10px 0 3px;font-size:11px;font-weight:800;letter-spacing:.06em;color:#6c7f99}',
+'.mkd-grp:first-child{margin-top:0}',
+'.mkd-p{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;',
+'  background:rgba(255,255,255,.035);border:1px solid #26344a;text-decoration:none;color:inherit;transition:.16s}',
+'.mkd-p[href]:hover{border-color:#3b8ff5;background:rgba(59,143,245,.1)}',
+'.mkd-p-off{opacity:.55}',
+'.mkd-p-t{flex:1;min-width:0}',
+'.mkd-p-t b{display:block;font-size:13px;font-weight:700;line-height:1.35;color:#f3f7fc;word-break:keep-all}',
+'.mkd-p-t small{display:block;font-size:11.5px;line-height:1.5;color:#8fa2bd;margin-top:2px;word-break:keep-all}',
+'.mkd-empty{padding:26px 0;text-align:center;font-size:13px;color:#8fa2bd}',
+'.mkd-foot{display:flex;gap:8px;margin-top:18px}',
+'.mkd-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;height:46px;border-radius:12px;',
+'  font-size:14.5px;font-weight:700;border:0;cursor:pointer;font-family:inherit;text-decoration:none}',
+'.mkd-btn-g{background:transparent;border:1px solid #26344a;color:#aebfd6}',
+'.mkd-btn-g:hover{color:#fff;border-color:#3a4c68}',
+'.mkd-btn-m{background:#3b8ff5;color:#fff}',
+'.mkd-btn-m:hover{filter:brightness(1.08)}',
+'.mkd-note2{margin:12px 0 0;font-size:11.5px;color:#8fa2bd;text-align:center}',
+'.mkd-pv{position:fixed;inset:0;z-index:9600;background:rgba(4,7,13,.88);backdrop-filter:blur(4px);',
+'  display:flex;flex-direction:column;padding:22px;opacity:0;transition:opacity .18s ease}',
+'.mkd-pv.on{opacity:1}',
+'.mkd-pv-bar{display:flex;align-items:center;gap:10px;max-width:1080px;width:100%;margin:0 auto 12px;',
+'  color:#f3f7fc;font-size:13.5px;font-weight:700}',
+'.mkd-pv-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+'.mkd-pv-b{flex:none;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 13px;border-radius:10px;',
+'  background:rgba(255,255,255,.07);border:1px solid #26344a;color:#dfe8f4;font-size:12.5px;font-weight:700;',
+'  font-family:inherit;text-decoration:none;cursor:pointer;transition:.15s;white-space:nowrap}',
+'.mkd-pv-b:hover{background:rgba(59,143,245,.16);border-color:#3b8ff5;color:#fff}',
+'.mkd-pv-x{flex:none;width:36px;height:36px;border-radius:10px;border:1px solid #26344a;background:rgba(255,255,255,.07);',
+'  color:#dfe8f4;font-size:15px;cursor:pointer;font-family:inherit}',
+'.mkd-pv-x:hover{background:rgba(255,255,255,.14);color:#fff}',
+'.mkd-pv-body{flex:1;min-height:0;max-width:1080px;width:100%;margin:0 auto;position:relative;',
+'  border-radius:14px;overflow:hidden;background:#1b2330;border:1px solid #26344a}',
+'.mkd-pv-body iframe{width:100%;height:100%;border:0;display:block;background:#fff}',
+'.mkd-pv-fb{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;',
+'  gap:14px;padding:28px;text-align:center;color:#aebfd6;font-size:13.5px;line-height:1.7}',
+'.mkd-pv-fb.on{display:flex}',
+'.mkd-pv-fb b{color:#f3f7fc;font-size:15px}',
+'@media(max-width:560px){.mkd-pv{padding:12px}.mkd-pv-bar{font-size:12.5px;gap:7px}',
+'  .mkd-pv-b{height:34px;padding:0 10px;font-size:12px}.mkd-pv-t{font-size:12.5px}}',
+'@media(max-width:560px){.mkd-box{padding:24px 16px 16px;max-height:92vh}.mkd-title{font-size:18.5px}',
+'  .mkd-common li{flex-direction:column;gap:2px}.mkd-common b{flex:none}.mkd-list{max-height:38vh}',
+'  .mkd-foot{flex-direction:column}}'
+].join('\n');
+
+function injectCSS(){
+  if (document.getElementById('mkd-css')) return;
+  var st = document.createElement('style');
+  st.id = 'mkd-css'; st.textContent = CSS;
+  document.head.appendChild(st);
+}
+
+/* ── PDF 인앱 뷰어 ──────────────────────────────────────────
+   데이터시트를 새 탭으로 보내면 이탈이 생기므로, 페이지 위에 겹쳐 띄웁니다.
+   브라우저가 PDF 를 못 그리는 경우(주로 구형 모바일)에만 새 창 안내를 보여줍니다. */
+function closePDF(){
+  var el = document.querySelector('.mkd-pv[data-live]');
+  if (!el) return;
+  el.removeAttribute('data-live');
+  el.classList.remove('on');
+  setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 180);
+}
+function pdfView(url, title){
+  injectCSS(); closePDF();
+  var wrap = document.createElement('div');
+  wrap.className = 'mkd-pv'; wrap.setAttribute('data-live','1');
+  wrap.innerHTML =
+      '<div class="mkd-pv-bar">'
+    +   '<span class="mkd-pv-t">' + esc(title || '데이터시트') + '</span>'
+    +   '<a class="mkd-pv-b" href="' + esc(url) + '" download>내려받기</a>'
+    +   '<a class="mkd-pv-b" href="' + esc(url) + '" target="_blank" rel="noopener">새 창</a>'
+    +   '<button class="mkd-pv-x" type="button" aria-label="닫기">✕</button>'
+    + '</div>'
+    + '<div class="mkd-pv-body">'
+    +   '<iframe title="' + esc(title || '데이터시트') + '" src="' + esc(url) + '#view=FitH&toolbar=1"></iframe>'
+    +   '<div class="mkd-pv-fb"><b>이 브라우저에서는 PDF 를 바로 열 수 없습니다.</b>'
+    +     '<span>아래 버튼으로 확인해 주세요. 이 창을 닫으면 보던 화면으로 돌아옵니다.</span>'
+    +     '<a class="mkd-pv-b" href="' + esc(url) + '" target="_blank" rel="noopener">새 창에서 열기 ↗</a></div>'
+    + '</div>';
+  document.body.appendChild(wrap);
+  requestAnimationFrame(function(){ wrap.classList.add('on'); });
+
+  var frame = wrap.querySelector('iframe'), fb = wrap.querySelector('.mkd-pv-fb'), ok = false;
+  frame.addEventListener('load', function(){ ok = true; });
+  setTimeout(function(){ if (!ok && wrap.hasAttribute('data-live')) fb.classList.add('on'); }, 4000);
+
+  wrap.addEventListener('click', function(e){
+    if (e.target === wrap || e.target.closest('.mkd-pv-x')) closePDF();
+  });
+  document.addEventListener('keydown', function onEscP(e){
+    if (e.key === 'Escape'){ closePDF(); document.removeEventListener('keydown', onEscP); }
+  });
+  ga('pdf_inline_view', { doc: title || url });
+}
+
+/* ── 팝업 껍데기 ──────────────────────────────────────────── */
+function close(){
+  var el = document.querySelector('.mkd-ov[data-live]');
+  if (!el) return;
+  el.removeAttribute('data-live');
+  el.classList.remove('on');
+  setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 200);
+}
+function open(label, body, foot){
+  injectCSS(); close();
+  var wrap = document.createElement('div');
+  wrap.className = 'mkd-ov'; wrap.setAttribute('data-live', '1');
+  wrap.innerHTML = '<div class="mkd-box" role="dialog" aria-modal="true" aria-label="' + esc(label) + '">'
+    + '<button class="mkd-x" type="button" aria-label="닫기">✕</button>' + body + (foot || '') + '</div>';
+  document.body.appendChild(wrap);
+  requestAnimationFrame(function(){ wrap.classList.add('on'); });
+  wrap.addEventListener('click', function(e){
+    if (e.target === wrap || e.target.closest('.mkd-x') || e.target.closest('[data-mkd-close]')) close();
+  });
+  document.addEventListener('keydown', function onEsc(e){
+    if (e.key !== 'Escape') return;
+    /* PDF 뷰어가 위에 떠 있으면 그것만 닫습니다 (한 번에 다 닫히지 않도록) */
+    if (document.querySelector('.mkd-pv[data-live]')) return;
+    close(); document.removeEventListener('keydown', onEsc);
+  });
+  return wrap;
+}
+
+/* ── 센서 사양 팝업 ───────────────────────────────────────── */
+function spec(kind){
+  var S = SPECS[kind || 'vibration']; if (!S) return;
+  var th = S.cols.map(function(c,i){ return '<th class="' + (i?'':'mkd-k') + '">' + esc(c) + '</th>'; }).join('');
+  var tr = S.rows.map(function(r){ return '<tr>' + r.map(function(c,i){
+        return '<td class="' + (i?'':'mkd-k') + '">' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('');
+  var cm = S.common.map(function(x){ return '<li><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></li>'; }).join('');
+  var dc = S.docs.map(function(d){ return '<a class="mkd-doc" href="' + esc(d.u) + '" target="_blank" rel="noopener">'
+        + '<span class="mkd-pdf">PDF</span><span>' + esc(d.t) + '</span><span>↗</span></a>'; }).join('');
+
+  open(S.title,
+    '<div class="mkd-head"><span class="mkd-tag">사양</span>'
+      + '<h3 class="mkd-title">' + esc(S.title) + '</h3>'
+      + '<p class="mkd-sub">' + esc(S.sub) + '</p></div>'
+    + '<div class="mkd-tablewrap"><table class="mkd-table"><thead><tr>' + th + '</tr></thead><tbody>' + tr + '</tbody></table></div>'
+    + '<div class="mkd-sect">공통 사양</div><ul class="mkd-common">' + cm + '</ul>'
+    + '<p class="mkd-note">' + esc(S.note) + '</p>'
+    + '<div class="mkd-sect">자료 내려받기</div><div class="mkd-docs">' + dc + '</div>',
+    '<div class="mkd-foot">'
+      + '<button class="mkd-btn mkd-btn-g" type="button" data-mkd-close>닫기</button>'
+      + '<a class="mkd-btn mkd-btn-m" href="' + (window.MKDOCS_CTA || '/contact') + '">도입 상담 신청</a></div>'
+    + '<p class="mkd-note2">문의 02-2088-1454 · korea@monnit.com</p>');
+  ga('spec_modal_view', { kind: kind || 'vibration' });
+}
+
+/* ── 제품 카탈로그 팝업 ───────────────────────────────────── */
+function catalog(preset){
+  var grpKo = {}; CAT_GRPS.forEach(function(g){ grpKo[g.id] = g.ko; });
+  var tabs = CAT_TABS.map(function(c,i){
+    return '<button class="mkd-tab' + (i?'':' on') + '" type="button" data-cat="' + esc(c.id) + '">'
+      + esc(c.ko) + '<em>' + CATALOG.filter(function(p){ return p.c===c.id; }).length + '</em></button>'; }).join('');
+  var nSensor = CATALOG.filter(function(p){ return p.c==='sensors'; }).length;
+
+  var wrap = open('Monnit 제품 카탈로그',
+    '<div class="mkd-head"><span class="mkd-tag">카탈로그</span>'
+      + '<h3 class="mkd-title">Monnit 제품 카탈로그</h3>'
+      + '<p class="mkd-sub">센서 ' + nSensor + '종 · 게이트웨이 · 소프트웨어 · 액세서리 — 항목을 누르면 데이터시트가 열립니다</p></div>'
+    + '<div class="mkd-search"><input type="search" id="mkdQ" placeholder="제품명·기능 검색 (예: 진동, 누수, 전류)" autocomplete="off"></div>'
+    + '<div class="mkd-tabs">' + tabs + '</div><div class="mkd-list" id="mkdList"></div>',
+    '<div class="mkd-foot">'
+      + '<button class="mkd-btn mkd-btn-g" type="button" data-mkd-close>닫기</button>'
+      + '<a class="mkd-btn mkd-btn-m" href="' + (window.MKDOCS_PRODUCTS || '/products') + '">제품 페이지 전체 보기</a></div>'
+    + '<p class="mkd-note2">데이터시트는 새 창에서 열립니다 · 문의 02-2088-1454</p>');
+
+  var listEl = wrap.querySelector('#mkdList');
+  var qEl    = wrap.querySelector('#mkdQ');
+  var curCat = CAT_TABS[0].id;
+
+  function draw(){
+    var q = (qEl.value || '').trim().toLowerCase();
+    var items = q
+      ? CATALOG.filter(function(p){ return ((p.n||'') + ' ' + (p.d||'')).toLowerCase().indexOf(q) >= 0; })
+      : CATALOG.filter(function(p){ return p.c === curCat; });
+    if (!items.length){ listEl.innerHTML = '<p class="mkd-empty">검색 결과가 없습니다. 다른 단어로 찾아보세요.</p>'; return; }
+    var byG = {}, order = [];
+    items.forEach(function(p){ var g = p.g || '_'; if (!byG[g]){ byG[g] = []; order.push(g); } byG[g].push(p); });
+    listEl.innerHTML = order.map(function(g){
+      var label = (!q && grpKo[g]) ? '<div class="mkd-grp">' + esc(grpKo[g]) + '</div>' : '';
+      return label + byG[g].map(function(p){
+        var inner = '<span class="mkd-p-t"><b>' + esc(p.n) + '</b><small>' + esc(p.d) + '</small></span>'
+                  + (p.u ? '<span class="mkd-pdf">PDF</span>' : '');
+        return p.u
+          ? '<a class="mkd-p" href="' + esc(p.u) + '" target="_blank" rel="noopener" data-p="' + esc(p.n) + '">' + inner + '</a>'
+          : '<span class="mkd-p mkd-p-off">' + inner + '</span>';
+      }).join('');
+    }).join('');
+  }
+  wrap.querySelectorAll('.mkd-tab').forEach(function(b){
+    b.addEventListener('click', function(){
+      wrap.querySelectorAll('.mkd-tab').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on'); curCat = b.getAttribute('data-cat'); qEl.value = '';
+      wrap.querySelectorAll('.mkd-tab').forEach(function(x){ x.classList.remove('dim'); });
+      draw(); listEl.scrollTop = 0;
+    });
+  });
+  qEl.addEventListener('input', function(){
+    var on = !!qEl.value.trim();
+    wrap.querySelectorAll('.mkd-tab').forEach(function(x){ x.classList.toggle('dim', on); });
+    draw();
+  });
+  listEl.addEventListener('click', function(e){
+    var a = e.target.closest('.mkd-p[href]');
+    if (a) ga('catalog_datasheet', { product: a.getAttribute('data-p') });
+  });
+  if (preset){ qEl.value = preset; }
+  draw();
+  ga('catalog_modal_view', {});
+}
+
+function specFor(text){
+  var t = String(text || '');
+  for (var k in SPECS){ if (SPECS[k].match.test(t)) return k; }
+  return '';
+}
+function specTitle(k){ return (SPECS[k] && SPECS[k].title) || ''; }
+
+/* ── 전역 위임 클릭 — data-mkd-spec / data-mkd-catalog ────── */
+document.addEventListener('click', function(e){
+  /* 데이터시트 링크는 새 탭 대신 페이지 위 뷰어로 (이탈 방지).
+     새 탭으로 열고 싶은 사용자는 Ctrl/Cmd·가운데 클릭을 그대로 쓸 수 있습니다. */
+  var pdf = e.target.closest && e.target.closest('a.mkd-doc[href], a.mkd-p[href]');
+  if (pdf && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button !== 1){
+    var href = pdf.getAttribute('href') || '';
+    if (/\.pdf(\?|#|$)/i.test(href)){
+      e.preventDefault();
+      var t = pdf.querySelector('.mkd-p-t b') || pdf.querySelector('span:nth-child(2)');
+      pdfView(href, t ? t.textContent.trim() : '데이터시트');
+      return;
+    }
+  }
+  var s = e.target.closest && e.target.closest('[data-mkd-spec]');
+  if (s){ e.preventDefault(); spec(s.getAttribute('data-mkd-spec') || 'vibration'); return; }
+  var c = e.target.closest && e.target.closest('[data-mkd-catalog]');
+  if (c){ e.preventDefault(); catalog(c.getAttribute('data-mkd-catalog') || ''); }
+});
+
+window.MKDOCS = { spec: spec, catalog: catalog, specFor: specFor, specTitle: specTitle,
+                  pdf: pdfView, close: close, closePDF: closePDF, count: CATALOG.length };
+})();
+
 </script>
 </body>
 

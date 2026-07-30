@@ -3627,12 +3627,14 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
   opacity: 0; visibility: hidden; transition: all 0.2s ease; z-index: 300;
 }
 .nav-item:hover .nav-dd { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-.nav-dd button {
+.nav-dd button,
+.nav-dd a[data-nav] {
   display: block; width: 100%; text-align: left; background: none; border: none; cursor: pointer;
   font-family: var(--fb); font-size: 14px; color: var(--ink-mid);
   padding: 10px 14px; border-radius: 7px; transition: all 0.15s ease;
 }
-.nav-dd button:hover { background: var(--bg-deep); color: var(--accent-dark); }
+.nav-dd button:hover,
+.nav-dd a[data-nav]:hover { background: var(--bg-deep); color: var(--accent-dark); }
 .nav-dd a.nav-dd-a {
   display: block; width: 100%; text-align: left; text-decoration: none;
   font-family: var(--fb); font-size: 14px; color: var(--ink-mid);
@@ -3808,8 +3810,10 @@ button.wp-card.wp-pick:hover .wp-dl-hint { text-decoration: underline; }
 .site-footer h5 { font-family:var(--fm); font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:#C8C2B6; margin-bottom: 16px; }
 .site-footer ul { list-style:none; }
 .site-footer li { margin-bottom: 10px; }
-.site-footer li button { background:none; border:none; cursor:pointer; color:#9A938A; font-family:var(--fb); font-size: 13.5px; padding:0; transition: color 0.15s ease; }
-.site-footer li button:hover { color:#fff; }
+.site-footer li button,
+.site-footer li a[data-nav] { background:none; border:none; cursor:pointer; color:#9A938A; font-family:var(--fb); font-size: 13.5px; padding:0; transition: color 0.15s ease; }
+.site-footer li button:hover,
+.site-footer li a[data-nav]:hover { color:#fff; }
 .footer-base { border-top:1px solid #33302B; margin-top: 56px; padding-top: 28px; font-size: 12px; color:#6B665E; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 .footer-base .wrap { display:flex; justify-content:space-between; grid-template-columns:none; }
 .foot-contact { display: inline-flex; align-items: center; gap: 24px; flex-wrap: nowrap; }
@@ -6659,3 +6663,38 @@ a.promo-card:hover, a.promo-card:focus-visible { text-decoration: none; color: i
 @media (max-width:400px){
   .qs-num{ font-size:20px; }
 }
+
+
+/* ══ SSG 경로 전환 보정 ═══════════════════════════════════════
+   내비게이션·푸터 항목이 <button> 에서 <a href> 로 바뀌면서
+   브라우저 기본 링크 스타일(파란 글씨·밑줄)이 새어 나오던 것을 막습니다.
+   레이아웃도 버튼일 때와 동일하게 되돌립니다. */
+/* :where() 로 감싸 우선순위를 0 으로 둡니다 — 기존 .nav-link 같은
+   클래스 색상 규칙을 덮어쓰지 않고, 색이 없는 곳에만 기본값을 줍니다. */
+:where(a[data-nav]),
+:where(a[data-nav]:link),
+:where(a[data-nav]:visited),
+:where(a[data-nav]:active) { color: inherit; }
+a[data-nav] { text-decoration: none; cursor: pointer; }
+a[data-nav]:focus-visible { outline: 2px solid var(--accent-dark, #3b8ff5); outline-offset: 2px; border-radius: 6px; }
+
+/* 드롭다운 항목 — 버튼이던 때와 완전히 같은 모양 (한 줄에 하나) */
+.nav-dd a[data-nav] {
+  display: block; width: 100%; box-sizing: border-box; text-align: left;
+  font-family: var(--fb); font-size: 14px; color: var(--ink-mid);
+  padding: 10px 14px; border-radius: 7px; transition: all 0.15s ease;
+}
+.nav-dd a[data-nav]:hover { background: var(--bg-deep); color: var(--accent-dark); }
+
+/* 푸터 항목 — 버튼이던 때와 같은 색·크기 */
+.site-footer li a[data-nav] {
+  display: inline-block; color: #9A938A;
+  font-family: var(--fb); font-size: 13.5px; padding: 0; transition: color 0.15s ease;
+}
+.site-footer li a[data-nav]:hover { color: #fff; }
+
+/* 버튼 모양 CTA 들은 원래 정렬을 유지 */
+a.nav-link, a.nav-cta, a.nav-promo-btn, a.brand,
+a.nh-btn, a.nh-link-btn, a.mkbtn, a.join-btn,
+a.cta-primary, a.big-cta-btn, a.app-cta-btn { text-decoration: none; }
+a.nav-link { display: inline-flex; align-items: center; }

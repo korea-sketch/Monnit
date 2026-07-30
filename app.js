@@ -53,7 +53,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = '/data.js?v=106'; s.async = true;
+  s.src = '/data.js?v=108'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -77,14 +77,14 @@ function ensureSolutionTwin(){
   window.__twinLoading = true;
   var loadScript = function(){
     var s = document.createElement('script');
-    s.src = 'js/solution-twin.js?v=106'; s.async = true;
+    s.src = 'js/solution-twin.js?v=108'; s.async = true;
     s.onload = function(){ window.__twinLoaded = true; };
     s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
     document.head.appendChild(s);
   };
   if (mount.__filled){ loadScript(); return; }
   // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
-  fetch('/views/solution-twin.html?v=106').then(function(r){ return r.ok ? r.text() : ''; })
+  fetch('/views/solution-twin.html?v=108').then(function(r){ return r.ok ? r.text() : ''; })
     .then(function(html){
       if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
       else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
@@ -3207,7 +3207,13 @@ function applyPromoSchedule(p){
   if (PROMO_LOCAL_IMG[p.id]) p.image = PROMO_LOCAL_IMG[p.id];   // 대표 이미지 로컬 파일 우선
   const fromPeriod = parsePeriodRange(p.period);
   const s = parseKDate(p.start) || fromPeriod.start;
-  const e = parseKDate(p.end)   || fromPeriod.end;
+  let   e = parseKDate(p.end)   || fromPeriod.end;
+  /* '7/30까지' 처럼 연도가 없는 종료일은 parseKDate 가 "지나갔으면 내년" 으로
+     밀어 버려서, 해가 바뀌면 끝난 프로모션이 다시 살아납니다.
+     시트의 end 열에 연도가 없고 종료일이 6개월 넘게 미래로 계산되면 작년으로 되돌립니다. */
+  if (e && !/20\d{2}/.test(String(p.end || '') + ' ' + String(p.period || ''))){
+    if (kstMidnight(e.y, e.m, e.d) > Date.now() + 182 * 86400000) e = { y:e.y - 1, m:e.m, d:e.d };
+  }
   p.startTs = s ? kstMidnight(s.y, s.m, s.d) : null;               // 시작일 00:00 KST
   p.endTs   = e ? kstMidnight(e.y, e.m, e.d) + 86400000 : null;    // 종료일 24:00 KST (당일 포함)
   p.startLabel = s ? (s.y + '년 ' + s.m + '월 ' + s.d + '일') : '';
@@ -3440,7 +3446,16 @@ function renderPromotions(){
     return;
   }
   if (empty) empty.style.display = 'none';
-  grid.innerHTML = PROMOS.map(p => {
+  /* 끝난 프로모션은 목록에서 감춥니다 (진행 중 · 시작 전만 노출).
+     직접 주소로 들어온 방문자에게는 여전히 '종료' 안내창이 뜹니다. */
+  const VISIBLE = PROMOS.filter(p => p.status !== 'ended');
+  if (!VISIBLE.length){
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  grid.innerHTML = VISIBLE.map(p => {
     const off = p.status !== 'active';                    // 종료 또는 시작 전 → 진입 차단
     const stateCls = off ? ' promo-card-' + p.status : '';
     const stamp = p.status === 'ended'
