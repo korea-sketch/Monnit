@@ -3122,7 +3122,13 @@ const BUILTIN_PROMOS = [{
   end:   '2026-08-31',   // 한국시간 이 날 24:00 까지
   order: 0
 }];
-PROMOS = BUILTIN_PROMOS.slice();
+/* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
+   (여기서 바로 채우면 status 가 없어 첫 화면에서 모든 카드가 '진행 중이 아님'으로 보입니다) */
+
+/* 종료된 프로모션을 목록에 남길지 여부.
+   true  → 이미지를 어둡게 덮고 '프로모션 종료' 표시, 목록 맨 뒤로 정렬 (현재 설정)
+   false → 예전처럼 목록에서 완전히 숨김 */
+const PROMO_SHOW_ENDED = true;
 
 /* ── 프로모션 대표 이미지(카드 썸네일) 기본값 ───────────────────────
    에디터(시트)의 image 값이 비어 있을 때만 쓰는 예비 이미지입니다.
@@ -3231,6 +3237,34 @@ function activePromos(){ return PROMOS.filter(p => p.status === 'active'); }
 function upcomingPromos(){
   return PROMOS.filter(p => p.status === 'upcoming').sort((a,b) => (a.startTs||0) - (b.startTs||0));
 }
+function endedPromos(){ return PROMOS.filter(p => p.status === 'ended'); }
+
+/* ── 노출 순서: 진행 중 → 시작 전 → 종료 ────────────────────────────
+   같은 그룹 안에서는
+   · 진행 중  : 시트 order 순 (기존 노출 순서 유지)
+   · 시작 전  : 먼저 열리는 것부터
+   · 종료     : 최근에 끝난 것부터
+   ------------------------------------------------------------------ */
+const PROMO_RANK = { active: 0, upcoming: 1, ended: 2 };
+function sortPromos(list){
+  return list.slice().sort((a, b) => {
+    const ra = PROMO_RANK[a.status] != null ? PROMO_RANK[a.status] : 3;
+    const rb = PROMO_RANK[b.status] != null ? PROMO_RANK[b.status] : 3;
+    if (ra !== rb) return ra - rb;
+    if (a.status === 'upcoming') return (a.startTs || 0) - (b.startTs || 0);
+    if (a.status === 'ended')    return (b.endTs   || 0) - (a.endTs   || 0);
+    return (a.order || 0) - (b.order || 0);
+  });
+}
+/* 화면을 그리는 시점의 '지금'으로 상태를 다시 계산합니다.
+   (탭을 켜 둔 채 자정을 넘겨도 종료된 프로모션이 진행 중으로 남지 않도록) */
+function refreshPromoStatuses(){
+  PROMOS.forEach(applyPromoSchedule);
+  PROMOS = sortPromos(PROMOS);
+  return PROMOS;
+}
+/* 시트가 로드되기 전에 보여 줄 내장 프로모션 — 상태·정렬까지 적용해서 넣습니다 */
+PROMOS = sortPromos(BUILTIN_PROMOS.map(b => applyPromoSchedule(Object.assign({}, b))));
 function mapPromotions(rows){
   const out = rows.filter(o => (o.title || o.html || o.images || o.image))
     .map(o => ({
@@ -3254,9 +3288,8 @@ function mapPromotions(rows){
   // 시트에 없는 내장 프로모션을 합칩니다 (시트 우선)
   BUILTIN_PROMOS.forEach(b => { if (!out.some(p => p.id === b.id)) out.push(Object.assign({}, b)); });
   out.forEach(applyPromoSchedule);
-  // 진행 중 → 시작 전 → 종료 순으로 정렬하고, 같은 상태 안에서는 order 순
-  const rank = { active:0, upcoming:1, ended:2 };
-  return out.sort((a,b) => (rank[a.status] - rank[b.status]) || (a.order - b.order));
+  // 진행 중 → 시작 전 → 종료 순 (같은 그룹 안 규칙은 sortPromos 참고)
+  return sortPromos(out);
 }
 let NEWS_HIGHLIGHTS = [
   { title:'2026 IoT Sensor Company of the Year 수상', desc:'Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.', url:'https://blog.naver.com/monnitkorea' },
@@ -3425,6 +3458,7 @@ function renderPromotions(){
   const grid = document.getElementById('promoGrid');
   const empty = document.getElementById('promoEmpty');
   if (!grid) return;
+  refreshPromoStatuses();   // 그리는 순간 기준으로 진행 중/시작 전/종료 다시 판정 + 재정렬
   const countEl = document.getElementById('promoHeroCount');
   if (countEl) {
     let _lang='ko'; try{ _lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
@@ -3447,9 +3481,10 @@ function renderPromotions(){
     return;
   }
   if (empty) empty.style.display = 'none';
-  /* 끝난 프로모션은 목록에서 감춥니다 (진행 중 · 시작 전만 노출).
-     직접 주소로 들어온 방문자에게는 여전히 '종료' 안내창이 뜹니다. */
-  const VISIBLE = PROMOS.filter(p => p.status !== 'ended');
+  /* 종료된 프로모션도 목록에 남깁니다 — 이미지를 어둡게 덮고 '프로모션 종료' 를 표시,
+     순서는 진행 중 → 시작 전 → 종료 이므로 항상 맨 뒤로 내려갑니다.
+     (PROMO_SHOW_ENDED 를 false 로 바꾸면 예전처럼 목록에서 감춥니다) */
+  const VISIBLE = PROMO_SHOW_ENDED ? PROMOS.slice() : PROMOS.filter(p => p.status !== 'ended');
   if (!VISIBLE.length){
     grid.innerHTML = '';
     if (empty) empty.style.display = 'block';
@@ -3462,9 +3497,15 @@ function renderPromotions(){
     const stamp = p.status === 'ended'
       ? '<span class="promo-stamp promo-stamp-ended">종료</span>'
       : (p.status === 'upcoming' ? '<span class="promo-stamp promo-stamp-soon">시작 전</span>' : '');
+    /* 이미지를 덮는 어두운 막 + 가운데 상태 문구 */
+    const veil = p.status === 'ended'
+      ? '<span class="promo-veil promo-veil-ended" aria-hidden="true"><span class="promo-veil-txt">프로모션 종료</span></span>'
+      : (p.status === 'upcoming'
+          ? `<span class="promo-veil promo-veil-soon" aria-hidden="true"><span class="promo-veil-txt">${esc(p.startLabel ? p.startLabel + ' 오픈' : '오픈 예정')}</span></span>`
+          : '');
     const thumb = (p.image
-      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">${stamp}</div>`
-      : `<div class="promo-thumb">◆${stamp}</div>`);
+      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">${veil}${stamp}</div>`
+      : `<div class="promo-thumb">◆${veil}${stamp}</div>`);
     const badge = p.badge && p.status === 'active' ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
     let periodTxt = p.period || '';
     if (p.status === 'upcoming' && p.startLabel) periodTxt = p.startLabel + ' 오픈 예정';
