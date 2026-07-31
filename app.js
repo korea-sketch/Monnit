@@ -962,7 +962,7 @@ function normalizeImageUrl(u){
 }
 function mapWhitepapers(rows){
   return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.desc,o.desc_en);
-    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:o.url||'', dlname:o.dlname||o.filename||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
+    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:o.url||'', dlname:o.dlname||o.filename||'', thumb:o.thumb||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
 }
 function mapFaqs(rows){
   return rows.filter(o => o.question).map(o => { regI18N(o.question,o.question_en); regI18N(o.answer,o.answer_en);
@@ -3311,22 +3311,22 @@ let NEWS_HIGHLIGHTS = [
   { title:'신형 ALTA / ALTA XL Ethernet Gateway 4K 발표', desc:'대규모 센서 네트워크를 위한 차세대 게이트웨이를 출시했습니다.', url:'https://blog.naver.com/monnitkorea' }
 ];
 let WHITEPAPERS = [
-  { icon:"▤", category:"산업 · 제조", title:"데이터센터 · IDC 모니터링", desc:"랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법.", url:"/documents/proposals/02_data-center-monitoring.pdf", photo:"/images/proposals/cover-02.jpg", dlname:"모넷코리아_데이터센터_IDC_모니터링_제안서.pdf" },
-  { icon:"▤", category:"산업 · 제조", title:"공장 설비 예지보전", desc:"모터·펌프·감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계.", url:"/documents/proposals/03_factory-predictive-maintenance.pdf", photo:"/images/proposals/cover-03.jpg", dlname:"모넷코리아_공장설비_예지보전_제안서.pdf" },
-  { icon:"▤", category:"산업 · 제조", title:"진동 · 구조안전 계측", desc:"배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다.", url:"/documents/proposals/04_vibration-structural-safety.pdf", photo:"/images/proposals/cover-04.jpg", dlname:"모넷코리아_진동_구조안전_계측_제안서.pdf" },
-  { icon:"▤", category:"산업 · 제조", title:"건설 · 토목 구조물 모니터링", desc:"전원도 통신도 없는 초기 현장부터 사면·흙막이·양생 구간을 24시간 계측합니다.", url:"/documents/proposals/05_construction-shm.pdf", photo:"/images/proposals/cover-05.jpg", dlname:"모넷코리아_건설_토목_구조물모니터링_제안서.pdf" },
-  { icon:"▤", category:"산업 · 제조", title:"UPS · ESS · 전력 설비 모니터링", desc:"배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다.", url:"/documents/proposals/07_energy-ups-ess.pdf", photo:"/images/proposals/cover-07.jpg", dlname:"모넷코리아_UPS_ESS_전력설비_모니터링_제안서.pdf" },
-  { icon:"▤", category:"시설 · 안전", title:"무선 화재경보 · 소방 안전", desc:"기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다.", url:"/documents/proposals/06_fire-safety-wireless-alarm.pdf", photo:"/images/proposals/cover-06.jpg", dlname:"모넷코리아_무선화재경보_소방안전_제안서.pdf" },
-  { icon:"▤", category:"시설 · 안전", title:"스마트 FM · 시설관리", desc:"민원이 들어오기 전에 먼저 아는 예지형 FM. 관리 성과가 리포트로 남습니다.", url:"/documents/proposals/10_smart-facility-management.pdf", photo:"/images/proposals/cover-10.jpg", dlname:"모넷코리아_스마트FM_시설관리_플랫폼_제안서.pdf" },
-  { icon:"▤", category:"시설 · 안전", title:"공공 · 국방 시설 안전관리", desc:"배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다.", url:"/documents/proposals/14_public-defense-facility.pdf", photo:"/images/proposals/cover-14.jpg", dlname:"모넷코리아_공공_국방_시설안전관리_제안서.pdf" },
-  { icon:"▤", category:"시설 · 안전", title:"호텔 · 리조트 시설 모니터링", desc:"객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인이 접수되기 전에 잡아냅니다.", url:"/documents/proposals/16_hotel-resort-monitoring.pdf", photo:"/images/proposals/cover-16.jpg", dlname:"모넷코리아_호텔_리조트_시설모니터링_제안서.pdf" },
-  { icon:"▤", category:"시설 · 안전", title:"학교 · 교회 · 공공시설 모니터링", desc:"방학·주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다.", url:"/documents/proposals/18_school-church-public.pdf", photo:"/images/proposals/cover-18.jpg", dlname:"모넷코리아_학교_교회_공공시설_모니터링_제안서.pdf" },
-  { icon:"▤", category:"온도 · 환경", title:"온도 · 누수 · 동파 · HVAC 통합", desc:"배관이 얼기 전에, 물이 차기 전에. 전기실·기계실·공조·저온창고 통합 감시.", url:"/documents/proposals/08_hvac-leak-freeze-monitoring.pdf", photo:"/images/proposals/cover-08.jpg", dlname:"모넷코리아_온도_누수_동파_HVAC_통합모니터링_제안서.pdf" },
-  { icon:"▤", category:"온도 · 환경", title:"농업 · 골프장 토양 수분", desc:"물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다.", url:"/documents/proposals/13_agriculture-golf-soil.pdf", photo:"/images/proposals/cover-13.jpg", dlname:"모넷코리아_농업_골프장_토양수분_모니터링_제안서.pdf" },
-  { icon:"▤", category:"의료 · 바이오", title:"바이오 · 제약 유틸리티 모니터링", desc:"GMP 환경의 온습도·차압·유틸리티를 자동 기록해 감사 대응 근거를 남깁니다.", url:"/documents/proposals/09_bio-pharma-utility-monitoring.pdf", photo:"/images/proposals/cover-09.jpg", dlname:"모넷코리아_바이오_제약_유틸리티_모니터링_제안서.pdf" },
-  { icon:"▤", category:"의료 · 바이오", title:"실버타운 · 시니어 안전", desc:"몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다.", url:"/documents/proposals/11_senior-care-monitoring.pdf", photo:"/images/proposals/cover-11.jpg", dlname:"모넷코리아_실버타운_시니어안전_모니터링_제안서.pdf" },
-  { icon:"▤", category:"콜드체인 · 유통", title:"콜드체인 · 물류 온도 관리", desc:"창고에서 차량까지 온도 이력이 끊기지 않게. HACCP 기록을 자동으로 남깁니다.", url:"/documents/proposals/12_cold-chain-logistics.pdf", photo:"/images/proposals/cover-12.jpg", dlname:"모넷코리아_콜드체인_물류_온도모니터링_제안서.pdf" },
-  { icon:"▤", category:"콜드체인 · 유통", title:"리테일 · 매장 · 외식 온도 관리", desc:"여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다.", url:"/documents/proposals/17_retail-store-foodservice.pdf", photo:"/images/proposals/cover-17.jpg", dlname:"모넷코리아_리테일_매장_외식_온도관리_제안서.pdf" }
+  { icon:"▤", category:"산업 · 제조", title:"데이터센터 · IDC 모니터링", desc:"랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법.", url:"/documents/proposals/02_data-center-monitoring.pdf", photo:"https://images.unsplash.com/photo-1762163516269-3c143e04175c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-02.jpg", dlname:"모넷코리아_데이터센터_IDC_모니터링_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"공장 설비 예지보전", desc:"모터·펌프·감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계.", url:"/documents/proposals/03_factory-predictive-maintenance.pdf", photo:"https://images.unsplash.com/photo-1610891015188-5369212db097?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-03.jpg", dlname:"모넷코리아_공장설비_예지보전_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"진동 · 구조안전 계측", desc:"배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다.", url:"/documents/proposals/04_vibration-structural-safety.pdf", photo:"https://images.unsplash.com/photo-1694674818352-f6061a0561a1?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-04.jpg", dlname:"모넷코리아_진동_구조안전_계측_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"건설 · 토목 구조물 모니터링", desc:"전원도 통신도 없는 초기 현장부터 사면·흙막이·양생 구간을 24시간 계측합니다.", url:"/documents/proposals/05_construction-shm.pdf", photo:"https://images.unsplash.com/photo-1783753445140-7de87b0e90f3?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-05.jpg", dlname:"모넷코리아_건설_토목_구조물모니터링_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"UPS · ESS · 전력 설비 모니터링", desc:"배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다.", url:"/documents/proposals/07_energy-ups-ess.pdf", photo:"https://images.unsplash.com/photo-1509390144018-eeaf65052242?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-07.jpg", dlname:"모넷코리아_UPS_ESS_전력설비_모니터링_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"무선 화재경보 · 소방 안전", desc:"기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다.", url:"/documents/proposals/06_fire-safety-wireless-alarm.pdf", photo:"https://images.unsplash.com/photo-1767741683084-08ac01518c8c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-06.jpg", dlname:"모넷코리아_무선화재경보_소방안전_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"스마트 FM · 시설관리", desc:"민원이 들어오기 전에 먼저 아는 예지형 FM. 관리 성과가 리포트로 남습니다.", url:"/documents/proposals/10_smart-facility-management.pdf", photo:"https://images.unsplash.com/photo-1540397990819-5197ccf2608a?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-10.jpg", dlname:"모넷코리아_스마트FM_시설관리_플랫폼_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"공공 · 국방 시설 안전관리", desc:"배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다.", url:"/documents/proposals/14_public-defense-facility.pdf", photo:"https://images.unsplash.com/photo-1767022086667-3e3f1e0fcaf3?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-14.jpg", dlname:"모넷코리아_공공_국방_시설안전관리_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"호텔 · 리조트 시설 모니터링", desc:"객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인이 접수되기 전에 잡아냅니다.", url:"/documents/proposals/16_hotel-resort-monitoring.pdf", photo:"https://images.unsplash.com/photo-1783599677025-be14dfdc73d7?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-16.jpg", dlname:"모넷코리아_호텔_리조트_시설모니터링_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"학교 · 교회 · 공공시설 모니터링", desc:"방학·주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다.", url:"/documents/proposals/18_school-church-public.pdf", photo:"https://images.unsplash.com/photo-1613896527026-f195d5c818ed?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-18.jpg", dlname:"모넷코리아_학교_교회_공공시설_모니터링_제안서.pdf" },
+  { icon:"▤", category:"온도 · 환경", title:"온도 · 누수 · 동파 · HVAC 통합", desc:"배관이 얼기 전에, 물이 차기 전에. 전기실·기계실·공조·저온창고 통합 감시.", url:"/documents/proposals/08_hvac-leak-freeze-monitoring.pdf", photo:"https://images.unsplash.com/photo-1778855179330-6b73b6d599e7?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-08.jpg", dlname:"모넷코리아_온도_누수_동파_HVAC_통합모니터링_제안서.pdf" },
+  { icon:"▤", category:"온도 · 환경", title:"농업 · 골프장 토양 수분", desc:"물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다.", url:"/documents/proposals/13_agriculture-golf-soil.pdf", photo:"https://images.unsplash.com/photo-1742498626087-af76400d968c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-13.jpg", dlname:"모넷코리아_농업_골프장_토양수분_모니터링_제안서.pdf" },
+  { icon:"▤", category:"의료 · 바이오", title:"바이오 · 제약 유틸리티 모니터링", desc:"GMP 환경의 온습도·차압·유틸리티를 자동 기록해 감사 대응 근거를 남깁니다.", url:"/documents/proposals/09_bio-pharma-utility-monitoring.pdf", photo:"https://images.unsplash.com/photo-1748000970909-845f4aa144d2?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-09.jpg", dlname:"모넷코리아_바이오_제약_유틸리티_모니터링_제안서.pdf" },
+  { icon:"▤", category:"의료 · 바이오", title:"실버타운 · 시니어 안전", desc:"몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다.", url:"/documents/proposals/11_senior-care-monitoring.pdf", photo:"https://images.unsplash.com/photo-1773227059780-5e865ce7fb13?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-11.jpg", dlname:"모넷코리아_실버타운_시니어안전_모니터링_제안서.pdf" },
+  { icon:"▤", category:"콜드체인 · 유통", title:"콜드체인 · 물류 온도 관리", desc:"창고에서 차량까지 온도 이력이 끊기지 않게. HACCP 기록을 자동으로 남깁니다.", url:"/documents/proposals/12_cold-chain-logistics.pdf", photo:"https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-12.jpg", dlname:"모넷코리아_콜드체인_물류_온도모니터링_제안서.pdf" },
+  { icon:"▤", category:"콜드체인 · 유통", title:"리테일 · 매장 · 외식 온도 관리", desc:"여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다.", url:"/documents/proposals/17_retail-store-foodservice.pdf", photo:"https://images.unsplash.com/photo-1760463921658-0fa0ce72c91c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-17.jpg", dlname:"모넷코리아_리테일_매장_외식_온도관리_제안서.pdf" }
 ];
 let FAQS = [
   { q:'센서 무선 통신 거리는 얼마나 되나요?', a:'ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다.' },
@@ -3731,7 +3731,12 @@ function renderWhitepapers(){
   el.innerHTML = list.slice(start, start + per).map(w => {
     const gi = WHITEPAPERS.indexOf(w);
     const glyph = `<span class="wp-glyph">${esc(w.icon||'▤')}</span>`;
-    const img = w.photo ? `<img class="wp-img" src="${esc(w.photo)}" alt="${esc(w.title)}" loading="lazy" onerror="this.remove();">` : '';
+    // 외부(Unsplash) 이미지가 막히거나 실패하면 로컬 표지 썸네일로 1회 대체, 그마저 실패하면 글리프만 남긴다
+    const fb  = w.thumb ? ` data-fb="${esc(w.thumb)}"` : '';
+    const onerr = w.thumb
+      ? "if(this.dataset.fb&&this.src.indexOf(this.dataset.fb)&lt;0){this.src=this.dataset.fb;}else{this.remove();}"
+      : "this.remove();";
+    const img = w.photo ? `<img class="wp-img" src="${esc(w.photo)}" alt="${esc(w.title)}" loading="lazy"${fb} onerror="${onerr}">` : '';
     const media = `<div class="wp-media">${glyph}${img}</div>`;
     const body = `<div class="wp-body"><h4>${esc(w.title)}</h4><p>${esc(w.desc)}</p><span class="b-link wp-dl-hint" style="margin-top:8px;display:inline-block;">이메일 입력 후 다운로드 →</span></div>`;
     const cls = 'wp-card wp-pick' + (w.photo ? ' has-photo' : '');
