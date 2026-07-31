@@ -962,7 +962,7 @@ function normalizeImageUrl(u){
 }
 function mapWhitepapers(rows){
   return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.desc,o.desc_en);
-    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:o.url||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
+    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:o.url||'', dlname:o.dlname||o.filename||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
 }
 function mapFaqs(rows){
   return rows.filter(o => o.question).map(o => { regI18N(o.question,o.question_en); regI18N(o.answer,o.answer_en);
@@ -1173,7 +1173,12 @@ async function loadSheetData(){
   add('appdetails',    r => { const m = mapAppDetails(r);    if (hasKeys(m)) APP_DETAILS = m; });
   add('blog',          r => { const m = mapBlog(r);          if (m.length) BLOG = m; });
   add('promotions',    r => { const m = mapPromotions(r);    PROMOS = m; if(typeof renderPromotions==='function') renderPromotions(); });
-  add('whitepapers',   r => { const m = mapWhitepapers(r);   if (m.length) WHITEPAPERS = m; });
+  // 산업별 제안서(16종)는 코드 내 WHITEPAPERS 배열과 /documents/proposals/ PDF 로 고정 운영합니다.
+  // 구글 시트 Whitepapers 탭으로 관리하려면 아래 값을 true 로 바꾸세요.
+  //   ※ true 로 켜기 전에 시트 탭을 16종 한글 제안서로 먼저 교체해야 합니다.
+  //     (열: icon / title / desc / url / category / photo / filename)
+  const WHITEPAPERS_FROM_SHEET = false;
+  if (WHITEPAPERS_FROM_SHEET) add('whitepapers', r => { const m = mapWhitepapers(r); if (m.length) WHITEPAPERS = m; });
   add('news',          r => { const m = mapNews(r);          if (m.length) NEWS_HIGHLIGHTS = m; });
   add('faqs',          r => { const m = mapFaqs(r);          if (m.length) FAQS = m; });
   add('knowledgebase', r => {
@@ -3008,8 +3013,17 @@ async function wpRequest(){
   const dl = (wp.url || '').trim();
   // 백서 선택 + 이메일 입력을 마친 시점에 다운로드 제공
   // (클릭 제스처 안에서 즉시 열어 팝업 차단을 방지)
-  if (dl) { try { window.open(dl, '_blank', 'noopener'); } catch(e){} }
-  // ★ PDF 열람 비밀번호 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
+  if (dl) {
+    try {
+      if (dl.charAt(0) === '/') {               // 자사 서버 PDF → 새 탭 없이 바로 저장
+        const a = document.createElement('a');
+        a.href = dl; a.download = wp.dlname || dl.split('/').pop();
+        a.style.display = 'none'; document.body.appendChild(a); a.click();
+        setTimeout(function(){ a.remove(); }, 1000);
+      } else { window.open(dl, '_blank', 'noopener'); }
+    } catch(e){ try { window.open(dl, '_blank', 'noopener'); } catch(_){} }
+  }
+  // ★ 제안서 다운로드 안내 메일 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
   try {
     if (PW_MAIL_URL) {
       var _pwBody = JSON.stringify({ token: PW_MAIL_TOKEN, email: v, title: wp.title });
@@ -3021,10 +3035,10 @@ async function wpRequest(){
       body: JSON.stringify({
         email: v,
         name: 'Monnit Korea',
-        _subject: '[자동발송 로그] 제안서 비밀번호 안내 — ' + wp.title,
+        _subject: '[자동발송 로그] 제안서 다운로드 안내 — ' + wp.title,
         _captcha: 'false',
         제안서: wp.title,
-        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\nPDF 파일의 열람 비밀번호는 아래와 같습니다.\n\n■ 열람 비밀번호: mk2026\n\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
+        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\n다운로드하신 PDF는 비밀번호 없이 바로 열람하실 수 있습니다.\n문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.\n\n현장 상황에 맞춘 구성·견적 상담은 언제든 도와드리겠습니다.\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
       })}).catch(function(){});
   } catch(e){}
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
@@ -3036,7 +3050,7 @@ async function wpRequest(){
     출처: location.href
   }, btn);
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다. ' : '') + 'PDF 열람 비밀번호를 입력하신 이메일(' + v + ')로 보내드렸습니다.');
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다.\n' : '') + 'PDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.');
     if (em) em.value = ''; if (sel) sel.value = '';
   } else if (ok === 'mailto') {
     alert((dl ? '다운로드가 시작되었습니다.\n' : '') + '메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
@@ -3297,14 +3311,22 @@ let NEWS_HIGHLIGHTS = [
   { title:'신형 ALTA / ALTA XL Ethernet Gateway 4K 발표', desc:'대규모 센서 네트워크를 위한 차세대 게이트웨이를 출시했습니다.', url:'https://blog.naver.com/monnitkorea' }
 ];
 let WHITEPAPERS = [
-  { icon:"▤", title:"Food Services and Restaurants", desc:"식음 서비스 시설의 운영 안정성과 식품 안전 관리를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP001-Food-Services-Whitepaper.pdf", photo:"https://insights.ehl.edu/hs-fs/hubfs/attention-to-detail.jpg?width=700&height=300&name=attention-to-detail.jpg" },
-  { icon:"▤", title:"Food Safety", desc:"식품 안전 기준 준수와 오염 위험 관리를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP002-Food-Safety-Whitepaper.pdf", photo:"https://cdn.weekly.chosun.com/news/photo/202308/28625_52668_1144.jpg" },
-  { icon:"▤", title:"Property Management", desc:"건물 운영 효율과 유지관리 최적화를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP003-Property-Management-Whitepaper.pdf", photo:"https://images.unsplash.com/photo-1590968927184-89650e47708c?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZW1waXJlJTIwc3RhdGUlMjBidWlsZGluZ3xlbnwwfHwwfHx8MA%3D%3D" },
-  { icon:"▤", title:"Pharmacies and Laboratories", desc:"의약품 품질 유지와 보관 환경 관리를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP004-Pharmacy-Whitepaper.pdf", photo:"https://wallpapercave.com/wp/wp14241112.jpg" },
-  { icon:"▤", title:"Commercial HVACR", desc:"HVAC 설비 이상 감지와 예방 유지보수를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP005-HVAC-Remote-Monitoring-Solutions-Whitepaper.pdf", photo:"https://www.venwiz.com/wp-content/uploads/2024/06/HVAC-Focus-Guest-Blog.jpg" },
-  { icon:"▤", title:"Data Center", desc:"데이터센터 설비 안정성과 운영 효율 향상을 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP006-Data-Center-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1742710726634-18e31a278fc2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGRhdGElMjBjZW50ZXJ8ZW58MHx8MHx8fDA%3D" },
-  { icon:"▤", title:"Corporate Facilities", desc:"기업 시설 유지관리 최적화와 운영 비용 절감을 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP007-Corporate-Facilities-Whitepaper.pdf", photo:"https://static.vecteezy.com/system/resources/thumbnails/040/838/116/small/ai-generated-luxury-office-interior-with-panoramic-window-and-city-view-photo.jpg" },
-  { icon:"▤", title:"Agriculture", desc:"온실·농업 시설 환경 최적화를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP008-Agriculture-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1661962692059-55d5a4319814?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YWdyaWN1bHR1cmV8ZW58MHx8MHx8fDA%3D" }
+  { icon:"▤", category:"산업 · 제조", title:"데이터센터 · IDC 모니터링", desc:"랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법.", url:"/documents/proposals/02_data-center-monitoring.pdf", photo:"/images/proposals/cover-02.jpg", dlname:"모넷코리아_데이터센터_IDC_모니터링_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"공장 설비 예지보전", desc:"모터·펌프·감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계.", url:"/documents/proposals/03_factory-predictive-maintenance.pdf", photo:"/images/proposals/cover-03.jpg", dlname:"모넷코리아_공장설비_예지보전_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"진동 · 구조안전 계측", desc:"배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다.", url:"/documents/proposals/04_vibration-structural-safety.pdf", photo:"/images/proposals/cover-04.jpg", dlname:"모넷코리아_진동_구조안전_계측_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"건설 · 토목 구조물 모니터링", desc:"전원도 통신도 없는 초기 현장부터 사면·흙막이·양생 구간을 24시간 계측합니다.", url:"/documents/proposals/05_construction-shm.pdf", photo:"/images/proposals/cover-05.jpg", dlname:"모넷코리아_건설_토목_구조물모니터링_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"UPS · ESS · 전력 설비 모니터링", desc:"배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다.", url:"/documents/proposals/07_energy-ups-ess.pdf", photo:"/images/proposals/cover-07.jpg", dlname:"모넷코리아_UPS_ESS_전력설비_모니터링_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"무선 화재경보 · 소방 안전", desc:"기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다.", url:"/documents/proposals/06_fire-safety-wireless-alarm.pdf", photo:"/images/proposals/cover-06.jpg", dlname:"모넷코리아_무선화재경보_소방안전_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"스마트 FM · 시설관리", desc:"민원이 들어오기 전에 먼저 아는 예지형 FM. 관리 성과가 리포트로 남습니다.", url:"/documents/proposals/10_smart-facility-management.pdf", photo:"/images/proposals/cover-10.jpg", dlname:"모넷코리아_스마트FM_시설관리_플랫폼_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"공공 · 국방 시설 안전관리", desc:"배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다.", url:"/documents/proposals/14_public-defense-facility.pdf", photo:"/images/proposals/cover-14.jpg", dlname:"모넷코리아_공공_국방_시설안전관리_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"호텔 · 리조트 시설 모니터링", desc:"객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인이 접수되기 전에 잡아냅니다.", url:"/documents/proposals/16_hotel-resort-monitoring.pdf", photo:"/images/proposals/cover-16.jpg", dlname:"모넷코리아_호텔_리조트_시설모니터링_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"학교 · 교회 · 공공시설 모니터링", desc:"방학·주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다.", url:"/documents/proposals/18_school-church-public.pdf", photo:"/images/proposals/cover-18.jpg", dlname:"모넷코리아_학교_교회_공공시설_모니터링_제안서.pdf" },
+  { icon:"▤", category:"온도 · 환경", title:"온도 · 누수 · 동파 · HVAC 통합", desc:"배관이 얼기 전에, 물이 차기 전에. 전기실·기계실·공조·저온창고 통합 감시.", url:"/documents/proposals/08_hvac-leak-freeze-monitoring.pdf", photo:"/images/proposals/cover-08.jpg", dlname:"모넷코리아_온도_누수_동파_HVAC_통합모니터링_제안서.pdf" },
+  { icon:"▤", category:"온도 · 환경", title:"농업 · 골프장 토양 수분", desc:"물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다.", url:"/documents/proposals/13_agriculture-golf-soil.pdf", photo:"/images/proposals/cover-13.jpg", dlname:"모넷코리아_농업_골프장_토양수분_모니터링_제안서.pdf" },
+  { icon:"▤", category:"의료 · 바이오", title:"바이오 · 제약 유틸리티 모니터링", desc:"GMP 환경의 온습도·차압·유틸리티를 자동 기록해 감사 대응 근거를 남깁니다.", url:"/documents/proposals/09_bio-pharma-utility-monitoring.pdf", photo:"/images/proposals/cover-09.jpg", dlname:"모넷코리아_바이오_제약_유틸리티_모니터링_제안서.pdf" },
+  { icon:"▤", category:"의료 · 바이오", title:"실버타운 · 시니어 안전", desc:"몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다.", url:"/documents/proposals/11_senior-care-monitoring.pdf", photo:"/images/proposals/cover-11.jpg", dlname:"모넷코리아_실버타운_시니어안전_모니터링_제안서.pdf" },
+  { icon:"▤", category:"콜드체인 · 유통", title:"콜드체인 · 물류 온도 관리", desc:"창고에서 차량까지 온도 이력이 끊기지 않게. HACCP 기록을 자동으로 남깁니다.", url:"/documents/proposals/12_cold-chain-logistics.pdf", photo:"/images/proposals/cover-12.jpg", dlname:"모넷코리아_콜드체인_물류_온도모니터링_제안서.pdf" },
+  { icon:"▤", category:"콜드체인 · 유통", title:"리테일 · 매장 · 외식 온도 관리", desc:"여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다.", url:"/documents/proposals/17_retail-store-foodservice.pdf", photo:"/images/proposals/cover-17.jpg", dlname:"모넷코리아_리테일_매장_외식_온도관리_제안서.pdf" }
 ];
 let FAQS = [
   { q:'센서 무선 통신 거리는 얼마나 되나요?', a:'ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다.' },

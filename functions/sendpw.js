@@ -1,7 +1,7 @@
-/** 제안서 열람 비밀번호 발송 — Cloudflare Pages Function (+Brevo)
+/** 제안서 다운로드 안내 메일 발송 — Netlify Function + Brevo API
  *  환경변수: BREVO_API_KEY (CF Pages > Settings > Environment variables) */
 const TOKEN = 'mnt-pw-2026-7f3k9';
-const PDF_PASSWORD = 'mk2026';
+const PDF_PASSWORD = 'Monnit0204!';  // 편집 보호용 (열람은 비밀번호 불필요)
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Content-Type': 'application/json' };
 
 export async function onRequestOptions() { return new Response('', { status: 200, headers: CORS }); }
@@ -17,9 +17,14 @@ export async function onRequestPost({ request, env }) {
     const body =
       '안녕하세요, Monnit Korea입니다.\n\n' +
       '요청하신 「' + title + '」 제안서를 신청해 주셔서 감사합니다.\n' +
-      'PDF 파일의 열람 비밀번호는 아래와 같습니다.\n\n' +
-      '■ 열람 비밀번호: ' + PDF_PASSWORD + '\n\n' +
-      '문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림';
+      '다운로드하신 PDF는 비밀번호 없이 바로 열람하실 수 있습니다.\n' +
+      '문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.\n\n' +
+      '■ 제안서 : ' + title + '\n' +
+      '■ 열람   : 비밀번호 없이 바로 열림\n' +
+      '■ 편집   : 보호됨 (수정이 필요하시면 담당자에게 요청해 주세요)\n\n' +
+      '현장 상황에 맞춘 구성·견적 상담은 언제든 도와드리겠습니다.\n' +
+      '문의: korea@monnit.com · 02-2088-1454\n\n' +
+      '감사합니다.\nMonnit Korea 드림';
 
     const r = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
@@ -28,7 +33,7 @@ export async function onRequestPost({ request, env }) {
         sender: { name: 'Monnit Korea', email: 'korea@monnit.com' },
         to: [{ email }],
         replyTo: { name: 'Monnit Korea', email: 'korea@monnit.com' },
-        subject: '[Monnit Korea] 제안서 열람 비밀번호 안내 — ' + title,
+        subject: '[Monnit Korea] 제안서 다운로드 안내 — ' + title,
         textContent: body
       })
     });
