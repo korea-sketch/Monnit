@@ -6738,7 +6738,11 @@ a.nav-link { display: inline-flex; align-items: center; }
 @media (min-width: 921px) {
   .topnav-inner { align-items: center; }
   .nav-links { display: flex; align-items: center; margin-bottom: 0; padding-left: 0; }
-  .nav-item { display: flex; align-items: center; }
+  /* 모바일 전용 '프로모션' 메뉴(.nav-item-mobile-promo)는 제외한다.
+     예전엔 .nav-item 만 지정해서 위쪽의 display:none 을 덮어써 버렸고,
+     그 결과 데스크톱 상단에 '프로모션' 버튼이 두 개로 보였다. */
+  .nav-item:not(.nav-item-mobile-promo) { display: flex; align-items: center; }
+  .nav-item-mobile-promo { display: none; }
   .nav-links > .nav-item > .nav-link {
     display: inline-flex; align-items: center; justify-content: center;
     line-height: 1.2; margin: 0; border: 0;

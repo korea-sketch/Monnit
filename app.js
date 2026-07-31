@@ -53,7 +53,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = '/data.js?v=109'; s.async = true;
+  s.src = '/data.js?v=110'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -77,14 +77,14 @@ function ensureSolutionTwin(){
   window.__twinLoading = true;
   var loadScript = function(){
     var s = document.createElement('script');
-    s.src = 'js/solution-twin.js?v=109'; s.async = true;
+    s.src = '/js/solution-twin.js?v=110'; s.async = true;
     s.onload = function(){ window.__twinLoaded = true; };
     s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
     document.head.appendChild(s);
   };
   if (mount.__filled){ loadScript(); return; }
   // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
-  fetch('/views/solution-twin.html?v=109').then(function(r){ return r.ok ? r.text() : ''; })
+  fetch('/views/solution-twin.html?v=110').then(function(r){ return r.ok ? r.text() : ''; })
     .then(function(html){
       if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
       else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
