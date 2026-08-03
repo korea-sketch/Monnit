@@ -1,7 +1,7 @@
 /* ========== SHARED DESIGN TOKENS ========== */
 :root {
-  --fd: 'Pretendard','Archivo',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-  --fb: 'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --fd: 'Pretendard Variable','Pretendard','Archivo',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --fb: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
   --fm: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* 정제된 다크 — 파란 기운을 낮춘 중립 잉크 네이비 (AI 테크 티 제거) */
@@ -5830,7 +5830,7 @@ a.promo-card:hover, a.promo-card:focus-visible { text-decoration: none; color: i
   --navy:#0A1624; --navy-2:#101E30; --teal:#5B9DE8; --teal-deep:#6FA6E6;
   --bg:#0C1220; --surface:#141C2E; --surface-2:#1B2536; --line:#26304A;
   --ink:#EEF1F6; --txt:#B7C2D2; --cap:#8193AC;
-  --disp:'Archivo',Pretendard,sans-serif; --body:Pretendard,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Archivo','Pretendard Variable',Pretendard,sans-serif; --body:'Pretendard Variable',Pretendard,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
   --sub:#9CAAC0; --sub-dk:#A7BBD3; --r:14px;
   color:#EAF0F8;
 }
