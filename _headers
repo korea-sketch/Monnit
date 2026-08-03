@@ -38,7 +38,7 @@
   Cache-Control: public, max-age=31536000, immutable
 # 아이콘·로고 등 정적 이미지(버전 없음) — 하루 캐시로 갱신은 빨리, 재방문은 캐시
 /images/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
 /assets/*
   Cache-Control: public, max-age=86400
 /*.png
@@ -48,7 +48,7 @@
 /*.webp
   Cache-Control: public, max-age=86400
 /*.svg
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
 
 # ===== 산업별 제안서 PDF =====
 # 브라우저 내장 뷰어로 열리지 않고 바로 저장되도록 attachment 로 서빙
