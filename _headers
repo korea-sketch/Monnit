@@ -50,11 +50,3 @@
 /*.svg
   Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
 
-# ===== 산업별 제안서 PDF =====
-# 브라우저 내장 뷰어로 열리지 않고 바로 저장되도록 attachment 로 서빙
-/documents/proposals/*
-  Content-Type: application/pdf
-  Content-Disposition: attachment
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-/images/proposals/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
