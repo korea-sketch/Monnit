@@ -127,7 +127,7 @@ function convertSheet(D, prodCats) {
     PARTNERS: D.Partners.filter(r => r.name).map(r => ({ n: r.name, r: r.region || '', d: r.desc || '', url: r.url || '' })),
     BLOG: D.Blog.filter(r => r.title).map(r => ({ date: r.date || '', title: r.title, body: r.body || '', thumb: r.thumb || '', url: r.url || '' })),
     WHITEPAPERS: D.Whitepapers.filter(r => r.title).map(r => ({ icon: r.icon || '', title: r.title, desc: r.desc || '', url: r.url || '' })),
-    PROMOS: D.Promotions.filter(r => r.title).map(r => ({ id: r.id || '', title: r.title, period: r.period || '', badge: r.badge || '', ended: /^(true|1)$/i.test(r.ended || ''), desc: r.desc || '', order: r.order || '' }))
+    PROMOS: D.Promotions.filter(r => r.title).map(r => ({ id: r.id || '', title: r.title, period: r.period || '', badge: r.badge || '', ended: /^(true|1)$/i.test(r.ended || ''), desc: r.desc || '', link: r.link || '', order: r.order || '' }))
   };
 }
 
@@ -161,14 +161,35 @@ const PARTNERS = __src ? __src.PARTNERS : (extract('let PARTNERS =') || []);
 const CUSTOMERS = __src ? __src.CUSTOMERS : (extract('let CUSTOMERS =') || []);
 const BLOG = __src ? __src.BLOG : (extract('let BLOG =') || []);
 const WHITEPAPERS = __src ? __src.WHITEPAPERS : (extract('let WHITEPAPERS =') || []);
-const PROMOS = __src ? __src.PROMOS : (extract('let PROMOS =') || []);
+let PROMOS = __src ? __src.PROMOS : (extract('let PROMOS =') || []);
+/* app.js 의 내장 프로모션(시트에 없는 항목)을 정적 페이지에도 반영 */
+const BUILTIN_PROMOS = extract('const BUILTIN_PROMOS =') || [];
+BUILTIN_PROMOS.forEach(b => { if (!PROMOS.some(p => p.id === b.id)) PROMOS.push(b); });
+PROMOS = PROMOS.sort((a, b) => (parseInt(a.order,10)||999) - (parseInt(b.order,10)||999));
 
 /* ---------- data.js 에서 지식베이스/가이드 로드 ---------- */
 let KNOWLEDGEBASE = [], GUIDES = [];
 try {
   const DATAJS = fs.readFileSync(path.join(__dirname, 'data.js'), 'utf8');
-  const r = (new Function(DATAJS + '\n;return { KB: (typeof KNOWLEDGEBASE !== "undefined") ? KNOWLEDGEBASE : [], G: (typeof GUIDES !== "undefined") ? GUIDES : [] };'))();
-  KNOWLEDGEBASE = r.KB; GUIDES = r.G;
+  /* data.js 는 브라우저용이라 값을 window.__KB_BASE / window.GUIDES 에 담는다.
+     Node 에는 window 가 없어 예전 코드는 "window is not defined" 로 통째로 실패했고,
+     그 결과 knowledgebase, guides, kb- 및 guide- 계열 15개 페이지가 생성되지 않았다.
+     생성되지 않은 pages 하위 html 은 아래 정리 단계에서 삭제되므로 배포본이 404 가 됐다.
+     window/document 를 흉내 낸 샌드박스를 넣어 값만 안전하게 꺼낸다. */
+  const win = {};
+  const doc = {
+    addEventListener() {}, removeEventListener() {},
+    querySelector() { return null; }, querySelectorAll() { return []; },
+    getElementById() { return null; },
+    createElement() { return { style: {}, setAttribute() {}, appendChild() {} }; },
+    head: { appendChild() {} }, body: { appendChild() {} }
+  };
+  (new Function('window', 'self', 'globalThis', 'document', 'location', 'navigator', DATAJS))(
+    win, win, win, doc, { href: '', hostname: '' }, { userAgent: '' }
+  );
+  KNOWLEDGEBASE = win.__KB_BASE || win.KNOWLEDGEBASE || [];
+  GUIDES        = win.GUIDES    || [];
+  console.log(`[build] data.js 로드 OK — 지식베이스 ${KNOWLEDGEBASE.length}건, 가이드 ${GUIDES.length}건`);
 } catch (e) { console.warn('[build] data.js 로드 실패(지식베이스 생략):', e.message); }
 
 /* 본문 HTML 새니타이즈 — script/iframe/이벤트핸들러 제거 */
@@ -190,8 +211,86 @@ const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g,
 const strip = s => String(s == null ? '' : s).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const CATNAME = { sensors: '무선 센서', gateways: '게이트웨이', software: '통합관제 소프트웨어', accessories: '액세서리·연동장치' };
 
+/* ═══════════════════════════════════════════════════════════════════
+   SSG — 경로마다 완전한 HTML 파일을 만듭니다 (2026-07 path 라우팅 전환)
+   · /pages/app-temp.html  →  /app/temp/index.html
+   · 이름이 달랐던 정적 슬러그를 SPA 라우트 이름으로 통일합니다
+     company→who-we-are · solutions→applications · cases→stories
+   · 각 파일은 index.html(SPA 껍데기)에 그 경로의 제목·설명·본문을 넣은 것이라
+     크롤러는 바로 읽고, 사람은 그 위에서 SPA 로 이어집니다.
+   ═══════════════════════════════════════════════════════════════════ */
+let _lastParts = null;
+const SLUG_ROUTE = {
+  company:'who-we-are', solutions:'applications', cases:'stories',
+  customers:'customers', products:'products', partners:'partners', awards:'awards',
+  blog:'blog', knowledgebase:'knowledgebase', guides:'guides',
+  contact:'contact', promotions:'promotions'
+};
+function slugToRoute(slug){
+  if (slug.indexOf('app-')===0)   return 'app/'   + slug.slice(4);
+  if (slug.indexOf('case-')===0)  return 'case/'  + slug.slice(5);
+  if (slug.indexOf('kb-')===0)    return 'kb/'    + slug.slice(3);
+  if (slug.indexOf('guide-')===0) return 'guide/' + slug.slice(6);
+  return SLUG_ROUTE[slug] || slug;
+}
+const slugToPath = slug => '/' + slugToRoute(slug);
+
+/* 본문 안의 예전 주소를 새 경로로 바꿉니다 (정적 페이지끼리 서로 거는 링크) */
+function fixLinks(html){
+  return String(html || '')
+    .replace(/\/pages\/app-([a-z0-9-]+)\.html/gi,   '/app/$1')
+    .replace(/\/pages\/case-([a-z0-9-]+)\.html/gi,  '/case/$1')
+    .replace(/\/pages\/kb-([a-z0-9-]+)\.html/gi,    '/kb/$1')
+    .replace(/\/pages\/guide-([a-z0-9-]+)\.html/gi, '/guide/$1')
+    .replace(/\/pages\/company\.html/gi,    '/who-we-are')
+    .replace(/\/pages\/solutions\.html/gi,  '/applications')
+    .replace(/\/pages\/cases\.html/gi,      '/stories')
+    .replace(/\/pages\/([a-z0-9-]+)\.html/gi, '/$1')
+    .replace(/\/#(app|case|kb|guide|promotions)\//g, '/$1/')
+    .replace(/\/#([a-z-]+)/g, '/$1')
+    /* 같은 페이지를 다시 가리키는 "인터랙티브 버전 보기" 안내는 뺍니다 */
+    .replace(/\s*·\s*<a href="[^"]*">인터랙티브 버전 보기<\/a>/g, '');
+}
+
+/* index.html 껍데기를 읽어 경로별 SEO 머리말과 본문을 심습니다 */
+let SHELL = '';
+try { SHELL = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'); }
+catch (e) { console.warn('[build] index.html 을 읽지 못해 SSG 를 건너뜁니다'); }
+
+function ssgWrite(slug, parts){
+  if (!SHELL || !parts) return;
+  const route = slugToRoute(slug);
+  const url   = SITE + '/' + route;
+  const title = String(parts.title || '');
+  const desc  = String(parts.desc  || '');
+  let h = SHELL;
+  const set = (re, val) => { h = h.replace(re, val); };
+  set(/<title>[\s\S]*?<\/title>/, '<title>' + esc(title) + '</title>');
+  set(/<meta name="description" content="[^"]*">/, '<meta name="description" content="' + esc(desc) + '">');
+  set(/<link rel="canonical" href="[^"]*">/, '<link rel="canonical" href="' + url + '">');
+  set(/<meta property="og:title" content="[^"]*">/, '<meta property="og:title" content="' + esc(title) + '">');
+  set(/<meta property="og:description" content="[^"]*">/, '<meta property="og:description" content="' + esc(desc) + '">');
+  set(/<meta property="og:url" content="[^"]*">/, '<meta property="og:url" content="' + url + '">');
+  set(/<meta name="twitter:title" content="[^"]*">/, '<meta name="twitter:title" content="' + esc(title) + '">');
+  set(/<meta name="twitter:description" content="[^"]*">/, '<meta name="twitter:description" content="' + esc(desc) + '">');
+  if (parts.jsonld){
+    h = h.replace('</head>', '<script type="application/ld+json">' + JSON.stringify(parts.jsonld) + '</script>\n</head>');
+  }
+  /* 크롤러가 바로 읽는 본문 — SPA 가 뜨면 app.js 가 이 블록을 지웁니다 */
+  const block = '<div id="ssg-content" data-route="' + route + '">'
+    + '<h1>' + esc(parts.h1 || title) + '</h1>' + fixLinks(parts.bodyHtml || '')
+    + '</div>';
+  h = h.replace('<body>', '<body>\n' + block);
+  const dir = path.join(__dirname, route);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'index.html'), h);
+  ssgCount++;
+}
+let ssgCount = 0;
+
 function page({ slug, title, desc, h1, bodyHtml, jsonld }) {
-  const url = SITE + '/pages/' + slug + '.html';
+  _lastParts = { slug, title, desc, h1, bodyHtml, jsonld };
+  const url = SITE + slugToPath(slug);   // canonical 은 항상 새 경로
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -222,7 +321,7 @@ ${jsonld ? '<script type="application/ld+json">' + JSON.stringify(jsonld) + '</s
 <nav class="crumb"><a href="${SITE}/">Monnit Korea</a> / ${esc(title.split('—')[0].trim())}</nav>
 <a class="back" href="${SITE}/">← 메인으로</a>
 <h1>${esc(h1)}</h1>
-${bodyHtml}
+${fixLinks(bodyHtml)}
 <hr style="margin:40px 0;border:none;border-top:1px solid #e5e8ef">
 <p class="muted">이 페이지는 검색·AI 크롤러를 위한 정적 콘텐츠 버전입니다. 인터랙티브 버전은 <a href="${SITE}/">monnit.co.kr</a> 에서 확인하세요.</p>
 <p class="muted">문의: <a href="mailto:korea@monnit.com">korea@monnit.com</a> · 02-2088-1454</p>
@@ -233,8 +332,9 @@ ${bodyHtml}
 if (!fs.existsSync(OUT_PAGES)) fs.mkdirSync(OUT_PAGES);
 const generated = [];   // {loc, title}
 function writePage(slug, html, title) {
-  fs.writeFileSync(path.join(OUT_PAGES, slug + '.html'), html);
-  generated.push({ loc: SITE + '/pages/' + slug + '.html', title });
+  fs.writeFileSync(path.join(OUT_PAGES, slug + '.html'), html);   // 예전 주소 (301 로 새 경로에 넘깁니다)
+  ssgWrite(slug, _lastParts);                                      // 새 경로에 완전한 HTML
+  generated.push({ loc: SITE + slugToPath(slug), title, slug });
 }
 
 const ORG_LD = {
@@ -268,7 +368,7 @@ writePage('company', page({
 <h3>대규모 통합관제 역량</h3><p>수천~수만 개 사이트를 단일 플랫폼으로 안정적으로 통합 관제합니다.</p>
 <h2>설계부터 제조·검증까지</h2>
 <p>본사 R&amp;D 센터, PCB 회로 설계, 자체 SMT 생산 라인까지 제품 설계부터 제조·검증을 직접 관리합니다.</p>
-<p><a href="${SITE}/pages/products.html">제품 전체 보기</a> · <a href="${SITE}/pages/solutions.html">활용 분야</a> · <a href="${SITE}/pages/cases.html">도입 사례</a></p>`
+<p><a href="${SITE}/products">제품 전체 보기</a> · <a href="${SITE}/applications">활용 분야</a> · <a href="${SITE}/stories">도입 사례</a></p>`
 }), 'Monnit Korea 회사 소개');
 
 /* ---------- 2) 제품 ---------- */
@@ -301,7 +401,7 @@ writePage('company', page({
     const items = APPS.filter(a => a.cat === key);
     if (!items.length) return;
     body += `<h2>${esc(info.name)} (${items.length})</h2><ul>`;
-    items.forEach(a => { body += `<li><a href="${SITE}/pages/app-${esc(a.id)}.html"><strong>${esc(a.name)}</strong></a> — ${esc(a.desc)}${a.sensors ? ` <span class="muted">[${esc(a.sensors)}]</span>` : ''}</li>`; });
+    items.forEach(a => { body += `<li><a href="${SITE}/app/${esc(a.id)}"><strong>${esc(a.name)}</strong></a> — ${esc(a.desc)}${a.sensors ? ` <span class="muted">[${esc(a.sensors)}]</span>` : ''}</li>`; });
     body += '</ul>';
   });
   writePage('solutions', page({
@@ -318,7 +418,7 @@ writePage('company', page({
   let idx = `<p>글로벌 기업들이 12개 산업 현장에서 선택한 검증된 도입 사례입니다.</p><ul>`;
   keys.forEach(id => {
     const c = CASE_DATA[id];
-    idx += `<li><a href="${SITE}/pages/case-${esc(id)}.html"><strong>${esc(c.name || id)}</strong></a> — ${esc(strip(c.tagline || ''))}</li>`;
+    idx += `<li><a href="${SITE}/case/${esc(id)}"><strong>${esc(c.name || id)}</strong></a> — ${esc(strip(c.tagline || ''))}</li>`;
     // per-case page
     const q = (c.qs || []).map(x => `<li><strong>${esc(x.n)}</strong> — ${esc(x.l)}</li>`).join('');
     const ch = (c.challenges || []).map(x => `<li>${esc(strip(x))}</li>`).join('');
@@ -333,7 +433,7 @@ ${sol ? `<h2>적용 솔루션</h2><ul>${sol}</ul>` : ''}
 ${rs ? `<h2>성과</h2><ul>${rs}</ul>` : ''}
 ${q ? `<h2>핵심 성과 지표</h2><ul>${q}</ul>` : ''}
 ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <span class="muted">— ${esc(c.cite)}</span>` : ''}</p>` : ''}
-<p><a href="${SITE}/pages/cases.html">← 전체 도입 사례</a> · <a href="${SITE}/#case/${esc(id)}">인터랙티브 버전 보기</a></p>`;
+<p><a href="${SITE}/stories">← 전체 도입 사례</a></p>`;
     writePage('case-' + id, page({
       slug: 'case-' + id, title: `${strip(c.name || id)} 도입 사례 — ${strip(c.industry || '산업용')} 무선 IoT 모니터링 | Monnit Korea`,
       desc: (function(){ var nm=strip(c.name||id), ind=strip(c.industry||''), tg=strip(c.tagline||'');
@@ -401,7 +501,7 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
     if (custs.length) {
       body += `<h2>이 솔루션을 도입한 고객사</h2><p>${custs.map(esc).join(' · ')}</p>`;
     }
-    body += `<p><a href="${SITE}/pages/solutions.html">← 활용 분야 전체</a> · <a href="${SITE}/pages/contact.html">상담·문의</a> · <a href="${SITE}/#app/${esc(a.id)}">인터랙티브 버전 보기</a></p>`;
+    body += `<p><a href="${SITE}/applications">← 활용 분야 전체</a> · <a href="${SITE}/contact">상담·문의</a></p>`;
 
     writePage('app-' + a.id, page({
       slug: 'app-' + a.id,
@@ -412,7 +512,7 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
         '@context': 'https://schema.org', '@type': 'Service',
         name: strip(a.name) + ' — 무선 IoT 모니터링', serviceType: strip(a.name),
         description: strip(a.desc), provider: ORG_LD, areaServed: 'KR',
-        url: SITE + '/pages/app-' + a.id + '.html'
+        url: SITE + '/app/' + a.id
       },
       bodyHtml: body
     }), strip(a.name) + ' 솔루션');
@@ -426,7 +526,7 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
   CUSTOMERS.forEach(c => {
     body += `<li><strong>${esc(c.n)}</strong>${c.i ? ` <span class="muted">(${esc(c.i)})</span>` : ''}${c.h ? ` — ${esc(strip(c.h))}` : ''}</li>`;
   });
-  body += `</ul><p><a href="${SITE}/pages/cases.html">상세 도입 사례 보기</a></p>`;
+  body += `</ul><p><a href="${SITE}/stories">상세 도입 사례 보기</a></p>`;
   writePage('customers', page({
     slug: 'customers', title: `Monnit 고객사 ${CUSTOMERS.length}곳 — 산업별 도입 현황 | Monnit Korea`,
     desc: `SK하이닉스·삼성SDS·현대건설·카카오 등 ${CUSTOMERS.length}개 고객사의 Monnit 무선 IoT 도입 현황과 적용 내용.`,
@@ -482,12 +582,12 @@ const KB_SLUGS = {};
   Object.entries(byCat).forEach(([cat, arr]) => {
     const slug = 'kb-' + (slugKo(cat) || 'etc');
     KB_SLUGS[cat] = slug;
-    idx += `<li><a href="${SITE}/pages/${slug}.html"><strong>${esc(cat)}</strong></a> — ${arr.length}건</li>`;
+    idx += `<li><a href="${SITE}${slugToPath(slug)}"><strong>${esc(cat)}</strong></a> — ${arr.length}건</li>`;
     let body = `<p class="muted">기술 지식베이스 / ${esc(cat)} · ${arr.length}건</p>`;
     arr.forEach(k => {
       body += `<h2>${esc(k.title)}</h2>${sanitize(k.body || ('<p>' + esc(k.desc || '') + '</p>'))}`;
     });
-    body += `<p><a href="${SITE}/pages/knowledgebase.html">← 지식베이스 전체</a></p>`;
+    body += `<p><a href="${SITE}/knowledgebase">← 지식베이스 전체</a></p>`;
     writePage(slug, page({
       slug, title: `${cat} 기술 문서 ${arr.length}건 — Monnit 지식베이스 | Monnit Korea`,
       desc: `Monnit ${cat} 설치·설정·문제 해결 기술 문서 ${arr.length}건 전문.`,
@@ -512,12 +612,12 @@ const KB_SLUGS = {};
   let idx = `<p>제품별 설치·설정·활용 가이드 ${GUIDES.length}건.</p><ul>`;
   Object.entries(byCat).forEach(([cat, arr]) => {
     const slug = 'guide-' + (slugKo(cat) || 'etc');
-    idx += `<li><a href="${SITE}/pages/${slug}.html"><strong>${esc(cat)}</strong></a> — ${arr.length}건</li>`;
+    idx += `<li><a href="${SITE}${slugToPath(slug)}"><strong>${esc(cat)}</strong></a> — ${arr.length}건</li>`;
     let body = `<p class="muted">기술지원 가이드 / ${esc(cat)} · ${arr.length}건</p>`;
     arr.forEach(g => {
       body += `<h2>${esc(g.title)}</h2>${g.sub ? `<p class="muted">${esc(g.sub)}</p>` : ''}${sanitize(g.body || ('<p>' + esc(g.desc || '') + '</p>'))}`;
     });
-    body += `<p><a href="${SITE}/pages/guides.html">← 가이드 전체</a></p>`;
+    body += `<p><a href="${SITE}/guides">← 가이드 전체</a></p>`;
     writePage(slug, page({
       slug, title: `${cat} 가이드 ${arr.length}건 — Monnit 기술지원 | Monnit Korea`,
       desc: `Monnit ${cat} 제품의 설치·설정·활용 가이드 ${arr.length}건 전문.`,
@@ -558,7 +658,7 @@ const KB_SLUGS = {};
   if (!PROMOS.length) return;
   const act = PROMOS.filter(p => !p.ended), ended = PROMOS.filter(p => p.ended);
   let body = `<p>이미지 배너로 안내되는 프로모션 내용을 텍스트로 제공합니다. 신청·상세: <a href="${SITE}/#promotions">monnit.co.kr 프로모션</a></p>`;
-  const block = (p) => `<h2>${esc(strip(p.title))}${p.badge ? ` <span class="muted">[${esc(p.badge)}]</span>` : ''}${p.ended ? ' <span class="muted">(종료)</span>' : ''}</h2>${p.desc ? `<p>${esc(strip(p.desc))}</p>` : ''}${p.period ? `<p class="muted">기간: ${esc(p.period)}</p>` : ''}<p><a href="${SITE}/#promotions/${esc(p.id)}">프로모션 상세·신청 →</a></p>`;
+  const block = (p) => `<h2>${esc(strip(p.title))}${p.badge ? ` <span class="muted">[${esc(p.badge)}]</span>` : ''}${p.ended ? ' <span class="muted">(종료)</span>' : ''}</h2>${p.desc ? `<p>${esc(strip(p.desc))}</p>` : ''}${p.period ? `<p class="muted">기간: ${esc(p.period)}</p>` : ''}<p><a href="${p.link ? (p.link.indexOf('http')===0 ? p.link : SITE + p.link) : SITE + '/promotions/' + esc(p.id)}">프로모션 상세·신청 →</a></p>`;
   act.forEach(p => body += block(p));
   if (ended.length) { body += `<h2>종료된 프로모션</h2>`; ended.forEach(p => body += block(p)); }
   writePage('promotions', page({
@@ -594,18 +694,187 @@ writePage('contact', page({
 <h3>상담은 어떻게 신청하나요?</h3><p>이메일 korea@monnit.com 또는 전화 02-2088-1454로 문의해 주세요.</p>`
 }), '상담·문의');
 
+/* ---------- 오래된(구 슬러그) 페이지 자동 정리 — 중복 콘텐츠·404 방지 ----------
+   build.js 는 매 빌드마다 최신 데이터로 pages/*.html 를 새로 쓰지만, 예전 빌드에서
+   만들어진 구 슬러그 파일(예: 고객사 key 변경 전 case-Samsung.html)은 남아 배포됩니다.
+   이번 빌드에서 생성되지 않은 pages/*.html 는 삭제해 색인 중복을 막습니다. */
+const _keepFiles = new Set(generated.map(g => g.slug + '.html'));
+try {
+  fs.readdirSync(OUT_PAGES).forEach(f => {
+    if (f.endsWith('.html') && !_keepFiles.has(f)) {
+      fs.unlinkSync(path.join(OUT_PAGES, f));
+      console.log('[clean] 구 페이지 삭제:', f);
+    }
+  });
+} catch (e) { console.warn('[clean] pages 정리 중 오류:', e.message); }
+
 /* ---------- robots.txt ---------- */
 const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'CCBot', 'Applebot-Extended', 'Bytespider', 'Amazonbot', 'meta-externalagent', 'cohere-ai'];
 let robots = '# Monnit Korea — 모든 검색·AI 크롤러 허용\n';
-robots += 'User-agent: *\nAllow: /\n\n';
+robots += 'User-agent: *\nAllow: /\nDisallow: /editor\nDisallow: /editor.html\nDisallow: /church\nDisallow: /church/\nDisallow: /pages/\n\n';
 AI_BOTS.forEach(b => { robots += `User-agent: ${b}\nAllow: /\n\n`; });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
+
+/* ---------- 구 사이트 URL 301 리다이렉트 (_redirects 자동 관리) ----------
+   2026-07 구조 개편으로 /apps, /cases, /company 등이 /pages/*.html 로 바뀌었으나
+   리다이렉트가 없어 Google 색인 URL 대부분이 404 였다.
+   아래 마커 사이 구간만 매 빌드마다 교체하므로, 마커 밖에 직접 적은 규칙은 보존된다.
+
+   ※ Netlify 는 "먼저 매칭되는 규칙"이 이기고 리다이렉트를 연쇄 적용하지 않는다.
+      그래서 대문자·한글 구 슬러그와 허브 페이지 규칙을 와일드카드보다 위에 둔다. */
+const RD_BEGIN = '# >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>';
+const RD_END   = '# <<< AUTO-LEGACY-REDIRECTS <<<';
+
+const LEGACY_RULES = (function(){
+  /* ① 예전 /pages/*.html → 새 경로 (301)
+        파일이 실제로 남아 있으므로 강제(!) 로 리다이렉트해야 규칙이 이깁니다. */
+  const pageRules = generated
+    .filter(g => g.slug)
+    .map(g => `/pages/${g.slug}.html`.padEnd(38) + slugToPath(g.slug).padEnd(28) + '301!')
+    .join('\n');
+
+  /* ② 구 사이트 슬러그 → 새 경로 (한 번에 도착하도록 새 경로를 직접 지정) */
+  const oldRules = `
+# --- 구 슬러그(대문자·한글)
+/cases/Samsung        /case/samsung        301
+/cases/samsung        /case/samsung        301
+/cases/Veolia         /case/veolia         301
+/cases/HDC랩스         /case/hdc-labs       301
+/cases/hdc랩스         /case/hdc-labs       301
+
+# --- 허브(목록) 페이지
+/apps                 /applications        301
+/apps/                /applications        301
+/cases                /stories             301
+/cases/               /stories             301
+/company              /who-we-are          301
+/company/             /who-we-are          301
+/solutions            /applications        301
+/solutions/           /applications        301
+/browse               /applications        301
+/browse/              /applications        301
+/faq                  /faqs                301
+/faq/                 /faqs                301
+/whitepapers          /whitepaper          301
+/whitepapers/         /whitepaper          301
+
+# --- 상세 페이지 (구 슬러그 → 새 경로)
+/apps/*               /app/:splat          301
+/cases/*              /case/:splat         301
+
+# --- 구 Wix 잔존 경로
+/kakaoalarm           /contact             301
+/kakaoalarm/          /contact             301
+/manual               /guides              301
+/consultingpromotion  /promo/consulting    301`;
+
+  /* ③ 관리자 */
+  const editorRules = `
+# --- 에디터(비공개)
+/editor               /editor.html         200
+/editor/              /editor.html         200`;
+
+  /* ④ 마지막 안전망 — 미리 만들어 둔 파일이 없는 경로(준비 중 활용분야 등)는
+        SPA 껍데기가 받아서 클라이언트에서 그립니다. 반드시 맨 아래에 둡니다.
+        실제 파일이 있으면 Netlify 가 파일을 먼저 주므로 SSG 페이지가 우선합니다. */
+  const fallback = `
+# --- SSG 파일이 없는 SPA 전용 화면
+/faqs                 /index.html          200
+/faqs/                /index.html          200
+/newsletter           /index.html          200
+/newsletter/          /index.html          200
+/whitepaper           /index.html          200
+/whitepaper/          /index.html          200
+/our-solution         /index.html          200
+/our-solution/        /index.html          200
+/what-we-do           /index.html          200
+/what-we-do/          /index.html          200
+
+# --- SPA 폴백 (미리 만든 파일이 없는 상세 경로 · 준비 중 화면이 받습니다)
+/app/*                /index.html          200
+/case/*               /index.html          200
+/kb/*                 /index.html          200
+/guide/*              /index.html          200
+/promotions/*         /promo.html?id=:splat  200`;
+
+  return '\n# --- 예전 /pages 주소 → 새 경로 (' + generated.filter(g=>g.slug).length + '개)\n'
+       + pageRules + '\n' + oldRules + '\n' + editorRules + '\n' + fallback + '\n';
+})();
+
+
+try {
+  const RD_PATH = path.join(__dirname, '_redirects');
+  let rd = fs.existsSync(RD_PATH) ? fs.readFileSync(RD_PATH, 'utf8') : '';
+  const bi = rd.indexOf(RD_BEGIN), ei = rd.indexOf(RD_END);
+  if (bi !== -1 && ei !== -1 && ei > bi) rd = rd.slice(0, bi) + rd.slice(ei + RD_END.length);
+  rd = rd.replace(/\s+$/, '');
+  rd += '\n\n' + RD_BEGIN + '\n' + LEGACY_RULES.trim() + '\n' + RD_END + '\n';
+  fs.writeFileSync(RD_PATH, rd);
+
+  const _n = LEGACY_RULES.split('\n').filter(l => l.trim().startsWith('/')).length;
+  console.log(`[build] _redirects 갱신 — 구 URL 301 규칙 ${_n}개`);
+} catch (e) { console.warn('[build] _redirects 갱신 실패:', e.message); }
+
+/* ---------- 404.html (Netlify 가 미매칭 요청에 자동으로 사용) ---------- */
+try {
+  const NOTFOUND = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, follow">
+<title>페이지를 찾을 수 없습니다 — Monnit Korea</title>
+<style>
+  :root{--ink:#111;--soft:#666;--line:#e5e5e5;--accent:#0b5fff}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+       color:var(--ink);background:#fff;line-height:1.65;
+       display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px}
+  .wrap{max-width:640px;width:100%}
+  .code{font-size:13px;letter-spacing:.12em;color:var(--soft);text-transform:uppercase}
+  h1{font-size:28px;margin:8px 0 12px;line-height:1.3}
+  p{color:var(--soft);margin:0 0 28px}
+  ul{list-style:none;padding:0;margin:0 0 28px;border-top:1px solid var(--line)}
+  li{border-bottom:1px solid var(--line)}
+  li a{display:block;padding:14px 4px;color:var(--ink);text-decoration:none;font-weight:600}
+  li a span{display:block;font-weight:400;font-size:13px;color:var(--soft);margin-top:2px}
+  li a:hover{color:var(--accent)}
+  .home{display:inline-block;padding:12px 22px;background:var(--ink);color:#fff;
+        text-decoration:none;border-radius:6px;font-weight:600}
+  .foot{margin-top:32px;font-size:13px;color:var(--soft)}
+  .foot a{color:var(--soft)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="code">404</div>
+    <h1>찾으시는 페이지가 없습니다</h1>
+    <p>주소가 바뀌었거나 삭제된 페이지입니다. 아래에서 원하시는 내용을 찾아보세요.</p>
+    <ul>
+      <li><a href="/applications">활용 분야 60선<span>산업별 IoT 모니터링 활용 사례</span></a></li>
+      <li><a href="/stories">도입 사례<span>글로벌 기업 도입 성과</span></a></li>
+      <li><a href="/products">제품<span>센서·게이트웨이·소프트웨어</span></a></li>
+      <li><a href="/who-we-are">회사 소개<span>Monnit Korea 소개</span></a></li>
+      <li><a href="/knowledgebase">기술 지식베이스<span>설치·설정·문제 해결 문서</span></a></li>
+      <li><a href="/contact">상담·문의<span>자주 묻는 질문 · 문의하기</span></a></li>
+    </ul>
+    <a class="home" href="/">메인으로 돌아가기</a>
+    <div class="foot">문의 <a href="mailto:korea@monnit.com">korea@monnit.com</a> · <a href="tel:0220881454">02-2088-1454</a></div>
+  </div>
+</body>
+</html>
+`;
+  fs.writeFileSync(path.join(__dirname, '404.html'), NOTFOUND);
+  console.log('[build] 404.html 생성');
+} catch (e) { console.warn('[build] 404.html 생성 실패:', e.message); }
 
 /* ---------- sitemap.xml ---------- */
 const urls = [
   { loc: SITE + '/', pri: '1.0' },
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
+  { loc: SITE + '/promo/consulting', pri: '0.9' },
+  { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' }))
 ];
 let sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
@@ -618,11 +887,11 @@ let llms = `# Monnit Korea\n\n> 산업용 무선 IoT 센서와 통합관제 플�
 llms += `## 핵심 정보\n- 회사: Monnit Korea (대표이사 염정훈)\n- 이메일: korea@monnit.com | 전화: 02-2088-1454\n- 사이트: ${SITE}\n\n`;
 const CORE_SLUGS = ['company', 'products', 'solutions', 'cases', 'customers', 'awards', 'partners', 'knowledgebase', 'guides', 'blog', 'contact'];
 llms += `## 핵심 페이지\n`;
-CORE_SLUGS.forEach(s => { const g = generated.find(x => x.loc.endsWith('/pages/' + s + '.html')); if (g) llms += `- [${g.title}](${g.loc})\n`; });
+CORE_SLUGS.forEach(s => { const g = generated.find(x => x.slug === s); if (g) llms += `- [${g.title}](${g.loc})\n`; });
 llms += `\n## 활용 분야 상세 (${APPS.length})\n`;
-APPS.forEach(a => { llms += `- [${strip(a.name)}](${SITE}/pages/app-${a.id}.html): ${strip(a.desc).slice(0, 90)}\n`; });
+APPS.forEach(a => { llms += `- [${strip(a.name)}](${SITE}/app/${a.id}): ${strip(a.desc).slice(0, 90)}\n`; });
 llms += `\n## 도입 사례 상세\n`;
-Object.keys(CASE_DATA).forEach(id => { const c = CASE_DATA[id]; llms += `- [${strip(c.name || id)} (${strip(c.industry || '')})](${SITE}/pages/case-${id}.html)\n`; });
+Object.keys(CASE_DATA).forEach(id => { const c = CASE_DATA[id]; llms += `- [${strip(c.name || id)} (${strip(c.industry || '')})](${SITE}/case/${id})\n`; });
 llms += `\n## 제품군\n- 무선 센서 (온도·진동·누수·전류·공기질 등 80여 종)\n- 게이트웨이 (센서 데이터 수집·전송)\n- 통합관제 소프트웨어 (iMonnit — 실시간 관제·자동제어)\n- 액세서리·연동장치\n\n`;
 llms += `## 대표 솔루션\n화재·안전 모니터링 · 설비 예지보전 · 누수·침수 감지 · 환경·공기질 관리 · 에너지 관리 · 대규모 시설 통합관제\n\n`;
 llms += `전체 본문 텍스트는 ${SITE}/llms-full.txt 에서 한 번에 읽을 수 있습니다.\n`;
@@ -634,7 +903,7 @@ Object.entries(CATEGORIES).forEach(([key, info]) => {
   const items = APPS.filter(a => a.cat === key); if (!items.length) return;
   full += `\n### ${info.name}\n`;
   items.forEach(a => {
-    full += `\n#### ${strip(a.name)}\nURL: ${SITE}/pages/app-${a.id}.html\n${strip(a.desc)}${a.sensors ? ' [센서: ' + a.sensors + ']' : ''}\n`;
+    full += `\n#### ${strip(a.name)}\nURL: ${SITE}/app/${a.id}\n${strip(a.desc)}${a.sensors ? ' [센서: ' + a.sensors + ']' : ''}\n`;
     const d = APP_DETAILS[a.id];
     if (d) {
       (d.snapshot || []).forEach(s => full += `- ${s.label}: ${s.value}${s.desc ? ' — ' + s.desc : ''}\n`);
@@ -657,7 +926,7 @@ full += `\n## 제품 (${PRODUCTS.length})\n`;
 full += `\n## 도입 사례 (${Object.keys(CASE_DATA).length})\n`;
 Object.keys(CASE_DATA).forEach(id => {
   const c = CASE_DATA[id];
-  full += `\n### ${strip(c.name || id)} (${strip(c.industry || '')})\nURL: ${SITE}/pages/case-${id}.html\n${strip(c.tagline || '')}\n${c.about ? strip(c.about) + '\n' : ''}`;
+  full += `\n### ${strip(c.name || id)} (${strip(c.industry || '')})\nURL: ${SITE}/case/${id}\n${strip(c.tagline || '')}\n${c.about ? strip(c.about) + '\n' : ''}`;
   if ((c.challenges || []).length) full += `당면 과제:\n${c.challenges.map(x => '- ' + strip(x)).join('\n')}\n`;
   if ((c.solutions || []).length) full += `적용 솔루션:\n${c.solutions.map(x => `- ${x.t}: ${strip(x.d || '')}`).join('\n')}\n`;
   if ((c.results || []).length) full += `성과:\n${c.results.map(x => `- ${x.n} ${x.l}`).join('\n')}\n`;
@@ -694,7 +963,7 @@ if (GUIDES.length) {
   const gByCat = {};
   GUIDES.forEach(g => { (gByCat[g.category] = gByCat[g.category] || []).push(g); });
   Object.entries(gByCat).forEach(([cat, arr]) => {
-    full += `\n### ${cat} (${SITE}/pages/guide-${slugKo(cat) || 'etc'}.html)\n`;
+    full += `\n### ${cat} (${SITE}/guide/${slugKo(cat) || 'etc'})\n`;
     arr.forEach(g => full += `- ${g.title}${g.desc ? ': ' + strip(g.desc).slice(0, 100) : ''}\n`);
   });
 }

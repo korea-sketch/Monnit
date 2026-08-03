@@ -35,5 +35,75 @@
   to = "https://blog.naver.com/monnitkorea"
   status = 301
 
+# 교회 전단 QR 전용 랜딩 — 검색엔진 색인 차단
+[[headers]]
+  for = "/church/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[redirects]]
+  from = "/church"
+  to = "/church/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/church/"
+  to = "/church/index.html"
+  status = 200
+
+# 프로모션 랜딩: 회전설비 AI 예지보전 1개월 무료 체험 (컨설팅)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다
+[[redirects]]
+  from = "/promo/consulting"
+  to = "/promo-consulting.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/consulting/"
+  to = "/promo-consulting.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo-consulting"
+  to = "/promo-consulting.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/predictive"
+  to = "/promo/consulting"
+  status = 301
+
+# 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소 유지)
+[[redirects]]
+  from = "/promo/*"
+  to = "/promo.html?id=:splat"
+  status = 200
+
+# 예전 소방 전용 페이지 → 범용 페이지로 통합 301
+[[redirects]]
+  from = "/promo-fire.html"
+  to = "/promo.html?id=fire"
+  status = 301
+
+# 구 슬러그(대소문자·한글) 케이스 페이지 → 정식 소문자 URL 301 (색인 중복·404 정리)
+# 구 슬러그(대문자·한글) → 새 경로로 한 번에 (연쇄 리다이렉트 방지)
+[[redirects]]
+  from = "/pages/case-Samsung.html"
+  to = "/case/samsung"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pages/case-Veolia.html"
+  to = "/case/veolia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pages/case-HDC랩스.html"
+  to = "/case/hdc-labs"
+  status = 301
+  force = true
+
 [functions]
   directory = "netlify/functions"

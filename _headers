@@ -3,9 +3,58 @@
 /index.html
   Cache-Control: no-cache, must-revalidate
 
+/church/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+
+/promo-consulting.html
+  Cache-Control: no-cache, must-revalidate
+/promo/consulting
+  Cache-Control: no-cache, must-revalidate
+
 /llms.txt
   Content-Type: text/plain; charset=utf-8
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
 /robots.txt
   Content-Type: text/plain; charset=utf-8
+
+# ===== 캐싱 =====
+# JS·CSS 는 ?v= 로 버전 관리합니다. 다만 ?v 를 올리지 않고 배포하면
+# immutable 캐시 때문에 브라우저가 최대 1년간 옛 파일을 계속 써서
+# 도메인·기기별로 화면이 달라지는 사고가 납니다(2026-07 monnit.co.kr/monnit.ai 사례).
+# → immutable 대신 stale-while-revalidate 를 씁니다.
+#   · 캐시가 있으면 즉시 표시(체감 속도 동일)
+#   · 동시에 백그라운드로 새 파일을 받아 다음 방문부터 자동 최신화
+#   · ?v 를 올리면 그 즉시 새 파일을 받습니다
+/*.css
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
+/*.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
+/views/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
+# 폰트
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+# 아이콘·로고 등 정적 이미지(버전 없음) — 하루 캐시로 갱신은 빨리, 재방문은 캐시
+/images/*
+  Cache-Control: public, max-age=86400
+/assets/*
+  Cache-Control: public, max-age=86400
+/*.png
+  Cache-Control: public, max-age=86400
+/*.jpg
+  Cache-Control: public, max-age=86400
+/*.webp
+  Cache-Control: public, max-age=86400
+/*.svg
+  Cache-Control: public, max-age=86400
+
+# ===== 산업별 제안서 PDF =====
+# 브라우저 내장 뷰어로 열리지 않고 바로 저장되도록 attachment 로 서빙
+/documents/proposals/*
+  Content-Type: application/pdf
+  Content-Disposition: attachment
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/images/proposals/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

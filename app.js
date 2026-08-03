@@ -1,3 +1,14 @@
+/* ── 개발용 디버그 로그 스위치 ─────────────────────────────────────────
+   기본은 꺼짐(운영). 켜려면 주소 뒤에 ?debug=1 을 붙이거나
+   콘솔에서 localStorage.setItem('monnit_debug','1') 후 새로고침. */
+var MONNIT_DEBUG = (function(){
+  try{
+    if (new URLSearchParams(location.search).get('debug') === '1'){ localStorage.setItem('monnit_debug','1'); return true; }
+    if (new URLSearchParams(location.search).get('debug') === '0'){ localStorage.removeItem('monnit_debug'); return false; }
+    return localStorage.getItem('monnit_debug') === '1';
+  }catch(e){ return false; }
+})();
+function dlog(){ if (MONNIT_DEBUG) console.log.apply(console, arguments); }
 /* ============================================================
    ========== 상담/문의 폼 수신 설정 (FORM DELIVERY) ==========
    ▼ 여기 이메일 한 줄만 바꾸면, 모든 상담신청·구독·백서신청이
@@ -9,6 +20,77 @@
    (대안: Web3Forms 등으로 교체 가능)
    ============================================================ */
 const CONTACT_EMAIL = "korea@monnit.com";   // ← 수신 이메일 주소
+
+/* ============================================================
+   대용량 data.js(지식베이스·가이드 ~1.5MB) 지연 로딩
+   — 홈·광고·대부분 페이지는 이 데이터가 필요 없으므로, 지식베이스/가이드를
+     실제로 열 때만 data.js를 내려받아 초기 로딩을 크게 줄인다.
+   ============================================================ */
+window.KNOWLEDGEBASE = window.KNOWLEDGEBASE || [];  // data.js 로드 전 안전 기본값
+window.GUIDES        = window.GUIDES || [];
+window.__KB_BASE     = window.__KB_BASE || [];
+/* 지식베이스: 시트 행(__kbRows)과 data.js 본문(__KB_BASE)을 병합해 KNOWLEDGEBASE 구성 */
+function rebuildKB(){
+  try{
+    var base = window.__KB_BASE || [];
+    var rows = window.__kbRows || null;
+    if (rows && rows.length && typeof mapKnowledgebase === 'function'){
+      var m = mapKnowledgebase(rows);
+      if (m.length){
+        var byTitle = {}; base.forEach(function(d){ byTitle[(d.title||'').trim()] = d; });
+        window.KNOWLEDGEBASE = m.map(function(row,i){ var mt = byTitle[(row.title||'').trim()]; return Object.assign({ id:'kb'+i, body: mt?mt.body:'' }, row); });
+        return;
+      }
+    }
+    window.KNOWLEDGEBASE = base.slice();   // 시트 KB 행이 없으면 data.js 원본 사용
+  }catch(e){ console.warn('[rebuildKB]', e); }
+}
+/* data.js를 필요 시 1회만 동적 로드 후 콜백 */
+function ensureDataJS(cb){
+  if (window.__DATA_READY){ rebuildKB(); if(cb) cb(); return; }
+  window.__dataCbs = window.__dataCbs || [];
+  if (cb) window.__dataCbs.push(cb);
+  if (window.__dataLoading) return;
+  window.__dataLoading = true;
+  var s = document.createElement('script');
+  s.src = '/data.js?v=110'; s.async = true;
+  s.onload = function(){
+    window.__DATA_READY = true;
+    rebuildKB();                                   // 본문 병합
+    (window.__dataCbs||[]).forEach(function(f){ try{ f&&f(); }catch(e){} });
+    window.__dataCbs = [];
+  };
+  s.onerror = function(){
+    window.__dataLoading = false;
+    console.warn('[data.js] 로드 실패 — 지식베이스/가이드 표시 불가');
+    (window.__dataCbs||[]).forEach(function(f){ try{ f&&f(); }catch(e){} });
+    window.__dataCbs = [];
+  };
+  document.head.appendChild(s);
+}
+/* 솔루션 페이지 HVAC 디지털 트윈 스크립트(약 400KB) — #our-solution 진입 시 1회만 로드
+   (홈·광고 등에서는 로드하지 않아 초기 파싱/실행 부담을 없앰) */
+function ensureSolutionTwin(){
+  if (window.__twinLoaded || window.__twinLoading) return;
+  var mount = document.getElementById('mhTwin');
+  if (!mount) return;   // 컨테이너 없으면 스킵
+  window.__twinLoading = true;
+  var loadScript = function(){
+    var s = document.createElement('script');
+    s.src = '/js/solution-twin.js?v=110'; s.async = true;
+    s.onload = function(){ window.__twinLoaded = true; };
+    s.onerror = function(){ window.__twinLoading = false; console.warn('[solution-twin] script 로드 실패'); };
+    document.head.appendChild(s);
+  };
+  if (mount.__filled){ loadScript(); return; }
+  // 트윈 마크업(약 236KB · SVG/패널)을 먼저 주입한 뒤 애니메이션 스크립트 로드
+  fetch('/views/solution-twin.html?v=110').then(function(r){ return r.ok ? r.text() : ''; })
+    .then(function(html){
+      if (html){ mount.innerHTML = html; mount.__filled = true; loadScript(); }
+      else { window.__twinLoading = false; console.warn('[solution-twin] fragment 비어있음'); }
+    })
+    .catch(function(){ window.__twinLoading = false; console.warn('[solution-twin] fragment 로드 실패'); });
+}
 
 /* ★★★ Google Forms 방식 (구글 인증·차단 없음 / 응답이 구글시트에 자동 저장) ★★★
    설정: 구글폼을 만들고(질문: 이름/회사명·이메일·전화번호·산업군·문의항목·문의내용),
@@ -880,7 +962,7 @@ function normalizeImageUrl(u){
 }
 function mapWhitepapers(rows){
   return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.desc,o.desc_en);
-    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:o.url||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
+    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:o.url||'', dlname:o.dlname||o.filename||'', thumb:o.thumb||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
 }
 function mapFaqs(rows){
   return rows.filter(o => o.question).map(o => { regI18N(o.question,o.question_en); regI18N(o.answer,o.answer_en);
@@ -912,47 +994,49 @@ function eachSlot(cb){
         cb(key, el, el.tagName === 'IMG' ? 'img' : 'text');
       });
     } else {
-      let ti=0; root.querySelectorAll(SLOT_TEXT_SEL).forEach(function(el){ cb(base+'#t'+(ti++), el, 'text'); });
+      /* 위치 기반 슬롯 — 텍스트에 data-sc(고정 키)가 박혀 있으면 그 키를 우선(DOM 순서 변경에도 매핑 유지).
+         단, 고정 키는 반드시 '{base}#t{index}' 형태(내가 주입한 위치키와 동일)여야 위치 인덱스 ti도 함께 소비해 정렬이 어긋나지 않음. */
+      let ti=0; root.querySelectorAll(SLOT_TEXT_SEL).forEach(function(el){ const dsc=el.getAttribute('data-sc'); cb((dsc && dsc.indexOf(base+'#t')===0) ? dsc : (base+'#t'+ti), el, 'text'); ti++; });
       let ii=0; root.querySelectorAll('img').forEach(function(el){ cb(base+'#i'+(ii++), el, 'img'); });
     }
   });
-  console.log('[eachSlot] 총', homeCount, '개 홈 슬롯 처리됨');
+  dlog('[eachSlot] 총', homeCount, '개 홈 슬롯 처리됨');
 }
 function mapSiteContent(rows){
   const out = {};
-  console.log('[mapSC] rows 개수:', rows?.length || 0);
+  dlog('[mapSC] rows 개수:', rows?.length || 0);
   rows.forEach(function(o){ 
     const k=(o.key||'').trim(); 
-    if(!k) { console.log('[mapSC] row key 비움:', o); return; }
+    if(!k) { dlog('[mapSC] row key 비움:', o); return; }
     out[k]={ ko:o.ko||'', en:o.en||'', image:o.image||'' };
-    console.log('[mapSC] ✓', k, '→', (o.ko||'').slice(0,30));
+    dlog('[mapSC] ✓', k, '→', (o.ko||'').slice(0,30));
   });
-  console.log('[mapSC] 완료:', Object.keys(out).length, '개 key');
+  dlog('[mapSC] 완료:', Object.keys(out).length, '개 key');
   return out;
 }
-function applySiteContent(){
-  console.log('[ASC] 시작 — SITE_CONTENT:', Object.keys(SITE_CONTENT||{}).length, '개');
-  if(!SITE_CONTENT || !Object.keys(SITE_CONTENT).length){ console.warn('[ASC] ❌ SITE_CONTENT 비어있음'); return; }
-  console.log('[ASC] SITE_CONTENT keys:', Object.keys(SITE_CONTENT).slice(0,10).join(', '), '...');
+function applySiteContentNow(){
+  dlog('[ASC] 시작 — SITE_CONTENT:', Object.keys(SITE_CONTENT||{}).length, '개');
+  if(!SITE_CONTENT || !Object.keys(SITE_CONTENT).length){ MONNIT_DEBUG && console.warn('[ASC] ❌ SITE_CONTENT 비어있음'); return; }
+  dlog('[ASC] SITE_CONTENT keys:', Object.keys(SITE_CONTENT).slice(0,10).join(', '), '...');
   let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
-  console.log('[ASC] 언어:', lang);
+  dlog('[ASC] 언어:', lang);
   let applied=0, skipped=0, slotCount=0;
   eachSlot(function(key, el, kind){
     slotCount++;
     const row = SITE_CONTENT[key];
-    if(!row){ console.log('[ASC-skip]', key); skipped++; return; }
+    if(!row){ dlog('[ASC-skip]', key); skipped++; return; }
     if(kind==='img'){
       if(row.image && row.image.trim()){ const u=normalizeImageUrl(row.image.trim()); if(el.getAttribute('src')!==u){ el.setAttribute('src',u); applied++; } }
     } else {
       const val = (lang==='en' && row.en && row.en.trim()) ? row.en : row.ko;
       if(val!=null && String(val).trim()!==''){ 
-        console.log('[ASC✓]', key, '→', val.slice(0,40)); 
+        dlog('[ASC✓]', key, '→', val.slice(0,40)); 
         el.innerHTML=val; 
         applied++; 
       }
     }
   });
-  console.log('[ASC] 완료: 총슬롯', slotCount, '| 적용', applied, '| 스킵', skipped);
+  dlog('[ASC] 완료: 총슬롯', slotCount, '| 적용', applied, '| 스킵', skipped);
   (function(){
     const st=SITE_CONTENT['seo#title']; if(st){ const v=(lang==='en'&&st.en&&st.en.trim())?st.en:st.ko; if(v&&v.trim()) document.title=v.trim(); }
     const sd=SITE_CONTENT['seo#description']; if(sd){ const v=(lang==='en'&&sd.en&&sd.en.trim())?sd.en:sd.ko; if(v&&v.trim()){ let m=document.querySelector('meta[name="description"]'); if(!m){ m=document.createElement('meta'); m.setAttribute('name','description'); document.head.appendChild(m); } m.setAttribute('content', v.trim()); } }
@@ -964,10 +1048,22 @@ function applySiteContent(){
     // 없으면 HTML 기본 링크(linktr.ee)를 그대로 유지.
     if(url){ document.querySelectorAll('.cta-download').forEach(a=>{ a.setAttribute('href',url); }); }
   })();
+  /* 파인더 Q1·Q2 목록(finder.config)이 시트에서 들어왔으면 버튼을 다시 그립니다 */
+  try{ if(typeof window.MK_FINDER_REFRESH==='function') window.MK_FINDER_REFRESH(); }catch(e){}
   if(!_siteToggleHooked){
     const lt=document.getElementById('langToggle');
     if(lt){ lt.addEventListener('click', function(){ setTimeout(applySiteContent, 90); }); _siteToggleHooked=true; }
   }
+}
+
+
+/* applySiteContent(): 같은 프레임에 여러 번 불려도 실제 적용은 1회만 (중복 재적용 방지) */
+let _ascPending = false;
+function applySiteContent(){
+  if (_ascPending) return;
+  _ascPending = true;
+  const run = () => { _ascPending = false; try { applySiteContentNow(); } catch(e){ console.warn('[ASC] 적용 실패:', e); } };
+  (window.requestAnimationFrame || setTimeout)(run, 0);
 }
 
 /* Photos (현장 사진) — 한 행 = 사진 1장.  열: key, url, caption, order
@@ -1077,24 +1173,25 @@ async function loadSheetData(){
   add('appdetails',    r => { const m = mapAppDetails(r);    if (hasKeys(m)) APP_DETAILS = m; });
   add('blog',          r => { const m = mapBlog(r);          if (m.length) BLOG = m; });
   add('promotions',    r => { const m = mapPromotions(r);    PROMOS = m; if(typeof renderPromotions==='function') renderPromotions(); });
-  add('whitepapers',   r => { const m = mapWhitepapers(r);   if (m.length) WHITEPAPERS = m; });
+  // 산업별 제안서(16종)는 코드 내 WHITEPAPERS 배열과 /documents/proposals/ PDF 로 고정 운영합니다.
+  // 구글 시트 Whitepapers 탭으로 관리하려면 아래 값을 true 로 바꾸세요.
+  //   ※ true 로 켜기 전에 시트 탭을 16종 한글 제안서로 먼저 교체해야 합니다.
+  //     (열: icon / title / desc / url / category / photo / filename)
+  const WHITEPAPERS_FROM_SHEET = false;
+  if (WHITEPAPERS_FROM_SHEET) add('whitepapers', r => { const m = mapWhitepapers(r); if (m.length) WHITEPAPERS = m; });
   add('news',          r => { const m = mapNews(r);          if (m.length) NEWS_HIGHLIGHTS = m; });
   add('faqs',          r => { const m = mapFaqs(r);          if (m.length) FAQS = m; });
   add('knowledgebase', r => {
-    const m = mapKnowledgebase(r);
-    if (m.length){
-      const byTitle = {}; KNOWLEDGEBASE.forEach(d => { byTitle[(d.title||'').trim()] = d; });
-      KNOWLEDGEBASE = m.map((row,i) => {
-        const match = byTitle[(row.title||'').trim()];
-        return Object.assign({ id:'kb'+i, body: match ? match.body : '' }, row);
-      });
-    }
+    // 시트 행은 즉시 보관하고, 본문(data.js)이 이미 로드됐을 때만 병합.
+    // data.js 미로드 시엔 지식베이스 진입 시 ensureDataJS→rebuildKB가 병합한다.
+    window.__kbRows = r;
+    if (window.__DATA_READY) rebuildKB();
   });
   add('photos',        r => { const m = mapPhotos(r);        if (hasKeys(m)) PHOTOS = Object.assign({}, PHOTOS, m); });
   add('products',      r => { const m = mapProducts(r);      if (m.length) PRODUCTS = m; });
   add('homecases',     r => { const m = mapHomeCases(r);     if (m.length) HOME_CASES = m; });
-  add('logos',         r => { const m = mapLogos(r);         console.log('[add-logos]',m?.length); if(m&&m.length) renderLogos(m); else console.log('[Logos] 데이터 없음'); });
-  add('sitecontent',   r => { console.log('[add-sitecontent] 로드 시작, rows:', r?.length); const sc = mapSiteContent(r); SITE_CONTENT = sc; console.log('[add-sitecontent] 맵핑 완료, 100ms 후 apply'); setTimeout(applySiteContent, 100); });
+  add('logos',         r => { const m = mapLogos(r);         dlog('[add-logos]',m?.length); if(m&&m.length) renderLogos(m); else dlog('[Logos] 데이터 없음'); });
+  add('sitecontent',   r => { dlog('[add-sitecontent] 로드 시작, rows:', r?.length); const sc = mapSiteContent(r); SITE_CONTENT = sc; dlog('[add-sitecontent] 맵핑 완료, 100ms 후 apply'); setTimeout(applySiteContent, 100); });
 
   const results = await Promise.allSettled(jobs);
   results.forEach((res, idx) => {
@@ -1103,7 +1200,7 @@ async function loadSheetData(){
     }
   });
   // 연결 상태 진단: 콘솔에서 시트가 실제로 반영됐는지 바로 확인 가능
-  console.info('[CONTENT_SHEET] 로드 요약 — homecases:' + (HOME_CASES ? HOME_CASES.length : 0)
+  MONNIT_DEBUG && console.info('[CONTENT_SHEET] 로드 요약 — homecases:' + (HOME_CASES ? HOME_CASES.length : 0)
     + '행, cases:' + Object.keys(CASE_DATA).length + '개, products:' + PRODUCTS.length
     + '개, customers:' + CUSTOMERS.length + '개  (sheetId=' + CONTENT_SHEET.sheetId + ')');
   if (!HOME_CASES || !HOME_CASES.length){
@@ -1112,6 +1209,43 @@ async function loadSheetData(){
 }
 
 /* ========== NAVIGATION ========== */
+/* ═══════════════════════════════════════════════════════════════════
+   경로(Path) 라우팅  — 2026-07 해시 라우팅에서 전환
+   ------------------------------------------------------------------
+   화면 이름 ↔ 주소
+     home             →  /
+     stories          →  /stories
+     app/temp         →  /app/temp
+     case/samsung     →  /case/samsung
+     promotions/fire  →  /promotions/fire
+   · 주소는 history.pushState 로 바꾸므로 새로고침·공유·뒤로가기가 모두 됩니다.
+   · 예전 #해시 주소로 들어와도 부팅 때 같은 경로로 조용히 바꿔 줍니다.
+   ═══════════════════════════════════════════════════════════════════ */
+const ROUTE_PREFIX = '';                 // 하위 폴더 배포 시에만 사용 (예: '/site')
+function routeToPath(target){
+  const t = String(target||'').replace(/^[#/]+/,'').replace(/\/+$/,'');
+  return (!t || t==='home') ? (ROUTE_PREFIX||'/') : (ROUTE_PREFIX + '/' + t);
+}
+function pathToRoute(pathname){
+  let p = String(pathname||'/');
+  if (ROUTE_PREFIX && p.indexOf(ROUTE_PREFIX)===0) p = p.slice(ROUTE_PREFIX.length);
+  p = p.replace(/^\/+|\/+$/g,'');
+  if (!p) return 'home';
+  p = p.replace(/\.html$/,'');           // 혹시 남은 .html 주소도 받아 줍니다
+  return decodeURIComponent(p);
+}
+let _navSilent = false;                  // 뒤로가기 처리 중에는 주소를 다시 쌓지 않습니다
+function setURL(target, replace){
+  if (_navSilent) return;
+  try{
+    const url = routeToPath(target) + location.search;
+    if (location.pathname + location.search !== url){
+      history[replace ? 'replaceState' : 'pushState']({ route:String(target||'') }, '', url);
+    }
+    if (typeof window.MK_TRACK_PAGEVIEW === 'function') window.MK_TRACK_PAGEVIEW();
+  }catch(e){}
+}
+
 function navigate(target) {
   // target: "stories", "applications", "awards", "partners", "case/{id}", or "app/{id}"
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1119,26 +1253,44 @@ function navigate(target) {
 
   if (target.startsWith('case/')) {
     const caseId = target.slice(5);
+    // 아직 내용이 없는 사례는 빈 화면 대신 '준비 중' 안내로 보냅니다
+    if (!CASE_DATA[caseId]) {
+      renderCaseComingSoon(caseId);
+      document.getElementById('view-coming').classList.add('active');
+      { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
+      setURL(target);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
     renderCaseDetail(caseId);
     document.getElementById('view-case').classList.add('active');
     { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
-    window.location.hash = target;
+    setURL(target);
   } else if (target.startsWith('app/')) {
     const appId = target.slice(4);
+    // 아직 내용이 없는 활용분야는 빈 화면 대신 '준비 중' 안내로 보냅니다
+    if (!APPS.some(a => a.id === appId)) {
+      renderComingSoon(appId);
+      document.getElementById('view-coming').classList.add('active');
+      { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
+      setURL(target);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
     renderAppDetail(appId);
     document.getElementById('view-app-detail').classList.add('active');
     { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
-    window.location.hash = target;
+    setURL(target);
   } else if (target.startsWith('promotions/')) {
     // 프로모션 상세 딥링크 (#promotions/{id}) — 빈 페이지 방지
     const promoId = decodeURIComponent(target.slice('promotions/'.length));
     document.getElementById('view-promotions').classList.add('active');
     const pnav = document.querySelector('.nav-promo-btn') || document.querySelector('[data-nav="promotions"]');
     if (pnav) pnav.classList.add('active');
-    window.location.hash = target;
+    setURL(target);
     // PROMOS가 아직 로드 안 됐으면(특히 모바일 저속망) 로드 후 열도록 재시도
     const tryOpen = (n) => {
-      if (PROMOS && PROMOS.length){ openPromo(promoId, true); }
+      if (PROMOS && PROMOS.length){ openPromo(promoId, true); }   // openPromo 안에서 기간 검사 후 차단
       else if (n > 0){ setTimeout(() => tryOpen(n-1), 300); }
       else { if (typeof closePromo === 'function') closePromo(true); }
     };
@@ -1150,7 +1302,10 @@ function navigate(target) {
     _view.classList.add('active');
     const navBtn = document.querySelector(`.nav-link[data-nav="${target}"]`);
     if (navBtn) navBtn.classList.add('active');
-    window.location.hash = target === 'home' ? '' : target;
+    setURL(target);
+
+    // 솔루션 페이지 진입 시에만 HVAC 디지털 트윈 스크립트 지연 로드
+    if (target === 'our-solution' && typeof ensureSolutionTwin === 'function') { ensureSolutionTwin(); }
 
     // 다른 메뉴를 거쳐 다시 들어왔을 때 기술지원/기술문서는 항상 초기 화면으로
     if (target === 'promotions' && typeof closePromo === 'function') { closePromo(); }
@@ -1159,17 +1314,24 @@ function navigate(target) {
       kbState.page = 1; kbState.docId = null; kbState.ret = null;
       const ks = document.getElementById('kbSearch'); if (ks) ks.value = '';
       const kc = document.getElementById('kbSearchClear'); if (kc) kc.style.display = 'none';
-      if (typeof renderKnowledgebase === 'function') renderKnowledgebase();
+      // data.js(지식베이스 본문)를 이 시점에만 로드 → 로드 후 렌더
+      if (!window.__DATA_READY){ const _g=document.getElementById('kbGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">지식베이스를 불러오는 중…</div>'; }
+      ensureDataJS(function(){ if (typeof renderKnowledgebase === 'function') renderKnowledgebase(); });
     }
     if (target === 'guides' && typeof guideModule !== 'undefined' && guideModule.reset) {
-      guideModule.reset();
+      if (!window.__DATA_READY){ const _g=document.getElementById('gGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">가이드를 불러오는 중…</div>'; }
+      ensureDataJS(function(){ if (guideModule && guideModule.reset) guideModule.reset(); });
     }
   }
+  // 뷰를 열 때마다 최신 시트 본문(SiteContent)을 다시 적용 → 어떤 화면이든 시트 값이 항상 반영
+  try { if (typeof applySiteContent === 'function' && SITE_CONTENT && Object.keys(SITE_CONTENT).length) applySiteContent(); } catch(e){}
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 document.querySelectorAll('[data-nav]').forEach(el => {
   el.addEventListener('click', e => {
+    // Ctrl/Cmd/Shift+클릭·가운데 버튼은 브라우저에 맡겨 새 탭으로 열리게 둡니다
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
     e.preventDefault();
     navigate(el.dataset.nav);
   });
@@ -1210,14 +1372,18 @@ document.querySelectorAll('[data-go-case]').forEach(el => {
   el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
 });
 
+/* 뒤로/앞으로 — 주소를 다시 쌓지 않고 화면만 되돌립니다 */
 window.addEventListener('popstate', () => {
-  const hash = window.location.hash.replace('#', '');
-  if (!hash) navigate('home');
-  else navigate(hash);
+  const route = pathToRoute(location.pathname);
+  _navSilent = true;
+  try { navigate(route); } finally { _navSilent = false; }
 });
 
 /* ========== STORIES / AWARDS / PARTNERS (시트 데이터로 렌더) ========== */
+function bindOnce(el, ev, fn){ if(el && !el.__bound){ el.addEventListener(ev, fn); el.__bound = true; } }
 function renderData() {
+/* 재렌더(구글 시트 로드 후) 시 목록 중복 방지 — append 대상 컨테이너를 먼저 비운다 */
+['featuredGrid','filterBar','cardsGrid','awardCatBars','yearChips','catChips','awardsList','regionChips','partnersList'].forEach(function(_id){ var _e=document.getElementById(_id); if(_e) _e.innerHTML=''; });
 /* ========== STORIES VIEW ========== */
 const featuredGrid = document.getElementById('featuredGrid');
 const _labelToKey = {}; Object.entries(INDUSTRIES).forEach(([k,v]) => { _labelToKey[v.label] = k; });
@@ -1313,7 +1479,7 @@ CUSTOMERS.forEach(c => {
   cardsGrid.appendChild(card);
 });
 
-filterBar.addEventListener('click', e => {
+bindOnce(filterBar, 'click', e => {
   const btn = e.target.closest('.filter-btn');
   if (!btn) return;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1401,7 +1567,7 @@ function applyAwardsFilter() {
   });
 }
 
-yearChips.addEventListener('click', e => {
+bindOnce(yearChips, 'click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   document.querySelectorAll('#yearChips .chip').forEach(c => c.classList.remove('active'));
@@ -1410,7 +1576,7 @@ yearChips.addEventListener('click', e => {
   applyAwardsFilter();
 });
 
-catChips.addEventListener('click', e => {
+bindOnce(catChips, 'click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   document.querySelectorAll('#catChips .chip').forEach(c => c.classList.remove('active'));
@@ -1485,7 +1651,7 @@ regions.forEach(r => {
     + '<span class="wm-tip">'+(REGION_KO[r]||'')+' <b>'+REGION_LABELS[r]+'</b> · '+ct+'곳</span>';
   wmPins.appendChild(btn);
 });
-regionGrid.addEventListener('click', e => {
+bindOnce(regionGrid, 'click', e => {
   const hit = e.target.closest('.wm-pin, .wm-region');
   if (!hit) return;
   const r = hit.dataset.region;
@@ -1519,14 +1685,14 @@ function applyPartnersFilter() {
   resetBtn.classList.toggle('visible', currentRegion !== 'all');
 }
 
-regionChips.addEventListener('click', e => {
+bindOnce(regionChips, 'click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
   currentRegion = btn.dataset.region;
   applyPartnersFilter();
 });
 
-resetBtn.addEventListener('click', () => {
+bindOnce(resetBtn, 'click', () => {
   currentRegion = 'all';
   applyPartnersFilter();
 });
@@ -1536,14 +1702,14 @@ applyPartnersFilter();
 
 /* ========== CASE STUDY DETAIL RENDER ========== */
 const CASE_HERO_BG = {
-  'us-army': 'images/case-hero-us-army.jpg',
-  'exxonmobil': 'images/img-31.jpg',
-  'gs-eps': 'images/case-hero-gs-eps.jpg',
-  'microsoft': 'images/case-hero-microsoft.jpg',
-  'cbre': 'images/img-35.jpg',
-  'walmart': 'images/img-36.jpg',
-  'hyundai-motors': 'images/case-hero-hyundai-motors.jpg',
-  'samsung-biologics': 'images/img-45.jpg'
+  'us-army': '/images/case-hero-us-army.jpg',
+  'exxonmobil': '/images/img-31.jpg',
+  'gs-eps': '/images/case-hero-gs-eps.jpg',
+  'microsoft': '/images/case-hero-microsoft.jpg',
+  'cbre': '/images/img-35.jpg',
+  'walmart': '/images/img-36.jpg',
+  'hyundai-motors': '/images/case-hero-hyundai-motors.jpg',
+  'samsung-biologics': '/images/img-45.jpg'
 };
 /* 카드 배너(가로형)에서 정사각형 사진의 핵심 피사체가 보이도록 표시 위치 보정 */
 const CASE_HERO_POS = {
@@ -2395,15 +2561,15 @@ function mapLogos(rows){
 }
 let _logosRendered = false;
 function renderLogos(list){
-  if(!list || !list.length){ console.log('[Logos] 데이터 없음'); return; }
-  if(_logosRendered){ console.log('[Logos] 이미 렌더링됨 (중복 호출 방지)'); return; }
+  if(!list || !list.length){ dlog('[Logos] 데이터 없음'); return; }
+  if(_logosRendered){ dlog('[Logos] 이미 렌더링됨 (중복 호출 방지)'); return; }
   // 흰색 통일 보장: 시트에 외부 URL(컬러) 로고가 하나라도 있으면 배포된 정적 흰색 로고 마퀴를 그대로 유지.
   // 시트를 흰색 로컬 로고(images/clogo-*.png)로 갱신한 경우에만 시트 기준으로 렌더링.
   var allLocal = list.every(function(it){ return !it.image || /^images\//.test(String(it.image)); });
-  if(!allLocal){ console.log('[Logos] 외부 URL 감지 → 배포된 흰색 로고 유지(시트 무시)'); return; }
+  if(!allLocal){ dlog('[Logos] 외부 URL 감지 → 배포된 흰색 로고 유지(시트 무시)'); return; }
   const track = document.querySelector('.logo-marquee .logo-track');
   if(!track){ console.warn('[Logos] DOM 요소 없음'); return; }
-  console.log('[Logos] 렌더링:', list.length, '개');
+  dlog('[Logos] 렌더링:', list.length, '개');
   const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const slide = it => {
     const src = it.image ? (typeof normalizeImageUrl==='function'? normalizeImageUrl(it.image) : it.image) : '';
@@ -2415,7 +2581,7 @@ function renderLogos(list){
   const html = list.map(slide).join('');
   track.innerHTML = html + html;
   _logosRendered = true;
-  console.log('[Logos] 완료');
+  dlog('[Logos] 완료');
 }
 
 function renderHomeCases() {
@@ -2475,6 +2641,119 @@ homeCases.querySelectorAll('.home-case-card').forEach(card => {
 renderHomeCases();
 
 /* ========== APP DETAIL RENDERING ========== */
+/* ═══════════════════════════════════════════════════════════════════
+   준비 중 콘텐츠 안내 화면
+   · 파인더에서 아직 상세 페이지가 없는 활용분야를 고른 경우에 표시합니다.
+   · 빈 화면으로 튕기지 않고 상담·전화로 이어주고, 다른 콘텐츠도 안내합니다.
+   · 나중에 에디터에서 해당 어플리케이션을 추가하면 이 화면은 자동으로
+     사라지고 정상 상세 페이지가 열립니다 (별도 작업 불필요).
+   ═══════════════════════════════════════════════════════════════════ */
+function comingSoonLabel(id){
+  // 파인더 설정(finder.config)에 이름이 있으면 그 이름을 씁니다
+  try{
+    const el=document.querySelector('[data-sc="finder.config"]');
+    const raw=el?(el.textContent||'').trim():'';
+    if(raw){
+      const cfg=JSON.parse(raw);
+      // 준비 중인 신규 어플리케이션 이름표 (finder.config 의 soon 목록)
+      if(cfg.soon && cfg.soon[id]) return cfg.soon[id];
+      const hit=[].concat(cfg.fac||[],cfg.con||[]).find(x=>('app/'+String(x.app||''))===('app/'+id)||String(x.id||'')===id);
+      if(hit&&hit.ko) return hit.ko;
+    }
+  }catch(e){}
+  return '';
+}
+/* 준비 중 화면 — 활용분야·도입사례·프로모션 등 어디서든 같은 모양으로 씁니다.
+   opts = { kind, title, sub, back:[[route,라벨],...] } · 값이 없으면 활용분야 기준 기본값 */
+function comingSoonHTML(opts){
+  opts = opts || {};
+  let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+  const en=(lang==='en');
+  const title = opts.title || (en?'Preparing this page':'준비 중입니다');
+  const sub   = opts.sub || (en
+    ? 'Page in preparation. Send us your site details and we will reply with a sensor set-up and estimate within 24 hours.'
+    : '상세 페이지를 준비 중입니다.<br>현장 상황을 남겨 주시면 <b>24시간 안에</b> 센서 구성과 예상 비용을 보내드립니다.');
+  const back = opts.back || [['applications',en?'All applications':'전체 활용분야'],
+                             ['stories',en?'Customer stories':'도입 사례'],
+                             ['products',en?'Products':'제품'],['home',en?'Home':'홈']];
+  return ''
+    + '<div style="max-width:520px;margin:0 auto;padding:'+(opts.pad||'96px 20px 112px')+';text-align:center">'
+    + '<div style="font-size:12px;letter-spacing:.16em;font-weight:700;color:var(--accent-dark,#6B9FD6);margin-bottom:18px">'
+    +   (en?'IN PREPARATION':'준비 중')+'</div>'
+    + '<h2 style="font-size:clamp(23px,3.6vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.35;margin:0 0 16px">'+title+'</h2>'
+    + '<p style="font-size:15px;line-height:1.8;color:var(--ink-mid,#B7BECD);word-break:keep-all;margin:0 0 32px">'+sub+'</p>'
+    + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px">'
+    +   '<button type="button" class="cs-cta" style="display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border:0;border-radius:13px;background:var(--accent,#4A82C4);color:#fff;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;white-space:nowrap">'
+    +     (en?'Free site review →':'무료 현장 진단 신청 →')+'</button>'
+    +   '<a href="tel:02-2088-1454" style="display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 24px;border-radius:13px;border:1.5px solid var(--line,#26304A);color:var(--ink,#EEF1F6);font-weight:700;font-size:15px;white-space:nowrap">'
+    +     (en?'Call 02-2088-1454':'전화 상담')+'</a>'
+    + '</div>'
+    + '<p style="font-size:12.5px;color:var(--ink-soft,#838C9E);margin:0 0 44px">'+(en?'Free of charge':'진단 무료')+'</p>'
+    + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
+    +   back.map(function(p){ return '<button type="button" class="cs-link" data-go="'+esc(p[0])+'" style="background:none;border:1px solid var(--line,#26304A);border-radius:999px;padding:9px 16px;font-size:13px;color:var(--ink-soft,#838C9E);cursor:pointer;font-family:inherit">'+esc(p[1])+'</button>'; }).join('')
+    + '</div></div>';
+}
+/* 준비 중 화면의 버튼 동작 연결 (상담 폼에 맥락을 미리 채워 줍니다) */
+function bindComingSoon(root, ctx){
+  ctx = ctx || {};
+  root.querySelectorAll('.cs-link').forEach(function(b){ b.onclick=function(){ navigate(b.dataset.go); }; });
+  const c=root.querySelector('.cs-cta');
+  if(c) c.onclick=function(){
+    navigate('contact');
+    setTimeout(function(){
+      try{
+        const sel=document.getElementById('c-industry')||document.getElementById('f-type');
+        if(sel&&ctx.facLabel){ for(let i=0;i<sel.options.length;i++){ if(sel.options[i].text.indexOf(ctx.facLabel)>=0){ sel.selectedIndex=i; break; } } }
+        const msg=document.getElementById('c-message');
+        if(msg&&!msg.value&&ctx.memo) msg.value=ctx.memo;
+      }catch(e){}
+    },400);
+  };
+}
+
+function renderComingSoon(id){
+  let v=document.getElementById('view-coming');
+  if(!v){
+    v=document.createElement('section');
+    v.className='view'; v.id='view-coming';
+    (document.querySelector('main')||document.body).appendChild(v);
+  }
+  let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+  const en=(lang==='en');
+  const pick=(window.MK_PICK||{});
+  const facL=(pick.facLabel||'').trim();
+  const conL=(pick.conLabel||'').trim();
+  const name=comingSoonLabel(id);
+  const both=(facL&&conL);
+
+  /* 제목 — 파인더로 왔으면 고른 조합, 아니면 활용분야 이름 */
+  const title = both ? (esc(facL)+' <em>'+esc(conL)+'</em>')
+              : (name ? esc(name) : (en?'Preparing this page':'준비 중입니다'));
+
+  v.innerHTML = '<div class="wrap">' + comingSoonHTML({ title:title }) + '</div>';
+  bindComingSoon(v, { facLabel:facL, memo: both ? (facL+' · '+conL+' 관련 구성과 예상 비용 문의') : (name? name+' 관련 문의':'') });
+  try{ if(window.gtag) gtag('event','coming_soon_view',{kind:'app',app_id:id,fac:pick.fac||'',con:pick.con||''}); }catch(e){}
+}
+
+/* 도입 사례가 아직 없을 때 — 같은 화면을 사례 문구로 */
+function renderCaseComingSoon(id){
+  let v=document.getElementById('view-coming');
+  if(!v){ v=document.createElement('section'); v.className='view'; v.id='view-coming';
+    (document.querySelector('main')||document.body).appendChild(v); }
+  let lang='ko'; try{ lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
+  const en=(lang==='en');
+  const cu=(typeof CUSTOMERS!=='undefined'?CUSTOMERS:[]).find(c=>String(c.key||'')===String(id));
+  const nm=(cu&&cu.n)?cu.n:'';
+  v.innerHTML = '<div class="wrap">' + comingSoonHTML({
+    title: nm ? (esc(nm)+' <em>'+(en?'case study':'도입 사례')+'</em>') : (en?'Case study in preparation':'도입 사례를 준비 중입니다'),
+    sub: en ? 'This case study is being written. Tell us about your site and we will share a similar reference and an estimate within 24 hours.'
+            : '이 사례는 현재 정리 중입니다.<br>현장 상황을 남겨 주시면 <b>비슷한 사례</b>와 예상 구성을 24시간 안에 보내드립니다.',
+    back: [['stories',en?'Other case studies':'다른 도입 사례'],['applications',en?'All applications':'전체 활용분야'],
+           ['products',en?'Products':'제품'],['home',en?'Home':'홈']]
+  }) + '</div>';
+  bindComingSoon(v, { memo: nm ? (nm+' 도입 사례와 비슷한 구성 문의') : '' });
+  try{ if(window.gtag) gtag('event','coming_soon_view',{kind:'case',case_id:id}); }catch(e){}
+}
 function renderAppDetail(id) {
   const app = APPS.find(a => a.id === id);
   if (!app) { navigate('applications'); return; }
@@ -2734,8 +3013,17 @@ async function wpRequest(){
   const dl = (wp.url || '').trim();
   // 백서 선택 + 이메일 입력을 마친 시점에 다운로드 제공
   // (클릭 제스처 안에서 즉시 열어 팝업 차단을 방지)
-  if (dl) { try { window.open(dl, '_blank', 'noopener'); } catch(e){} }
-  // ★ PDF 열람 비밀번호 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
+  if (dl) {
+    try {
+      if (dl.charAt(0) === '/') {               // 자사 서버 PDF → 새 탭 없이 바로 저장
+        const a = document.createElement('a');
+        a.href = dl; a.download = wp.dlname || dl.split('/').pop();
+        a.style.display = 'none'; document.body.appendChild(a); a.click();
+        setTimeout(function(){ a.remove(); }, 1000);
+      } else { window.open(dl, '_blank', 'noopener'); }
+    } catch(e){ try { window.open(dl, '_blank', 'noopener'); } catch(_){} }
+  }
+  // ★ 제안서 다운로드 안내 메일 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
   try {
     if (PW_MAIL_URL) {
       var _pwBody = JSON.stringify({ token: PW_MAIL_TOKEN, email: v, title: wp.title });
@@ -2747,10 +3035,10 @@ async function wpRequest(){
       body: JSON.stringify({
         email: v,
         name: 'Monnit Korea',
-        _subject: '[자동발송 로그] 제안서 비밀번호 안내 — ' + wp.title,
+        _subject: '[자동발송 로그] 제안서 다운로드 안내 — ' + wp.title,
         _captcha: 'false',
         제안서: wp.title,
-        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\nPDF 파일의 열람 비밀번호는 아래와 같습니다.\n\n■ 열람 비밀번호: mk2026\n\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
+        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\n다운로드하신 PDF는 비밀번호 없이 바로 열람하실 수 있습니다.\n문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.\n\n현장 상황에 맞춘 구성·견적 상담은 언제든 도와드리겠습니다.\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
       })}).catch(function(){});
   } catch(e){}
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
@@ -2762,7 +3050,7 @@ async function wpRequest(){
     출처: location.href
   }, btn);
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다. ' : '') + 'PDF 열람 비밀번호를 입력하신 이메일(' + v + ')로 보내드렸습니다.');
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다.\n' : '') + 'PDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.');
     if (em) em.value = ''; if (sel) sel.value = '';
   } else if (ok === 'mailto') {
     alert((dl ? '다운로드가 시작되었습니다.\n' : '') + '메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
@@ -2830,21 +3118,192 @@ let BLOG = [
   { date:'2025.10.24', title:'겨울철 설비 동파, 스마트하게 막는 법', body:'온도·누수 센서를 결합한 조기 경보로 한파 시즌의 배관 동파와 누수 피해를 예방하는 방법을 소개합니다.', thumb:'◇', url:'https://blog.naver.com/monnitkorea' }
 ];
 let PROMOS = [];
+/* ── 사이트 내장 프로모션 ─────────────────────────────────────────────
+   Promotions 시트에 행이 없어도 프로모션 목록에 항상 노출됩니다.
+   시트에 같은 id(consulting) 행을 추가하면 시트 값이 우선 적용됩니다.
+   내리고 싶으면 아래 배열을 [] 로 비우세요. */
+const BUILTIN_PROMOS = [{
+  id: 'consulting',
+  title: '회전설비 AI 예지보전 1개월 무료 체험',
+  html: '',
+  period: '8월 한정',
+  badge: 'NEW',
+  desc: '무료 컨설팅 후 핵심 설비에 센서를 무상 설치. 한 달 데이터를 보고 도입을 결정하세요.',
+  image: '/images/promo-consulting-banner.jpg',
+  images: [],
+  link: '/promo/consulting',
+  start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
+  end:   '2026-08-31',   // 한국시간 이 날 24:00 까지
+  order: 0
+}];
+/* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
+   (여기서 바로 채우면 status 가 없어 첫 화면에서 모든 카드가 '진행 중이 아님'으로 보입니다) */
+
+/* 종료된 프로모션을 목록에 남길지 여부.
+   true  → 이미지를 어둡게 덮고 '프로모션 종료' 표시, 목록 맨 뒤로 정렬 (현재 설정)
+   false → 예전처럼 목록에서 완전히 숨김 */
+const PROMO_SHOW_ENDED = true;
+
+/* ── 프로모션 대표 이미지(카드 썸네일) 기본값 ───────────────────────
+   에디터(시트)의 image 값이 비어 있을 때만 쓰는 예비 이미지입니다.
+   에디터에서 이미지를 넣으면 무조건 그 값이 화면에 나옵니다.
+   · 이유: 외부 이미지 호스트(ibb.co 등)는 느리고 링크가 끊길 수 있어,
+     사이트 안에 최적화한 webp 를 두고 직접 서빙합니다. (장당 약 900KB → 80KB)
+   · 파일 위치: /images/promo-{id}.webp  (og:image 용 .jpg 도 같이 있습니다)
+   · 다시 시트로 관리하고 싶은 프로모션은 아래에서 해당 줄만 지우면 됩니다. */
+const PROMO_LOCAL_IMG = {
+  fire:   '/images/promo-fire.webp',    // 물류센터 화재예방 알리미
+  flame:  '/images/promo-flame.webp',   // 무선 불꽃감지기 출시 특가
+  water:  '/images/promo-water.webp',   // 실시간 침수 알리미
+  elect:  '/images/promo-elect.webp',   // 실시간 정전 알리미
+  church: '/images/promo-church.webp',  // 스마트 교회 알리미
+  soil:   '/images/promo-soil.webp'     // 산사태 사전감지 솔루션
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   프로모션 기간(한국시간 KST 고정) — 방문자 기기 시간대와 무관하게 동작
+   · start/end 열이 있으면 그 값을 쓰고, 없으면 period 문구에서 자동 추출
+   · 상태: upcoming(시작 전) / active(진행 중) / ended(종료)
+   ═══════════════════════════════════════════════════════════════════ */
+/* KST 기준 특정 날짜의 자정을 UTC 타임스탬프로 (KST = UTC+9) */
+function kstMidnight(y, m, d){ return Date.UTC(y, m - 1, d, -9, 0, 0, 0); }
+function kstToday(){
+  const n = new Date(Date.now() + 9 * 3600000);
+  return { y: n.getUTCFullYear(), m: n.getUTCMonth() + 1, d: n.getUTCDate() };
+}
+/* 'YYYY-MM-DD' | 'YYYY.M.D' | 'M/D' | 'M월 D일' → {y,m,d} (연도 없으면 추론) */
+function parseKDate(str, baseYear){
+  if (!str) return null;
+  const t = String(str).trim();
+  let m = t.match(/(20\d{2})\s*[-./년]\s*(\d{1,2})\s*[-./월]\s*(\d{1,2})/);
+  if (m) return { y:+m[1], m:+m[2], d:+m[3] };
+  m = t.match(/(\d{1,2})\s*[/.월]\s*(\d{1,2})/);
+  if (m){
+    const mo = +m[1], da = +m[2];
+    if (mo < 1 || mo > 12 || da < 1 || da > 31) return null;
+    let y = baseYear || kstToday().y;
+    // 지난 6개월보다 더 과거로 계산되면 내년으로 간주 (연말·연초 대응)
+    if (kstMidnight(y, mo, da) < Date.now() - 182 * 86400000) y += 1;
+    return { y:y, m:mo, d:da };
+  }
+  return null;
+}
+/* period 문구에서 시작·종료일 추출
+   지원: '7/30까지' '~8/31' '8/1 ~ 8/31' '2026.08.01 ~ 08.31' '8월 한정' '8월 1일 ~ 8월 31일' */
+function parsePeriodRange(period){
+  const out = { start:null, end:null };
+  if (!period) return out;
+  const t = String(period).replace(/\s+/g, ' ').trim();
+
+  // 'N월 한정' → 그 달 1일 ~ 말일
+  let m = t.match(/(\d{1,2})\s*월\s*한정/);
+  if (m){
+    const mo = +m[1]; let y = kstToday().y;
+    if (kstMidnight(y, mo, 1) < Date.now() - 182 * 86400000) y += 1;
+    out.start = { y:y, m:mo, d:1 };
+    out.end   = { y:y, m:mo, d:new Date(Date.UTC(y, mo, 0)).getUTCDate() };
+    return out;
+  }
+  // 범위 표기 (~ 또는 - 로 구분)
+  const parts = t.split(/\s*[~–—]\s*|\s+-\s+/);
+  if (parts.length >= 2){
+    const a = parseKDate(parts[0]);
+    let b = parseKDate(parts[1]);
+    if (a && !b){ // '8/1 ~ 31' 처럼 뒤에 일자만 있는 경우
+      const dd = (parts[1].match(/(\d{1,2})/) || [])[1];
+      if (dd) b = { y:a.y, m:a.m, d:+dd };
+    }
+    if (a) out.start = a;
+    if (b) out.end = b;
+    if (out.start || out.end) return out;
+  }
+  // '…까지' 단일 종료일
+  if (/까지/.test(t)){ out.end = parseKDate(t); return out; }
+  // 그 외 날짜 하나만 있으면 종료일로 간주
+  out.end = parseKDate(t);
+  return out;
+}
+/* 프로모션 객체에 startTs/endTs/status 부여 */
+function applyPromoSchedule(p){
+  if (!String(p.image || '').trim() && PROMO_LOCAL_IMG[p.id]) p.image = PROMO_LOCAL_IMG[p.id];   // 에디터 값이 항상 우선. 비어 있을 때만 내장 이미지
+  const fromPeriod = parsePeriodRange(p.period);
+  const s = parseKDate(p.start) || fromPeriod.start;
+  let   e = parseKDate(p.end)   || fromPeriod.end;
+  /* '7/30까지' 처럼 연도가 없는 종료일은 parseKDate 가 "지나갔으면 내년" 으로
+     밀어 버려서, 해가 바뀌면 끝난 프로모션이 다시 살아납니다.
+     시트의 end 열에 연도가 없고 종료일이 6개월 넘게 미래로 계산되면 작년으로 되돌립니다. */
+  if (e && !/20\d{2}/.test(String(p.end || '') + ' ' + String(p.period || ''))){
+    if (kstMidnight(e.y, e.m, e.d) > Date.now() + 182 * 86400000) e = { y:e.y - 1, m:e.m, d:e.d };
+  }
+  p.startTs = s ? kstMidnight(s.y, s.m, s.d) : null;               // 시작일 00:00 KST
+  p.endTs   = e ? kstMidnight(e.y, e.m, e.d) + 86400000 : null;    // 종료일 24:00 KST (당일 포함)
+  p.startLabel = s ? (s.y + '년 ' + s.m + '월 ' + s.d + '일') : '';
+  p.endLabel   = e ? (e.y + '년 ' + e.m + '월 ' + e.d + '일') : '';
+  const now = Date.now();
+  if (p.forcedEnded)                    p.status = 'ended';
+  else if (p.endTs   && now >= p.endTs) p.status = 'ended';
+  else if (p.startTs && now <  p.startTs) p.status = 'upcoming';
+  else                                  p.status = 'active';
+  return p;
+}
+/* 지금 신청 가능한 프로모션 / 곧 시작하는 프로모션 */
+function activePromos(){ return PROMOS.filter(p => p.status === 'active'); }
+function upcomingPromos(){
+  return PROMOS.filter(p => p.status === 'upcoming').sort((a,b) => (a.startTs||0) - (b.startTs||0));
+}
+function endedPromos(){ return PROMOS.filter(p => p.status === 'ended'); }
+
+/* ── 노출 순서: 진행 중 → 시작 전 → 종료 ────────────────────────────
+   같은 그룹 안에서는
+   · 진행 중  : 시트 order 순 (기존 노출 순서 유지)
+   · 시작 전  : 먼저 열리는 것부터
+   · 종료     : 최근에 끝난 것부터
+   ------------------------------------------------------------------ */
+const PROMO_RANK = { active: 0, upcoming: 1, ended: 2 };
+function sortPromos(list){
+  return list.slice().sort((a, b) => {
+    const ra = PROMO_RANK[a.status] != null ? PROMO_RANK[a.status] : 3;
+    const rb = PROMO_RANK[b.status] != null ? PROMO_RANK[b.status] : 3;
+    if (ra !== rb) return ra - rb;
+    if (a.status === 'upcoming') return (a.startTs || 0) - (b.startTs || 0);
+    if (a.status === 'ended')    return (b.endTs   || 0) - (a.endTs   || 0);
+    return (a.order || 0) - (b.order || 0);
+  });
+}
+/* 화면을 그리는 시점의 '지금'으로 상태를 다시 계산합니다.
+   (탭을 켜 둔 채 자정을 넘겨도 종료된 프로모션이 진행 중으로 남지 않도록) */
+function refreshPromoStatuses(){
+  PROMOS.forEach(applyPromoSchedule);
+  PROMOS = sortPromos(PROMOS);
+  return PROMOS;
+}
+/* 시트가 로드되기 전에 보여 줄 내장 프로모션 — 상태·정렬까지 적용해서 넣습니다 */
+PROMOS = sortPromos(BUILTIN_PROMOS.map(b => applyPromoSchedule(Object.assign({}, b))));
 function mapPromotions(rows){
-  return rows.filter(o => (o.title || o.html || o.images || o.image) && String(o.ended||'').trim().toLowerCase() !== '1' && String(o.ended||'').trim().toLowerCase() !== 'true')
+  const out = rows.filter(o => (o.title || o.html || o.images || o.image))
     .map(o => ({
+      // 시트의 ended 열은 '기간과 무관하게 강제 종료' 스위치로 씁니다
+      forcedEnded: /^(1|true|y|yes)$/i.test(String(o.ended||'').trim()),
+      start: (o.start||'').trim(),
+      end: (o.end||'').trim(),
       id: (o.id||'').trim(),
       title: o.title||'',
       html: o.html||'',
       period: o.period||'',
       badge: o.badge||'',
       desc: o.desc||'',
+      link: (o.link||'').trim(),   // 값이 있으면 카드 클릭 시 해당 랜딩페이지로 이동
       image: normalizeImageUrl(o.image||''),
       // 상세 페이지용 이미지들 (||로 여러 장 구분). 각 항목의 ':: 캡션' 부분은 제거. images 없으면 image 한 장 사용
       images: (o.images||'').split('||').map(s=>normalizeImageUrl((s.split('::')[0]||'').trim())).filter(Boolean),
       order: parseInt(o.order,10) || 999
     }))
     .sort((a,b) => a.order - b.order);
+  // 시트에 없는 내장 프로모션을 합칩니다 (시트 우선)
+  BUILTIN_PROMOS.forEach(b => { if (!out.some(p => p.id === b.id)) out.push(Object.assign({}, b)); });
+  out.forEach(applyPromoSchedule);
+  // 진행 중 → 시작 전 → 종료 순 (같은 그룹 안 규칙은 sortPromos 참고)
+  return sortPromos(out);
 }
 let NEWS_HIGHLIGHTS = [
   { title:'2026 IoT Sensor Company of the Year 수상', desc:'Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.', url:'https://blog.naver.com/monnitkorea' },
@@ -2852,14 +3311,22 @@ let NEWS_HIGHLIGHTS = [
   { title:'신형 ALTA / ALTA XL Ethernet Gateway 4K 발표', desc:'대규모 센서 네트워크를 위한 차세대 게이트웨이를 출시했습니다.', url:'https://blog.naver.com/monnitkorea' }
 ];
 let WHITEPAPERS = [
-  { icon:"▤", title:"Food Services and Restaurants", desc:"식음 서비스 시설의 운영 안정성과 식품 안전 관리를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP001-Food-Services-Whitepaper.pdf", photo:"https://insights.ehl.edu/hs-fs/hubfs/attention-to-detail.jpg?width=700&height=300&name=attention-to-detail.jpg" },
-  { icon:"▤", title:"Food Safety", desc:"식품 안전 기준 준수와 오염 위험 관리를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP002-Food-Safety-Whitepaper.pdf", photo:"https://cdn.weekly.chosun.com/news/photo/202308/28625_52668_1144.jpg" },
-  { icon:"▤", title:"Property Management", desc:"건물 운영 효율과 유지관리 최적화를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP003-Property-Management-Whitepaper.pdf", photo:"https://images.unsplash.com/photo-1590968927184-89650e47708c?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8ZW1waXJlJTIwc3RhdGUlMjBidWlsZGluZ3xlbnwwfHwwfHx8MA%3D%3D" },
-  { icon:"▤", title:"Pharmacies and Laboratories", desc:"의약품 품질 유지와 보관 환경 관리를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP004-Pharmacy-Whitepaper.pdf", photo:"https://wallpapercave.com/wp/wp14241112.jpg" },
-  { icon:"▤", title:"Commercial HVACR", desc:"HVAC 설비 이상 감지와 예방 유지보수를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP005-HVAC-Remote-Monitoring-Solutions-Whitepaper.pdf", photo:"https://www.venwiz.com/wp-content/uploads/2024/06/HVAC-Focus-Guest-Blog.jpg" },
-  { icon:"▤", title:"Data Center", desc:"데이터센터 설비 안정성과 운영 효율 향상을 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP006-Data-Center-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1742710726634-18e31a278fc2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGRhdGElMjBjZW50ZXJ8ZW58MHx8MHx8fDA%3D" },
-  { icon:"▤", title:"Corporate Facilities", desc:"기업 시설 유지관리 최적화와 운영 비용 절감을 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP007-Corporate-Facilities-Whitepaper.pdf", photo:"https://static.vecteezy.com/system/resources/thumbnails/040/838/116/small/ai-generated-luxury-office-interior-with-panoramic-window-and-city-view-photo.jpg" },
-  { icon:"▤", title:"Agriculture", desc:"온실·농업 시설 환경 최적화를 위한 IoT 모니터링 가이드", url:"https://monnit.blob.core.windows.net/site/documents/whitepapers/MWP008-Agriculture-Whitepaper.pdf", photo:"https://plus.unsplash.com/premium_photo-1661962692059-55d5a4319814?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YWdyaWN1bHR1cmV8ZW58MHx8MHx8fDA%3D" }
+  { icon:"▤", category:"산업 · 제조", title:"데이터센터 · IDC 모니터링", desc:"랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법.", url:"/documents/proposals/02_data-center-monitoring.pdf", photo:"https://images.unsplash.com/photo-1762163516269-3c143e04175c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-02.jpg", dlname:"모넷코리아_데이터센터_IDC_모니터링_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"공장 설비 예지보전", desc:"모터·펌프·감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계.", url:"/documents/proposals/03_factory-predictive-maintenance.pdf", photo:"https://images.unsplash.com/photo-1610891015188-5369212db097?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-03.jpg", dlname:"모넷코리아_공장설비_예지보전_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"진동 · 구조안전 계측", desc:"배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다.", url:"/documents/proposals/04_vibration-structural-safety.pdf", photo:"https://images.unsplash.com/photo-1694674818352-f6061a0561a1?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-04.jpg", dlname:"모넷코리아_진동_구조안전_계측_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"건설 · 토목 구조물 모니터링", desc:"전원도 통신도 없는 초기 현장부터 사면·흙막이·양생 구간을 24시간 계측합니다.", url:"/documents/proposals/05_construction-shm.pdf", photo:"https://images.unsplash.com/photo-1783753445140-7de87b0e90f3?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-05.jpg", dlname:"모넷코리아_건설_토목_구조물모니터링_제안서.pdf" },
+  { icon:"▤", category:"산업 · 제조", title:"UPS · ESS · 전력 설비 모니터링", desc:"배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다.", url:"/documents/proposals/07_energy-ups-ess.pdf", photo:"https://images.unsplash.com/photo-1509390144018-eeaf65052242?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-07.jpg", dlname:"모넷코리아_UPS_ESS_전력설비_모니터링_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"무선 화재경보 · 소방 안전", desc:"기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다.", url:"/documents/proposals/06_fire-safety-wireless-alarm.pdf", photo:"https://images.unsplash.com/photo-1767741683084-08ac01518c8c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-06.jpg", dlname:"모넷코리아_무선화재경보_소방안전_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"스마트 FM · 시설관리", desc:"민원이 들어오기 전에 먼저 아는 예지형 FM. 관리 성과가 리포트로 남습니다.", url:"/documents/proposals/10_smart-facility-management.pdf", photo:"https://images.unsplash.com/photo-1540397990819-5197ccf2608a?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-10.jpg", dlname:"모넷코리아_스마트FM_시설관리_플랫폼_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"공공 · 국방 시설 안전관리", desc:"배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다.", url:"/documents/proposals/14_public-defense-facility.pdf", photo:"https://images.unsplash.com/photo-1767022086667-3e3f1e0fcaf3?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-14.jpg", dlname:"모넷코리아_공공_국방_시설안전관리_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"호텔 · 리조트 시설 모니터링", desc:"객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인이 접수되기 전에 잡아냅니다.", url:"/documents/proposals/16_hotel-resort-monitoring.pdf", photo:"https://images.unsplash.com/photo-1783599677025-be14dfdc73d7?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-16.jpg", dlname:"모넷코리아_호텔_리조트_시설모니터링_제안서.pdf" },
+  { icon:"▤", category:"시설 · 안전", title:"학교 · 교회 · 공공시설 모니터링", desc:"방학·주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다.", url:"/documents/proposals/18_school-church-public.pdf", photo:"https://images.unsplash.com/photo-1613896527026-f195d5c818ed?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-18.jpg", dlname:"모넷코리아_학교_교회_공공시설_모니터링_제안서.pdf" },
+  { icon:"▤", category:"온도 · 환경", title:"온도 · 누수 · 동파 · HVAC 통합", desc:"배관이 얼기 전에, 물이 차기 전에. 전기실·기계실·공조·저온창고 통합 감시.", url:"/documents/proposals/08_hvac-leak-freeze-monitoring.pdf", photo:"https://images.unsplash.com/photo-1778855179330-6b73b6d599e7?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-08.jpg", dlname:"모넷코리아_온도_누수_동파_HVAC_통합모니터링_제안서.pdf" },
+  { icon:"▤", category:"온도 · 환경", title:"농업 · 골프장 토양 수분", desc:"물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다.", url:"/documents/proposals/13_agriculture-golf-soil.pdf", photo:"https://images.unsplash.com/photo-1742498626087-af76400d968c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-13.jpg", dlname:"모넷코리아_농업_골프장_토양수분_모니터링_제안서.pdf" },
+  { icon:"▤", category:"의료 · 바이오", title:"바이오 · 제약 유틸리티 모니터링", desc:"GMP 환경의 온습도·차압·유틸리티를 자동 기록해 감사 대응 근거를 남깁니다.", url:"/documents/proposals/09_bio-pharma-utility-monitoring.pdf", photo:"https://images.unsplash.com/photo-1748000970909-845f4aa144d2?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-09.jpg", dlname:"모넷코리아_바이오_제약_유틸리티_모니터링_제안서.pdf" },
+  { icon:"▤", category:"의료 · 바이오", title:"실버타운 · 시니어 안전", desc:"몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다.", url:"/documents/proposals/11_senior-care-monitoring.pdf", photo:"https://images.unsplash.com/photo-1773227059780-5e865ce7fb13?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-11.jpg", dlname:"모넷코리아_실버타운_시니어안전_모니터링_제안서.pdf" },
+  { icon:"▤", category:"콜드체인 · 유통", title:"콜드체인 · 물류 온도 관리", desc:"창고에서 차량까지 온도 이력이 끊기지 않게. HACCP 기록을 자동으로 남깁니다.", url:"/documents/proposals/12_cold-chain-logistics.pdf", photo:"https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-12.jpg", dlname:"모넷코리아_콜드체인_물류_온도모니터링_제안서.pdf" },
+  { icon:"▤", category:"콜드체인 · 유통", title:"리테일 · 매장 · 외식 온도 관리", desc:"여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다.", url:"/documents/proposals/17_retail-store-foodservice.pdf", photo:"https://images.unsplash.com/photo-1760463921658-0fa0ce72c91c?auto=format&fit=crop&crop=entropy&w=440&h=560&q=72", thumb:"/images/proposals/cover-17.jpg", dlname:"모넷코리아_리테일_매장_외식_온도관리_제안서.pdf" }
 ];
 let FAQS = [
   { q:'센서 무선 통신 거리는 얼마나 되나요?', a:'ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다.' },
@@ -2932,18 +3399,100 @@ function renderBlog(){
   }).join('');
   renderPager(el, 'blogPager', total, per, pageState.blog, g=>{ pageState.blog=g; renderBlog(); el.scrollIntoView({behavior:'smooth',block:'start'}); });
 }
+/* ═══════════════════════════════════════════════════════════════════
+   종료·시작 전 프로모션 안내창
+   · 종료된 프로모션 → 지금 진행 중인 혜택으로 유도
+   · 시작 전 프로모션 → 오픈 예정일 안내
+   ═══════════════════════════════════════════════════════════════════ */
+function closePromoGate(){
+  const el = document.getElementById('promoGate');
+  if (el){ el.classList.remove('show'); setTimeout(()=>el.remove(), 200); }
+  document.body.style.overflow = '';
+}
+function showPromoGate(p){
+  closePromoGate();
+  const ended = p.status === 'ended';
+  const alts  = activePromos().filter(x => x.id !== p.id);
+  const soon  = upcomingPromos().filter(x => x.id !== p.id);
+
+  let head, lead;
+  if (ended){
+    head = '종료된 프로모션입니다';
+    lead = `<b>${esc(p.title)}</b> 은(는) ${p.endLabel ? esc(p.endLabel) + '자로 ' : ''}접수가 마감되었습니다.`;
+  } else {
+    head = '아직 시작 전인 프로모션입니다';
+    lead = `<b>${esc(p.title)}</b> 은(는) <b class="pg-hl">${esc(p.startLabel)}</b> 부터 신청하실 수 있습니다.`;
+  }
+
+  let bodyHtml = '';
+  if (alts.length){
+    bodyHtml += `<div class="pg-sub">${ended ? '지금 진행 중인 혜택으로 안내해 드릴까요?' : '먼저 진행 중인 혜택을 살펴보셔도 좋습니다.'}</div>`;
+    bodyHtml += '<div class="pg-list">' + alts.slice(0,3).map(a => {
+      const href = a.link ? esc(a.link) : ('#promotions/' + esc(a.id));
+      const thumb = a.image ? `<img src="${esc(a.image)}" alt="" loading="lazy">` : '<span class="pg-ico">◆</span>';
+      return `<a class="pg-item" href="${href}" data-gate-go="${esc(a.id)}">
+        <span class="pg-thumb">${thumb}</span>
+        <span class="pg-txt"><b>${esc(a.title)}</b><small>${esc(a.period || '진행 중')}</small></span>
+        <span class="pg-arrow">→</span></a>`;
+    }).join('') + '</div>';
+  } else if (soon.length || !ended){
+    const n = soon[0] || p;
+    bodyHtml += `<div class="pg-sub">현재 신청 가능한 프로모션이 없습니다.<br>
+      <b class="pg-hl">${esc(n.startLabel || '곧')}</b> 에 <b>${esc(n.title)}</b> 이(가) 시작됩니다. 조금만 기다려 주세요.</div>`;
+  } else {
+    bodyHtml += '<div class="pg-sub">새로운 프로모션을 준비하고 있습니다.<br>준비되는 대로 이곳에서 가장 먼저 안내드리겠습니다.</div>';
+  }
+
+  const wrap = document.createElement('div');
+  wrap.id = 'promoGate';
+  wrap.className = 'pg-ov';
+  wrap.innerHTML = `<div class="pg-box" role="dialog" aria-modal="true" aria-label="${esc(head)}">
+      <button class="pg-x" type="button" aria-label="닫기">✕</button>
+      <div class="pg-icon">${ended ? '🔒' : '⏳'}</div>
+      <h3 class="pg-head">${esc(head)}</h3>
+      <p class="pg-lead">${lead}</p>
+      ${bodyHtml}
+      <div class="pg-foot">
+        <button class="pg-btn pg-btn-ghost" type="button" data-gate-close>닫기</button>
+        <a class="pg-btn pg-btn-main" href="#contact" data-gate-close>상담 문의하기</a>
+      </div>
+      <p class="pg-note">문의 02-2088-1454 · korea@monnit.com</p>
+    </div>`;
+  document.body.appendChild(wrap);
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(()=> wrap.classList.add('show'));
+
+  wrap.addEventListener('click', e => {
+    if (e.target === wrap || e.target.closest('.pg-x') || e.target.closest('[data-gate-close]')) closePromoGate();
+  });
+  wrap.querySelectorAll('[data-gate-go]').forEach(a => a.addEventListener('click', () => {
+    try { if (window.gtag) gtag('event', 'promo_gate_redirect', { from: p.id, to: a.getAttribute('data-gate-go') }); } catch(e){}
+    closePromoGate();
+  }));
+  document.addEventListener('keydown', function esc2(e){
+    if (e.key === 'Escape'){ closePromoGate(); document.removeEventListener('keydown', esc2); }
+  });
+  try { if (window.gtag) gtag('event', 'promo_gate_view', { promo: p.id, state: p.status }); } catch(e){}
+}
+
 /* ===== PROMOTIONS ===== */
 function renderPromotions(){
   const grid = document.getElementById('promoGrid');
   const empty = document.getElementById('promoEmpty');
   if (!grid) return;
+  refreshPromoStatuses();   // 그리는 순간 기준으로 진행 중/시작 전/종료 다시 판정 + 재정렬
   const countEl = document.getElementById('promoHeroCount');
   if (countEl) {
     let _lang='ko'; try{ _lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
-    if (PROMOS.length) {
+    const nActive = activePromos().length, up = upcomingPromos()[0];
+    if (nActive) {
       countEl.textContent = (_lang==='en')
-        ? `${PROMOS.length} promotion${PROMOS.length>1?'s':''} currently running · apply before they sell out`
-        : `현재 ${PROMOS.length}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`;
+        ? `${nActive} promotion${nActive>1?'s':''} currently running · apply before they sell out`
+        : `현재 ${nActive}건의 혜택이 진행 중입니다 · 선착순 마감 전 신청하세요`;
+    } else if (up) {
+      countEl.textContent = (_lang==='en')
+        ? `Next promotion opens on ${up.startLabel} · stay tuned`
+        : `${up.startLabel}에 새 프로모션이 시작됩니다 · 조금만 기다려 주세요`;
     } else {
       countEl.textContent = (_lang==='en') ? 'New promotions are on the way' : '새로운 프로모션을 준비하고 있습니다';
     }
@@ -2954,25 +3503,66 @@ function renderPromotions(){
     return;
   }
   if (empty) empty.style.display = 'none';
-  grid.innerHTML = PROMOS.map(p => {
-    const thumb = p.image
-      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
-      : `<div class="promo-thumb">◆</div>`;
-    const badge = p.badge ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
-    const period = p.period ? `<div class="promo-period">${esc(p.period)}</div>` : '';
-    return `<article class="promo-card" data-promo="${esc(p.id)}" role="button" tabindex="0">
-      ${thumb}
+  /* 종료된 프로모션도 목록에 남깁니다 — 이미지를 어둡게 덮고 '프로모션 종료' 를 표시,
+     순서는 진행 중 → 시작 전 → 종료 이므로 항상 맨 뒤로 내려갑니다.
+     (PROMO_SHOW_ENDED 를 false 로 바꾸면 예전처럼 목록에서 감춥니다) */
+  const VISIBLE = PROMO_SHOW_ENDED ? PROMOS.slice() : PROMOS.filter(p => p.status !== 'ended');
+  if (!VISIBLE.length){
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  grid.innerHTML = VISIBLE.map(p => {
+    const off = p.status !== 'active';                    // 종료 또는 시작 전 → 진입 차단
+    const stateCls = off ? ' promo-card-' + p.status : '';
+    const stamp = p.status === 'ended'
+      ? '<span class="promo-stamp promo-stamp-ended">종료</span>'
+      : (p.status === 'upcoming' ? '<span class="promo-stamp promo-stamp-soon">시작 전</span>' : '');
+    /* 이미지를 덮는 어두운 막 + 가운데 상태 문구 */
+    const veil = p.status === 'ended'
+      ? '<span class="promo-veil promo-veil-ended" aria-hidden="true"><span class="promo-veil-txt">프로모션 종료</span></span>'
+      : (p.status === 'upcoming'
+          ? `<span class="promo-veil promo-veil-soon" aria-hidden="true"><span class="promo-veil-txt">${esc(p.startLabel ? p.startLabel + ' 오픈' : '오픈 예정')}</span></span>`
+          : '');
+    const thumb = (p.image
+      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">${veil}${stamp}</div>`
+      : `<div class="promo-thumb">◆${veil}${stamp}</div>`);
+    const badge = p.badge && p.status === 'active' ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
+    let periodTxt = p.period || '';
+    if (p.status === 'upcoming' && p.startLabel) periodTxt = p.startLabel + ' 오픈 예정';
+    else if (p.status === 'ended') periodTxt = (p.endLabel ? p.endLabel + ' 종료' : '종료된 프로모션');
+    const period = periodTxt ? `<div class="promo-period">${esc(periodTxt)}</div>` : '';
+    const cta = p.status === 'active' ? '자세히 보기 →'
+              : (p.status === 'upcoming' ? '오픈 알림 받기 →' : '진행 중인 혜택 보기 →');
+    const body = `
       <div class="promo-body">
         ${badge}
         <h3>${esc(p.title)}</h3>
         ${period}
         <p>${esc(p.desc)}</p>
-        <span class="b-link">자세히 보기 →</span>
-      </div>
-    </article>`;
+        <span class="b-link">${cta}</span>
+      </div>`;
+    // 진행 중 + 랜딩 링크가 있을 때만 실제 <a> 로 이동시킵니다
+    if (p.link && !off){
+      const ext = p.link.indexOf('http') === 0;
+      return `<a class="promo-card" href="${esc(p.link)}"${ext ? ' target="_blank" rel="noopener"' : ''} data-promo-link="${esc(p.id)}">${thumb}${body}</a>`;
+    }
+    return `<article class="promo-card${stateCls}" data-promo="${esc(p.id)}" role="button" tabindex="0"
+             aria-disabled="${off ? 'true' : 'false'}">${thumb}${body}</article>`;
   }).join('');
+  grid.querySelectorAll('[data-promo-link]').forEach(card => {
+    card.addEventListener('click', () => {
+      try { if (window.gtag) gtag('event', 'promo_card_click', { promo: card.getAttribute('data-promo-link') }); } catch(e){}
+    });
+  });
   grid.querySelectorAll('[data-promo]').forEach(card => {
-    const open = () => openPromo(card.getAttribute('data-promo'));
+    const id = card.getAttribute('data-promo');
+    const open = () => {
+      const p = PROMOS.find(x => x.id === id);
+      if (p && p.status !== 'active'){ showPromoGate(p); return; }   // 종료·시작 전 → 안내창
+      openPromo(id);
+    };
     card.addEventListener('click', open);
     card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
   });
@@ -2981,7 +3571,7 @@ function renderPromotions(){
   if (sel){
     const cur = sel.value;
     sel.innerHTML = '<option value="">— 프로모션을 선택하세요 —</option>'
-      + PROMOS.map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
+      + activePromos().map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
       + '<option value="기타/미정">기타 · 아직 정하지 않음</option>';
     if (cur) sel.value = cur;
   }
@@ -2993,6 +3583,15 @@ function openPromo(id, fromHash){
     if (typeof closePromo === 'function') closePromo(fromHash);
     return;
   }
+  // 기간이 지났거나 아직 시작 전이면 상세로 들어가지 못하게 막고 안내창을 띄웁니다
+  // (주소창에 #promotions/fire 를 직접 입력해도 동일하게 차단됩니다)
+  if (p.status !== 'active'){
+    if (typeof closePromo === 'function') closePromo(true);
+    try { history.replaceState(null, '', '#promotions'); } catch(e){}
+    showPromoGate(p);
+    return;
+  }
+  if (p.link){ window.location.href = p.link; return; }
   const view = document.getElementById('promoDetail');
   const body = document.getElementById('promoDetailBody');
   const titleEl = document.getElementById('promoDetailTitle');
@@ -3006,7 +3605,17 @@ function openPromo(id, fromHash){
   } else if (p.html && p.html.trim()){
     body.innerHTML = p.html;
   } else {
-    body.innerHTML = `<div style="padding:40px;text-align:center;color:var(--ink-soft)">등록된 상세 내용이 없습니다.</div>`;
+    let _lg='ko'; try{ _lg=localStorage.getItem('mlang')||'ko'; }catch(e){}
+    const _en=(_lg==='en');
+    body.innerHTML = comingSoonHTML({
+      pad:'56px 20px 24px',
+      title: esc(p.title||'') || (_en?'Details in preparation':'상세 내용을 준비 중입니다'),
+      sub: _en ? 'Details are being prepared. Leave your contact and we will send the full offer within 24 hours.'
+               : '상세 내용을 준비 중입니다.<br>연락처를 남겨 주시면 <b>24시간 안에</b> 자세한 혜택 안내를 보내드립니다.',
+      back: [['promotions',_en?'Other promotions':'다른 프로모션'],['applications',_en?'All applications':'전체 활용분야'],
+             ['home',_en?'Home':'홈']]
+    });
+    bindComingSoon(body, { memo: (p.title||'')+' 프로모션 문의' });
   }
   // 상세 하단에 '이 프로모션 신청하기' 버튼
   const applyBtn = document.getElementById('promoDetailApply');
@@ -3023,7 +3632,7 @@ function openPromo(id, fromHash){
   view.style.display = 'block';
   // 브라우저 뒤로가기 연동: 상세를 히스토리에 추가 (해시에 프로모션 id)
   if (!fromHash){
-    try { history.pushState({promo:id}, '', '#promotions/' + encodeURIComponent(id)); } catch(e){}
+    setURL('promotions/' + encodeURIComponent(id));
   }
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -3036,12 +3645,12 @@ function closePromo(toHash){
   if (body) body.innerHTML = '';
   // 목록으로 돌아가면 해시도 목록 상태로 (뒤로가기가 아닌 버튼 클릭 시)
   if (!toHash){
-    try { if ((location.hash||'').indexOf('#promotions/')===0) history.pushState(null, '', '#promotions'); } catch(e){}
+    if (pathToRoute(location.pathname).indexOf('promotions/')===0) setURL('promotions');
   }
 }
-// 브라우저 뒤로/앞으로 버튼 대응
+// 브라우저 뒤로/앞으로 버튼 대응 (프로모션 상세)
 window.addEventListener('popstate', function(){
-  const h = (location.hash||'').replace('#','');
+  const h = pathToRoute(location.pathname);
   if (h.indexOf('promotions/')===0){
     const id = decodeURIComponent(h.slice('promotions/'.length));
     if (typeof navigate==='function') navigate('promotions');
@@ -3122,7 +3731,12 @@ function renderWhitepapers(){
   el.innerHTML = list.slice(start, start + per).map(w => {
     const gi = WHITEPAPERS.indexOf(w);
     const glyph = `<span class="wp-glyph">${esc(w.icon||'▤')}</span>`;
-    const img = w.photo ? `<img class="wp-img" src="${esc(w.photo)}" alt="${esc(w.title)}" loading="lazy" onerror="this.remove();">` : '';
+    // 외부(Unsplash) 이미지가 막히거나 실패하면 로컬 표지 썸네일로 1회 대체, 그마저 실패하면 글리프만 남긴다
+    const fb  = w.thumb ? ` data-fb="${esc(w.thumb)}"` : '';
+    const onerr = w.thumb
+      ? "if(this.dataset.fb&&this.src.indexOf(this.dataset.fb)&lt;0){this.src=this.dataset.fb;}else{this.remove();}"
+      : "this.remove();";
+    const img = w.photo ? `<img class="wp-img" src="${esc(w.photo)}" alt="${esc(w.title)}" loading="lazy"${fb} onerror="${onerr}">` : '';
     const media = `<div class="wp-media">${glyph}${img}</div>`;
     const body = `<div class="wp-body"><h4>${esc(w.title)}</h4><p>${esc(w.desc)}</p><span class="b-link wp-dl-hint" style="margin-top:8px;display:inline-block;">이메일 입력 후 다운로드 →</span></div>`;
     const cls = 'wp-card wp-pick' + (w.photo ? ' has-photo' : '');
@@ -3597,10 +4211,7 @@ function focusCustomer(name){
   setTimeout(()=>{ card.scrollIntoView({behavior:'smooth',block:'center'}); card.classList.add('focus-flash'); setTimeout(()=>card.classList.remove('focus-flash'),2400); }, 90);
 }
 
-async function boot() {
-  await alignSheetToWriter();
-  try { await loadSheetData(); }
-  catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
+function renderAll() {
   renderData();
   renderHomeCatCards();
   renderHomeCases();
@@ -3609,9 +4220,29 @@ async function boot() {
   renderResources();
   renderProducts();
   if (window.MonnitI18N) window.MonnitI18N.refresh();
-  const initHash = window.location.hash.replace('#', '');
-  if (initHash) navigate(initHash);
+}
+async function boot() {
+  /* SSG 로 심어 둔 크롤러용 본문은 SPA 가 뜨면 치웁니다 (같은 내용을 두 번 보여주지 않도록) */
+  try { const _ssg = document.getElementById('ssg-content'); if (_ssg) _ssg.remove(); } catch(e){}
+  // 1) 기본 데이터로 즉시 렌더 + 초기 라우팅 (빠른 첫 화면 · 느린 망에서도 빈 화면/홈 고정 없음)
+  renderAll();
+  /* 주소에서 첫 화면을 정합니다.
+     예전 #해시 주소(#app/temp)로 들어오면 같은 경로(/app/temp)로 바꿔 줍니다. */
+  let initRoute = pathToRoute(location.pathname);
+  const legacyHash = (location.hash || '').replace(/^#/, '').trim();
+  if (legacyHash && initRoute === 'home'){
+    initRoute = legacyHash;
+    try { history.replaceState(null, '', routeToPath(initRoute) + location.search); } catch(e){}
+  }
+  if (initRoute && initRoute !== 'home') navigate(initRoute);
+  else setURL('home', true);
   try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
+  // 2) 구글 시트/에디터 데이터가 로드되면 최신 값으로 "다시 렌더 + 본문(SiteContent) 재적용"
+  //    → 렌더 함수가 모두 멱등(idempotent)이라 중복 없이 시트 변경이 반드시 반영된다.
+  try { await alignSheetToWriter(); await loadSheetData(); }
+  catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
+  renderAll();
+  try { if (typeof applySiteContent === 'function' && SITE_CONTENT && Object.keys(SITE_CONTENT).length) applySiteContent(); } catch(e){}
 }
 boot();
 
