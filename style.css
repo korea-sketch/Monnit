@@ -5217,15 +5217,20 @@ a.promo-card:hover, a.promo-card:focus-visible { text-decoration: none; color: i
   padding-top: 16px; border-top: 1px solid var(--line, #26344a); word-break: keep-all; }
 .pg-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; text-align: left; }
 .pg-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 13px;
-  background: rgba(255,255,255,.04); border: 1px solid var(--line, #26344a); transition: .16s; }
-.pg-item:hover { border-color: var(--accent-dark, #3b8ff5); background: rgba(59,143,245,.1); }
+  background: rgba(255,255,255,.04); border: 1px solid var(--line, #26344a); transition: .16s;
+  color: var(--ink, #EEF1F6); text-decoration: none; }
+.pg-item:visited { color: var(--ink, #EEF1F6); }
+.pg-item:hover { border-color: rgba(77,208,199,.55); background: rgba(77,208,199,.08); }
 .pg-thumb { flex: 0 0 54px; height: 40px; border-radius: 9px; overflow: hidden; background: rgba(0,0,0,.3);
-  display: flex; align-items: center; justify-content: center; color: var(--accent-dark, #3b8ff5); }
+  display: flex; align-items: center; justify-content: center; color: #4dd0c7; }
 .pg-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .pg-txt { flex: 1; min-width: 0; }
-.pg-txt b { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.35; word-break: keep-all; }
+.pg-txt b { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.35; word-break: keep-all;
+  color: var(--ink, #EEF1F6); text-decoration: none; }
+.pg-item:hover .pg-txt b { color: #fff; }
 .pg-txt small { display: block; font-size: 11.5px; color: var(--ink-soft, #8fa2bd); margin-top: 2px; }
-.pg-arrow { flex: 0 0 auto; color: var(--accent-dark, #3b8ff5); font-weight: 700; }
+.pg-arrow { flex: 0 0 auto; color: #4dd0c7; font-weight: 700; transition: transform .16s; }
+.pg-item:hover .pg-arrow { transform: translateX(3px); }
 .pg-foot { display: flex; gap: 8px; margin-top: 20px; }
 .pg-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; height: 46px;
   border-radius: 12px; font-size: 14.5px; font-weight: 700; border: 0; cursor: pointer; font-family: inherit; }
