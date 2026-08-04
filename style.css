@@ -6820,3 +6820,23 @@ a.nav-link { display: inline-flex; align-items: center; }
 .logo-marquee{ max-width:100%; }
 .logo-track{ will-change:transform; }
 html, body{ overflow-x:hidden; }
+
+/* ── 넓은 화면 대응 (2026-08) ─────────────────────────────
+   2000px 모니터에서 본문이 1240px 에 묶여 좌우가 380px 씩 비고
+   핵심가치 카드가 275px 로 작게 눌리던 문제. 화면이 커지면 같이 커지게. */
+@media (min-width:1500px){
+  .wrap{ max-width:1440px; }
+  .wrap-mid{ max-width:1280px; }
+  .nh-section{ padding:104px 0; }
+  .nh-value h3{ font-size:20px; }
+  .nh-value p{ font-size:15px; }
+  .nh-value-body{ padding:24px 24px 28px; }
+}
+@media (min-width:1800px){
+  .wrap{ max-width:1600px; }
+  .wrap-mid{ max-width:1400px; }
+}
+/* 카드가 지나치게 세로로 길어지지 않게 사진 비율을 조금 눕힙니다 */
+@media (min-width:1200px){
+  .nh-value-media{ aspect-ratio:4/3; }
+}
