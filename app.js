@@ -3358,12 +3358,23 @@ function renderPager(afterEl, id, total, per, page, go){
   if (!pager){ pager = document.createElement('div'); pager.id = id; pager.className = 'pager'; afterEl.insertAdjacentElement('afterend', pager); }
   const pages = Math.ceil(total / per) || 1;
   if (pages <= 1){ pager.innerHTML = ''; return; }
-  let h = `<button class="pg-btn" data-go="${page-1}" ${page<=1?'disabled':''}>‹</button>`;
-  for (let i=1;i<=pages;i++) h += `<button class="pg-btn ${i===page?'active':''}" data-go="${i}">${i}</button>`;
-  h += `<button class="pg-btn" data-go="${page+1}" ${page>=pages?'disabled':''}>›</button>`;
+  /* 페이지가 많아도 버튼이 벽처럼 늘어서지 않도록 앞·뒤·현재 주변만 보여주고 나머지는 … 로 접습니다 */
+  const win = new Set([1, pages, page, page-1, page+1]);
+  if (page <= 3) { win.add(2); win.add(3); win.add(4); }
+  if (page >= pages-2) { win.add(pages-1); win.add(pages-2); win.add(pages-3); }
+  const nums = [...win].filter(n => n>=1 && n<=pages).sort((a,b)=>a-b);
+  let h = `<button class="pg-btn pg-nav" data-go="${page-1}" aria-label="이전 페이지" ${page<=1?'disabled':''}>‹</button>`;
+  let prev = 0;
+  nums.forEach(n => {
+    if (prev && n - prev > 1) h += `<span class="pg-gap" aria-hidden="true">…</span>`;
+    h += `<button class="pg-btn ${n===page?'active':''}" data-go="${n}"${n===page?' aria-current="page"':''}>${n}</button>`;
+    prev = n;
+  });
+  h += `<button class="pg-btn pg-nav" data-go="${page+1}" aria-label="다음 페이지" ${page>=pages?'disabled':''}>›</button>`;
+  h += `<span class="pg-count">${page} / ${pages} 페이지 · 전체 ${total}건</span>`;
   pager.innerHTML = h;
   pager.querySelectorAll('.pg-btn[data-go]').forEach(b=>{
-    b.onclick = ()=>{ const g=parseInt(b.dataset.go,10); if(g>=1 && g<=pages) go(g); };
+    b.onclick = ()=>{ const g=parseInt(b.dataset.go,10); if(g>=1 && g<=pages && g!==page) go(g); };
   });
 }
 function renderCatBar(barId, allCount, cats, current, onPick){
