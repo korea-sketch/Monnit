@@ -107,3 +107,5 @@
 
 [functions]
   directory = "netlify/functions"
+  # 제안서 PDF 를 함수 번들에 포함 (정적 공개 경로로는 접근 불가)
+  included_files = ["proposals/**"]

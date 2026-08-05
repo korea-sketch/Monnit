@@ -972,7 +972,9 @@ function normalizeDocUrl(u){
 }
 function mapWhitepapers(rows){
   return rows.filter(o => o.title).map(o => { regI18N(o.title,o.title_en); regI18N(o.desc,o.desc_en);
-    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', url:normalizeDocUrl(o.url||''), dlname:o.dlname||o.filename||'', thumb:o.thumb||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
+    /* url 열은 의도적으로 읽지 않는다 — 다운로드 주소는 sendpw 함수(서버)만 안다.
+       시트는 gviz CSV 로 공개 조회되므로, 여기에 링크를 두면 그 자체로 노출된다. */
+    return ({ icon:o.icon||'▤', title:o.title, desc:o.desc||'', category:o.category||'', dlname:o.dlname||o.filename||'', thumb:o.thumb||'', photo:normalizeImageUrl((o.photo||'').split('||')[0].split('::')[0]) }); });
 }
 function mapFaqs(rows){
   return rows.filter(o => o.question).map(o => { regI18N(o.question,o.question_en); regI18N(o.answer,o.answer_en);
@@ -3020,39 +3022,40 @@ async function wpRequest(){
   if (idx === '' || !WHITEPAPERS[idx]) { alert('받아보실 제안서를 먼저 선택해 주세요.'); if (sel) sel.focus(); return; }
   if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); if (em) em.focus(); return; }
   const wp = WHITEPAPERS[idx];
-  const dl = (wp.url || '').trim();
-  /* 시트 Whitepapers 탭의 url 열이 비어 있으면 메일만 보내고 끝나는 상황을 막습니다 */
-  if (!dl) { alert('해당 제안서는 준비 중입니다. 잠시 후 다시 시도해 주세요.'); return; }
-  // 백서 선택 + 이메일 입력을 마친 시점에 다운로드 제공
-  // (클릭 제스처 안에서 즉시 열어 팝업 차단을 방지)
+
+  /* ── 다운로드 주소는 브라우저가 갖고 있지 않다 ──────────────────────────
+     예전에는 시트 url 열을 그대로 열었기 때문에 개발자도구만 열면 16개 주소가
+     전부 노출됐고, 이메일 입력이 아무것도 막지 못했다.
+     이제 PDF 는 저장소 proposals/ 안에 있고 공개 경로가 없다(_redirects 로 차단).
+     sendpw 가 이메일을 확인한 뒤 10분짜리 서명 링크를 1건만 발급한다.
+     같은 도메인 첨부파일 응답이라 새 창 없이 바로 저장된다(팝업 차단 무관). */
+  const _body = JSON.stringify({ token: PW_MAIL_TOKEN, email: v, title: wp.title });
+  const _post = (u) => fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: _body });
+
+  let _res = null;
+  try {
+    let r = await _post(PW_MAIL_URL || '/.netlify/functions/sendpw');
+    if (r.status === 404 || r.status === 405) r = await _post('/.netlify/functions/sendpw');
+    _res = await r.json().catch(() => null);
+  } catch (e) { _res = null; }
+
+  const dl = (_res && _res.ok && _res.url) ? _res.url : '';
   if (dl) {
     try {
-      if (dl.charAt(0) === '/') {               // 자사 서버 PDF → 새 탭 없이 바로 저장
-        const a = document.createElement('a');
-        a.href = dl; a.download = wp.dlname || dl.split('/').pop();
-        a.style.display = 'none'; document.body.appendChild(a); a.click();
-        setTimeout(function(){ a.remove(); }, 1000);
-      } else { window.open(dl, '_blank', 'noopener'); }
-    } catch(e){ try { window.open(dl, '_blank', 'noopener'); } catch(_){} }
+      const a = document.createElement('a');
+      a.href = dl; a.download = wp.dlname || '';
+      a.style.display = 'none';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { a.remove(); }, 1500);
+    } catch (e) { try { window.open(dl, '_blank', 'noopener'); } catch (_) { location.href = dl; } }
+  } else {
+    const code = _res && _res.error;
+    alert(code === 'not_ready'
+      ? '해당 제안서는 준비 중입니다. 잠시 후 다시 시도해 주세요.'
+      : '지금은 다운로드를 준비할 수 없습니다.\n잠시 후 다시 시도하시거나 korea@monnit.com 으로 연락 주세요.');
   }
-  // ★ 제안서 다운로드 안내 메일 자동 발송 — Apps Script(회사 Gmail 발신) 우선, 미설정 시 FormSubmit 자동회신
-  try {
-    if (PW_MAIL_URL) {
-      var _pwBody = JSON.stringify({ token: PW_MAIL_TOKEN, email: v, title: wp.title });
-      fetch(PW_MAIL_URL, { method:'POST', body: _pwBody })
-        .then(function(r){ if (r.status === 404 || r.status === 405) return fetch('/.netlify/functions/sendpw', { method:'POST', body: _pwBody }); })
-        .catch(function(){ fetch('/.netlify/functions/sendpw', { method:'POST', body: _pwBody }).catch(function(){}); });
-    } else
-    fetch(FORM_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify({
-        email: v,
-        name: 'Monnit Korea',
-        _subject: '[자동발송 로그] 제안서 다운로드 안내 — ' + wp.title,
-        _captcha: 'false',
-        제안서: wp.title,
-        _autoresponse: '안녕하세요, Monnit Korea입니다.\n\n요청하신 「' + wp.title + '」 제안서를 신청해 주셔서 감사합니다.\n다운로드하신 PDF는 비밀번호 없이 바로 열람하실 수 있습니다.\n문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.\n\n현장 상황에 맞춘 구성·견적 상담은 언제든 도와드리겠습니다.\n문의: korea@monnit.com · 02-2088-1454\n\n감사합니다.\nMonnit Korea 드림'
-      })}).catch(function(){});
-  } catch(e){}
+
+  /* 리드 기록 (다운로드 성패와 무관하게 남긴다) */
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
   const ok = await sendLead({
     _subject: '[모닛코리아 웹사이트] 백서 신청 — ' + wp.title,
@@ -3061,14 +3064,16 @@ async function wpRequest(){
     이메일: v,
     출처: location.href
   }, btn);
+
+  if (!dl) return;
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n' + (dl ? '다운로드가 새 창에서 시작됩니다.\n' : '') + 'PDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.');
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n다운로드가 새 창에서 시작됩니다.\nPDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.');
     if (em) em.value = ''; if (sel) sel.value = '';
   } else if (ok === 'mailto') {
-    alert((dl ? '다운로드가 시작되었습니다.\n' : '') + '메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
+    alert('다운로드가 시작되었습니다.\n메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
     if (em) em.value = ''; if (sel) sel.value = '';
   } else {
-    alert((dl ? '다운로드는 시작되었습니다. ' : '') + '신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도하시거나 korea@monnit.com 으로 연락 주세요.');
+    alert('다운로드는 시작되었습니다. 신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도하시거나 korea@monnit.com 으로 연락 주세요.');
   }
 }
 function toggleOtherField(selectId, otherId){

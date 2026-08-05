@@ -1,3 +1,6 @@
+# 제안서 PDF 직접 접근 차단 — 반드시 이메일 신청 후 getdoc 함수를 통해서만 받는다
+/proposals/*    /404.html    404!
+
 /monnitblog https://blog.naver.com/monnitkorea 301
 /monnitblog/* https://blog.naver.com/monnitkorea 301
 
