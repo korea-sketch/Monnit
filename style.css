@@ -5449,7 +5449,7 @@ a.promo-card:hover, a.promo-card:focus-visible { text-decoration: none; color: i
 /* ---------- 4. WHY (full-bleed 배경 · 아이콘 행) ---------- */
 .nh-why-section{ position:relative; overflow:hidden; padding:0; background:var(--bg); }
 .nh-why-bg{ position:absolute; top:0; right:0; width:56%; height:100%; z-index:0; }
-.nh-why-bg img{ width:100%; height:100%; object-fit:cover; object-position:22% center; }
+.nh-why-bg img{ width:100%; height:100%; object-fit:cover; object-position:72% center; }
 /* 피사체가 오른쪽으로 치우쳐 보이던 문제 — 크롭 기준점을 왼쪽으로 당깁니다 */
 .nh-why-bg::after{ content:""; position:absolute; inset:0;
   background:linear-gradient(90deg, var(--bg) 2%, rgba(12,18,32,.74) 26%, rgba(12,18,32,.18) 58%, transparent 82%); }
@@ -6792,7 +6792,7 @@ a.nav-link { display: inline-flex; align-items: center; }
 }
 .nh-why-bg.is-roll .nh-roll-slide.is-active{ opacity:1; }
 .nh-why-bg.is-roll .nh-roll-slide img{
-  width:100%; height:100%; object-fit:cover; object-position:22% center;
+  width:100%; height:100%; object-fit:cover; object-position:72% center;
 }
 
 @media (prefers-reduced-motion:reduce){
