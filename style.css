@@ -5258,6 +5258,14 @@ a.promo-card:hover, a.promo-card:focus-visible { text-decoration: none; color: i
 .promo-period { font-family: var(--fm); font-size: 12.5px; color: var(--ink-soft); margin-bottom: 10px; }
 .promo-body p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; flex: 1; margin: 0; }
 .promo-body .b-link { margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--accent); }
+
+/* 프로모션 카드 제목 — 흰색 고정 (가독성)
+   · 링크 카드(<a class="promo-card">)에서 기본 링크색이 새는 것 방지
+   · 예정·종료 카드의 흐림(opacity) 은 본문에만 적용하고 제목은 또렷하게 */
+.promo-body h3 { color: #FFFFFF; }
+a.promo-card, a.promo-card:link, a.promo-card:visited, a.promo-card:hover { color: var(--ink); }
+a.promo-card h3, a.promo-card:visited h3 { color: #FFFFFF; }
+.promo-card-ended .promo-body h3, .promo-card-upcoming .promo-body h3 { color: #FFFFFF; opacity: 1; }
 .promo-empty { text-align: center; padding: 80px 20px; color: var(--ink-soft); font-size: 16px; }
 .promo-back { background: none; border: 1px solid var(--line); color: var(--ink-mid); font-size: 14px; padding: 9px 18px; border-radius: 8px; cursor: pointer; margin-bottom: 24px; transition: border-color .2s, color .2s; }
 .promo-back:hover { border-color: var(--line-strong); color: var(--ink); }
