@@ -5383,7 +5383,8 @@ a.promo-card h3, a.promo-card:visited h3 { color: #FFFFFF; }
 /* 이미지 없는 깔끔한 히어로 */
 .nh-hero-plain{ min-height:min(80vh,700px);
   background:
-    radial-gradient(1200px 620px at 14% -12%, rgba(74,130,196,.22), transparent 58%),
+    radial-gradient(1200px 620px at 14% -12%, rgba(74,130,196,.15), transparent 58%),
+    radial-gradient(1300px 900px at 74% 55%, rgba(13,20,64,.85), transparent 66%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%); }
 /* 미세 도트 그리드 텍스처 */
 .nh-hero-plain::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.5;
@@ -6812,16 +6813,25 @@ a.nav-link { display: inline-flex; align-items: center; }
    스크립트가 안 뜨거나 모바일·저사양이면 아래 그라데이션이 그대로 배경이 됩니다. */
 .nh-hero-aurora{
   position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-  background:radial-gradient(1100px 560px at 62% 44%, rgba(32,47,122,.30), transparent 68%);
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 72%,transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0%,#000 72%,transparent 100%);
+  background:
+    radial-gradient(1250px 820px at 74% 52%, rgba(20,28,86,.42), transparent 62%),
+    radial-gradient(900px 560px at 88% 74%, rgba(58,32,132,.24), transparent 68%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 76%,transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 76%,transparent 100%);
 }
-.nh-hero-aurora canvas{ width:100%; height:100%; display:block; opacity:.85; }
-/* 본문 가독성 확보 — 왼쪽 텍스트 영역은 오로라를 눌러 둡니다 */
-.nh-hero-aurora::after{ content:""; position:absolute; inset:0;
-  background:linear-gradient(90deg, var(--bg-deep) 0%, rgba(10,17,31,.72) 32%, transparent 70%); }
+/* js/hero-aurora.js 가 아래 3개 캔버스를 이 안에 넣습니다 */
+.nh-fx{ position:absolute; display:block; pointer-events:none; }
+.nh-fx-corner{ right:0; bottom:0; width:64%; height:70%; opacity:.8;
+  -webkit-mask-image:radial-gradient(120% 110% at 100% 100%,#000 12%,rgba(0,0,0,.5) 46%,transparent 78%);
+          mask-image:radial-gradient(120% 110% at 100% 100%,#000 12%,rgba(0,0,0,.5) 46%,transparent 78%); }
+.nh-fx-lines{ inset:0; width:100%; height:100%; mix-blend-mode:screen; opacity:.62; }
+.nh-fx-mesh{ inset:0; width:100%; height:100%; }
+/* 본문 가독성 확보 — 왼쪽 텍스트 영역은 배경을 눌러 둡니다 */
+.nh-hero-aurora::after{ content:""; position:absolute; inset:0; z-index:2;
+  background:linear-gradient(90deg, var(--bg-deep) 0%, rgba(6,10,22,.88) 20%, rgba(6,10,22,.48) 36%, transparent 58%); }
 .nh-hero .wrap{ position:relative; z-index:1; }
 @media (prefers-reduced-motion:reduce){ .nh-hero-aurora canvas{ display:none; } }
+@media (max-width:900px){ .nh-fx-lines{ display:none; } .nh-fx-corner{ width:82%; height:58%; opacity:.6; } }
 @media (max-width:820px){ .nh-hero-aurora{ opacity:.7; } }
 
 /* 고객사 로고 마퀴가 문서 가로폭을 31px 밀어내던 문제 — 트랙을 뷰포트 밖으로
