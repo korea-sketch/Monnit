@@ -3143,14 +3143,14 @@ const BUILTIN_PROMOS = [{
   id: 'consulting',
   title: '회전설비 AI 예지보전 1개월 무료 체험',
   html: '',
-  period: '8월 한정',
+  period: '시즈널 프로모션',
   badge: 'NEW',
-  desc: '무료 컨설팅 후 핵심 설비에 센서를 무상 설치. 한 달 데이터를 보고 도입을 결정하세요.',
+  desc: '무료 검증 후 핵심 설비에 센서를 무상 설치. 한 달 데이터를 보고 도입을 결정하세요.',
   image: '/images/promo-consulting-banner.jpg',
   images: [],
   link: '/promo/consulting',
   start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
-  end:   '2026-08-31',   // 한국시간 이 날 24:00 까지
+  end:   '',             // 비워두면 자동 종료 없음 — 내릴 때 forcedEnded:true 로 바꾸거나 이 배열을 비우세요
   order: 0
 }];
 /* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
