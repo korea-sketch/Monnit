@@ -38,9 +38,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"Monnit Korea","alternateName":"모넷코리아","url":"https://monnit.co.kr/","inLanguage":"ko"}
 </script>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Monnit은 어떤 회사인가요?","acceptedAnswer":{"@type":"Answer","text":"2010년부터 고정밀 산업용 무선 IoT 센서를 개발해 온 글로벌 기업으로, 130여 개국·64,000여 고객사에 화재·누수·설비·환경 모니터링 솔루션을 공급합니다."}},{"@type":"Question","name":"어떤 문제를 해결하나요?","acceptedAnswer":{"@type":"Answer","text":"무선 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링해 사고를 예방하고, AI 예지보전으로 설비 고장을 사전에 예측하며 에너지·운영 비용을 절감합니다."}},{"@type":"Question","name":"상담은 어떻게 신청하나요?","acceptedAnswer":{"@type":"Answer","text":"이메일 korea@monnit.com 또는 전화 02-2088-1454로 문의하시면 시설 환경에 맞는 IoT 모니터링 솔루션을 제안해드립니다."}}]}
-</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "센서 무선 통신 거리는 얼마나 되나요?", "acceptedAnswer": {"@type": "Answer", "text": "ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다."}}, {"@type": "Question", "name": "센서 배터리는 얼마나 가나요?", "acceptedAnswer": {"@type": "Answer", "text": "사용 환경에 따라 다르지만 단일 AA 배터리로 최대 10년 이상 사용 가능합니다. 데이터 전송 주기, 통신 거리, 장애물 수가 수명에 영향을 주며, 배터리 잔량은 iMonnit에서 확인하고 임계값 이하 시 알림을 받을 수 있습니다."}}, {"@type": "Question", "name": "인터넷이 끊기면 데이터가 사라지나요?", "acceptedAnswer": {"@type": "Answer", "text": "아닙니다. 게이트웨이 연결이 끊겨도 센서가 자체적으로 최대 4,000건의 측정값을 저장하며, 연결이 복구되면 누락 없이 전송합니다. 게이트웨이 역시 내부 메모리에 다수의 메시지를 저장합니다."}}, {"@type": "Question", "name": "데이터 보안은 어떻게 보장되나요?", "acceptedAnswer": {"@type": "Answer", "text": "Encrypt-RF 기술로 256-bit ECDH 키 교환과 AES-128 암호화를 적용해 센서~게이트웨이 구간을 보안 터널로 보호하며, 패킷 변조 검증 루틴으로 위·변조 및 재전송 공격을 차단합니다."}}, {"@type": "Question", "name": "알림은 어떤 방식으로 받나요?", "acceptedAnswer": {"@type": "Answer", "text": "사용자가 설정한 조건을 초과하면 iMonnit이 SMS 문자, 이메일, 전화로 즉시 알림을 보냅니다. 임계값과 수신자는 자유롭게 설정할 수 있습니다."}}, {"@type": "Question", "name": "설치와 설정은 어렵지 않나요?", "acceptedAnswer": {"@type": "Answer", "text": "대부분의 ALTA 센서는 전원을 켜는 즉시 게이트웨이에 연결되는 플러그앤플레이 방식으로, 시스템 구성에 보통 15분이면 충분합니다. Monnit Korea가 현장 설치와 초기 설정을 지원합니다."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -894,7 +892,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <span class="count" id="visibleCountAwards">— awards</span>
       </div>
       <ol class="awards-list" id="awardsList"></ol>
-      <div class="empty" id="emptyAwards" style="display:none;">No awards match the current filter</div>
+      <div class="empty" id="emptyAwards" style="display:none;">필터에 해당하는 항목이 없습니다 — 전체 45+건의 수상 기록은 이 페이지 상단 연도별 목록에서 확인할 수 있습니다.</div>
     </div>
   </section>
 </section>
@@ -944,7 +942,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <span class="count" id="visibleCountPartners">— partners</span>
       </div>
       <ol class="partners-list" id="partnersList"></ol>
-      <div class="empty" id="emptyPartners" style="display:none;">No partners match the current filter</div>
+      <div class="empty" id="emptyPartners" style="display:none;">필터에 해당하는 항목이 없습니다 — Monnit은 6개 대륙 30여 개국에서 75+ 글로벌 파트너와 협력하고 있습니다.</div>
     </div>
   </section>
 

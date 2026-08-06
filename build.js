@@ -711,7 +711,7 @@ try {
 /* ---------- robots.txt ---------- */
 const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'CCBot', 'Applebot-Extended', 'Bytespider', 'Amazonbot', 'meta-externalagent', 'cohere-ai'];
 let robots = '# Monnit Korea — 모든 검색·AI 크롤러 허용\n';
-robots += 'User-agent: *\nAllow: /\nDisallow: /editor\nDisallow: /editor.html\nDisallow: /church\nDisallow: /church/\nDisallow: /pages/\n\n';
+robots += 'User-agent: *\nAllow: /\nDisallow: /editor\nDisallow: /editor.html\nDisallow: /church\nDisallow: /church/\n\n';
 AI_BOTS.forEach(b => { robots += `User-agent: ${b}\nAllow: /\n\n`; });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);

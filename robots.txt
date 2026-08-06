@@ -5,7 +5,6 @@ Disallow: /editor
 Disallow: /editor.html
 Disallow: /church
 Disallow: /church/
-Disallow: /pages/
 
 User-agent: GPTBot
 Allow: /
