@@ -337,17 +337,22 @@
   .vx-elec{grid-template-columns:1fr 1fr}
   .vx-diag-top{flex-direction:column;text-align:center}
   .vx-diag-side{width:100%}
-  /* 회전설비 통합관제 테이블 — 모바일 폭 맞춤(온도 잘림 방지) */
+  /* 회전설비 통합관제 테이블 — 모바일 폭 맞춤(온도 잘림 방지)
+     · 상태/수치/온도 칸을 auto 로 두면 행마다 폭이 달라져(비정상 vs 주의)
+       숫자와 온도가 세로로 어긋납니다 → 고정폭으로 모든 행을 같은 격자에 맞춥니다.
+     · 설비명이 두 줄로 접히면("컨베이 / 어 L-03") 그 행만 높아져 정렬이 깨집니다
+       → 한 줄 고정 + 넘치면 말줄임. */
   .vx-ftable{padding:12px 12px 14px;gap:7px}
-  .vx-fr{grid-template-columns:9px minmax(0,1fr) auto auto auto;gap:8px;padding:10px 12px}
-  .vx-fn{font-size:12.5px;min-width:0;line-height:1.25}
-  .vx-fb{font-size:10px;padding:4px 7px}
-  .vx-frms{font-size:15px}
+  .vx-fr{grid-template-columns:9px minmax(0,1fr) 48px 70px 40px;gap:8px;padding:10px 11px}
+  .vx-fn{font-size:12.5px;min-width:0;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vx-fb{font-size:10px;padding:4px 0;text-align:center}
+  .vx-frms{font-size:15px;white-space:nowrap}
   .vx-frms small{font-size:9.5px;margin-left:2px}
-  .vx-ft{font-size:12px}
+  .vx-ft{font-size:12px;white-space:nowrap}
   /* 카드 헤더 & 범례 줄바꿈 허용 */
   .vibx .vx-card-h{flex-wrap:wrap;gap:6px 10px;font-size:14px;padding:14px 14px 0}
-  .vx-fleet-sum{gap:8px 12px;font-size:11px;flex-wrap:wrap}
+  /* 범례는 항목 사이에서만 접히게 — "비정상 / 1" 처럼 항목 안에서 끊기지 않도록 */
+  .vx-fleet-sum{gap:8px 12px;font-size:11px;flex-wrap:wrap;white-space:nowrap}
   /* ACTIVE ALERTS — 카드 여백 축소, 타임스탬프 잘림 방지 */
   .vx-al{margin:10px 12px 0;padding:11px 12px}
   .vx-al-top{flex-wrap:wrap}
@@ -361,6 +366,26 @@
   .calc-res{gap:8px}
   .calc-res>div{padding:14px 6px;min-width:0}
   .calc-res b{font-size:23px}
+}
+/* 좁은 폰(≤420px) — 통합관제 표가 한 줄에 들어오도록 한 단계 더 축소 */
+@media (max-width:420px){
+  .vx-ftable{padding:10px 10px 12px;gap:6px}
+  .vx-fr{grid-template-columns:8px minmax(0,1fr) 42px 62px 36px;gap:6px;padding:9px 9px}
+  .vx-fn{font-size:11.5px}
+  .vx-fb{font-size:9px;padding:4px 0}
+  .vx-frms{font-size:13.5px}
+  .vx-frms small{font-size:8.5px;margin-left:1px}
+  .vx-ft{font-size:11px}
+}
+/* 초소형 폰(≤360px, 갤럭시 S 미니·iPhone SE) — 설비명이 말줄임되지 않도록 */
+@media (max-width:360px){
+  .vx-ftable{padding:9px 9px 11px;gap:5px}
+  .vx-fr{grid-template-columns:8px minmax(0,1fr) 38px 56px 32px;gap:5px;padding:8px 8px}
+  .vx-fn{font-size:11px}
+  .vx-fb{font-size:8.5px;padding:4px 0}
+  .vx-frms{font-size:12.5px}
+  .vx-frms small{font-size:8px;margin-left:1px}
+  .vx-ft{font-size:10.5px}
 }
 @media (prefers-reduced-motion:reduce){
   .vx-dot.bad:not(.sm),.vx-livedot{animation:none!important}
@@ -615,6 +640,12 @@
   label .req{color:var(--green)}
   input,select,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--hair);border-radius:11px;padding:14px 16px;color:var(--ink);font-size:15px;font-family:inherit;transition:.15s}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);background:rgba(51,143,255,.06)}
+  /* 드롭다운 목록 글씨 — select 에만 밝은 글자색을 주면, Windows Chrome/Edge 는
+     펼쳐진 목록을 시스템 밝은 배경으로 그리면서 글자색만 상속받아 흰 글씨가
+     흰 배경에 묻혀 아무것도 안 보입니다. 목록의 배경·글자색을 함께 고정합니다. */
+  select option,select optgroup{background:#FFFFFF;color:#15192E}
+  /* 입력 안내문(placeholder)도 대비 확보 */
+  input::placeholder,textarea::placeholder{color:rgba(255,255,255,.42)}
   /* 개인정보 동의 (PIPA 적법 취득) */
   .consent{margin-top:6px}
   .consentbox{background:rgba(255,255,255,.03);border:1px solid var(--hair);border-radius:14px;padding:18px 20px;margin-bottom:14px}

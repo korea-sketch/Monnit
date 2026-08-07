@@ -19,6 +19,12 @@
 /robots.txt
   Content-Type: text/plain; charset=utf-8
 
+# 사이트맵은 크롤러가 파싱에 실패하면 페이지 발견 자체가 막힙니다.
+# Content-Type 을 명시해 XML 로 확실히 전달하고, 캐시로 낡은 사본이 남지 않게 합니다.
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=0, must-revalidate
+
 # ===== 캐싱 =====
 # JS·CSS 는 ?v= 로 버전 관리합니다. 다만 ?v 를 올리지 않고 배포하면
 # immutable 캐시 때문에 브라우저가 최대 1년간 옛 파일을 계속 써서

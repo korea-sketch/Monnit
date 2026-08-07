@@ -1,4 +1,8 @@
-# Monnit Korea — 모든 검색·AI 크롤러 허용
+# Monnit Korea — 모든 검색·AI 크롤러 허용 (build.js 자동 생성)
+# 최종 생성: 2026-08-07
+# 크롤러는 자기 이름 블록을 찾으면 "User-agent: *" 를 무시하므로
+# 공통 Disallow 를 각 블록마다 반복해 둡니다.
+
 User-agent: *
 Allow: /
 Disallow: /editor
@@ -8,50 +12,170 @@ Disallow: /church/
 
 User-agent: GPTBot
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: Claude-SearchBot
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: Claude-User
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: Perplexity-User
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
-User-agent: CCBot
+User-agent: Google-CloudVertexBot
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
-User-agent: Applebot-Extended
+User-agent: Google-NotebookLM
 Allow: /
-
-User-agent: Bytespider
-Allow: /
-
-User-agent: Amazonbot
-Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: meta-externalagent
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Applebot
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: DuckAssistBot
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: MistralAI-User
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Amazonbot
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 User-agent: cohere-ai
 Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: CCBot
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Bytespider
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Yeti
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
+
+User-agent: Daum
+Allow: /
+Disallow: /editor
+Disallow: /editor.html
+Disallow: /church
+Disallow: /church/
 
 Sitemap: https://monnit.co.kr/sitemap.xml

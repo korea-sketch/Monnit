@@ -26,37 +26,18 @@
 /pages/case-HDC랩스.html /case/hdc-labs 301!
 
 # >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>
-# --- 예전 /pages 주소 → 새 경로 (112개)
+# --- 예전 /pages 주소 → 새 경로 (98개)
 /pages/company.html                   /who-we-are                 301!
 /pages/products.html                  /products                   301!
 /pages/solutions.html                 /applications               301!
 /pages/case-samsung-biologics.html    /case/samsung-biologics     301!
-/pages/case-veolia.html               /case/veolia                301!
-/pages/case-samsung.html              /case/samsung               301!
+/pages/case-exxonmobil.html           /case/exxonmobil            301!
+/pages/case-walmart.html              /case/walmart               301!
 /pages/case-microsoft.html            /case/microsoft             301!
 /pages/case-hyundai-motors.html       /case/hyundai-motors        301!
-/pages/case-hdc-labs.html             /case/hdc-labs              301!
+/pages/case-cbre.html                 /case/cbre                  301!
 /pages/case-us-army.html              /case/us-army               301!
 /pages/case-gs-eps.html               /case/gs-eps                301!
-/pages/case-walmart.html              /case/walmart               301!
-/pages/case-sk-ecoplant.html          /case/sk-ecoplant           301!
-/pages/case-hyundai-enc.html          /case/hyundai-enc           301!
-/pages/case-hyundai-engineering.html  /case/hyundai-engineering   301!
-/pages/case-hoban.html                /case/hoban                 301!
-/pages/case-seantex.html              /case/seantex               301!
-/pages/case-emart.html                /case/emart                 301!
-/pages/case-hanwha-snc.html           /case/hanwha-snc            301!
-/pages/case-samchully.html            /case/samchully             301!
-/pages/case-lx.html                   /case/lx                    301!
-/pages/case-hyu-guri-hospital.html    /case/hyu-guri-hospital     301!
-/pages/case-cj-feedncare.html         /case/cj-feedncare          301!
-/pages/case-aquafarm.html             /case/aquafarm              301!
-/pages/case-gangnam.html              /case/gangnam               301!
-/pages/case-keco.html                 /case/keco                  301!
-/pages/case-shinhan-univ.html         /case/shinhan-univ          301!
-/pages/case-songhyun-elem.html        /case/songhyun-elem         301!
-/pages/case-cbre.html                 /case/cbre                  301!
-/pages/case-exxonmobil.html           /case/exxonmobil            301!
 /pages/cases.html                     /stories                    301!
 /pages/app-temp.html                  /app/temp                   301!
 /pages/app-leak.html                  /app/leak                   301!
@@ -138,6 +119,11 @@
 /pages/guides.html                    /guides                     301!
 /pages/blog.html                      /blog                       301!
 /pages/promotions.html                /promotions                 301!
+/pages/our-solution.html              /our-solution               301!
+/pages/what-we-do.html                /what-we-do                 301!
+/pages/faqs.html                      /faqs                       301!
+/pages/whitepaper.html                /whitepaper                 301!
+/pages/newsletter.html                /newsletter                 301!
 /pages/contact.html                   /contact                    301!
 
 # --- 구 슬러그(대문자·한글)
@@ -177,17 +163,11 @@
 /editor               /editor.html         200
 /editor/              /editor.html         200
 
-# --- SSG 파일이 없는 SPA 전용 화면
-/faqs                 /index.html          200
-/faqs/                /index.html          200
-/newsletter           /index.html          200
-/newsletter/          /index.html          200
-/whitepaper           /index.html          200
-/whitepaper/          /index.html          200
-/our-solution         /index.html          200
-/our-solution/        /index.html          200
-/what-we-do           /index.html          200
-/what-we-do/          /index.html          200
+# --- 개인정보처리방침·설치사례 중복 URL 정리 (확장자 없는 주소 → 정본 1개)
+/privacy              /privacy.html                301
+/privacy/             /privacy.html                301
+/installation-photos  /installation-photos.html    301
+/installation-photos/ /installation-photos.html    301
 
 # --- SPA 폴백 (미리 만든 파일이 없는 상세 경로 · 준비 중 화면이 받습니다)
 /app/*                /index.html          200

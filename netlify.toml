@@ -24,6 +24,14 @@
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
 
+# sitemap.xml — 크롤러가 파싱에 실패하면 URL 목록 확보가 불가능해집니다.
+# Content-Type 을 명시하고 캐시를 끄지 않으면 낡은 사본이 계속 전달될 수 있습니다.
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # 구 Wix 사이트 경로 정리 — 검색 색인에 남은 옛 블로그 URL을 네이버 블로그로 301
 [[redirects]]
   from = "/monnitblog"

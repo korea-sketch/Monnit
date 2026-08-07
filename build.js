@@ -257,6 +257,69 @@ let SHELL = '';
 try { SHELL = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'); }
 catch (e) { console.warn('[build] index.html 을 읽지 못해 SSG 를 건너뜁니다'); }
 
+/* ═══════════════════════════════════════════════════════════════════
+   공통 셸(SPA 뷰 19개) 격납 — 페이지 간 중복 콘텐츠 제거
+   ───────────────────────────────────────────────────────────────────
+   index.html 에는 홈·제품·활용분야·회사소개 등 모든 화면이 통째로 들어 있습니다.
+   SSG 페이지는 이 껍데기를 재사용하므로, 지금까지 모든 경로가 서로 98% 동일한
+   HTML 을 내보내 크롤러가 중복으로 판정했습니다.
+
+   그래서 크롤러가 받는 HTML 에서는 <section class="view"> 19개를 통째로 빼
+   <script type="text/html"> 안에 넣습니다. 스크립트 내용은 문서 텍스트로 취급되지
+   않으므로 각 페이지에는 [네비게이션 + 그 페이지 고유 본문(#ssg-content) + 푸터]
+   만 남습니다.
+
+   브라우저에서는 바로 아래 부트스트랩이 app.js 보다 먼저 실행돼 원래 DOM 을
+   <main> 안에 그대로 복원합니다. createContextualFragment 를 쓰므로 뷰 안의
+   인라인 <script>(홈 솔루션 파인더 등)도 정상 실행됩니다. 즉 사람이 보는 화면과
+   SPA 동작은 이전과 완전히 동일합니다.
+
+   ※ index.html(홈) 자체는 건드리지 않습니다 — 홈은 뷰가 그대로 있어야 합니다.
+   ═══════════════════════════════════════════════════════════════════ */
+function stashShellViews(html){
+  const lines = html.split('\n');
+  const kept = [], stash = [];
+  let buf = null;
+  for (const ln of lines){
+    if (buf === null){
+      if (/^<section class="view[ "]/.test(ln)) { buf = [ln]; continue; }
+      kept.push(ln);
+      continue;
+    }
+    buf.push(ln);
+    if (/^<\/section>/.test(ln)) { stash.push(buf.join('\n')); buf = null; }
+  }
+  /* 파싱이 어긋나면(껍데기 구조 변경 등) 아무것도 하지 않고 원본을 그대로 씁니다 */
+  if (buf !== null || !stash.length) return html;
+
+  let out = kept.join('\n');
+  if (out.indexOf('</main>') < 0) return html;
+
+  /* 스크립트 안에 들어가므로 </script> 시퀀스만 무해화 (복원 시 되돌립니다) */
+  const payload = stash.join('\n').replace(/<\/script/gi, '<\\/script');
+
+  const boot =
+    '\n<!-- SPA 화면 원본 — 아래 스크립트가 app.js 보다 먼저 <main> 으로 복원합니다 -->\n'
+    + '<script type="text/html" id="mk-shell-views">' + payload + '</script>\n'
+    + '<script>(function(){'
+    +   'var b=document.getElementById("mk-shell-views"),m=document.querySelector("main");'
+    +   'if(!b||!m)return;'
+    +   'var h=b.textContent.replace(/<\\\\\\/script/g,"<\\/script");'
+    +   'var t=document.createElement("div");t.innerHTML=h;'
+    /* innerHTML 로 만든 <script> 는 실행되지 않으므로, 삽입 뒤 새 script 로 교체해
+       원래처럼 실행시킵니다 (홈 솔루션 파인더 등 뷰 안 인라인 스크립트 3개) */
+    +   'var s=[].slice.call(t.querySelectorAll("script"));'
+    +   'while(t.firstChild)m.appendChild(t.firstChild);'
+    +   'for(var i=0;i<s.length;i++){var o=s[i],n=document.createElement("script"),k;'
+    +     'for(k=0;k<o.attributes.length;k++)n.setAttribute(o.attributes[k].name,o.attributes[k].value);'
+    +     'n.text=o.textContent;'
+    +     'if(o.parentNode)o.parentNode.replaceChild(n,o);}'
+    +   'if(b.parentNode)b.parentNode.removeChild(b);'
+    + '})();</script>\n';
+
+  return out.replace('</main>', '</main>' + boot);
+}
+
 function ssgWrite(slug, parts){
   if (!SHELL || !parts) return;
   const route = slugToRoute(slug);
@@ -281,6 +344,7 @@ function ssgWrite(slug, parts){
     + '<h1>' + esc(parts.h1 || title) + '</h1>' + fixLinks(parts.bodyHtml || '')
     + '</div>';
   h = h.replace('<body>', '<body>\n' + block);
+  h = stashShellViews(h);            // 페이지 간 중복(공통 셸) 제거
   const dir = path.join(__dirname, route);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), h);
@@ -669,6 +733,292 @@ const KB_SLUGS = {};
   }), 'Monnit 프로모션');
 })();
 
+/* ═══════════════════════════════════════════════════════════════════
+   4-8-b) 프로모션 상세 — slug 별 정적 페이지 생성
+   ───────────────────────────────────────────────────────────────────
+   지금까지 /promotions/fire · /promotions/church 등은 모두 promo.html 한 장을
+   그대로 받아, URL 만 다르고 HTML 이 완전히 동일했습니다.
+     · title / description   : 전부 "Monnit Korea 프로모션"
+     · og:image              : 전부 promo-fire.jpg (교회 프로모션도 화재 이미지)
+     · canonical             : 없음
+     · 본문                  : JS 가 URL 을 읽어 클라이언트에서 주입
+   크롤러는 JS 실행 전 HTML 만 보므로 7개가 같은 빈 페이지 1개로 보였습니다.
+   → slug 별로 고유 메타와 정적 본문을 서버에서 미리 박아 파일로 내보냅니다.
+      (promo.html 의 폼·디자인·시트 연동은 그대로 유지)
+   ═══════════════════════════════════════════════════════════════════ */
+const PROMO_SEO = {
+  fire: {
+    title: '물류센터 화재 사전예방 알리미 — 0.1초 화재 감지',
+    desc: '물류센터·창고 화재 징후를 0.1초 안에 감지해 담당자 휴대폰으로 즉시 알립니다. 배선 공사 없이 15분 설치, 배터리 최대 10년. 무료 현장 진단 신청.',
+    img: '/images/promo-fire.jpg'
+  },
+  flame: {
+    title: '무선 불꽃감지기 출시 특가 — 화재 징조 즉시 대처',
+    desc: '초정밀 무선 불꽃감지기 출시 특가 프로모션. 불꽃 파장을 직접 감지해 연기가 퍼지기 전에 알립니다. 무선이라 기존 설비를 건드리지 않고 설치합니다.',
+    img: '/images/promo-flame.webp'
+  },
+  water: {
+    title: '실시간 침수 알리미 — 누수·침수 사전 감지',
+    desc: '전기실·기계실·서버실의 누수와 침수를 사전 감지해 피해를 최소화합니다. 물이 닿는 즉시 SMS·이메일 알림, 무선 설치로 공사 부담이 없습니다.',
+    img: '/images/promo-water.webp'
+  },
+  elect: {
+    title: '실시간 정전 알리미 — 정전·차단기 트립 즉시 통보',
+    desc: '정전과 차단기 트립을 실시간 모니터링해 즉시 알립니다. 무인 시간대 정전으로 인한 냉동·냉장 손실, 설비 정지 피해를 막습니다.',
+    img: '/images/promo-elect.webp'
+  },
+  church: {
+    title: '스마트 교회 알리미 — 24시간 무인 시간대 감시',
+    desc: '주중 무인 시간대의 화재·누수·동파·정전을 24시간 감시해 담당 집사님 휴대폰으로 바로 알립니다. 배선 공사 없이 설치, 배터리로 수년간 동작합니다.',
+    img: '/images/promo-church.webp'
+  },
+  soil: {
+    title: '산사태 사전예방 — 토양 수분·경사 변위 계측',
+    desc: '사면·절개지의 토양 수분과 경사 변위를 무선으로 계측해 산사태 징후를 사전에 포착합니다. 전원·통신이 없는 현장에도 설치할 수 있습니다.',
+    img: '/images/promo-soil.webp'
+  }
+};
+
+const promoPages = [];   // sitemap 용
+(function () {
+  let TPL = '';
+  try { TPL = fs.readFileSync(path.join(__dirname, 'promo.html'), 'utf8'); }
+  catch (e) { console.warn('[build] promo.html 을 읽지 못해 프로모션 정적 페이지를 건너뜁니다'); return; }
+
+  /* 시트(PROMOS) 값이 있으면 우선, 없으면 위 PROMO_SEO 를 씁니다.
+     link 가 외부/전용 랜딩(예: consulting → /promo/consulting)인 프로모션은
+     이미 자기 페이지가 있으므로 여기서 만들지 않습니다. */
+  const ids = new Set(Object.keys(PROMO_SEO));
+  PROMOS.forEach(p => { if (p.id && !/^https?:/i.test(p.link || '') && !(p.link || '').startsWith('/promo-') && !(p.link || '').startsWith('/promo/')) ids.add(p.id); });
+
+  ids.forEach(id => {
+    const seo   = PROMO_SEO[id] || {};
+    const sheet = PROMOS.find(p => p.id === id) || {};
+    const title = strip(sheet.title || seo.title || 'Monnit 프로모션');
+    const desc  = strip(sheet.desc  || seo.desc  || 'Monnit 무선 IoT 알리미 프로모션 — 실시간 감지·즉시 알림. 공사 없이 15분 설치.');
+    const img   = seo.img || '/images/promo-' + id + '.webp';
+    const url   = SITE + '/promotions/' + id;
+    const fullTitle = title + ' | Monnit Korea';
+    const ended = !!sheet.ended;
+
+    let h = TPL;
+    h = h.replace(/<title>[\s\S]*?<\/title>/, '<title>' + esc(fullTitle) + '</title>');
+    h = h.replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="' + esc(desc) + '">');
+    h = h.replace(/<meta property="og:title" content="[^"]*">/, '<meta property="og:title" content="' + esc(fullTitle) + '">');
+    h = h.replace(/<meta property="og:description" content="[^"]*">/, '<meta property="og:description" content="' + esc(desc) + '">');
+    h = h.replace(/<meta property="og:image" content="[^"]*">/,
+      '<meta property="og:image" content="' + SITE + img + '">\n'
+      + '<meta property="og:url" content="' + url + '">\n'
+      + '<link rel="canonical" href="' + url + '">\n'
+      + '<meta name="twitter:card" content="summary_large_image">\n'
+      + '<meta name="twitter:title" content="' + esc(fullTitle) + '">\n'
+      + '<meta name="twitter:description" content="' + esc(desc) + '">');
+    /* 종료된 프로모션은 색인에서 빼되 링크는 따라가게 둡니다 */
+    if (ended) h = h.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex,follow">');
+
+    /* 크롤러가 JS 없이 바로 읽는 본문 — SPA/스크립트가 그리기 전에 존재합니다 */
+    const seoBlock = '<div id="promo-ssg" data-promo="' + esc(id) + '">'
+      + '<h1>' + esc(title) + '</h1>'
+      + '<p>' + esc(desc) + '</p>'
+      + (sheet.period ? '<p>기간: ' + esc(strip(sheet.period)) + '</p>' : '')
+      + (ended ? '<p>이 프로모션은 종료되었습니다.</p>' : '')
+      + '<ul>'
+      +   '<li>배선 공사 없이 약 15분 설치 — 기존 설비를 건드리지 않습니다</li>'
+      +   '<li>이상 감지 시 SMS·이메일·전화로 즉시 알림</li>'
+      +   '<li>배터리 최대 10년 · Encrypt-RF® 암호화 무선 통신</li>'
+      + '</ul>'
+      + '<p>문의: <a href="mailto:korea@monnit.com">korea@monnit.com</a> · '
+      +   '<a href="tel:0220881454">02-2088-1454</a> · '
+      +   '<a href="' + SITE + '/promotions">전체 프로모션</a></p>'
+      + '</div>'
+      /* 사람이 볼 때는 아래 실제 랜딩이 이 블록을 대체합니다 */
+      + '<script>(function(){var b=document.getElementById("promo-ssg");if(b&&b.parentNode)b.parentNode.removeChild(b);})();</script>';
+
+    h = h.replace('<body>', '<body>\n' + seoBlock);
+
+    const dir = path.join(__dirname, 'promotions', id);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), h);
+    if (!ended) promoPages.push({ loc: url, pri: '0.7' });
+  });
+  console.log(`[build] 프로모션 상세 정적 페이지 ${ids.size}개 생성 (/promotions/*)`);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════
+   4-9) SPA 전용이던 5개 화면을 정적 페이지로 승격
+   ───────────────────────────────────────────────────────────────────
+   /our-solution · /what-we-do · /faqs · /whitepaper · /newsletter 는
+   _redirects 에서 index.html 을 그대로 내보내고 있었습니다. 그래서 5개 모두
+   title·description·canonical 이 홈페이지 값(canonical=https://monnit.co.kr/)
+   이었고, 구글은 "이 URL 의 정본은 홈"으로 해석해 홈에 통합했습니다.
+   → 다른 11개 라우트와 동일하게 고유 메타 + 고유 본문을 갖도록 생성합니다.
+   (아래 writePage 가 실제 파일을 만들면 _redirects 의 SPA 폴백보다 우선합니다)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* --- 4-9-1) 솔루션 --- */
+writePage('our-solution', page({
+  slug: 'our-solution',
+  title: 'Monnit 솔루션 — 감지·분석·자동제어 통합 플랫폼',
+  desc: '무선 센서로 수집한 온도·진동·전류 데이터를 AI가 분석해 이상을 예측하고, 엣지 게이트웨이가 서버 없이 설비를 직접 제어합니다. 통신 거리·보안·배터리 핵심 사양과 실제 관제 대시보드를 확인하세요.',
+  h1: '감지하고, 분석하고, 스스로 제어합니다',
+  jsonld: ORG_LD,
+  bodyHtml: `
+<p>현장의 온도·진동·전류 같은 데이터를 무선으로 수집하고, AI가 분석해 이상을 예측하며, 필요하면 설비를 자동으로 제어합니다.</p>
+
+<h2>어떻게 작동하는가 — Sense → Transmit → Act</h2>
+<h3>01 · SENSE — 80종 이상의 무선 센서</h3>
+<p>온도·진동·전류·가스 등 현장 물리량을 FHSS 무선으로 측정합니다. AES-128 암호화와 센서 자체 로컬 저장을 지원합니다.</p>
+<h3>02 · TRANSMIT — 게이트웨이</h3>
+<p>다수 센서의 데이터를 암호화·수집해 전송합니다. 통신이 끊겨도 오프라인 버퍼가 데이터를 보호하고, MQTT 멀티 클라우드 연동과 FOTA 펌웨어 업데이트를 지원합니다. PoE·WiFi 센서는 게이트웨이 없이도 동작합니다.</p>
+<h3>03 · ACT — 플랫폼 · AI</h3>
+<p>분석·알림·AI 예지보전·자동제어를 수행합니다. 엣지 게이트웨이는 서버 없이 BMS/BACnet 설비를 직접 제어하고, REST API 로 기존 시스템과 연동합니다.</p>
+
+<h2>핵심 사양</h2>
+<h3>무선 성능 · 연동</h3>
+<ul>
+<li>통신 거리 — 실내 최대 약 600m (구조물·층간 환경에 따라 변동)</li>
+<li>RF 기술 — Sub-GHz FHSS</li>
+<li>센서 연결 — 게이트웨이 모델별 다수 센서 연결</li>
+<li>데이터 로깅 — 센서·게이트웨이 로컬 저장</li>
+<li>외부 연동 — REST API · MQTT · Webhook · JSON/XML · Modbus TCP</li>
+</ul>
+<h3>보안 · 인증</h3>
+<ul>
+<li>키 교환 — 256-bit Key Exchange</li>
+<li>데이터 암호화 — AES-128 CTR</li>
+<li>보안 체계 — Encrypt-RF®</li>
+<li>계정 보안 — 2단계 인증(2FA) 지원</li>
+<li>펌웨어 — OTA/FOTA 업데이트 지원</li>
+<li>인증 — FCC · IC · CE/ETSI · 방폭 모델 별도 지원</li>
+</ul>
+<h3>배터리 · 전력</h3>
+<ul>
+<li>최장 수명 — AA 타입 기준 최대 10년 이상</li>
+<li>배터리 타입 — AA / 코인셀 / 산업용 리튬</li>
+<li>잔량 확인 — 배터리 잔량 모니터링 · 저잔량 알림</li>
+<li>설치 방식 — 배선 부담을 줄인 무선 설치</li>
+</ul>
+<p class="muted">※ 통신 거리, 배터리 수명, 센서 연결 수, 인증 항목은 모델 및 현장 환경에 따라 달라질 수 있습니다.</p>
+
+<h2>현장 통합 대시보드 (iMonnit)</h2>
+<ul>
+<li>HVAC 예지보전 — 공조 설비 상태와 에너지 효율을 함께 감시</li>
+<li>진동 예지보전 — 회전설비 진동을 ISO 20816-3 기준으로 AI 진단(불균형·정렬불량·베어링 결함 등)</li>
+<li>현장 통합관제 — 자산별 정상/경고/위험 상태를 한 화면에서 관리</li>
+</ul>
+<p><a href="${SITE}/products">제품군 보기</a> · <a href="${SITE}/applications">활용 분야 보기</a> · <a href="${SITE}/contact">상담·문의</a></p>`
+}), 'Monnit 솔루션');
+
+/* --- 4-9-2) 사업 영역 --- */
+writePage('what-we-do', page({
+  slug: 'what-we-do',
+  title: 'Monnit 사업 영역 — 커스텀 센서 제작부터 SI까지',
+  desc: '국방·오일가스·발전·데이터센터 등 8개 산업 대상. OEM/ODM 무선 센서 제작, 커스텀 소프트웨어 개발, 예지보전 패트롤, 레거시 관제 연동 등 6대 서비스를 제공합니다.',
+  h1: '현장이 필요로 하는 모든 것을 합니다',
+  jsonld: ORG_LD,
+  bodyHtml: `
+<p>단순 센서 공급을 넘어, 컨설팅부터 커스텀 제작·소프트웨어 개발·시스템 연동·예지보전까지 산업 IoT의 전 과정을 책임집니다.</p>
+
+<h2>사업 영역 — Industries we serve</h2>
+<ul>
+<li><strong>국방</strong> — 미군 부대 핵심 전략 자산 모니터링</li>
+<li><strong>오일가스</strong> — 정유·석유화학 설비 안전 감시</li>
+<li><strong>발전소</strong> — 전력 생산 설비 상태 진단</li>
+<li><strong>데이터센터</strong> — 온습도·전력·누수 통합 관제</li>
+<li><strong>인프라</strong> — 고속도로·기차·공항·항만·댐·공공시설</li>
+<li><strong>대형 상업건물</strong> — 스마트 빌딩 에너지·환경 관리</li>
+<li><strong>물류창고</strong> — 콜드체인·재고 환경 모니터링</li>
+<li><strong>생산시설</strong> — 반도체·제약·자동차 등 정밀 생산 라인</li>
+</ul>
+
+<h2>주요 서비스 — Core services</h2>
+<h3>01. 맞춤형 무선 센서 제작 (OEM · ODM)</h3><p>자동 제어가 가능한 커스텀 무선 센서를 현장 요구에 맞춰 설계·제작합니다.</p>
+<h3>02. 프로젝트별 소프트웨어 커스텀 개발</h3><p>대시보드·관제·자동화 로직을 프로젝트 단위로 맞춤 구현합니다.</p>
+<h3>03. 설비 예지보전 패트롤 서비스</h3><p>진동·온도 데이터를 기반으로 한 정기 점검 패트롤로 고장을 사전에 차단합니다.</p>
+<h3>04. 레거시 및 관제 시스템 연동 (SI)</h3><p>기존 관제·SCADA·MES 시스템과 ALTA 데이터를 매끄럽게 통합합니다.</p>
+<h3>05. AI 분석용 맞춤형 빅데이터 제공 · 분석</h3><p>AI 예지보전을 위한 정제된 데이터 셋을 구축하고 분석 모델을 제공합니다.</p>
+<h3>06. 전문 컨설팅 기반 솔루션 제안</h3><p>현장을 이해하는 엔지니어가 직접 진단하고 최적의 해결책과 솔루션을 제시합니다.</p>
+<p><a href="${SITE}/who-we-are">회사 소개</a> · <a href="${SITE}/stories">도입 사례</a> · <a href="${SITE}/contact">상담·문의</a></p>`
+}), 'Monnit 사업 영역');
+
+/* --- 4-9-3) FAQ (FAQPage 스키마) --- */
+const FAQ_ITEMS = [
+  ['센서 무선 통신 거리는 얼마나 되나요?', 'ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다.'],
+  ['센서 배터리는 얼마나 가나요?', '사용 환경에 따라 다르지만, 단일 AA 배터리로 최대 10년 이상 사용 가능합니다. 데이터 전송 주기(하트비트), 통신 거리, 장애물 수가 수명에 영향을 줍니다. 배터리 잔량은 iMonnit에서 백분율로 확인할 수 있고, 설정 임계값 이하가 되면 알림을 받을 수 있습니다.'],
+  ['인터넷이 끊기면 데이터가 사라지나요?', '아닙니다. 게이트웨이 연결이 끊겨도 센서가 자체적으로 최대 4,000건의 측정값을 저장하며, 연결이 복구되면 누락 없이 전송합니다. 게이트웨이 역시 내부 메모리에 다수의 메시지를 저장합니다.'],
+  ['데이터 보안은 어떻게 보장되나요?', 'Encrypt-RF® 기술로 256-bit ECDH 키 교환과 AES-128 암호화를 적용해 센서~게이트웨이 구간을 보안 터널로 보호합니다. 또한 패킷 변조 검증 루틴으로 위·변조 및 재전송 공격을 차단합니다.'],
+  ['알림은 어떤 방식으로 받나요?', '사용자가 설정한 조건을 초과하면 iMonnit이 SMS 문자, 이메일, 전화로 즉시 알림을 보냅니다. 임계값과 수신자는 자유롭게 설정할 수 있습니다.'],
+  ['설치와 설정은 어렵지 않나요?', '대부분의 ALTA 센서는 전원을 켜는 즉시 게이트웨이에 연결되는 플러그앤플레이 방식으로, 시스템 구성에 보통 15분이면 충분합니다. Monnit Korea가 현장 설치와 초기 설정을 지원합니다.']
+];
+writePage('faqs', page({
+  slug: 'faqs',
+  title: 'Monnit 자주 묻는 질문 — 통신 거리·배터리·보안',
+  desc: '무선 통신 거리, 배터리 수명, 통신 두절 시 데이터 보존, Encrypt-RF 보안, 알림 방식, 설치 난이도 등 도입 전 가장 많이 받는 질문을 정리했습니다.',
+  h1: '자주 묻는 질문',
+  jsonld: {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }))
+  },
+  bodyHtml: `
+<p>도입 전 가장 많이 받는 질문을 정리했습니다. 더 궁금한 점은 언제든 문의해 주세요.</p>
+${FAQ_ITEMS.map(([q, a]) => `<h2>${esc(q)}</h2><p>${esc(a)}</p>`).join('\n')}
+<p><a href="${SITE}/contact">상담·문의</a> · <a href="${SITE}/knowledgebase">기술 지식베이스</a> · <a href="${SITE}/guides">설치 가이드</a></p>`
+}), 'Monnit 자주 묻는 질문');
+
+/* --- 4-9-4) 산업별 제안서 --- */
+const WP_FALLBACK = [
+  ['데이터센터 · IDC 모니터링', '랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법.'],
+  ['공장 설비 예지보전', '모터·펌프·감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계.'],
+  ['진동 · 구조안전 계측', '배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다.'],
+  ['건설 · 토목 구조물 모니터링', '전원도 통신도 없는 초기 현장부터 사면·흙막이·양생 구간을 24시간 계측합니다.'],
+  ['UPS · ESS · 전력 설비 모니터링', '배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다.'],
+  ['무선 화재경보 · 소방 안전', '기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다.'],
+  ['스마트 FM · 시설관리', '민원이 들어오기 전에 먼저 아는 예지형 FM. 관리 성과가 리포트로 남습니다.'],
+  ['공공 · 국방 시설 안전관리', '배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다.'],
+  ['호텔 · 리조트 시설 모니터링', '객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인이 접수되기 전에 잡아냅니다.'],
+  ['학교 · 교회 · 공공시설 모니터링', '방학·주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다.'],
+  ['온도 · 누수 · 동파 · HVAC 통합', '배관이 얼기 전에, 물이 차기 전에. 전기실·기계실·공조·저온창고 통합 감시.'],
+  ['농업 · 골프장 토양 수분', '물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다.'],
+  ['바이오 · 제약 유틸리티 모니터링', 'GMP 환경의 온습도·차압·유틸리티를 자동 기록해 감사 대응 근거를 남깁니다.'],
+  ['실버타운 · 시니어 안전', '몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다.'],
+  ['콜드체인 · 물류 온도 관리', '창고에서 차량까지 온도 이력이 끊기지 않게. HACCP 기록을 자동으로 남깁니다.'],
+  ['리테일 · 매장 · 외식 온도 관리', '여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다.']
+];
+const WP_LIST = (WHITEPAPERS && WHITEPAPERS.length)
+  ? WHITEPAPERS.map(w => [strip(w.title), strip(w.desc)])
+  : WP_FALLBACK;
+writePage('whitepaper', page({
+  slug: 'whitepaper',
+  title: `산업별 제안서 ${WP_LIST.length}종 — Monnit Korea`,
+  desc: `데이터센터·공장 예지보전·콜드체인·바이오 등 ${WP_LIST.length}개 산업별 제안서. 각 16페이지 분량으로 과제 정의, 시스템 구성도, 존별 센서 배치, 투자 대비 효과, 도입 절차를 담았습니다.`,
+  h1: '산업별 제안서',
+  bodyHtml: `
+<p>현장에서 실제로 겪는 문제부터 출발해, 센서 구성·설치·운영·도입 효과까지 ${WP_LIST.length}종의 산업별 제안서로 정리했습니다. 각 제안서는 16페이지 분량으로 과제 정의, 시스템 구성도, 존별 센서 배치, 투자 대비 효과, 도입 절차와 체크리스트를 담고 있습니다.</p>
+<p>필요한 제안서를 선택하고 이메일을 입력해 신청하시면 다운로드가 바로 시작됩니다. PDF는 비밀번호 없이 열람할 수 있으며, 무단 편집·수정을 막기 위해 보호되어 있습니다.</p>
+<h2>제안서 목록</h2>
+${WP_LIST.map(([t, d]) => `<h3>${esc(t)}</h3><p>${esc(d)}</p>`).join('\n')}
+<p><a href="${SITE}/applications">활용 분야 보기</a> · <a href="${SITE}/contact">제안서 신청·문의</a></p>`
+}), '산업별 제안서');
+
+/* --- 4-9-5) 뉴스레터 --- */
+writePage('newsletter', page({
+  slug: 'newsletter',
+  title: 'Inside the IoT 뉴스레터 — Monnit Korea',
+  desc: '월 1회 발행. 원격 모니터링·예지보전 트렌드, ALTA 신제품, 수상 소식, 현장 적용 사례를 한국어로 정리해 이메일로 전해드립니다.',
+  h1: 'Inside the IoT 뉴스레터',
+  bodyHtml: `
+<p>Monnit의 월간 뉴스레터 <strong>Inside the IoT</strong>는 최신 IoT 소식, 예지보전 인사이트, 신제품 발표, 기술 팁을 한국어로 정리해 정기적으로 전해드립니다.</p>
+<h2>월 1회, 핵심 소식만 골라서</h2>
+<p>원격 모니터링·예지보전 트렌드부터 ALTA 신제품, 수상 소식, 현장 적용 사례까지 — 실무에 바로 쓰이는 내용만 담아 이메일로 보내드립니다.</p>
+<h2>최근 발행 소식</h2>
+<ul>
+<li><strong>2026 IoT Sensor Company of the Year 수상</strong> — Monnit이 2년 연속 올해의 IoT 센서 기업으로 선정되었습니다.</li>
+<li><strong>IoT Platforms Leadership Award 연속 수상</strong> — 플랫폼 리더십 부문에서 백투백 수상을 기록했습니다.</li>
+<li><strong>신형 ALTA / ALTA XL Ethernet Gateway 4K 발표</strong> — 대규모 센서 네트워크를 위한 차세대 게이트웨이를 출시했습니다.</li>
+</ul>
+<p>구독 신청은 <a href="${SITE}/contact">상담·문의</a> 페이지에서 하실 수 있습니다. · <a href="${SITE}/awards">수상 내역</a> · <a href="${SITE}/blog">블로그</a></p>`
+}), 'Inside the IoT 뉴스레터');
+
 /* ---------- 5) 문의 (FAQPage 스키마 포함) ---------- */
 writePage('contact', page({
   slug: 'contact', title: '상담·문의 — Monnit Korea 산업용 IoT 솔루션',
@@ -708,11 +1058,32 @@ try {
   });
 } catch (e) { console.warn('[clean] pages 정리 중 오류:', e.message); }
 
-/* ---------- robots.txt ---------- */
-const AI_BOTS = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'CCBot', 'Applebot-Extended', 'Bytespider', 'Amazonbot', 'meta-externalagent', 'cohere-ai'];
-let robots = '# Monnit Korea — 모든 검색·AI 크롤러 허용\n';
-robots += 'User-agent: *\nAllow: /\nDisallow: /editor\nDisallow: /editor.html\nDisallow: /church\nDisallow: /church/\n\n';
-AI_BOTS.forEach(b => { robots += `User-agent: ${b}\nAllow: /\n\n`; });
+/* ---------- robots.txt ----------
+   [중요] robots.txt 규칙상 크롤러는 자기 이름의 User-agent 블록을 발견하면
+   "User-agent: *" 블록을 완전히 무시합니다. 지금까지 봇별 블록에 Allow 만 있어
+   /editor, /church 차단이 명시된 봇 16종 모두에게 적용되지 않았습니다.
+   → 공통 Disallow 를 모든 블록에 반복해 실제로 적용되게 합니다.
+
+   ※ /pages/ 는 일부러 차단하지 않습니다. /pages/*.html 는 새 경로로 301 하는
+     통로라, 차단하면 크롤러가 301 을 따라가지 못해 색인 이전이 끊깁니다. */
+const DISALLOW = ['/editor', '/editor.html', '/church', '/church/'];
+const AI_BOTS = [
+  /* OpenAI */          'GPTBot', 'OAI-SearchBot', 'ChatGPT-User',
+  /* Anthropic */       'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai',
+  /* Perplexity */      'PerplexityBot', 'Perplexity-User',
+  /* Google */          'Google-Extended', 'Google-CloudVertexBot', 'Google-NotebookLM',
+  /* Meta */            'meta-externalagent', 'Meta-ExternalFetcher',
+  /* Apple */           'Applebot', 'Applebot-Extended',
+  /* 기타 AI 검색 */     'DuckAssistBot', 'MistralAI-User', 'Amazonbot', 'cohere-ai', 'CCBot', 'Bytespider',
+  /* 국내 검색엔진 */    'Yeti', 'Daum'
+];
+const botBlock = name => `User-agent: ${name}\nAllow: /\n` + DISALLOW.map(p => `Disallow: ${p}`).join('\n') + '\n\n';
+let robots = '# Monnit Korea — 모든 검색·AI 크롤러 허용 (build.js 자동 생성)\n'
+           + `# 최종 생성: ${TODAY}\n`
+           + '# 크롤러는 자기 이름 블록을 찾으면 "User-agent: *" 를 무시하므로\n'
+           + '# 공통 Disallow 를 각 블록마다 반복해 둡니다.\n\n';
+robots += botBlock('*');
+AI_BOTS.forEach(b => { robots += botBlock(b); });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
 
@@ -778,18 +1149,16 @@ const LEGACY_RULES = (function(){
   /* ④ 마지막 안전망 — 미리 만들어 둔 파일이 없는 경로(준비 중 활용분야 등)는
         SPA 껍데기가 받아서 클라이언트에서 그립니다. 반드시 맨 아래에 둡니다.
         실제 파일이 있으면 Netlify 가 파일을 먼저 주므로 SSG 페이지가 우선합니다. */
+  /* ※ /our-solution · /what-we-do · /faqs · /whitepaper · /newsletter 는
+        예전엔 여기서 index.html 을 그대로 내보내 canonical 이 홈으로 잡혔습니다.
+        이제 위에서 고유 메타·본문을 가진 SSG 파일을 만드므로 폴백에서 제외합니다.
+        (규칙을 남겨두면 Netlify 가 파일보다 규칙을 먼저 볼 여지가 있어 지웁니다) */
   const fallback = `
-# --- SSG 파일이 없는 SPA 전용 화면
-/faqs                 /index.html          200
-/faqs/                /index.html          200
-/newsletter           /index.html          200
-/newsletter/          /index.html          200
-/whitepaper           /index.html          200
-/whitepaper/          /index.html          200
-/our-solution         /index.html          200
-/our-solution/        /index.html          200
-/what-we-do           /index.html          200
-/what-we-do/          /index.html          200
+# --- 개인정보처리방침·설치사례 중복 URL 정리 (확장자 없는 주소 → 정본 1개)
+/privacy              /privacy.html                301
+/privacy/             /privacy.html                301
+/installation-photos  /installation-photos.html    301
+/installation-photos/ /installation-photos.html    301
 
 # --- SPA 폴백 (미리 만든 파일이 없는 상세 경로 · 준비 중 화면이 받습니다)
 /app/*                /index.html          200
@@ -875,7 +1244,8 @@ const urls = [
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
   { loc: SITE + '/promo/consulting', pri: '0.9' },
   { loc: SITE + '/privacy.html', pri: '0.3' },
-  ...generated.map(g => ({ loc: g.loc, pri: '0.8' }))
+  ...generated.map(g => ({ loc: g.loc, pri: '0.8' })),
+  ...promoPages                                        // /promotions/{slug} 상세
 ];
 let sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 urls.forEach(u => { sm += `  <url><loc>${u.loc}</loc><lastmod>${TODAY}</lastmod><priority>${u.pri}</priority></url>\n`; });
