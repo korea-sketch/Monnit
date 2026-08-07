@@ -1,3 +1,12 @@
+/*!
+ * Monnit Korea — monnit.co.kr
+ * Designed & built by HanJun Jo <consor.kr [at] gmail [dot] com>
+ *
+ * One stylesheet. Hand-written, no preprocessor, no utility framework.
+ * Design tokens live in :root below; everything else is composed from them.
+ * Full colophon at the top of index.html.
+ */
+
 /* ========== SHARED DESIGN TOKENS ========== */
 :root {
   --fd: 'Pretendard Variable','Pretendard','Archivo',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
@@ -6833,30 +6842,44 @@ a.nav-link { display: inline-flex; align-items: center; }
   .nh-why-bg.is-roll .nh-roll-slide{ transition-duration:.01ms; }
 }
 
-/* ── 히어로 배경 Soft Aurora (WebGL) ─────────────────────────
-   js/hero-aurora.js 가 이 안에 <canvas> 를 넣습니다.
+/* ── 히어로 배경 FX v2 (WebGL + Canvas2D) ─────────────────────
+   js/hero-fx.js 가 이 안에 <canvas> 4장을 아래 순서로 넣습니다.
+     L0 .nh-fx-molten  MoltenMetal   — 은은한 용융 글로우
+     L1 .nh-fx-lines   FloatingLines — 가운데 파동 선다발
+     L2 .nh-fx-digits  DigitFibers   — L1 과 같은 궤적을 타는 숫자 파이버
+     L3 .nh-fx-galaxy  Galaxy        — 여기저기 반짝이는 별빛·십자 플레어
    스크립트가 안 뜨거나 모바일·저사양이면 아래 그라데이션이 그대로 배경이 됩니다. */
 .nh-hero-aurora{
   position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  /* 좌우 한쪽으로 몰리지 않게 — 가운데를 중심으로 넓게 깔고 양끝을 부드럽게 */
   background:
-    radial-gradient(1250px 820px at 74% 52%, rgba(20,28,86,.42), transparent 62%),
-    radial-gradient(900px 560px at 88% 74%, rgba(58,32,132,.24), transparent 68%);
+    radial-gradient(1400px 900px at 50% 46%, rgba(20,28,86,.34), transparent 66%),
+    radial-gradient(900px 560px at 86% 74%, rgba(58,32,132,.20), transparent 70%),
+    radial-gradient(760px 520px at 12% 70%, rgba(24,40,110,.16), transparent 72%);
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 76%,transparent 100%);
           mask-image:linear-gradient(180deg,#000 0%,#000 76%,transparent 100%);
 }
-/* js/hero-aurora.js 가 아래 3개 캔버스를 이 안에 넣습니다 */
-.nh-fx{ position:absolute; display:block; pointer-events:none; }
-.nh-fx-corner{ right:0; bottom:0; width:64%; height:70%; opacity:.8;
-  -webkit-mask-image:radial-gradient(120% 110% at 100% 100%,#000 12%,rgba(0,0,0,.5) 46%,transparent 78%);
-          mask-image:radial-gradient(120% 110% at 100% 100%,#000 12%,rgba(0,0,0,.5) 46%,transparent 78%); }
-.nh-fx-lines{ inset:0; width:100%; height:100%; mix-blend-mode:screen; opacity:.62; }
-.nh-fx-mesh{ inset:0; width:100%; height:100%; }
-/* 본문 가독성 확보 — 왼쪽 텍스트 영역은 배경을 눌러 둡니다 */
+.nh-fx{ position:absolute; inset:0; display:block; width:100%; height:100%; pointer-events:none; }
+.nh-fx-molten{ mix-blend-mode:screen; opacity:.85; }
+.nh-fx-lines { mix-blend-mode:screen; opacity:.72; }
+.nh-fx-digits{ mix-blend-mode:screen; opacity:.9; }
+.nh-fx-galaxy{ mix-blend-mode:screen; opacity:.85; }
+
+/* 본문 가독성 확보 — 예전에는 왼쪽 절반을 통째로 덮어 효과가 오른쪽에만 남았습니다.
+   이제 헤드라인 블록 자리만 부드럽게 눌러, 효과는 좌우 고르게 보이면서 글자는 읽힙니다.
+   (셰이더 쪽 frameMask 와 역할이 겹치므로 여기서는 아주 약하게만 겁니다) */
 .nh-hero-aurora::after{ content:""; position:absolute; inset:0; z-index:2;
-  background:linear-gradient(90deg, var(--bg-deep) 0%, rgba(6,10,22,.88) 20%, rgba(6,10,22,.48) 36%, transparent 58%); }
+  background:
+    radial-gradient(1020px 620px at 26% 50%, rgba(6,10,22,.72), rgba(6,10,22,.34) 46%, transparent 72%),
+    linear-gradient(90deg, rgba(6,10,22,.62) 0%, rgba(6,10,22,.18) 22%, transparent 40%); }
 .nh-hero .wrap{ position:relative; z-index:1; }
 @media (prefers-reduced-motion:reduce){ .nh-hero-aurora canvas{ display:none; } }
-@media (max-width:900px){ .nh-fx-lines{ display:none; } .nh-fx-corner{ width:82%; height:58%; opacity:.6; } }
+/* 좁은 화면: 숫자 파이버·별빛은 접고 선다발과 글로우만 남깁니다 */
+@media (max-width:900px){
+  .nh-fx-digits{ display:none; }
+  .nh-fx-galaxy{ opacity:.55; }
+  .nh-fx-lines { opacity:.5; }
+}
 @media (max-width:820px){ .nh-hero-aurora{ opacity:.7; } }
 
 /* 고객사 로고 마퀴가 문서 가로폭을 31px 밀어내던 문제 — 트랙을 뷰포트 밖으로
@@ -6897,3 +6920,49 @@ html, body{ overflow-x:hidden; }
    ═══════════════════════════════════════════════════════════════════ */
 select option,
 select optgroup{ background:#FFFFFF; color:#15192E; }
+
+
+/* ============================================================
+   About us / Who we are — Galaxy Hero  (js/galaxy-hero.js)
+   ------------------------------------------------------------
+   히어로 배경을 정적 SVG 에서 WebGL 별밭으로 바꿉니다.
+   마크업 계약: <figure class="ah-media" data-galaxy-hero> 안에 스크립트가
+     <canvas class="oh-canvas"> 를 넣고, 첫 프레임을 실제로 그린 뒤에만
+     부모에 .oh-ready 를 붙입니다. 그래서 실패 경로에서 빈 화면이 남지 않습니다.
+   .about-hero2 의 레이아웃(min-height·풀블리드)은 건드리지 않습니다.
+   ============================================================ */
+
+.about-hero-galaxy .ah-media{ background:#05080F; }
+
+.about-hero-galaxy .ah-media .oh-canvas{
+  position:absolute; inset:0; width:100%; height:100%; display:block;
+  opacity:0; transition:opacity .9s cubic-bezier(.22,.61,.36,1);
+}
+.about-hero-galaxy .ah-media.oh-ready .oh-canvas{ opacity:1; }
+
+/* 정적 폴백 SVG — 캔버스가 뜨면 물러납니다. 캔버스가 SVG 와 같은 radial
+   gradient 를 바탕으로 그리므로 두 장이 교차하는 동안 바탕색이 튀지 않습니다. */
+.about-hero-galaxy .ah-media.oh-ready img{ opacity:0; transition:opacity .6s ease; }
+
+/* 별밭은 화면 전체를 덮으므로 카피 뒤를 확실히 눌러 줍니다.
+   오른쪽 30% 는 투명하게 두어 별이 살아 있게 합니다. */
+.about-hero-galaxy .ah-media.oh-ready::after{
+  background:
+    linear-gradient(90deg, rgba(6,10,18,.94) 0%, rgba(6,10,18,.78) 26%, rgba(6,10,18,.34) 50%, rgba(6,10,18,0) 70%),
+    radial-gradient(120% 90% at 50% 50%, rgba(6,10,18,0) 44%, rgba(6,10,18,.52) 100%);
+}
+
+@media (max-width:900px){
+  /* 좁은 화면: 카피가 위. 별밭이 전면이라 위쪽을 더 눌러 줍니다. */
+  .about-hero-galaxy .ah-media.oh-ready::after{
+    background:
+      linear-gradient(180deg, rgba(6,10,18,.92) 0%, rgba(6,10,18,.70) 36%, rgba(6,10,18,.20) 64%, rgba(6,10,18,0) 84%),
+      radial-gradient(130% 80% at 50% 55%, rgba(6,10,18,0) 40%, rgba(6,10,18,.5) 100%);
+  }
+}
+
+/* 모션 최소화 요청 시: 스크립트가 정지 프레임 1장만 그립니다(루프 없음).
+   페이드인까지 없애 즉시 표시합니다. */
+@media (prefers-reduced-motion:reduce){
+  .about-hero-galaxy .ah-media .oh-canvas{ transition:none; }
+}

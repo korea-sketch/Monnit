@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>히어로 배경 FX 미리보기 — Monnit Korea</title>
+<!--
+  사용법
+  ─────────────────────────────────────────────────────────────
+  1) 압축을 푼 폴더 안에서 이 파일을 브라우저로 그냥 열면 됩니다 (서버 불필요).
+  2) 오른쪽 패널 슬라이더로 실시간 조정 → 마음에 드는 값이 나오면
+     맨 아래 [값 복사] 를 눌러 저에게 붙여넣어 주세요.
+     (또는 js/hero-fx.js 상단 OPT 에 직접 반영하셔도 됩니다)
+  3) 상단 버튼으로 화면 폭(데스크톱/태블릿/모바일)과 레이어 on/off 를 볼 수 있습니다.
+-->
+<style>
+  :root{ --bg-deep:#06080F; --ink:#F3F7FC; --mut:#9AA9C0; --line:#25324A; --acc:#4FC3FF; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg-deep);color:var(--ink);
+       font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Malgun Gothic",sans-serif;
+       overflow-x:hidden}
+
+  /* ===== 히어로 (index.html 구조를 그대로 옮긴 축약본) ===== */
+  .stage{position:relative;transition:width .2s;margin:0 auto;border-bottom:1px solid var(--line)}
+  .nh-hero{position:relative;min-height:660px;display:flex;align-items:center;overflow:hidden}
+  .nh-hero .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 24px;width:100%}
+  .nh-kicker{display:block;font-size:13px;letter-spacing:.22em;color:#7FA6D8;font-weight:700;margin-bottom:22px}
+  .nh-hero h1{font-size:clamp(34px,5.4vw,64px);line-height:1.16;font-weight:800;letter-spacing:-.03em;margin-bottom:22px}
+  .nh-hero h1 em{font-style:normal;color:#5FA8F5}
+  .nh-lead{font-size:clamp(14px,1.5vw,17px);color:#C3D0E4;line-height:1.75;margin-bottom:30px;max-width:46ch}
+  .nh-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
+  .nh-cta a{display:inline-flex;align-items:center;height:52px;padding:0 24px;border-radius:10px;
+    font-size:15px;font-weight:700;text-decoration:none;color:#fff;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+  .nh-cta a.p{background:#2E6DBE;border-color:#2E6DBE}
+  .nh-stats{display:flex;gap:44px;border-top:1px solid rgba(255,255,255,.12);padding-top:26px;max-width:560px}
+  .nh-stats b{font-size:34px;font-weight:800;letter-spacing:-.02em}
+  .nh-stats b i{font-style:normal;font-size:17px;color:#5FA8F5;margin-left:2px}
+  .nh-stats span{display:block;font-size:13px;color:var(--mut);margin-top:8px}
+
+  /* ===== 조정 패널 ===== */
+  .panel{position:fixed;top:0;right:0;width:340px;height:100vh;overflow-y:auto;z-index:50;
+    background:rgba(9,13,24,.95);backdrop-filter:blur(10px);border-left:1px solid var(--line);
+    padding:16px 16px 90px;font-size:12.5px}
+  .panel.hide{transform:translateX(100%)}
+  .panel h2{font-size:14px;font-weight:800;margin-bottom:4px}
+  .panel .sub{color:var(--mut);font-size:11.5px;line-height:1.6;margin-bottom:14px}
+  .grp{border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:10px}
+  .grp>h3{font-size:12px;font-weight:800;color:var(--acc);margin-bottom:9px;letter-spacing:.02em}
+  .row{display:grid;grid-template-columns:1fr 54px;gap:8px;align-items:center;margin-bottom:8px}
+  .row label{color:#C3D0E4;font-size:11.5px;line-height:1.35}
+  .row output{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--acc);text-align:right}
+  .row input[type=range]{grid-column:1/3;width:100%;height:3px;accent-color:var(--acc);margin-top:2px}
+  .row input[type=color]{width:100%;height:26px;background:none;border:1px solid var(--line);border-radius:6px;padding:1px}
+  .chk{display:flex;align-items:center;gap:8px;margin-bottom:7px;color:#C3D0E4}
+  .chk input{accent-color:var(--acc);width:15px;height:15px}
+  .bar{position:fixed;left:0;bottom:0;right:340px;z-index:51;background:rgba(9,13,24,.96);
+    border-top:1px solid var(--line);padding:9px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);
+    border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:hover{border-color:var(--acc)}
+  .btn.on{background:#2E6DBE;border-color:#2E6DBE}
+  .toggle{position:fixed;top:12px;right:12px;z-index:60}
+  #out{position:fixed;inset:auto 360px 60px 20px;max-height:44vh;overflow:auto;z-index:55;display:none;
+    background:#080C16;border:1px solid var(--acc);border-radius:10px;padding:14px;
+    font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.55;white-space:pre;color:#BFE4FF}
+  .note{color:var(--mut);font-size:11px;line-height:1.6;margin-top:10px}
+  @media (max-width:1100px){ .panel{width:300px} .bar{right:300px} }
+</style>
+</head>
+<body>
+
+<button class="btn toggle" id="tgPanel">패널 접기</button>
+
+<div class="stage" id="stage" style="width:100%">
+  <section class="nh-hero">
+    <div class="nh-hero-aurora" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="nh-kicker">산업용 무선 IoT · 통합관제 · AI 예지보전</span>
+      <h1>보이지 않는 위험까지<br><em>데이터</em>로 관리합니다</h1>
+      <p class="nh-lead">산업용 무선 IoT 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링하고 사고를 예방합니다.</p>
+      <div class="nh-cta">
+        <a class="p" href="#">맞춤 상담</a>
+        <a href="#">도입 사례 보기</a>
+        <a href="#">산업별 제안서 보기</a>
+      </div>
+      <div class="nh-stats">
+        <div><b>15<i>년+</i></b><span>현장 검증 경력</span></div>
+        <div><b>80<i>종+</i></b><span>무선 센서 라인업</span></div>
+        <div><b>10<i>년</i></b><span>배터리 수명</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="panel" id="panel">
+  <h2>히어로 배경 FX 조정</h2>
+  <p class="sub">슬라이더를 움직이면 위 화면이 바로 바뀝니다.<br>
+    마음에 드는 값이 나오면 아래 <b>[값 복사]</b> 를 눌러 붙여넣어 주세요.</p>
+
+  <div class="grp">
+    <h3>전체</h3>
+    <div id="g-global"></div>
+  </div>
+  <div class="grp">
+    <h3>L1 · 선다발 (FloatingLines)</h3>
+    <div id="g-lines"></div>
+  </div>
+  <div class="grp">
+    <h3>L2 · 숫자 파이버 (DigitFibers)</h3>
+    <div id="g-digits"></div>
+  </div>
+  <div class="grp">
+    <h3>L0 · 용융 글로우 (MoltenMetal)</h3>
+    <div id="g-molten"></div>
+  </div>
+  <div class="grp">
+    <h3>L3 · 별빛 (Galaxy)</h3>
+    <div id="g-galaxy"></div>
+  </div>
+  <p class="note">※ 이 파일은 <code>js/hero-fx.js</code> 를 그대로 불러옵니다.
+    미리보기와 실제 사이트가 항상 같은 코드로 돕니다.</p>
+</div>
+
+<div class="bar" id="bar">
+  <span style="color:var(--mut)">화면 폭</span>
+  <button class="btn on" data-w="100%">데스크톱</button>
+  <button class="btn" data-w="1024px">태블릿</button>
+  <button class="btn" data-w="390px">모바일</button>
+  <span style="width:14px"></span>
+  <span style="color:var(--mut)">레이어</span>
+  <button class="btn on" data-layer="nh-fx-molten">용융</button>
+  <button class="btn on" data-layer="nh-fx-lines">선</button>
+  <button class="btn on" data-layer="nh-fx-digits">숫자</button>
+  <button class="btn on" data-layer="nh-fx-galaxy">별빛</button>
+  <span style="flex:1"></span>
+  <button class="btn" id="reset">초기값</button>
+  <button class="btn" id="copy" style="background:#2E6DBE;border-color:#2E6DBE">값 복사</button>
+</div>
+
+<pre id="out"></pre>
+
+<!-- 실제 사이트와 같은 스타일·엔진을 그대로 씁니다 -->
+<link rel="stylesheet" href="style.css?v=112">
+<script src="js/hero-fx.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  var FX = null, DEFAULTS = null;
+
+  /* 슬라이더 정의 — [키, 라벨, 최소, 최대, 스텝] / {c:색상} */
+  var SPEC = {
+    'g-global': [
+      ['brightness','전체 밝기',0.3,2.0,0.01],
+      ['copyDim','헤드라인 뒤 어둡게 (낮을수록 더 어둡게)',0.0,1.0,0.01],
+      ['copyCenterX','보호 영역 가로 위치',0.0,1.0,0.01],
+      ['copyCenterY','보호 영역 세로 위치',0.0,1.0,0.01],
+      ['copyRadiusX','보호 영역 가로 크기',0.05,0.9,0.01],
+      ['copyRadiusY','보호 영역 세로 크기',0.05,0.9,0.01]
+    ],
+    'g-lines': [
+      ['linesGain','세기',0.0,2.0,0.01],
+      ['lineSpeed','속도',0.0,2.0,0.01],
+      ['lineCount','가닥 수',1,24,1],
+      ['lineDistance','가닥 간격',0.01,0.20,0.005],
+      ['waveX','파동 X (위상)',-8,8,0.1],
+      ['waveY','파동 Y (위아래)',-1.2,1.2,0.01],
+      ['waveRot','휘감기(rot)',-1.0,1.0,0.01],
+      ['bendRadius','커서 반응 범위',0.5,15,0.1],
+      ['bendStrength','커서 휘는 세기',-2,2,0.05],
+      ['parallax','시차 이동',0,2,0.05]
+    ],
+    'g-digits': [
+      ['digitGain','세기',0.0,2.0,0.01],
+      ['digitFibers','숫자 가닥 수',0,12,1],
+      ['digitPerFiber','가닥당 글자 수',6,120,1],
+      ['digitSpeed','흐르는 속도',0.05,1.5,0.01],
+      ['digitSize','글자 크기(px)',6,22,0.5],
+      ['digitSensorMix','센서 실측값 비율',0,1,0.01],
+      ['digitTrail','잔상',0,0.6,0.01],
+      ['digitColor','글자색',null,null,null,'c']
+    ],
+    'g-molten': [
+      ['moltenGain','세기 (은은함)',0.0,1.0,0.01],
+      ['moltenSpeed','속도',0.05,1.5,0.01],
+      ['moltenScale','스케일',0.5,8,0.1],
+      ['moltenDetail','디테일(옥타브)',1,4,1],
+      ['moltenGlow','글로우',0.2,3,0.05],
+      ['moltenCore','코어 크기',0.0,0.6,0.01],
+      ['moltenSwirl','소용돌이',0,3,0.05],
+      ['moltenFold','접힘(fold)',-1,1,0.05],
+      ['moltenBlack','블랙포인트',0,0.5,0.01],
+      ['moltenBright','밝기',0.2,3,0.05],
+      ['moltenGrain','그레인',0,0.3,0.01],
+      ['moltenC1','색1',null,null,null,'c'],
+      ['moltenC2','색2',null,null,null,'c'],
+      ['moltenC3','색3',null,null,null,'c']
+    ],
+    'g-galaxy': [
+      ['galaxyGain','세기',0.0,2.0,0.01],
+      ['galaxyDensity','밀도',0.02,0.8,0.01],
+      ['galaxyGlow','글로우',0.02,1.0,0.01],
+      ['galaxySaturation','채도',0,1,0.01],
+      ['galaxyHueShift','색상(hue)',0,360,1],
+      ['galaxyTwinkle','반짝임',0,1,0.01],
+      ['galaxyFlare','십자 플레어',0,2,0.02]
+    ]
+  };
+
+  function el(t,c){var e=document.createElement(t);if(c)e.className=c;return e;}
+
+  function buildPanel(){
+    Object.keys(SPEC).forEach(function(gid){
+      var host=document.getElementById(gid);
+      SPEC[gid].forEach(function(s){
+        var key=s[0],label=s[1],min=s[2],max=s[3],step=s[4],type=s[5];
+        var row=el('div','row');
+        var lb=el('label'); lb.textContent=label; row.appendChild(lb);
+        if(type==='c'){
+          var sw=el('span'); sw.style.gridColumn='2'; row.appendChild(sw);
+          var ci=document.createElement('input'); ci.type='color'; ci.value=FX.get(key);
+          ci.style.gridColumn='1/3';
+          ci.oninput=function(){ FX.set(key,ci.value); };
+          row.appendChild(ci);
+        } else {
+          var ov=el('output'); ov.textContent=fmt(FX.get(key)); row.appendChild(ov);
+          var ri=document.createElement('input');
+          ri.type='range'; ri.min=min; ri.max=max; ri.step=step; ri.value=FX.get(key);
+          ri.oninput=function(){ var v=parseFloat(ri.value); ov.textContent=fmt(v); FX.set(key,v); };
+          ri.dataset.key=key;
+          row.appendChild(ri);
+        }
+        host.appendChild(row);
+      });
+    });
+  }
+  function fmt(v){ return (typeof v==='number' && v%1!==0) ? v.toFixed(2) : String(v); }
+
+  function syncPanel(){
+    document.querySelectorAll('input[type=range][data-key]').forEach(function(ri){
+      var v=FX.get(ri.dataset.key);
+      ri.value=v;
+      var ov=ri.parentNode.querySelector('output');
+      if(ov) ov.textContent=fmt(v);
+    });
+    document.querySelectorAll('input[type=color]').forEach(function(ci){});
+  }
+
+  /* 화면 폭 */
+  document.querySelectorAll('[data-w]').forEach(function(b){
+    b.onclick=function(){
+      document.querySelectorAll('[data-w]').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      document.getElementById('stage').style.width=b.dataset.w;
+      if(FX) setTimeout(FX.resize,60);
+    };
+  });
+  /* 레이어 on/off */
+  document.querySelectorAll('[data-layer]').forEach(function(b){
+    b.onclick=function(){
+      b.classList.toggle('on');
+      var c=document.querySelector('.'+b.dataset.layer);
+      if(c) c.style.display=b.classList.contains('on')?'':'none';
+    };
+  });
+  document.getElementById('tgPanel').onclick=function(){
+    var p=document.getElementById('panel'), bar=document.getElementById('bar');
+    p.classList.toggle('hide');
+    var hid=p.classList.contains('hide');
+    bar.style.right=hid?'0':'';
+    this.textContent=hid?'패널 펴기':'패널 접기';
+    if(FX) setTimeout(FX.resize,240);
+  };
+  document.getElementById('reset').onclick=function(){
+    if(!DEFAULTS) return;
+    FX.set(JSON.parse(JSON.stringify(DEFAULTS)));
+    syncPanel();
+  };
+  document.getElementById('copy').onclick=function(){
+    var o=document.getElementById('out');
+    var txt=JSON.stringify(FX.get(),null,2);
+    o.textContent=txt; o.style.display='block';
+    if(navigator.clipboard) navigator.clipboard.writeText(txt).then(function(){
+      var b=document.getElementById('copy'); var t=b.textContent;
+      b.textContent='복사됨 ✓'; setTimeout(function(){b.textContent=t;},1400);
+    });
+  };
+
+  /* hero-fx.js 가 부팅을 끝낼 때까지 기다립니다 */
+  var tries=0;
+  (function wait(){
+    if(window.MonnitHeroFX && window.MonnitHeroFX.get){
+      FX=window.MonnitHeroFX;
+      DEFAULTS=JSON.parse(JSON.stringify(FX.get()));
+      buildPanel();
+      return;
+    }
+    if(++tries>120){
+      document.getElementById('panel').insertAdjacentHTML('afterbegin',
+        '<div style="border:1px solid #FF5D72;border-radius:8px;padding:12px;margin-bottom:12px;color:#FF9FAA">'
+        +'효과가 실행되지 않았습니다.<br><br>· WebGL 미지원 브라우저이거나<br>'
+        +'· 시스템에서 <b>동작 줄이기(prefers-reduced-motion)</b> 가 켜져 있거나<br>'
+        +'· 저사양·모바일로 판정된 경우입니다.<br><br>'
+        +'주소 끝에 <code>?herofx=force</code> 를 붙여 다시 열어보세요.</div>');
+      return;
+    }
+    setTimeout(wait,50);
+  })();
+})();
+</script>
+</body>
+</html>
