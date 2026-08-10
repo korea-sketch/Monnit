@@ -10,7 +10,7 @@
  *
  * ---------------------------------------------------------------------------
  * 원본 셰이더: React Bits `<Galaxy />` (React + ogl)
- * 이 파일: HanJun Jo <consor.kr [at] gmail [dot] com>
+ * 이 파일: HanJun Jo <consor.kr@gmail.com>
  *          React·ogl·TypeScript 없이 순수 WebGL1 + DOM 으로 포팅.
  *          외부 의존성 0, 전역 오염 없음(단일 IIFE, window.MonnitGalaxyHero 만 노출).
  *
@@ -171,7 +171,7 @@
     focal: [0.5, 0.5],
     rotation: [1.0, 0.0],
     starSpeed: 0.35,        // 층이 흘러가는 속도
-    density: 1.15,          // 별 밀도. 클수록 촘촘하고 작아진다
+    density: 1.08,          // 별 밀도. 클수록 촘촘하고 작아진다
     hueShift: 215,          // Monnit 블루. 원본 기본 140°(초록) 대신
     /* 셰이더는 별마다 base 색에서 hue 를 따로 뽑아 shift 를 더합니다. 그래서
        saturation 을 올리면 주황·자주 별이 섞여 브랜드 톤이 깨집니다. 0.18 로
@@ -427,7 +427,7 @@
   function presetFor(narrow, lowPower) {
     return {
       focal: narrow ? [0.5, 0.42] : [0.62, 0.5],
-      density: narrow ? 0.95 : 1.15,
+      density: narrow ? 0.90 : 1.08,
       glowIntensity: narrow ? 0.28 : 0.32,
       parallax: narrow ? 0 : 0.10,
       interactive: !narrow,

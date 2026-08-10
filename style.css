@@ -1,6 +1,6 @@
 /*!
  * Monnit Korea — monnit.co.kr
- * Designed & built by HanJun Jo <consor.kr [at] gmail [dot] com>
+ * Designed & built by HanJun Jo <consor.kr@gmail.com>
  *
  * One stylesheet. Hand-written, no preprocessor, no utility framework.
  * Design tokens live in :root below; everything else is composed from them.
@@ -9,8 +9,8 @@
 
 /* ========== SHARED DESIGN TOKENS ========== */
 :root {
-  --fd: 'Pretendard Variable','Pretendard','Archivo',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-  --fb: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --fd: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --fb: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --fm: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* 정제된 다크 — 파란 기운을 낮춘 중립 잉크 네이비 (AI 테크 티 제거) */
@@ -5892,7 +5892,7 @@ a.promo-card h3, a.promo-card:visited h3 { color: #FFFFFF; }
   --navy:#0A1624; --navy-2:#101E30; --teal:#5B9DE8; --teal-deep:#6FA6E6;
   --bg:#0C1220; --surface:#141C2E; --surface-2:#1B2536; --line:#26304A;
   --ink:#EEF1F6; --txt:#B7C2D2; --cap:#8193AC;
-  --disp:'Archivo','Pretendard Variable',Pretendard,sans-serif; --body:'Pretendard Variable',Pretendard,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif; --body:'Pretendard Variable',Pretendard,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
   --sub:#9CAAC0; --sub-dk:#A7BBD3; --r:14px;
   color:#EAF0F8;
 }
@@ -6880,6 +6880,7 @@ a.nav-link { display: inline-flex; align-items: center; }
   .nh-fx-galaxy{ opacity:.55; }
   .nh-fx-lines { opacity:.5; }
 }
+@media (max-width:820px){ .nh-hero-aurora{ opacity:.7; } }
 @media (max-width:820px){ .nh-hero-aurora{ opacity:.7; } }
 
 /* 고객사 로고 마퀴가 문서 가로폭을 31px 밀어내던 문제 — 트랙을 뷰포트 밖으로

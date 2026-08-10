@@ -1087,67 +1087,6 @@ AI_BOTS.forEach(b => { robots += botBlock(b); });
 robots += `Sitemap: ${SITE}/sitemap.xml\n`;
 fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
 
-/* ---------- humans.txt ----------
-   humanstxt.org 규약. robots.txt 가 기계를 위한 것이라면 이건 사람을 위한 것입니다.
-   index.html 의 <link rel="author" href="/humans.txt"> 가 여기를 가리킵니다. */
-const HUMANS = `/* TEAM */
-
-    Design & Engineering: HanJun Jo
-    Contact: consor.kr [at] gmail [dot] com
-    Site: ${SITE}
-
-
-/* SITE */
-
-    Last build: ${TODAY}
-    Language: 한국어 · English
-    Standards: HTML5, CSS3, ECMAScript 5, WebGL 1.0, Canvas 2D
-    Components: 프레임워크 0개 · npm 의존성 0개
-                빌드 스크립트는 Node 표준 라이브러리만 사용합니다
-    Software: 손으로 쓴 코드
-
-
-/* BUILD */
-
-    정적 페이지: ${generated.length}개 (build.js, 의존성 0)
-    활용 분야: ${APPS.length}건 · 제품: ${PRODUCTS.length}종 · 도입 사례: ${Object.keys(CASE_DATA).length}건
-    콘텐츠 소스: 구글 시트 → 빌드 시 주입 (실패 시 리터럴 자동 폴백)
-
-
-/* HERO BACKGROUND FX */
-
-    WebGL1 프래그먼트 셰이더 3장 + Canvas2D 1장을 겹쳐 만들었습니다.
-
-      L0  MoltenMetal    도메인 워프 fbm
-      L1  FloatingLines  파동 선다발
-      L2  DigitFibers    숫자 파이버 (Canvas2D)
-      L3  Galaxy         셀 해시 별빛 + 십자 플레어
-
-    About us 히어로(/who-we-are)는 별도입니다 — js/galaxy-hero.js.
-    4겹 시차 별밭이고, 프래그먼트당 별을 36회 평가합니다. 비용이 큰 만큼
-    DPR 상한과 렌더 스케일 다이얼로 못 박아 두었습니다.
-    WebGL 이 없거나 동작 줄이기가 켜져 있으면 정적 SVG 가 그대로 남습니다.
-
-    L2 의 숫자는 그림이 아닙니다. L1 셰이더의 파동식
-
-        uv.y = sin(uv.x + phi_i + t) * A(phi_i)
-
-    을 자바스크립트로 역산해 같은 곡선 위에 글자를 올립니다.
-    회전이 길이를 보존한다는 성질(|rot . v| = |v|)을 이용하면
-    로그 나선 변환을 닫힌 형태로 뒤집을 수 있습니다.
-
-    커서 휨 항은 구하려는 좌표에 스스로 의존하는 음함수라 수치해법이 필요한데,
-    고정점 반복은 |bendStrength| > 1 에서 발산합니다. 실제로 겪었고
-    (일치도 5%), 이분법으로 바꿔 해결했습니다. 지금은 커서를 어디에 올려도
-    숫자가 선에서 떨어지지 않습니다 — 일치도 99.9%, 최악 1ms/frame.
-
-
-/* NOTE */
-
-    개발자 도구 콘솔도 열어보세요.
-`;
-fs.writeFileSync(path.join(__dirname, 'humans.txt'), HUMANS);
-
 /* ---------- 구 사이트 URL 301 리다이렉트 (_redirects 자동 관리) ----------
    2026-07 구조 개편으로 /apps, /cases, /company 등이 /pages/*.html 로 바뀌었으나
    리다이렉트가 없어 Google 색인 URL 대부분이 404 였다.

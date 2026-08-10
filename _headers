@@ -18,10 +18,6 @@
   Content-Type: text/plain; charset=utf-8
 /robots.txt
   Content-Type: text/plain; charset=utf-8
-/humans.txt
-  Content-Type: text/plain; charset=utf-8
-  # 개발자용 크레딧 파일 — 검색결과에는 안 뜨게 합니다 (링크로만 접근)
-  X-Robots-Tag: noindex
 
 # 사이트맵은 크롤러가 파싱에 실패하면 페이지 발견 자체가 막힙니다.
 # Content-Type 을 명시해 XML 로 확실히 전달하고, 캐시로 낡은 사본이 남지 않게 합니다.
