@@ -28,31 +28,31 @@
      ══════════════════════════════════════════════════════════════ */
   var OPT = {
     /* ── 전체 ── */
-    brightness   : 0.95,   // 전 레이어 공통 밝기
-    copyDim      : 0.21,   // 헤드라인 뒤 어둡게 (0=완전히 지움, 1=안 낮춤)
-    copyCenterX  : 0,   // 헤드라인 블록 중심 (0=좌단, 1=우단)
-    copyCenterY  : 0.35,
-    copyRadiusX  : 0.33,
-    copyRadiusY  : 0.43,
+    brightness   : 0.85,   // 전 레이어 공통 밝기
+    copyDim      : 0,   // 헤드라인 뒤 어둡게 (0=완전히 지움, 1=안 낮춤)
+    copyCenterX  : 0.37,   // 헤드라인 블록 중심 (0=좌단, 1=우단)
+    copyCenterY  : 0.46,
+    copyRadiusX  : 0.14,
+    copyRadiusY  : 0.29,
 
     /* ── L1 FloatingLines ── */
-    linesGain    : 0.34,
-    lineSpeed    : 0.04,
-    lineCount    : 9,     // 가닥 수 (셰이더 상한 40)
-    lineDistance : 0,   // 가닥별 가로 밀림 — 크면 다발이 비스듬해집니다
+    linesGain    : 1.19,
+    lineSpeed    : 0.52,
+    lineCount    : 6,     // 가닥 수 (셰이더 상한 40)
+    lineDistance : 0.002,   // 가닥별 가로 밀림 — 크면 다발이 비스듬해집니다
     lineSpread   : 0,  // 가닥별 세로 간격 — 나란한 다발을 만드는 값
-    phaseStep    : 0.105,   // 가닥별 위상차 — 작을수록 나란히, 크면 사선으로 흐릅니다
-    waveX        : 4,    // middleWavePosition
-    waveY        : -0.06,
-    waveRot      : 0.2,   // 로그 나선 휘감기 — 0.20 은 화면이 통째로 기울어 보였습니다
-    bendRadius   : 8,
-    bendStrength : -0.45,
-    parallax     : 1.35,    // 0 이면 시차 이동 끔
+    phaseStep    : 0.13,   // 가닥별 위상차 — 작을수록 나란히, 크면 사선으로 흐릅니다
+    waveX        : -7.4,    // middleWavePosition
+    waveY        : 0.08,
+    waveRot      : -0.04,   // 로그 나선 휘감기 — 0.20 은 화면이 통째로 기울어 보였습니다
+    bendRadius   : 9.9,
+    bendStrength : -1.45,
+    parallax     : 0.4,    // 0 이면 시차 이동 끔
     lineStops    : ['#0E2A6E', '#1F55E0', '#4FC3FF', '#8B44F0', '#C46BFF'],
 
     /* ── L0 MoltenMetal ── */
-    moltenGain   : 0.3,   // "은은하게" — 원본 opacity 1.0 을 0.3 으로 눌렀습니다
-    moltenSpeed  : 0.67,
+    moltenGain   : 0,   // "은은하게" — 원본 opacity 1.0 을 0.3 으로 눌렀습니다
+    moltenSpeed  : 0.39,
     moltenScale  : 3.4,
     moltenDetail : 2,
     moltenGlow   : 1.6,
