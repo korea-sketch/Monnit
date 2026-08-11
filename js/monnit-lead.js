@@ -67,7 +67,7 @@
      메일과 별개로 우리 서버에 한 건씩 남긴다.
      sendBeacon 을 쓰므로 페이지를 즉시 떠나도 유실되지 않는다.
      실패해도 기존 메일 경로는 그대로이므로 리드를 잃지 않는다. */
-  var LEAD_API = '/.netlify/functions/lead';
+  var LEAD_API = '/api/lead';
   var _last = null;
 
   function record(type, payload) {
