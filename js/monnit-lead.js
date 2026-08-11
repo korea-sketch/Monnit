@@ -58,10 +58,35 @@
     if (!payload['접점'])         payload['접점'] = page || '';
     if (!payload['출처'])         payload['출처'] = source();
     if (!payload['유입 페이지'])   payload['유입 페이지'] = String(w.location.href).split('#')[0];
+    _last = payload;
     return payload;
   }
 
   /* 전송이 성공한 뒤에 호출한다 — 실패 건이 전환으로 잡히지 않게 */
+  /* ── 원장 기록 ───────────────────────────────────────────────
+     메일과 별개로 우리 서버에 한 건씩 남긴다.
+     sendBeacon 을 쓰므로 페이지를 즉시 떠나도 유실되지 않는다.
+     실패해도 기존 메일 경로는 그대로이므로 리드를 잃지 않는다. */
+  var LEAD_API = '/.netlify/functions/lead';
+  var _last = null;
+
+  function record(type, payload) {
+    try {
+      var body = JSON.stringify({
+        lead_type: type,
+        payload: payload || _last || {},
+        page: String(w.location.pathname),
+        ts: new Date().toISOString()
+      });
+      if (w.navigator && w.navigator.sendBeacon) {
+        w.navigator.sendBeacon(LEAD_API, new Blob([body], { type: 'application/json' }));
+      } else if (w.fetch) {
+        w.fetch(LEAD_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: body, keepalive: true }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+
   function track(type, detail) {
     var t = TYPES[type] || TYPES.contact;
     detail = detail || {};
@@ -81,10 +106,12 @@
       });
     } catch (e) {}
     try { if (w.clarity) w.clarity('event', t.event); } catch (e) {}
+    record(type, _last);
+    _last = null;
   }
 
   try { source(); } catch (e) {}   /* 진입 즉시 출처 저장 */
 
-  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, track: track };
+  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, track: track, record: record };
   if (!w.MK_SOURCE) w.MK_SOURCE = source;
 })(window, document);

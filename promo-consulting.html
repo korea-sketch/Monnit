@@ -2064,6 +2064,8 @@ function submitForm(){
   function showOk(){
     // 접수 메시지를 저장해 두고 감사화면으로 리로드 — 인앱 브라우저에서 태그가 초기 로드에 실패해도 재로드 기회를 준다
     try{sessionStorage.setItem('mk_lead_msg',c+' · '+n+' 님, 접수되었습니다. 영업일 기준 3일 내 '+p+'로 연락드리겠습니다.')}catch(e){}
+    /* 원장 기록 — sendBeacon 이라 바로 이동해도 유실되지 않는다 */
+    try{ if(window.MonnitLead) window.MonnitLead.record('contact', payload); }catch(e){}
     location.href='/promo/consulting?submitted=1#apply';
   }
   function mailFallback(){
