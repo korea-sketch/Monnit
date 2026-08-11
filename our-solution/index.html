@@ -1,4 +1,49 @@
 <!DOCTYPE html>
+<!--
+
+     ███╗   ███╗  ██████╗  ███╗   ██╗ ███╗   ██╗ ██╗ ████████╗
+     ████╗ ████║ ██╔═══██╗ ████╗  ██║ ████╗  ██║ ██║ ╚══██╔══╝
+     ██╔████╔██║ ██║   ██║ ██╔██╗ ██║ ██╔██╗ ██║ ██║    ██║
+     ██║╚██╔╝██║ ██║   ██║ ██║╚██╗██║ ██║╚██╗██║ ██║    ██║
+     ██║ ╚═╝ ██║ ╚██████╔╝ ██║ ╚████║ ██║ ╚████║ ██║    ██║
+     ╚═╝     ╚═╝  ╚═════╝  ╚═╝  ╚═══╝ ╚═╝  ╚═══╝ ╚═╝    ╚═╝   KOREA
+
+
+     Designed & built by  HanJun Jo   <consor.kr@gmail.com>
+     monnit.co.kr
+
+
+     COLOPHON
+     ────────────────────────────────────────────────────────────────
+
+     No framework. No bundler. No npm install. No node_modules.
+     Vanilla JavaScript, one stylesheet, one static-site generator —
+     all of it hand-written.
+
+     · Hero backgrounds are GLSL written against a raw WebGL1 context.
+       No three.js, no ogl, no wrapper library.
+
+         js/hero-aurora.js   layered aurora, light that bends to the cursor
+         js/galaxy-hero.js   4-layer parallax starfield. 36 star evaluations
+                             per fragment, so the cost is pinned with a DPR
+                             cap and a render-scale dial instead of hope.
+
+     · Every effect degrades to a static SVG. Nothing on this site needs
+       JavaScript to be readable — not by a person, not by a crawler.
+
+     · build.js pre-renders 117 routes from this single shell, then emits
+       sitemap.xml, robots.txt, llms.txt and llms-full.txt so machines get
+       the same content humans do.
+
+     · Consent gates analytics before a single cookie is written.
+       prefers-reduced-motion stops every animation on the page.
+
+     ────────────────────────────────────────────────────────────────
+
+     If you read this far — hello. 반갑습니다.
+     Curious how a piece of it works? Ask me.  consor.kr@gmail.com
+
+-->
 <!-- Monnit Korea build v103 · 2026-07-18 · v102 기반 · 캐싱 최적화: 버전관리 JS·CSS·트윈조각 장기 immutable 캐시(_headers) → 재방문·다중페이지 즉시 로드. jsdelivr preconnect 추가 -->
 <html lang="ko">
 <head>
@@ -11,6 +56,7 @@
      설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html'};</script>
 <script src="/js/monnit-consent.js?v=111"></script>
+<script src="/js/monnit-lead.js?v=1"></script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -44,9 +90,9 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=112">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/style.css?v=113">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 <!-- Google Search Console 소유권 확인 (HTML 태그 방식) — 사이트: https://monnitj.netlify.app -->
@@ -430,7 +476,6 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       <figure class="nh-roll-slide"><img data-src="/images/why-roll-03-crane.webp" alt="" loading="lazy" data-sc="home2.why.img4" data-sc-label="Why Monnit · 배경 사진 3 (건설 현장 가스감지)"></figure>
       <figure class="nh-roll-slide"><img data-src="/images/why-roll-04-barn.webp" alt="" loading="lazy" data-sc="home2.why.img5" data-sc-label="Why Monnit · 배경 사진 4 (축사 환경관제)"></figure>
       <figure class="nh-roll-slide"><img data-src="/images/why-roll-05-fridge.webp" alt="" loading="lazy" data-sc="home2.why.img6" data-sc-label="Why Monnit · 배경 사진 5 (냉장 도어센서)"></figure>
-      <figure class="nh-roll-slide"><img data-src="/images/why-roll-06-refinery.webp" alt="" loading="lazy" data-sc="home2.why.img7" data-sc-label="Why Monnit · 배경 사진 6 (야간 플랜트)"></figure>
     </div>
     <div class="wrap nh-why-inner">
       <div class="nh-why-copy">
@@ -863,20 +908,22 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         var status = document.getElementById('mkLeadStatus');
         if (!company || !contact){ if (status) status.textContent = '회사·시설명과 연락처를 입력해 주세요.'; return; }
         var payload = {
-          _subject: '[무료 현장 진단 신청] ' + company,
           '회사/시설명': company,
           '연락처': contact,
+          '전화번호': contact.indexOf('@') > -1 ? '' : contact,
           '이메일': contact.indexOf('@') > -1 ? contact : '',
           '시설 유형': facility,
-          '접수 경로': '메인 하단 상담 폼'
+          '접수 경로': '메인 상담 폼'
         };
+        if (window.MonnitLead) payload = window.MonnitLead.build('contact', 'home_cta', '무료 현장 진단 — ' + company, payload);
+        else payload._subject = '[모넷·접수] 무료 현장 진단 — ' + company;
         var btn = f.querySelector('button[type=submit]');
         if (status) status.textContent = '';
         var result = (typeof sendLead === 'function') ? await sendLead(payload, btn) : false;
         if (result === true){
           f.innerHTML = '<div class="cta2-done"><b>접수 완료.</b><span>24시간 내 담당 컨설턴트가 연락드립니다.</span></div>';
-          if (window.gtag) gtag('event', 'generate_lead', { form: 'main_cta' });
-          if (window.clarity) clarity('event', 'lead_submit');
+          if (window.MonnitLead) window.MonnitLead.track('contact', { page: 'home_cta', interest: '무료 현장 진단' });
+          else if (window.gtag) gtag('event', 'generate_lead', { form: 'main_cta' });
         } else if (result === 'mailto'){
           if (status) status.textContent = '메일 앱으로 신청 내용을 작성합니다. 전송 버튼을 눌러 완료해 주세요.';
         } else {
@@ -1251,8 +1298,10 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
   <div class="cpage">
     <div class="wrap-mid">
       <div class="crumb">About us / Who we are</div>
-      <div class="about-hero2">
-        <figure class="ah-media">
+      <div class="about-hero2 about-hero-galaxy">
+        <!-- 배경: WebGL 별밭(js/galaxy-hero.js). JS·WebGL 미지원 환경과 크롤러에는
+             아래 정적 SVG 가 그대로 남습니다. -->
+        <figure class="ah-media" data-galaxy-hero>
           <img loading="lazy" decoding="async" src="/images/about-hero-pulse.svg" alt="센서 노드가 허브로 신호를 보내는 Monnit 무선 모니터링 네트워크">
         </figure>
         <div class="ah-copy">
@@ -2107,7 +2156,22 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
   <!-- data.js(지식베이스·가이드 ~1.5MB)는 더 이상 선로딩하지 않음 → app.js가 해당 페이지 진입 시에만 동적 로드 -->
   <script src="/app.js?v=111"></script>
   <script src="/js/why-rolling.js?v=2" defer></script>
-  <script src="/js/hero-aurora.js?v=3" defer></script>
+  <script src="/js/hero-aurora.js?v=4" defer></script>
+  <script src="/js/galaxy-hero.js?v=1" defer></script>
+  <script>
+  /* 콘솔 서명. 화면에는 아무것도 그리지 않습니다 — DevTools 를 연 사람에게만 보입니다. */
+  (function(){
+    try{
+      if(!window.console||!console.log) return;
+      var tag='background:#4A82C4;color:#fff;font:700 12px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace;padding:3px 10px;border-radius:3px';
+      var dim='color:#8AA4C4;font:400 11.5px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace';
+      var lnk='color:#9CC2EE;font:600 11.5px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace';
+      console.log('%cMONNIT KOREA%c  monnit.co.kr', tag, dim);
+      console.log('%cDesigned & built by HanJun Jo%c  ·  %cconsor.kr@gmail.com', dim, dim, lnk);
+      console.log('%cNo framework, no bundler. The hero backgrounds are hand-written\nWebGL1 fragment shaders — try MonnitGalaxyHero or MonnitAurora.\nFull colophon at the top of View Source.', dim);
+    }catch(e){}
+  })();
+  </script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
@@ -2540,17 +2604,9 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       if(fac&&con) render();
     });
   }
-  function bindLead(){
-    var form=document.getElementById('mk-leadForm');
-    if(!form||form._bound)return; form._bound=true;
-    form.addEventListener('submit',function(e){e.preventDefault();
-      var co=(document.getElementById('f-co')||{}).value||'', tel=(document.getElementById('f-tel')||{}).value||'', ty=(document.getElementById('f-type')||{}).value||'';
-      var payload={'이름/회사명':co,'전화번호':tel,'이메일':tel,'산업군':ty,'문의항목':'무료 현장 진단','문의내용':'무료 현장 진단 신청 · 시설유형: '+ty,'출처':'메인 하단 상담폼','_subject':'모넷코리아 무료 현장 진단 신청'};
-      var btn=form.querySelector('button[type=submit]');
-      var done=function(){form.innerHTML='<p style="text-align:center;padding:34px 0;font-size:16px;color:#fff"><b style="color:var(--teal)">접수 완료.</b><br><span style="color:#9DB0C8;font-size:14px">24시간 내 담당 컨설턴트가 연락드립니다.</span></p>';};
-      if(typeof sendLead==='function'){Promise.resolve(sendLead(payload,btn)).then(done).catch(done);}else{done();}
-    });
-  }
+  /* bindLead 제거(2026-08) — 같은 폼에 핸들러가 2개 붙어 이중 전송되고,
+     이메일 칸에 전화번호가 저장되는 버그가 있었다. 제출은 상단 핸들러가 담당한다. */
+  function bindLead(){}
   function init(){ pickFac(); pickCon(); pickScale(); bindLead(); try{ applyCfg(); }catch(e){} }
   if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();

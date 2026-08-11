@@ -1066,7 +1066,7 @@ try {
 
    ※ /pages/ 는 일부러 차단하지 않습니다. /pages/*.html 는 새 경로로 301 하는
      통로라, 차단하면 크롤러가 301 을 따라가지 못해 색인 이전이 끊깁니다. */
-const DISALLOW = ['/editor', '/editor.html', '/church', '/church/'];
+const DISALLOW = ['/editor', '/editor.html', '/church', '/church/', '/ops', '/ops/', '/api/'];
 const AI_BOTS = [
   /* OpenAI */          'GPTBot', 'OAI-SearchBot', 'ChatGPT-User',
   /* Anthropic */       'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai',

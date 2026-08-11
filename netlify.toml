@@ -131,6 +131,24 @@
   status = 200
 
 [[redirects]]
-  from = "/api/health"
-  to = "/.netlify/functions/health"
+  from = "/ops"
+  to = "/.netlify/functions/ops"
   status = 200
+
+[[redirects]]
+  from = "/ops/*"
+  to = "/.netlify/functions/ops"
+  status = 200
+
+# ── 관제 화면은 검색엔진에서 완전히 제외 (개인정보 포함) ──────────
+[[headers]]
+  for = "/ops/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
