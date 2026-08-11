@@ -1,16 +1,8 @@
 /** 사이트·폼 상시 감시 (15분 주기)
- *
- *  왜 필요한가: 광고는 계속 돌아가는데 신청 폼이 죽으면 광고비가 전액 낭비된다.
- *  사람이 알아채기까지 보통 하루가 걸린다. 이 함수가 그 공백을 없앤다.
- *
- *  점검 항목
- *   1) 주요 페이지 응답 여부·속도
- *   2) 신청 폼이 페이지에 실제로 존재하는지 (배포 사고로 사라지는 경우 감지)
- *   3) 측정 스크립트(GTM·리드 규격)가 붙어 있는지
- *   4) 폼 전송 백엔드가 살아 있는지
- *  이상 시 담당자에게 메일 발송(Web3Forms) + 이력 저장
- */
-const store = require('./_store');
+ *  광고가 도는 동안 신청 폼이 죽으면 광고비가 전액 낭비된다. 그 공백을 없앤다. */
+import { append, set, get } from './_store.mjs';
+
+export const config = { schedule: '*/15 * * * *' };
 
 const SITE = 'https://monnit.co.kr';
 const ALERT_TO = 'korea@monnit.com';
@@ -37,7 +29,7 @@ async function checkPage(p) {
     r.ok = res.ok && r.missing.length === 0;
   } catch (e) {
     r.ms = Date.now() - t0;
-    r.error = String(e && e.message || e).slice(0, 120);
+    r.error = String(e?.message || e).slice(0, 120);
   }
   return r;
 }
@@ -45,21 +37,18 @@ async function checkPage(p) {
 async function checkBackend() {
   const r = { name: '폼 전송 백엔드', ok: false, status: 0 };
   try {
-    const res = await fetch('https://api.staticforms.dev/submit', {
-      method: 'OPTIONS', signal: AbortSignal.timeout(8000)
-    });
+    const res = await fetch('https://api.staticforms.dev/submit', { method: 'OPTIONS', signal: AbortSignal.timeout(8000) });
     r.status = res.status;
-    r.ok = res.status < 500;           /* 4xx 는 살아있다는 뜻 */
-  } catch (e) { r.error = String(e && e.message || e).slice(0, 120); }
+    r.ok = res.status < 500;
+  } catch (e) { r.error = String(e?.message || e).slice(0, 120); }
   return r;
 }
 
-async function alert(fails) {
+async function alertMail(fails) {
   const lines = fails.map(f =>
     `· ${f.name} (${f.path || '-'}) — ${f.error ? '응답 없음: ' + f.error
       : f.status >= 400 ? 'HTTP ' + f.status
-      : (f.missing && f.missing.length) ? '누락: ' + f.missing.join(', ')
-      : '이상'}`).join('\n');
+      : (f.missing?.length) ? '누락: ' + f.missing.join(', ') : '이상'}`).join('\n');
   try {
     await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -77,40 +66,24 @@ async function alert(fails) {
   } catch (e) {}
 }
 
-exports.handler = async () => {
+export default async () => {
   const results = [];
   for (const p of PAGES) results.push(await checkPage(p));
   results.push(await checkBackend());
 
   const fails = results.filter(r => !r.ok);
-  const snap = {
-    ts: new Date().toISOString(),
-    ok: fails.length === 0,
-    fail_count: fails.length,
-    results
-  };
+  const snap = { ts: new Date().toISOString(), ok: fails.length === 0, fail_count: fails.length, results };
 
-  /* 이력 저장 (일 단위) */
-  const d = new Date();
-  const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}.jsonl`;
-  await store.append('health', key, snap);
-  await store.set('health', 'latest.json', JSON.stringify(snap));
+  const day = new Intl.DateTimeFormat('en-CA',
+    { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  await append('health', day + '.jsonl', snap);
+  await set('health', 'latest.json', JSON.stringify(snap));
 
-  /* 이상이 새로 생겼을 때만 알린다 (같은 장애로 15분마다 오는 것 방지) */
-  if (fails.length) {
-    const prev = await store.get('health', 'alerted.txt');
-    const sig = fails.map(f => f.name).sort().join('|');
-    if (prev !== sig) {
-      await alert(fails);
-      await store.set('health', 'alerted.txt', sig);
-    }
-  } else {
-    await store.set('health', 'alerted.txt', '');
-  }
+  /* 상태가 바뀔 때만 알린다 — 같은 장애로 15분마다 오지 않게 */
+  const sig = fails.map(f => f.name).sort().join('|');
+  const prev = await get('health', 'alerted.txt');
+  if (fails.length && prev !== sig) { await alertMail(fails); await set('health', 'alerted.txt', sig); }
+  if (!fails.length && prev) await set('health', 'alerted.txt', '');
 
-  return {
-    statusCode: 200,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-    body: JSON.stringify(snap, null, 2)
-  };
+  return new Response(JSON.stringify(snap), { headers: { 'content-type': 'application/json' } });
 };

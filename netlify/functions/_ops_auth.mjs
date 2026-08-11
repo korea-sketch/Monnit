@@ -4,7 +4,7 @@
  *   OPS_USER / OPS_PASS
  *  환경변수가 없으면 아예 잠겨서 아무도 못 들어간다(안전한 기본값).
  */
-const crypto = require('crypto');
+import crypto from 'node:crypto';
 
 const USER = process.env.OPS_USER || '';
 const PASS = process.env.OPS_PASS || '';
@@ -70,4 +70,4 @@ const setCookie = t =>
 const clearCookie = () =>
   'mk_ops=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0';
 
-module.exports = { configured, issue, valid, check, cookieFrom, setCookie, clearCookie };
+export { configured, issue, valid, check, cookieFrom, setCookie, clearCookie };

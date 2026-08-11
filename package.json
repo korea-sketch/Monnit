@@ -1,0 +1,8 @@
+{
+  "name": "monnit-korea-site",
+  "private": true,
+  "description": "Monnit Korea 웹사이트 — 빌드(build.js)는 의존성이 없고, 관제 함수만 Netlify Blobs 를 사용합니다.",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

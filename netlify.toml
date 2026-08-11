@@ -118,28 +118,6 @@
   # 제안서 PDF 를 함수 번들에 포함 (정적 공개 경로로는 접근 불가)
   included_files = ["proposals/**"]
 
-
-# ── 사이트·폼 상시 감시 (15분마다) ──────────────────────────────
-# 광고가 도는 동안 신청 폼이 죽으면 광고비가 전액 낭비된다. 그 공백을 없앤다.
-[functions."health"]
-  schedule = "*/15 * * * *"
-
-# ── 리드 원장 · 대시보드 API 경로 ───────────────────────────────
-[[redirects]]
-  from = "/api/lead"
-  to = "/.netlify/functions/lead"
-  status = 200
-
-[[redirects]]
-  from = "/ops"
-  to = "/.netlify/functions/ops"
-  status = 200
-
-[[redirects]]
-  from = "/ops/*"
-  to = "/.netlify/functions/ops"
-  status = 200
-
 # ── 관제 화면은 검색엔진에서 완전히 제외 (개인정보 포함) ──────────
 [[headers]]
   for = "/ops/*"
