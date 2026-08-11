@@ -88,21 +88,96 @@ export async function ga4(date) {
 
 /* ── Clarity (사용자 행동) ──────────────────────────────
    필요: CLARITY_TOKEN */
-export async function clarity() {
+/* Clarity — 전체 지표 + 페이지(URL)별 지표.
+   API 한도가 하루 10회라 호출은 adsync 쪽에서 제한한다. */
+const CL_METRICS = ['Traffic', 'EngagementTime', 'ScrollDepth', 'RageClickCount',
+                    'DeadClickCount', 'QuickbackClick', 'ScriptErrorCount', 'ErrorClickCount'];
+
+async function clarityFetch(days, dim) {
   const tok = process.env.CLARITY_TOKEN;
   if (!tok) return null;
-  const r = await fetch('https://www.clarity.ms/export-data/api/v1/project-live-insights?numOfDays=1',
-    { headers: { authorization: 'Bearer ' + tok }, signal: T(15000) });
+  const u = 'https://www.clarity.ms/export-data/api/v1/project-live-insights?numOfDays=' + days
+          + (dim ? '&dimension1=' + encodeURIComponent(dim) : '');
+  const r = await fetch(u, { headers: { authorization: 'Bearer ' + tok }, signal: T(20000) });
   if (!r.ok) throw new Error('clarity ' + r.status + ' ' + (await r.text()).slice(0, 120));
-  const arr = await r.json();
-  const find = n => arr.find(x => x.metricName === n)?.information?.[0] || {};
-  return { sessions: num(find('Traffic').totalSessionCount),
-           rage: num(find('RageClickCount').sessionsWithMetricPercentage),
-           dead: num(find('DeadClickCount').sessionsWithMetricPercentage),
-           quick: num(find('QuickbackClick').sessionsWithMetricPercentage) };
+  return r.json();
 }
 
+/* metricName → information[] 을 평평하게 편다 */
+function clarityFlat(arr) {
+  const out = {};
+  for (const m of (arr || [])) out[m.metricName] = m.information || [];
+  return out;
+}
+const clPct = o => num(o?.sessionsWithMetricPercentage);
+
+export async function clarity(days = 1) {
+  const raw = await clarityFetch(days, null);
+  if (!raw) return null;
+  const f = clarityFlat(raw);
+  const t = f.Traffic?.[0] || {};
+  return {
+    days,
+    sessions: num(t.totalSessionCount),
+    users:    num(t.distinctUserCount),
+    bots:     num(t.totalBotSessionCount),
+    pages:    num(t.pagesPerSessionPercentage),
+    engage:   num(f.EngagementTime?.[0]?.activeTime),
+    scroll:   num(f.ScrollDepth?.[0]?.averageScrollDepth),
+    rage:     clPct(f.RageClickCount?.[0]),
+    dead:     clPct(f.DeadClickCount?.[0]),
+    quick:    clPct(f.QuickbackClick?.[0]),
+    err:      clPct(f.ScriptErrorCount?.[0]),
+    errClick: clPct(f.ErrorClickCount?.[0])
+  };
+}
+
+/* 페이지별 — 어느 화면이 문제인지 짚기 위해 */
+export async function clarityPages(days = 3) {
+  const raw = await clarityFetch(days, 'URL');
+  if (!raw) return null;
+  const f = clarityFlat(raw);
+  const byUrl = {};
+  const touch = u => byUrl[u] || (byUrl[u] = { url: u, sessions: 0, rage: 0, dead: 0, quick: 0, err: 0, scroll: 0 });
+  for (const row of (f.Traffic || [])) if (row.URL) touch(row.URL).sessions = num(row.totalSessionCount);
+  const put = (metric, key) => {
+    for (const row of (f[metric] || [])) if (row.URL) touch(row.URL)[key] = clPct(row);
+  };
+  put('RageClickCount', 'rage'); put('DeadClickCount', 'dead');
+  put('QuickbackClick', 'quick'); put('ScriptErrorCount', 'err');
+  for (const row of (f.ScrollDepth || [])) if (row.URL) touch(row.URL).scroll = num(row.averageScrollDepth);
+  return Object.values(byUrl).filter(x => x.sessions > 0).sort((a, b) => b.sessions - a.sessions).slice(0, 25);
+}
+
+
 /* 어떤 채널이 준비됐는지 */
+/* 구글 시트 전체 이력 — 한 번의 요청으로 모든 날짜를 가져온다 (백필용) */
+export async function googleAll() {
+  const url = process.env.GOOGLE_ADS_SHEET;
+  if (!url) return null;
+  const r = await fetch(url, { signal: T(15000) });
+  if (!r.ok) throw new Error('google sheet ' + r.status);
+  const lines = (await r.text()).split('\n').map(l => l.split(','));
+  if (!lines.length) return [];
+  const head = lines[0].map(h => h.trim().toLowerCase().replace(/^\uFEFF/, ''));
+  const iD = head.findIndex(h => /day|date|\ub0a0\uc9dc/.test(h));
+  const iC = head.findIndex(h => /cost|\ube44\uc6a9/.test(h));
+  const iI = head.findIndex(h => /impr|\ub178\ucd9c/.test(h));
+  const iK = head.findIndex(h => /click|\ud074\ub9ad/.test(h));
+  const iV = head.findIndex(h => /conv|\uc804\ud658/.test(h));
+  if (iD < 0) return [];
+  const cl = v => num(String(v || '').replace(/[^\d.-]/g, ''));
+  const out = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = lines[i];
+    const d = String(row[iD] || '').trim();
+    if (!/^\d{4}-\d{2}-\d{2}/.test(d)) continue;
+    out.push({ channel: '\uad6c\uae00', date: d.slice(0, 10), spend: cl(row[iC]),
+               impressions: cl(row[iI]), clicks: cl(row[iK]), results: iV >= 0 ? cl(row[iV]) : 0 });
+  }
+  return out;
+}
+
 export function configured() {
   return {
     meta:    !!(process.env.META_TOKEN && process.env.META_AD_ACCOUNT),
