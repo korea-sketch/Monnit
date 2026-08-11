@@ -40,7 +40,7 @@ async function build() {
   const now = new Date(), prevM = new Date(now - 32 * 864e5);
   let rows = [];
   for (const k of [...new Set([monthKey(prevM), monthKey(now)])]) rows = rows.concat(await readLines('leads', k));
-  rows = rows.filter(r => r?.ts && r.company !== '__배포검증__');
+  rows = rows.filter(r => r?.ts && !/^__/.test(r.company || ''));   /* 점검용 더미 제외 */
 
   const today = kday(now), ago = n => kday(new Date(now - n * 864e5));
   const d7 = ago(7), d14 = ago(14);

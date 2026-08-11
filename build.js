@@ -1102,7 +1102,7 @@ const LEGACY_RULES = (function(){
         파일이 실제로 남아 있으므로 강제(!) 로 리다이렉트해야 규칙이 이깁니다. */
   const pageRules = generated
     .filter(g => g.slug)
-    .map(g => `/pages/${g.slug}.html`.padEnd(38) + slugToPath(g.slug).padEnd(28) + '301!')
+    .map(g => `/pages/${g.slug}.html`.padEnd(38) + ' ' + slugToPath(g.slug).padEnd(28) + ' 301!')
     .join('\n');
 
   /* ② 구 사이트 슬러그 → 새 경로 (한 번에 도착하도록 새 경로를 직접 지정) */
