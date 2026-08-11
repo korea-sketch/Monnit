@@ -135,7 +135,7 @@ const PW_MAIL_TOKEN = "mnt-pw-2026-7f3k9";
 /* 폼 데이터를 실제로 전송하는 공통 함수 (AJAX — 페이지 이동 없음)
    반환값: true(서버 전송 성공) / 'mailto'(메일 앱으로 작성) / false(실패) */
 function buildMailto(payload){
-  const subject = payload._subject || '모닛코리아 웹사이트 문의';
+  const subject = payload._subject || '모넷코리아 웹사이트 문의';
   const skip = ['_subject','_url','_captcha','_template'];
   const lines = Object.keys(payload).filter(k => skip.indexOf(k)<0).map(k => k + ': ' + payload[k]);
   const body = lines.join('\n');
@@ -165,7 +165,7 @@ async function sendLead(payload, btn){
       const res = await fetch(STATICFORMS_URL, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
         body: JSON.stringify(Object.assign({
           apiKey: STATICFORMS_KEY,
-          subject: payload._subject || '모닛코리아 웹사이트 접수',
+          subject: payload._subject || '모넷코리아 웹사이트 접수',
           email: payload['이메일'] || payload.email || '',
           replyTo: '@',
           honeypot: ''
@@ -183,14 +183,14 @@ async function sendLead(payload, btn){
     // 2) 범용 엔드포인트 (Static Forms · Splitforms · Formspree · Basin · Getform)
     if (FORM_POST_URL) {
       const res = await fetch(FORM_POST_URL, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify(Object.assign({ subject: payload._subject || '모닛코리아 웹사이트 접수' }, payload)) });
+        body: JSON.stringify(Object.assign({ subject: payload._subject || '모넷코리아 웹사이트 접수' }, payload)) });
       let ok = res.ok; try { const j = await res.json(); if (j && (j.success===false || j.ok===false || j.error)) ok = false; } catch(e){}
       return ok ? (restore(), true) : mailto();
     }
     // 3) Web3Forms
     if (WEB3FORMS_KEY) {
       const res = await fetch("https://api.web3forms.com/submit", { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify(Object.assign({ access_key: WEB3FORMS_KEY, subject: payload._subject || '모닛코리아 웹사이트 접수', from_name:'Monnit Korea 웹사이트', replyto: payload['이메일'] || payload.email || '', botcheck:false }, payload)) });
+        body: JSON.stringify(Object.assign({ access_key: WEB3FORMS_KEY, subject: payload._subject || '모넷코리아 웹사이트 접수', from_name:'Monnit Korea 웹사이트', replyto: payload['이메일'] || payload.email || '', botcheck:false }, payload)) });
       let ok = res.ok; try { const j = await res.json(); ok = ok && (j.success===true || j.success==='true'); } catch(e){}
       return ok ? (restore(), true) : mailto();
     }
@@ -2979,11 +2979,13 @@ async function subscribeMsg(id) {
   if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); return; }
   const kind = (id === 'wpEmail') ? '백서 신청' : '뉴스레터 구독';
   const btn = el.parentElement ? el.parentElement.querySelector('button') : null;
-  const ok = await sendLead({
-    _subject: '[모닛코리아 웹사이트] ' + kind,
-    구분: kind, 이메일: v,
-    출처: location.href
-  }, btn);
+  const _type = (id === 'wpEmail') ? 'doc_request' : 'subscribe';
+  const _page = (id === 'wpEmail') ? 'proposal_quick' : 'newsletter';
+  let _p = { 구분: kind, 이메일: v };
+  _p = window.MonnitLead ? window.MonnitLead.build(_type, _page, kind, _p)
+                         : Object.assign(_p, { _subject: '[모넷코리아 웹사이트] ' + kind, 출처: location.href });
+  const ok = await sendLead(_p, btn);
+  if (ok === true && window.MonnitLead) window.MonnitLead.track(_type, { page: _page, interest: kind });
   if (ok === true) {
     alert(kind + '이 접수되었습니다. 감사합니다!\n(' + v + ')');
     el.value = '';
@@ -3057,13 +3059,11 @@ async function wpRequest(){
 
   /* 리드 기록 (다운로드 성패와 무관하게 남긴다) */
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
-  const ok = await sendLead({
-    _subject: '[모닛코리아 웹사이트] 백서 신청 — ' + wp.title,
-    구분: '백서 신청',
-    백서명: wp.title,
-    이메일: v,
-    출처: location.href
-  }, btn);
+  let _p = { 구분: '제안서 신청', 백서명: wp.title, 관심분야: wp.title, 이메일: v };
+  _p = window.MonnitLead ? window.MonnitLead.build('doc_request', 'proposal', wp.title + ' 제안서', _p)
+                         : Object.assign(_p, { _subject: '[모넷코리아 웹사이트] 제안서 신청 — ' + wp.title, 출처: location.href });
+  const ok = await sendLead(_p, btn);
+  if (ok === true && window.MonnitLead) window.MonnitLead.track('doc_request', { page: 'proposal', interest: wp.title });
 
   if (!dl) return;
   if (ok === true) {
@@ -3099,17 +3099,14 @@ async function contactSubmit() {
   if (industry === '기타' && !industryOther.trim()) { alert('산업군을 직접 입력해 주세요.'); return; }
   if (inquiry === '기타' && !inquiryOther.trim()) { alert('문의 항목을 직접 입력해 주세요.'); return; }
   const btn = document.querySelector('#view-contact .form-btn');
-  const ok = await sendLead({
-    _subject: '[모닛코리아 웹사이트] 상담 신청 — ' + name.trim() + (inquiry ? ' / ' + inquiry : ''),
-    구분: '상담 신청',
-    '이름/회사명': name.trim(),
-    이메일: email.trim(),
-    전화번호: phone.trim(),
-    산업군: industry,
-    문의항목: inquiry,
-    문의내용: msg.trim(),
-    출처: location.href
-  }, btn);
+  let _p = {
+    구분: '상담 신청', '이름/회사명': name.trim(), 이메일: email.trim(), 전화번호: phone.trim(),
+    산업군: industry, 문의항목: inquiry, 문의내용: msg.trim()
+  };
+  _p = window.MonnitLead ? window.MonnitLead.build('contact', 'contact_page', '상담 신청 — ' + name.trim() + (inquiry ? ' / ' + inquiry : ''), _p)
+                         : Object.assign(_p, { _subject: '[모넷코리아 웹사이트] 상담 신청 — ' + name.trim(), 출처: location.href });
+  const ok = await sendLead(_p, btn);
+  if (ok === true && window.MonnitLead) window.MonnitLead.track('contact', { page: 'contact_page', interest: inquiry || '상담' });
   if (ok === true) {
     alert('상담 신청이 접수되었습니다. 빠르게 연락드리겠습니다!');
     ['ctName','ctEmail','ctPhone','ctMsg','ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.value=''; });
@@ -3699,7 +3696,6 @@ async function submitPromoApply(e){
     return false;
   }
   const payload = {
-    _subject: '[프로모션 사전신청] ' + promo + ' — ' + company,
     '신청 프로모션': promo,
     '이름/직급': name,
     '회사명': company,
@@ -3710,7 +3706,10 @@ async function submitPromoApply(e){
     '접수 경로': '프로모션 사전신청'
   };
   if (status){ status.textContent = ''; status.className = 'paf-status'; }
-  const result = await sendLead(payload, btn);
+  const _pay = window.MonnitLead ? window.MonnitLead.build('contact', 'promo_apply', promo + ' 사전신청 — ' + company, payload)
+                                 : Object.assign(payload, { _subject: '[모넷·접수] ' + promo + ' 사전신청 — ' + company });
+  const result = await sendLead(_pay, btn);
+  if (result === true && window.MonnitLead) window.MonnitLead.track('contact', { page: 'promo_apply', interest: promo });
   if (result === true){
     if (status){ status.textContent = '✓ 신청이 접수되었습니다. 담당자가 곧 연락드립니다.'; status.className = 'paf-status ok'; }
     document.getElementById('promoApplyForm').reset();

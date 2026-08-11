@@ -519,7 +519,7 @@
     '제안서를 이메일로 받아보세요': 'Get the proposal by email',
     '받아보실 제안서를 선택하세요': 'Select the proposal to receive',
     '이메일 입력 후 다운로드 →': 'Enter email to download →',
-    '홍길동 / (주)모닛코리아': 'John Doe / Monnit Korea',
+    '홍길동 / (주)모넷코리아': 'John Doe / Monnit Korea',
     '환경과 규모를 알려주시면 권장 센서 구성·예상 ROI·견적을 24시간 내에 보내드립니다.':
       'Tell us your environment and scale, and we will send recommended sensor configurations, estimated ROI and a quote within 24 hours.',
     '도입을 고려 중인 산업·현장과 필요한 모니터링 항목을 알려주세요.':
@@ -1131,12 +1131,12 @@
       ["캠퍼스 에너지·시설 관리", "Campus Energy & Facility Management"],
       ["제련 라인 통합 모니터링", "Integrated Smelting-Line Monitoring"],
       ["식품 콜드체인 통합 관리", "Integrated Food Cold-Chain Management"],
-      ["모닛코리아 웹사이트 접수", "Submitted via Monnit Korea website"],
+      ["모넷코리아 웹사이트 접수", "Submitted via Monnit Korea website"],
       ["음료 생산라인 환경 관리", "Beverage Production-Line Environment Management"],
       ["와이너리·농장 운영 관리", "Winery & Farm Operations Management"],
       ["엔터프라이즈 IoT 통합", "Enterprise IoT Integration"],
       ["아파트·임대 부동산 관리", "Apartment & Rental Property Management"],
-      ["모닛코리아 웹사이트 문의", "Inquiry via Monnit Korea website"],
+      ["모넷코리아 웹사이트 문의", "Inquiry via Monnit Korea website"],
       ["데이터센터 운영 모니터링", "Data-Center Operations Monitoring"],
       ["음료 생산·물류 모니터링", "Beverage Production & Logistics Monitoring"],
       ["학교 급식실 냉장·냉동고", "School Cafeteria Fridges & Freezers"],

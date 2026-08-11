@@ -24,6 +24,7 @@
      설정 창은 MonnitConsent.open() 또는 data-cookie-settings 링크로 다시 열 수 있습니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'x38egtft64',privacyUrl:'/privacy.html'};</script>
 <script src="/js/monnit-consent.js?v=111"></script>
+<script src="/js/monnit-lead.js?v=1"></script>
 <style>
 :root{
   --bg:#0B1220; --card:#122139; --line:#22344f; --ink:#F3F7FC; --sub:#AEBFD6; --muted:#8598b4;
@@ -270,16 +271,19 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
   if(!name||!tel)return;
   var btn=document.getElementById('lf-submit');btn.disabled=true;btn.textContent='전송 중…';
   var src=adSource(), promoName=CUR.title||PID;
-  var payload={apiKey:STATICFORMS_KEY,subject:'[프로모션 LP] '+promoName+' 상담 신청',replyTo:'@',honeypot:'',
-    email:tel,'이름/회사명':name,'전화번호':tel,'이메일':tel,'산업군':fac,
+  var isMail=tel.indexOf('@')>-1;
+  var core={'이름/회사명':name,'전화번호':isMail?'':tel,'이메일':isMail?tel:'','산업군':fac,
     '문의항목':'프로모션: '+promoName,'문의내용':'프로모션 랜딩 상담 신청 · 시설:'+(fac||'미기재'),'출처':src};
-  function done(){try{if(window.gtag)gtag('event','generate_lead',{form:'promo_lp',promo:PID,value:1});if(window.clarity)clarity('event','lead_submit');if(window.dataLayer)dataLayer.push({event:'generate_lead',promo:PID});}catch(e){}
+  if(window.MonnitLead) core=window.MonnitLead.build('contact','promo_lp',promoName+' 상담 신청',core);
+  else core._subject='[모넷·접수] '+promoName+' 상담 신청';
+  var payload=Object.assign({apiKey:STATICFORMS_KEY,subject:core._subject,replyTo:'@',honeypot:'',email:(isMail?tel:'')},core);
+  function done(){try{if(window.MonnitLead)window.MonnitLead.track('contact',{page:'promo_lp',interest:promoName});else if(window.gtag)gtag('event','generate_lead',{form:'promo_lp',promo:PID,value:1});}catch(e){}
     document.getElementById('formLive').style.display='none';var ok=document.getElementById('formOk');ok.style.display='block';ok.scrollIntoView({behavior:'smooth',block:'center'});}
   fetch(STATICFORMS_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){return r.json().catch(function(){return{success:r.ok};});})
     .then(function(j){if(j&&(j.success||j.ok))done();else web3();}).catch(web3);
   function web3(){fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:'[프로모션 LP] '+promoName+' 상담 신청',from_name:name,이름회사:name,전화번호:tel,시설:fac,출처:src})})
+      body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:core._subject,from_name:name,이름회사:name,전화번호:tel,시설:fac,출처:src})})
     .then(done).catch(function(){window.location.href='mailto:korea@monnit.com?subject='+encodeURIComponent('[프로모션] '+promoName+' 상담 신청')+'&body='+encodeURIComponent('이름/회사: '+name+'\n연락처: '+tel+'\n시설: '+fac+'\n출처: '+src);done();});}
 });
 </script>
