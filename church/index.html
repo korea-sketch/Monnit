@@ -1220,9 +1220,12 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
     '출처':src,
     '유입 페이지':location.href
   };
+  /* 공통 규격 적용 — 이걸 거쳐야 원장에 내용이 담긴다 */
+  if(window.MonnitLead) payload = window.MonnitLead.build('contact','church','교회 상담 — '+name, payload);
   function done(){
     try{
-      if(window.gtag)(window.MonnitLead?window.MonnitLead.track('contact',{page:'church',interest:PROMO_NAME}):gtag('event','generate_lead',{form:'church_lp',promo:PID,currency:'KRW',value:1}));
+      if(window.MonnitLead) window.MonnitLead.track('contact',{page:'church',interest:PROMO_NAME});
+      else if(window.gtag) gtag('event','generate_lead',{form:'church_lp',promo:PID,currency:'KRW',value:1});
       if(window.clarity)clarity('event','lead_submit');
       if(window.dataLayer)dataLayer.push({event:'generate_lead',promo:PID,form_name:'church_qr'});
     }catch(e){}

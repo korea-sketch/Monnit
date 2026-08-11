@@ -72,9 +72,16 @@
 
   function record(type, payload) {
     try {
+      var d = payload || _last || {};
+      /* 신원 정보가 하나도 없으면 껍데기 행이므로 보내지 않는다 */
+      var has = false, ks = Object.keys(d);
+      for (var i = 0; i < ks.length; i++) {
+        if (/회사|이름|성함|담당|전화|연락처|이메일/.test(ks[i]) && String(d[ks[i]] || '').replace(/[()미기재\s]/g, '')) { has = true; break; }
+      }
+      if (!has) return;
       var body = JSON.stringify({
         lead_type: type,
-        payload: payload || _last || {},
+        payload: d,
         page: String(w.location.pathname),
         ts: new Date().toISOString()
       });

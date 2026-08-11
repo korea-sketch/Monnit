@@ -37,14 +37,23 @@ export default async (req) => {
     const type = ['contact', 'doc_request', 'subscribe'].includes(body.lead_type) ? body.lead_type : 'contact';
     const src = pick(p, ['출처']);
 
+    const _co = pick(p, ['회사명', '회사/시설명', '이름/회사명', '교회명/성함']);
+    const _nm = pick(p, ['담당자명', '이름/직급']);
+    const _ph = pick(p, ['전화번호', '연락처']);
+    const _em = pick(p, ['이메일']);
+    /* 신원 정보가 전혀 없으면 껍데기 행이므로 기록하지 않는다 (서버 쪽 2차 방어) */
+    const _clean = v => String(v || '').replace(/[()미기재\s]/g, '');
+    if (!_clean(_co) && !_clean(_nm) && !_clean(_ph) && !_clean(_em))
+      return new Response(null, { status: 204, headers: cors });
+
     await append('leads', monthKey(body.ts), {
       ts: body.ts || new Date().toISOString(),
       type, label: TYPE_LABEL[type], channel: channel(src),
       point: pick(p, ['접점']) || String(body.page || ''),
-      company: pick(p, ['회사명', '회사/시설명', '이름/회사명', '교회명/성함']),
-      name: pick(p, ['담당자명', '이름/직급']),
-      phone: pick(p, ['전화번호', '연락처']),
-      email: pick(p, ['이메일']),
+      company: _co,
+      name: _nm,
+      phone: _ph,
+      email: _em,
       region: pick(p, ['사업장 지역', '지역']),
       asset: pick(p, ['주요 회전설비', '시설 유형', '산업군', '교회 규모']),
       interest: pick(p, ['관심분야', '백서명', '신청 프로모션', '문의항목']),
