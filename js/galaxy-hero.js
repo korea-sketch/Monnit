@@ -10,8 +10,7 @@
  *
  * ---------------------------------------------------------------------------
  * 원본 셰이더: React Bits `<Galaxy />` (React + ogl)
- * 이 파일: HanJun Jo <consor.kr@gmail.com>
- *          React·ogl·TypeScript 없이 순수 WebGL1 + DOM 으로 포팅.
+ * 이 파일: React·ogl·TypeScript 없이 WebGL1 + DOM 으로 포팅.
  *          외부 의존성 0, 전역 오염 없음(단일 IIFE, window.MonnitGalaxyHero 만 노출).
  *
  * 원본과 달라진 점

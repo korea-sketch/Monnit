@@ -1,11 +1,4 @@
-/*!
- * Monnit Korea — monnit.co.kr
- * Designed & built by HanJun Jo <consor.kr@gmail.com>
- *
- * One stylesheet. Hand-written, no preprocessor, no utility framework.
- * Design tokens live in :root below; everything else is composed from them.
- * Full colophon at the top of index.html.
- */
+/*! Monnit Korea — monnit.co.kr */
 
 /* ========== SHARED DESIGN TOKENS ========== */
 :root {

@@ -180,13 +180,6 @@ body{background:#04060C;color:var(--ink);overflow-x:hidden;
  *   MonnitHeroFX.set({ linesGain: 0.8, moltenGain: 0.3 })
  *   MonnitHeroFX.dump()      // 현재 값을 JSON 으로 출력 → 이 파일 OPT 에 붙여넣기
  *
- * ─────────────────────────────────────────────────────────────
- *   Designed & engineered by  HanJun Jo
- *   consor.kr@gmail.com
- *
- *   프레임워크 0개 · npm 의존성 0개 · 순수 ES5.
- *   셰이더도, 숫자 파이버의 역산 수학도 직접 썼습니다.
- * ─────────────────────────────────────────────────────────────
  */
 (function () {
   'use strict';
@@ -881,14 +874,6 @@ void main(){
         var ext = gl.getExtension('WEBGL_debug_renderer_info');
         if (ext) gpu = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)).slice(0, 64);
       } catch (e) {}
-
-      console.log(
-        '%c MONNIT KOREA %c Designed & engineered by HanJun Jo ',
-        'background:#0B1220;color:#4FC3FF;font:700 12px/1.9 ui-monospace,Menlo,monospace;padding:7px 12px;border-radius:5px 0 0 5px',
-        'background:#1F55E0;color:#fff;font:700 12px/1.9 ui-monospace,Menlo,monospace;padding:7px 12px;border-radius:0 5px 5px 0'
-      );
-      console.log('%cconsor.kr@gmail.com   ·   프레임워크 0개 · npm 의존성 0개 · 순수 HTML/CSS/ES5',
-        'color:#8B44F0;font:600 11px/2 ui-monospace,Menlo,monospace');
 
       if (console.groupCollapsed && console.table) {
         console.groupCollapsed('%c▸ 히어로 배경 FX v2 — 지금 돌고 있는 것',

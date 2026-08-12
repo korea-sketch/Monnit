@@ -1,49 +1,4 @@
 <!DOCTYPE html>
-<!--
-
-     ███╗   ███╗  ██████╗  ███╗   ██╗ ███╗   ██╗ ██╗ ████████╗
-     ████╗ ████║ ██╔═══██╗ ████╗  ██║ ████╗  ██║ ██║ ╚══██╔══╝
-     ██╔████╔██║ ██║   ██║ ██╔██╗ ██║ ██╔██╗ ██║ ██║    ██║
-     ██║╚██╔╝██║ ██║   ██║ ██║╚██╗██║ ██║╚██╗██║ ██║    ██║
-     ██║ ╚═╝ ██║ ╚██████╔╝ ██║ ╚████║ ██║ ╚████║ ██║    ██║
-     ╚═╝     ╚═╝  ╚═════╝  ╚═╝  ╚═══╝ ╚═╝  ╚═══╝ ╚═╝    ╚═╝   KOREA
-
-
-     Designed & built by  HanJun Jo   <consor.kr@gmail.com>
-     monnit.co.kr
-
-
-     COLOPHON
-     ────────────────────────────────────────────────────────────────
-
-     No framework. No bundler. No npm install. No node_modules.
-     Vanilla JavaScript, one stylesheet, one static-site generator —
-     all of it hand-written.
-
-     · Hero backgrounds are GLSL written against a raw WebGL1 context.
-       No three.js, no ogl, no wrapper library.
-
-         js/hero-aurora.js   layered aurora, light that bends to the cursor
-         js/galaxy-hero.js   4-layer parallax starfield. 36 star evaluations
-                             per fragment, so the cost is pinned with a DPR
-                             cap and a render-scale dial instead of hope.
-
-     · Every effect degrades to a static SVG. Nothing on this site needs
-       JavaScript to be readable — not by a person, not by a crawler.
-
-     · build.js pre-renders 117 routes from this single shell, then emits
-       sitemap.xml, robots.txt, llms.txt and llms-full.txt so machines get
-       the same content humans do.
-
-     · Consent gates analytics before a single cookie is written.
-       prefers-reduced-motion stops every animation on the page.
-
-     ────────────────────────────────────────────────────────────────
-
-     If you read this far — hello. 반갑습니다.
-     Curious how a piece of it works? Ask me.  consor.kr@gmail.com
-
--->
 <!-- Monnit Korea build v103 · 2026-07-18 · v102 기반 · 캐싱 최적화: 버전관리 JS·CSS·트윈조각 장기 immutable 캐시(_headers) → 재방문·다중페이지 즉시 로드. jsdelivr preconnect 추가 -->
 <html lang="ko">
 <head>
@@ -2133,20 +2088,6 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
   <script src="/js/why-rolling.js?v=2" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=1" defer></script>
-  <script>
-  /* 콘솔 서명. 화면에는 아무것도 그리지 않습니다 — DevTools 를 연 사람에게만 보입니다. */
-  (function(){
-    try{
-      if(!window.console||!console.log) return;
-      var tag='background:#4A82C4;color:#fff;font:700 12px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace;padding:3px 10px;border-radius:3px';
-      var dim='color:#8AA4C4;font:400 11.5px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace';
-      var lnk='color:#9CC2EE;font:600 11.5px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace';
-      console.log('%cMONNIT KOREA%c  monnit.co.kr', tag, dim);
-      console.log('%cDesigned & built by HanJun Jo%c  ·  %cconsor.kr@gmail.com', dim, dim, lnk);
-      console.log('%cNo framework, no bundler. The hero backgrounds are hand-written\nWebGL1 fragment shaders — try MonnitGalaxyHero or MonnitAurora.\nFull colophon at the top of View Source.', dim);
-    }catch(e){}
-  })();
-  </script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
