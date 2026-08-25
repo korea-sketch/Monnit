@@ -791,6 +791,16 @@ const promoPages = [];   // sitemap 용
   fs.copyFileSync(source, path.join(targetDir, 'index.html'));
 })();
 
+/* /promo/residence 도 동일 — 실제 파일이 있으면 Netlify 가 어떤 리다이렉트 규칙보다
+   먼저 파일을 서빙하므로, /promo/* → promo.html 와일드카드에 잡히지 않습니다. */
+(function buildResidencePromoAlias() {
+  const source = path.join(__dirname, 'promo-residence.html');
+  if (!fs.existsSync(source)) return;
+  const targetDir = path.join(__dirname, 'promo', 'residence');
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(source, path.join(targetDir, 'index.html'));
+})();
+
 (function () {
   let TPL = '';
   try { TPL = fs.readFileSync(path.join(__dirname, 'promo.html'), 'utf8'); }
@@ -829,7 +839,8 @@ const promoPages = [];   // sitemap 용
     if (ended) h = h.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex,follow">');
 
     /* 크롤러가 JS 없이 바로 읽는 본문 — SPA/스크립트가 그리기 전에 존재합니다 */
-    const seoBlock = '<div id="promo-ssg" data-promo="' + esc(id) + '">'
+    const ssgStyle = '<style>#promo-ssg{max-width:820px;margin:0 auto;padding:48px 20px;font-family:system-ui,-apple-system,\'Apple SD Gothic Neo\',\'Malgun Gothic\',sans-serif;line-height:1.75;color:#e8ecf2}#promo-ssg h1{font-size:26px;line-height:1.4;margin:0 0 14px}#promo-ssg h2{font-size:19px;margin:28px 0 10px}#promo-ssg p{margin:8px 0}#promo-ssg a{color:#7fb2ff;text-decoration:underline}</style>';
+  const seoBlock = ssgStyle + '<div id="promo-ssg" data-promo="' + esc(id) + '">'
       + '<h1>' + esc(title) + '</h1>'
       + '<p>' + esc(desc) + '</p>'
       + (sheet.period ? '<p>기간: ' + esc(strip(sheet.period)) + '</p>' : '')
