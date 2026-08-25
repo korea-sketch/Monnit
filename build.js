@@ -780,6 +780,17 @@ const PROMO_SEO = {
 };
 
 const promoPages = [];   // sitemap 용
+
+/* 전용 상담 랜딩도 일반 정적 서버에서 canonical 경로로 바로 열리게 합니다.
+   Netlify에서는 _redirects가 처리하지만, 로컬/단순 호스팅은 실제 index.html이 필요합니다. */
+(function buildConsultingPromoAlias() {
+  const source = path.join(__dirname, 'promo-consulting.html');
+  if (!fs.existsSync(source)) return;
+  const targetDir = path.join(__dirname, 'promo', 'consulting');
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(source, path.join(targetDir, 'index.html'));
+})();
+
 (function () {
   let TPL = '';
   try { TPL = fs.readFileSync(path.join(__dirname, 'promo.html'), 'utf8'); }
@@ -801,7 +812,8 @@ const promoPages = [];   // sitemap 용
     const fullTitle = title + ' | Monnit Korea';
     const ended = !!sheet.ended;
 
-    let h = TPL;
+    /* 사전예약 상세는 범용 광고 랜딩이 아니라 사이트 SPA 셸과 전용 시네마틱 UI를 사용합니다. */
+    let h = id === 'flame-reservation' ? SHELL : TPL;
     h = h.replace(/<title>[\s\S]*?<\/title>/, '<title>' + esc(fullTitle) + '</title>');
     h = h.replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="' + esc(desc) + '">');
     h = h.replace(/<meta property="og:title" content="[^"]*">/, '<meta property="og:title" content="' + esc(fullTitle) + '">');
@@ -1243,6 +1255,7 @@ const urls = [
   { loc: SITE + '/', pri: '1.0' },
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
   { loc: SITE + '/promo/consulting', pri: '0.9' },
+  { loc: SITE + '/promo/residence', pri: '0.9' },
   { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' })),
   ...promoPages                                        // /promotions/{slug} 상세

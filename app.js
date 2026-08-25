@@ -3148,6 +3148,32 @@ const BUILTIN_PROMOS = [{
   link: '/promo/consulting',
   start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 비워두면 자동 종료 없음 — 내릴 때 forcedEnded:true 로 바꾸거나 이 배열을 비우세요
+  order: 2
+}, {
+  id: 'flame-reservation',
+  title: '사전 예약 프로모션',
+  html: '',
+  period: '사전 예약 접수 중',
+  badge: '사전 예약',
+  desc: 'Looking to the Future! 지금 사전 예약하시고 다양한 혜택 받아 가세요.',
+  image: '/images/promo-flame-reservation-thumb-v3.png',
+  images: ['/images/promo-flame-reservation.png'],
+  link: '',
+  start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
+  end: '',               // 마감일 없음 — 내릴 때 end 지정 또는 배열에서 제거
+  order: 1
+}, {
+  id: 'residence',
+  title: '레지던스 객실 물 넘침 알람 — 한 달 한정 접수',
+  html: '',
+  period: '2026. 8. 25 – 9. 24',
+  badge: 'NEW',
+  desc: '객실 안 싱크·식기세척기·세탁기, 피트(PS) 속 배관까지 — 물이 닿는 순간 담당자 휴대폰으로 알람. 누수 고민을 보내주시면 감시 우선순위를 무료로 회신드립니다.',
+  image: '/images/promo-residence.webp',
+  images: [],
+  link: '/promo/residence',
+  start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
+  end:   '2026-09-24',   // 한국시간 이 날 자정까지 — 이후 자동 '종료' 표시
   order: 0
 }];
 /* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
@@ -3599,8 +3625,501 @@ function renderPromotions(){
       + activePromos().map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('')
       + '<option value="기타/미정">기타 · 아직 정하지 않음</option>';
     if (cur) sel.value = cur;
+    sel.onchange = updatePromoApplyFields;
+    updatePromoApplyFields();
   }
 }
+function updatePromoApplyFields(){
+  const promo = document.getElementById('pafPromo');
+  const label = document.getElementById('pafQtyLabel');
+  const control = document.getElementById('pafQtyControl');
+  if (!promo || !label || !control) return;
+  const reservation = promo.value === '사전 예약 프로모션';
+  const mode = reservation ? 'product' : 'quantity';
+  if (control.dataset.mode === mode) return;
+  control.dataset.mode = mode;
+  if (reservation){
+    label.innerHTML = '예약 희망 제품 <b>*</b>';
+    control.innerHTML = '<select id="pafQty" required>'
+      + '<option value="">— 제품을 선택하세요 —</option>'
+      + '<option value="불꽃 감지기">불꽃 감지기</option>'
+      + '<option value="P형 화재 감지 센서">P형 화재 감지 센서</option>'
+      + '<option value="코인셀 센서">코인셀 센서</option>'
+      + '<option value="엣지 게이트웨이">엣지 게이트웨이</option>'
+      + '</select>';
+  } else {
+    label.textContent = '구매 희망 수량';
+    control.innerHTML = '<input type="text" id="pafQty" placeholder="예: 센서 50개 / 게이트웨이 2대">';
+  }
+}
+function flameReservationHTML(){
+  return `
+    <div class="flame-story">
+      <section class="flame-hero flame-hero-static" aria-labelledby="flameHeroTitle">
+        <div class="flame-hero-copy">
+          <h2 id="flameHeroTitle">한계를 넘어<br><em>새로운 시작으로</em></h2>
+          <p>차세대 무선 센서 라인업을 가장 먼저 만나보세요.</p>
+          <button class="flame-cta" type="button" onclick="scrollToFlameReservationForm()">사전 예약하기</button>
+        </div>
+      </section>
+
+      <section class="flame-section flame-highlights" aria-labelledby="flameHighlights">
+        <div class="flame-section-head">
+          <span class="flame-kicker">오직, 사전 예약 고객 대상으로만</span>
+          <h2 id="flameHighlights">강력한 프로모션</h2>
+        </div>
+        <div class="flame-highlight-track">
+          <article class="flame-highlight-card flame-card-blue">
+            <span class="flame-card-no">01</span>
+            <h3>20%<br>특별 할인</h3>
+            <p>정식 출시 전 사전 예약 시<br>20% 할인된 특별가로 만나보실 수 있습니다.</p>
+            <p class="flame-highlight-note">※ 구매 수량에 따라 할인율이 차등 적용됩니다.</p>
+          </article>
+          <article class="flame-highlight-card flame-card-violet">
+            <span class="flame-card-no">02</span>
+            <h3>설치비<br>전액 지원</h3>
+            <p>정식 출시 전 사전 예약 시<br>설치비를 전액 지원해 드립니다.</p>
+          </article>
+          <article class="flame-highlight-card flame-card-red">
+            <span class="flame-card-no">03</span>
+            <h3>프리미엄 플랫폼<br>1년 구독권 제공</h3>
+            <p>정식 출시 전 사전 예약 시<br>새롭게 출시되는 프리미엄 플랫폼<br>1년 구독권을 제공해 드립니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="flame-section flame-lineup" aria-labelledby="flameLineupTitle">
+        <div class="flame-section-head">
+          <h2 id="flameLineupTitle">새로운 라인업을<br>미리 만나 보세요</h2>
+          <p class="flame-lineup-note">세부 사양과 출시 일정은 순차적으로 공개될 예정입니다.</p>
+        </div>
+        <div class="flame-explorer">
+        <div class="flame-explorer-stage">
+          <div class="flame-explorer-tabs" role="tablist" aria-label="신제품 라인업 자세히 보기">
+            <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="0"
+              data-image="/images/flame-detector-detail.png"
+              data-title="불꽃 감지기"
+              data-desc="정밀한 UV 감지 방식으로 불꽃을 빠르게 감지해 넓은 공간의 화재를 조기에 확인할 수 있습니다."
+              onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">불꽃 감지기</span><span class="flame-explorer-detail"><strong>불꽃 감지기</strong><span>정밀한 UV 감지 방식으로 불꽃을 빠르게 감지해 넓은 공간의 화재를 조기에 확인할 수 있습니다.</span></span></button>
+            <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="1"
+              data-image="/images/flame-p-type-fireshield.png"
+              data-title="P형 화재 감지 센서"
+              data-desc="기존 P형 화재 수신기와 연동해 건물 전 층의 화재 발생 여부를 실시간으로 통합 확인할 수 있습니다."
+              onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">P형 화재 감지 센서</span><span class="flame-explorer-detail"><strong>P형 화재 감지 센서</strong><span>기존 P형 화재 수신기와 연동해 건물 전 층의 화재 발생 여부를 실시간으로 통합 확인할 수 있습니다.</span></span></button>
+            <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="2"
+              data-image="/images/flame-coincell-sensor.png"
+              data-title="코인셀 센서"
+              data-desc="컴팩트하고 가벼운 디자인으로 공간 제약 없이 간편하게 설치할 수 있습니다."
+              onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">코인셀 센서</span><span class="flame-explorer-detail"><strong>코인셀 센서</strong><span>컴팩트하고 가벼운 디자인으로 공간 제약 없이 간편하게 설치할 수 있습니다.</span></span></button>
+            <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="3"
+              data-image="/images/flame-edge-gateway-lineup.png"
+              data-title="엣지 게이트웨이"
+              data-desc="센서 데이터를 현장에서 직접 처리해 서버를 거치지 않고 더 빠르게 판단합니다. BMS·클라우드와도 유연하게 연결할 수 있습니다."
+              onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">엣지 게이트웨이</span><span class="flame-explorer-detail"><strong>엣지 게이트웨이</strong><span>센서 데이터를 현장에서 직접 처리해 서버를 거치지 않고 더 빠르게 판단합니다. BMS·클라우드와도 유연하게 연결할 수 있습니다.</span></span></button>
+          </div>
+          <div class="flame-explorer-visual">
+            <img src="/images/flame-detector-detail.png" alt="Monnit 불꽃 감지기">
+          </div>
+          <button class="flame-explorer-close" type="button" aria-label="상세 설명 닫기" onclick="closeFlameFeature(this)">×</button>
+          <div class="flame-explorer-nav" aria-label="제품 항목 이동">
+            <button type="button" aria-label="이전 항목" onclick="stepFlameFeature(this,-1)">↑</button>
+            <button type="button" aria-label="다음 항목" onclick="stepFlameFeature(this,1)">↓</button>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="flame-product-stories" aria-labelledby="flameProductStoriesTitle">
+        <header class="flame-product-stories-head">
+          <span>성능</span>
+          <h2 id="flameProductStoriesTitle">제품별로<br>더 깊이</h2>
+          <div class="flame-product-stories-intro">
+            <p>현장의 한계를 넘어설 새로운 4가지 솔루션이 시작됩니다.<br><strong>더 정밀하게</strong> 감지하고, <strong>더 간편하게</strong> 연결하고, <strong>더 상세하게</strong> 모니터링하고, <strong>더 빠르게</strong> 데이터를 처리하는 것.<br>서로 다른 한계를 뛰어넘기 위해 탄생한 <strong>4가지 신제품</strong>이 현장 모니터링의 새로운 시작을 완성합니다.</p>
+            <strong class="flame-product-stories-highlight">더 새로운 기술을,<br>더 좋은 조건으로.</strong>
+            <p>그리고 그 시작을 가장 먼저 경험하는 고객을 위해 <strong>사전 예약</strong>에서만 누릴 수 있는 강력한 혜택을 준비했습니다.<br><strong class="flame-product-stories-final-line">정식 출시 전, 지금 가장 먼저 만나 보세요.</strong></p>
+          </div>
+        </header>
+
+        <article class="flame-product-story flame-story-edge">
+          <div class="flame-product-story-copy">
+            <h3>엣지 게이트웨이</h3>
+            <strong>데이터가 발생하는 곳에서<br>바로 판단하고 대응.</strong>
+            <p>센서 데이터를 현장에서 직접 처리해 지연 시간을 줄이고, 별도의 복잡한 서버 구성 없이 더욱 빠른 자동화와 데이터 연동을 구현합니다.</p>
+            <dl class="flame-spec-sheet flame-edge-capabilities">
+              <div><dt>엣지 프로세싱</dt><dd>센서 데이터를 현장에서 실시간 처리</dd></div>
+              <div><dt>BMS 직접 연동</dt><dd>BACnet으로 기존 BMS와 바로 연결</dd></div>
+              <div><dt>맞춤형 자동화</dt><dd>Node-RED·SDK로 현장 맞춤 로직 구현</dd></div>
+              <div><dt>다양한 연결 방식</dt><dd>ALTA·Ethernet·Wi-Fi·Bluetooth 지원</dd></div>
+              <div><dt>빠른 응답 속도</dt><dd>로컬 처리로 지연 시간 최소화</dd></div>
+            </dl>
+            <button class="flame-spec-detail-button" type="button" onclick="document.getElementById('edgeGatewaySpecsDialog').showModal()">세부 스펙 살펴보기</button>
+            <dialog class="flame-spec-dialog" id="edgeGatewaySpecsDialog" onclick="if(event.target===this)this.close()">
+              <div class="flame-spec-dialog-head">
+                <div><span>엣지 게이트웨이</span><h4>세부 스펙</h4></div>
+                <form method="dialog"><button type="submit" aria-label="세부 스펙 닫기">×</button></form>
+              </div>
+              <dl class="flame-spec-sheet flame-spec-dialog-sheet">
+                <div><dt>모델</dt><dd>엣지 게이트웨이</dd></div>
+                <div><dt>CPU</dt><dd>Cortex-A53</dd></div>
+                <div><dt>RAM</dt><dd>1 GB LPDDR2 SDRAM</dd></div>
+                <div><dt>저장 용량</dt><dd>16 GB</dd></div>
+                <div><dt>운영체제</dt><dd>Ubuntu Linux</dd></div>
+                <div><dt>입력 전원</dt><dd>5.0 VDC @ 2.5 A</dd></div>
+                <div><dt>최대 정격 입력 전압</dt><dd>5.5 VDC</dd></div>
+                <div><dt>LED 표시</dt><dd>연결 상태, 전원, 클라우드 서비스, 네트워크 상태</dd></div>
+                <div><dt>외함 재질</dt><dd>ABS</dd></div>
+                <div><dt>크기</dt><dd>5.004 × 3.8 × 1.51 in.</dd></div>
+                <div><dt>무게</dt><dd>7 oz</dd></div>
+                <div><dt>작동 온도</dt><dd>0 ~ +50℃<br><span class="flame-spec-note">(32 ~ 122℉)</span></dd></div>
+                <div><dt>송신 출력<br><span class="flame-spec-note">(EIRP)</span></dt><dd>50 mW (900 MHz), 25 mW (868 MHz),<br>10 mW (433 MHz)</dd></div>
+                <div><dt>안테나 타입</dt><dd>RPSMA 커넥터<br><span class="flame-spec-note">안테나 이득: 3.0 dBi</span></dd></div>
+                <div><dt>무선 통신 거리</dt><dd>비가시거리 기준 1,200 ft 이상</dd></div>
+                <div><dt>보안</dt><dd>Encrypt-RF®<br><span class="flame-spec-note">(256-bit 키 교환 및 AES-128 CBC)</span></dd></div>
+              </dl>
+            </dialog>
+          </div>
+          <figure class="flame-product-story-media"><img src="/images/flame-edge-cutout.png" alt="Monnit 엣지 게이트웨이"></figure>
+        </article>
+
+        <article class="flame-product-story flame-story-coincell">
+          <div class="flame-product-story-copy">
+            <h3>코인셀 센서</h3>
+            <strong>컴팩트한 크기로<br>더 자유로운 모니터링.</strong>
+            <p>컴팩트하고 가벼운 디자인으로 공간 제약 없이<br>간편하게 설치할 수 있습니다.</p>
+            <dl class="flame-spec-sheet">
+              <div><dt>Model</dt><dd>무선 온습도/Dry Contact 센서</dd></div>
+              <div><dt>Gateway</dt><dd>GETy Ethernet/IoT 연동</dd></div>
+              <div><dt>사용 온도 범위</dt><dd>-10℃ ~ +60℃</dd></div>
+              <div><dt>설치 장소</dt><dd>실내 전용</dd></div>
+              <div><dt>외형 치수</dt><dd>32 × 17 × 29</dd></div>
+            </dl>
+            <button class="flame-spec-detail-button" type="button" onclick="document.getElementById('coinCellSpecsDialog').showModal()">세부 스펙 살펴보기</button>
+            <dialog class="flame-spec-dialog" id="coinCellSpecsDialog" onclick="if(event.target===this)this.close()">
+              <div class="flame-spec-dialog-head">
+                <div><span>코인셀 센서</span><h4>세부 스펙</h4></div>
+                <form method="dialog"><button type="submit" aria-label="세부 스펙 닫기">×</button></form>
+              </div>
+              <dl class="flame-spec-sheet flame-spec-dialog-sheet">
+                <div><dt>Model</dt><dd>무선 온습도/Dry Contact 센서</dd></div>
+                <div><dt>Gateway</dt><dd>GETy Ethernet/IoT 연동</dd></div>
+                <div><dt>무선 주파수/변조</dt><dd>940MHz / FSK / FHSS</dd></div>
+                <div><dt>전송 출력</dt><dd>+9dBm</dd></div>
+                <div><dt>전원</dt><dd>CR2032</dd></div>
+                <div><dt>Battery 수명</dt><dd>3년 / HB 10분 기준</dd></div>
+                <div><dt>사용 온도 범위</dt><dd>-10℃ ~ +60℃<br><span class="flame-spec-note">(결로가 없을 것)</span></dd></div>
+                <div><dt>설치 장소</dt><dd>실내 전용<br><span class="flame-spec-note">(Indoor use)</span></dd></div>
+                <div><dt>외형 치수</dt><dd>32 × 17 × 29<br><span class="flame-spec-note">(W×H×D)</span></dd></div>
+              </dl>
+            </dialog>
+          </div>
+          <figure class="flame-product-story-media"><img src="/images/flame-coincell-cutout.png" alt="Monnit 코인셀 센서"></figure>
+        </article>
+
+        <article class="flame-product-story flame-story-detector">
+          <div class="flame-product-story-copy">
+            <h3>불꽃 감지기</h3>
+            <strong>UV 방식으로<br>화재 징후를<br>정밀하게 감지.</strong>
+            <p>정밀한 UV 감지 방식으로 불꽃을 빠르게 감지해<br>넓은 공간의 화재를 조기에 확인할 수 있습니다.</p>
+            <dl class="flame-spec-sheet">
+              <div><dt>Model</dt><dd>무선불꽃감지센서</dd></div>
+              <div><dt>감지 방식</dt><dd>자외선 감지 방식</dd></div>
+              <div><dt>감지 거리</dt><dd>최대 10m</dd></div>
+              <div><dt>감지 각도</dt><dd>정면 기준 약 120° 원뿔 형태</dd></div>
+              <div><dt>설치 장소</dt><dd>실내 전용</dd></div>
+              <div><dt>외형 치수</dt><dd>Φ 120mm × H 45mm</dd></div>
+            </dl>
+            <button class="flame-spec-detail-button" type="button" onclick="document.getElementById('flameDetectorSpecsDialog').showModal()">세부 스펙 살펴보기</button>
+            <dialog class="flame-spec-dialog" id="flameDetectorSpecsDialog" onclick="if(event.target===this)this.close()">
+              <div class="flame-spec-dialog-head">
+                <div><span>불꽃 감지기</span><h4>세부 스펙</h4></div>
+                <form method="dialog"><button type="submit" aria-label="세부 스펙 닫기">×</button></form>
+              </div>
+              <dl class="flame-spec-sheet flame-spec-dialog-sheet">
+                <div><dt>Model</dt><dd>무선불꽃감지센서</dd></div>
+                <div><dt>감지 방식</dt><dd>자외선 감지 방식<br><span class="flame-spec-note">(Ultraviolet Rays, 185 ~ 260nm)</span></dd></div>
+                <div><dt>감지 거리</dt><dd>최대 10m<br><span class="flame-spec-note">(7cm 불꽃 기준)</span></dd></div>
+                <div><dt>감지 각도</dt><dd>정면 기준 약 120° 원뿔 형태</dd></div>
+                <div><dt>전원 공급</dt><dd>AA 알칼리 건전지 2개 (LR6 3V)<br>또는 외부 DC 10 ~ 30V</dd></div>
+                <div><dt>소비 전류<br><span class="flame-spec-note">(DC 전원)</span></dt><dd>대기 시: 9mA 이하<br>경보 시: 220mA 이하</dd></div>
+                <div><dt>경보 출력</dt><dd class="flame-spec-multiline"><span>· RED LED (점멸)</span><span>· Sound (8Ohm, 1.5W)</span><span>· Open Collector (NO, NC 2개)</span><span>· Option: GETy 무선 (Sub-1GHz)</span></dd></div>
+                <div><dt>사용 온도 범위</dt><dd>-10℃ ~ +60℃<br><span class="flame-spec-note">(결로가 없을 것)</span></dd></div>
+                <div><dt>설치 장소</dt><dd>실내 전용<br><span class="flame-spec-note">(Indoor use)</span></dd></div>
+                <div><dt>외형 치수</dt><dd>Φ 120mm × H 45mm</dd></div>
+                <div><dt>중량</dt><dd>약 230g<br><span class="flame-spec-note">(배터리 무게 포함)</span></dd></div>
+              </dl>
+            </dialog>
+          </div>
+          <figure class="flame-product-story-media"><img src="/images/flame-detector-cutout.png" alt="Monnit 불꽃 감지기"></figure>
+        </article>
+
+        <article class="flame-product-story flame-story-p-type">
+          <div class="flame-product-story-copy">
+            <h3>P형 화재 감지 센서</h3>
+            <strong>기존 설비 그대로<br>전 층 화재를 한눈에.</strong>
+            <p>기존 P형 화재 수신기와 연동해 건물 전 층의 화재<br>발생 여부를 실시간으로 통합 확인할 수 있습니다.</p>
+            <dl class="flame-spec-sheet">
+              <div><dt>Model</dt><dd>P형 소방알리미</dd></div>
+              <div><dt>감지 방식</dt><dd>P형수신기 주경종/지구경종 접점</dd></div>
+              <div><dt>사용 온도 범위</dt><dd>-10℃ ~ +60℃</dd></div>
+              <div><dt>설치 장소</dt><dd>실내 전용</dd></div>
+              <div><dt>외형 치수</dt><dd>140 × 85 × 80</dd></div>
+              <div><dt>Web Server</dt><dd>장치 설정용 Web Server 내장</dd></div>
+              <div><dt>휴대폰 앱</dt><dd>Android, iOS</dd></div>
+            </dl>
+            <button class="flame-spec-detail-button" type="button" onclick="document.getElementById('pTypeSpecsDialog').showModal()">세부 스펙 살펴보기</button>
+            <dialog class="flame-spec-dialog" id="pTypeSpecsDialog" onclick="if(event.target===this)this.close()">
+              <div class="flame-spec-dialog-head">
+                <div><span>P형 화재 감지 센서</span><h4>세부 스펙</h4></div>
+                <form method="dialog"><button type="submit" aria-label="세부 스펙 닫기">×</button></form>
+              </div>
+              <dl class="flame-spec-sheet flame-spec-dialog-sheet">
+                <div><dt>Model</dt><dd>P형 소방알리미</dd></div>
+                <div><dt>감지 방식</dt><dd>P형수신기 주경종/지구경종<br><span class="flame-spec-note">(DC24V) 접점</span></dd></div>
+                <div><dt>감지 채널</dt><dd>8채널, RS485 확장 가능</dd></div>
+                <div><dt>채널 보호</dt><dd>Photo Coupler Isolation</dd></div>
+                <div><dt>감지 전원</dt><dd>DC 10~24V, 10mA</dd></div>
+                <div><dt>전원</dt><dd>USB Type-C, 5V/200mA</dd></div>
+                <div><dt>경보 해제</dt><dd>1채널, Solid Switch</dd></div>
+                <div><dt>사용 온도 범위</dt><dd>-10℃ ~ +60℃<br><span class="flame-spec-note">(결로가 없을 것)</span></dd></div>
+                <div><dt>설치 장소</dt><dd>실내 전용<br><span class="flame-spec-note">(Indoor use)</span></dd></div>
+                <div><dt>외형 치수</dt><dd>140 × 85 × 80<br><span class="flame-spec-note">(W×H×D)</span></dd></div>
+                <div><dt>통신방식</dt><dd>Ethernet(10Base-T), WiFi(2.4G), LTE</dd></div>
+                <div><dt>표시장치</dt><dd>OLED (128×64)</dd></div>
+                <div><dt>Web Server</dt><dd>장치 설정용 Web Server 내장</dd></div>
+                <div><dt>휴대폰 앱</dt><dd>Android, iOS</dd></div>
+              </dl>
+            </dialog>
+          </div>
+          <figure class="flame-product-story-media"><img src="/images/flame-p-type-fireshield-cutout.png" alt="Monnit P형 화재 감지 센서"></figure>
+        </article>
+      </section>
+
+      <section class="flame-immersive" aria-labelledby="flameImmersiveTitle">
+        <div class="flame-immersive-sticky">
+          <video class="flame-immersive-media" autoplay muted loop playsinline preload="metadata"
+                 poster="/images/flame-product-overview.png"
+                 aria-label="Monnit 차세대 화재 감지 솔루션 영상">
+            <source src="/videos/flame-immersive-4k-web.mp4?v=2" type="video/mp4">
+          </video>
+          <span class="flame-immersive-shade" aria-hidden="true"></span>
+          <div class="flame-immersive-copy">
+            <span>MONNIT KOREA</span>
+            <h2 id="flameImmersiveTitle">기술의 한계를 넘어<br>현장의 가능성을 넓히다.</h2>
+            <button class="flame-immersive-cta" type="button" onclick="scrollToFlameReservationForm()">사전 예약 신청하기</button>
+          </div>
+          <button class="flame-immersive-toggle" type="button" aria-label="모션 일시정지" aria-pressed="false" onclick="toggleFlameImmersive(this)">
+            <span aria-hidden="true">Ⅱ</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="flame-reservation-apply" id="flameReservationForm" aria-labelledby="flameReservationFormTitle">
+        <div class="flame-reservation-apply-head">
+          <span class="flame-kicker">PRE-REGISTRATION</span>
+          <h2 id="flameReservationFormTitle">프로모션 <em>사전 신청</em></h2>
+          <p>정보를 남겨주시면 담당자가 빠르게 연락드립니다.</p>
+        </div>
+        <form id="flameReservationApplyForm" class="promo-apply-form flame-reservation-form" onsubmit="return submitFlameReservationApply(event)">
+          <div class="paf-row paf-row-full">
+            <label class="paf-field paf-full">
+              <span>신청 프로모션 <b>*</b></span>
+              <select id="frfPromo" disabled><option>사전 예약 프로모션</option></select>
+            </label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field"><span>이름 / 직급 <b>*</b></span><input type="text" id="frfName" placeholder="예: 홍길동 / 설비팀장" required></label>
+            <label class="paf-field"><span>회사명 <b>*</b></span><input type="text" id="frfCompany" placeholder="예: (주)모넷코리아" required></label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field"><span>전화번호 <b>*</b></span><input type="tel" id="frfPhone" placeholder="예: 010-1234-5678" required></label>
+            <label class="paf-field"><span>이메일 <b>*</b></span><input type="email" id="frfEmail" placeholder="예: name@company.com" required></label>
+          </div>
+          <div class="paf-row">
+            <label class="paf-field">
+              <span>예약 희망 제품 <b>*</b></span>
+              <select id="frfProduct" required>
+                <option value="">— 제품을 선택하세요 —</option>
+                <option value="불꽃 감지기">불꽃 감지기</option>
+                <option value="P형 화재 감지 센서">P형 화재 감지 센서</option>
+                <option value="코인셀 센서">코인셀 센서</option>
+                <option value="엣지 게이트웨이">엣지 게이트웨이</option>
+              </select>
+            </label>
+            <label class="paf-field"><span>문의 사항</span><input type="text" id="frfMemo" placeholder="추가로 남기실 내용 (선택)"></label>
+          </div>
+          <div class="paf-actions">
+            <span id="frfStatus" class="paf-status" aria-live="polite"></span>
+            <button type="submit" class="cta-primary" id="frfSubmit">신청하기</button>
+          </div>
+        </form>
+      </section>
+
+    </div>`;
+}
+
+function scrollToFlameReservationForm(){
+  const form = document.getElementById('flameReservationForm');
+  if (form) form.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function submitFlameReservationApply(e){
+  e.preventDefault();
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const name = g('frfName'), company = g('frfCompany'), phone = g('frfPhone');
+  const email = g('frfEmail'), product = g('frfProduct'), memo = g('frfMemo');
+  const status = document.getElementById('frfStatus');
+  const btn = document.getElementById('frfSubmit');
+  if (!name || !company || !phone || !email || !product){
+    if (status){ status.textContent = '필수 항목(*)을 모두 입력해 주세요.'; status.className = 'paf-status err'; }
+    return false;
+  }
+  const payload = {
+    '신청 프로모션': '사전 예약 프로모션',
+    '이름/직급': name,
+    '회사명': company,
+    '전화번호': phone,
+    '이메일': email,
+    '예약 희망 제품': product,
+    '문의 사항': memo || '(없음)',
+    '접수 경로': '사전 예약 프로모션 상세 페이지'
+  };
+  const pay = window.MonnitLead
+    ? window.MonnitLead.build('contact', 'flame_reservation_apply', '사전 예약 프로모션 신청 — ' + company, payload)
+    : Object.assign(payload, { _subject: '[모넷·접수] 사전 예약 프로모션 신청 — ' + company });
+  if (status){ status.textContent = ''; status.className = 'paf-status'; }
+  const result = await sendLead(pay, btn);
+  if (result === true && window.MonnitLead) window.MonnitLead.track('contact', { page:'flame_reservation_apply', interest:product });
+  if (result === true){
+    if (status){ status.textContent = '✓ 신청이 접수되었습니다. 담당자가 곧 연락드립니다.'; status.className = 'paf-status ok'; }
+    e.currentTarget.reset();
+  } else if (result === 'mailto'){
+    if (status){ status.textContent = '메일 앱으로 신청 내용을 작성합니다. 전송 버튼을 눌러 완료해 주세요.'; status.className = 'paf-status'; }
+  } else if (status){
+    status.textContent = '전송에 실패했습니다. 잠시 후 다시 시도하거나 korea@monnit.com 으로 연락 주세요.';
+    status.className = 'paf-status err';
+  }
+  return false;
+}
+
+function updateFlameImmersive(){
+  const section = document.querySelector('.flame-immersive');
+  if (!section) return;
+  const rect = section.getBoundingClientRect();
+  const travel = Math.max(1, section.offsetHeight - window.innerHeight);
+  const progress = Math.max(0, Math.min(1, -rect.top / travel));
+  const expandProgress = 1 - Math.pow(1 - progress, 1.45);
+  const compact = window.innerWidth <= 640;
+  const startWidth = compact ? 90 : 78;
+  const startHeight = compact ? 56 : 58;
+  section.classList.toggle('is-active', rect.top <= 0 && rect.bottom >= window.innerHeight);
+  section.classList.toggle('is-past', rect.bottom < window.innerHeight);
+  if (!section.classList.contains('is-paused')) {
+    section.style.setProperty('--flame-immersive-progress', progress.toFixed(4));
+    section.style.setProperty('--flame-frame-width', `${startWidth + expandProgress * (100 - startWidth)}vw`);
+    section.style.setProperty('--flame-frame-height', `${startHeight + expandProgress * (100 - startHeight)}vh`);
+    section.style.setProperty('--flame-frame-radius', `${Math.max(0, 34 * (1 - expandProgress))}px`);
+  }
+}
+
+function initFlameImmersive(){
+  const section = document.querySelector('.flame-immersive');
+  if (!section) return;
+  const video = section.querySelector('video');
+  if (video) {
+    video.muted = true;
+    const startVideo = () => video.play().catch(() => {});
+    if (video.readyState >= 2) startVideo();
+    else video.addEventListener('canplay', startVideo, { once: true });
+  }
+  updateFlameImmersive();
+  if (window.__flameImmersiveBound) return;
+  window.__flameImmersiveBound = true;
+  let ticking = false;
+  const requestUpdate = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      updateFlameImmersive();
+      ticking = false;
+    });
+  };
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate, { passive: true });
+}
+
+function toggleFlameImmersive(button){
+  const section = button && button.closest('.flame-immersive');
+  if (!section) return;
+  const paused = section.classList.toggle('is-paused');
+  button.setAttribute('aria-pressed', paused ? 'true' : 'false');
+  button.setAttribute('aria-label', paused ? '모션 재생' : '모션 일시정지');
+  const icon = button.querySelector('span');
+  if (icon) icon.textContent = paused ? '▶' : 'Ⅱ';
+  const video = section.querySelector('video');
+  if (video) {
+    if (paused) video.pause();
+    else video.play().catch(() => {});
+  }
+  if (!paused) updateFlameImmersive();
+}
+
+function selectFlameFeature(button){
+  const section = button && button.closest('.flame-explorer');
+  if (!section) return;
+  const stage = section.querySelector('.flame-explorer-stage');
+  if (stage && stage.classList.contains('is-expanded') && button.classList.contains('is-active')) {
+    closeFlameFeature(button);
+    return;
+  }
+  const index = Number(button.dataset.index || 0);
+  if (stage) {
+    stage.classList.add('is-expanded');
+    stage.dataset.activeIndex = String(index);
+    stage.dataset.view = String(index);
+  }
+  section.querySelectorAll('.flame-explorer-tab').forEach(tab => {
+    const active = tab === button;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    tab.setAttribute('aria-expanded', active ? 'true' : 'false');
+    const icon = tab.querySelector('.flame-explorer-icon');
+    if (icon) icon.textContent = '+';
+  });
+  const image = section.querySelector('.flame-explorer-visual img');
+  if (image && button.dataset.image) {
+    image.src = button.dataset.image;
+    image.alt = `Monnit ${button.dataset.title || '신제품'}`;
+    image.classList.remove('is-moving');
+    void image.offsetWidth;
+    image.classList.add('is-moving');
+  }
+}
+
+function closeFlameFeature(control){
+  const section = control && control.closest('.flame-explorer');
+  const stage = section && section.querySelector('.flame-explorer-stage');
+  if (!section || !stage) return;
+  stage.classList.remove('is-expanded');
+  delete stage.dataset.activeIndex;
+  delete stage.dataset.view;
+  section.querySelectorAll('.flame-explorer-tab').forEach(tab => {
+    tab.classList.remove('is-active');
+    tab.setAttribute('aria-selected', 'false');
+    tab.setAttribute('aria-expanded', 'false');
+  });
+}
+
+function stepFlameFeature(control, direction){
+  const section = control && control.closest('.flame-explorer');
+  if (!section) return;
+  const tabs = [...section.querySelectorAll('.flame-explorer-tab')];
+  if (!tabs.length) return;
+  const stage = section.querySelector('.flame-explorer-stage');
+  const current = Number(stage && stage.dataset.activeIndex || 0);
+  const next = (current + direction + tabs.length) % tabs.length;
+  selectFlameFeature(tabs[next]);
+}
+
 function openPromo(id, fromHash){
   const p = PROMOS.find(x => x.id === id);
   if (!p) {
@@ -3621,9 +4140,16 @@ function openPromo(id, fromHash){
   const body = document.getElementById('promoDetailBody');
   const titleEl = document.getElementById('promoDetailTitle');
   if (!view || !body) return;
-  if (titleEl) titleEl.textContent = p.title || '프로모션';
+  view.classList.toggle('is-flame-detail', id === 'flame-reservation');
+  if (titleEl) {
+    titleEl.textContent = p.title || '프로모션';
+    titleEl.style.display = id === 'flame-reservation' ? 'none' : '';
+  }
   // 이미지 방식: images를 세로로 나열 (표시 폭은 CSS max-width로 제한 → 데스크탑/모바일 모두 적정 크기). 없으면 html, 그것도 없으면 안내
-  if (p.images && p.images.length){
+  if (id === 'flame-reservation'){
+    body.innerHTML = flameReservationHTML();
+    requestAnimationFrame(initFlameImmersive);
+  } else if (p.images && p.images.length){
     body.innerHTML = '<div class="promo-images">' +
       p.images.map(src => `<img src="${esc(src)}" alt="${esc(p.title)}" loading="lazy">`).join('') +
       '</div>';
@@ -3646,12 +4172,12 @@ function openPromo(id, fromHash){
   const applyBtn = document.getElementById('promoDetailApply');
   if (applyBtn){
     applyBtn.onclick = () => applyForPromo(p.title);
-    applyBtn.style.display = 'inline-flex';
+    applyBtn.style.display = id === 'flame-reservation' ? 'none' : 'inline-flex';
   }
   const applyTop = document.getElementById('promoDetailApplyTop');
   if (applyTop){
     applyTop.onclick = () => applyForPromo(p.title);
-    applyTop.style.display = 'inline-flex';
+    applyTop.style.display = id === 'flame-reservation' ? 'none' : 'inline-flex';
   }
   document.getElementById('promoList').style.display = 'none';
   view.style.display = 'block';
@@ -3659,12 +4185,15 @@ function openPromo(id, fromHash){
   if (!fromHash){
     setURL('promotions/' + encodeURIComponent(id));
   }
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.scrollTo({top:0, behavior: id === 'flame-reservation' ? 'auto' : 'smooth'});
 }
 function closePromo(toHash){
   const view = document.getElementById('promoDetail');
   const list = document.getElementById('promoList');
-  if (view) view.style.display = 'none';
+  if (view) {
+    view.style.display = 'none';
+    view.classList.remove('is-flame-detail');
+  }
   if (list) list.style.display = 'block';
   const body = document.getElementById('promoDetailBody');
   if (body) body.innerHTML = '';
@@ -3691,7 +4220,7 @@ async function submitPromoApply(e){
   const phone = g('pafPhone'), email = g('pafEmail'), qty = g('pafQty'), memo = g('pafMemo');
   const status = document.getElementById('pafStatus');
   const btn = document.getElementById('pafSubmit');
-  if (!promo || !name || !company || !phone || !email){
+  if (!promo || !name || !company || !phone || !email || (promo === '사전 예약 프로모션' && !qty)){
     if (status){ status.textContent = '필수 항목(*)을 모두 입력해 주세요.'; status.className = 'paf-status err'; }
     return false;
   }
@@ -3701,10 +4230,10 @@ async function submitPromoApply(e){
     '회사명': company,
     '전화번호': phone,
     '이메일': email,
-    '구매 희망 수량': qty || '(미기재)',
     '문의 사항': memo || '(없음)',
     '접수 경로': '프로모션 사전신청'
   };
+  payload[promo === '사전 예약 프로모션' ? '예약 희망 제품' : '구매 희망 수량'] = qty || '(미기재)';
   if (status){ status.textContent = ''; status.className = 'paf-status'; }
   const _pay = window.MonnitLead ? window.MonnitLead.build('contact', 'promo_apply', promo + ' 사전신청 — ' + company, payload)
                                  : Object.assign(payload, { _subject: '[모넷·접수] ' + promo + ' 사전신청 — ' + company });
@@ -3734,7 +4263,7 @@ function applyForPromo(title){
   setTimeout(() => {
     const form = openApplyForm();
     const sel = document.getElementById('pafPromo');
-    if (sel && title){ sel.value = title; }
+    if (sel && title){ sel.value = title; updatePromoApplyFields(); }
     if (form) form.scrollIntoView({behavior:'smooth', block:'center'});
   }, 100);
 }

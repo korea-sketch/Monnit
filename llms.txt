@@ -21,95 +21,76 @@
 - [상담·문의](https://monnit.co.kr/contact)
 
 ## 활용 분야 상세 (60)
-- [온도 모니터링](https://monnit.co.kr/app/temp): 냉장·냉동, 서버룸, 실험실 등 다양한 현장의 온도를 실시간으로 모니터링해 품질 저하와 장비 이상을 예방합니다.
-- [누수 감지](https://monnit.co.kr/app/leak): 서버룸·기계실·지하 공간의 누수를 빠르게 감지해 설비 피해와 자산 손실을 예방합니다.
-- [HVAC 모니터링](https://monnit.co.kr/app/hvac): 공조 설비의 온도·차압·필터 상태를 추적해 운영 효율과 유지보수 시점을 관리합니다.
-- [온실 모니터링](https://monnit.co.kr/app/greenhouse): 온도·습도·CO₂·조도를 통합 관리해 작물 생육 환경을 최적화합니다.
-- [상업용 냉장](https://monnit.co.kr/app/refrig): 매장 내 냉장·냉동 진열대와 보관 설비의 온도 및 도어 상태를 상시 모니터링합니다.
-- [공기질 모니터링](https://monnit.co.kr/app/air): 미세먼지·CO₂ 등 실내 공기질 지표를 측정해 쾌적한 환경 관리를 지원합니다.
-- [콜드체인 모니터링](https://monnit.co.kr/app/cold-chain): 매장·차량·창고까지 유통 전 구간의 온도 이력과 도어 상태를 통합 관리합니다.
-- [물류 & 창고](https://monnit.co.kr/app/logistics): 대형 창고·물류센터의 구역별 온습도, 도어 상태, 보관 환경을 모니터링합니다.
-- [식품 서비스](https://monnit.co.kr/app/food): 레스토랑·급식 시설의 냉장·냉동 온도와 도어 상태를 자동 기록해 식품 안전 관리를 지원합니다.
-- [그로서리 & 편의점](https://monnit.co.kr/app/grocery): 여러 매장의 냉장 진열대와 보관용 냉장·냉동고를 통합 관리합니다.
-- [수송 차량](https://monnit.co.kr/app/transport): 냉장 차량의 위치, 화물칸 온도, 도어 상태를 함께 추적해 운송 품질을 관리합니다.
-- [백신 모니터링](https://monnit.co.kr/app/vaccine): 백신·의약품 보관 온도와 이력을 자동 기록해 규정 준수와 품질 관리를 지원합니다.
-- [병원 & 클리닉](https://monnit.co.kr/app/hospital): 혈액·조직·의약품 보관고와 클린룸의 온도·습도·차압·누수를 통합 모니터링합니다.
-- [실험실 & 제약](https://monnit.co.kr/app/lab): 시약·샘플·보관 장비의 온습도와 차압 이력을 자동 기록해 품질관리와 감사 대응을 지원합니다.
-- [영안실 & 조직](https://monnit.co.kr/app/morgue): 시신·조직 보관고의 온도와 도어 상태를 상시 추적해 보관 환경을 안정적으로 관리합니다.
-- [제약 콜드체인](https://monnit.co.kr/app/pharma-cold): 의약품 보관·운송 구간의 온도 이력과 도어 상태를 통합 관리해 품질 리스크를 줄입니다.
-- [제조 라인](https://monnit.co.kr/app/manufact): 설비의 진동·전류·온도 변화를 추적해 라인 다운타임을 사전에 줄입니다.
-- [건설 현장](https://monnit.co.kr/app/construct): 장비 가동 상태와 현장 온습도, 자재 보관 조건을 원격으로 추적합니다.
-- [데이터센터 & 서버룸](https://monnit.co.kr/app/datacenter): 랙 주변 온도·누수·차압을 모니터링해 서버 장애와 다운타임을 예방합니다.
-- [에너지 탐사](https://monnit.co.kr/app/energy): 원격지 시추·정제 시설의 진동·압력·온도를 추적해 설비 이상을 조기에 파악합니다.
-- [태양광 & 재생에너지](https://monnit.co.kr/app/solar): 패널 온도와 전류·전압, 인버터 상태를 추적해 발전 효율을 관리합니다.
-- [시설 모니터링](https://monnit.co.kr/app/facility): 사무 빌딩·공장 시설의 출입·환경·누수 상태를 통합 관제합니다.
-- [호텔 & 숙박](https://monnit.co.kr/app/hospitality): 객실 점유, 욕실 누수, 공용 시설 환경을 통합 운영합니다.
-- [금융기관](https://monnit.co.kr/app/financial): 지점 서버실·금고·보관실의 온도, 누수, 도어 상태를 통합 모니터링합니다.
-- [공실 부동산](https://monnit.co.kr/app/vacant): 장기 공실 부동산의 누수·동파·출입 이상을 원격 추적합니다.
-- [스마트시티](https://monnit.co.kr/app/smartcity): 공공 시설·주차·환경 데이터를 대규모 IoT 모니터링 체계로 운영합니다.
-- [축산 & 농업](https://monnit.co.kr/app/livestock): 축사 환경·사료 보관·관개 시설을 통합 관리해 생산성과 안전성을 높입니다.
-- [마리나 & 보트](https://monnit.co.kr/app/marina): 정박지의 빌지 수위, 배터리 전압, 습도 상태를 원격 추적합니다.
-- [반려동물 복지](https://monnit.co.kr/app/pet): 켄넬·동물 시설의 온습도와 움직임을 관리해 동물 복지와 안전을 확보합니다.
-- [해충 방역](https://monnit.co.kr/app/pest): 트랩 접점과 열처리 온도, 현장 환경을 데이터화해 방역 작업을 관리합니다.
-- [그로하우스](https://monnit.co.kr/app/grow): 대마·약용 작물 시설의 조도·CO₂·온습도를 정밀 관리합니다.
-- [곰팡이 제거·예방](https://monnit.co.kr/app/uc-mold): 수해·누수 후 건조 현장의 온도·습도를 추적해 곰팡이 재발과 2차 피해를 예방합니다.
-- [플랜트 예지보전](https://monnit.co.kr/app/uc-plant-maint): 검사·시험 설비의 진동·전류·온도 변화를 상시 감시해 고장 전 이상 징후를 포착합니다.
-- [핫요가 스튜디오 공조](https://monnit.co.kr/app/uc-hot-yoga): 스튜디오의 온도·습도를 실시간 모니터링해 수업 환경을 일정하게 유지합니다.
-- [농장·온실 환기 자동화](https://monnit.co.kr/app/uc-smart-farm): 온실·축사의 온습도·CO₂·토양 상태를 관리해 작물·가축 환경을 최적화합니다.
-- [신생아 집중치료실(NICU)](https://monnit.co.kr/app/uc-nicu): 인큐베이터·보관고 등 핵심 의료 장비의 온습도와 도어 상태를 24/7 모니터링합니다.
-- [상업용 냉난방(HVAC)](https://monnit.co.kr/app/uc-hvac): 공조 설비의 차압·온도·전류 상태를 추적해 효율과 필터 교체 시점을 관리합니다.
-- [레스토랑·외식 서비스](https://monnit.co.kr/app/uc-restaurant): 주방 냉장·냉동 설비의 온도와 도어 상태를 자동 기록해 식품 안전 관리를 지원합니다.
-- [편의점](https://monnit.co.kr/app/uc-convenience): 다중 점포의 냉장 진열대와 보관용 냉장·냉동고를 통합 관리합니다.
-- [학교 급식실 냉장·냉동고](https://monnit.co.kr/app/uc-school-cafeteria): 급식 워크인 쿨러·프리저의 온도와 도어 상태를 상시 추적해 식품 안전을 지원합니다.
-- [서버룸·데이터센터](https://monnit.co.kr/app/uc-datacenter): 랙 주변 온도·누수·차압을 정밀 추적해 다운타임과 장비 손상을 예방합니다.
-- [의약품 냉장 보관](https://monnit.co.kr/app/uc-pharma-refrig): 의약품·백신 보관고의 온도와 도어 상태를 자동 기록해 규정 대응과 품질 관리를 지원합니다.
-- [신선식품 제조](https://monnit.co.kr/app/uc-perishable-food): 가공·보관 전 구간의 온습도와 도어 상태를 통합 관리해 품질과 폐기 손실을 줄입니다.
-- [상업용 빌딩 관리](https://monnit.co.kr/app/uc-commercial-building): 빌딩의 환경·에너지·점유·누수를 통합 모니터링해 시설 운영을 효율화합니다.
-- [리테일 매장 관리](https://monnit.co.kr/app/uc-retail): 매장의 냉장·환경·점유·출입 상태를 통합 모니터링해 운영을 자동화합니다.
-- [호텔·숙박](https://monnit.co.kr/app/uc-hotels): 객실 점유·욕실 누수·공용 시설 환경을 통합 운영합니다.
-- [아파트·임대 부동산 관리](https://monnit.co.kr/app/uc-apartment): 세대·공용부의 누수·동파·출입 이상을 원격 감시해 피해를 예방합니다.
-- [제조·생산](https://monnit.co.kr/app/uc-manufacturing): 설비 진동·전류·온도 변화를 추적해 라인 다운타임을 사전에 줄입니다.
-- [온실 모니터링](https://monnit.co.kr/app/uc-greenhouse): 온도·습도·CO₂·조도를 통합 관리해 작물 생육 환경을 최적화합니다.
-- [별장·세컨드하우스](https://monnit.co.kr/app/uc-second-home): 비어 있는 별장의 누수·동파·출입 이상을 원격으로 상시 감시합니다.
-- [학교·교회](https://monnit.co.kr/app/uc-schools-churches): 공간 점유·온도·누수를 모니터링해 시설 운영과 에너지 관리를 지원합니다.
-- [압류 부동산 관리](https://monnit.co.kr/app/uc-foreclosed): 관리 인력이 없는 공실 부동산의 누수·동파·출입 이상을 원격 추적합니다.
-- [해충 방역·열처리](https://monnit.co.kr/app/uc-pest-control): 트랩 접점과 열처리 온도를 추적해 방역 작업을 데이터화합니다.
-- [노인 케어 모니터링](https://monnit.co.kr/app/uc-elderly): 움직임·온도·도어 상태를 감지해 독거·요양 환경의 안전을 원격 확인합니다.
-- [대학 기숙사](https://monnit.co.kr/app/uc-dormitory): 기숙사의 점유·온도·누수를 모니터링해 시설을 효율적으로 운영합니다.
-- [보관·창고 시설](https://monnit.co.kr/app/uc-storage): 셀프스토리지·창고의 온습도·출입 이상·누수를 원격 통합 관리합니다.
-- [금융 서비스](https://monnit.co.kr/app/uc-financial): 지점 서버실·금고·보관실의 온도·누수·도어 상태를 통합 감시합니다.
-- [K9·반려동물 복지](https://monnit.co.kr/app/uc-pet-welfare): 켄넬·동물 시설의 온습도와 움직임을 관리해 동물 복지와 안전을 확보합니다.
-- [태양광 발전 모니터링](https://monnit.co.kr/app/uc-solar): 패널 온도·전류·전압·인버터 상태를 추적해 발전 효율을 최적화합니다.
-- [양식장·아쿠아컬처](https://monnit.co.kr/app/uc-aquaculture): 수온·수위·펌프 전원 상태를 상시 추적해 양식 생산성과 폐사 리스크를 관리합니다.
+- [온도 모니터링](https://monnit.co.kr/app/temp): 냉장·냉동·서버룸·실험실 등 전 산업의 핵심 측정 항목.
+- [누수 감지](https://monnit.co.kr/app/leak): 서버룸·기계실·지하 공간의 물 접촉을 0.5초 이내 감지.
+- [HVAC 모니터링](https://monnit.co.kr/app/hvac): 공조 시스템의 효율·필터 상태·차압을 실시간 추적.
+- [그린하우스](https://monnit.co.kr/app/greenhouse): 온도·습도·CO₂·조도를 통합 관리해 작물 환경을 최적화.
+- [상업용 냉장](https://monnit.co.kr/app/refrig): 매장 냉장·냉동 진열대의 24/7 자동 추적.
+- [공기질 모니터링](https://monnit.co.kr/app/air): VOC·미세먼지·CO₂를 측정해 실내 환경 관리.
+- [콜드체인 모니터링](https://monnit.co.kr/app/cold-chain): 매장에서 차량·창고까지 전 구간 온도 무결성 통합.
+- [물류 & 창고](https://monnit.co.kr/app/logistics): 대형 창고·물류센터의 다중 구역 환경 모니터링.
+- [식품 서비스](https://monnit.co.kr/app/food): 레스토랑·급식 시설의 HACCP 준수 자동화.
+- [그로서리 & 편의점](https://monnit.co.kr/app/grocery): 다중 매장의 냉장 진열대와 백룸 통합 관리.
+- [수송 차량](https://monnit.co.kr/app/transport): 냉장 차량의 실시간 위치와 화물칸 온도 통합 추적.
+- [백신 모니터링](https://monnit.co.kr/app/vaccine): CDC VFC 프로그램 준수. −80°C 초저온 보관까지 자동 감사.
+- [병원 & 클리닉](https://monnit.co.kr/app/hospital): 혈액·조직·의약품 보관, 클린룸까지 의료 환경 전반.
+- [실험실 & 제약](https://monnit.co.kr/app/lab): GxP·21 CFR Part 11 호환. 자동 감사 보고서 생성.
+- [영안실 & 조직](https://monnit.co.kr/app/morgue): 법의학·병리 시설의 시신·조직 보관 환경 24/7 추적.
+- [제약 콜드체인](https://monnit.co.kr/app/pharma-cold): WHO PQS 준수 콜드체인. 백신 유통망 무손실 목표.
+- [제조 라인](https://monnit.co.kr/app/manufact): 베어링 진동·전류·온도로 라인 다운타임 사전 차단.
+- [건설 현장](https://monnit.co.kr/app/construct): 장비 가동·환경 조건·자재 보관 통합 추적.
+- [데이터센터 & 서버룸](https://monnit.co.kr/app/datacenter): 서버 입·출기 온도, 누수, 차압을 5분 알림으로.
+- [에너지 탐사](https://monnit.co.kr/app/energy): 원격지 시추·정제 시설의 진동·압력·온도 추적.
+- [태양광 & 재생에너지](https://monnit.co.kr/app/solar): 패널 온도·전력·인버터 상태로 발전 효율 최적화.
+- [시설 모니터링](https://monnit.co.kr/app/facility): 사무 빌딩·공장 시설의 출입·환경·에너지 통합 관제.
+- [호텔 & 숙박](https://monnit.co.kr/app/hospitality): 객실 점유·미니바·욕실 누수 통합 운영.
+- [금융기관](https://monnit.co.kr/app/financial): 지점 보안실·서버룸·금고 환경 통합 모니터링.
+- [공실 부동산](https://monnit.co.kr/app/vacant): 장기 공실 부동산의 누수·동파·침입 원격 추적.
+- [스마트시티](https://monnit.co.kr/app/smartcity): 공공 시설·주차·환경을 대규모 IoT 메시로 운영.
+- [축산 & 농업](https://monnit.co.kr/app/livestock): 축사 환경·사료 보관·관개 시설 통합 관리.
+- [마리나 & 보트](https://monnit.co.kr/app/marina): 정박지 빌지펌프·배터리·습도를 원격 추적.
+- [반려동물 복지](https://monnit.co.kr/app/pet): 켄넬·축사·동물 의료 시설 환경 자동 관리.
+- [해충 방역](https://monnit.co.kr/app/pest): 트랩 감지·환경 추적으로 PCO 운영을 데이터화.
+- [그로하우스](https://monnit.co.kr/app/grow): 대마·약용 작물 시설의 조도·CO₂·온도 정밀 제어.
+- [곰팡이 제거·예방](https://monnit.co.kr/app/uc-mold): 수해·누수 후 건조 현장의 온습도를 추적해 곰팡이 재발과 2차 피해를 방지.
+- [플랜트 예지보전](https://monnit.co.kr/app/uc-plant-maint): 검사·시험 설비의 진동·온도를 상시 감시해 고장 전 이상을 포착.
+- [핫요가 스튜디오 공조](https://monnit.co.kr/app/uc-hot-yoga): 스튜디오의 온도·습도를 자동 제어해 수업 환경을 일정하게 유지.
+- [농장·온실 환기 자동화](https://monnit.co.kr/app/uc-smart-farm): 온실·축사의 온습도·환기를 자동화해 작물·가축 환경을 최적화.
+- [신생아 집중치료실(NICU)](https://monnit.co.kr/app/uc-nicu): 인큐베이터·보관고 등 핵심 의료 장비의 환경을 24/7 감시.
+- [상업용 냉난방(HVAC)](https://monnit.co.kr/app/uc-hvac): 공조 설비의 차압·온도를 추적해 효율과 필터 교체 시점을 관리.
+- [레스토랑·외식 서비스](https://monnit.co.kr/app/uc-restaurant): 주방 냉장·냉동 설비의 온도를 자동 기록해 HACCP 준수를 지원.
+- [편의점](https://monnit.co.kr/app/uc-convenience): 다중 점포의 냉장 진열대·워크인을 통합 온도 관리.
+- [학교 급식실 냉장·냉동고](https://monnit.co.kr/app/uc-school-cafeteria): 급식 워크인 쿨러·프리저의 온도를 상시 추적해 식품 안전 확보.
+- [서버룸·데이터센터](https://monnit.co.kr/app/uc-datacenter): 랙 온도·누수·차압을 정밀 추적해 다운타임과 장비 손상을 예방.
+- [의약품 냉장 보관](https://monnit.co.kr/app/uc-pharma-refrig): 의약품·백신 보관고의 온도를 규정에 맞게 자동 감사·기록.
+- [신선식품 제조](https://monnit.co.kr/app/uc-perishable-food): 가공·보관 전 구간의 온습도를 통합 관리해 품질과 폐기 손실 관리.
+- [상업용 빌딩 관리](https://monnit.co.kr/app/uc-commercial-building): 빌딩의 환경·에너지·점유·누수를 단일 플랫폼으로 통합 관제.
+- [리테일 매장 관리](https://monnit.co.kr/app/uc-retail): 매장의 냉장·환경·출입을 통합 모니터링해 운영을 자동화.
+- [호텔·숙박](https://monnit.co.kr/app/uc-hotels): 객실 점유·욕실 누수·공용 시설 환경을 통합 운영.
+- [아파트·임대 부동산 관리](https://monnit.co.kr/app/uc-apartment): 세대·공용부의 누수·동파·환경을 원격 감시해 피해를 예방.
+- [제조·생산](https://monnit.co.kr/app/uc-manufacturing): 설비 진동·전류·온도로 라인 다운타임을 사전에 차단.
+- [온실 모니터링](https://monnit.co.kr/app/uc-greenhouse): 온도·습도·CO₂·조도를 통합 관리해 작물 생육 환경을 최적화.
+- [별장·세컨드하우스](https://monnit.co.kr/app/uc-second-home): 비어 있는 별장의 누수·동파·침입을 원격으로 상시 감시.
+- [학교·교회](https://monnit.co.kr/app/uc-schools-churches): 공간 점유·온도·누수를 모니터링해 시설 운영과 에너지를 관리.
+- [압류 부동산 관리](https://monnit.co.kr/app/uc-foreclosed): 관리 인력이 없는 공실 부동산의 누수·동파를 원격 추적.
+- [해충 방역·열처리](https://monnit.co.kr/app/uc-pest-control): 트랩 감지와 열처리 온도 추적으로 방역 작업을 데이터화.
+- [노인 케어 모니터링](https://monnit.co.kr/app/uc-elderly): 움직임·환경을 감지해 독거·요양 환경의 안전을 원격 확인.
+- [대학 기숙사](https://monnit.co.kr/app/uc-dormitory): 기숙사의 점유·온도·누수를 모니터링해 시설을 효율 운영.
+- [보관·창고 시설](https://monnit.co.kr/app/uc-storage): 셀프스토리지·창고의 온습도·침입·누수를 원격 통합 관리.
+- [금융 서비스](https://monnit.co.kr/app/uc-financial): 지점 서버실·금고·보관실의 환경과 누수를 통합 감시.
+- [K9·반려동물 복지](https://monnit.co.kr/app/uc-pet-welfare): 켄넬·동물 시설의 온습도를 관리해 동물 복지와 안전을 확보.
+- [태양광 발전 모니터링](https://monnit.co.kr/app/uc-solar): 패널 온도·전류·인버터 상태를 추적해 발전 효율을 최적화.
+- [양식장·아쿠아컬처](https://monnit.co.kr/app/uc-aquaculture): 수온·수위·환경을 상시 추적해 양식 생산성과 폐사 리스크를 관리.
 
 ## 도입 사례 상세
-- [바이오의약품 제조 플랜트 (의료 · 바이오)](https://monnit.co.kr/case/samsung-biologics)
-- [에너지·수처리 운영시설 (에너지)](https://monnit.co.kr/case/veolia)
-- [반도체·전자 제조시설 (반도체 R&D)](https://monnit.co.kr/case/samsung)
-- [대형 데이터센터 (IT · 데이터센터)](https://monnit.co.kr/case/microsoft)
-- [자동차 제조공정 (자동차 · 운송)](https://monnit.co.kr/case/hyundai-motors)
-- [대형 복합건물 FM 운영 (건설 · 부동산)](https://monnit.co.kr/case/hdc-labs)
-- [군·공공 인프라 운영시설 (국방 · 방위)](https://monnit.co.kr/case/us-army)
-- [발전·에너지 설비 (발전 · 전력)](https://monnit.co.kr/case/gs-eps)
-- [유통·리테일 콜드체인 (유통 · 리테일)](https://monnit.co.kr/case/walmart)
-- [SK에코플랜트 (건설·부동산)](https://monnit.co.kr/case/sk-ecoplant)
-- [현대건설 (건설·부동산)](https://monnit.co.kr/case/hyundai-enc)
-- [현대엔지니어링 (건설·부동산)](https://monnit.co.kr/case/hyundai-engineering)
-- [호반건설 (건설·부동산)](https://monnit.co.kr/case/hoban)
-- [세안텍스 (건설·부동산)](https://monnit.co.kr/case/seantex)
-- [이마트 (유통·소비재)](https://monnit.co.kr/case/emart)
-- [한화 S&C솔루션 (IT·데이터센터)](https://monnit.co.kr/case/hanwha-snc)
-- [삼천리 (에너지)](https://monnit.co.kr/case/samchully)
-- [LX (에너지)](https://monnit.co.kr/case/lx)
-- [한양대구리병원 (의료·바이오)](https://monnit.co.kr/case/hyu-guri-hospital)
-- [CJ피드앤케어 (외식)](https://monnit.co.kr/case/cj-feedncare)
-- [양식장 (외식)](https://monnit.co.kr/case/aquafarm)
-- [강남구 (공공·비영리)](https://monnit.co.kr/case/gangnam)
-- [한국환경공단 (국방·방위)](https://monnit.co.kr/case/keco)
-- [신한대학교 (교육)](https://monnit.co.kr/case/shinhan-univ)
-- [송현초등학교 (교육)](https://monnit.co.kr/case/songhyun-elem)
-- [CBRE (건설 · 부동산)](https://monnit.co.kr/case/cbre)
+- [Samsung Biologics (의료 · 바이오)](https://monnit.co.kr/case/samsung-biologics)
 - [ExxonMobil (에너지)](https://monnit.co.kr/case/exxonmobil)
+- [Walmart (유통 · 소비재)](https://monnit.co.kr/case/walmart)
+- [Microsoft (IT · 데이터센터)](https://monnit.co.kr/case/microsoft)
+- [Hyundai Motors (자동차 · 운송)](https://monnit.co.kr/case/hyundai-motors)
+- [CBRE (건설 · 부동산)](https://monnit.co.kr/case/cbre)
+- [US Army (국방 · 방위)](https://monnit.co.kr/case/us-army)
+- [GS EPS (발전 · 전력)](https://monnit.co.kr/case/gs-eps)
 
 ## 제품군
 - 무선 센서 (온도·진동·누수·전류·공기질 등 80여 종)
