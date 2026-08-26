@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<!-- Monnit Korea · 교회 건물관리 솔루션 랜딩 · /church
-     · 전단(수정 컨펌본) 디자인 기반 · 모넷코리아 자체 서버 연결 준비 -->
+
 <html lang="ko">
 <head>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -8,12 +7,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- ═══════════════════════════════════════════════════════════════════
-     프로모션 랜딩 설정 (2026-07 개편)
-     · [변경] '한 번만 열람' 잠금은 제거했습니다. 나갔다 돌아와도 그대로 열립니다.
-     · 대신 마감 카운트다운 · 스크롤 연동 하단바 · 이탈 시도 팝업으로 신청을 유도합니다.
-     · ▼ 아래 PROMO_DEADLINE 한 줄만 바꾸면 마감일이 전체에 반영됩니다.
-     ═══════════════════════════════════════════════════════════════════ -->
+
 <script>
 (function(w,d){
   /* ── 혜택 마감 시각 (한국시간 KST 고정) ──────────────────────────
@@ -39,7 +33,7 @@
   }catch(e){}
 })(window, document);
 </script>
-<!-- 쿠키 동의 (사이트 공통 규정 적용) -->
+
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'x38egtft64',privacyUrl:'/privacy.html'};</script>
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/js/monnit-lead.js?v=2"></script>
@@ -572,8 +566,7 @@ footer a{color:#333}
 </style>
 </head>
 <body>
-<!-- ── 혜택 마감 카운트다운 바 ───────────────────────────────────
-     마감 시각은 <head> 의 PROMO_DEADLINE_KST 한 곳에서만 관리합니다. -->
+
 <div id="mnkDeadlineBar" style="position:sticky;top:0;z-index:200;background:linear-gradient(90deg,#122f63,#1c4590);color:#fff;
   font-size:13px;font-weight:700;text-align:center;padding:9px 14px;line-height:1.5;letter-spacing:-.01em">
   <span id="mnkDlLabel" style="opacity:.92">선착순 50곳 한정 혜택 마감까지</span>
@@ -581,7 +574,7 @@ footer a{color:#333}
   <span id="mnkDlSub" style="opacity:.78;display:block;font-weight:500;margin-top:2px">첫 1개월 60% 할인 + 설치비 전액 지원</span>
 </div>
 
-<!-- ── 이탈 시도 팝업 (1회만 노출) ───────────────────────────── -->
+
 <div id="mnkExitModal" role="dialog" aria-modal="true" aria-labelledby="mnkExitTitle" style="display:none;position:fixed;inset:0;z-index:9999;
   background:rgba(8,16,36,.62);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px;
   font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif">
@@ -723,7 +716,7 @@ footer a{color:#333}
 
 <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
 
-<!-- 상단바 -->
+
 <div class="topbar">
   <div class="wrap">
     <span class="logo"><img src="./monnit-logo-white.png" alt="MONNIT KR"></span>
@@ -734,7 +727,7 @@ footer a{color:#333}
   </div>
 </div>
 
-<!-- 히어로: 전단 앞면 (남색 야경 + 십자가 사진) -->
+
 <header class="hero">
   <div class="hero-scene" aria-hidden="true">
     <svg viewBox="0 0 560 460" preserveAspectRatio="xMaxYMax meet">
@@ -753,38 +746,38 @@ footer a{color:#333}
           <stop offset="100%" stop-color="#f3bf62" stop-opacity="0"/>
         </radialGradient>
       </defs>
-      <!-- 십자가 글로우 (그라디언트 2겹, 필터 없음) -->
+      
       <ellipse class="pulse" cx="345" cy="58" rx="130" ry="102" fill="url(#crossGlow)"/>
       <ellipse class="pulse" cx="345" cy="58" rx="55" ry="46" fill="url(#crossGlow)"/>
-      <!-- 십자가 -->
+      
       <g fill="#fff3c4">
         <rect x="340" y="14" width="10" height="82" rx="3"/>
         <rect x="315" y="36" width="60" height="10" rx="3"/>
       </g>
-      <!-- 첨탑 + 본당 실루엣 -->
+      
       <g fill="#050f24">
         <polygon points="282,176 408,176 345,98"/>
         <rect x="296" y="176" width="98" height="284"/>
         <polygon points="380,318 480,244 574,318 574,460 380,460"/>
         <rect x="470" y="300" width="104" height="160"/>
       </g>
-      <!-- 나무 실루엣 -->
+      
       <g fill="#030b1a" opacity=".92">
         <ellipse cx="548" cy="300" rx="46" ry="64"/>
         <ellipse cx="520" cy="352" rx="34" ry="48"/>
         <rect x="536" y="330" width="12" height="130"/>
       </g>
-      <!-- 불 켜진 창 (첨탑) -->
+      
       <ellipse cx="324" cy="236" rx="30" ry="40" fill="url(#winHalo)"/>
       <ellipse cx="366" cy="236" rx="30" ry="40" fill="url(#winHalo)"/>
       <path d="M312 212a12 14 0 0 1 24 0v46h-24z" fill="url(#winGrad)"/>
       <path d="M354 212a12 14 0 0 1 24 0v46h-24z" fill="url(#winGrad)"/>
-      <!-- 첨탑 창 격자 -->
+      
       <g stroke="#7a5a22" stroke-width="2.4">
         <line x1="324" y1="212" x2="324" y2="258"/><line x1="312" y1="234" x2="336" y2="234"/>
         <line x1="366" y1="212" x2="366" y2="258"/><line x1="354" y1="234" x2="378" y2="234"/>
       </g>
-      <!-- 본당 창 -->
+      
       <ellipse cx="434" cy="376" rx="26" ry="34" fill="url(#winHalo)"/>
       <ellipse cx="472" cy="376" rx="26" ry="34" fill="url(#winHalo)"/>
       <path d="M424 356a10 12 0 0 1 20 0v38h-20z" fill="url(#winGrad)" opacity=".95"/>
@@ -804,7 +797,7 @@ footer a{color:#333}
   </div>
 </header>
 
-<!-- 혜택: 남색 패널 + 파란 테두리 폰 목업 (전단 구성) -->
+
 <section class="benefit-zone">
   <div class="wrap">
     <div class="navy-panel">
@@ -874,7 +867,7 @@ footer a{color:#333}
   </div>
 </section>
 
-<!-- 서비스 6종: 흰 박스 + 세로 구분선 (전단 구성) -->
+
 <section class="svc-sec">
   <div class="wrap">
     <h2>우리 예배당에 꼭 필요한 서비스만 담았습니다</h2>
@@ -889,7 +882,7 @@ footer a{color:#333}
   </div>
 </section>
 
-<!-- 후면 상단: 남색 헤드라인 + 공간 카드 4종 -->
+
 <section class="space-sec">
   <div class="wrap">
     <h2><span>안전한 우리 교회를 위해,</span><span>모넷코리아가 디지털 동역자가 되겠습니다.</span></h2>
@@ -931,7 +924,7 @@ footer a{color:#333}
   <div class="space-spacer"></div>
 </section>
 
-<!-- CCTV 비교: 표 + '오직, 모넷코리아에서만' 패널 (전단 구성) -->
+
 <section class="cmp-sec">
   <div class="wrap">
     <h2>CCTV만으로는 안심할 수 없습니다.</h2>
@@ -967,7 +960,7 @@ footer a{color:#333}
   </div>
 </section>
 
-<!-- 가격: 전단 카드 3종 -->
+
 <section class="price-sec" id="price">
   <div class="wrap">
     <div class="head">
@@ -1034,7 +1027,7 @@ footer a{color:#333}
   </div>
 </section>
 
-<!-- 금색 실드 신뢰 띠 (전단 하단) -->
+
 <section class="shield-band">
   <div class="wrap">
     <div class="sb-left reveal">
@@ -1053,7 +1046,7 @@ footer a{color:#333}
   </div>
 </section>
 
-<!-- 신청: 전단 앞면 하단 남색 띠 (QR 자리 = 폼) -->
+
 <section class="apply-sec" id="apply">
   <div class="wrap">
     <div class="apply-grid">
@@ -1126,7 +1119,7 @@ footer a{color:#333}
   <a href="./privacy.html">개인정보 처리방침</a> · <a href="https://monnit.co.kr/">전체 사이트 보기 →</a>
 </footer>
 
-<!-- 모바일 하단 고정 CTA -->
+
 <div class="floatbar" id="floatbar">
   <a class="f-tel" href="tel:02-2088-1454" onclick="try{gtag('event','cta_click',{location:'floatbar_tel',promo:'church'})}catch(e){}">📞 전화</a>
   <button class="f-go btn" onclick="scrollForm('floatbar')">무료체험 신청 →</button>

@@ -1371,4 +1371,35 @@ fs.writeFileSync(path.join(__dirname, 'llms-full.txt'), full);
 
 console.log(`[build] 완료 — 정적 페이지 ${generated.length}개, robots.txt, sitemap.xml(${urls.length} URL), llms.txt, llms-full.txt`);
 console.log('[build] 데이터: APPS', APPS.length, '| PRODUCTS', PRODUCTS.length, '| CASES', Object.keys(CASE_DATA).length, '| PROMOS', PROMOS.length, '| 상세', Object.keys(APP_DETAILS).length);
-})().catch(e => { console.error('[build] 실패:', e); process.exit(1); });
+})().then(stripHtmlComments).catch(e => { console.error('[build] 실패:', e); process.exit(1); });
+
+/* ═══ HTML 주석 제거 — 방문자에게 내부 구조·작업 메모가 보이지 않게 ═══
+   빌드가 페이지를 모두 생성한 "후" .then() 으로 실행됩니다.
+   · 일반 HTML + <script type="text/html"> 템플릿 안의 주석까지 제거
+   · 실제 JS(<script>)·<style> 내용은 보호 · 여러 번 실행해도 안전 */
+function stripHtmlComments(){
+  const SKIP = new Set(['editor.html']);
+  const BLOCK = /<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>[\s\S]*?<\/style\s*>/gi;
+  function strip(h){
+    const saved = [];
+    let tmp = h.replace(BLOCK, (m) => {
+      if (/^<script\b[^>]*type\s*=\s*["']text\/(html|template)["']/i.test(m))
+        m = m.replace(/<!--[\s\S]*?-->/g, '');
+      saved.push(m);
+      return '\u0000BLK' + (saved.length - 1) + '\u0000';
+    });
+    tmp = tmp.replace(/<!--[\s\S]*?-->/g, '');
+    return tmp.replace(/\u0000BLK(\d+)\u0000/g, (_, i) => saved[+i]);
+  }
+  let n = 0;
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach(e => {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()){ if (!/^(node_modules|\.git|functions)$/.test(e.name)) walk(p); return; }
+    if (!/\.html$/i.test(e.name) || SKIP.has(e.name)) return;
+    const h = fs.readFileSync(p, 'utf8');
+    const out = strip(h);
+    if (out !== h){ fs.writeFileSync(p, out); n++; }
+  });
+  walk(__dirname);
+  console.log('[build] HTML 주석 제거: ' + n + '개 파일');
+}
