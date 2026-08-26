@@ -8005,3 +8005,9 @@ select optgroup{ background:#FFFFFF; color:#15192E; }
 /* ══ 프로모션 카드 — 제목 2줄 높이 예약으로 행 시작선 통일 ══ */
 .promo-body h3{min-height:2.6em}
 @media(max-width:760px){.promo-body h3{min-height:auto}}
+
+/* ══ 종료 프로모션 — 카드 전체 블러 (도장·안내만 선명) ══ */
+.promo-card-ended .promo-thumb img{filter:grayscale(1) brightness(.5) blur(7px);transform:scale(1.06)}
+.promo-card-ended .promo-thumb{overflow:hidden}
+.promo-card-ended .promo-body{filter:blur(4px);opacity:.45;user-select:none;pointer-events:none}
+.promo-card-ended:hover .promo-body{opacity:.5}
