@@ -7983,9 +7983,22 @@ select optgroup{ background:#FFFFFF; color:#15192E; }
 /* ══ 프로모션 페이지 — 브랜드 메시지가 주인공 ══ */
 .promo-creed{margin:0 0 48px;display:flex;flex-direction:column;gap:14px}
 .promo-creed .pc-l1{font-family:var(--fd);font-weight:500;font-size:clamp(34px,5.2vw,58px);color:#fff;letter-spacing:-0.02em;line-height:1.18;text-wrap:balance}
-.promo-creed .pc-l1 em{font-style:normal;color:var(--accent-dark)}
 .promo-creed .pc-l2{font-size:clamp(16px,2vw,21px);color:var(--ink-soft);line-height:1.55}
-/* 섹션 타이틀은 한 단계 낮춤 */
+/* 두 줄 시작점 정렬 보정 (디스플레이 서체 사이드베어링) */
+.promo-creed .pc-l2{margin-left:1px}
+/* 등장 모션 */
+.promo-creed .pc-l1,.promo-creed .pc-l2{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.22,.9,.3,1),transform .8s cubic-bezier(.22,.9,.3,1)}
+.promo-creed.creed-in .pc-l1{opacity:1;transform:none}
+.promo-creed.creed-in .pc-l2{opacity:1;transform:none;transition-delay:.18s}
+/* 포인트 어구 — 그라디언트 + 밑줄 드로우 + 호버 시 광택 이동 */
+.promo-creed .pc-l1 em{font-style:normal;position:relative;background:linear-gradient(100deg,var(--accent-dark) 20%,#9cc8ff 50%,var(--accent-dark) 80%);background-size:220% 100%;background-position:0% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;transition:background-position .7s ease}
+.promo-creed .pc-l1 em:hover{background-position:100% 0}
+.promo-creed .pc-l1 em::after{content:'';position:absolute;left:0;right:0;bottom:3px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent-dark),rgba(120,170,255,.15));transform:scaleX(0);transform-origin:left;transition:transform .8s .5s cubic-bezier(.22,.9,.3,1)}
+.promo-creed.creed-in .pc-l1 em::after{transform:scaleX(1)}
+/* 섹션 타이틀은 한 단계 낮춤 · 설명은 한 줄 */
 .promo-hero .seo-h1{font-size:clamp(26px,3.4vw,38px);font-weight:500;margin:14px 0 12px}
-.promo-hero .lede{font-size:15.5px;max-width:520px;margin:0 0 20px}
-@media(max-width:760px){.promo-creed{margin-bottom:36px}}
+.promo-hero .lede{font-size:15.5px;max-width:none;margin:0 0 20px}
+@media(max-width:760px){
+  .promo-creed{margin-bottom:36px;gap:10px}
+  .promo-hero .lede{font-size:13.5px}
+}

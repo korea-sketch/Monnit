@@ -3556,6 +3556,10 @@ function renderPromotions(){
   const empty = document.getElementById('promoEmpty');
   if (!grid) return;
   refreshPromoStatuses();   // 그리는 순간 기준으로 진행 중/시작 전/종료 다시 판정 + 재정렬
+  /* 브랜드 메시지 등장 모션 — 뷰가 열릴 때마다 재생 */
+  var _creed = document.querySelector('.promo-creed');
+  if (_creed) { _creed.classList.remove('creed-in'); void _creed.offsetWidth;
+    setTimeout(function(){ _creed.classList.add('creed-in'); }, 60); }
   const countEl = document.getElementById('promoHeroCount');
   if (countEl) {
     let _lang='ko'; try{ _lang=localStorage.getItem('mlang')||'ko'; }catch(e){}
