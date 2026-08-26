@@ -3132,6 +3132,17 @@ let BLOG = [
   { date:'2025.10.24', title:'겨울철 설비 동파, 스마트하게 막는 법', body:'온도·누수 센서를 결합한 조기 경보로 한파 시즌의 배관 동파와 누수 피해를 예방하는 방법을 소개합니다.', thumb:'◇', url:'https://blog.naver.com/monnitkorea' }
 ];
 let PROMOS = [];
+
+/* 프로모션 카드 이미지 폴백 — 시트(CMS) 이미지가 깨지면 내장 로컬 이미지로,
+   그것도 없으면 깨진 아이콘 대신 자연스럽게 숨깁니다 */
+window.__promoImgFallback = function(img, id){
+  try{
+    var b = (typeof BUILTIN_PROMOS !== 'undefined') && BUILTIN_PROMOS.find(function(x){ return x.id === id; });
+    var alt = b && b.image;
+    if (alt && !img.dataset.fb && img.getAttribute('src') !== alt){ img.dataset.fb = '1'; img.src = alt; return; }
+  }catch(e){}
+  img.style.display = 'none';
+};
 /* ── 사이트 내장 프로모션 ─────────────────────────────────────────────
    Promotions 시트에 행이 없어도 프로모션 목록에 항상 노출됩니다.
    시트에 같은 id(consulting) 행을 추가하면 시트 값이 우선 적용됩니다.
@@ -3164,7 +3175,7 @@ const BUILTIN_PROMOS = [{
   order: 1
 }, {
   id: 'residence',
-  title: '레지던스 객실 물 넘침 알람 — 한 달 한정 접수',
+  title: '레지던스 객실 물 넘침 알람',
   html: '',
   period: '2026. 8. 25 – 9. 24',
   badge: 'NEW',
@@ -3429,7 +3440,7 @@ function renderBlog(){
   const start = (pageState.blog - 1) * per;
   el.innerHTML = list.slice(start, start + per).map(p => {
     const thumb = p.image
-      ? `<div class="blog-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy"></div>`
+      ? `<div class="blog-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy" onerror="__promoImgFallback(this,'${esc(p.id)}')"></div>`
       : `<div class="blog-thumb">${esc(p.thumb||'◐')}</div>`;
     const insight = (p.insight && p.insight.trim())
       ? `<div class="blog-insight"><div class="blog-insight-inner"><span class="bi-label">INSIGHT · 전체 요약</span><p>${esc(p.insight)}</p><span class="b-link">자세히 보기 →</span></div></div>`
@@ -3480,7 +3491,7 @@ function showPromoGate(p){
     bodyHtml += `<div class="pg-sub">${ended ? '지금 진행 중인 혜택으로 안내해 드릴까요?' : '먼저 진행 중인 혜택을 살펴보셔도 좋습니다.'}</div>`;
     bodyHtml += '<div class="pg-list">' + alts.slice(0,3).map(a => {
       const href = a.link ? esc(a.link) : ('#promotions/' + esc(a.id));
-      const thumb = a.image ? `<img src="${esc(a.image)}" alt="" loading="lazy">` : '<span class="pg-ico">◆</span>';
+      const thumb = a.image ? `<img src="${esc(a.image)}" alt="" loading="lazy" onerror="this.style.display='none'">` : '<span class="pg-ico">◆</span>';
       return `<a class="pg-item" href="${href}" data-gate-go="${esc(a.id)}">
         <span class="pg-thumb">${thumb}</span>
         <span class="pg-txt"><b>${esc(a.title)}</b><small>${esc(a.period || '진행 중')}</small></span>
@@ -3578,7 +3589,7 @@ function renderPromotions(){
           ? `<span class="promo-veil promo-veil-soon" aria-hidden="true"><span class="promo-veil-txt">${esc(p.startLabel ? p.startLabel + ' 오픈' : '오픈 예정')}</span></span>`
           : '');
     const thumb = (p.image
-      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">${veil}${stamp}</div>`
+      ? `<div class="promo-thumb has-img"><img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy" onerror="__promoImgFallback(this,'${esc(p.id)}')">${veil}${stamp}</div>`
       : `<div class="promo-thumb">◆${veil}${stamp}</div>`);
     const badge = p.badge && p.status === 'active' ? `<span class="promo-badge">${esc(p.badge)}</span>` : '';
     let periodTxt = p.period || '';
