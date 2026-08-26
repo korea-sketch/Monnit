@@ -100,6 +100,21 @@
 
 # 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소 유지)
 [[redirects]]
+  from = "/promo/alarm"
+  to = "/promo-alarm.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/alarm/"
+  to = "/promo-alarm.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo-alarm"
+  to = "/promo-alarm.html"
+  status = 200
+
+[[redirects]]
   from = "/promo/*"
   to = "/promo.html?id=:splat"
   status = 200

@@ -3148,6 +3148,19 @@ window.__promoImgFallback = function(img, id){
    시트에 같은 id(consulting) 행을 추가하면 시트 값이 우선 적용됩니다.
    내리고 싶으면 아래 배열을 [] 로 비우세요. */
 const BUILTIN_PROMOS = [{
+  id: 'alarm',
+  title: '긴급 경보 알리미 4종 구독',
+  html: '',
+  period: '구독제 · 월 3만 원 · 설치비 무료 EVENT',
+  badge: 'NEW',
+  desc: '소방·물감지·정전·경보 — 이상 발생 시 담당자 휴대폰으로 즉시 문자 알림. 필요한 알리미만 골라 구독하세요. 관제 플랫폼 무료 증정, 설치비 무료(서울·경기·인천).',
+  image: '/images/promo-alarm.webp',
+  images: [],
+  link: '/promo/alarm',
+  start: '2026-08-26',   // 한국시간 이 날 00:00 부터 오픈
+  end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
+  order: 0
+}, {
   id: 'consulting',
   title: '회전설비 AI 예지보전 1개월 무료 체험',
   html: '',
@@ -3159,7 +3172,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/consulting',
   start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 비워두면 자동 종료 없음 — 내릴 때 forcedEnded:true 로 바꾸거나 이 배열을 비우세요
-  order: 2
+  order: 3
 }, {
   id: 'flame-reservation',
   title: '사전 예약 프로모션',
@@ -3172,20 +3185,20 @@ const BUILTIN_PROMOS = [{
   link: '',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end: '',               // 마감일 없음 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 1
+  order: 2
 }, {
   id: 'residence',
-  title: '레지던스 객실 물 넘침 알람',
+  title: '누수 걱정 없는 레지던스 생활을 시작하세요',
   html: '',
   period: '2026. 8. 25 – 9. 24',
   badge: 'NEW',
-  desc: '객실 안 싱크·식기세척기·세탁기, 피트(PS) 속 배관까지 — 물이 닿는 순간 담당자 휴대폰으로 알람. 누수 고민을 보내주시면 감시 우선순위를 무료로 회신드립니다.',
+  desc: '싱크대와 세탁기, 보일러 주변에 누수 알림 센서를 설치하면 물샘을 빠르게 감지해 앱으로 알려드립니다. 큰 피해로 번지기 전에 미리 대비하세요.',
   image: '/images/promo-residence.webp',
   images: [],
   link: '/promo/residence',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end:   '2026-09-24',   // 한국시간 이 날 자정까지 — 이후 자동 '종료' 표시
-  order: 0
+  order: 1
 }];
 /* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
    (여기서 바로 채우면 status 가 없어 첫 화면에서 모든 카드가 '진행 중이 아님'으로 보입니다) */

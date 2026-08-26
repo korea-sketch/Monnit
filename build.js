@@ -802,6 +802,14 @@ const promoPages = [];   // sitemap 용
   fs.copyFileSync(source, path.join(targetDir, 'index.html'));
 })();
 
+(function buildAlarmPromoAlias() {
+  const source = path.join(__dirname, 'promo-alarm.html');
+  if (!fs.existsSync(source)) return;
+  const targetDir = path.join(__dirname, 'promo', 'alarm');
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(source, path.join(targetDir, 'index.html'));
+})();
+
 (function () {
   let TPL = '';
   try { TPL = fs.readFileSync(path.join(__dirname, 'promo.html'), 'utf8'); }
@@ -1273,6 +1281,7 @@ const urls = [
   { loc: SITE + '/installation-photos.html', pri: '0.6' },
   { loc: SITE + '/promo/consulting', pri: '0.9' },
   { loc: SITE + '/promo/residence', pri: '0.9' },
+  { loc: SITE + '/promo/alarm', pri: '0.9' },
   { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' })),
   ...promoPages                                        // /promotions/{slug} 상세
