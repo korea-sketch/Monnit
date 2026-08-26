@@ -26,18 +26,37 @@
 /pages/case-HDC랩스.html /case/hdc-labs 301!
 
 # >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>
-# --- 예전 /pages 주소 → 새 경로 (98개)
+# --- 예전 /pages 주소 → 새 경로 (117개)
 /pages/company.html                    /who-we-are                  301!
 /pages/products.html                   /products                    301!
 /pages/solutions.html                  /applications                301!
 /pages/case-samsung-biologics.html     /case/samsung-biologics      301!
-/pages/case-exxonmobil.html            /case/exxonmobil             301!
-/pages/case-walmart.html               /case/walmart                301!
+/pages/case-veolia.html                /case/veolia                 301!
+/pages/case-samsung.html               /case/samsung                301!
 /pages/case-microsoft.html             /case/microsoft              301!
 /pages/case-hyundai-motors.html        /case/hyundai-motors         301!
-/pages/case-cbre.html                  /case/cbre                   301!
+/pages/case-hdc-labs.html              /case/hdc-labs               301!
 /pages/case-us-army.html               /case/us-army                301!
 /pages/case-gs-eps.html                /case/gs-eps                 301!
+/pages/case-walmart.html               /case/walmart                301!
+/pages/case-sk-ecoplant.html           /case/sk-ecoplant            301!
+/pages/case-hyundai-enc.html           /case/hyundai-enc            301!
+/pages/case-hyundai-engineering.html   /case/hyundai-engineering    301!
+/pages/case-hoban.html                 /case/hoban                  301!
+/pages/case-seantex.html               /case/seantex                301!
+/pages/case-emart.html                 /case/emart                  301!
+/pages/case-hanwha-snc.html            /case/hanwha-snc             301!
+/pages/case-samchully.html             /case/samchully              301!
+/pages/case-lx.html                    /case/lx                     301!
+/pages/case-hyu-guri-hospital.html     /case/hyu-guri-hospital      301!
+/pages/case-cj-feedncare.html          /case/cj-feedncare           301!
+/pages/case-aquafarm.html              /case/aquafarm               301!
+/pages/case-gangnam.html               /case/gangnam                301!
+/pages/case-keco.html                  /case/keco                   301!
+/pages/case-shinhan-univ.html          /case/shinhan-univ           301!
+/pages/case-songhyun-elem.html         /case/songhyun-elem          301!
+/pages/case-cbre.html                  /case/cbre                   301!
+/pages/case-exxonmobil.html            /case/exxonmobil             301!
 /pages/cases.html                      /stories                     301!
 /pages/app-temp.html                   /app/temp                    301!
 /pages/app-leak.html                   /app/leak                    301!

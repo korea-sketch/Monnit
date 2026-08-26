@@ -3287,11 +3287,11 @@ function applyPromoSchedule(p){
   return p;
 }
 /* 지금 신청 가능한 프로모션 / 곧 시작하는 프로모션 */
-function activePromos(){ return PROMOS.filter(p => p.status === 'active'); }
+function activePromos(){ return PROMOS.filter(p => p.status === 'active' && p.id !== 'flame-reservation'); }
 function upcomingPromos(){
-  return PROMOS.filter(p => p.status === 'upcoming').sort((a,b) => (a.startTs||0) - (b.startTs||0));
+  return PROMOS.filter(p => p.status === 'upcoming' && p.id !== 'flame-reservation').sort((a,b) => (a.startTs||0) - (b.startTs||0));
 }
-function endedPromos(){ return PROMOS.filter(p => p.status === 'ended'); }
+function endedPromos(){ return PROMOS.filter(p => p.status === 'ended' && p.id !== 'flame-reservation'); }
 
 /* ── 노출 순서: 진행 중 → 시작 전 → 종료 ────────────────────────────
    같은 그룹 안에서는
@@ -3557,7 +3557,8 @@ function renderPromotions(){
   /* 종료된 프로모션도 목록에 남깁니다 — 이미지를 어둡게 덮고 '프로모션 종료' 를 표시,
      순서는 진행 중 → 시작 전 → 종료 이므로 항상 맨 뒤로 내려갑니다.
      (PROMO_SHOW_ENDED 를 false 로 바꾸면 예전처럼 목록에서 감춥니다) */
-  const VISIBLE = PROMO_SHOW_ENDED ? PROMOS.slice() : PROMOS.filter(p => p.status !== 'ended');
+  const VISIBLE = (PROMO_SHOW_ENDED ? PROMOS.slice() : PROMOS.filter(p => p.status !== 'ended'))
+    .filter(p => p.id !== 'flame-reservation');   /* 링크 직접 입력으로만 접근 — 목록 비노출 */
   if (!VISIBLE.length){
     grid.innerHTML = '';
     if (empty) empty.style.display = 'block';

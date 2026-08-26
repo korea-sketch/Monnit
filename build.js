@@ -720,7 +720,8 @@ const KB_SLUGS = {};
 /* ---------- 4-8) 프로모션 (이미지 → 텍스트) ---------- */
 (function () {
   if (!PROMOS.length) return;
-  const act = PROMOS.filter(p => !p.ended), ended = PROMOS.filter(p => p.ended);
+  const UNLISTED = ['flame-reservation'];   /* 직링크 전용 — 목록·색인 비노출 */
+  const act = PROMOS.filter(p => !p.ended && UNLISTED.indexOf(p.id) < 0), ended = PROMOS.filter(p => p.ended && UNLISTED.indexOf(p.id) < 0);
   let body = `<p>이미지 배너로 안내되는 프로모션 내용을 텍스트로 제공합니다. 신청·상세: <a href="${SITE}/#promotions">monnit.co.kr 프로모션</a></p>`;
   const block = (p) => `<h2>${esc(strip(p.title))}${p.badge ? ` <span class="muted">[${esc(p.badge)}]</span>` : ''}${p.ended ? ' <span class="muted">(종료)</span>' : ''}</h2>${p.desc ? `<p>${esc(strip(p.desc))}</p>` : ''}${p.period ? `<p class="muted">기간: ${esc(p.period)}</p>` : ''}<p><a href="${p.link ? (p.link.indexOf('http')===0 ? p.link : SITE + p.link) : SITE + '/promotions/' + esc(p.id)}">프로모션 상세·신청 →</a></p>`;
   act.forEach(p => body += block(p));
@@ -837,6 +838,11 @@ const promoPages = [];   // sitemap 용
       + '<meta name="twitter:description" content="' + esc(desc) + '">');
     /* 종료된 프로모션은 색인에서 빼되 링크는 따라가게 둡니다 */
     if (ended) h = h.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex,follow">');
+    /* 직링크 전용 프로모션 — 검색엔진 색인·링크 추적 완전 차단 */
+    if (id === 'flame-reservation') {
+      if (/<meta name="robots"/.test(h)) h = h.replace(/<meta name="robots" content="[^"]*">/, '<meta name="robots" content="noindex,nofollow">');
+      else h = h.replace('</head>', '<meta name="robots" content="noindex,nofollow">\n</head>');
+    }
 
     /* 크롤러가 JS 없이 바로 읽는 본문 — SPA/스크립트가 그리기 전에 존재합니다 */
     const ssgStyle = '<style>#promo-ssg{max-width:820px;margin:0 auto;padding:48px 20px;font-family:system-ui,-apple-system,\'Apple SD Gothic Neo\',\'Malgun Gothic\',sans-serif;line-height:1.75;color:#e8ecf2}#promo-ssg h1{font-size:26px;line-height:1.4;margin:0 0 14px}#promo-ssg h2{font-size:19px;margin:28px 0 10px}#promo-ssg p{margin:8px 0}#promo-ssg a{color:#7fb2ff;text-decoration:underline}</style>';
@@ -862,7 +868,7 @@ const promoPages = [];   // sitemap 용
     const dir = path.join(__dirname, 'promotions', id);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'index.html'), h);
-    if (!ended) promoPages.push({ loc: url, pri: '0.7' });
+    if (!ended && id !== 'flame-reservation') promoPages.push({ loc: url, pri: '0.7' });
   });
   console.log(`[build] 프로모션 상세 정적 페이지 ${ids.size}개 생성 (/promotions/*)`);
 })();
