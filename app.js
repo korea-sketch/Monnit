@@ -3154,7 +3154,7 @@ const BUILTIN_PROMOS = [{
   period: '구독제 · 월 3만 원 · 설치비 무료 EVENT',
   badge: 'NEW',
   desc: '화재·누수·정전·설비 이상을 실시간으로 확인하고, 이상 발생 시 담당자 휴대폰으로 바로 알려드립니다. 필요한 알리미부터 간편하게 시작하세요.',
-  image: '/images/promo-alarm.webp',
+  image: '/images/promo-alarm.webp?v=2',
   images: [],
   link: '/promo/alarm',
   start: '2026-08-26',   // 한국시간 이 날 00:00 부터 오픈
@@ -3188,7 +3188,7 @@ const BUILTIN_PROMOS = [{
   order: 2
 }, {
   id: 'residence',
-  title: '누수 걱정 없는 레지던스 생활을 시작하세요',
+  title: '누수까지 놓치지 않는 레지던스 관리',
   html: '',
   period: '2026. 8. 25 – 9. 24',
   badge: 'NEW',

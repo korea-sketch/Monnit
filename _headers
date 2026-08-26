@@ -33,26 +33,31 @@
 #   · 캐시가 있으면 즉시 표시(체감 속도 동일)
 #   · 동시에 백그라운드로 새 파일을 받아 다음 방문부터 자동 최신화
 #   · ?v 를 올리면 그 즉시 새 파일을 받습니다
+# 2026-08-26 변경: SWR 은 "한 번은 옛 화면을 보여준 뒤" 갱신되는 방식이라
+# 배포 직후 방문자가 이전 버전을 보는 문제가 있었습니다.
+# → 항상 서버에 ETag 재검증(304, 수 KB·수십 ms)하도록 변경.
+#   파일이 그대로면 캐시 사용(빠름), 바뀌었으면 즉시 새 파일 — 강력 새로고침 불필요.
 /*.css
-  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
+  Cache-Control: public, max-age=0, must-revalidate
 /*.js
-  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
+  Cache-Control: public, max-age=0, must-revalidate
 /views/*
-  Cache-Control: public, max-age=3600, stale-while-revalidate=604800
+  Cache-Control: public, max-age=0, must-revalidate
 # 폰트
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
 # 아이콘·로고 등 정적 이미지(버전 없음) — 하루 캐시로 갱신은 빨리, 재방문은 캐시
+# 이미지: 5분 캐시 후 재검증 — 교체 시 5분 안에 전 방문자 자동 갱신
 /images/*
-  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
+  Cache-Control: public, max-age=300, must-revalidate
 /assets/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=300, must-revalidate
 /*.png
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=300, must-revalidate
 /*.jpg
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=300, must-revalidate
 /*.webp
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=300, must-revalidate
 /*.svg
   Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
 
