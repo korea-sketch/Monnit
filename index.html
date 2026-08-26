@@ -3,6 +3,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>/* 광고 테스트 쿠키 자동 청소 — 가짜 클릭ID(_gcl_*=...TEST...)가 남아 있으면
+   구글 수집 요청이 전부 503으로 거절되며 콘솔에 오류가 쌓입니다. 발견 즉시 제거. */
+(function(){try{document.cookie.split(';').forEach(function(c){var i=c.indexOf('='),n=c.slice(0,i).trim(),v=c.slice(i+1);
+if(/^_gcl_(aw|dc|gb|gs)$/.test(n)&&/TEST/i.test(v)){['','; domain=.monnit.co.kr','; domain=monnit.co.kr'].forEach(function(d){
+document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}});}catch(e){}})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* 광고 랜딩 가속 — #promotions/{id} 해시로 직접 들어오면 무거운 SPA 대신 초경량 정적 랜딩(promo.html)으로 즉시 이동 (utm·fbclid 유지). SPA 내부 이동에는 영향 없음. */
 (function(){try{var m=(location.pathname||'').match(/^\/promotions\/([^/?&]+)\/?$/)||(location.hash||'').match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);if(id==='flame-reservation')return;var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
