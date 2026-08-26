@@ -9,7 +9,6 @@
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/js/monnit-lead.js?v=2"></script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
 <title>객실 물 넘침·배관 파열 알람 — 레지던스 호텔 전용 | Monnit Korea</title>
@@ -24,10 +23,8 @@
 <meta property="og:image" content="https://monnit.co.kr/images/promo-residence.jpg">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="객실 물 넘침·배관 파열 알람 — 레지던스 호텔 전용">
 <meta name="twitter:image" content="https://monnit.co.kr/images/promo-residence.jpg">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"객실 물 넘침·배관 파열 알람 — 레지던스 호텔 전용","url":"https://monnit.co.kr/promo/residence","inLanguage":"ko","isPartOf":{"@type":"WebSite","name":"Monnit Korea","url":"https://monnit.co.kr/"},"about":{"@type":"Service","name":"레지던스 호텔 물 넘침·누수 감지 알람","provider":{"@type":"Organization","name":"Monnit Korea","url":"https://monnit.co.kr/","email":"korea@monnit.com","telephone":"+82-2-2088-1454"}}}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"누수 위치도 찾아주나요? (누수탐지 업체인가요?)","acceptedAnswer":{"@type":"Answer","text":"아니요. 누수 위치를 찾아드리는 탐지 업체가 아닙니다. 센서가 물이 닿는 순간을 감지해 담당자에게 알리는 조기 감지·알람 장비입니다. 위치 탐지가 필요하면 회신에서 탐지 업체 병행 방안을 안내드립니다."}},{"@type":"Question","name":"상황을 보내면 영업 전화가 오나요?","acceptedAnswer":{"@type":"Answer","text":"회신은 이메일이 기본이며, 전화를 원한다고 체크한 경우에만 전화드립니다. 회신만 받고 끝내셔도 됩니다."}},{"@type":"Question","name":"설치 공사가 필요한가요?","acceptedAnswer":{"@type":"Answer","text":"아니요. 완전 무선·배터리 구동으로 배선 공사가 필요 없습니다. 구역당 설치는 통상 10분 내외이며 게이트웨이 1대로 다수 센서를 관리합니다."}},{"@type":"Question","name":"알람은 어떻게 받나요?","acceptedAnswer":{"@type":"Answer","text":"물 감지 즉시 iMonnit 클라우드를 통해 SMS 문자·이메일·전화 알림이 발송됩니다. 야간 당직, 주간 시설팀 등 시간대별 수신 규칙을 자유롭게 설정할 수 있습니다."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"객실 물 넘침·배관 파열 알람 — 레지던스 호텔 전용","url":"https://monnit.co.kr/promo/residence","inLanguage":"ko","isPartOf":{"@type":"WebSite","name":"Monnit Korea","url":"https://monnit.co.kr/"}}</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,17 +114,22 @@
   /* ===== 진행바 · 상단바 ===== */
   .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:99;
     background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  /* ── 사이트 네비게이션 바 (상시 노출 · 다크 글래스) ── */
   .topbar{
     position:fixed;top:0;left:0;right:0;z-index:90;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 30px;
-    background:rgba(10,14,20,.55);backdrop-filter:blur(18px) saturate(1.3);
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    padding:13px 28px;
+    background:rgba(10,14,20,.62);backdrop-filter:blur(18px) saturate(1.3);
     -webkit-backdrop-filter:blur(18px) saturate(1.3);
-    border-bottom:1px solid rgba(255,255,255,.08);
+    border-bottom:1px solid rgba(201,165,106,.16);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
-    transform:translateY(-110%);transition:transform .45s cubic-bezier(.22,.61,.36,1);
   }
-  .topbar.show{transform:none}
+  .topbar.show{}
+  .topbar .brand{flex:none;text-decoration:none}
+  .tb-left{display:flex;align-items:center;gap:30px;min-width:0}
+  .tb-nav{display:flex;align-items:center;gap:24px}
+  .tb-nav a{font-size:13.5px;font-weight:400;letter-spacing:.06em;color:var(--txt-dim);text-decoration:none;transition:color .25s;white-space:nowrap}
+  .tb-nav a:hover{color:var(--gold-l)}
   .topbar .brand{font-family:var(--latin);font-size:17px;letter-spacing:.34em;color:var(--txt);font-weight:600}
   .topbar .brand b{color:var(--gold)}
   .topbar .btn{padding:10px 26px;font-size:12px}
@@ -159,7 +161,7 @@
     background:radial-gradient(circle, rgba(201,165,106,.10) 0%, transparent 62%);
     transform:translate(-50%,-50%);transition:opacity .4s;z-index:0;
   }
-  .hero-inner{position:relative;z-index:2;padding:120px 24px 160px} /* 하단 여백 확보 — 스크롤 큐와 안 겹치게 */
+  .hero-inner{position:relative;z-index:2;padding:150px 24px 160px} /* 하단 여백 확보 — 스크롤 큐와 안 겹치게 */
   .hero .crest{
     font-family:var(--latin);letter-spacing:.5em;font-size:14px;color:var(--gold);
     text-transform:uppercase;margin-bottom:30px;font-weight:600;
@@ -587,7 +589,11 @@
     .demo{height:200px}
     .demo .alertbox{right:5%;padding:10px 16px}
     .mobile-cta{display:block}
-    .topbar{padding:12px 18px}
+    .topbar{padding:11px 16px}
+    .tb-left{gap:16px}
+    .tb-nav{gap:14px}
+    .tb-nav a{font-size:12.5px}
+    .tb-nav a:nth-child(1),.tb-nav a:nth-child(2),.tb-nav a:nth-child(4){display:none}
     .topbar .brand{font-size:13px;letter-spacing:.24em}
   }
   /* 모바일 세부 최적화 */
@@ -628,10 +634,20 @@
 
 <div class="progress" id="progress"></div>
 
+<!-- ══ SITE NAV START ══ -->
 <div class="topbar" id="topbar">
-  <span class="brand">MONNIT <b>KOREA</b></span>
+  <div class="tb-left">
+    <a class="brand" href="https://monnit.co.kr/" aria-label="Monnit Korea 홈으로">MONNIT <b>KOREA</b></a>
+    <nav class="tb-nav" aria-label="사이트 이동">
+      <a href="https://monnit.co.kr/">홈</a>
+      <a href="https://monnit.co.kr/products">제품</a>
+      <a href="https://monnit.co.kr/promotions">전체 프로모션</a>
+      <a href="https://monnit.co.kr/contact">상담 문의</a>
+    </nav>
+  </div>
   <a class="btn" href="#apply"><span>누수 고민 보내기</span></a>
 </div>
+<!-- ══ SITE NAV END ══ -->
 
 <!-- ① HERO -->
 <div class="hero" id="hero">
@@ -1003,6 +1019,7 @@
   <div class="wrap">
     <div class="flogo">MONNIT <b>KOREA</b></div>
     <p>레지던스 · 호텔 객실 물 넘침 감지 알람 · korea@monnit.com<br><span style="color:#3f4854">※ 누수 위치를 찾는 누수탐지 서비스가 아닙니다</span></p>
+    <p style="margin-top:16px"><a href="https://monnit.co.kr/" style="color:var(--gold);text-decoration:none">사이트 홈</a> &nbsp;·&nbsp; <a href="https://monnit.co.kr/promotions" style="color:var(--gold);text-decoration:none">전체 프로모션</a> &nbsp;·&nbsp; <a href="https://monnit.co.kr/contact" style="color:var(--gold);text-decoration:none">상담 문의</a></p>
   </div>
 </footer>
 
@@ -1128,105 +1145,80 @@
 
   var CONTACT_EMAIL='korea@monnit.com';
   var STATICFORMS_URL='https://api.staticforms.dev/submit';
-  var STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472';         /* 홈페이지·컨설팅 랜딩과 동일 키 */
-  var WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';  /* korea@monnit.com 수신 (폴백) */
+  var STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472';
+  var WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
 
   form.addEventListener('submit', function(ev){
     ev.preventDefault();
-    var btn = document.getElementById('submitBtn');
-    if (btn && btn.disabled) return;                          /* 중복 제출 방지 */
-
-    var ok = true;
+    var btn=document.getElementById('submitBtn');
+    if(btn&&btn.disabled)return;
+    var ok=true;
     ['f-hotel','f-name','f-email','f-phone'].forEach(function(id){
-      var el = document.getElementById(id);
-      var valid = el.value.trim() !== '';
-      if (id === 'f-email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
-      el.classList.toggle('err', !valid);
-      if (!valid) ok = false;
+      var el=document.getElementById(id);
+      var valid=el.value.trim()!=='';
+      if(id==='f-email')valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+      el.classList.toggle('err',!valid);
+      if(!valid)ok=false;
     });
-    if (!ok) {
-      var firstErr = form.querySelector('.err');
-      if (firstErr) { firstErr.focus(); firstErr.scrollIntoView({ behavior:'smooth', block:'center' }); }
-      return;
-    }
-    if (!document.getElementById('f_consent').checked) { alert('[필수] 개인정보 수집·이용 동의가 필요합니다.'); return; }
-
-    var hotel  = document.getElementById('f-hotel').value.trim();
-    var rooms  = document.getElementById('f-rooms').value;
-    var name   = document.getElementById('f-name').value.trim();
-    var email  = document.getElementById('f-email').value.trim();
-    var phone  = document.getElementById('f-phone').value.trim();
-    var wtype  = document.getElementById('f-type').value;
-    var detailV= document.getElementById('f-detail').value.trim();
-    var call   = form.querySelector('input[name="call"]').checked;
-    var mkt    = document.getElementById('f_marketing').checked;
-    var now    = new Date().toLocaleString('ko-KR');
-
-    /* 홈페이지 sendLead() 와 동일한 한글 키 규격 — /api/lead 원장·OPS 콘솔에서 그대로 읽힌다 */
-    var payload = {
-      _subject: '[누수 고민 접수] ' + hotel + ' / ' + name,
-      '신청 프로모션': '레지던스 객실 물 넘침 알람 (8/25–9/24)',
-      '회사/시설명': hotel,
-      '객실 수': rooms,
-      '담당자명': name,
-      '전화번호': phone,
-      '이메일': (email || '(미기재)'),
-      '고민 유형': wtype,
-      '고민 내용': (detailV || '(미기재)'),
-      '전화 회신 희망': (call ? '예' : '아니오'),
-      '개인정보 수집·이용 동의(필수)': '동의',
-      '마케팅 정보 수신(선택)': (mkt ? '동의' : '미동의'),
-      '동의 일시': now,
-      '접수 유형': '접수',
-      '접점': 'promo_residence',
-      '접수 경로': '프로모션 랜딩(/promo/residence)',
-      '출처': (window.MonnitLead ? MonnitLead.source() : location.href),
-      '유입 페이지': String(location.href).split('#')[0]
+    if(!ok){var fe=form.querySelector('.err');if(fe){fe.focus();fe.scrollIntoView({behavior:'smooth',block:'center'});}return;}
+    if(!document.getElementById('f_consent').checked){alert('[필수] 개인정보 수집·이용 동의가 필요합니다.');return;}
+    var hotel=document.getElementById('f-hotel').value.trim();
+    var kitchen=document.getElementById('f-kitchen')?document.getElementById('f-kitchen').value:'';
+    var rooms=document.getElementById('f-rooms').value;
+    var name=document.getElementById('f-name').value.trim();
+    var email=document.getElementById('f-email').value.trim();
+    var phone=document.getElementById('f-phone').value.trim();
+    var wtype=document.getElementById('f-type').value;
+    var detailV=document.getElementById('f-detail').value.trim();
+    var call=form.querySelector('input[name="call"]').checked;
+    var mkt=document.getElementById('f_marketing').checked;
+    var now=new Date().toLocaleString('ko-KR');
+    var payload={
+      _subject:'[누수 고민 접수] '+hotel+' / '+name,
+      '신청 프로모션':'레지던스 객실 물 넘침 알람 (8/25–9/24)',
+      '회사/시설명':hotel,
+      '객실 내 취사시설':(kitchen||'(미기재)'),
+      '객실 수':rooms,'담당자명':name,'전화번호':phone,'이메일':(email||'(미기재)'),
+      '고민 유형':wtype,'고민 내용':(detailV||'(미기재)'),
+      '전화 회신 희망':(call?'예':'아니오'),
+      '개인정보 수집·이용 동의(필수)':'동의','마케팅 정보 수신(선택)':(mkt?'동의':'미동의'),'동의 일시':now,
+      '접수 유형':'접수','접점':'promo_residence','접수 경로':'프로모션 랜딩(/promo/residence)',
+      '출처':(window.MonnitLead?MonnitLead.source():location.href),
+      '유입 페이지':String(location.href).split('#')[0]
     };
-
-    /* GTM 전환 이벤트 (GA4·Google Ads) + Clarity — 동의 상태는 Consent Mode 가 관리 */
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event:'lead_submit', form_name:'promo_residence',
-      hotel:hotel, rooms:rooms, worry_type:wtype, call_pref:call, marketing_consent:mkt });
-    if (window.clarity) { try { clarity('event','lead_submit'); } catch(e){} }
-    if (window.gtag) { try { gtag('event','generate_lead',{ form:'promo_residence', promo:'residence', currency:'KRW', value:1 }); } catch(e){} }
-
-    var prev = btn ? btn.querySelector('span').textContent : '';
-    function lock(){ if(btn){ btn.disabled = true; btn.querySelector('span').textContent = '보내는 중…'; btn.style.opacity = '.65'; } }
-    function unlock(){ if(btn){ btn.disabled = false; btn.querySelector('span').textContent = prev; btn.style.opacity = ''; } }
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'lead_submit',form_name:'promo_residence',hotel:hotel,rooms:rooms,worry_type:wtype});
+    if(window.clarity){try{clarity('event','lead_submit')}catch(e){}}
+    if(window.gtag){try{gtag('event','generate_lead',{form:'promo_residence',promo:'residence',currency:'KRW',value:1})}catch(e){}}
+    var prev=btn?btn.querySelector('span').textContent:'';
+    function lock(){if(btn){btn.disabled=true;btn.querySelector('span').textContent='보내는 중…';btn.style.opacity='.65';}}
+    function unlock(){if(btn){btn.disabled=false;btn.querySelector('span').textContent=prev;btn.style.opacity='';}}
     function showOk(){
-      try { if (window.MonnitLead) MonnitLead.record('contact', payload); } catch(e){}   /* 원장 기록 — OPS 콘솔 연동 */
-      try { sessionStorage.setItem('mk_lead_msg', hotel + ' · ' + name + ' 님, 접수되었습니다. 1~2영업일 내 회신드리겠습니다.'); } catch(e){}
-      try { history.replaceState(null,'', '/promo/residence?submitted=1#apply'); } catch(e){}
-      shell.classList.add('sent');
-      shell.scrollIntoView({ behavior:'smooth', block:'center' });
+      try{if(window.MonnitLead)MonnitLead.record('contact',payload);}catch(e){}
+      try{sessionStorage.setItem('mk_lead_msg',hotel+' · '+name+' 님, 접수되었습니다. 1~2영업일 내 회신드리겠습니다.');}catch(e){}
+      try{history.replaceState(null,'','/promo/residence?submitted=1#apply');}catch(e){}
+      shell.classList.add('sent');shell.scrollIntoView({behavior:'smooth',block:'center'});
     }
     function mailFallback(){
-      var s = encodeURIComponent(payload._subject);
-      var b = encodeURIComponent('■ 누수 고민 접수\n\n호텔/시설명: '+hotel+'\n객실 수: '+rooms+'\n담당자: '+name+'\n연락처: '+phone+'\n이메일: '+(email||'-')+'\n고민 유형: '+wtype+'\n고민 내용: '+(detailV||'-')+'\n전화 회신 희망: '+(call?'예':'아니오')+'\n신청 시각: '+now+'\n\n[동의 기록]\n개인정보 수집·이용(필수): 동의함\n마케팅 정보 수신(선택): '+(mkt?'동의함':'미동의')+'\n동의 일시: '+now+'\n');
-      window.open('mailto:' + CONTACT_EMAIL + '?subject=' + s + '&body=' + b, '_blank');
-      unlock(); showOk();
+      var s=encodeURIComponent(payload._subject);
+      var b=encodeURIComponent('■ 누수 고민 접수\n\n호텔/시설명: '+hotel+'\n취사시설: '+(kitchen||'-')+'\n객실 수: '+rooms+'\n담당자: '+name+'\n연락처: '+phone+'\n이메일: '+(email||'-')+'\n고민 유형: '+wtype+'\n고민 내용: '+(detailV||'-')+'\n전화 회신 희망: '+(call?'예':'아니오')+'\n신청 시각: '+now);
+      window.open('mailto:'+CONTACT_EMAIL+'?subject='+s+'&body='+b,'_blank');
+      unlock();showOk();
     }
     function tryWeb3(){
-      var fd = { access_key: WEB3FORMS_KEY, subject: payload._subject, from_name: 'Monnit Korea 웹사이트',
-        email: (email || 'no-reply@monnit.co.kr'), replyto: (email || ''), botcheck: false };
-      Object.keys(payload).forEach(function(k){ if (k !== '_subject') fd[k] = payload[k]; });
-      return fetch('https://api.web3forms.com/submit', { method:'POST',
-        headers:{ 'Content-Type':'application/json', Accept:'application/json' }, body: JSON.stringify(fd) })
-        .then(function(r){ return r.json(); })
-        .then(function(j){ if (j && (j.success === true || j.success === 'true')) { unlock(); showOk(); } else { mailFallback(); } })
-        .catch(function(){ mailFallback(); });
+      var fd={access_key:WEB3FORMS_KEY,subject:payload._subject,from_name:'Monnit Korea 웹사이트',email:(email||'no-reply@monnit.co.kr'),replyto:(email||''),botcheck:false};
+      Object.keys(payload).forEach(function(k){if(k!=='_subject')fd[k]=payload[k];});
+      return fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(fd)})
+        .then(function(r){return r.json();})
+        .then(function(j){if(j&&(j.success===true||j.success==='true')){unlock();showOk();}else{mailFallback();}})
+        .catch(function(){mailFallback();});
     }
-
     lock();
-    /* 1순위: StaticForms — 홈페이지 현재 활성 백엔드와 동일 규격 */
-    fetch(STATICFORMS_URL, { method:'POST',
-      headers:{ 'Content-Type':'application/json', Accept:'application/json' },
-      body: JSON.stringify(Object.assign({ apiKey: STATICFORMS_KEY, subject: payload._subject,
-        email: (email || ''), replyTo: '@', honeypot: '' }, payload)) })
-      .then(function(r){ return r.json().then(function(j){ return r.ok && !!j.success; }).catch(function(){ return r.ok; }); })
-      .then(function(good){ if (good) { unlock(); showOk(); } else { return tryWeb3(); } })
-      .catch(function(){ return tryWeb3(); });
+    fetch(STATICFORMS_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify(Object.assign({apiKey:STATICFORMS_KEY,subject:payload._subject,email:(email||''),replyTo:'@',honeypot:''},payload))})
+      .then(function(r){return r.json().then(function(j){return r.ok&&!!j.success;}).catch(function(){return r.ok;});})
+      .then(function(good){if(good){unlock();showOk();}else{return tryWeb3();}})
+      .catch(function(){return tryWeb3();});
   });
   form.querySelectorAll('input').forEach(function(el){
     el.addEventListener('input', function(){ el.classList.remove('err'); });
@@ -1236,31 +1228,27 @@
 
 
 <script>
-/* ── 프로모션 기간(KST 고정): 2026-08-25 ~ 2026-09-24 ── */
 (function(){
-  var END = new Date('2026-09-24T23:59:59+09:00');
-  var dl = document.getElementById('promoDeadline');
-  var fs = document.getElementById('fsubDeadline');
-  var now = new Date();
-  if (now <= END) {
-    var d = Math.ceil((END - now) / 86400000);
-    if (dl) dl.textContent = '8월 25일 – 9월 24일 · 한 달 한정 · D-' + d;
-    if (fs) fs.textContent = '9월 24일(목)까지 접수분에 한합니다';
-  } else {
-    if (dl) dl.textContent = '이번 프로모션 접수는 마감되었습니다 (9월 24일 종료)';
-    if (fs) fs.textContent = '프로모션 기간은 종료되었으며, 일반 상담 접수는 가능합니다';
+  var END=new Date('2026-09-24T23:59:59+09:00');
+  var dl=document.getElementById('promoDeadline');
+  var fs=document.getElementById('fsubDeadline');
+  var now=new Date();
+  if(now<=END){
+    var d=Math.ceil((END-now)/86400000);
+    if(dl)dl.textContent='8월 25일 – 9월 24일 · 한 달 한정 · D-'+d;
+    if(fs)fs.textContent='9월 24일(목)까지 접수분에 한합니다';
+  }else{
+    if(dl)dl.textContent='이번 프로모션 접수는 마감되었습니다 (9월 24일 종료)';
+    if(fs)fs.textContent='프로모션 기간은 종료되었으며, 일반 상담 접수는 가능합니다';
   }
-  /* 접수 완료 후 재방문/새로고침 — 감사 화면 유지 */
-  try {
-    if (/[?&]submitted=1/.test(location.search)) {
-      var shell = document.getElementById('formshell');
-      if (shell) {
-        shell.classList.add('sent');
-        var msg = sessionStorage.getItem('mk_lead_msg');
-        if (msg) { var p = shell.querySelector('.done p'); if (p) p.innerHTML = msg + '<br>급한 상황이라면 korea@monnit.com 으로 바로 연락 주세요.'; }
-      }
+  try{
+    if(/[?&]submitted=1/.test(location.search)){
+      var shell=document.getElementById('formshell');
+      if(shell){shell.classList.add('sent');
+        var msg=sessionStorage.getItem('mk_lead_msg');
+        if(msg){var p=shell.querySelector('.done p');if(p)p.innerHTML=msg+'<br>급한 상황이라면 korea@monnit.com 으로 바로 연락 주세요.';}}
     }
-  } catch(e){}
+  }catch(e){}
 })();
 </script>
 </body>
