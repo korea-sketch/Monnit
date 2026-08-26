@@ -3149,11 +3149,11 @@ window.__promoImgFallback = function(img, id){
    내리고 싶으면 아래 배열을 [] 로 비우세요. */
 const BUILTIN_PROMOS = [{
   id: 'alarm',
-  title: '긴급 경보 알리미 4종 구독',
+  title: '24시간 현장을 연결하는 알리미 4종',
   html: '',
   period: '구독제 · 월 3만 원 · 설치비 무료 EVENT',
   badge: 'NEW',
-  desc: '소방·물감지·정전·경보 — 이상 발생 시 담당자 휴대폰으로 즉시 문자 알림. 필요한 알리미만 골라 구독하세요. 관제 플랫폼 무료 증정, 설치비 무료(서울·경기·인천).',
+  desc: '화재·누수·정전·설비 이상을 실시간으로 확인하고, 이상 발생 시 담당자 휴대폰으로 바로 알려드립니다. 필요한 알리미부터 간편하게 시작하세요.',
   image: '/images/promo-alarm.webp',
   images: [],
   link: '/promo/alarm',
