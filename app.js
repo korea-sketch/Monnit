@@ -1307,6 +1307,44 @@ function navigate(target) {
       else { if (typeof closePromo === 'function') closePromo(true); }
     };
     tryOpen(20);
+  } else if (target.startsWith('promo/')) {
+    /* /promo/<id> — 광고에서 바로 들어오는 단일 프로모션 주소.
+       프로모션 화면을 열되 주소는 그대로 둡니다.
+       이 분기가 없던 동안 navigate() 가 이 주소를 못 알아보고 홈으로 폴백하면서
+       주소를 monnit.co.kr/ 로 바꿔 버렸고, GA4 도 랜딩을 홈으로 기록했습니다. */
+    { const _v = document.getElementById('view-promotions'); if (_v) _v.classList.add('active'); }
+    { const _n = document.querySelector('[data-nav="promotions"]'); if (_n) _n.classList.add('active'); }
+    setURL(target);
+  } else if (target.startsWith('kb/')) {
+    /* /kb/<카테고리슬러그> — build.js 가 지식베이스 카테고리마다 만드는 경로 */
+    const cat = CAT_BY_SLUG[target.slice(3)];
+    document.getElementById('view-knowledgebase').classList.add('active');
+    { const _n=document.querySelector('.nav-link[data-nav="knowledgebase"]'); if(_n) _n.classList.add('active'); }
+    setURL(target);
+    kbState.view = cat ? 'list' : 'home'; kbState.cat = cat || null;
+    kbState.search = ''; kbState.page = 1; kbState.docId = null; kbState.ret = null;
+    { const ks=document.getElementById('kbSearch'); if(ks) ks.value=''; }
+    { const kc=document.getElementById('kbSearchClear'); if(kc) kc.style.display='none'; }
+    if (!window.__DATA_READY){ const _g=document.getElementById('kbGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">지식베이스를 불러오는 중…</div>'; }
+    ensureDataJS(function(){ if (typeof renderKnowledgebase === 'function') renderKnowledgebase(); });
+  } else if (target.startsWith('guide/')) {
+    /* /guide/<카테고리슬러그> — build.js 가 기술지원 가이드 카테고리마다 만드는 경로 */
+    const cat = CAT_BY_SLUG[target.slice(6)];
+    document.getElementById('view-guides').classList.add('active');
+    { const _n=document.querySelector('.nav-link[data-nav="guides"]'); if(_n) _n.classList.add('active'); }
+    setURL(target);
+    guideState.view = cat ? 'list' : 'home'; guideState.cat = cat || null;
+    guideState.search = ''; guideState.page = 1; guideState.docId = null; guideState.ret = null;
+    { const gs=document.getElementById('gSearch'); if(gs) gs.value=''; }
+    { const gc=document.getElementById('gSearchClear'); if(gc) gc.style.display='none'; }
+    if (!window.__DATA_READY){ const _g=document.getElementById('gGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">가이드를 불러오는 중…</div>'; }
+    ensureDataJS(function(){ if (typeof guideModule !== 'undefined' && guideModule.render) guideModule.render(); });
+  } else if (target === 'customers') {
+    /* /customers — 고객사 목록. SPA 에서는 도입 사례(view-stories) 안에 그려지므로
+       같은 화면을 열되 주소는 /customers 로 유지합니다 (case/ · app/ 과 같은 방식). */
+    document.getElementById('view-stories').classList.add('active');
+    { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
+    setURL(target);
   } else {
     // 존재하지 않는 뷰(잘못된 해시 등)면 홈으로 폴백 — null classList 크래시 방지
     var _view = document.getElementById('view-' + target);
@@ -4351,6 +4389,18 @@ const ICO = {
   alert:   '<path d="M12 3.4l8.5 15.1H3.5z"/><path d="M12 10v4"/><circle cx="12" cy="16.6" r="1.05" fill="currentColor" stroke="none"/>',
   doc:     '<path d="M7 3.2h6.5L18 7.7V20.8H7z"/><path d="M13.5 3.2v4.5H18"/><path d="M9.6 12.5h6M9.6 15.8h6"/>'
 };
+/* 카테고리 이름 ↔ URL 슬러그 — 이 표가 유일한 출처입니다.
+   build.js 가 app.js 를 읽어 이 표로 /kb/<슬러그> · /guide/<슬러그> 페이지를 만들고,
+   아래 navigate() 가 같은 표를 뒤집어 그 주소를 다시 카테고리로 되돌립니다.
+   예전에는 이 표가 build.js 에만 있어서, 카테고리 페이지를 추가해도 라우터는
+   그 주소를 몰랐고 → 전부 홈으로 폴백하며 주소가 '/' 로 바뀌었습니다. */
+const CAT_SLUG_MAP = {
+  '센서': 'sensor', '게이트웨이': 'gateway', '소프트웨어': 'software', '액세서리': 'accessory',
+  '문서/가이드': 'docs', '온프라미스': 'onprem', 'iMonnit Online': 'imonnit-online',
+  '온프레미스 소프트웨어': 'onprem-software', '애드온 기기': 'addon', '지원 동영상': 'videos', '기기 손상': 'damage'
+};
+const CAT_BY_SLUG = (function(){ const o={}; for (const k in CAT_SLUG_MAP) o[CAT_SLUG_MAP[k]] = k; return o; })();
+
 const KB_CATS = [
   { name:'센서',                ico:ICO.waves,   color:'#18D0E6' },
   { name:'게이트웨이',           ico:ICO.gateway, color:'#3B82F6' },
@@ -4560,8 +4610,10 @@ const GUIDE_CATS = [
   { name:'온프라미스',  ico:ICO.server,  color:'#6366F1' }
 ];
 // GUIDES 데이터는 data.js 로 분리됨 (index.html 에서 app.js 보다 먼저 로드)
+/* 지식베이스의 kbState 와 같은 방식으로 이름을 붙입니다 — 라우터가 카테고리를 지정할 수 있도록 */
+let guideState = { view:'home', cat:null, search:'', page:1, docId:null, ret:null };
 const guideModule = makeKBModule({
-  data: () => GUIDES, cats: GUIDE_CATS, state: { view:'home', cat:null, search:'', page:1, docId:null, ret:null },
+  data: () => GUIDES, cats: GUIDE_CATS, state: guideState,
   ids: { search:'gSearch', clear:'gSearchClear', catGrid:'gCatGrid', listHead:'gListHead', grid:'gGrid', pager:'gPager', view:'view-guides' }
 });
 function renderGuides(){ guideModule.render(); }

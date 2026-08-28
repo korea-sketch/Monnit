@@ -199,11 +199,13 @@ const sanitize = h => String(h || '')
   .replace(/<style[\s\S]*?<\/style>/gi, '')
   .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
   .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
-const CAT_SLUG_MAP = {
-  '센서': 'sensor', '게이트웨이': 'gateway', '소프트웨어': 'software', '액세서리': 'accessory',
-  '문서/가이드': 'docs', '온프라미스': 'onprem', 'iMonnit Online': 'imonnit-online',
-  '온프레미스 소프트웨어': 'onprem-software', '애드온 기기': 'addon', '지원 동영상': 'videos', '기기 손상': 'damage'
-};
+/* 카테고리↔슬러그 표는 app.js 가 유일한 출처입니다 (라우터도 같은 표를 씁니다).
+   여기서 따로 들고 있으면 한쪽만 고쳤을 때 생성 경로와 라우터가 어긋납니다. */
+const CAT_SLUG_MAP = extract('const CAT_SLUG_MAP');
+if (!CAT_SLUG_MAP) {
+  console.error('[build] app.js 에서 CAT_SLUG_MAP 을 찾지 못했습니다 — 빌드를 멈춥니다.');
+  process.exit(1);
+}
 const slugKo = s => CAT_SLUG_MAP[s] || String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'etc';
 
 /* ---------- 유틸 ---------- */
@@ -402,10 +404,12 @@ ${fixLinks(bodyHtml)}
 
 if (!fs.existsSync(OUT_PAGES)) fs.mkdirSync(OUT_PAGES);
 const generated = [];   // {loc, title}
+globalThis.SSG_ROUTES = globalThis.SSG_ROUTES || [];   // 라우터 검증용 — 이 빌드가 실제로 만든 경로 목록
 function writePage(slug, html, title) {
   fs.writeFileSync(path.join(OUT_PAGES, slug + '.html'), html);   // 예전 주소 (301 로 새 경로에 넘깁니다)
   ssgWrite(slug, _lastParts);                                      // 새 경로에 완전한 HTML
   generated.push({ loc: SITE + slugToPath(slug), title, slug });
+  globalThis.SSG_ROUTES.push(slugToRoute(slug));
 }
 
 const ORG_LD = {
@@ -1391,7 +1395,7 @@ fs.writeFileSync(path.join(__dirname, 'llms-full.txt'), full);
 
 console.log(`[build] 완료 — 정적 페이지 ${generated.length}개, robots.txt, sitemap.xml(${urls.length} URL), llms.txt, llms-full.txt`);
 console.log('[build] 데이터: APPS', APPS.length, '| PRODUCTS', PRODUCTS.length, '| CASES', Object.keys(CASE_DATA).length, '| PROMOS', PROMOS.length, '| 상세', Object.keys(APP_DETAILS).length);
-})().then(stripHtmlComments).catch(e => { console.error('[build] 실패:', e); process.exit(1); });
+})().then(stripHtmlComments).then(verifyRoutes).catch(e => { console.error('[build] 실패:', e); process.exit(1); });
 
 /* ═══ HTML 주석 제거 — 방문자에게 내부 구조·작업 메모가 보이지 않게 ═══
    빌드가 페이지를 모두 생성한 "후" .then() 으로 실행됩니다.
@@ -1422,4 +1426,42 @@ function stripHtmlComments(){
   });
   walk(__dirname);
   console.log('[build] HTML 주석 제거: ' + n + '개 파일');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   라우터 정합성 검증 — 이번 빌드가 만든 경로를 app.js 라우터가 전부 아는가?
+
+   이 검사가 없어서 생긴 사고:
+     build.js 에 kb-* · guide-* · customers 경로를 추가했지만 app.js 라우터에는
+     대응 처리를 넣지 않았고, navigate() 의 "모르면 홈으로" 폴백이 그 사실을
+     조용히 삼켰습니다. 콘솔 에러도 404 도 없이 14개 페이지의 주소가 '/' 로
+     바뀌었고, 광고 랜딩 성과가 전부 홈에 합산됐습니다.
+   → 이제 어긋나면 배포 전에 빌드가 멈춥니다.
+   ═══════════════════════════════════════════════════════════════════ */
+function verifyRoutes(){
+  let shell = '';
+  try { shell = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'); } catch (e) {}
+  if (!shell) { console.warn('[build] index.html 을 읽지 못해 라우터 검증을 건너뜁니다'); return; }
+
+  const views    = new Set([...shell.matchAll(/id="view-([a-z-]+)"/g)].map(m => m[1]));
+  const prefixes = [...APPJS.matchAll(/target\.startsWith\('([^']+)'\)/g)].map(m => m[1]);
+  const exact    = new Set([...APPJS.matchAll(/target === '([a-z0-9-]+)'/g)].map(m => m[1]));
+
+  const routable = r =>
+       r === 'home'
+    || views.has(r)
+    || exact.has(r)
+    || prefixes.some(p => r.startsWith(p));
+
+  const made = globalThis.SSG_ROUTES || [];
+  const orphans = [...new Set(made)].filter(r => !routable(r));
+  if (orphans.length){
+    console.error('\n[build] ✗ app.js 라우터가 모르는 경로를 만들었습니다 (' + orphans.length + '개):');
+    orphans.forEach(r => console.error('        /' + r));
+    console.error('        → app.js 의 navigate() 에 대응 분기를 추가하거나,');
+    console.error('          index.html 에 view-<경로> 요소를 두세요.');
+    console.error('        이대로 배포하면 그 주소로 들어온 방문자가 홈으로 튕깁니다.\n');
+    process.exit(1);
+  }
+  console.log('[build] 라우터 정합성 OK — 생성 경로 ' + new Set(made).size + '개 모두 라우팅 가능');
 }
