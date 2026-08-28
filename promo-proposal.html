@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E2A47">
+<meta name="format-detection" content="telephone=no">
+<title>무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea</title>
+<meta name="description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
+<meta property="og:type" content="website">
+<meta property="og:title" content="실제 제안서는 이렇게 나옵니다 — 무선 예지보전 30포인트 사례">
+<meta property="og:description" content="센서를 몇 개, 어디에 붙이는지. 실제 진행한 제안 한 건을 통째로 공개합니다. 정보 입력 없이 즉시 다운로드.">
+<meta property="og:image" content="og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230E2A47'/><text y='68' x='50' font-size='56' text-anchor='middle' fill='%234A90D9' font-family='sans-serif' font-weight='700'>M</text></svg>">
+
+
+<link rel="preload" as="image" href="/images/proposal-guide/cover-800.jpg"
+      imagesrcset="/images/proposal-guide/cover-800.jpg 800w, /images/proposal-guide/cover.jpg 1600w"
+      imagesizes="(max-width:900px) 92vw, 460px" fetchpriority="high">
+
+
+<script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
+<script src="/js/monnit-consent.js?v=111"></script>
+<script src="/js/monnit-lead.js?v=2"></script>
+
+<style>
+:root{
+  --navy:#0E2A47; --navy-2:#14375C; --navy-3:#1B4571;
+  --accent:#3E88D6; --accent-2:#6FB0EE;
+  --ink:#16222E; --body:#4A5A6B; --muted:#7C8C9C;
+  --line:#E2E9F0; --bg:#FFFFFF; --bg-alt:#F5F8FB;
+  --ok:#1E9E6A;
+  --shadow:0 1px 2px rgba(14,42,71,.06),0 8px 24px rgba(14,42,71,.08);
+  --shadow-lg:0 2px 4px rgba(14,42,71,.06),0 18px 48px rgba(14,42,71,.16);
+  --max:1080px;
+  --pad:22px;
+  --bar:0px;                 /* 모바일 하단 바 높이 (미디어쿼리에서 지정) */
+  --safe-l:env(safe-area-inset-left,0px);
+  --safe-r:env(safe-area-inset-right,0px);
+  --ease:cubic-bezier(.22,.68,.3,1);
+}
+*{box-sizing:border-box}
+html{
+  -webkit-text-size-adjust:100%;   /* 가로 전환 시 글자 확대 방지 */
+  text-size-adjust:100%;
+  scroll-behavior:smooth;
+}
+/* 가로 스크롤 차단. clip 을 쓰면 sticky 헤더가 깨지지 않음 */
+@supports (overflow:clip){ html{overflow-x:clip} }
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.7;letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:var(--bar);
+  word-break:keep-all;             /* 한글 단어 중간 끊김 방지 */
+  overflow-wrap:break-word;
+}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit;-webkit-tap-highlight-color:transparent}
+button{-webkit-tap-highlight-color:transparent}
+.wrap{
+  max-width:var(--max);margin:0 auto;
+  padding-left:max(var(--pad),var(--safe-l));
+  padding-right:max(var(--pad),var(--safe-r));
+}
+.eyebrow{
+  font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 14px;
+}
+
+/* ───── 상단 바 ───── */
+.topbar{
+  position:sticky;top:0;z-index:50;background:rgba(14,42,71,.97);
+  -webkit-backdrop-filter:saturate(180%) blur(12px);
+  backdrop-filter:saturate(180%) blur(12px);color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:58px;gap:12px}
+.brand{font-weight:800;font-size:14px;letter-spacing:.12em}
+.brand span{color:var(--accent-2)}
+.tel-top{
+  display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:15px;
+  text-decoration:none;color:#fff;padding:0 16px;height:40px;border-radius:99px;
+  border:1px solid rgba(255,255,255,.28);white-space:nowrap;transition:background .18s;
+}
+.tel-top:active{background:rgba(255,255,255,.2)}
+
+/* ───── 히어로 ───── */
+.hero{background:linear-gradient(165deg,#0E2A47 0%,#15385E 58%,#1B4571 100%);color:#fff;position:relative;overflow:hidden}
+.hero::after{
+  content:"";position:absolute;right:-14%;top:-28%;width:60%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(62,136,214,.30),transparent 68%);pointer-events:none;
+}
+.hero .wrap{
+  position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;
+  gap:56px;align-items:center;padding-top:62px;padding-bottom:62px;
+}
+.hero h1{font-size:clamp(28px,7vw,47px);line-height:1.26;margin:0 0 18px;font-weight:800;letter-spacing:-.028em}
+.hero h1 em{font-style:normal;color:var(--accent-2)}
+.hero .lead{font-size:clamp(15px,4vw,17px);color:#CBDCEC;margin:0 0 24px;line-height:1.7}
+.hero .eyebrow{color:var(--accent-2)}
+
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 28px;padding:0;list-style:none}
+.badges li{
+  font-size:12.5px;font-weight:600;color:#D6E6F5;background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);padding:6px 12px;border-radius:99px;
+}
+
+/* 다운로드 버튼 */
+.cta-dl{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  min-height:56px;max-width:440px;
+  background:linear-gradient(180deg,#4A94E0,#2E78C8);color:#fff;
+  font-size:clamp(16px,4.4vw,18px);font-weight:800;letter-spacing:-.02em;
+  padding:16px 20px;border:0;border-radius:13px;cursor:pointer;
+  box-shadow:0 6px 20px rgba(46,120,200,.42);
+  transition:transform .14s,box-shadow .14s;
+  font-family:inherit;text-decoration:none;line-height:1.3;
+}
+.cta-dl:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(46,120,200,.5)}
+.cta-dl:active{transform:scale(.985);box-shadow:0 4px 12px rgba(46,120,200,.4)}
+.cta-dl svg{flex:none}
+.nogate{
+  display:flex;align-items:center;gap:7px;justify-content:center;
+  margin:12px 0 0;font-size:13px;color:#A9C4DC;max-width:440px;text-align:center;
+}
+.nogate b{color:#fff;font-weight:700}
+.nogate svg{flex:none}
+
+/* 표지 썸네일 */
+.cover-card{position:relative}
+.cover-card img{
+  border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.42);
+  border:1px solid rgba(255,255,255,.16);
+}
+.cover-tag{
+  position:absolute;left:8px;bottom:-13px;background:#fff;color:var(--navy);
+  font-size:12px;font-weight:800;padding:8px 14px;border-radius:8px;
+  box-shadow:0 8px 22px rgba(0,0,0,.28);white-space:nowrap;
+}
+
+/* ───── 수치 스트립 ───── */
+.stats{background:var(--navy-3);color:#fff;border-top:1px solid rgba(255,255,255,.10)}
+.stats .wrap{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:26px;padding-bottom:26px}
+.stat{text-align:center}
+.stat b{display:block;font-size:clamp(20px,5.4vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.2}
+.stat span{display:block;font-size:12px;color:#A9C4DC;margin-top:2px;line-height:1.4}
+
+/* ───── 공통 섹션 ───── */
+section{padding:74px 0}
+.sec-alt{background:var(--bg-alt);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+h2{font-size:clamp(22px,5.6vw,31px);line-height:1.36;margin:0 0 14px;font-weight:800;letter-spacing:-.028em}
+.sub{font-size:15.5px;color:var(--body);margin:0 0 34px;max-width:660px}
+
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:26px 22px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 12px;font-size:17px;font-weight:800;letter-spacing:-.02em}
+.card ul{margin:0;padding-left:16px;color:var(--body);font-size:14.5px;line-height:1.8}
+.card li{margin-bottom:6px}
+.card li::marker{color:var(--accent)}
+.card.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.card.dark h3{color:#fff}
+.card.dark ul{color:#B9CFE4}
+.card.dark li::marker{color:var(--accent-2)}
+.card .note{font-size:13px;color:var(--muted);margin:12px 0 0;padding-top:12px;border-top:1px solid var(--line)}
+.card.dark .note{color:#8FAAC4;border-top-color:rgba(255,255,255,.16)}
+
+/* ───── 미리보기 ───── */
+.peek{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.peek figure{
+  margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;
+  overflow:hidden;box-shadow:var(--shadow);transition:transform .16s,box-shadow .16s;
+}
+@media (hover:hover){ .peek figure:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)} }
+.peek figure:active{transform:scale(.99)}
+.peek img{border-bottom:1px solid var(--line);cursor:zoom-in;background:var(--bg-alt)}
+.peek figcaption{padding:14px 16px;font-size:13.5px;color:var(--body);line-height:1.6}
+.peek figcaption b{display:block;color:var(--ink);font-size:14.5px;font-weight:700;margin-bottom:3px}
+.zoom-hint{
+  display:inline-flex;align-items:center;gap:5px;margin-top:9px;
+  font-size:12.5px;font-weight:700;color:var(--accent);
+}
+
+/* ───── 라이트박스 ───── */
+#lb{
+  position:fixed;inset:0;z-index:100;background:rgba(8,20,34,.95);
+  display:none;flex-direction:column;
+}
+#lb.on{display:flex;animation:fade .2s ease both}
+#lb .stage{
+  flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;
+  display:flex;align-items:center;justify-content:center;
+  padding:18px;cursor:zoom-out;
+}
+#lb img{max-width:100%;border-radius:8px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+#lb .close{
+  position:absolute;top:max(14px,env(safe-area-inset-top,0px));right:16px;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;
+  display:grid;place-items:center;cursor:pointer;font-size:24px;line-height:1;z-index:2;
+}
+#lb .swipe{display:none}
+
+/* ───── 목차 ───── */
+.toc{display:grid;grid-template-columns:repeat(2,1fr);gap:0 34px;margin:0;padding:0;list-style:none;counter-reset:t}
+.toc li{
+  counter-increment:t;display:flex;gap:13px;align-items:baseline;
+  padding:12px 2px;border-bottom:1px dashed var(--line);font-size:14.5px;color:var(--ink);
+}
+.toc li::before{
+  content:counter(t,decimal-leading-zero);font-size:12px;font-weight:800;color:var(--accent);
+  font-variant-numeric:tabular-nums;flex:none;
+}
+
+/* ───── 최종 CTA ───── */
+.final{background:linear-gradient(160deg,#0E2A47,#1B4571);color:#fff;padding:76px 0}
+.final .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:start}
+.final h2{color:#fff}
+.final p{color:#BCD3E8;font-size:15.5px}
+.contact-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:15px;padding:26px}
+.tel-big{
+  display:flex;align-items:center;gap:14px;text-decoration:none;
+  padding:16px 18px;background:#fff;border-radius:11px;margin-bottom:11px;transition:transform .16s;
+}
+.tel-big:active{transform:scale(.99)}
+.tel-big .ic{
+  width:44px;height:44px;flex:none;border-radius:11px;background:var(--accent);
+  display:grid;place-items:center;
+}
+.tel-big .tx small{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+.tel-big .tx strong{display:block;font-size:clamp(22px,6vw,25px);font-weight:800;letter-spacing:-.02em;color:var(--navy);line-height:1.25}
+.btn-mail{
+  display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;
+  color:#fff;font-weight:700;font-size:14.5px;min-height:52px;padding:14px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.32);transition:background .16s;text-align:center;
+}
+.btn-mail:active{background:rgba(255,255,255,.16)}
+.hours{font-size:13px;color:#9FBBD6;margin:14px 0 0;text-align:center}
+
+.ask{margin:0;padding:0;list-style:none}
+.ask li{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.13);font-size:14.5px;color:#DCE8F4}
+.ask li:last-child{border-bottom:0}
+.ask .n{font-size:12px;font-weight:800;color:var(--accent-2);flex:none;padding-top:3px;font-variant-numeric:tabular-nums}
+.free{
+  display:inline-flex;align-items:center;gap:8px;background:rgba(62,136,214,.22);
+  border:1px solid rgba(111,176,238,.4);color:#DCEBFA;font-size:13px;font-weight:700;
+  padding:9px 15px;border-radius:99px;margin-top:20px;
+}
+.free svg{flex:none}
+
+/* ───── 다운로드 확인 패널 ───── */
+#thanks{display:none;padding-top:40px;padding-bottom:0}
+#thanks.on{display:block;animation:fade .45s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.thanks-inner{
+  background:#fff;border:2px solid var(--accent);border-radius:15px;
+  padding:26px 22px;box-shadow:var(--shadow-lg);
+}
+.thanks-inner h3{margin:0 0 8px;font-size:clamp(18px,4.8vw,20px);font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.thanks-inner h3 .chk{width:26px;height:26px;border-radius:50%;background:var(--ok);display:grid;place-items:center;flex:none}
+.thanks-inner p{margin:0 0 18px;color:var(--body);font-size:14.5px}
+.thanks-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ta{
+  display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;
+  font-weight:700;font-size:15px;min-height:54px;padding:14px;border-radius:11px;
+  transition:background .16s,transform .16s;text-align:center;line-height:1.3;
+}
+.ta svg{flex:none}
+.ta.primary{background:var(--navy);color:#fff}
+.ta.primary:active{transform:scale(.99);background:var(--navy-2)}
+.ta.ghost{border:1px solid var(--line);color:var(--ink);background:var(--bg-alt)}
+.ta.ghost:active{transform:scale(.99);border-color:var(--accent);color:var(--accent)}
+.fallback{font-size:12.5px;color:var(--muted);margin:14px 0 0;text-align:center}
+.fallback a{color:var(--accent);font-weight:600}
+
+/* ══════════ 인터랙션 ══════════ */
+
+/* 스크롤 진행 바 */
+#prog{
+  position:fixed;top:0;left:0;height:3px;width:0;z-index:90;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transition:width .1s linear;pointer-events:none;
+}
+
+/* 스크롤 진입 효과 — JS 가 돌 때만 숨김 처리 */
+.js [data-reveal]{opacity:0;transform:translateY(18px)}
+.js [data-reveal].in{
+  opacity:1;transform:none;
+  transition:opacity .6s var(--ease),transform .6s var(--ease);
+  transition-delay:var(--d,0ms);
+}
+
+/* 카드 hover */
+.card{transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s}
+@media (hover:hover){
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .card:not(.dark):hover{border-color:#C6D8E9}
+}
+
+/* 숫자 카운트업 */
+.stat b{font-variant-numeric:tabular-nums}
+.stat{transition:transform .3s var(--ease)}
+@media (hover:hover){ .stat:hover{transform:translateY(-3px)} }
+
+/* 표지 기울임 */
+.cover-card{perspective:1100px}
+.cover-card img{transition:transform .5s var(--ease)}
+.cover-card.tilt img{transition:transform .12s linear}
+
+/* 목차 hover */
+.toc li{transition:padding-left .18s var(--ease),color .18s,border-color .18s}
+@media (hover:hover){
+  .toc li:hover{padding-left:10px;color:var(--accent);border-bottom-color:var(--accent)}
+}
+
+/* 데스크톱 플로팅 CTA */
+#fbar{
+  position:fixed;left:50%;bottom:24px;z-index:70;
+  transform:translate(-50%,140%);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:16px;
+  background:rgba(14,42,71,.97);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);backdrop-filter:saturate(180%) blur(14px);
+  color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:16px;
+  padding:12px 14px 12px 22px;box-shadow:0 18px 44px rgba(8,20,34,.4);
+  transition:transform .42s var(--ease),opacity .32s;
+  max-width:calc(100vw - 40px);
+}
+#fbar.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+#fbar .tx{font-size:14px;line-height:1.45;white-space:nowrap}
+#fbar .tx b{display:block;font-weight:800;font-size:14.5px;letter-spacing:-.02em}
+#fbar .tx span{color:#9FBBD6;font-size:12.5px}
+#fbar .acts{display:flex;gap:8px;flex:none}
+#fbar a,#fbar button{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  font-family:inherit;font-weight:800;font-size:14px;letter-spacing:-.02em;
+  padding:12px 17px;border-radius:10px;text-decoration:none;cursor:pointer;border:0;
+  transition:transform .14s,background .14s;
+}
+#fbar a:active,#fbar button:active{transform:scale(.97)}
+#fbar .f-dl{background:linear-gradient(180deg,#4A94E0,#2E78C8);color:#fff}
+#fbar .f-form{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3)}
+#fbar .f-x{
+  background:none;color:#7E99B4;padding:10px;font-size:17px;line-height:1;border-radius:8px;
+}
+#fbar .f-x:hover{color:#fff;background:rgba(255,255,255,.1)}
+@media (max-width:700px){ #fbar{display:none} }
+
+/* 키보드 접근성 */
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:3px;border-radius:6px}
+.hero :focus-visible,.final :focus-visible,#fbar :focus-visible{outline-color:#fff}
+
+/* ───── 문의 남기기 버튼 ───── */
+.btn-form{
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  min-height:54px;padding:15px 18px;border:0;border-radius:11px;cursor:pointer;
+  background:var(--accent);color:#fff;font-family:inherit;
+  font-weight:800;font-size:15.5px;letter-spacing:-.02em;text-decoration:none;
+  transition:transform .14s,background .14s;line-height:1.3;text-align:center;
+}
+.btn-form:hover{background:#4E9AE4}
+.btn-form:active{transform:scale(.99)}
+.btn-form svg{flex:none}
+
+/* ───── 문의 폼 모달 ───── */
+#fm{
+  position:fixed;inset:0;z-index:110;background:rgba(8,20,34,.72);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+#fm.on{display:flex;animation:fade .22s ease both}
+.fm-card{
+  background:#fff;width:100%;max-width:520px;max-height:calc(100vh - 40px);
+  max-height:calc(100dvh - 40px);
+  border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.fm-head{
+  padding:22px 24px 16px;border-bottom:1px solid var(--line);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex:none;
+}
+.fm-head h3{margin:0 0 5px;font-size:19px;font-weight:800;letter-spacing:-.025em}
+.fm-head p{margin:0;font-size:13.5px;color:var(--body);line-height:1.6}
+.fm-x{
+  width:36px;height:36px;flex:none;border-radius:9px;border:1px solid var(--line);
+  background:var(--bg-alt);color:var(--muted);font-size:20px;line-height:1;
+  cursor:pointer;display:grid;place-items:center;
+}
+.fm-x:active{background:var(--line)}
+.fm-body{padding:20px 24px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+.fl{display:block;margin-bottom:14px}
+.fl > span:first-child{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.fl .req{color:#D7443E;margin-left:3px;font-style:normal}
+.fl input,.fl select,.fl textarea{
+  width:100%;font-family:inherit;font-size:16px;   /* 16px 미만이면 iOS 가 화면을 확대함 */
+  color:var(--ink);background:#fff;
+  border:1px solid #CFDBE6;border-radius:10px;padding:13px 14px;
+  transition:border-color .14s,box-shadow .14s;-webkit-appearance:none;appearance:none;
+}
+.fl textarea{min-height:88px;resize:vertical;line-height:1.6}
+.fl select{
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237C8C9C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;
+}
+.fl input:focus,.fl select:focus,.fl textarea:focus{
+  outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(62,136,214,.16);
+}
+.fl.err input,.fl.err select,.fl.err textarea{border-color:#D7443E;background:#FFF7F7}
+.fl .msg{display:none;font-size:12.5px;color:#D7443E;margin:5px 0 0;font-weight:600}
+.fl.err .msg{display:block}
+.fl .hint{display:block;font-size:12.5px;font-weight:400;color:var(--muted);margin:5px 0 0;line-height:1.5}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+
+.agree{
+  display:flex;gap:10px;align-items:flex-start;margin:4px 0 18px;
+  background:var(--bg-alt);border:1px solid var(--line);border-radius:10px;padding:13px 14px;
+}
+.agree.err{border-color:#D7443E;background:#FFF7F7}
+.agree input{width:20px;height:20px;flex:none;margin:1px 0 0;accent-color:var(--accent)}
+.agree span{font-size:12.5px;color:var(--body);line-height:1.6}
+.agree b{color:var(--ink);font-weight:700}
+
+.fm-note{font-size:12.5px;color:var(--muted);text-align:center;margin:12px 0 0;line-height:1.6}
+.fm-note a{color:var(--accent);font-weight:700;text-decoration:none}
+.fm-ok{display:none;text-align:center;padding:16px 4px 8px}
+.fm-ok .ic{
+  width:58px;height:58px;border-radius:50%;background:var(--ok);
+  display:grid;place-items:center;margin:0 auto 16px;
+}
+.fm-ok h4{margin:0 0 8px;font-size:19px;font-weight:800;letter-spacing:-.02em}
+.fm-ok p{margin:0 0 20px;font-size:14.5px;color:var(--body);line-height:1.7}
+#fm.done .fm-body form{display:none}
+#fm.done .fm-ok{display:block}
+
+/* ───── 모바일 하단 고정 바 ───── */
+.mbar{display:none}
+
+footer{background:#0A1F35;color:#7E97AE;padding:32px 0;font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:#A9C4DC;text-decoration:none}
+
+/* ══════════ 큰 화면 ══════════ */
+@media (min-width:1240px){
+  :root{--max:1140px}
+  section{padding:88px 0}
+  .hero .wrap{gap:64px;padding-top:74px;padding-bottom:74px}
+  .final{padding:88px 0}
+  .grid-3,.peek{gap:22px}
+}
+
+/* ══════════ 태블릿 이하 ══════════ */
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;gap:34px;padding-top:40px;padding-bottom:44px}
+  .cover-card{max-width:420px;margin:0 auto;width:100%}
+  .final .wrap{grid-template-columns:1fr;gap:32px}
+  .grid-3,.peek{grid-template-columns:1fr}
+  .toc{grid-template-columns:1fr}
+  .stats .wrap{grid-template-columns:repeat(3,1fr);gap:18px 8px}
+}
+
+/* ══════════ 태블릿 (701~900) — 2열 + 마지막 칸 전체폭 ══════════ */
+@media (min-width:701px) and (max-width:900px){
+  .grid-3,.peek{grid-template-columns:repeat(2,1fr)}
+  .grid-3 > :last-child,.peek > :last-child{grid-column:1 / -1}
+  .peek > :last-child img{max-height:320px;object-fit:cover;object-position:top}
+}
+
+/* ══════════ 모바일 ══════════ */
+@media (max-width:700px){
+  :root{--pad:18px;--bar:76px}
+  section{padding:48px 0}
+  .final{padding:48px 0}
+  html{scroll-padding-top:70px}
+
+  /* 상단 바는 고정 해제 — 화면을 세로로 더 쓰고, 하단 바가 CTA를 대신함 */
+  .topbar{position:static}
+  .topbar .wrap{height:52px}
+  .tel-top{font-size:14px;padding:0 14px;height:38px}
+
+  /* 히어로: 버튼이 첫 화면에 들어오도록 표지를 아래로 */
+  .hero .wrap{padding-top:32px;padding-bottom:40px;gap:30px}
+  .badges{margin-bottom:24px;gap:6px}
+  .badges li{font-size:12px;padding:5px 11px}
+  .cta-dl,.nogate{max-width:none}
+
+  .cover-card{max-width:none}
+  .cover-tag{font-size:11.5px;padding:7px 12px;left:6px;bottom:-11px}
+
+  .stats .wrap{grid-template-columns:repeat(2,1fr);gap:20px 10px}
+  .stat:nth-child(5){grid-column:span 2}
+
+  .card{padding:22px 19px}
+  .sub{margin-bottom:26px}
+
+  /* 미리보기: 옆으로 넘기는 카드 */
+  .peek{
+    display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    margin:0 calc(var(--pad) * -1);padding:6px var(--pad) 16px;
+    scrollbar-width:none;
+  }
+  .peek::-webkit-scrollbar{display:none}
+  .peek figure{flex:0 0 86%;scroll-snap-align:center;scroll-margin:var(--pad)}
+  .dots{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:6px}
+  .dots i{
+    width:7px;height:7px;border-radius:50%;background:#C3D2E0;
+    transition:width .26s var(--ease),background .26s;
+  }
+  .dots i.on{width:22px;background:var(--accent)}
+
+  /* 목차: 처음엔 8개만 */
+  .toc.fold li:nth-child(n+9){display:none}
+  .toc-more{
+    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    margin-top:16px;min-height:50px;padding:14px;border-radius:11px;
+    border:1px solid var(--line);background:var(--bg-alt);
+    font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink);cursor:pointer;
+  }
+  .toc-more:active{background:var(--line)}
+  .toc-more svg{transition:transform .24s var(--ease)}
+  .toc-more.open svg{transform:rotate(180deg)}
+  .thanks-actions{grid-template-columns:1fr}
+  .contact-box{padding:20px 17px}
+  footer .wrap{flex-direction:column;gap:6px}
+
+  /* 문의 폼: 모바일에서는 시트처럼 아래에서 올라오게 */
+  #fm{padding:0;align-items:flex-end}
+  .fm-card{
+    max-width:none;border-radius:18px 18px 0 0;
+    max-height:92vh;max-height:92dvh;animation:sheet .26s cubic-bezier(.22,.68,.3,1) both;
+  }
+  .fm-head{padding:20px 18px 14px}
+  .fm-body{padding:18px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+  .frow{grid-template-columns:1fr}
+  @keyframes sheet{from{transform:translateY(28px)}to{transform:none}}
+
+  /* 라이트박스: 가로로 밀어서 읽기 */
+  #lb .stage{padding:0;align-items:flex-start;justify-content:flex-start}
+  #lb img{max-width:none;width:215vw;border-radius:0;margin:auto 0}
+  #lb .swipe{
+    display:flex;align-items:center;justify-content:center;gap:8px;flex:none;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+    background:rgba(8,20,34,.9);color:#BDD4E8;font-size:13px;font-weight:700;
+    border-top:1px solid rgba(255,255,255,.14);
+  }
+
+  /* 하단 고정 바 */
+  .mbar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:rgba(14,42,71,.98);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    padding:9px max(12px,var(--safe-l)) calc(9px + env(safe-area-inset-bottom,0px)) max(12px,var(--safe-r));
+    gap:8px;border-top:1px solid rgba(255,255,255,.14);
+    box-shadow:0 -6px 22px rgba(0,0,0,.28);
+  }
+  .mbar a{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+    text-decoration:none;font-weight:800;font-size:15px;min-height:50px;
+    padding:12px 8px;border-radius:11px;transition:transform .14s;
+  }
+  .mbar a:active{transform:scale(.97)}
+  .mbar a svg{flex:none}
+  .mbar .m-dl{background:linear-gradient(180deg,#4A94E0,#2E78C8);color:#fff;flex:1.15}
+  .mbar .m-form{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.34);flex:1}
+  .mbar .m-tel{background:#fff;color:var(--navy);flex:.72}
+}
+
+/* ══════════ 작은 폰 ══════════ */
+@media (max-width:370px){
+  :root{--pad:15px}
+  .hero h1{font-size:26px}
+  .mbar a{font-size:14px;gap:5px}
+  .tel-top span.lbl{display:none}
+  .badges li{font-size:11.5px}
+}
+
+/* ══════════ 가로 모드 (낮은 화면) ══════════ */
+@media (max-height:480px) and (orientation:landscape){
+  .hero .wrap{padding-top:24px;padding-bottom:28px}
+  section{padding:36px 0}
+  #lb img{width:auto;max-width:100%;max-height:100vh;margin:auto}
+  #lb .stage{align-items:center;justify-content:center;padding:12px}
+  #lb .swipe{display:none}
+}
+
+/* ══════════ 데스크톱에서는 캐러셀 요소 숨김 ══════════ */
+@media (min-width:701px){ .dots,.toc-more{display:none} }
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .js [data-reveal]{opacity:1;transform:none}
+  #fbar.on{transform:translate(-50%,0)}
+}
+</style>
+<script>
+/* JS 가 동작할 때만 등장 효과를 적용 — 스크립트가 막혀도 내용은 그대로 보입니다 */
+if (!matchMedia('(prefers-reduced-motion:reduce)').matches)
+  document.documentElement.className = 'js';
+</script>
+
+<link rel="canonical" href="https://monnit.co.kr/promo/proposal">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Monnit Korea">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea">
+<meta property="og:description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
+<meta property="og:url" content="https://monnit.co.kr/promo/proposal">
+<meta property="og:image" content="https://monnit.co.kr/images/why-ai.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea">
+<meta name="twitter:description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
+<meta name="twitter:image" content="https://monnit.co.kr/images/why-ai.jpg">
+</head>
+<body>
+
+<div id="prog"></div>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">MONNIT <span>KOREA</span></div>
+    <a class="tel-top" href="tel:+82220881454" data-cta="tel-top">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+      <span class="lbl">기술 문의</span> 02-2088-1454
+    </a>
+  </div>
+</div>
+
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow" data-reveal>무선 IoT 센서 설비 예지보전</p>
+      <h1 data-reveal style="--d:70ms">실제 제안서는<br><em>이렇게 나옵니다</em></h1>
+      <p class="lead" data-reveal style="--d:140ms">
+        “센서를 몇 개, 어디에 붙여야 하나요?” — 카탈로그로는 답이 안 나옵니다.
+        회전기기 26대 + 수배전반 4포인트, <b>실제 진행한 제안 한 건을 통째로 공개</b>합니다.
+      </p>
+      <ul class="badges" data-reveal style="--d:200ms">
+        <li>배선공사 0m</li><li>배터리 내장 무선</li><li>가동 중 설치</li><li>클라우드 · 폐쇄망</li>
+      </ul>
+
+      <div data-reveal style="--d:260ms">
+      <button class="cta-dl" id="dlBtn" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        제안 가이드 PDF 받기 (20p)
+      </button>
+      <p class="nogate">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6FB0EE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <span><b>이메일 · 연락처 입력 없이</b> 버튼만 누르면 바로 받습니다</span>
+      </p>
+      </div>
+    </div>
+
+    <div class="cover-card" data-reveal style="--d:320ms">
+      <img src="/images/proposal-guide/cover-800.jpg"
+           srcset="/images/proposal-guide/cover-800.jpg 800w, /images/proposal-guide/cover.jpg 1600w"
+           sizes="(max-width:900px) 92vw, 460px"
+           width="1600" height="900" fetchpriority="high" decoding="async"
+           alt="Monnit Korea 무선 IoT 설비 예지보전 제안 가이드 표지">
+      <div class="cover-tag">PDF · 20페이지 · 실제 사례 기반</div>
+    </div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="stat" data-reveal><b data-count="30">0</b><span>감시 포인트</span></div>
+    <div class="stat" data-reveal style="--d:80ms"><b>0 m</b><span>신규 배선</span></div>
+    <div class="stat" data-reveal style="--d:160ms"><b>1~2일</b><span>설치 완료</span></div>
+    <div class="stat" data-reveal style="--d:240ms"><b data-count="3" data-suffix="식">0식</b><span>게이트웨이</span></div>
+    <div class="stat" data-reveal style="--d:320ms"><b data-count="8" data-suffix="주">0주</b><span>발주 → 운영</span></div>
+  </div>
+</div>
+
+
+<section id="thanks">
+  <div class="wrap">
+    <div class="thanks-inner">
+      <h3>
+        <span class="chk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span id="thanksTitle">다운로드가 시작되었습니다</span>
+      </h3>
+      <p>
+        자료를 보시다가 <b>“우리 설비면 몇 포인트인가”</b>가 궁금해지면 바로 물어보셔도 됩니다.
+        감시 희망 설비 리스트만 있으면 예상 포인트 수와 게이트웨이 구성안을 정리해 회신드립니다.
+      </p>
+      <div class="thanks-actions">
+        <a class="ta primary" href="tel:+82220881454" data-cta="tel-thanks">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+          02-2088-1454 바로 통화
+        </a>
+        <a class="ta ghost" href="#" data-form-open data-cta="form-thanks">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+          문의 남기기
+        </a>
+      </div>
+      <p class="fallback">
+        받아지지 않았다면 <a id="dlAgain" href="#">여기를 눌러 다시 받으세요</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>이 문서는 무엇인가</p>
+    <h2 data-reveal style="--d:60ms">카탈로그가 아니라, 실제로 나간 제안서입니다</h2>
+    <p class="sub" data-reveal style="--d:110ms">화학·정밀화학 A사 30포인트 건. 고객사명과 금액만 제외하고 구성·근거·프로세스는 실제 제안서 그대로입니다.</p>
+    <div class="grid-3">
+      <div class="card" data-reveal style="--d:0ms">
+        <h3>이런 분께 필요합니다</h3>
+        <ul>
+          <li>펌프·팬·컴프레셔 돌발 정지로 생산 손실을 겪는 설비·보전 담당</li>
+          <li>순회점검·열화상 촬영에 인력을 계속 쓰고 있는 공장</li>
+          <li>유선 계측을 검토했다가 공사비·정전 문제로 접었던 경우</li>
+          <li>예지보전 예산을 잡아야 하는데 기준이 없는 담당자</li>
+        </ul>
+      </div>
+      <div class="card" data-reveal style="--d:90ms">
+        <h3>문서에 담긴 것</h3>
+        <ul>
+          <li>설비 종류별로 센서를 몇 개, 어디에 붙이는지 <b>실제 배치안</b></li>
+          <li>펌프·교반기·컴프레셔·부스바 <b>고장 징후별 감지 항목</b></li>
+          <li>ISO 20816-3 기준 <b>초기 알람 임계값 테이블</b></li>
+          <li>클라우드 vs 폐쇄망 서버 구축 비교, 8주 구축 일정</li>
+        </ul>
+      </div>
+      <div class="card dark" data-reveal style="--d:180ms">
+        <h3>담지 않은 것</h3>
+        <ul>
+          <li><b>단가 및 견적 금액</b> — 현장 조건에 따라 달라져 별도 산출합니다</li>
+          <li><b>고객사명 및 라인 식별 정보</b> — 익명 처리하였습니다</li>
+        </ul>
+        <p class="note">귀사 조건으로 산출한 견적이 필요하시면 아래 연락처로 문의해 주세요. 현장 실사는 반일 소요 · 무상입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="sec-alt">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>안을 먼저 보세요</p>
+    <h2 data-reveal style="--d:60ms">이런 페이지가 들어 있습니다</h2>
+    <p class="sub" data-reveal style="--d:110ms">20페이지 전체가 같은 밀도로 구성되어 있습니다.</p>
+    <div class="peek">
+      <figure data-reveal style="--d:0ms">
+        <img src="/images/proposal-guide/page-09-800.jpg" data-full="/images/proposal-guide/page-09.jpg"
+             width="800" height="450" loading="lazy" decoding="async" class="zoomable"
+             alt="30포인트 센서 배치안">
+        <figcaption><b>30포인트 센서 배치안</b>구역별 설비 · 수량 · 적용 센서와 게이트웨이 3식 분할 근거<span class="zoom-hint">🔍 눌러서 크게 보기</span></figcaption>
+      </figure>
+      <figure data-reveal style="--d:90ms">
+        <img src="/images/proposal-guide/page-15-800.jpg" data-full="/images/proposal-guide/page-15.jpg"
+             width="800" height="450" loading="lazy" decoding="async" class="zoomable"
+             alt="측정 항목 및 초기 알람 기준">
+        <figcaption><b>측정 항목 · 알람 임계값</b>ISO 20816-3 준용 정상/주의/위험 구간과 기준선 튜닝 절차<span class="zoom-hint">🔍 눌러서 크게 보기</span></figcaption>
+      </figure>
+      <figure data-reveal style="--d:180ms">
+        <img src="/images/proposal-guide/page-19-800.jpg" data-full="/images/proposal-guide/page-19.jpg"
+             width="800" height="450" loading="lazy" decoding="async" class="zoomable"
+             alt="도입 검토 프로세스">
+        <figcaption><b>귀사 조건 확인 절차</b>현장 실사 → 구성 확정 → 정식 견적 → PoC까지 4단계<span class="zoom-hint">🔍 눌러서 크게 보기</span></figcaption>
+      </figure>
+    </div>
+    <div class="dots" id="dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+  </div>
+</section>
+
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>전체 목차</p>
+    <h2 data-reveal style="--d:60ms">18개 장, 20페이지</h2>
+    <ol class="toc fold" id="toc" data-reveal style="--d:60ms">
+      <li>이 문서는 무엇인가</li>
+      <li>왜 예지보전(PdM)인가 — 보전 방식별 비용 구조</li>
+      <li>왜 무선이어야 하는가 — 유선 계측이 좌초되는 이유</li>
+      <li>Monnit 센서를 선택하는 이유 6가지</li>
+      <li>한 번 깔면 계속 확장됩니다 — 80여 종 라인업</li>
+      <li>시스템 구성도</li>
+      <li>[실제 사례] 요청사항과 제안 대응</li>
+      <li>[실제 사례] 30포인트 센서 배치안</li>
+      <li>유틸리티 펌프 예지보전 — A/B 교대 14대</li>
+      <li>핵심 반응기 교반기 예지보전</li>
+      <li>공압 · 냉동 · 공조 부하</li>
+      <li>전기실 VCB / ACB 부스바 온도 감시</li>
+      <li>적용 센서 및 게이트웨이 사양</li>
+      <li>측정 항목 및 초기 알람 기준</li>
+      <li>모니터링 S/W — 클라우드 vs 로컬 서버</li>
+      <li>구축 일정 (안) — 발주 후 약 8주</li>
+      <li>도입 검토 체크리스트</li>
+      <li>귀사 조건으로 확인하는 방법</li>
+    </ol>
+    <button class="toc-more" type="button" id="tocMore">
+      <span>전체 18개 장 보기</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+
+<section class="final" id="contact">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow" style="color:#6FB0EE" data-reveal>CONTACT</p>
+      <h2 data-reveal style="--d:60ms">어느 설비부터 볼지<br>같이 정해 드립니다</h2>
+      <p>
+        감시 희망 설비 리스트만 주시면 예상 포인트 수와 게이트웨이 구성안을 먼저 정리해 회신드립니다.
+        도면이나 상세 사양은 없어도 괜찮습니다.
+      </p>
+      <p style="color:#9FBBD6;font-size:14px;margin-top:20px;font-weight:700">문의 시 이렇게 보내주세요</p>
+      <ul class="ask">
+        <li><span class="n">01</span> 감시하려는 설비와 대수</li>
+        <li><span class="n">02</span> 최근 고장 이력 (있는 경우)</li>
+        <li><span class="n">03</span> 방폭 구역 포함 여부</li>
+        <li><span class="n">04</span> 인터넷 연결 가능 여부</li>
+        <li><span class="n">05</span> 희망 도입 시기</li>
+      </ul>
+      <div class="free">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        현장 실사는 반일 소요 · 무상입니다
+      </div>
+    </div>
+
+    <div class="contact-box" data-reveal style="--d:80ms">
+      <a class="tel-big" href="tel:+82220881454" data-cta="tel-final">
+        <span class="ic">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+        </span>
+        <span class="tx"><small>기술 상담 바로 연결</small><strong>02-2088-1454</strong></span>
+      </a>
+      <button class="btn-form" type="button" data-form-open data-cta="form-final" style="margin-bottom:11px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+        문의 남기기 · 예상 구성안 받기
+      </button>
+      <a class="btn-mail" id="mailBtn2" href="#" data-cta="mail-final">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+        korea@monnit.com 으로 문의
+      </a>
+      <p class="hours">평일 09:00 ~ 18:00 · Monnit Korea 영업팀</p>
+
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.16)">
+        <a class="cta-dl" href="#" id="dlBtn2" style="max-width:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          제안 가이드 PDF 받기
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© Monnit Korea · 무선 IoT 설비 예지보전</div>
+    <div><a href="tel:+82220881454">02-2088-1454</a> · <a href="mailto:korea@monnit.com">korea@monnit.com</a></div>
+  </div>
+</footer>
+
+
+<div id="fm" role="dialog" aria-modal="true" aria-labelledby="fmTitle">
+  <div class="fm-card">
+    <div class="fm-head">
+      <div>
+        <h3 id="fmTitle">문의 남기기</h3>
+        <p>설비 리스트만 주시면 <b>예상 포인트 수와 게이트웨이 구성안</b>을 정리해 회신드립니다. 도면은 없어도 됩니다.</p>
+      </div>
+      <button class="fm-x" type="button" id="fmClose" aria-label="닫기">×</button>
+    </div>
+
+    <div class="fm-body">
+      <form id="fmForm" novalidate>
+        <div class="frow">
+          <label class="fl" data-req>
+            <span>회사명<i class="req">*</i></span>
+            <input name="회사명" type="text" autocomplete="organization" enterkeyhint="next">
+            <span class="msg">회사명을 입력해 주세요</span>
+          </label>
+          <label class="fl" data-req>
+            <span>담당자명<i class="req">*</i></span>
+            <input name="담당자" type="text" autocomplete="name" enterkeyhint="next">
+            <span class="msg">담당자명을 입력해 주세요</span>
+          </label>
+        </div>
+
+        <div class="frow">
+          <label class="fl" data-req>
+            <span>연락처<i class="req">*</i></span>
+            <input name="연락처" type="tel" inputmode="tel" autocomplete="tel"
+                   placeholder="010-0000-0000" enterkeyhint="next">
+            <span class="msg">연락 가능한 번호를 입력해 주세요</span>
+          </label>
+          <label class="fl">
+            <span>이메일</span>
+            <input name="이메일" type="email" inputmode="email" autocomplete="email"
+                   placeholder="name@company.com" enterkeyhint="next">
+            <span class="msg">이메일 형식을 확인해 주세요</span>
+          </label>
+        </div>
+
+        <label class="fl" data-req>
+          <span>감시하려는 설비와 대수<i class="req">*</i></span>
+          <textarea name="설비" placeholder="예) 유틸리티 펌프 12대, 에어 컴프레셔 2대, 전기실 부스바 온도 감시 검토 중"></textarea>
+          <span class="msg">감시 대상 설비를 알려 주세요</span>
+          <span class="hint">최근 고장 이력이 있으면 함께 적어주시면 우선순위 산정에 가장 유용합니다.</span>
+        </label>
+
+        <div class="frow">
+          <label class="fl">
+            <span>방폭 구역 포함 여부</span>
+            <select name="방폭">
+              <option value="">선택 안 함</option>
+              <option>전 구역 비방폭 (일반구역)</option>
+              <option>일부 방폭 구역 포함</option>
+              <option>확인 필요</option>
+            </select>
+          </label>
+          <label class="fl">
+            <span>희망 도입 시기</span>
+            <select name="도입시기">
+              <option value="">선택 안 함</option>
+              <option>1개월 이내</option>
+              <option>1~3개월</option>
+              <option>3~6개월</option>
+              <option>내년 예산 검토 중</option>
+              <option>정보 수집 단계</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="fl">
+          <span>인터넷(외부망) 연결 가능 여부</span>
+          <select name="망환경">
+            <option value="">선택 안 함</option>
+            <option>가능 — 클라우드 방식 검토 가능</option>
+            <option>불가 — 폐쇄망 서버 구축 필요</option>
+            <option>확인 필요</option>
+          </select>
+        </label>
+
+        <label class="agree" id="fmAgree">
+          <input type="checkbox" name="동의">
+          <span>
+            <b>개인정보 수집·이용에 동의합니다.</b><br>
+            수집 항목: 회사명·담당자명·연락처·이메일 / 목적: 문의 답변 및 구성안 회신 /
+            보유 기간: 문의 처리 후 1년. 동의를 거부하실 수 있으나 회신이 어렵습니다.
+          </span>
+        </label>
+
+        <button class="btn-form" type="submit" id="fmSubmit">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+          <span id="fmSubmitTx">문의 보내기</span>
+        </button>
+        <p class="fm-note">
+          급하시면 <a href="tel:+82220881454" data-cta="tel-form">02-2088-1454</a> 로 바로 전화 주셔도 됩니다
+        </p>
+      </form>
+
+      <div class="fm-ok">
+        <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h4>접수되었습니다</h4>
+        <p id="fmOkTx">
+          영업일 기준 1일 이내에 담당자가 연락드립니다.<br>
+          급하시면 <a href="tel:+82220881454" style="color:var(--accent);font-weight:700;text-decoration:none">02-2088-1454</a> 로 전화 주세요.
+        </p>
+        <button class="btn-form" type="button" id="fmDone" style="background:var(--navy)">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="페이지 크게 보기">
+  <button class="close" type="button" aria-label="닫기">×</button>
+  <div class="stage"><img alt=""></div>
+  <div class="swipe">← 좌우로 밀어서 보기 · 화면을 누르면 닫힘 →</div>
+</div>
+
+
+<div id="fbar">
+  <div class="tx">
+    <b>무선 예지보전 제안 가이드</b>
+    <span>실제 사례 30포인트 · 20페이지 · 정보 입력 없음</span>
+  </div>
+  <div class="acts">
+    <a class="f-dl" href="#" id="dlBtn4">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      PDF 받기
+    </a>
+    <button class="f-form" type="button" data-form-open data-cta="form-fbar">문의 남기기</button>
+    <button class="f-x" type="button" id="fbarX" aria-label="닫기">×</button>
+  </div>
+</div>
+
+
+<div class="mbar">
+  <a class="m-dl" href="#" id="dlBtn3">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+    PDF 받기
+  </a>
+  <a class="m-form" href="#" data-form-open>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+    문의 남기기
+  </a>
+  <a class="m-tel" href="tel:+82220881454" data-cta="tel-mbar">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+    전화 문의
+  </a>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   ② 설정 — 여기만 바꾸면 됩니다
+   ══════════════════════════════════════════════════════════════ */
+var CONFIG = {
+  // PDF 위치. 같은 폴더에 두면 아래 그대로 두세요.
+  // 외부 호스팅이면 전체 URL 입력 (예: "https://monnit.co.kr/files/guide.pdf")
+  PDF_URL  : "/files/monnit-predictive-maintenance-guide.pdf",
+  // 저장될 파일명
+  FILE_NAME: "Monnit_무선예지보전_제안가이드.pdf",
+
+  /* 모바일에서 다운로드 버튼을 눌렀을 때 ─────────────────
+     "newtab"   : 새 탭에서 PDF 열기. 뷰어가 떠도 랜딩이 뒤에 남아
+                  돌아왔을 때 상담 CTA를 다시 봅니다. ← 권장
+     "download" : PC 와 똑같이 파일 저장 시도. 단말·브라우저에 따라
+                  그냥 열리기만 하고 랜딩을 이탈할 수 있습니다.       */
+  MOBILE_MODE: "newtab",
+  EMAIL    : "korea@monnit.com",
+  PHONE    : "02-2088-1454",
+
+  /* 문의 폼 전송 방식 ─────────────────────────────────
+     "mail" : 서버 없이 동작. 방문자의 메일 앱이 내용이 채워진 채로 열립니다.
+              바로 쓸 수 있지만, 방문자가 '보내기'를 눌러야 접수됩니다.
+     "post" : FORM_ENDPOINT 로 전송. 진짜 폼처럼 동작합니다. ← 권장
+              Formspree(무료) 가입 후 받은 주소를 넣으면 끝입니다.
+              예) FORM_ENDPOINT: "https://formspree.io/f/xxxxxxxx"
+              구글 시트로 받고 싶으면 Apps Script 웹앱 주소를 넣어도 됩니다.  */
+  FORM_MODE    : "post",
+  FORM_ENDPOINT: "https://api.web3forms.com/submit"
+};
+
+var isMobile = matchMedia('(max-width:700px)').matches
+            || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+/* ── 메일 본문 미리 채우기 ── */
+var mailHref = "mailto:" + CONFIG.EMAIL
+  + "?subject=" + encodeURIComponent("[예지보전 문의] 설비 구성안 요청")
+  + "&body=" + encodeURIComponent(
+      "Monnit Korea 영업팀 담당자님,\n\n제안 가이드를 보고 문의드립니다.\n\n"
+    + "1. 감시하려는 설비와 대수 : \n"
+    + "2. 최근 고장 이력 (있는 경우) : \n"
+    + "3. 방폭 구역 포함 여부 : \n"
+    + "4. 인터넷 연결 가능 여부 : \n"
+    + "5. 희망 도입 시기 : \n\n"
+    + "─────────────\n회사명 : \n담당자 : \n연락처 : \n");
+["mailBtn","mailBtn2"].forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.href = mailHref;
+});
+
+/* ── 전환 이벤트 전송 ── */
+function track(name, params){
+  params = params || {};
+  var meta = (name === 'download' || name === 'form_submit') ? 'Lead' : 'Contact';
+  try { if (window.fbq)  fbq('track', meta, params); } catch(e){}
+  try { if (window.gtag) gtag('event', name, params); } catch(e){}
+  try { if (window.dataLayer) dataLayer.push(Object.assign({event:'monnit_'+name}, params)); } catch(e){}
+}
+
+/* ── 다운로드 ──
+   PC : download 속성으로 바로 저장
+   모바일 : 새 탭에서 열기 — PDF 뷰어가 떠도 랜딩 페이지가 뒤에 남아
+            돌아왔을 때 상담 CTA를 다시 볼 수 있게 함             */
+var fired = false;
+function download(e){
+  if (e) e.preventDefault();
+
+  if (isMobile && CONFIG.MOBILE_MODE === 'newtab') {
+    window.open(CONFIG.PDF_URL, '_blank', 'noopener');
+    var t = document.getElementById('thanksTitle');
+    if (t) t.textContent = '새 탭에서 열었습니다';
+  } else {
+    var a = document.createElement('a');
+    a.href = CONFIG.PDF_URL;
+    a.setAttribute('download', CONFIG.FILE_NAME);
+    a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+
+  if (!fired){ track('download', {content_name:'예지보전 제안 가이드'}); fired = true; }
+
+  var box = document.getElementById('thanks');
+  box.classList.add('on');
+  setTimeout(function(){
+    box.scrollIntoView({behavior:'smooth', block: isMobile ? 'start' : 'center'});
+  }, 140);
+}
+["dlBtn","dlBtn2","dlBtn3","dlBtn4","dlAgain"].forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('click', download);
+});
+
+/* ── 배경 스크롤 잠금 (iOS 대응) ── */
+var scrollY = 0, locks = 0;
+function lockScroll(){
+  if (locks++ > 0) return;
+  scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = -scrollY + 'px';
+  document.body.style.width = '100%';
+}
+function unlockScroll(){
+  if (--locks > 0) return;
+  locks = 0;
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, scrollY);
+}
+
+/* ── 미리보기 크게 보기 ── */
+var lb = document.getElementById('lb'),
+    lbImg = lb.querySelector('img'),
+    lbStage = lb.querySelector('.stage');
+
+function openLb(im){
+  lbImg.src = im.getAttribute('data-full') || im.src;   // 확대용 고해상도
+  lbImg.alt = im.alt;
+  lb.classList.add('on');
+  lockScroll();
+  // 가로로 넓은 이미지는 가운데부터 보이게 (로드 완료 후 한 번 더)
+  centerLb();
+  lbImg.addEventListener('load', centerLb, {once:true});
+}
+function centerLb(){
+  requestAnimationFrame(function(){
+    lbStage.scrollLeft = (lbStage.scrollWidth - lbStage.clientWidth) / 2;
+  });
+}
+function closeLb(){
+  if (!lb.classList.contains('on')) return;
+  lb.classList.remove('on');
+  unlockScroll();
+}
+document.querySelectorAll('.zoomable').forEach(function(im){
+  im.addEventListener('click', function(){ openLb(im); });
+});
+lb.addEventListener('click', function(e){
+  if (e.target === lbImg) return;   // 이미지 위 스와이프는 닫지 않음
+  closeLb();
+});
+lb.querySelector('.close').addEventListener('click', closeLb);
+
+/* ══════════ 문의 남기기 폼 ══════════ */
+var fm       = document.getElementById('fm'),
+    fmForm   = document.getElementById('fmForm'),
+    fmAgree  = document.getElementById('fmAgree'),
+    fmSubmit = document.getElementById('fmSubmit'),
+    fmSubTx  = document.getElementById('fmSubmitTx');
+
+function openFm(e){
+  if (e) e.preventDefault();
+  fm.classList.add('on');
+  fm.classList.remove('done');
+  lockScroll();
+  if (window.updateFbar) updateFbar();
+  track('form_open', {});
+  // 모바일에서 키보드가 바로 올라오지 않도록 자동 포커스는 데스크톱만
+  if (!isMobile) setTimeout(function(){ fmForm.elements[0].focus(); }, 120);
+}
+function closeFm(){
+  if (!fm.classList.contains('on')) return;
+  fm.classList.remove('on');
+  unlockScroll();
+  if (window.updateFbar) updateFbar();
+}
+document.querySelectorAll('[data-form-open]').forEach(function(el){
+  el.addEventListener('click', openFm);
+});
+document.getElementById('fmClose').addEventListener('click', closeFm);
+document.getElementById('fmDone').addEventListener('click', closeFm);
+fm.addEventListener('click', function(e){ if (e.target === fm) closeFm(); });
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Escape') return;
+  closeLb(); closeFm();
+});
+
+/* ── 검증 ── */
+function validate(){
+  var ok = true, first = null;
+
+  fmForm.querySelectorAll('.fl').forEach(function(fl){
+    var input = fl.querySelector('input,select,textarea');
+    if (!input) return;
+    var v   = (input.value || '').trim();
+    var bad = false;
+
+    if (fl.hasAttribute('data-req') && !v) bad = true;
+    if (input.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) bad = true;
+    if (input.type === 'tel'   && v && (v.replace(/\D/g,'').length < 8)) bad = true;
+
+    fl.classList.toggle('err', bad);
+    if (bad){ ok = false; first = first || input; }
+  });
+
+  var agreed = fmAgree.querySelector('input').checked;
+  fmAgree.classList.toggle('err', !agreed);
+  if (!agreed){ ok = false; first = first || fmAgree.querySelector('input'); }
+
+  if (first) first.focus({preventScroll:false});
+  return ok;
+}
+// 입력을 고치면 오류 표시 해제
+fmForm.addEventListener('input', function(e){
+  var fl = e.target.closest('.fl');
+  if (fl) fl.classList.remove('err');
+  if (e.target.type === 'checkbox') fmAgree.classList.remove('err');
+});
+
+/* ── 전송 ── */
+function formData(){
+  var d = {}, f = new FormData(fmForm);
+  f.forEach(function(v,k){ if (k !== '동의') d[k] = (v||'').trim(); });
+  d['동의'] = fmAgree.querySelector('input').checked ? 'Y' : 'N';
+  d['유입경로'] = document.referrer || '직접 방문';
+  d['접수시각'] = new Date().toLocaleString('ko-KR');
+  return d;
+}
+function asText(d){
+  return Object.keys(d).map(function(k){ return k + ' : ' + (d[k] || '-'); }).join('\n');
+}
+function showDone(msg){
+  if (msg) document.getElementById('fmOkTx').innerHTML = msg;
+  fm.classList.add('done');
+  fm.querySelector('.fm-body').scrollTop = 0;
+  track('form_submit', {mode: CONFIG.FORM_MODE});
+}
+
+fmForm.addEventListener('submit', function(e){
+  e.preventDefault();
+  if (!validate()) return;
+
+  var d = formData(), body = asText(d);
+
+  /* 사이트 공통 리드 규격으로 정리 — 출처(utm·gclid)와 접점이 함께 기록됩니다.
+     MonnitLead.track() 안에서 /api/lead 로도 한 건 남아 관제(ops) 화면에 잡힙니다. */
+  /* 폼 항목을 사이트 공통 키로 옮깁니다 — 이 키여야 관제(ops) 화면의
+     회사·담당자·연락처·설비 칸에 값이 들어갑니다 (netlify/functions/lead.mjs 기준). */
+  var std = {
+    '회사명'      : d['회사명']  || '',
+    '담당자명'    : d['담당자']  || '',
+    '연락처'      : d['연락처']  || '',
+    '이메일'      : d['이메일']  || '',
+    '주요 회전설비': d['설비']    || '',
+    '관심분야'    : '예지보전 제안 가이드',
+    '문의 사항'   : [
+        d['설비']    ? '설비: '      + d['설비']    : '',
+        d['망환경']  ? '망 환경: '   + d['망환경']  : '',
+        d['방폭']    ? '방폭 요구: ' + d['방폭']    : '',
+        d['도입시기']? '도입 시기: ' + d['도입시기']: ''
+      ].filter(Boolean).join(' · ') || '(없음)',
+    '마케팅 정보 수신(선택)': d['동의'] ? '동의' : '미동의',
+    '접수 경로'   : '제안 가이드 랜딩(/promo/proposal)'
+  };
+
+  var payload = window.MonnitLead
+    ? window.MonnitLead.build('contact', 'promo_proposal',
+        (std['회사명'] || '') + ' 예지보전 제안 가이드 문의', std)
+    : std;
+
+  fmSubmit.disabled = true;
+  fmSubTx.textContent = '보내는 중...';
+
+  var fd = {
+    access_key: 'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2',
+    subject   : payload['_subject'] || '[모넷·접수] 예지보전 제안 가이드 문의',
+    from_name : 'Monnit Korea 웹사이트',
+    email     : (std['이메일'] || 'no-reply@monnit.co.kr'),
+    replyto   : (std['이메일'] || ''),
+    botcheck  : false
+  };
+  Object.keys(payload).forEach(function(k){ if (k !== '_subject') fd[k] = payload[k]; });
+
+  fetch(CONFIG.FORM_ENDPOINT, {
+    method : 'POST',
+    headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+    body   : JSON.stringify(fd)
+  }).then(function(r){ return r.json().catch(function(){ return {}; }); })
+    .then(function(j){
+      if (j && (j.success === true || j.success === 'true')) {
+        try { if (window.MonnitLead) window.MonnitLead.track('contact', { page:'promo_proposal', interest:'예지보전 제안 가이드' }); } catch(err){}
+        track('form_submit', {mode: 'post'});
+        showDone(null);
+      } else { throw new Error('send_failed'); }
+    })
+    .catch(function(){
+      /* 전송 실패 시에도 리드를 잃지 않도록 원장에 남기고 메일로 우회 */
+      try { if (window.MonnitLead) window.MonnitLead.record('contact', payload); } catch(err){}
+      openMail(body);
+      showDone('메일 앱이 열렸습니다. <b>보내기를 눌러 주셔야</b> 접수됩니다.<br>' +
+               '어려우시면 <a href="tel:+82220881454" style="color:var(--accent);font-weight:700;text-decoration:none">02-2088-1454</a> 로 전화 주세요.');
+    })
+    .then(function(){
+      fmSubmit.disabled = false;
+      fmSubTx.textContent = '문의 보내기';
+    });
+});
+
+function openMail(body){
+  var href = 'mailto:' + CONFIG.EMAIL
+    + '?subject=' + encodeURIComponent('[예지보전 문의] ' + (formData()['회사명'] || '') + ' 설비 구성안 요청')
+    + '&body='    + encodeURIComponent('Monnit Korea 영업팀 담당자님,\n\n제안 가이드를 보고 문의드립니다.\n\n' + body + '\n');
+  window.location.href = href;
+}
+
+/* ── 전화 / 메일 클릭도 전환으로 집계 ── */
+document.querySelectorAll('[data-cta]').forEach(function(el){
+  el.addEventListener('click', function(){
+    track('contact', {method: el.getAttribute('data-cta')});
+  });
+});
+
+
+/* ══════════════════════════════════════════════════════════════
+   ③ 인터랙션
+   ══════════════════════════════════════════════════════════════ */
+var motionOK = !matchMedia('(prefers-reduced-motion:reduce)').matches;
+var hasIO    = 'IntersectionObserver' in window;
+
+/* ── 스크롤 진행 바 ── */
+var prog = document.getElementById('prog'), ticking = false;
+function onScroll(){
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(function(){
+    var max = document.documentElement.scrollHeight - innerHeight;
+    prog.style.width = (max > 0 ? Math.min(scrollY / max, 1) * 100 : 0) + '%';
+    updateFbar();
+    ticking = false;
+  });
+}
+addEventListener('scroll', onScroll, {passive:true});
+addEventListener('resize', onScroll, {passive:true});
+
+/* ── 스크롤 진입 효과 ── */
+if (motionOK && hasIO){
+  var revealIO = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in');
+      revealIO.unobserve(e.target);
+    });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:.08});
+  document.querySelectorAll('[data-reveal]').forEach(function(el){ revealIO.observe(el); });
+} else {
+  document.documentElement.classList.remove('js');
+}
+
+/* ── 숫자 카운트업 ── */
+function countUp(el){
+  var to  = +el.getAttribute('data-count'),
+      sfx = el.getAttribute('data-suffix') || '',
+      dur = 900, t0 = null;
+  function step(t){
+    if (!t0) t0 = t;
+    var p = Math.min((t - t0) / dur, 1);
+    p = 1 - Math.pow(1 - p, 3);                 // ease-out
+    el.textContent = Math.round(to * p) + sfx;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+var counters = document.querySelectorAll('[data-count]');
+if (motionOK && hasIO){
+  var countIO = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (!e.isIntersecting) return;
+      countUp(e.target);
+      countIO.unobserve(e.target);
+    });
+  }, {threshold:.6});
+  counters.forEach(function(el){ countIO.observe(el); });
+} else {
+  counters.forEach(function(el){
+    el.textContent = el.getAttribute('data-count') + (el.getAttribute('data-suffix') || '');
+  });
+}
+
+/* ── 데스크톱 플로팅 CTA ── */
+var fbar = document.getElementById('fbar'),
+    hero = document.querySelector('.hero'),
+    fin  = document.getElementById('contact'),
+    fbarOff = false;
+document.getElementById('fbarX').addEventListener('click', function(){
+  fbarOff = true;
+  fbar.classList.remove('on');
+});
+function updateFbar(){
+  if (fbarOff || innerWidth <= 700) return;
+  var pastHero = scrollY > hero.offsetHeight * .92;
+  var finTop   = fin.getBoundingClientRect().top;
+  var atEnd    = finTop < innerHeight * .8;          // 하단 연락처가 보이면 숨김
+  fbar.classList.toggle('on', pastHero && !atEnd && !fm.classList.contains('on'));
+}
+
+/* ── 표지 기울임 (마우스가 있는 환경만) ── */
+var cover = document.querySelector('.cover-card'),
+    coverImg = cover && cover.querySelector('img');
+if (motionOK && coverImg && matchMedia('(hover:hover) and (min-width:901px)').matches){
+  cover.addEventListener('mousemove', function(e){
+    var r = cover.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width  - .5;
+    var y = (e.clientY - r.top)  / r.height - .5;
+    cover.classList.add('tilt');
+    coverImg.style.transform =
+      'perspective(1100px) rotateY(' + (x * 7).toFixed(2) + 'deg) rotateX(' +
+      (-y * 7).toFixed(2) + 'deg) translateZ(14px)';
+  });
+  cover.addEventListener('mouseleave', function(){
+    cover.classList.remove('tilt');
+    coverImg.style.transform = '';
+  });
+}
+
+/* ── 모바일 미리보기 캐러셀 도트 ── */
+var peek = document.querySelector('.peek'),
+    dots = document.getElementById('dots');
+if (peek && dots){
+  var pins = dots.querySelectorAll('i'),
+      figs = peek.querySelectorAll('figure');
+  peek.addEventListener('scroll', function(){
+    if (innerWidth > 700) return;
+    var c = peek.scrollLeft + peek.clientWidth / 2, best = 0, bd = Infinity;
+    figs.forEach(function(f, n){
+      var d = Math.abs(f.offsetLeft + f.offsetWidth / 2 - c);
+      if (d < bd){ bd = d; best = n; }
+    });
+    pins.forEach(function(d, n){ d.classList.toggle('on', n === best); });
+  }, {passive:true});
+}
+
+/* ── 모바일 목차 접기 ── */
+var toc = document.getElementById('toc'),
+    tocMore = document.getElementById('tocMore');
+if (toc && tocMore){
+  tocMore.addEventListener('click', function(){
+    var open = toc.classList.toggle('fold') === false;
+    tocMore.classList.toggle('open', open);
+    tocMore.querySelector('span').textContent = open ? '접기' : '전체 18개 장 보기';
+    if (!open) toc.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+
+onScroll();
+</script>
+</body>
+</html>

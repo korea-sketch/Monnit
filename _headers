@@ -83,6 +83,13 @@
 
 
 # 직링크 전용 프로모션 — 검색엔진 색인 차단 (링크를 아는 사람만 접근)
+/promo/proposal
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+/promo/proposal/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+/promo-proposal.html
+  X-Robots-Tag: noindex, nofollow
+
 /promotions/flame-reservation
   X-Robots-Tag: noindex, nofollow
 /promotions/flame-reservation/*

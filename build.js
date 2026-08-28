@@ -813,6 +813,16 @@ const promoPages = [];   // sitemap 용
   fs.copyFileSync(source, path.join(targetDir, 'index.html'));
 })();
 
+/* /promo/proposal — 광고 전용(검색 비노출) 제안 가이드 랜딩.
+   사이트 메뉴·sitemap 에는 넣지 않고, 광고 링크로만 들어옵니다. */
+(function buildProposalPromoAlias() {
+  const source = path.join(__dirname, 'promo-proposal.html');
+  if (!fs.existsSync(source)) return;
+  const targetDir = path.join(__dirname, 'promo', 'proposal');
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(source, path.join(targetDir, 'index.html'));
+})();
+
 (function buildAlarmPromoAlias() {
   const source = path.join(__dirname, 'promo-alarm.html');
   if (!fs.existsSync(source)) return;

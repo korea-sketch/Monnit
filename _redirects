@@ -36,6 +36,13 @@
 /promo-consulting        /promo-consulting.html  200
 /promo/predictive        /promo/consulting       301
 
+# 광고 전용 랜딩 — 제안 가이드 (검색·사이트 메뉴 비노출 · 광고 링크로만 진입)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다
+/promo/proposal          /promo-proposal.html    200
+/promo/proposal/         /promo-proposal.html    200
+/promo-proposal.html     /promo/proposal         301!
+/promo-proposal          /promo/proposal         301
+
 # 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소는 그대로 유지)
 /promo/*  /promo.html?id=:splat  200
 # 예전 소방 전용 페이지 → 범용 페이지로 통합 301
