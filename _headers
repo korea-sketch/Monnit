@@ -1,3 +1,22 @@
+# ===== 보안 헤더 (2026-08-28 검수 추가) =====
+# 전 경로 공통. 아래 더 구체적인 규칙들과 함께 누적 적용됩니다.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+# 템플릿 조각·CMS 편집기는 검색엔진에서 제외
+/views/*
+  X-Robots-Tag: noindex, nofollow
+/editor.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
+/pages/*
+  X-Robots-Tag: noindex, follow
+
 /
   Cache-Control: no-cache, must-revalidate
 /index.html

@@ -257,6 +257,13 @@ let SHELL = '';
 try { SHELL = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'); }
 catch (e) { console.warn('[build] index.html 을 읽지 못해 SSG 를 건너뜁니다'); }
 
+/* [SEO 2026-08-28] 생성 페이지에는 페이지 고유 <h1> 이 따로 들어갑니다.
+   공통 셸의 히어로 제목까지 <h1> 이면 페이지마다 H1 이 2개가 되어
+   검색엔진이 그 페이지의 주제를 판단하지 못합니다. → 셸 쪽만 <h2> 로 낮춥니다.
+   스타일은 .nh-hero-title 클래스가 담당하므로 화면은 전혀 바뀌지 않습니다.
+   (index.html 홈 자체는 build.js 가 쓰지 않으므로 <h1> 그대로 유지됩니다) */
+try { SHELL = SHELL.replace(/<h1(\s+class="nh-hero-title"[\s\S]*?)<\/h1>/, '<h2$1</h2>'); } catch (e) {}
+
 /* ═══════════════════════════════════════════════════════════════════
    공통 셸(SPA 뷰 19개) 격납 — 페이지 간 중복 콘텐츠 제거
    ───────────────────────────────────────────────────────────────────
@@ -814,6 +821,10 @@ const promoPages = [];   // sitemap 용
   let TPL = '';
   try { TPL = fs.readFileSync(path.join(__dirname, 'promo.html'), 'utf8'); }
   catch (e) { console.warn('[build] promo.html 을 읽지 못해 프로모션 정적 페이지를 건너뜁니다'); return; }
+
+  /* [SEO 2026-08-28] seoBlock 이 프로모션별 고유 <h1> 을 넣으므로
+     템플릿의 히어로 제목은 <h2> 로 낮춥니다 (스타일은 id/class 가 담당 — 화면 동일) */
+  try { TPL = TPL.replace(/<h1(\s+id="pTitle"[\s\S]*?)<\/h1>/, '<h2$1</h2>'); } catch (e) {}
 
   /* 시트(PROMOS) 값이 있으면 우선, 없으면 위 PROMO_SEO 를 씁니다.
      link 가 외부/전용 랜딩(예: consulting → /promo/consulting)인 프로모션은

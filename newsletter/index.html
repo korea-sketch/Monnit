@@ -3,6 +3,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>/* 광고 테스트 쿠키 자동 청소 — 가짜 클릭ID(_gcl_*=...TEST...)가 남아 있으면
+   구글 수집 요청이 전부 503으로 거절되며 콘솔에 오류가 쌓입니다. 발견 즉시 제거. */
+(function(){try{document.cookie.split(';').forEach(function(c){var i=c.indexOf('='),n=c.slice(0,i).trim(),v=c.slice(i+1);
+if(/^_gcl_(aw|dc|gb|gs)$/.test(n)&&/TEST/i.test(v)){['','; domain=.monnit.co.kr','; domain=monnit.co.kr'].forEach(function(d){
+document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}});}catch(e){}})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* 광고 랜딩 가속 — #promotions/{id} 해시로 직접 들어오면 무거운 SPA 대신 초경량 정적 랜딩(promo.html)으로 즉시 이동 (utm·fbclid 유지). SPA 내부 이동에는 영향 없음. */
 (function(){try{var m=(location.pathname||'').match(/^\/promotions\/([^/?&]+)\/?$/)||(location.hash||'').match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);if(id==='flame-reservation')return;var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
@@ -45,7 +51,7 @@
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=117">
+<link rel="stylesheet" href="/style.css?v=118">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -253,7 +259,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     <div class="nh-hero-glow" aria-hidden="true"></div>
     <div class="wrap nh-hero-inner">
       <span class="nh-kicker" data-sc="home2.hero.kicker" data-sc-label="히어로 · 상단 라벨">산업용 무선 IoT · 통합관제 · AI 예지보전</span>
-      <h1 class="nh-hero-title" data-sc="home2.hero.title" data-sc-label="히어로 · 메인 제목">보이지 않는 위험까지<br><em>데이터</em>로 관리합니다</h1>
+      <h2 class="nh-hero-title" data-sc="home2.hero.title" data-sc-label="히어로 · 메인 제목"><span class="nh-tl">보이지 않는 위험까지</span><span class="nh-tl"><em>데이터</em>로 관리합니다</span></h2>
       <p class="nh-hero-lede" data-sc="home2.hero.lede" data-sc-label="히어로 · 설명문">산업용 무선 IoT 센서와 통합관제 플랫폼으로 화재·누수·설비 이상·환경 데이터를 실시간 모니터링하고 사고를 예방합니다.</p>
       <div class="nh-hero-cta">
         <a href="/contact" class="nh-btn nh-btn-primary" data-nav="contact" data-sc="home2.hero.cta1" data-sc-label="히어로 · 버튼1">맞춤 상담</a>
@@ -1732,9 +1738,10 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     <div class="page-hero promo-hero">
       <div class="hero-pulse" aria-hidden="true"></div>
       <div class="wrap">
+        <p class="promo-creed"><span class="pc-l1">필요한 건 제품이 아니라, <em>맞는 방법</em>이니까.</span><span class="pc-l2">먼저 살피고, 필요한 순간 알립니다.</span></p>
         <span class="kicker">Promotions</span>
         <h2 class="seo-h1">진행 중인 <em>프로모션</em></h2>
-        <p class="lede">한정 수량 특가부터 신규 가입 혜택까지 — Monnit Korea가 준비한 특별한 기회를 지금 만나보세요.</p>
+        <p class="lede">한정 수량 특가부터 신규 가입 혜택까지 Monnit Korea가 준비한 특별한 기회를 지금 만나보세요.</p>
         <div class="promo-hero-status" id="promoHeroStatus">
           <span class="dot" aria-hidden="true"></span>
           <span id="promoHeroCount">진행 중인 프로모션을 확인하세요</span>
@@ -1748,61 +1755,6 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       </div>
     </div>
 
-    
-    <div class="promo-apply-band">
-      <div class="wrap">
-        <div class="promo-apply-head">
-          <span class="kicker">Pre-registration</span>
-          <h2>프로모션 <em>사전 신청</em></h2>
-          <p>원하시는 프로모션을 선택하고 정보를 남겨주시면, 담당자가 빠르게 연락드립니다.</p>
-        </div>
-        <div class="promo-apply-prompt" id="promoApplyPrompt">
-          <button type="button" class="cta-primary" onclick="openApplyForm()">사전 신청하기</button>
-        </div>
-        <form id="promoApplyForm" class="promo-apply-form" onsubmit="return submitPromoApply(event)" hidden>
-          <div class="paf-row paf-row-full">
-            <label class="paf-field paf-full">
-              <span>신청 프로모션 <b>*</b></span>
-              <select id="pafPromo" required></select>
-            </label>
-          </div>
-          <div class="paf-row">
-            <label class="paf-field">
-              <span>이름 / 직급 <b>*</b></span>
-              <input type="text" id="pafName" placeholder="예: 홍길동 / 설비팀장" required>
-            </label>
-            <label class="paf-field">
-              <span>회사명 <b>*</b></span>
-              <input type="text" id="pafCompany" placeholder="예: (주)모넷코리아" required>
-            </label>
-          </div>
-          <div class="paf-row">
-            <label class="paf-field">
-              <span>전화번호 <b>*</b></span>
-              <input type="tel" id="pafPhone" placeholder="예: 010-1234-5678" required>
-            </label>
-            <label class="paf-field">
-              <span>이메일 <b>*</b></span>
-              <input type="email" id="pafEmail" placeholder="예: name@company.com" required>
-            </label>
-          </div>
-          <div class="paf-row">
-            <label class="paf-field" id="pafQtyField">
-              <span id="pafQtyLabel">구매 희망 수량</span>
-              <span id="pafQtyControl"><input type="text" id="pafQty" placeholder="예: 센서 50개 / 게이트웨이 2대"></span>
-            </label>
-            <label class="paf-field">
-              <span>문의 사항</span>
-              <input type="text" id="pafMemo" placeholder="추가로 남기실 내용 (선택)">
-            </label>
-          </div>
-          <div class="paf-actions">
-            <span id="pafStatus" class="paf-status"></span>
-            <button type="submit" class="cta-primary" id="pafSubmit">신청하기</button>
-          </div>
-        </form>
-      </div>
-    </div>
   </div>
   <div id="promoDetail" style="display:none">
     <div class="promo-detail-bar">
@@ -2068,7 +2020,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=121"></script>
+  <script src="/app.js?v=122"></script>
   <script src="/js/why-rolling.js?v=2" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=1" defer></script>

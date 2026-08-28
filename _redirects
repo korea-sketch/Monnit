@@ -1,6 +1,27 @@
 # 제안서 PDF 직접 접근 차단 — 반드시 이메일 신청 후 getdoc 함수를 통해서만 받는다
 /proposals/*    /404.html    404!
 
+# 개발 문서·빌드 스크립트 공개 차단 (2026-08-28 검수)
+# Netlify 는 파일이 존재해도 404! 강제 규칙이 우선합니다.
+/2차작업-적용안내.md                     /404.html    404!
+/ABOUT-히어로-적용안내.md                  /404.html    404!
+/CMS-적용안내.md                           /404.html    404!
+/COMMIT_NOTES-2026-08-25.md                   /404.html    404!
+/PATCH-flame직링크전용-적용안내.md     /404.html    404!
+/PATCH-적용안내.md                         /404.html    404!
+/PROMO-CONSULTING-적용안내.md              /404.html    404!
+/README-복구및적용.md                     /404.html    404!
+/README-적용안내.md                        /404.html    404!
+/SEO-적용안내.md                           /404.html    404!
+/변경내역.md                               /404.html    404!
+/적용방법.md                              /404.html    404!
+/제안서-다운로드-설정.md                  /404.html    404!
+/크롤링수정-변경내역.md                 /404.html    404!
+/build.js                                     /404.html    404!
+/promo-consulting-sheet-template.csv          /404.html    404!
+/package.json                                 /404.html    404!
+
+
 /monnitblog https://blog.naver.com/monnitkorea 301
 /monnitblog/* https://blog.naver.com/monnitkorea 301
 
@@ -26,37 +47,18 @@
 /pages/case-HDC랩스.html /case/hdc-labs 301!
 
 # >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>
-# --- 예전 /pages 주소 → 새 경로 (117개)
+# --- 예전 /pages 주소 → 새 경로 (98개)
 /pages/company.html                    /who-we-are                  301!
 /pages/products.html                   /products                    301!
 /pages/solutions.html                  /applications                301!
 /pages/case-samsung-biologics.html     /case/samsung-biologics      301!
-/pages/case-veolia.html                /case/veolia                 301!
-/pages/case-samsung.html               /case/samsung                301!
+/pages/case-exxonmobil.html            /case/exxonmobil             301!
+/pages/case-walmart.html               /case/walmart                301!
 /pages/case-microsoft.html             /case/microsoft              301!
 /pages/case-hyundai-motors.html        /case/hyundai-motors         301!
-/pages/case-hdc-labs.html              /case/hdc-labs               301!
+/pages/case-cbre.html                  /case/cbre                   301!
 /pages/case-us-army.html               /case/us-army                301!
 /pages/case-gs-eps.html                /case/gs-eps                 301!
-/pages/case-walmart.html               /case/walmart                301!
-/pages/case-sk-ecoplant.html           /case/sk-ecoplant            301!
-/pages/case-hyundai-enc.html           /case/hyundai-enc            301!
-/pages/case-hyundai-engineering.html   /case/hyundai-engineering    301!
-/pages/case-hoban.html                 /case/hoban                  301!
-/pages/case-seantex.html               /case/seantex                301!
-/pages/case-emart.html                 /case/emart                  301!
-/pages/case-hanwha-snc.html            /case/hanwha-snc             301!
-/pages/case-samchully.html             /case/samchully              301!
-/pages/case-lx.html                    /case/lx                     301!
-/pages/case-hyu-guri-hospital.html     /case/hyu-guri-hospital      301!
-/pages/case-cj-feedncare.html          /case/cj-feedncare           301!
-/pages/case-aquafarm.html              /case/aquafarm               301!
-/pages/case-gangnam.html               /case/gangnam                301!
-/pages/case-keco.html                  /case/keco                   301!
-/pages/case-shinhan-univ.html          /case/shinhan-univ           301!
-/pages/case-songhyun-elem.html         /case/songhyun-elem          301!
-/pages/case-cbre.html                  /case/cbre                   301!
-/pages/case-exxonmobil.html            /case/exxonmobil             301!
 /pages/cases.html                      /stories                     301!
 /pages/app-temp.html                   /app/temp                    301!
 /pages/app-leak.html                   /app/leak                    301!
