@@ -614,6 +614,28 @@ if (!matchMedia('(prefers-reduced-motion:reduce)').matches)
 <meta name="twitter:title" content="무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea">
 <meta name="twitter:description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
 <meta name="twitter:image" content="https://monnit.co.kr/images/why-ai.jpg">
+<style>
+/* ── [2026-08-28] 모바일 마감 보강 ─────────────────────────────
+   기존 디자인은 그대로 두고, 빠져 있던 것만 채웁니다.
+   · 가로 스크롤 차단 (한 요소라도 넘치면 페이지 전체가 좌우로 흔들립니다)
+   · 하단 고정바(.mbar)가 마지막 콘텐츠·푸터를 가리지 않도록 여백 확보
+   · 모달 스크롤이 뒤 페이지로 번지지 않게 (스크롤 체이닝 방지)
+   · 확대보기 이미지 로드 전 레이아웃 흔들림(CLS) 방지
+   · 푸터·연락처의 작은 링크 터치 영역 확대                       */
+html, body { overflow-x: hidden; max-width: 100%; }
+img, svg, video, canvas { max-width: 100%; height: auto; }
+
+@media (max-width: 700px) {
+  /* .mbar 는 min-height 50px + 상하 패딩 ≈ 72px */
+  body { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+  /* 얇은 텍스트 링크의 손가락 접촉 면적 확보 (레이아웃은 그대로) */
+  .foot a, .contact a, .final a:not(.btn-form) { display: inline-block; padding-block: 6px; }
+  a, button { -webkit-tap-highlight-color: transparent; }
+}
+
+#fm, .fm-body, #zoom, .zoom { overscroll-behavior: contain; }
+#zoom img, .zoom img { aspect-ratio: 16 / 9; background: #0E2A47; }
+</style>
 </head>
 <body>
 
