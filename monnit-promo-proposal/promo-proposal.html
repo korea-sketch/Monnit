@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea</title>
+<meta name="description" content="회전기기 26대 + 수배전반 4포인트, 총 30포인트. 실제 제안 한 건의 센서 배치안·알람 기준값·8주 구축 일정을 그대로 공개합니다." />
+<meta name="robots" content="noindex,follow" />
+
+<!-- OG -->
+<link rel="canonical" href="https://monnit.co.kr/promo/proposal" />
+<meta property="og:url" content="https://monnit.co.kr/promo/proposal" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="실제 예지보전 제안서는 이렇게 나옵니다" />
+<meta property="og:description" content="30포인트 실제 사례 · 센서 배치안 · ISO 20816-3 알람 기준 · 8주 구축 일정" />
+
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T8H73VW');</script>
+<script>
+(function(){var G='G-49THHRYKR4';var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+G;document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',G);
+(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,'clarity','script','x38egtft64');})();
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- ── Meta Pixel ─────────────────────────────────────────────
+     사이트 전역에 GTM으로 이미 픽셀이 들어가 있으면 이 블록은 삭제하세요 (중복 로드 방지). -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','319816936268197');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=319816936268197&ev=PageView&noscript=1" /></noscript>
+
+<style>
+:root{
+  --navy-900:#08111d;
+  --navy-800:#0a1624;
+  --navy-700:#102338;
+  --line:#1c3651;
+  --ink:#e8eef6;
+  --ink-dim:#93a6bd;
+  --ink-mute:#61748c;
+  --teal:#2dd4bf;
+  --amber:#f59e0b;
+  --sans:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--navy-800);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(180deg,var(--navy-900) 0%,var(--navy-800) 55%);
+  background-attachment:fixed;
+}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* header */
+.top{border-bottom:1px solid var(--line);padding:20px 0}
+.brand{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--ink-dim)}
+.brand b{color:var(--ink);font-weight:600}
+
+/* layout */
+.grid{display:grid;grid-template-columns:1fr 400px;gap:64px;padding:64px 0 96px;align-items:start}
+@media(max-width:960px){.grid{grid-template-columns:1fr;gap:40px;padding:40px 0 64px}}
+
+/* hero */
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--teal);margin:0 0 20px}
+h1{
+  font-size:clamp(32px,5.2vw,52px);line-height:1.22;letter-spacing:-.03em;
+  font-weight:700;margin:0 0 20px;
+}
+h1 .thin{display:block;font-weight:400;color:var(--ink-dim)}
+.lede{font-size:17px;color:var(--ink-dim);margin:0 0 36px;max-width:46ch}
+.lede b{color:var(--ink);font-weight:600}
+
+/* signature: 포인트 원장 */
+.ledger{border:1px solid var(--line);background:rgba(16,35,56,.45);border-radius:2px;margin:0 0 36px}
+.ledger-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:12px 18px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-mute);
+}
+.ledger-head span:last-child{color:var(--teal)}
+.row{
+  display:grid;grid-template-columns:1fr auto 56px;gap:16px;align-items:center;
+  padding:11px 18px;border-bottom:1px solid rgba(28,54,81,.55);
+}
+.row:last-of-type{border-bottom:0}
+.row .zone{font-size:14.5px}
+.row .kind{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);letter-spacing:.02em}
+.row .n{font-family:var(--mono);font-size:15px;text-align:right;color:var(--ink)}
+.row.total{background:rgba(45,212,191,.06);border-top:1px solid var(--line)}
+.row.total .zone{font-weight:600}
+.row.total .n{color:var(--teal);font-weight:600}
+@media(max-width:520px){
+  .row{grid-template-columns:1fr 48px}
+  .row .kind{display:none}
+}
+
+/* contents */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:640px){.cols{grid-template-columns:1fr;gap:24px}}
+.h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-mute);margin:0 0 14px;text-transform:uppercase}
+ul{margin:0;padding:0;list-style:none}
+li{padding:0 0 10px 16px;position:relative;font-size:14.5px;color:var(--ink-dim)}
+li::before{content:'';position:absolute;left:0;top:10px;width:5px;height:1px;background:var(--teal)}
+.excl li::before{background:var(--ink-mute)}
+.excl li{color:var(--ink-mute)}
+
+/* form card */
+.card{
+  border:1px solid var(--line);background:var(--navy-700);border-radius:3px;
+  padding:28px;position:sticky;top:24px;
+}
+@media(max-width:960px){.card{position:static}}
+.card h2{font-size:19px;margin:0 0 6px;letter-spacing:-.01em}
+.card .sub{font-size:13.5px;color:var(--ink-mute);margin:0 0 22px}
+label{display:block;font-size:12.5px;color:var(--ink-dim);margin:0 0 6px;font-weight:500}
+label .req{color:var(--amber)}
+input,select{
+  width:100%;padding:11px 13px;margin:0 0 16px;
+  background:var(--navy-900);border:1px solid var(--line);border-radius:2px;
+  color:var(--ink);font-family:var(--sans);font-size:14.5px;
+}
+input::placeholder{color:#4b5f77}
+input:focus,select:focus,button:focus-visible,a:focus-visible{
+  outline:2px solid var(--teal);outline-offset:2px;border-color:var(--teal)
+}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-mute) 50%),linear-gradient(135deg,var(--ink-mute) 50%,transparent 50%);background-position:calc(100% - 18px) 20px,calc(100% - 13px) 20px;background-size:5px 5px;background-repeat:no-repeat}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:4px 0 18px}
+.consent input{width:16px;height:16px;margin:3px 0 0;flex:0 0 auto;accent-color:var(--teal)}
+.consent p{margin:0;font-size:12px;line-height:1.55;color:var(--ink-mute)}
+.consent a{color:var(--ink-dim);text-decoration:underline;text-underline-offset:2px}
+button{
+  width:100%;padding:14px;border:0;border-radius:2px;cursor:pointer;
+  background:var(--teal);color:#04212a;font-family:var(--sans);font-size:15px;font-weight:700;
+  letter-spacing:-.01em;transition:background .18s ease;
+}
+button:hover{background:#5ee7d6}
+button[disabled]{background:#2a4256;color:var(--ink-mute);cursor:not-allowed}
+.foot-note{font-size:11.5px;color:var(--ink-mute);margin:14px 0 0;text-align:center}
+.err{color:var(--amber);font-size:12.5px;margin:0 0 12px;display:none}
+
+/* success */
+.done{display:none;text-align:left}
+.done.on{display:block;animation:rise .4s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.done .tick{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--teal);margin:0 0 12px}
+.done h2{margin-bottom:10px}
+.dl{
+  display:block;text-align:center;padding:14px;margin:20px 0 0;
+  background:var(--teal);color:#04212a;font-weight:700;font-size:15px;
+  text-decoration:none;border-radius:2px;
+}
+.spec{font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin:12px 0 0;text-align:center}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:28px 0 56px;font-size:12.5px;color:var(--ink-mute)}
+footer p{margin:0 0 4px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap brand">MONNIT <b>KOREA</b> &nbsp;·&nbsp; 자료 다운로드</div>
+</header>
+
+<main class="wrap grid">
+
+  <section>
+    <p class="eyebrow">실제 제안 사례 기반 · 20페이지</p>
+    <h1>실제 제안서는<span class="thin">이렇게 나옵니다</span></h1>
+    <p class="lede">
+      “무선 센서로 설비를 감시한다는데, 우리 공장엔 몇 개를 어디에 붙여야 하나요?”
+      카탈로그로는 답이 나오지 않아, <b>실제로 진행한 제안 한 건을 통째로 공개</b>합니다.
+      고객사명과 금액만 제외했고 구성·수량·판단 근거는 제안서 그대로입니다.
+    </p>
+
+    <div class="ledger">
+      <div class="ledger-head"><span>본 사례 감시 포인트 구성</span><span>30 POINTS</span></div>
+      <div class="row"><span class="zone">유틸리티 펌프 (A/B 교대 전수)</span><span class="kind">3축 진동 + 온도</span><span class="n">14</span></div>
+      <div class="row"><span class="zone">핵심 반응기 교반기</span><span class="kind">3축 진동 + 온도</span><span class="n">5</span></div>
+      <div class="row"><span class="zone">에어 컴프레셔 · 메인 칠러</span><span class="kind">3축 진동 + 온도</span><span class="n">4</span></div>
+      <div class="row"><span class="zone">집진기 팬 · 냉각탑</span><span class="kind">3축 진동 + 온도</span><span class="n">3</span></div>
+      <div class="row"><span class="zone">전기실 VCB / ACB 부스바</span><span class="kind">무선 열전대 K-Type</span><span class="n">4</span></div>
+      <div class="row total"><span class="zone">신규 배선 0 m · 라인 정지 없이 1~2일 설치</span><span class="kind">게이트웨이 3식</span><span class="n">30</span></div>
+    </div>
+
+    <div class="cols">
+      <div>
+        <p class="h3">문서에 담긴 것</p>
+        <ul>
+          <li>설비 종류별 센서를 몇 개, 어디에 붙이는지 실제 배치안</li>
+          <li>펌프·교반기·컴프레셔·부스바 고장 징후별 감지 항목</li>
+          <li>ISO 20816-3 준용 초기 알람 임계값 테이블</li>
+          <li>클라우드 vs 폐쇄망 서버 비교, 발주 후 8주 구축 일정</li>
+          <li>어느 업체 제안을 받든 확인할 도입 검토 체크리스트</li>
+        </ul>
+      </div>
+      <div>
+        <p class="h3">담지 않은 것</p>
+        <ul class="excl">
+          <li>단가 및 견적 금액 — 현장 조건에 따라 달라져 별도 산출합니다</li>
+          <li>고객사명 및 라인 식별 정보 — 익명 처리하였습니다</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card">
+
+      <!-- 입력 폼 -->
+      <div id="formView">
+        <h2>PDF로 받아보기</h2>
+        <p class="sub">아래 정보를 남기시면 바로 다운로드됩니다.</p>
+
+        <p class="err" id="err">필수 항목을 모두 입력해 주세요.</p>
+
+        <!-- Netlify Forms 사용. 자체 백엔드로 보내려면 form의 action과 아래 submit 핸들러만 교체하세요. -->
+        <form id="leadForm" name="promo-proposal" method="POST" data-netlify="true" netlify-honeypot="company-url">
+          <input type="hidden" name="form-name" value="promo-proposal" />
+          <p style="display:none"><label>비워두세요 <input name="company-url" /></label></p>
+
+          <label for="company">회사명 <span class="req">*</span></label>
+          <input id="company" name="company" required placeholder="예) 모넷코리아" />
+
+          <label for="name">이름 <span class="req">*</span></label>
+          <input id="name" name="name" required placeholder="예) 김설비" />
+
+          <label for="email">회사 이메일 <span class="req">*</span></label>
+          <input id="email" name="email" type="email" required placeholder="name@company.co.kr" />
+
+          <label for="phone">연락처</label>
+          <input id="phone" name="phone" type="tel" inputmode="tel" placeholder="010-0000-0000" />
+
+          <label for="scale">감시 검토 중인 설비 규모</label>
+          <select id="scale" name="scale">
+            <option value="">선택 안 함</option>
+            <option>10포인트 이하</option>
+            <option>10 ~ 30포인트</option>
+            <option>30 ~ 100포인트</option>
+            <option>100포인트 이상</option>
+            <option>아직 미정 · 검토 단계</option>
+          </select>
+
+          <div class="consent">
+            <input id="agree" name="agree" type="checkbox" required />
+            <p><label for="agree" style="display:inline;font-size:12px;color:var(--ink-mute)">
+              자료 발송 및 제품 문의 응대를 위한 개인정보 수집·이용에 동의합니다.
+              수집 항목: 회사명·이름·이메일·연락처 / 보유 기간: 3년 / 동의를 거부하실 수 있으나 자료 발송이 제한됩니다.
+              <a href="/privacy" target="_blank" rel="noopener">개인정보처리방침</a>
+            </label></p>
+          </div>
+
+          <button type="submit" id="submitBtn">PDF 받기</button>
+          <p class="foot-note">영업 전화는 드리지 않습니다. 문의 주실 때만 회신드립니다.</p>
+        </form>
+      </div>
+
+      <!-- 완료 -->
+      <div class="done" id="doneView">
+        <p class="tick">DOWNLOAD READY</p>
+        <h2>자료가 준비되었습니다</h2>
+        <p class="sub" id="doneSub">아래 버튼으로 바로 열리며, 입력하신 메일로도 링크를 보내드립니다.</p>
+        <a class="dl" id="dlLink" href="/files/monnit-pdm-guide.pdf" download>제안 가이드 열기</a>
+        <p class="spec">PDF · 20 PAGES · 약 1 MB</p>
+        <p class="foot-note">감시 희망 설비 리스트를 <a href="mailto:korea@monnit.com" style="color:var(--ink-dim)">korea@monnit.com</a>로 보내주시면<br />예상 포인트 수와 게이트웨이 구성안을 먼저 정리해 회신드립니다.</p>
+      </div>
+
+    </div>
+  </aside>
+</main>
+
+<footer class="wrap">
+  <p>Monnit Korea · 서울 서초구 효령로 380, 2층 · 02-2088-1454 · korea@monnit.com</p>
+  <p>본 자료는 실제 제안 사례를 기반으로 하며, 고객사명 및 견적 금액은 제외하였습니다.</p>
+</footer>
+
+<script>
+(function(){
+  var form = document.getElementById('leadForm');
+  var btn  = document.getElementById('submitBtn');
+  var err  = document.getElementById('err');
+  var PDF  = document.getElementById('dlLink').getAttribute('href');
+
+  function eventId(){
+    return 'lead-' + Date.now() + '-' + Math.random().toString(36).slice(2,10);
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){ err.style.display='block'; form.reportValidity(); return; }
+    err.style.display='none';
+    btn.disabled = true; btn.textContent = '전송 중…';
+
+    var fd = new FormData(form);
+    var eid = eventId();
+
+    // 1) 픽셀 Lead (CAPI와 중복 제거용 eventID 동봉)
+    if(window.fbq){ fbq('track','Lead',{content_name:'예지보전 제안 가이드'},{eventID:eid}); }
+
+    // 2) 서버 전송 — Netlify Forms
+    fetch('/promo/proposal/', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams(fd).toString()
+    }).catch(function(){ /* 전송 실패해도 다운로드는 막지 않음 */ })
+      .finally(function(){
+        // 3) CAPI 함수로 서버 이벤트 (선택) — 기존 Netlify Function 경로에 맞게 수정
+        try{
+          fetch('/.netlify/functions/capi', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+              event_name:'Lead', event_id:eid,
+              event_source_url:location.href,
+              email:fd.get('email'), phone:fd.get('phone'),
+              company:fd.get('company')
+            })
+          });
+        }catch(_){}
+
+        document.getElementById('formView').style.display='none';
+        document.getElementById('doneView').classList.add('on');
+        // 자동 다운로드 1회 시작
+        var a=document.createElement('a'); a.href=PDF; a.download=''; document.body.appendChild(a); a.click(); a.remove();
+      });
+  });
+})();
+</script>
+</body>
+</html>
