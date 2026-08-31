@@ -1457,30 +1457,9 @@ function verifyRoutes(){
   const prefixes = [...APPJS.matchAll(/target\.startsWith\('([^']+)'\)/g)].map(m => m[1]);
   const exact    = new Set([...APPJS.matchAll(/target === '([a-z0-9-]+)'/g)].map(m => m[1]));
 
-  /* [2026-08-31] 오탐 수정 ─────────────────────────────────────────
-     이 검사가 12개 경로를 계속 orphan 으로 잡아 process.exit(1) 로 빌드를
-     세우고 있었습니다. Netlify 는 종료코드가 0이 아니면 배포를 버리고 직전
-     배포를 유지하므로, 그동안 어떤 변경도 사이트에 반영되지 않았습니다.
-
-     원인은 "뷰를 찾는 위치" 였습니다.
-       · index.html 은 16KB 껍데기라 id="view-*" 가 하나도 없습니다.
-         실제 뷰 요소는 app.js 안에 있습니다 (view-contact, view-faqs …).
-       · /newsletter 처럼 실제 폴더(newsletter/index.html)가 있는 경로는
-         Netlify 가 정적 파일을 먼저 내주므로 navigate() 까지 가지 않습니다.
-
-     그래서 두 가지를 추가로 "라우팅 가능"으로 인정합니다.
-     검사의 목적(홈으로 조용히 폴백하는 경로를 잡는다)은 그대로입니다. */
-  const appViews = new Set([...APPJS.matchAll(/view-([a-z0-9-]+)/g)].map(m => m[1]));
-  const hasFile  = r => {
-    try { return fs.existsSync(path.join(__dirname, r, 'index.html')); }
-    catch (e) { return false; }
-  };
-
   const routable = r =>
        r === 'home'
     || views.has(r)
-    || appViews.has(r)
-    || hasFile(r)
     || exact.has(r)
     || prefixes.some(p => r.startsWith(p));
 
