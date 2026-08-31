@@ -6,23 +6,56 @@
 <meta name="theme-color" content="#0E2A47">
 <meta name="format-detection" content="telephone=no">
 <title>무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea</title>
-<meta name="description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
+<meta name="description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 20페이지 전문 자료를 무료로 보내드립니다. 문의 02-2088-1454">
 <meta property="og:type" content="website">
 <meta property="og:title" content="실제 제안서는 이렇게 나옵니다 — 무선 예지보전 30포인트 사례">
-<meta property="og:description" content="센서를 몇 개, 어디에 붙이는지. 실제 진행한 제안 한 건을 통째로 공개합니다. 정보 입력 없이 즉시 다운로드.">
-<meta property="og:image" content="og-image.jpg">
+<meta property="og:description" content="센서를 몇 개, 어디에 붙이는지. 실제 진행한 제안 한 건을 통째로 공개합니다. 20페이지 PDF 무료 제공.">
+<meta property="og:image" content="https://monnit.co.kr/images/proposal-guide/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230E2A47'/><text y='68' x='50' font-size='56' text-anchor='middle' fill='%234A90D9' font-family='sans-serif' font-weight='700'>M</text></svg>">
 
+<!-- 본문 폰트 — 사이트 공통 Pretendard (렌더를 막지 않도록 지연 적용) -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 
+<!-- 사이트 공통 — 동의 배너 · GTM/GA4/Clarity · 리드 접점 규격 -->
+<script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
+<script src="/js/monnit-consent.js?v=111"></script>
+<script src="/js/monnit-lead.js?v=2"></script>
+
+<!-- LCP 이미지 미리 불러오기 (화면 크기에 맞는 것만) -->
 <link rel="preload" as="image" href="/images/proposal-guide/cover-800.jpg"
       imagesrcset="/images/proposal-guide/cover-800.jpg 800w, /images/proposal-guide/cover.jpg 1600w"
       imagesizes="(max-width:900px) 92vw, 460px" fetchpriority="high">
 
+<!-- ══════════════════════════════════════════════════════════════
+     광고 전환 추적 — 여기에 픽셀을 직접 붙이지 마세요
+     ══════════════════════════════════════════════════════════════
+     이 사이트는 monnit-consent.js 가 Google 동의 모드(Consent Mode v2)로
+     GTM·GA4·Clarity 를 관리합니다. 기본값이 denied 이고, 방문자가 동의해야
+     ad_storage 가 granted 로 바뀝니다.
 
-<script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
-<script src="/js/monnit-consent.js?v=111"></script>
-<script src="/js/monnit-lead.js?v=2"></script>
+     따라서 Meta 픽셀·Google Ads 태그는 이 파일이 아니라 GTM(GTM-T8H73VW)
+     안에서 추가해야 합니다. 여기에 직접 붙이면 동의 전에 발사되어
+     동의 관리 설계가 무너집니다.
+
+     이 페이지는 아래 이벤트를 dataLayer 로 올립니다. GTM 에서 이 이름으로
+     트리거를 만들어 각 광고 전환에 연결하세요.
+
+       monnit_download     자료 신청 완료 (리드 획득)  ← 주 전환
+       monnit_form_submit  상담 문의 접수
+       monnit_form_open    폼 열기
+       monnit_contact      전화·메일 클릭
+
+     monnit_download 에는 lead_grade(A/B/C) 와 value(리드 점수)가 함께
+     실려 갑니다. 전환 가치를 점수로 넘기면 광고 최적화를 단순 건수가 아니라
+     리드 품질 기준으로 돌릴 수 있습니다.
+
+     MonnitLead 도 별도로 lead_doc_request · generate_lead 를 올립니다.
+     (js/monnit-lead.js — 사이트 공통 규격)
+     ══════════════════════════════════════════════════════════════ -->
 
 <style>
 :root{
@@ -213,6 +246,24 @@ h2{font-size:clamp(22px,5.6vw,31px);line-height:1.36;margin:0 0 14px;font-weight
   content:counter(t,decimal-leading-zero);font-size:12px;font-weight:800;color:var(--accent);
   font-variant-numeric:tabular-nums;flex:none;
 }
+
+/* ───── 자주 묻는 질문 ───── */
+.faq{border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line);background:#fff}
+.faq summary{
+  list-style:none;cursor:pointer;padding:20px 44px 20px 2px;position:relative;
+  font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.5;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{
+  content:"";position:absolute;right:12px;top:50%;width:11px;height:11px;
+  border-right:2.4px solid var(--accent);border-bottom:2.4px solid var(--accent);
+  transform:translateY(-70%) rotate(45deg);transition:transform .22s var(--ease);
+}
+.faq details[open] summary::after{transform:translateY(-20%) rotate(225deg)}
+.faq details[open] summary{color:var(--accent)}
+@media (hover:hover){ .faq summary:hover{color:var(--accent)} }
+.faq .a{padding:0 44px 22px 2px;color:var(--body);font-size:15px;line-height:1.8;margin:0}
 
 /* ───── 최종 CTA ───── */
 .final{background:linear-gradient(160deg,#0E2A47,#1B4571);color:#fff;padding:76px 0}
@@ -422,8 +473,26 @@ h2{font-size:clamp(22px,5.6vw,31px);line-height:1.36;margin:0 0 14px;font-weight
 .agree span{font-size:12.5px;color:var(--body);line-height:1.6}
 .agree b{color:var(--ink);font-weight:700}
 
+.agree a{color:var(--accent);font-weight:700}
+
+/* 받는 자료 미리 확인 카드 */
+.fm-item{
+  display:flex;align-items:center;gap:13px;margin:0 0 18px;
+  background:var(--bg-alt);border:1px solid var(--line);border-radius:11px;padding:11px 13px;
+}
+.fm-item img{border-radius:6px;border:1px solid var(--line);flex:none}
+.fm-item b{display:block;font-size:14px;font-weight:800;letter-spacing:-.02em;line-height:1.4}
+.fm-item span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5}
+
+/* 모드별 항목 표시 */
+#fm[data-mode="download"] [data-only="inquiry"]{display:none}
+#fm[data-mode="inquiry"]  [data-only="download"]{display:none}
+
 .fm-note{font-size:12.5px;color:var(--muted);text-align:center;margin:12px 0 0;line-height:1.6}
 .fm-note a{color:var(--accent);font-weight:700;text-decoration:none}
+.btn-form.ghost{background:var(--bg-alt);color:var(--ink);border:1px solid var(--line)}
+.btn-form.ghost:hover{background:var(--line)}
+.fm-ok-acts{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}
 .fm-ok{display:none;text-align:center;padding:16px 4px 8px}
 .fm-ok .ic{
   width:58px;height:58px;border-radius:50%;background:var(--ok);
@@ -601,40 +670,28 @@ if (!matchMedia('(prefers-reduced-motion:reduce)').matches)
   document.documentElement.className = 'js';
 </script>
 
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://monnit.co.kr/#org","name":"모넷코리아","alternateName":["Monnit Korea","모닛코리아"],"url":"https://monnit.co.kr","logo":"https://monnit.co.kr/images/monnit-logo.png","email":"korea@monnit.com","telephone":"+82-2-2088-1454","address":{"@type":"PostalAddress","streetAddress":"효령로 380 2층","addressLocality":"서초구","addressRegion":"서울특별시","addressCountry":"KR"},"sameAs":["https://blog.naver.com/monnitkorea"]},{"@type":"WebSite","@id":"https://monnit.co.kr/#website","url":"https://monnit.co.kr","name":"모넷코리아","publisher":{"@id":"https://monnit.co.kr/#org"},"inLanguage":"ko-KR"},{"@type":"WebPage","@id":"https://monnit.co.kr/promo/proposal#webpage","url":"https://monnit.co.kr/promo/proposal","name":"무선 IoT 설비 예지보전 제안 가이드 | 모넷코리아","description":"회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 센서 배치안·ISO 20816-3 알람 기준·클라우드 vs 폐쇄망 비교·8주 구축 일정 수록. 20페이지 PDF 무료. 문의 02-2088-1454.","isPartOf":{"@id":"https://monnit.co.kr/#website"},"about":{"@id":"https://monnit.co.kr/#org"},"primaryImageOfPage":"https://monnit.co.kr/images/proposal-guide/og-image.jpg","inLanguage":"ko-KR"},{"@type":"BreadcrumbList","@id":"https://monnit.co.kr/promo/proposal#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://monnit.co.kr/"},{"@type":"ListItem","position":2,"name":"자료실","item":"https://monnit.co.kr/guides"},{"@type":"ListItem","position":3,"name":"무선 IoT 설비 예지보전 제안 가이드","item":"https://monnit.co.kr/promo/proposal"}]},{"@type":"Service","@id":"https://monnit.co.kr/promo/proposal#service","name":"무선 IoT 설비 예지보전 상태감시","serviceType":"설비 예지보전(Predictive Maintenance) 상태감시","provider":{"@id":"https://monnit.co.kr/#org"},"areaServed":{"@type":"Country","name":"대한민국"},"description":"펌프·교반기·컴프레셔·팬 등 회전기기에 배터리 내장 무선 3축 진동·온도 센서를 부착하고, 전기실 수배전반 부스바에는 무선 열전대 온도센서를 적용해 24시간 상시 감시합니다. 배선공사 없이 설비 가동 중 설치가 가능하며 클라우드와 폐쇄망 서버를 모두 지원합니다.","offers":{"@type":"Offer","name":"현장 실사 무상 · 제안 가이드 무료 제공","price":"0","priceCurrency":"KRW","availability":"https://schema.org/InStock","url":"https://monnit.co.kr/promo/proposal","description":"실제 제안 사례 30포인트를 담은 20페이지 가이드를 무료로 제공하며, 현장 실사는 반일 소요·무상으로 진행합니다.","seller":{"@id":"https://monnit.co.kr/#org"}}},{"@type":"FAQPage","@id":"https://monnit.co.kr/promo/proposal#faq","mainEntity":[{"@type":"Question","name":"무선 진동센서는 설비 몇 대에 몇 개가 필요한가요?","acceptedAnswer":{"@type":"Answer","text":"설비 1대당 센서 1식이 기준입니다. 모터–커플링–펌프처럼 물리적으로 연결된 구동계는 3축 진동+온도 복합센서 1개를 모터측 또는 베어링 하우징에 부착하면 전 구간의 이상 징후를 함께 잡습니다. 축별로 나눠 달 필요가 없어 투자 규모가 예측 가능합니다. 실제 사례에서는 회전기기 26대 + 수배전반 4포인트로 총 30포인트를 구성했습니다."}},{"@type":"Question","name":"설비를 세우지 않고 설치할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"가능합니다. 배터리 내장 무선센서라 전원·통신 배선이 모두 불필요하고, 마그네틱 브래킷 또는 M4 나사로 고정하므로 천공·용접·정전이 없습니다. 포인트당 10~20분이면 부착이 끝나며 30포인트 기준 1~2일 내 설치가 완료됩니다."}},{"@type":"Question","name":"유선 계측 대비 무엇이 다른가요?","acceptedAnswer":{"@type":"Answer","text":"유선은 케이블 트레이·배관 신설과 전원 인출이 필요해 센서 값보다 공사비가 더 커지는 경우가 많고, 라인 정지 일정이 잡히지 않아 프로젝트가 연기되곤 합니다. 무선은 신규 배선이 0m이고 가동 중 설치가 가능하며, 증설 시에도 센서만 추가해 즉시 등록됩니다."}},{"@type":"Question","name":"폐쇄망 공장에서도 도입할 수 있나요?","acceptedAnswer":{"@type":"Answer","text":"가능합니다. 클라우드(SaaS) 구독형과 공장 내 자체 서버 구축형(영구 라이선스) 두 가지를 모두 지원하며 화면과 기능이 동일합니다. 보안 정책상 데이터 외부 반출이 불가한 사업장은 서버 구축형으로 폐쇄망 운영이 가능합니다."}},{"@type":"Question","name":"알람 기준값은 어떻게 정하나요?","acceptedAnswer":{"@type":"Answer","text":"ISO 20816-3 을 준용한 초기 임계값(진동속도 RMS 2.8/4.5 mm/s 등)으로 시작한 뒤, 설치 후 1~2개월 정상운전 데이터를 모아 설비별로 재조정합니다. 같은 사양 펌프라도 배관 지지 상태에 따라 정상 진동값이 다르므로, 이 기준선 튜닝을 거치지 않으면 오경보가 많아 아무도 보지 않는 알람이 됩니다."}},{"@type":"Question","name":"도입까지 얼마나 걸리나요?","acceptedAnswer":{"@type":"Answer","text":"발주 후 약 8주입니다. 현장 실사 및 포인트 확정, 하드웨어 입고, 소프트웨어 설치와 계정 구성, 센서 부착, 통신 검증과 시운전, 알람 초기 설정과 사용자 교육, 기준선 수집 및 임계값 재조정 순으로 진행합니다. 현장 실사는 반일 소요이며 무상입니다."}}]}]}
+</script>
+
 <link rel="canonical" href="https://monnit.co.kr/promo/proposal">
 <meta name="robots" content="noindex, nofollow">
-<meta property="og:type" content="website">
 <meta property="og:site_name" content="Monnit Korea">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:title" content="무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea">
-<meta property="og:description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
 <meta property="og:url" content="https://monnit.co.kr/promo/proposal">
-<meta property="og:image" content="https://monnit.co.kr/images/why-ai.jpg">
-<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="무선 IoT 설비 예지보전 제안 가이드 | Monnit Korea">
-<meta name="twitter:description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트를 그대로 공개합니다. 이메일 입력 없이 바로 다운로드. 문의 02-2088-1454">
-<meta name="twitter:image" content="https://monnit.co.kr/images/why-ai.jpg">
-<style>
-/* ── [2026-08-28] 모바일 마감 보강 ─────────────────────────────
-   기존 디자인은 그대로 두고, 빠져 있던 것만 채웁니다.
-   · 가로 스크롤 차단 (한 요소라도 넘치면 페이지 전체가 좌우로 흔들립니다)
-   · 하단 고정바(.mbar)가 마지막 콘텐츠·푸터를 가리지 않도록 여백 확보
-   · 모달 스크롤이 뒤 페이지로 번지지 않게 (스크롤 체이닝 방지)
-   · 확대보기 이미지 로드 전 레이아웃 흔들림(CLS) 방지
-   · 푸터·연락처의 작은 링크 터치 영역 확대                       */
-html, body { overflow-x: hidden; max-width: 100%; }
-img, svg, video, canvas { max-width: 100%; height: auto; }
+<meta name="twitter:description" content="회전기기 26대 + 수배전반 4포인트, 실제 제안 사례 30포인트. 20페이지 PDF 무료 제공.">
+<meta name="twitter:image" content="https://monnit.co.kr/images/proposal-guide/og-image.jpg">
 
+<style>
+/* ── 모바일 마감 보강 (기존 사이트 규칙 유지) ───────────────── */
+html, body { max-width: 100%; }
+img, svg, video, canvas { max-width: 100%; height: auto; }
 @media (max-width: 700px) {
-  /* .mbar 는 min-height 50px + 상하 패딩 ≈ 72px */
-  body { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
-  /* 얇은 텍스트 링크의 손가락 접촉 면적 확보 (레이아웃은 그대로) */
   .foot a, .contact a, .final a:not(.btn-form) { display: inline-block; padding-block: 6px; }
   a, button { -webkit-tap-highlight-color: transparent; }
 }
-
-#fm, .fm-body, #zoom, .zoom { overscroll-behavior: contain; }
-#zoom img, .zoom img { aspect-ratio: 16 / 9; background: #0E2A47; }
+#fm, .fm-body, #lb, #lb .stage { overscroll-behavior: contain; }
 </style>
 </head>
 <body>
@@ -651,7 +708,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-
+<!-- ══════════ 히어로 ══════════ -->
 <header class="hero">
   <div class="wrap">
     <div>
@@ -672,7 +729,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
       </button>
       <p class="nogate">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6FB0EE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-        <span><b>이메일 · 연락처 입력 없이</b> 버튼만 누르면 바로 받습니다</span>
+        <span><b>무료</b> · 회사명 · 이름 · 이메일만 남기시면 바로 받으실 수 있습니다</span>
       </p>
       </div>
     </div>
@@ -698,13 +755,13 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-
+<!-- ══════════ 다운로드 확인 패널 ══════════ -->
 <section id="thanks">
   <div class="wrap">
     <div class="thanks-inner">
       <h3>
         <span class="chk"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
-        <span id="thanksTitle">다운로드가 시작되었습니다</span>
+        <span id="thanksTitle">자료를 보내드렸습니다</span>
       </h3>
       <p>
         자료를 보시다가 <b>“우리 설비면 몇 포인트인가”</b>가 궁금해지면 바로 물어보셔도 됩니다.
@@ -727,7 +784,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-
+<!-- ══════════ 이 자료가 필요한 분 ══════════ -->
 <section>
   <div class="wrap">
     <p class="eyebrow" data-reveal>이 문서는 무엇인가</p>
@@ -764,7 +821,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-
+<!-- ══════════ 미리보기 ══════════ -->
 <section class="sec-alt">
   <div class="wrap">
     <p class="eyebrow" data-reveal>안을 먼저 보세요</p>
@@ -794,7 +851,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-
+<!-- ══════════ 목차 ══════════ -->
 <section>
   <div class="wrap">
     <p class="eyebrow" data-reveal>전체 목차</p>
@@ -826,7 +883,42 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
+<!-- ══════════ 자주 묻는 질문 ══════════ -->
+<section class="sec-alt">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>자주 묻는 질문</p>
+    <h2 data-reveal style="--d:60ms">받아보시기 전에 많이 물으시는 것</h2>
+    <p class="sub" data-reveal style="--d:110ms">가이드에는 아래 내용이 근거와 함께 더 자세히 들어 있습니다.</p>
+    <div class="faq">
+      <details open data-reveal style="--d:0ms">
+        <summary>무선 진동센서는 설비 몇 대에 몇 개가 필요한가요?</summary>
+        <p class="a">설비 1대당 센서 1식이 기준입니다. 모터–커플링–펌프처럼 물리적으로 연결된 구동계는 3축 진동+온도 복합센서 1개를 모터측 또는 베어링 하우징에 부착하면 전 구간의 이상 징후를 함께 잡습니다. 축별로 나눠 달 필요가 없어 투자 규모가 예측 가능합니다. 실제 사례에서는 회전기기 26대 + 수배전반 4포인트로 총 30포인트를 구성했습니다.</p>
+      </details>
+      <details data-reveal style="--d:50ms">
+        <summary>설비를 세우지 않고 설치할 수 있나요?</summary>
+        <p class="a">가능합니다. 배터리 내장 무선센서라 전원·통신 배선이 모두 불필요하고, 마그네틱 브래킷 또는 M4 나사로 고정하므로 천공·용접·정전이 없습니다. 포인트당 10~20분이면 부착이 끝나며 30포인트 기준 1~2일 내 설치가 완료됩니다.</p>
+      </details>
+      <details data-reveal style="--d:100ms">
+        <summary>유선 계측 대비 무엇이 다른가요?</summary>
+        <p class="a">유선은 케이블 트레이·배관 신설과 전원 인출이 필요해 센서 값보다 공사비가 더 커지는 경우가 많고, 라인 정지 일정이 잡히지 않아 프로젝트가 연기되곤 합니다. 무선은 신규 배선이 0m이고 가동 중 설치가 가능하며, 증설 시에도 센서만 추가해 즉시 등록됩니다.</p>
+      </details>
+      <details data-reveal style="--d:150ms">
+        <summary>폐쇄망 공장에서도 도입할 수 있나요?</summary>
+        <p class="a">가능합니다. 클라우드(SaaS) 구독형과 공장 내 자체 서버 구축형(영구 라이선스) 두 가지를 모두 지원하며 화면과 기능이 동일합니다. 보안 정책상 데이터 외부 반출이 불가한 사업장은 서버 구축형으로 폐쇄망 운영이 가능합니다.</p>
+      </details>
+      <details data-reveal style="--d:200ms">
+        <summary>알람 기준값은 어떻게 정하나요?</summary>
+        <p class="a">ISO 20816-3 을 준용한 초기 임계값(진동속도 RMS 2.8/4.5 mm/s 등)으로 시작한 뒤, 설치 후 1~2개월 정상운전 데이터를 모아 설비별로 재조정합니다. 같은 사양 펌프라도 배관 지지 상태에 따라 정상 진동값이 다르므로, 이 기준선 튜닝을 거치지 않으면 오경보가 많아 아무도 보지 않는 알람이 됩니다.</p>
+      </details>
+      <details data-reveal style="--d:250ms">
+        <summary>도입까지 얼마나 걸리나요?</summary>
+        <p class="a">발주 후 약 8주입니다. 현장 실사 및 포인트 확정, 하드웨어 입고, 소프트웨어 설치와 계정 구성, 센서 부착, 통신 검증과 시운전, 알람 초기 설정과 사용자 교육, 기준선 수집 및 임계값 재조정 순으로 진행합니다. 현장 실사는 반일 소요이며 무상입니다.</p>
+      </details>
+    </div>
+  </div>
+</section>
 
+<!-- ══════════ 최종 CTA ══════════ -->
 <section class="final" id="contact">
   <div class="wrap">
     <div>
@@ -884,55 +976,77 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </footer>
 
-
-<div id="fm" role="dialog" aria-modal="true" aria-labelledby="fmTitle">
+<!-- ══════════ 문의 남기기 폼 ══════════ -->
+<div id="fm" data-mode="download" role="dialog" aria-modal="true" aria-labelledby="fmTitle">
   <div class="fm-card">
     <div class="fm-head">
       <div>
-        <h3 id="fmTitle">문의 남기기</h3>
-        <p>설비 리스트만 주시면 <b>예상 포인트 수와 게이트웨이 구성안</b>을 정리해 회신드립니다. 도면은 없어도 됩니다.</p>
+        <h3 id="fmTitle">PDF로 받아보기</h3>
+        <p id="fmDesc">아래 정보를 남기시면 바로 다운로드됩니다.</p>
       </div>
       <button class="fm-x" type="button" id="fmClose" aria-label="닫기">×</button>
     </div>
 
     <div class="fm-body">
-      <form id="fmForm" novalidate>
-        <div class="frow">
-          <label class="fl" data-req>
-            <span>회사명<i class="req">*</i></span>
-            <input name="회사명" type="text" autocomplete="organization" enterkeyhint="next">
-            <span class="msg">회사명을 입력해 주세요</span>
-          </label>
-          <label class="fl" data-req>
-            <span>담당자명<i class="req">*</i></span>
-            <input name="담당자" type="text" autocomplete="name" enterkeyhint="next">
-            <span class="msg">담당자명을 입력해 주세요</span>
-          </label>
+      <!-- 무엇을 받는지 다시 확인시켜 주는 미니 카드 -->
+      <div class="fm-item" data-only="download">
+        <img src="/images/proposal-guide/cover-800.jpg" width="112" height="63" alt="" loading="lazy" decoding="async">
+        <div>
+          <b>무선 IoT 설비 예지보전 제안 가이드</b>
+          <span>PDF · 20페이지 · 실제 사례 30포인트 배치표 포함</span>
         </div>
+      </div>
 
-        <div class="frow">
-          <label class="fl" data-req>
-            <span>연락처<i class="req">*</i></span>
-            <input name="연락처" type="tel" inputmode="tel" autocomplete="tel"
-                   placeholder="010-0000-0000" enterkeyhint="next">
-            <span class="msg">연락 가능한 번호를 입력해 주세요</span>
-          </label>
-          <label class="fl">
-            <span>이메일</span>
-            <input name="이메일" type="email" inputmode="email" autocomplete="email"
-                   placeholder="name@company.com" enterkeyhint="next">
-            <span class="msg">이메일 형식을 확인해 주세요</span>
-          </label>
-        </div>
+      <form id="fmForm" novalidate>
+        <label class="fl" data-req>
+          <span>회사명<i class="req">*</i></span>
+          <input name="회사명" type="text" autocomplete="organization"
+                 placeholder="예) 모넷코리아" enterkeyhint="next">
+          <span class="msg">회사명을 입력해 주세요</span>
+        </label>
 
         <label class="fl" data-req>
+          <span>이름<i class="req">*</i></span>
+          <input name="이름" type="text" autocomplete="name"
+                 placeholder="예) 김설비" enterkeyhint="next">
+          <span class="msg">이름을 입력해 주세요</span>
+        </label>
+
+        <label class="fl" data-req>
+          <span>회사 이메일<i class="req">*</i></span>
+          <input name="이메일" type="email" inputmode="email" autocomplete="email"
+                 placeholder="name@company.co.kr" enterkeyhint="next">
+          <span class="msg">이메일 형식을 확인해 주세요</span>
+        </label>
+
+        <label class="fl">
+          <span>연락처</span>
+          <input name="연락처" type="tel" inputmode="tel" autocomplete="tel"
+                 placeholder="010-0000-0000" enterkeyhint="next">
+          <span class="msg">연락 가능한 번호를 입력해 주세요</span>
+        </label>
+
+        <label class="fl">
+          <span>감시 검토 중인 설비 규모</span>
+          <select name="설비규모">
+            <option value="">선택 안 함</option>
+            <option>10대 미만</option>
+            <option>10 ~ 30대</option>
+            <option>30 ~ 50대</option>
+            <option>50대 이상</option>
+            <option>아직 파악 전</option>
+          </select>
+          <span class="hint" data-only="download">적어주시면 귀사 규모에 맞는 구성 예시를 함께 보내드립니다.</span>
+        </label>
+
+        <!-- 상담 문의일 때만 나오는 항목 -->
+        <label class="fl" data-req data-only="inquiry">
           <span>감시하려는 설비와 대수<i class="req">*</i></span>
-          <textarea name="설비" placeholder="예) 유틸리티 펌프 12대, 에어 컴프레셔 2대, 전기실 부스바 온도 감시 검토 중"></textarea>
+          <textarea name="설비내용" placeholder="예) 유틸리티 펌프 12대, 에어 컴프레셔 2대, 전기실 부스바 온도 감시 검토 중"></textarea>
           <span class="msg">감시 대상 설비를 알려 주세요</span>
           <span class="hint">최근 고장 이력이 있으면 함께 적어주시면 우선순위 산정에 가장 유용합니다.</span>
         </label>
-
-        <div class="frow">
+        <div class="frow" data-only="inquiry">
           <label class="fl">
             <span>방폭 구역 포함 여부</span>
             <select name="방폭">
@@ -955,59 +1069,59 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
           </label>
         </div>
 
-        <label class="fl">
-          <span>인터넷(외부망) 연결 가능 여부</span>
-          <select name="망환경">
-            <option value="">선택 안 함</option>
-            <option>가능 — 클라우드 방식 검토 가능</option>
-            <option>불가 — 폐쇄망 서버 구축 필요</option>
-            <option>확인 필요</option>
-          </select>
-        </label>
-
         <label class="agree" id="fmAgree">
           <input type="checkbox" name="동의">
           <span>
-            <b>개인정보 수집·이용에 동의합니다.</b><br>
-            수집 항목: 회사명·담당자명·연락처·이메일 / 목적: 문의 답변 및 구성안 회신 /
-            보유 기간: 문의 처리 후 1년. 동의를 거부하실 수 있으나 회신이 어렵습니다.
+            자료 발송 및 제품 문의 응대를 위한 <b>개인정보 수집·이용에 동의</b>합니다.
+            수집 항목: 회사명·이름·이메일·연락처 / 보유 기간: 3년 /
+            동의를 거부하실 수 있으나 자료 발송이 제한됩니다.
+            <a href="#" id="fmPrivacy" target="_blank" rel="noopener">개인정보처리방침</a>
           </span>
         </label>
 
         <button class="btn-form" type="submit" id="fmSubmit">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
-          <span id="fmSubmitTx">문의 보내기</span>
+          <svg id="fmIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          <span id="fmSubmitTx">PDF 받기</span>
         </button>
-        <p class="fm-note">
+        <p class="fm-note" id="fmNote">
+          영업 전화로 괴롭히지 않습니다. 자료만 필요하시면 그렇게 말씀해 주세요.<br>
           급하시면 <a href="tel:+82220881454" data-cta="tel-form">02-2088-1454</a> 로 바로 전화 주셔도 됩니다
         </p>
       </form>
 
       <div class="fm-ok">
         <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
-        <h4>접수되었습니다</h4>
+        <h4 id="fmOkTitle">다운로드가 시작되었습니다</h4>
         <p id="fmOkTx">
-          영업일 기준 1일 이내에 담당자가 연락드립니다.<br>
-          급하시면 <a href="tel:+82220881454" style="color:var(--accent);font-weight:700;text-decoration:none">02-2088-1454</a> 로 전화 주세요.
+          자료를 보시다가 <b>“우리 설비면 몇 포인트인가”</b>가 궁금해지면 바로 물어보셔도 됩니다.
         </p>
-        <button class="btn-form" type="button" id="fmDone" style="background:var(--navy)">닫기</button>
+        <div class="fm-ok-acts">
+          <a class="btn-form" href="tel:+82220881454" data-cta="tel-ok" style="background:var(--navy)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+            02-2088-1454
+          </a>
+          <button class="btn-form ghost" type="button" id="fmDone">닫기</button>
+        </div>
+        <p class="fm-note" id="fmOkNote">
+          다운로드가 안 되면 <a href="#" id="fmRetry">여기를 눌러 다시 받으세요</a>
+        </p>
       </div>
     </div>
   </div>
 </div>
 
-
+<!-- 라이트박스 -->
 <div id="lb" role="dialog" aria-modal="true" aria-label="페이지 크게 보기">
   <button class="close" type="button" aria-label="닫기">×</button>
   <div class="stage"><img alt=""></div>
   <div class="swipe">← 좌우로 밀어서 보기 · 화면을 누르면 닫힘 →</div>
 </div>
 
-
+<!-- 데스크톱 플로팅 CTA -->
 <div id="fbar">
   <div class="tx">
     <b>무선 예지보전 제안 가이드</b>
-    <span>실제 사례 30포인트 · 20페이지 · 정보 입력 없음</span>
+    <span>실제 사례 30포인트 · 20페이지 · 무료</span>
   </div>
   <div class="acts">
     <a class="f-dl" href="#" id="dlBtn4">
@@ -1019,7 +1133,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-
+<!-- 모바일 하단 고정 바 -->
 <div class="mbar">
   <a class="m-dl" href="#" id="dlBtn3">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
@@ -1040,36 +1154,38 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
    ② 설정 — 여기만 바꾸면 됩니다
    ══════════════════════════════════════════════════════════════ */
 var CONFIG = {
-  // PDF 위치. 같은 폴더에 두면 아래 그대로 두세요.
-  // 외부 호스팅이면 전체 URL 입력 (예: "https://monnit.co.kr/files/guide.pdf")
-  PDF_URL  : "/files/monnit-predictive-maintenance-guide.pdf",
-  // 저장될 파일명
-  FILE_NAME: "Monnit_무선예지보전_제안가이드.pdf",
+  /* 자료는 공개 URL 이 없습니다. sendpw 가 이메일을 확인한 뒤
+     10분짜리 서명 링크를 1건 발급하고, getdoc 이 파일을 보냅니다.
+     (다른 제안서 16종과 같은 방식 — netlify/functions/sendpw.js)    */
+  DOC_TITLE : "무선 IoT 설비 예지보전 제안 가이드",   // _docmap.js 의 키와 반드시 일치
+  DOC_API   : "/.netlify/functions/sendpw",
+  DOC_TOKEN : "mnt-pw-2026-7f3k9",
+  // 서명 링크 발급이 실패했을 때만 쓰는 예비 경로
+  PDF_FALLBACK : "/files/monnit-predictive-maintenance-guide.pdf",
+  FILE_NAME    : "모넷코리아_무선IoT_설비예지보전_제안가이드.pdf",
 
-  /* 모바일에서 다운로드 버튼을 눌렀을 때 ─────────────────
-     "newtab"   : 새 탭에서 PDF 열기. 뷰어가 떠도 랜딩이 뒤에 남아
-                  돌아왔을 때 상담 CTA를 다시 봅니다. ← 권장
-     "download" : PC 와 똑같이 파일 저장 시도. 단말·브라우저에 따라
-                  그냥 열리기만 하고 랜딩을 이탈할 수 있습니다.       */
-  MOBILE_MODE: "newtab",
-  EMAIL    : "korea@monnit.com",
-  PHONE    : "02-2088-1454",
+  // 알림 메일 (사이트 공통 Web3Forms)
+  FORM_ENDPOINT : "https://api.web3forms.com/submit",
+  W3F_KEY       : "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2",
 
-  /* 문의 폼 전송 방식 ─────────────────────────────────
-     "mail" : 서버 없이 동작. 방문자의 메일 앱이 내용이 채워진 채로 열립니다.
-              바로 쓸 수 있지만, 방문자가 '보내기'를 눌러야 접수됩니다.
-     "post" : FORM_ENDPOINT 로 전송. 진짜 폼처럼 동작합니다. ← 권장
-              Formspree(무료) 가입 후 받은 주소를 넣으면 끝입니다.
-              예) FORM_ENDPOINT: "https://formspree.io/f/xxxxxxxx"
-              구글 시트로 받고 싶으면 Apps Script 웹앱 주소를 넣어도 됩니다.  */
-  FORM_MODE    : "post",
-  FORM_ENDPOINT: "https://api.web3forms.com/submit"
+  /* 모바일에서 PDF 를 여는 방식
+     "newtab"   : 새 탭에서 열기 — 랜딩이 뒤에 남습니다 ← 권장
+     "download" : PC 와 동일하게 저장 시도                */
+  MOBILE_MODE : "newtab",
+
+  // 한 번 정보를 남긴 사람에게 다시 묻지 않는 기간(일). 0 이면 매번 폼.
+  REMEMBER_DAYS : 90,
+
+  PAGE    : "promo_proposal",
+  EMAIL   : "korea@monnit.com",
+  PHONE   : "02-2088-1454",
+  PRIVACY : "/privacy.html"
 };
 
 var isMobile = matchMedia('(max-width:700px)').matches
             || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-/* ── 메일 본문 미리 채우기 ── */
+/* ── 메일 문의 링크 ── */
 var mailHref = "mailto:" + CONFIG.EMAIL
   + "?subject=" + encodeURIComponent("[예지보전 문의] 설비 구성안 요청")
   + "&body=" + encodeURIComponent(
@@ -1084,6 +1200,59 @@ var mailHref = "mailto:" + CONFIG.EMAIL
   var el = document.getElementById(id);
   if (el) el.href = mailHref;
 });
+var pv = document.getElementById('fmPrivacy');
+if (pv) pv.href = CONFIG.PRIVACY;
+
+
+/* ══════════════════════════════════════════════════════════════
+   ★ 방문자 행동 기록 — CRM 에서 "누구부터 전화할지" 판단하는 근거
+   ══════════════════════════════════════════════════════════════ */
+var LS = {
+  get: function(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set: function(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+var visit = LS.get('monnit_visit') || {n:0, first:new Date().toISOString()};
+visit.n += 1;
+visit.last = new Date().toISOString();
+LS.set('monnit_visit', visit);
+
+var behave = { t0: Date.now(), depth: 0, peekOpen: 0, telClick: 0 };
+addEventListener('scroll', function(){
+  var max = document.documentElement.scrollHeight - innerHeight;
+  if (max > 0) behave.depth = Math.max(behave.depth, Math.round(scrollY / max * 100));
+}, {passive:true});
+
+/* 광고 유입 정보는 첫 진입 때 저장해 두고, 폼 제출까지 유지 */
+var utm = LS.get('monnit_utm');
+(function(){
+  var q = new URLSearchParams(location.search), got = {}, any = false;
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid','ad_id']
+    .forEach(function(k){ if (q.get(k)){ got[k] = q.get(k); any = true; } });
+  if (any){
+    got.최초유입 = document.referrer || '직접';
+    got.유입시각 = new Date().toISOString();
+    utm = got;
+    LS.set('monnit_utm', got);
+  }
+})();
+utm = utm || {};
+
+/* 리드 점수 — 설비 규모·연락처·체류·열람도를 합산해 A/B/C 로 */
+function leadScore(d){
+  var s = 0;
+  var size = {'50대 이상':40, '30 ~ 50대':32, '10 ~ 30대':22, '10대 미만':12, '아직 파악 전':6};
+  s += size[d.설비규모] || 0;
+  if (d.연락처) s += 15;
+  if (d.이메일 && !/@(gmail|naver|daum|hanmail|nate|kakao|outlook|hotmail|yahoo|icloud)\./i.test(d.이메일)) s += 12;
+  var sec = +d.체류시간초 || 0;
+  if (sec >= 90) s += 15; else if (sec >= 40) s += 9; else if (sec >= 15) s += 4;
+  if (+d.스크롤깊이 >= 70) s += 8;
+  if (+d.미리보기열람 > 0) s += 8;
+  if (+d.방문횟수 > 1) s += 6;
+  if (d.유형 === '상담문의') s += 20;
+  return {점수: Math.min(s, 100), 등급: s >= 65 ? 'A' : s >= 38 ? 'B' : 'C'};
+}
 
 /* ── 전환 이벤트 전송 ── */
 function track(name, params){
@@ -1094,38 +1263,82 @@ function track(name, params){
   try { if (window.dataLayer) dataLayer.push(Object.assign({event:'monnit_'+name}, params)); } catch(e){}
 }
 
-/* ── 다운로드 ──
-   PC : download 속성으로 바로 저장
-   모바일 : 새 탭에서 열기 — PDF 뷰어가 떠도 랜딩 페이지가 뒤에 남아
-            돌아왔을 때 상담 CTA를 다시 볼 수 있게 함             */
-var fired = false;
-function download(e){
-  if (e) e.preventDefault();
-
+/* ── 실제 파일 전달 ──
+   PC : download 속성으로 바로 저장 / 모바일 : 새 탭 (랜딩이 뒤에 남음) */
+function deliverPdf(url){
+  url = url || CONFIG.PDF_FALLBACK;
   if (isMobile && CONFIG.MOBILE_MODE === 'newtab') {
-    window.open(CONFIG.PDF_URL, '_blank', 'noopener');
-    var t = document.getElementById('thanksTitle');
-    if (t) t.textContent = '새 탭에서 열었습니다';
+    window.open(url, '_blank', 'noopener');
   } else {
     var a = document.createElement('a');
-    a.href = CONFIG.PDF_URL;
+    a.href = url;
     a.setAttribute('download', CONFIG.FILE_NAME);
     a.rel = 'noopener';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
+}
 
-  if (!fired){ track('download', {content_name:'예지보전 제안 가이드'}); fired = true; }
+/* 이메일을 확인받고 10분짜리 서명 링크를 발급받는다 (사이트 공통 방식) */
+function issueDocLink(email){
+  return fetch(CONFIG.DOC_API, {
+    method : 'POST',
+    headers: {'Content-Type':'application/json'},
+    body   : JSON.stringify({token: CONFIG.DOC_TOKEN, email: email, title: CONFIG.DOC_TITLE})
+  }).then(function(r){ return r.json(); })
+    .then(function(j){
+      if (!j || !j.ok || !j.url) throw new Error(j && j.error || 'issue_failed');
+      return j.url;
+    });
+}
 
-  var box = document.getElementById('thanks');
+/* ── 다운로드 버튼 = 리드 폼 열기 ──
+   이미 정보를 남긴 분에게는 다시 묻지 않고 바로 드립니다. */
+function alreadyKnown(){
+  if (!CONFIG.REMEMBER_DAYS) return null;
+  var v = LS.get('monnit_lead');
+  if (!v || !v.ts) return null;
+  var days = (Date.now() - v.ts) / 86400000;
+  return days <= CONFIG.REMEMBER_DAYS ? v : null;
+}
+
+function requestPdf(e){
+  if (e) e.preventDefault();
+  var known = alreadyKnown();
+  if (known){
+    issueDocLink(known.이메일).then(deliverPdf).catch(function(){ deliverPdf(); });
+    track('download', {content_name:'예지보전 제안 가이드', repeat:'Y'});
+    showThanks('다시 보내드렸습니다',
+      known.이름 ? (known.이름 + '님, 이미 정보를 남겨주셔서 바로 드렸습니다.') : null);
+    return;
+  }
+  openFm('download');
+}
+["dlBtn","dlBtn2","dlBtn3","dlBtn4"].forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('click', requestPdf);
+});
+var again = document.getElementById('dlAgain');
+if (again) again.addEventListener('click', function(e){
+  e.preventDefault();
+  var k = alreadyKnown();
+  if (k) issueDocLink(k.이메일).then(deliverPdf).catch(function(){ deliverPdf(); });
+  else   deliverPdf();
+});
+
+/* 페이지 본문의 다운로드 확인 패널 */
+function showThanks(title, desc){
+  var box = document.getElementById('thanks'),
+      t   = document.getElementById('thanksTitle');
+  if (t && title) t.textContent = title;
+  if (desc){
+    var p = box.querySelector('.thanks-inner p');
+    if (p) p.textContent = desc;
+  }
   box.classList.add('on');
   setTimeout(function(){
     box.scrollIntoView({behavior:'smooth', block: isMobile ? 'start' : 'center'});
   }, 140);
 }
-["dlBtn","dlBtn2","dlBtn3","dlBtn4","dlAgain"].forEach(function(id){
-  var el = document.getElementById(id);
-  if (el) el.addEventListener('click', download);
-});
 
 /* ── 배경 스크롤 잠금 (iOS 대응) ── */
 var scrollY = 0, locks = 0;
@@ -1154,6 +1367,7 @@ function openLb(im){
   lbImg.src = im.getAttribute('data-full') || im.src;   // 확대용 고해상도
   lbImg.alt = im.alt;
   lb.classList.add('on');
+  behave.peekOpen += 1;                                 // 관심도 신호로 기록
   lockScroll();
   // 가로로 넓은 이미지는 가운데부터 보이게 (로드 완료 후 한 번 더)
   centerLb();
@@ -1185,13 +1399,37 @@ var fm       = document.getElementById('fm'),
     fmSubmit = document.getElementById('fmSubmit'),
     fmSubTx  = document.getElementById('fmSubmitTx');
 
-function openFm(e){
-  if (e) e.preventDefault();
+var FM_TEXT = {
+  download: {
+    title:'PDF로 받아보기', desc:'아래 정보를 남기시면 바로 다운로드됩니다.',
+    btn:'PDF 받기', okTitle:'다운로드가 시작되었습니다',
+    okTx:'자료를 보시다가 <b>“우리 설비면 몇 포인트인가”</b>가 궁금해지면 바로 물어보셔도 됩니다.'
+  },
+  inquiry: {
+    title:'문의 남기기', desc:'설비 리스트만 주시면 <b>예상 포인트 수와 게이트웨이 구성안</b>을 정리해 회신드립니다.',
+    btn:'문의 보내기', okTitle:'접수되었습니다',
+    okTx:'영업일 기준 1일 이내에 담당자가 연락드립니다.'
+  }
+};
+
+function openFm(mode){
+  if (mode && mode.preventDefault){ mode.preventDefault(); mode = null; }
+  mode = (typeof mode === 'string') ? mode : 'inquiry';
+
+  var T = FM_TEXT[mode];
+  fm.setAttribute('data-mode', mode);
+  document.getElementById('fmTitle').textContent = T.title;
+  document.getElementById('fmDesc').innerHTML    = T.desc;
+  document.getElementById('fmSubmitTx').textContent = T.btn;
+  document.getElementById('fmOkTitle').textContent  = T.okTitle;
+  document.getElementById('fmOkTx').innerHTML       = T.okTx;
+  document.getElementById('fmOkNote').style.display = (mode === 'download') ? '' : 'none';
+
   fm.classList.add('on');
   fm.classList.remove('done');
   lockScroll();
   if (window.updateFbar) updateFbar();
-  track('form_open', {});
+  track('form_open', {mode: mode});
   // 모바일에서 키보드가 바로 올라오지 않도록 자동 포커스는 데스크톱만
   if (!isMobile) setTimeout(function(){ fmForm.elements[0].focus(); }, 120);
 }
@@ -1215,8 +1453,14 @@ document.addEventListener('keydown', function(e){
 /* ── 검증 ── */
 function validate(){
   var ok = true, first = null;
+  var mode = fm.getAttribute('data-mode');
 
   fmForm.querySelectorAll('.fl').forEach(function(fl){
+    /* 현재 모드에 없는 항목은 건너뜁니다.
+       화면 렌더 상태(offsetParent)에 기대지 않고 data-only 로 판단합니다 —
+       모달이 애니메이션 중이거나 레이아웃 계산 전이면 오판이 생깁니다. */
+    var scope = fl.closest('[data-only]');
+    if (scope && scope.getAttribute('data-only') !== mode) return;
     var input = fl.querySelector('input,select,textarea');
     if (!input) return;
     var v   = (input.value || '').trim();
@@ -1244,106 +1488,202 @@ fmForm.addEventListener('input', function(e){
   if (e.target.type === 'checkbox') fmAgree.classList.remove('err');
 });
 
-/* ── 전송 ── */
-function formData(){
+/* ══════════════════════════════════════════════════════════════
+   ★ 리드 데이터 만들기 — CRM 이 실제로 쓸 수 있는 형태로
+   ══════════════════════════════════════════════════════════════ */
+function leadPayload(){
+  var mode = fm.getAttribute('data-mode');
   var d = {}, f = new FormData(fmForm);
-  f.forEach(function(v,k){ if (k !== '동의') d[k] = (v||'').trim(); });
-  d['동의'] = fmAgree.querySelector('input').checked ? 'Y' : 'N';
-  d['유입경로'] = document.referrer || '직접 방문';
-  d['접수시각'] = new Date().toLocaleString('ko-KR');
+  f.forEach(function(v,k){ if (k !== '동의') d[k] = (v || '').trim(); });
+
+  // 현재 모드에서 안 보이는 항목은 비움
+  if (mode === 'download'){ d.설비내용 = ''; d.방폭 = ''; d.도입시기 = ''; }
+
+  d.유형     = (mode === 'download') ? '자료요청' : '상담문의';
+  d.접수시각 = new Date().toLocaleString('ko-KR', {hour12:false});
+  d.접수시각ISO = new Date().toISOString();
+
+  // 동의 기록 — 개인정보보호법상 증빙이 됩니다
+  d.동의   = fmAgree.querySelector('input').checked ? 'Y' : 'N';
+  d.동의일시 = d.접수시각ISO;
+  d.동의문구 = '자료 발송 및 제품 문의 응대 / 보유 3년';
+
+  // 광고 유입 — 어느 소재가 리드를 만들었는지
+  d.utm_source   = utm.utm_source   || '';
+  d.utm_medium   = utm.utm_medium   || '';
+  d.utm_campaign = utm.utm_campaign || '';
+  d.utm_content  = utm.utm_content  || '';
+  d.utm_term     = utm.utm_term     || '';
+  d.광고클릭ID   = utm.fbclid || utm.gclid || utm.ad_id || '';
+  d.유입경로     = utm.최초유입 || document.referrer || '직접';
+  d.랜딩URL      = location.origin + location.pathname;
+
+  // 행동 — 누구부터 전화할지 판단 근거
+  d.방문횟수     = visit.n;
+  d.첫방문일     = visit.first;
+  d.체류시간초   = Math.round((Date.now() - behave.t0) / 1000);
+  d.스크롤깊이   = behave.depth;
+  d.미리보기열람 = behave.peekOpen;
+  d.전화클릭     = behave.telClick;
+
+  // 환경
+  d.디바이스 = isMobile ? '모바일' : 'PC';
+  d.화면폭   = innerWidth;
+
+  var s = leadScore(d);
+  d.리드점수 = s.점수;
+  d.리드등급 = s.등급;
   return d;
 }
+
 function asText(d){
-  return Object.keys(d).map(function(k){ return k + ' : ' + (d[k] || '-'); }).join('\n');
+  var order = ['유형','회사명','이름','이메일','연락처','설비규모','설비내용','방폭','도입시기',
+               '리드등급','리드점수','utm_source','utm_medium','utm_campaign','utm_content',
+               '유입경로','방문횟수','체류시간초','스크롤깊이','디바이스','접수시각','동의'];
+  return order.filter(function(k){ return d[k] !== undefined && d[k] !== ''; })
+              .map(function(k){ return k + ' : ' + d[k]; }).join('\n');
 }
-function showDone(msg){
-  if (msg) document.getElementById('fmOkTx').innerHTML = msg;
-  fm.classList.add('done');
-  fm.querySelector('.fm-body').scrollTop = 0;
-  track('form_submit', {mode: CONFIG.FORM_MODE});
+
+/* ══════════════════════════════════════════════════════════════
+   전송 — 사이트 공통 리드 규격 (js/monnit-lead.js · /api/lead)
+   ① 서명 링크 발급 → 자료 즉시 전달
+   ② Web3Forms 로 담당자 알림 메일
+   ③ MonnitLead.track() 이 /api/lead 에 원장 한 건 기록 → 관제(ops) 화면
+   어느 하나가 실패해도 나머지는 진행됩니다.
+   ══════════════════════════════════════════════════════════════ */
+
+/* 관제 화면 칸에 값이 들어가도록 사이트 공통 키로 옮긴다
+   (netlify/functions/lead.mjs 가 읽는 키 기준) */
+function toStandard(d){
+  var 행동 = ['체류 ' + d.체류시간초 + '초',
+             '스크롤 ' + d.스크롤깊이 + '%',
+             d.미리보기열람 ? '미리보기 ' + d.미리보기열람 + '회' : '',
+             '방문 ' + d.방문횟수 + '회',
+             d.디바이스].filter(Boolean).join(' · ');
+
+  var 메모 = ['[' + d.리드등급 + '·' + d.리드점수 + '점]',
+             d.설비규모   ? '설비 규모: '  + d.설비규모   : '',
+             d.설비내용   ? '설비: '       + d.설비내용   : '',
+             d.방폭       ? '방폭: '       + d.방폭       : '',
+             d.도입시기   ? '도입 시기: '  + d.도입시기   : '',
+             행동].filter(Boolean).join(' · ');
+
+  return {
+    '회사명'                 : d.회사명 || '',
+    '담당자명'               : d.이름   || '',
+    '연락처'                 : d.연락처 || '',
+    '이메일'                 : d.이메일 || '',
+    '주요 회전설비'          : d.설비규모 || d.설비내용 || '',
+    '관심분야'               : '예지보전 제안 가이드',
+    '문의 사항'              : 메모,
+    '마케팅 정보 수신(선택)' : d.동의 === 'Y' ? '동의' : '미동의',
+    '접수 경로'              : '제안 가이드 랜딩(/promo/proposal)'
+  };
+}
+
+/* 담당자 알림 메일 */
+function notifyStaff(payload){
+  var fd = {
+    access_key: CONFIG.W3F_KEY,
+    subject   : payload['_subject'] || '[모넷·자료] 예지보전 제안 가이드',
+    from_name : 'Monnit Korea 웹사이트',
+    email     : payload['이메일'] || 'no-reply@monnit.co.kr',
+    replyto   : payload['이메일'] || '',
+    botcheck  : false
+  };
+  Object.keys(payload).forEach(function(k){ if (k !== '_subject') fd[k] = payload[k]; });
+  return fetch(CONFIG.FORM_ENDPOINT, {
+    method : 'POST',
+    headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+    body   : JSON.stringify(fd)
+  }).then(function(r){ return r.json().catch(function(){ return {}; }); })
+    .then(function(j){ if (!j || !(j.success === true || j.success === 'true')) throw new Error('mail'); });
 }
 
 fmForm.addEventListener('submit', function(e){
   e.preventDefault();
   if (!validate()) return;
 
-  var d = formData(), body = asText(d);
-
-  /* 사이트 공통 리드 규격으로 정리 — 출처(utm·gclid)와 접점이 함께 기록됩니다.
-     MonnitLead.track() 안에서 /api/lead 로도 한 건 남아 관제(ops) 화면에 잡힙니다. */
-  /* 폼 항목을 사이트 공통 키로 옮깁니다 — 이 키여야 관제(ops) 화면의
-     회사·담당자·연락처·설비 칸에 값이 들어갑니다 (netlify/functions/lead.mjs 기준). */
-  var std = {
-    '회사명'      : d['회사명']  || '',
-    '담당자명'    : d['담당자']  || '',
-    '연락처'      : d['연락처']  || '',
-    '이메일'      : d['이메일']  || '',
-    '주요 회전설비': d['설비']    || '',
-    '관심분야'    : '예지보전 제안 가이드',
-    '문의 사항'   : [
-        d['설비']    ? '설비: '      + d['설비']    : '',
-        d['망환경']  ? '망 환경: '   + d['망환경']  : '',
-        d['방폭']    ? '방폭 요구: ' + d['방폭']    : '',
-        d['도입시기']? '도입 시기: ' + d['도입시기']: ''
-      ].filter(Boolean).join(' · ') || '(없음)',
-    '마케팅 정보 수신(선택)': d['동의'] ? '동의' : '미동의',
-    '접수 경로'   : '제안 가이드 랜딩(/promo/proposal)'
-  };
+  var mode = fm.getAttribute('data-mode'),
+      isDoc = (mode === 'download'),
+      d = leadPayload(),
+      std = toStandard(d),
+      leadType = isDoc ? 'doc_request' : 'contact';
 
   var payload = window.MonnitLead
-    ? window.MonnitLead.build('contact', 'promo_proposal',
-        (std['회사명'] || '') + ' 예지보전 제안 가이드 문의', std)
+    ? window.MonnitLead.build(leadType, CONFIG.PAGE,
+        (std['회사명'] || '') + ' ' + (isDoc ? '예지보전 제안 가이드 신청' : '예지보전 상담 문의'), std)
     : std;
 
   fmSubmit.disabled = true;
-  fmSubTx.textContent = '보내는 중...';
+  fmSubTx.textContent = isDoc ? '자료 준비 중...' : '보내는 중...';
 
-  var fd = {
-    access_key: 'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2',
-    subject   : payload['_subject'] || '[모넷·접수] 예지보전 제안 가이드 문의',
-    from_name : 'Monnit Korea 웹사이트',
-    email     : (std['이메일'] || 'no-reply@monnit.co.kr'),
-    replyto   : (std['이메일'] || ''),
-    botcheck  : false
-  };
-  Object.keys(payload).forEach(function(k){ if (k !== '_subject') fd[k] = payload[k]; });
+  // 다음 방문 때 다시 묻지 않도록 기억
+  LS.set('monnit_lead', {ts: Date.now(), 회사명: d.회사명, 이름: d.이름, 이메일: d.이메일});
 
-  fetch(CONFIG.FORM_ENDPOINT, {
-    method : 'POST',
-    headers: {'Content-Type':'application/json', 'Accept':'application/json'},
-    body   : JSON.stringify(fd)
-  }).then(function(r){ return r.json().catch(function(){ return {}; }); })
-    .then(function(j){
-      if (j && (j.success === true || j.success === 'true')) {
-        try { if (window.MonnitLead) window.MonnitLead.track('contact', { page:'promo_proposal', interest:'예지보전 제안 가이드' }); } catch(err){}
-        track('form_submit', {mode: 'post'});
-        showDone(null);
-      } else { throw new Error('send_failed'); }
+  /* ① 자료 전달 — 서명 링크 발급, 실패해도 예비 경로로 반드시 드립니다 */
+  var deliver = isDoc
+    ? issueDocLink(d.이메일)
+        .then(function(url){ window.__lastDocUrl = url; deliverPdf(url); })
+        .catch(function(){ deliverPdf(); })
+    : Promise.resolve();
+
+  /* ② 담당자 알림 메일 → 실패 시 ③ 원장에 직접 기록 */
+  var notify = notifyStaff(payload)
+    .then(function(){
+      try { window.MonnitLead && window.MonnitLead.track(leadType,
+              {page: CONFIG.PAGE, interest: '예지보전 제안 가이드'}); } catch(err){}
     })
     .catch(function(){
-      /* 전송 실패 시에도 리드를 잃지 않도록 원장에 남기고 메일로 우회 */
-      try { if (window.MonnitLead) window.MonnitLead.record('contact', payload); } catch(err){}
-      openMail(body);
-      showDone('메일 앱이 열렸습니다. <b>보내기를 눌러 주셔야</b> 접수됩니다.<br>' +
-               '어려우시면 <a href="tel:+82220881454" style="color:var(--accent);font-weight:700;text-decoration:none">02-2088-1454</a> 로 전화 주세요.');
-    })
-    .then(function(){
-      fmSubmit.disabled = false;
-      fmSubTx.textContent = '문의 보내기';
+      try { window.MonnitLead && window.MonnitLead.record(leadType, payload); } catch(err){}
     });
+
+  track(isDoc ? 'download' : 'form_submit', {
+    content_name: '예지보전 제안 가이드',
+    lead_grade  : d.리드등급,
+    value       : d.리드점수
+  });
+
+  Promise.all([deliver, notify]).then(function(){
+    fmSubmit.disabled = false;
+    fmSubTx.textContent = FM_TEXT[mode].btn;
+    fm.classList.add('done');
+    fm.querySelector('.fm-body').scrollTop = 0;
+    if (isDoc) showThanks('자료를 보내드렸습니다', null);
+  });
 });
 
-function openMail(body){
-  var href = 'mailto:' + CONFIG.EMAIL
-    + '?subject=' + encodeURIComponent('[예지보전 문의] ' + (formData()['회사명'] || '') + ' 설비 구성안 요청')
-    + '&body='    + encodeURIComponent('Monnit Korea 영업팀 담당자님,\n\n제안 가이드를 보고 문의드립니다.\n\n' + body + '\n');
-  window.location.href = href;
-}
+document.getElementById('fmRetry').addEventListener('click', function(e){
+  e.preventDefault();
+  if (window.__lastDocUrl) deliverPdf(window.__lastDocUrl); else deliverPdf();
+});
 
 /* ── 전화 / 메일 클릭도 전환으로 집계 ── */
 document.querySelectorAll('[data-cta]').forEach(function(el){
   el.addEventListener('click', function(){
-    track('contact', {method: el.getAttribute('data-cta')});
+    var m = el.getAttribute('data-cta');
+    if (m.indexOf('tel') === 0) behave.telClick += 1;
+    track('contact', {method: m});
+  });
+});
+
+/* 전화만 걸고 나가는 사람도 원장에 남깁니다 — 광고비가 들어간 방문이므로.
+   신원 정보가 없어 lead.mjs 가 걸러내므로, 전화번호를 신원 대신 채워 보냅니다. */
+var telLogged = false;
+document.querySelectorAll('a[href^="tel:"]').forEach(function(el){
+  el.addEventListener('click', function(){
+    if (telLogged || !window.MonnitLead) return;
+    telLogged = true;
+    var p = window.MonnitLead.build('contact', CONFIG.PAGE, '제안 가이드 랜딩 전화 클릭', {
+      '회사명'   : '(전화 클릭)',
+      '담당자명' : '(미기재)',
+      '연락처'   : CONFIG.PHONE,
+      '관심분야' : '예지보전 제안 가이드',
+      '문의 사항': '[전화클릭] 체류 ' + Math.round((Date.now()-behave.t0)/1000) + '초 · 스크롤 ' +
+                   behave.depth + '% · 방문 ' + visit.n + '회 · ' + (isMobile ? '모바일' : 'PC'),
+      '접수 경로': '제안 가이드 랜딩(/promo/proposal)'
+    });
+    try { window.MonnitLead.record('contact', p); } catch(err){}
   });
 });
 

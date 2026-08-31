@@ -2,6 +2,7 @@
  *  이 표는 브라우저로 나가지 않는다. 파일 자체도 /proposals/* 직접 접근이 막혀 있다. */
 const MAP = {
   '데이터센터 · IDC 모니터링'      : ['data-center-monitoring.pdf',          '모넷코리아_데이터센터_IDC_모니터링_제안서.pdf'],
+  '무선 IoT 설비 예지보전 제안 가이드': ['predictive-maintenance-guide.pdf',     '모넷코리아_무선IoT_설비예지보전_제안가이드.pdf'],   /* 광고 랜딩 /promo/proposal 전용 */
   '공장 설비 예지보전'             : ['factory-predictive-maintenance.pdf',   '모넷코리아_공장설비_예지보전_제안서.pdf'],
   '진동 · 구조안전 계측'           : ['vibration-structural-safety.pdf',      '모넷코리아_진동_구조안전_계측_제안서.pdf'],
   '건설 · 토목 구조물 모니터링'    : ['construction-shm.pdf',                 '모넷코리아_건설_토목_구조물모니터링_제안서.pdf'],

@@ -31,6 +31,12 @@
 /promo/consulting
   Cache-Control: no-cache, must-revalidate
 
+# 광고 전용 랜딩 — 소재를 자주 고치므로 항상 최신본이 나가야 합니다
+/promo-proposal.html
+  Cache-Control: no-cache, must-revalidate
+/promo/proposal
+  Cache-Control: no-cache, must-revalidate
+
 /llms.txt
   Content-Type: text/plain; charset=utf-8
 /llms-full.txt

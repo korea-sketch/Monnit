@@ -10,6 +10,7 @@ const WEB3FORMS_KEY = process.env.WEB3FORMS_KEY || 'e4d5cb03-1b25-425c-a47d-f04e
 
 const PAGES = [
   { path: '/promo/consulting', name: '광고 랜딩(예지보전)', must: ['id="apply"', 'monnit-lead.js', 'GTM-T8H73VW'] },
+  { path: '/promo/proposal',   name: '광고 랜딩(제안가이드)', must: ['id="fmForm"', 'monnit-lead.js', 'GTM-T8H73VW'] },
   { path: '/',                 name: '홈',                  must: ['mk-leadForm', 'monnit-lead.js', 'GTM-T8H73VW'] },
   { path: '/contact',          name: '문의 페이지',          must: ['GTM-T8H73VW'] }
 ];

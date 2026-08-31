@@ -218,7 +218,8 @@ async function build(pkey) {
       company: r.company, name: r.name, phone: r.phone, email: r.email,
       region: r.region, asset: r.asset, interest: r.interest
     })),
-    pending: rows.filter(r => r.type === 'contact' && !done[idOf(r)]).length
+    /* 자료 요청도 후속 연락 대상이므로 미응대 큐에 넣는다 (구독만 제외) */
+    pending: rows.filter(r => r.type !== 'subscribe' && !done[idOf(r)]).length
   };
 }
 
