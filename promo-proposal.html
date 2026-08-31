@@ -699,17 +699,17 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
 <header class="hero">
   <div class="wrap">
     <div>
-      <p class="eyebrow" data-reveal>무선 IoT 센서 설비 예지보전</p>
-      <h1 data-reveal style="--d:70ms">실제 제안서는<br><em>이렇게 나옵니다</em></h1>
-      <p class="lead" data-reveal style="--d:140ms">
+      <p class="eyebrow">무선 IoT 센서 설비 예지보전</p>
+      <h1>실제 제안서는<br><em>이렇게 나옵니다</em></h1>
+      <p class="lead">
         “센서를 몇 개, 어디에 붙여야 하나요?” — 카탈로그로는 답이 안 나옵니다.
         회전기기 26대 + 수배전반 4포인트, <b>실제 진행한 제안 한 건을 통째로 공개</b>합니다.
       </p>
-      <ul class="badges" data-reveal style="--d:200ms">
+      <ul class="badges">
         <li>배선공사 0m</li><li>배터리 내장 무선</li><li>가동 중 설치</li><li>클라우드 · 폐쇄망</li>
       </ul>
 
-      <div data-reveal style="--d:260ms">
+      <div>
       <button class="cta-dl" id="dlBtn" type="button">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         제안 가이드 PDF 받기 (20p)
@@ -721,7 +721,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
       </div>
     </div>
 
-    <div class="cover-card" data-reveal style="--d:320ms">
+    <div class="cover-card">
       <picture>
         <source type="image/avif" srcset="/images/proposal-guide/cover-800.avif 800w, /images/proposal-guide/cover.avif 1600w"
                 sizes="(max-width:900px) 92vw, 460px">
@@ -740,11 +740,11 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
 
 <div class="stats">
   <div class="wrap">
-    <div class="stat" data-reveal><b data-count="30">0</b><span>감시 포인트</span></div>
-    <div class="stat" data-reveal style="--d:80ms"><b>0 m</b><span>신규 배선</span></div>
-    <div class="stat" data-reveal style="--d:160ms"><b>1~2일</b><span>설치 완료</span></div>
-    <div class="stat" data-reveal style="--d:240ms"><b data-count="3" data-suffix="식">0식</b><span>게이트웨이</span></div>
-    <div class="stat" data-reveal style="--d:320ms"><b data-count="8" data-suffix="주">0주</b><span>발주 → 운영</span></div>
+    <div class="stat"><b data-count="30">0</b><span>감시 포인트</span></div>
+    <div class="stat"><b>0 m</b><span>신규 배선</span></div>
+    <div class="stat"><b>1~2일</b><span>설치 완료</span></div>
+    <div class="stat"><b data-count="3" data-suffix="식">0식</b><span>게이트웨이</span></div>
+    <div class="stat"><b data-count="8" data-suffix="주">0주</b><span>발주 → 운영</span></div>
   </div>
 </div>
 
@@ -1732,6 +1732,9 @@ addEventListener('scroll', onScroll, {passive:true});
 addEventListener('resize', onScroll, {passive:true});
 
 /* ── 스크롤 진입 효과 ── */
+function revealAll(){
+  document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('in'); });
+}
 if (motionOK && hasIO){
   var revealIO = new IntersectionObserver(function(es){
     es.forEach(function(e){
@@ -1741,6 +1744,14 @@ if (motionOK && hasIO){
     });
   }, {rootMargin:'0px 0px -8% 0px', threshold:.08});
   document.querySelectorAll('[data-reveal]').forEach(function(el){ revealIO.observe(el); });
+
+  /* 안전장치 — 광고비가 나가는 페이지라 "안 보이는 화면"이 나오면 안 됩니다.
+     백그라운드 탭·프리렌더·확장프로그램 간섭으로 IO 가 멈추면 본문이 통째로
+     투명하게 남습니다. 1.2초 뒤엔 무조건 표시하고, 탭 복귀 때도 한 번 더 확인합니다. */
+  setTimeout(revealAll, 1200);
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') setTimeout(revealAll, 300);
+  });
 } else {
   document.documentElement.classList.remove('js');
 }
@@ -1769,6 +1780,12 @@ if (motionOK && hasIO){
     });
   }, {threshold:.6});
   counters.forEach(function(el){ countIO.observe(el); });
+  setTimeout(function(){                       /* 안 돌았으면 최종값으로 */
+    counters.forEach(function(el){
+      if (el.textContent.replace(/\D/g,'') === '0')
+        el.textContent = el.getAttribute('data-count') + (el.getAttribute('data-suffix') || '');
+    });
+  }, 1500);
 } else {
   counters.forEach(function(el){
     el.textContent = el.getAttribute('data-count') + (el.getAttribute('data-suffix') || '');
