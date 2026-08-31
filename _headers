@@ -37,6 +37,11 @@
 /promo/proposal
   Cache-Control: no-cache, must-revalidate
 
+# 제안 가이드 랜딩 이미지 — 내용이 바뀔 때만 교체하므로 하루 캐시 + 백그라운드 갱신
+# (사이트 공통 /images/* 5분 규칙보다 아래에 두면 이 규칙이 우선합니다)
+/images/proposal-guide/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 /llms.txt
   Content-Type: text/plain; charset=utf-8
 /llms-full.txt

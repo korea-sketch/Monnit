@@ -14,48 +14,23 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230E2A47'/><text y='68' x='50' font-size='56' text-anchor='middle' fill='%234A90D9' font-family='sans-serif' font-weight='700'>M</text></svg>">
 
-<!-- 본문 폰트 — 사이트 공통 Pretendard (렌더를 막지 않도록 지연 적용) -->
+
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" media="print" onload="this.media='all'"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 
-<!-- 사이트 공통 — 동의 배너 · GTM/GA4/Clarity · 리드 접점 규격 -->
+
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/js/monnit-lead.js?v=2"></script>
 
-<!-- LCP 이미지 미리 불러오기 (화면 크기에 맞는 것만) -->
-<link rel="preload" as="image" href="/images/proposal-guide/cover-800.jpg"
-      imagesrcset="/images/proposal-guide/cover-800.jpg 800w, /images/proposal-guide/cover.jpg 1600w"
+
+<link rel="preload" as="image" type="image/avif" href="/images/proposal-guide/cover-800.avif"
+      imagesrcset="/images/proposal-guide/cover-800.avif 800w, /images/proposal-guide/cover.avif 1600w"
       imagesizes="(max-width:900px) 92vw, 460px" fetchpriority="high">
 
-<!-- ══════════════════════════════════════════════════════════════
-     광고 전환 추적 — 여기에 픽셀을 직접 붙이지 마세요
-     ══════════════════════════════════════════════════════════════
-     이 사이트는 monnit-consent.js 가 Google 동의 모드(Consent Mode v2)로
-     GTM·GA4·Clarity 를 관리합니다. 기본값이 denied 이고, 방문자가 동의해야
-     ad_storage 가 granted 로 바뀝니다.
 
-     따라서 Meta 픽셀·Google Ads 태그는 이 파일이 아니라 GTM(GTM-T8H73VW)
-     안에서 추가해야 합니다. 여기에 직접 붙이면 동의 전에 발사되어
-     동의 관리 설계가 무너집니다.
-
-     이 페이지는 아래 이벤트를 dataLayer 로 올립니다. GTM 에서 이 이름으로
-     트리거를 만들어 각 광고 전환에 연결하세요.
-
-       monnit_download     자료 신청 완료 (리드 획득)  ← 주 전환
-       monnit_form_submit  상담 문의 접수
-       monnit_form_open    폼 열기
-       monnit_contact      전화·메일 클릭
-
-     monnit_download 에는 lead_grade(A/B/C) 와 value(리드 점수)가 함께
-     실려 갑니다. 전환 가치를 점수로 넘기면 광고 최적화를 단순 건수가 아니라
-     리드 품질 기준으로 돌릴 수 있습니다.
-
-     MonnitLead 도 별도로 lead_doc_request · generate_lead 를 올립니다.
-     (js/monnit-lead.js — 사이트 공통 규격)
-     ══════════════════════════════════════════════════════════════ -->
 
 <style>
 :root{
@@ -164,6 +139,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 /* 표지 썸네일 */
 .cover-card{position:relative}
+.cover-card picture{display:block}
 .cover-card img{
   border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.42);
   border:1px solid rgba(255,255,255,.16);
@@ -208,6 +184,7 @@ h2{font-size:clamp(22px,5.6vw,31px);line-height:1.36;margin:0 0 14px;font-weight
 }
 @media (hover:hover){ .peek figure:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)} }
 .peek figure:active{transform:scale(.99)}
+.peek picture{display:block}
 .peek img{border-bottom:1px solid var(--line);cursor:zoom-in;background:var(--bg-alt)}
 .peek figcaption{padding:14px 16px;font-size:13.5px;color:var(--body);line-height:1.6}
 .peek figcaption b{display:block;color:var(--ink);font-size:14.5px;font-weight:700;margin-bottom:3px}
@@ -325,6 +302,15 @@ h2{font-size:clamp(22px,5.6vw,31px);line-height:1.36;margin:0 0 14px;font-weight
 .ta.ghost:active{transform:scale(.99);border-color:var(--accent);color:var(--accent)}
 .fallback{font-size:12.5px;color:var(--muted);margin:14px 0 0;text-align:center}
 .fallback a{color:var(--accent);font-weight:600}
+
+/* ── 화면 밖 섹션 렌더 지연 ──
+   목차·FAQ 는 첫 화면에서 한참 아래라 미리 그릴 필요가 없습니다.
+   contain-intrinsic-size 로 예상 높이를 알려줘 스크롤바가 튀지 않게 합니다. */
+.defer-render{
+  content-visibility:auto;
+  contain-intrinsic-size:auto 900px;
+}
+@media (max-width:700px){ .defer-render{contain-intrinsic-size:auto 1200px} }
 
 /* ══════════ 인터랙션 ══════════ */
 
@@ -480,6 +466,7 @@ h2{font-size:clamp(22px,5.6vw,31px);line-height:1.36;margin:0 0 14px;font-weight
   display:flex;align-items:center;gap:13px;margin:0 0 18px;
   background:var(--bg-alt);border:1px solid var(--line);border-radius:11px;padding:11px 13px;
 }
+.fm-item picture{flex:none;display:block}
 .fm-item img{border-radius:6px;border:1px solid var(--line);flex:none}
 .fm-item b{display:block;font-size:14px;font-weight:800;letter-spacing:-.02em;line-height:1.4}
 .fm-item span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5}
@@ -708,7 +695,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-<!-- ══════════ 히어로 ══════════ -->
+
 <header class="hero">
   <div class="wrap">
     <div>
@@ -735,11 +722,17 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
     </div>
 
     <div class="cover-card" data-reveal style="--d:320ms">
-      <img src="/images/proposal-guide/cover-800.jpg"
-           srcset="/images/proposal-guide/cover-800.jpg 800w, /images/proposal-guide/cover.jpg 1600w"
-           sizes="(max-width:900px) 92vw, 460px"
-           width="1600" height="900" fetchpriority="high" decoding="async"
-           alt="Monnit Korea 무선 IoT 설비 예지보전 제안 가이드 표지">
+      <picture>
+        <source type="image/avif" srcset="/images/proposal-guide/cover-800.avif 800w, /images/proposal-guide/cover.avif 1600w"
+                sizes="(max-width:900px) 92vw, 460px">
+        <source type="image/webp" srcset="/images/proposal-guide/cover-800.webp 800w, /images/proposal-guide/cover.webp 1600w"
+                sizes="(max-width:900px) 92vw, 460px">
+        <img src="/images/proposal-guide/cover-800.jpg"
+             srcset="/images/proposal-guide/cover-800.jpg 800w, /images/proposal-guide/cover.jpg 1600w"
+             sizes="(max-width:900px) 92vw, 460px"
+             width="1600" height="900" fetchpriority="high" decoding="async"
+             alt="Monnit Korea 무선 IoT 설비 예지보전 제안 가이드 표지">
+      </picture>
       <div class="cover-tag">PDF · 20페이지 · 실제 사례 기반</div>
     </div>
   </div>
@@ -755,7 +748,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-<!-- ══════════ 다운로드 확인 패널 ══════════ -->
+
 <section id="thanks">
   <div class="wrap">
     <div class="thanks-inner">
@@ -784,7 +777,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-<!-- ══════════ 이 자료가 필요한 분 ══════════ -->
+
 <section>
   <div class="wrap">
     <p class="eyebrow" data-reveal>이 문서는 무엇인가</p>
@@ -821,7 +814,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-<!-- ══════════ 미리보기 ══════════ -->
+
 <section class="sec-alt">
   <div class="wrap">
     <p class="eyebrow" data-reveal>안을 먼저 보세요</p>
@@ -829,21 +822,33 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
     <p class="sub" data-reveal style="--d:110ms">20페이지 전체가 같은 밀도로 구성되어 있습니다.</p>
     <div class="peek">
       <figure data-reveal style="--d:0ms">
-        <img src="/images/proposal-guide/page-09-800.jpg" data-full="/images/proposal-guide/page-09.jpg"
-             width="800" height="450" loading="lazy" decoding="async" class="zoomable"
-             alt="30포인트 센서 배치안">
+        <picture>
+          <source type="image/avif" srcset="/images/proposal-guide/page-09-800.avif">
+          <source type="image/webp" srcset="/images/proposal-guide/page-09-800.webp">
+          <img src="/images/proposal-guide/page-09-800.jpg" data-full="/images/proposal-guide/page-09"
+               width="800" height="450" loading="lazy" decoding="async" class="zoomable"
+               alt="30포인트 센서 배치안">
+        </picture>
         <figcaption><b>30포인트 센서 배치안</b>구역별 설비 · 수량 · 적용 센서와 게이트웨이 3식 분할 근거<span class="zoom-hint">🔍 눌러서 크게 보기</span></figcaption>
       </figure>
       <figure data-reveal style="--d:90ms">
-        <img src="/images/proposal-guide/page-15-800.jpg" data-full="/images/proposal-guide/page-15.jpg"
-             width="800" height="450" loading="lazy" decoding="async" class="zoomable"
-             alt="측정 항목 및 초기 알람 기준">
+        <picture>
+          <source type="image/avif" srcset="/images/proposal-guide/page-15-800.avif">
+          <source type="image/webp" srcset="/images/proposal-guide/page-15-800.webp">
+          <img src="/images/proposal-guide/page-15-800.jpg" data-full="/images/proposal-guide/page-15"
+               width="800" height="450" loading="lazy" decoding="async" class="zoomable"
+               alt="측정 항목 및 초기 알람 기준">
+        </picture>
         <figcaption><b>측정 항목 · 알람 임계값</b>ISO 20816-3 준용 정상/주의/위험 구간과 기준선 튜닝 절차<span class="zoom-hint">🔍 눌러서 크게 보기</span></figcaption>
       </figure>
       <figure data-reveal style="--d:180ms">
-        <img src="/images/proposal-guide/page-19-800.jpg" data-full="/images/proposal-guide/page-19.jpg"
-             width="800" height="450" loading="lazy" decoding="async" class="zoomable"
-             alt="도입 검토 프로세스">
+        <picture>
+          <source type="image/avif" srcset="/images/proposal-guide/page-19-800.avif">
+          <source type="image/webp" srcset="/images/proposal-guide/page-19-800.webp">
+          <img src="/images/proposal-guide/page-19-800.jpg" data-full="/images/proposal-guide/page-19"
+               width="800" height="450" loading="lazy" decoding="async" class="zoomable"
+               alt="도입 검토 프로세스">
+        </picture>
         <figcaption><b>귀사 조건 확인 절차</b>현장 실사 → 구성 확정 → 정식 견적 → PoC까지 4단계<span class="zoom-hint">🔍 눌러서 크게 보기</span></figcaption>
       </figure>
     </div>
@@ -851,8 +856,8 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-<!-- ══════════ 목차 ══════════ -->
-<section>
+
+<section class="defer-render">
   <div class="wrap">
     <p class="eyebrow" data-reveal>전체 목차</p>
     <h2 data-reveal style="--d:60ms">18개 장, 20페이지</h2>
@@ -883,8 +888,8 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-<!-- ══════════ 자주 묻는 질문 ══════════ -->
-<section class="sec-alt">
+
+<section class="sec-alt defer-render">
   <div class="wrap">
     <p class="eyebrow" data-reveal>자주 묻는 질문</p>
     <h2 data-reveal style="--d:60ms">받아보시기 전에 많이 물으시는 것</h2>
@@ -918,7 +923,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </section>
 
-<!-- ══════════ 최종 CTA ══════════ -->
+
 <section class="final" id="contact">
   <div class="wrap">
     <div>
@@ -976,7 +981,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </footer>
 
-<!-- ══════════ 문의 남기기 폼 ══════════ -->
+
 <div id="fm" data-mode="download" role="dialog" aria-modal="true" aria-labelledby="fmTitle">
   <div class="fm-card">
     <div class="fm-head">
@@ -988,9 +993,13 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
     </div>
 
     <div class="fm-body">
-      <!-- 무엇을 받는지 다시 확인시켜 주는 미니 카드 -->
+      
       <div class="fm-item" data-only="download">
-        <img src="/images/proposal-guide/cover-800.jpg" width="112" height="63" alt="" loading="lazy" decoding="async">
+        <picture>
+          <source type="image/avif" srcset="/images/proposal-guide/cover-800.avif">
+          <source type="image/webp" srcset="/images/proposal-guide/cover-800.webp">
+          <img src="/images/proposal-guide/cover-800.jpg" width="112" height="63" alt="" loading="lazy" decoding="async">
+        </picture>
         <div>
           <b>무선 IoT 설비 예지보전 제안 가이드</b>
           <span>PDF · 20페이지 · 실제 사례 30포인트 배치표 포함</span>
@@ -1039,7 +1048,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
           <span class="hint" data-only="download">적어주시면 귀사 규모에 맞는 구성 예시를 함께 보내드립니다.</span>
         </label>
 
-        <!-- 상담 문의일 때만 나오는 항목 -->
+        
         <label class="fl" data-req data-only="inquiry">
           <span>감시하려는 설비와 대수<i class="req">*</i></span>
           <textarea name="설비내용" placeholder="예) 유틸리티 펌프 12대, 에어 컴프레셔 2대, 전기실 부스바 온도 감시 검토 중"></textarea>
@@ -1110,14 +1119,19 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-<!-- 라이트박스 -->
+
 <div id="lb" role="dialog" aria-modal="true" aria-label="페이지 크게 보기">
   <button class="close" type="button" aria-label="닫기">×</button>
-  <div class="stage"><img alt=""></div>
+  <div class="stage">
+    <picture>
+      <source id="lbA" type="image/avif"><source id="lbW" type="image/webp">
+      <img alt="">
+    </picture>
+  </div>
   <div class="swipe">← 좌우로 밀어서 보기 · 화면을 누르면 닫힘 →</div>
 </div>
 
-<!-- 데스크톱 플로팅 CTA -->
+
 <div id="fbar">
   <div class="tx">
     <b>무선 예지보전 제안 가이드</b>
@@ -1133,7 +1147,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
   </div>
 </div>
 
-<!-- 모바일 하단 고정 바 -->
+
 <div class="mbar">
   <a class="m-dl" href="#" id="dlBtn3">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
@@ -1361,10 +1375,18 @@ function unlockScroll(){
 /* ── 미리보기 크게 보기 ── */
 var lb = document.getElementById('lb'),
     lbImg = lb.querySelector('img'),
+    lbA = document.getElementById('lbA'),
+    lbW = document.getElementById('lbW'),
     lbStage = lb.querySelector('.stage');
 
 function openLb(im){
-  lbImg.src = im.getAttribute('data-full') || im.src;   // 확대용 고해상도
+  /* 확대는 고해상도 원본으로. 브라우저가 지원하는 포맷을 스스로 고릅니다. */
+  var base = im.getAttribute('data-full');
+  if (base){
+    lbA.srcset = base + '.avif';
+    lbW.srcset = base + '.webp';
+    lbImg.src  = base + '.jpg';
+  } else { lbA.srcset = lbW.srcset = ''; lbImg.src = im.src; }
   lbImg.alt = im.alt;
   lb.classList.add('on');
   behave.peekOpen += 1;                                 // 관심도 신호로 기록
