@@ -30,23 +30,91 @@ export async function meta(date) {
 }
 
 /* ── 네이버 검색광고 ────────────────────────────────────
-   필요: NAVER_API_KEY, NAVER_SECRET, NAVER_CUSTOMER_ID */
-export async function naver(date) {
+   필요: NAVER_API_KEY, NAVER_SECRET, NAVER_CUSTOMER_ID
+   (키는 Netlify 환경변수에만 둔다. 코드·저장소에 절대 적지 않는다.)
+
+   주의: /stats 는 조회할 대상 id 가 있어야 한다. 캠페인 목록을 먼저 받고
+   그 id 들로 날짜별 실적을 조회한다. datePreset 을 쓰면 날짜 인자가
+   무시되므로 timeRange 로 지정한다. */
+
+const NAVER_HOST = 'https://api.searchad.naver.com';
+
+function naverCfg() {
   const key = process.env.NAVER_API_KEY, sec = process.env.NAVER_SECRET, cid = process.env.NAVER_CUSTOMER_ID;
-  if (!key || !sec || !cid) return null;
-  const ts = Date.now(), path = '/stats';
-  const sig = crypto.createHmac('sha256', sec).update(`${ts}.GET.${path}`).digest('base64');
-  const u = new URL('https://api.searchad.naver.com' + path);
-  u.searchParams.set('statType', 'ACCOUNT');
-  u.searchParams.set('datePreset', 'today');
-  u.searchParams.set('fields', JSON.stringify(['impCnt', 'clkCnt', 'salesAmt']));
+  return (key && sec && cid) ? { key, sec, cid } : null;
+}
+
+async function naverGet(path, params) {
+  const c = naverCfg(); if (!c) return null;
+  const ts = Date.now();
+  const sig = crypto.createHmac('sha256', c.sec).update(`${ts}.GET.${path}`).digest('base64');
+  const u = new URL(NAVER_HOST + path);
+  for (const [k, v] of Object.entries(params || {})) {
+    if (Array.isArray(v)) v.forEach(x => u.searchParams.append(k, x));
+    else if (v != null) u.searchParams.set(k, String(v));
+  }
   const r = await fetch(u, { headers: {
-    'X-Timestamp': String(ts), 'X-API-KEY': key, 'X-Customer': String(cid), 'X-Signature': sig
-  }, signal: T() });
-  if (!r.ok) throw new Error('naver ' + r.status + ' ' + (await r.text()).slice(0, 120));
-  const d = (await r.json())?.data?.[0] || {};
-  return { channel: '네이버', date, spend: num(d.salesAmt), impressions: num(d.impCnt),
-           clicks: num(d.clkCnt), results: 0 };
+    'X-Timestamp': String(ts), 'X-API-KEY': c.key, 'X-Customer': String(c.cid), 'X-Signature': sig
+  }, signal: T(15000) });
+  if (!r.ok) throw new Error('naver ' + path + ' ' + r.status + ' ' + (await r.text()).slice(0, 140));
+  return r.json();
+}
+
+/** 캠페인 목록 — 이름·상태·등록시각. 타임라인의 막대가 여기서 나온다. */
+export async function naverCampaigns() {
+  const rows = await naverGet('/ncc/campaigns', {});
+  if (!rows) return null;
+  return (Array.isArray(rows) ? rows : []).map(c => ({
+    id: c.nccCampaignId,
+    name: c.name || '',
+    type: c.campaignTp || '',
+    /* userLock=true 는 사용자가 끈 것, status 는 시스템 판정 */
+    running: c.status === 'ELIGIBLE' && !c.userLock,
+    created_at: String(c.regTm || '').slice(0, 10)
+  }));
+}
+
+/** 캠페인 단위 하루 실적. ids 는 한 번에 100개까지. */
+export async function naverAds(date, campaigns) {
+  const c = naverCfg(); if (!c) return null;
+  const list = campaigns || await naverCampaigns();
+  if (!list || !list.length) return [];
+  const fields = JSON.stringify(['impCnt', 'clkCnt', 'salesAmt', 'ccnt']);
+  const range = JSON.stringify({ since: date, until: date });
+
+  const out = [];
+  for (let i = 0; i < list.length; i += 100) {
+    const chunk = list.slice(i, i + 100);
+    const res = await naverGet('/stats', {
+      ids: chunk.map(x => x.id), fields, timeRange: range
+    });
+    const byId = {};
+    for (const d of (res?.data || [])) byId[d.id] = d;
+    for (const cmp of chunk) {
+      const d = byId[cmp.id] || {};
+      out.push({
+        channel: '네이버', date,
+        ad_id: cmp.id, ad_name: cmp.name, campaign: cmp.name, adset: '',
+        created_at: cmp.created_at,
+        /* salesAmt 는 부가세 제외 광고비다 */
+        spend: num(d.salesAmt), impressions: num(d.impCnt),
+        clicks: num(d.clkCnt), results: num(d.ccnt),
+        utm_content: ''
+      });
+    }
+  }
+  return out;
+}
+
+/** 채널 합계 — 기존 ads 스토어 형식 그대로 */
+export async function naver(date, campaigns) {
+  const rows = await naverAds(date, campaigns);
+  if (!rows) return null;
+  const t = rows.reduce((a, r) => {
+    a.spend += r.spend; a.impressions += r.impressions;
+    a.clicks += r.clicks; a.results += r.results; return a;
+  }, { spend: 0, impressions: 0, clicks: 0, results: 0 });
+  return { channel: '네이버', date, ...t };
 }
 
 /* ── GA4 (서비스 계정 · 라이브러리 없이 JWT 직접 서명) ──────
@@ -206,4 +274,94 @@ export async function google(date) {
   const cl = v => num(String(v || '').replace(/[^\d.-]/g, ''));
   return { channel: '구글', date, spend: cl(row[iC]), impressions: cl(row[iI]),
            clicks: cl(row[iK]), results: 0 };
+}
+
+/* ── 메타 · 소재(광고) 단위 ─────────────────────────────
+   계정 합계로는 "어느 소재가 먹혔는지"를 알 수 없다.
+   level=ad 로 하루치를 받아오고, 광고 링크의 utm_content 로 리드와 잇는다. */
+
+export async function metaAds(date) {
+  const tok = process.env.META_TOKEN, acct = process.env.META_AD_ACCOUNT;
+  if (!tok || !acct) return null;
+  const u = new URL(`https://graph.facebook.com/v21.0/${acct}/insights`);
+  u.searchParams.set('level', 'ad');
+  u.searchParams.set('fields', 'ad_id,ad_name,adset_name,campaign_name,spend,impressions,clicks,actions');
+  u.searchParams.set('time_range', JSON.stringify({ since: date, until: date }));
+  u.searchParams.set('limit', '300');
+  u.searchParams.set('access_token', tok);
+  const r = await fetch(u, { signal: T(20000) });
+  if (!r.ok) throw new Error('meta ads ' + r.status + ' ' + (await r.text()).slice(0, 120));
+  const data = (await r.json()).data || [];
+  return data.map(d => {
+    const lead = (d.actions || []).find(a => /lead/i.test(a.action_type));
+    return {
+      channel: '메타', date,
+      ad_id: String(d.ad_id || ''), ad_name: d.ad_name || '',
+      adset: d.adset_name || '', campaign: d.campaign_name || '',
+      spend: num(d.spend), impressions: num(d.impressions),
+      clicks: num(d.clicks), results: num(lead?.value)
+    };
+  });
+}
+
+/** 광고 ID → { utm_content, created_at, status } 지도.
+ *  하루 한 번만 부르면 충분하다(변경이 잦지 않다). */
+export async function metaAdMap() {
+  const tok = process.env.META_TOKEN, acct = process.env.META_AD_ACCOUNT;
+  if (!tok || !acct) return null;
+  const fields = 'id,name,created_time,effective_status,'
+    + 'creative{object_story_spec{link_data{link,child_attachments{link}},video_data{call_to_action{value{link}}}},'
+    + 'asset_feed_spec{link_urls{website_url}},url_tags,object_url}';
+  let url = new URL(`https://graph.facebook.com/v21.0/${acct}/ads`);
+  url.searchParams.set('fields', fields);
+  url.searchParams.set('limit', '200');
+  url.searchParams.set('access_token', tok);
+
+  const out = {};
+  for (let page = 0; page < 8 && url; page++) {
+    const r = await fetch(url, { signal: T(20000) });
+    if (!r.ok) throw new Error('meta admap ' + r.status + ' ' + (await r.text()).slice(0, 120));
+    const jn = await r.json();
+    for (const a of (jn.data || [])) {
+      out[String(a.id)] = {
+        name: a.name || '',
+        created_at: (a.created_time || '').slice(0, 10),
+        status: a.effective_status || '',
+        utm_content: pickUtmContent(a)
+      };
+    }
+    url = jn.paging?.next ? new URL(jn.paging.next) : null;
+  }
+  return out;
+}
+
+/** 광고 소재 안의 여러 위치에서 링크를 뒤져 utm_content 를 찾는다 */
+function pickUtmContent(ad) {
+  const urls = [];
+  const c = ad.creative || {};
+  const s = c.object_story_spec || {};
+  if (s.link_data?.link) urls.push(s.link_data.link);
+  for (const ch of (s.link_data?.child_attachments || [])) if (ch.link) urls.push(ch.link);
+  if (s.video_data?.call_to_action?.value?.link) urls.push(s.video_data.call_to_action.value.link);
+  for (const l of (c.asset_feed_spec?.link_urls || [])) if (l.website_url) urls.push(l.website_url);
+  if (c.object_url) urls.push(c.object_url);
+
+  for (const u of urls) {
+    try {
+      const v = new URL(u).searchParams.get('utm_content');
+      if (v) return v;
+    } catch { /* 무시 */ }
+  }
+  /* 링크에 없으면 url_tags(추적 템플릿)에서 찾는다 */
+  const tags = String(c.url_tags || '');
+  const m = tags.match(/utm_content=([^&\s]+)/);
+  if (m) { try { return decodeURIComponent(m[1]); } catch { return m[1]; } }
+
+  for (const u of urls) {
+    try {
+      const v = new URL(u).searchParams.get('utm_campaign');
+      if (v) return v;
+    } catch { /* 무시 */ }
+  }
+  return '';
 }

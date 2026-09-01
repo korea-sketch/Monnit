@@ -1,0 +1,76 @@
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="wrap" id="app">
+<div id="main" style="display:none">
+<header>
+  <div><h1>통합 관제</h1><div class="sub" id="stamp">불러오는 중…</div></div>
+  <div class="rangebar" id="rb">
+    <button class="btn" data-r="7d">7일</button>
+    <button class="btn on" data-r="30d">30일</button>
+    <button class="btn" data-r="90d">90일</button>
+    <input class="dt" type="date" id="f">
+    <span style="color:var(--mut);font-size:12px">~</span>
+    <input class="dt" type="date" id="t">
+    <button class="btn" id="apply">적용</button>
+    <button class="btn" onclick="load()">새로고침</button>
+    <button class="btn" onclick="fetch('/ops/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.href='/ops'})">나가기</button>
+  </div>
+</header>
+
+<div class="g sec"><h2>데이터 연동 <span class="tag t-off" id="connTag"></span></h2>
+<div class="note">키를 Netlify 환경변수에 넣으면 코드 수정 없이 자동으로 켜집니다</div>
+<div class="conn" id="conn"></div></div>
+
+<div class="g sec"><h2>핵심 지표 <span class="tag t-off" id="kpiRange"></span></h2>
+<div class="note">직전 같은 길이의 기간과 비교합니다</div><div class="kpi" id="kpi"></div></div>
+
+<div class="plats" id="plats"></div>
+
+<div class="g sec"><h2>UTM 검증 <span class="tag" id="utmTag"></span></h2>
+<div class="note">광고 링크의 utm_content 와 리드 원장의 출처가 실제로 이어지는지 대조합니다</div>
+<div style="overflow-x:auto"><table class="gr" id="utm"></table></div>
+<div id="utmSum" style="margin-top:13px;font-size:11.5px;color:var(--mut);line-height:1.7"></div></div>
+
+<div class="g sec"><h2>지금 할 것 <span class="tag t-off" id="actN"></span></h2>
+<div class="note">광고 데이터와 사이트 데이터를 합쳐서 뽑은 것 · 위쪽이 급합니다</div>
+<div class="acts" id="acts"></div></div>
+
+<div class="g sec"><h2>광고비에서 매출까지</h2>
+<div class="note">사이 숫자는 전환율 · 날짜는 중앙값</div><div class="fn" id="fn"></div>
+<div id="stale" style="margin-top:12px"></div></div>
+
+<div class="g sec"><h2>소재 진단 · 클릭률 × 리드당 비용</h2>
+<div class="note">원 크기 = 지출 · 왼쪽 위로 갈수록 좋습니다</div>
+<div class="quad"><div class="qbox"><canvas id="q" role="img" aria-label="소재별 클릭률과 리드당 비용 사분면"></canvas></div>
+<div class="qguide" id="qg"></div></div></div>
+
+<div class="g sec"><h2>집행 타임라인</h2>
+<div class="note">막대 = 지출이 있던 날 · 끊긴 자리가 껐던 구간 · 점은 리드가 들어온 날</div>
+<div class="tl" id="tl"></div>
+<div class="leg"><span><i style="background:#7AA8FF"></i>집행</span>
+<span><i style="background:#6E7C96"></i>중단 구간</span>
+<span><i style="background:#4FE39B;width:9px;height:9px;border-radius:50%"></i>리드</span></div></div>
+
+<div class="g sec"><h2>수익성</h2><div class="note" id="econNote"></div><div class="cl" id="econ"></div></div>
+
+<div class="two">
+<div class="g sec"><h2>유입 채널</h2><div class="note">어디서 온 문의인지</div><div id="chan"></div></div>
+<div class="g sec"><h2>관심 분야 <span class="tag t-off">자료 요청</span></h2>
+<div class="note">다음 광고 소재·키워드의 근거</div><div id="intr"></div></div>
+</div>
+
+<div class="two">
+<div class="g sec"><h2>사이트 상태</h2><div class="note">15분마다 자동 점검 · 폼이 죽으면 광고비가 낭비됩니다</div>
+<div id="health"></div></div>
+<div class="g sec"><h2>사용자 행동 <span class="tag t-ok">Clarity</span></h2>
+<div class="note">헛클릭이 많으면 랜딩에 막힌 곳이 있다는 뜻입니다</div><div class="cl" id="cl"></div></div>
+</div>
+
+<div class="g sec"><h2>접수 · 견적 진행 <span class="tag t-wait" id="pend"></span></h2>
+<div class="note">단계를 바꾸면 날짜가 자동으로 찍힙니다 · 알리미는 수기 견적이라 여기서 직접 넣습니다</div>
+<div id="leads"></div></div>
+
+<div style="text-align:center;margin:4px 0 14px">
+<a class="btn" style="text-decoration:none;display:inline-block" href="/ops/export">리드 내려받기 (CSV)</a></div>
+<footer>Monnit Korea · 통합 관제<br><span id="foot"></span></footer>
+</div>
+</div>

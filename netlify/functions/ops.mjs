@@ -4,8 +4,11 @@ import * as auth from './_ops_auth.mjs';
 import { LOGIN, APP } from './_ops_ui.mjs';
 import { get, set, readLines, available, diag } from './_store.mjs';
 import { configured as adsConfigured, kday as adsKday } from './_ads.mjs';
+import * as deals from './_deals.mjs';
+import { rollup, economics } from './_creatives.mjs';
+import { utmAudit, actions as buildActions } from './_insights.mjs';
 
-export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/export'] };
+export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export'] };
 
 const TZ = 'Asia/Seoul';
 const MAX_FAIL = 8, LOCK_MS = 15 * 60 * 1000;
@@ -106,7 +109,7 @@ const quarterOf = ym => {
   return y + ' Q' + Math.ceil(m / 3);
 };
 
-async function build(pkey) {
+async function build(pkey, custom) {
   const P = PERIODS[pkey] || PERIODS['7d'];
   const now = new Date();
 
@@ -118,11 +121,22 @@ async function build(pkey) {
   rows = rows.filter(r => r?.ts && !/^__/.test(r.company || ''));   /* 점검용 더미 제외 */
 
   const today = kday(now), ago = n => kday(new Date(now - n * 864e5));
-  const dCur = ago(P.days), dPrv = ago(P.days * 2);
+  /* 직접 고른 구간이 있으면 그것을 쓴다 (from 초과 ~ to 이하) */
+  const okDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v || ''));
+  const useCustom = custom && okDate(custom.from) && okDate(custom.to) && custom.from <= custom.to;
+  const spanDays = useCustom
+    ? Math.max(1, Math.round((new Date(custom.to) - new Date(custom.from)) / 864e5) + 1)
+    : P.days;
+  const dTo  = useCustom ? custom.to : today;
+  const dCur = useCustom
+    ? kday(new Date(new Date(custom.from + 'T00:00:00Z').getTime() - 864e5))
+    : ago(P.days);
+  const dPrv = kday(new Date(new Date(dCur + 'T00:00:00Z').getTime() - spanDays * 864e5));
   const dayOf = r => kday(new Date(r.ts));
   const btw = (r, a, b) => { const d = dayOf(r); return d > a && d <= b; };
+  const inCur = r => btw(r, dCur, dTo);
 
-  const cur = rows.filter(r => btw(r, dCur, today));
+  const cur = rows.filter(inCur);
   const prv = rows.filter(r => btw(r, dPrv, dCur));
   const tdy = rows.filter(r => dayOf(r) === today);
 
@@ -131,7 +145,7 @@ async function build(pkey) {
   const srt = m => Object.entries(m).sort((a, b) => b[1] - a[1]);
 
   /* 일자별 막대 — 기간이 길면 촘촘해지므로 최대 30칸 */
-  const barDays = Math.min(P.days, 30);
+  const barDays = Math.min(spanDays, 30);
   const daily = [];
   for (let i = barDays - 1; i >= 0; i--) {
     const d = ago(i), day = rows.filter(r => dayOf(r) === d);
@@ -146,6 +160,11 @@ async function build(pkey) {
   for (const k of [...new Set(monthKeys)]) adRows = adRows.concat(await readLines('ads', k));
   adRows = adRows.filter(r => r?.date);
 
+  /* 소재(광고) 단위 실적 — 없으면 빈 배열. 없다고 0으로 채우지 않는다. */
+  let adAds = [];
+  for (const k of [...new Set(monthKeys)]) adAds = adAds.concat(await readLines('adcreatives', k));
+  adAds = adAds.filter(r => r?.date && r.ad_id);
+
   const sumBy = list => {
     const m = {};
     for (const r of list) {
@@ -155,7 +174,7 @@ async function build(pkey) {
     }
     return Object.values(m).sort((a, b) => b.spend - a.spend);
   };
-  const adCur = sumBy(adRows.filter(r => r.date > dCur && r.date <= today));
+  const adCur = sumBy(adRows.filter(r => r.date > dCur && r.date <= dTo));
   const adPrv = sumBy(adRows.filter(r => r.date > dPrv && r.date <= dCur));
 
   /* ── 월별 시계열 (최근 12개월, 데이터 있는 달만) ── */
@@ -191,14 +210,33 @@ async function build(pkey) {
 
   /* 응대 완료 표시 */
   let done = {}; try { done = JSON.parse(await get('ops', 'handled.json') || '{}'); } catch {}
+  const dealMap = await deals.readDeals();
   const idOf = r => (r.ts || '') + '|' + (r.email || r.phone || r.company || '');
+
+  /* 리드 + 딜 결합 (기간 무관 전체) → 기간별로 잘라 쓴다 */
+  const withId = rows.map(r => ({ ...r, id: idOf(r) }));
+  const joined = deals.attach(withId, dealMap);
+  const inPeriod = joined.filter(inCur);
+
+  const creatives = rollup(joined, adAds, dCur, dTo);
+  const adSpendTotal = adCur.reduce((sum, x) => sum + (x.spend || 0), 0);
+  const econ = economics(inPeriod, adSpendTotal);
+  const fun = deals.funnel(inPeriod);
+  const adInPeriod = adAds.filter(r => r.date > dCur && r.date <= dTo);
+  const audit = utmAudit(creatives, adInPeriod, inPeriod);
+
+  const acts = buildActions({ creatives, audit, econ, funnel: fun, clarity,
+    summary: { channel: srt(grp(cur, r => r.channel)),
+               interest: srt(grp(cur.filter(r => r.type === 'doc_request'), r => r.interest)) },
+    adCur, cfg: adsConfigured() });
 
   return {
     generated: new Date().toISOString(),
     storage: await available(),
     health,
-    period: { key: pkey in PERIODS ? pkey : '7d', label: P.label, days: P.days,
-              from: dCur, to: today, prevFrom: dPrv, prevTo: dCur },
+    period: { key: useCustom ? 'custom' : (pkey in PERIODS ? pkey : '7d'),
+              label: useCustom ? (custom.from + ' ~ ' + custom.to) : P.label,
+              days: spanDays, from: dCur, to: dTo, prevFrom: dPrv, prevTo: dCur, custom: !!useCustom },
     periods: Object.entries(PERIODS).map(([k, v]) => ({ k, label: v.label })),
     ads: { cur: adCur, prev: adPrv, configured: adsConfigured(), sync: syncLog },
     clarity, clarityPages: clPages, ux,
@@ -212,11 +250,17 @@ async function build(pkey) {
       interest: srt(grp(cur.filter(r => r.type === 'doc_request'), r => r.interest)).slice(0, 8),
       daily
     },
-    leads: rows.slice(-200).reverse().map(r => ({
-      id: idOf(r), handled: !!done[idOf(r)],
+    creatives, funnel: fun, economics: econ,
+    utmAudit: audit, actions: acts,
+    stages: deals.STAGES, defaultTerm: deals.DEFAULT_TERM,
+    leads: joined.slice(-200).reverse().map(r => ({
+      id: r.id, handled: !!done[r.id] || (r.deal.stage !== '접수'),
       ts: r.ts, label: r.label, type: r.type, channel: r.channel, point: r.point,
       company: r.company, name: r.name, phone: r.phone, email: r.email,
-      region: r.region, asset: r.asset, interest: r.interest
+      region: r.region, asset: r.asset, interest: r.interest,
+      source: r.source || '',
+      deal: r.deal, ltv: r.ltv, ltv_assumed: r.ltv_assumed,
+      days_to_quote: r.days_to_quote, days_to_win: r.days_to_win
     })),
     /* 자료 요청도 후속 연락 대상이므로 미응대 큐에 넣는다 (구독만 제외) */
     pending: rows.filter(r => r.type !== 'subscribe' && !done[idOf(r)]).length
@@ -267,19 +311,44 @@ export default async (req) => {
     } catch (e) { return j({ error: String(e?.message || e) }, 500); }
   }
 
+  if (sub === 'deal') {
+    if (req.method !== 'POST') return j({ error: 'method' }, 405);
+    try {
+      const body = await req.json();
+      if (!body || !body.id) return j({ error: 'id 없음' }, 400);
+      const saved = await deals.writeDeal(String(body.id), body.patch || {});
+      return j({ ok: true, deal: saved });
+    } catch (e) { return j({ error: String(e?.message || e) }, 500); }
+  }
+
   if (sub === 'export') {
     const d = await build('90d');
-    const head = ['접수일시', '유형', '채널', '접점', '회사', '담당자', '전화', '이메일', '지역', '설비', '관심', '응대'];
+    const head = ['접수일시', '유형', '채널', '소재(utm_content)', '접점', '회사', '담당자', '전화', '이메일',
+                  '지역', '설비', '관심', '단계', '견적일', '견적까지(일)', '견적금액',
+                  '수주일', '수주까지(일)', '월구독료', '일시매출', '유지개월', 'LTV', '실패사유'];
     const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-    const body = d.leads.map(r => [
-      new Date(r.ts).toLocaleString('ko-KR', { timeZone: TZ }), r.label, r.channel, r.point,
-      r.company, r.name, r.phone, r.email, r.region, r.asset, r.interest, r.handled ? '완료' : ''
-    ].map(esc).join(',')).join('\n');
+    const body = d.leads.map(r => {
+      const k = r.deal || {};
+      const utm = (String(r.source || '').match(/utm_content=([^·&\n]+)/) || [, ''])[1].trim();
+      return [
+        new Date(r.ts).toLocaleString('ko-KR', { timeZone: TZ }), r.label, r.channel, utm, r.point,
+        r.company, r.name, r.phone, r.email, r.region, r.asset, r.interest,
+        k.stage || '', k.quoted_at ? k.quoted_at.slice(0, 10) : '', r.days_to_quote == null ? '' : r.days_to_quote,
+        k.quote_amount || '', k.won_at ? k.won_at.slice(0, 10) : '', r.days_to_win == null ? '' : r.days_to_win,
+        k.mrr || '', k.oneoff || '', k.term_months == null ? '' : k.term_months,
+        r.ltv || '', k.lost_reason || ''
+      ].map(esc).join(',');
+    }).join('\n');
     return new Response('\uFEFF' + head.map(esc).join(',') + '\n' + body, {
       headers: { ...H, 'content-type': 'text/csv; charset=utf-8',
                  'content-disposition': 'attachment; filename="monnit-leads.csv"' }
     });
   }
-  if (sub === 'data') { try { return j(await build(new URL(req.url).searchParams.get('p') || '7d')); } catch (e) { return j({ error: String(e?.message || e) }, 500); } }
+  if (sub === 'data') {
+    try {
+      const q = new URL(req.url).searchParams;
+      return j(await build(q.get('p') || '7d', { from: q.get('from'), to: q.get('to') }));
+    } catch (e) { return j({ error: String(e?.message || e) }, 500); }
+  }
   return page(APP);
 };

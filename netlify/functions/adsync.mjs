@@ -30,6 +30,26 @@ async function upsertMany(rows) {
   return n;
 }
 
+/* 소재(광고) 단위 — 같은 날짜·광고ID는 최신값으로 덮어쓴다 */
+async function upsertAds(rows) {
+  const byMonth = {};
+  for (const r of rows) (byMonth[month(r.date)] ||= []).push(r);
+  let n = 0;
+  for (const [key, list] of Object.entries(byMonth)) {
+    const cur = (await get('adcreatives', key)) || '';
+    const drop = new Set(list.map(r => r.date + '|' + r.ad_id));
+    const keep = cur.split('\n').filter(Boolean).filter(l => {
+      try { const o = JSON.parse(l); return !drop.has(o.date + '|' + o.ad_id); }
+      catch { return false; }
+    });
+    for (const r of list) keep.push(JSON.stringify(r));
+    keep.sort();
+    await set('adcreatives', key, keep.join('\n'));
+    n += list.length;
+  }
+  return n;
+}
+
 export default async () => {
   const now = new Date();
   const hour = Number(new Intl.DateTimeFormat('en-GB',
@@ -52,15 +72,71 @@ export default async () => {
     } catch (e) { log.fail.push('google — ' + String(e?.message || e).slice(0, 120)); }
   } else log.skip.push('google');
 
-  /* ── 메타 · 네이버: 하루씩 ─────────────────────────────────── */
-  for (const [name, fn] of [['meta', ads.meta], ['naver', ads.naver]]) {
-    if (!cfg[name]) { log.skip.push(name); continue; }
+  /* ── 메타: 하루씩 (계정 합계) ─────────────────────────────── */
+  if (cfg.meta) {
     const rows = [];
     for (const d of days) {
-      try { const r = await fn(d); if (r) rows.push(r); }
-      catch (e) { log.fail.push(name + ':' + d + ' — ' + String(e?.message || e).slice(0, 80)); }
+      try { const r = await ads.meta(d); if (r) rows.push(r); }
+      catch (e) { log.fail.push('meta:' + d + ' — ' + String(e?.message || e).slice(0, 80)); }
     }
-    if (rows.length) { await upsertMany(rows); log.ok.push(name + ':' + rows.length + '일'); }
+    if (rows.length) { await upsertMany(rows); log.ok.push('meta:' + rows.length + '일'); }
+  } else log.skip.push('meta');
+
+  /* ── 네이버: 캠페인 목록을 한 번만 받고 날짜별로 조회 ──────────
+     캠페인 단위까지 저장해 타임라인에 쓴다. */
+  if (cfg.naver) {
+    try {
+      const camps = await ads.naverCampaigns();
+      if (!camps || !camps.length) {
+        log.fail.push('naver — 캠페인이 없습니다(고객 ID 확인)');
+      } else {
+        const totals = [], perCamp = [];
+        for (const d of days) {
+          try {
+            const rows = await ads.naverAds(d, camps);
+            for (const x of (rows || [])) perCamp.push(x);
+            const t = (rows || []).reduce((a, r) => {
+              a.spend += r.spend; a.impressions += r.impressions;
+              a.clicks += r.clicks; a.results += r.results; return a;
+            }, { spend: 0, impressions: 0, clicks: 0, results: 0 });
+            totals.push({ channel: '네이버', date: d, ...t });
+          } catch (e) { log.fail.push('naver:' + d + ' — ' + String(e?.message || e).slice(0, 80)); }
+        }
+        if (totals.length) { await upsertMany(totals); log.ok.push('naver:' + totals.length + '일'); }
+        if (perCamp.length) { await upsertAds(perCamp); log.ok.push('naver캠페인:' + perCamp.length + '행'); }
+      }
+    } catch (e) { log.fail.push('naver — ' + String(e?.message || e).slice(0, 120)); }
+  } else log.skip.push('naver');
+
+  /* ── 메타 소재 단위 + 광고↔utm_content 지도 ─────────────────
+     소재별 지출을 알아야 "어느 소재가 얼마에 리드를 만들었나"가 나온다.
+     지도는 하루 한 번(6시대)만 갱신한다. */
+  /* 소재별 지출은 하루 3번이면 충분하다(정산 후엔 값이 거의 안 변한다).
+     매시 돌리면 메타 API 호출이 배로 늘어날 뿐이다. */
+  if (cfg.meta && [7, 13, 20].includes(hour)) {
+    let map = {};
+    try { map = JSON.parse(await get('adcreatives', 'admap.json') || '{}'); } catch {}
+    if (hour === 6 || !Object.keys(map).length) {
+      try {
+        const fresh = await ads.metaAdMap();
+        if (fresh && Object.keys(fresh).length) {
+          map = fresh;
+          await set('adcreatives', 'admap.json', JSON.stringify(map));
+          log.ok.push('meta지도:' + Object.keys(map).length + '개');
+        }
+      } catch (e) { log.fail.push('meta지도 — ' + String(e?.message || e).slice(0, 100)); }
+    }
+    const arows = [];
+    for (const d of days) {
+      try {
+        const list = await ads.metaAds(d);
+        for (const x of (list || [])) {
+          const m = map[x.ad_id] || {};
+          arows.push({ ...x, utm_content: m.utm_content || '', created_at: m.created_at || '' });
+        }
+      } catch (e) { log.fail.push('meta소재:' + d + ' — ' + String(e?.message || e).slice(0, 80)); }
+    }
+    if (arows.length) { await upsertAds(arows); log.ok.push('meta소재:' + arows.length + '행'); }
   }
 
   /* ── GA4: 최근 3일 (호출이 무거워 제한) ────────────────────── */
