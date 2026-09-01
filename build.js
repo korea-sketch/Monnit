@@ -391,10 +391,21 @@ function ssgWrite(slug, parts){
     crumbs.push({ '@type':'ListItem', position: crumbs.length + 1, name: strip(parts.h1 || title).slice(0,90), item: url });
     h = h.replace('</head>', '<script type="application/ld+json">' + JSON.stringify({ '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs }) + '</script>\n</head>');
   }
-  /* 크롤러가 바로 읽는 본문 — SPA 가 뜨면 app.js 가 이 블록을 지웁니다 */
-  const block = '<div id="ssg-content" data-route="' + route + '">'
+  /* 크롤러가 바로 읽는 본문.
+     · 사람 눈에는 보이면 안 됩니다 — app.js 가 뜰 때까지 이 날것의 텍스트가
+       화면에 그대로 보이던 문제가 있었습니다(느린 망에서 수 초간 노출).
+     · 그래서 처음부터 숨기고, 다음 두 경우에만 다시 보여줍니다.
+         ① 자바스크립트가 꺼진 환경(= JS 안 돌리는 크롤러) → noscript 규칙
+         ② SPA 가 5초 안에 안 뜬 경우 → 빈 화면 대신 글이라도 보이게
+     · DOM 에는 그대로 남으므로 크롤링·색인에는 영향이 없습니다. */
+  const block =
+      '<style>#ssg-content{display:none}</style>'
+    + '<noscript><style>#ssg-content{display:block}</style></noscript>'
+    + '<div id="ssg-content" data-route="' + route + '">'
     + '<h1>' + esc(parts.h1 || title) + '</h1>' + fixLinks(parts.bodyHtml || '')
-    + '</div>';
+    + '</div>'
+    + '<script>setTimeout(function(){var e=document.getElementById("ssg-content");'
+    + 'if(e)e.style.display="block";},5000)<\/script>';
   h = h.replace('<body>', '<body>\n' + block);
   h = stashShellViews(h);            // 페이지 간 중복(공통 셸) 제거
   const dir = path.join(__dirname, route);
