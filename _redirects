@@ -1,6 +1,39 @@
 # 제안서 PDF 직접 접근 차단 — 반드시 이메일 신청 후 getdoc 함수를 통해서만 받는다
 /proposals/*    /404.html    404!
 
+# 이미지 PNG → WebP 전환 (2026-08-29)
+# 구글 시트(에디터)·외부 링크가 예전 .png 주소를 갖고 있어도 그대로 열립니다. PNG → WebP
+/images/alarm/anywhere.png                          /images/alarm/anywhere.webp    200
+/images/alarm/bell.png                              /images/alarm/bell.webp    200
+/images/alarm/dashboard.png                         /images/alarm/dashboard.webp    200
+/images/alarm/duplex.png                            /images/alarm/duplex.webp    200
+/images/alarm/prod-elect.png                        /images/alarm/prod-elect.webp    200
+/images/alarm/prod-fire.png                         /images/alarm/prod-fire.webp    200
+/images/alarm/prod-siren.png                        /images/alarm/prod-siren.webp    200
+/images/alarm/prod-water.png                        /images/alarm/prod-water.webp    200
+/images/flame-coincell-cutout-key.png               /images/flame-coincell-cutout-key.webp    200
+/images/flame-coincell-cutout.png                   /images/flame-coincell-cutout.webp    200
+/images/flame-coincell-sensor.png                   /images/flame-coincell-sensor.webp    200
+/images/flame-detector-cutout-key.png               /images/flame-detector-cutout-key.webp    200
+/images/flame-detector-cutout.png                   /images/flame-detector-cutout.webp    200
+/images/flame-detector-detail.png                   /images/flame-detector-detail.webp    200
+/images/flame-edge-cutout-key.png                   /images/flame-edge-cutout-key.webp    200
+/images/flame-edge-cutout.png                       /images/flame-edge-cutout.webp    200
+/images/flame-edge-gateway-lineup.png               /images/flame-edge-gateway-lineup.webp    200
+/images/flame-edge-gateway.png                      /images/flame-edge-gateway.webp    200
+/images/flame-p-type-cutout-key.png                 /images/flame-p-type-cutout-key.webp    200
+/images/flame-p-type-cutout.png                     /images/flame-p-type-cutout.webp    200
+/images/flame-p-type-fireshield-cutout.png          /images/flame-p-type-fireshield-cutout.webp    200
+/images/flame-p-type-fireshield.png                 /images/flame-p-type-fireshield.webp    200
+/images/flame-p-type-sensor-v2.png                  /images/flame-p-type-sensor-v2.webp    200
+/images/flame-p-type-sensor.png                     /images/flame-p-type-sensor.webp    200
+/images/flame-product-overview.png                  /images/flame-product-overview.webp    200
+/images/promo-emergency-alert-thumb.png             /images/promo-emergency-alert-thumb.webp    200
+/images/promo-flame-reservation-thumb-v2.png        /images/promo-flame-reservation-thumb-v2.webp    200
+/images/promo-flame-reservation-thumb-v3.png        /images/promo-flame-reservation-thumb-v3.webp    200
+/images/promo-flame-reservation.png                 /images/promo-flame-reservation.webp    200
+
+
 # [2026-08-31] 게이트 우회 경로 차단 ─────────────────────────────
 # 제안 가이드 PDF 가 공개 주소 3곳에 그대로 열려 있었습니다.
 # 폼을 거치지 않고 주소만 알면 받을 수 있어 리드 수집이 무의미해집니다.

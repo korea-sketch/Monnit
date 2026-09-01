@@ -259,6 +259,36 @@ let SHELL = '';
 try { SHELL = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'); }
 catch (e) { console.warn('[build] index.html 을 읽지 못해 SSG 를 건너뜁니다'); }
 
+/* ═══════════════════════════════════════════════════════════════════
+   껍데기(index.html) 온전성 검사 — 빌드 시작 전에 막습니다.
+
+   이 검사가 없어서 생긴 사고(2026-08-29):
+     랜딩 페이지 파일이 index.html 이라는 이름 그대로 루트에 저장되면서
+     홈페이지를 덮어썼고, build.js 가 그 랜딩을 껍데기로 삼아
+     faqs · our-solution · what-we-do · whitepaper · newsletter 를 생성했습니다.
+     생성된 페이지들은 자기 제목만 남고 본문이 전부 랜딩으로 바뀌었습니다.
+     또 홈에 다른 페이지의 크롤러 블록(ssg-content)이 남아
+     접속 직후 1초간 엉뚱한 화면이 스쳐 지나갔습니다.
+   → 이제 껍데기가 정상이 아니면 빌드가 즉시 멈춥니다.
+   ═══════════════════════════════════════════════════════════════════ */
+(function verifyShell(){
+  if (!SHELL) return;
+  const views = new Set([...SHELL.matchAll(/id="view-([a-z-]+)"/g)].map(m => m[1]));
+  const bad = [];
+  if (views.size < 15)          bad.push('SPA 화면(view-*) 이 ' + views.size + '개뿐입니다 — 홈페이지 껍데기가 아닌 것 같습니다');
+  if (!/id="view-home"/.test(SHELL)) bad.push('view-home 이 없습니다');
+  if (!/src="\/app\.js/.test(SHELL))  bad.push('app.js 를 불러오지 않습니다');
+  if (/id="ssg-content"/.test(SHELL)) bad.push('다른 페이지의 크롤러 블록(ssg-content)이 홈에 남아 있습니다 — 접속 직후 그 내용이 잠깐 보입니다');
+  if (bad.length){
+    console.error('\n[build] ✗ index.html 이 정상 홈페이지 껍데기가 아닙니다:');
+    bad.forEach(x => console.error('        · ' + x));
+    console.error('        → 정상 index.html 로 되돌린 뒤 다시 빌드하세요.');
+    console.error('        이대로 두면 사이트 전체 페이지가 잘못된 내용으로 생성됩니다.\n');
+    process.exit(1);
+  }
+  console.log('[build] 껍데기 검사 OK — SPA 화면 ' + views.size + '개 확인');
+})();
+
 /* [SEO 2026-08-28] 생성 페이지에는 페이지 고유 <h1> 이 따로 들어갑니다.
    공통 셸의 히어로 제목까지 <h1> 이면 페이지마다 H1 이 2개가 되어
    검색엔진이 그 페이지의 주제를 판단하지 못합니다. → 셸 쪽만 <h2> 로 낮춥니다.
@@ -347,6 +377,19 @@ function ssgWrite(slug, parts){
   set(/<meta name="twitter:description" content="[^"]*">/, '<meta name="twitter:description" content="' + esc(desc) + '">');
   if (parts.jsonld){
     h = h.replace('</head>', '<script type="application/ld+json">' + JSON.stringify(parts.jsonld) + '</script>\n</head>');
+  }
+
+  /* [SEO] 이동 경로(BreadcrumbList) — 검색결과에 계층이 표시됩니다.
+     예: monnit.co.kr › 활용 분야 › 온도 모니터링 */
+  {
+    const SEC = { 'app':['활용 분야','/applications'], 'case':['도입 사례','/stories'],
+                  'kb':['기술 지식베이스','/knowledgebase'], 'guide':['기술지원 가이드','/guides'],
+                  'promotions':['프로모션','/promotions'] };
+    const crumbs = [{ '@type':'ListItem', position:1, name:'Monnit Korea', item: SITE + '/' }];
+    const seg = route.split('/');
+    if (seg.length > 1 && SEC[seg[0]]) crumbs.push({ '@type':'ListItem', position:2, name: SEC[seg[0]][0], item: SITE + SEC[seg[0]][1] });
+    crumbs.push({ '@type':'ListItem', position: crumbs.length + 1, name: strip(parts.h1 || title).slice(0,90), item: url });
+    h = h.replace('</head>', '<script type="application/ld+json">' + JSON.stringify({ '@context':'https://schema.org','@type':'BreadcrumbList', itemListElement: crumbs }) + '</script>\n</head>');
   }
   /* 크롤러가 바로 읽는 본문 — SPA 가 뜨면 app.js 가 이 블록을 지웁니다 */
   const block = '<div id="ssg-content" data-route="' + route + '">'

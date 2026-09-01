@@ -3192,7 +3192,7 @@ const BUILTIN_PROMOS = [{
   period: '구독제 · 월 3만 원 · 설치비 무료 EVENT',
   badge: 'NEW',
   desc: '화재·침수·정전·설비 이상 발생 시 담당자 휴대폰으로 즉시 알려드려요. 필요한 알리미부터 간편하게 시작하세요.',
-  image: '/images/promo-emergency-alert-thumb.png?v=1',
+  image: '/images/promo-emergency-alert-thumb.webp?v=1',
   images: [],
   link: '/promo/alarm',
   start: '2026-08-26',   // 한국시간 이 날 00:00 부터 오픈
@@ -3218,8 +3218,8 @@ const BUILTIN_PROMOS = [{
   period: '사전 예약 접수 중',
   badge: '사전 예약',
   desc: 'Looking to the Future! 지금 사전 예약하시고 다양한 혜택 받아 가세요.',
-  image: '/images/promo-flame-reservation-thumb-v3.png',
-  images: ['/images/promo-flame-reservation.png'],
+  image: '/images/promo-flame-reservation-thumb-v3.webp',
+  images: ['/images/promo-flame-reservation.webp'],
   link: '',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end: '',               // 마감일 없음 — 내릴 때 end 지정 또는 배열에서 제거
@@ -3764,28 +3764,28 @@ function flameReservationHTML(){
         <div class="flame-explorer-stage">
           <div class="flame-explorer-tabs" role="tablist" aria-label="신제품 라인업 자세히 보기">
             <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="0"
-              data-image="/images/flame-detector-detail.png"
+              data-image="/images/flame-detector-detail.webp"
               data-title="불꽃 감지기"
               data-desc="정밀한 UV 감지 방식으로 불꽃을 빠르게 감지해 넓은 공간의 화재를 조기에 확인할 수 있습니다."
               onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">불꽃 감지기</span><span class="flame-explorer-detail"><strong>불꽃 감지기</strong><span>정밀한 UV 감지 방식으로 불꽃을 빠르게 감지해 넓은 공간의 화재를 조기에 확인할 수 있습니다.</span></span></button>
             <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="1"
-              data-image="/images/flame-p-type-fireshield.png"
+              data-image="/images/flame-p-type-fireshield.webp"
               data-title="P형 화재 감지 센서"
               data-desc="기존 P형 화재 수신기와 연동해 건물 전 층의 화재 발생 여부를 실시간으로 통합 확인할 수 있습니다."
               onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">P형 화재 감지 센서</span><span class="flame-explorer-detail"><strong>P형 화재 감지 센서</strong><span>기존 P형 화재 수신기와 연동해 건물 전 층의 화재 발생 여부를 실시간으로 통합 확인할 수 있습니다.</span></span></button>
             <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="2"
-              data-image="/images/flame-coincell-sensor.png"
+              data-image="/images/flame-coincell-sensor.webp"
               data-title="코인셀 센서"
               data-desc="컴팩트하고 가벼운 디자인으로 공간 제약 없이 간편하게 설치할 수 있습니다."
               onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">코인셀 센서</span><span class="flame-explorer-detail"><strong>코인셀 센서</strong><span>컴팩트하고 가벼운 디자인으로 공간 제약 없이 간편하게 설치할 수 있습니다.</span></span></button>
             <button class="flame-explorer-tab" type="button" role="tab" aria-selected="false" data-index="3"
-              data-image="/images/flame-edge-gateway-lineup.png"
+              data-image="/images/flame-edge-gateway-lineup.webp"
               data-title="엣지 게이트웨이"
               data-desc="센서 데이터를 현장에서 직접 처리해 서버를 거치지 않고 더 빠르게 판단합니다. BMS·클라우드와도 유연하게 연결할 수 있습니다."
               onclick="selectFlameFeature(this)"><span class="flame-explorer-icon">+</span><span class="flame-explorer-label">엣지 게이트웨이</span><span class="flame-explorer-detail"><strong>엣지 게이트웨이</strong><span>센서 데이터를 현장에서 직접 처리해 서버를 거치지 않고 더 빠르게 판단합니다. BMS·클라우드와도 유연하게 연결할 수 있습니다.</span></span></button>
           </div>
           <div class="flame-explorer-visual">
-            <img src="/images/flame-detector-detail.png" alt="Monnit 불꽃 감지기">
+            <img src="/images/flame-detector-detail.webp" alt="Monnit 불꽃 감지기">
           </div>
           <button class="flame-explorer-close" type="button" aria-label="상세 설명 닫기" onclick="closeFlameFeature(this)">×</button>
           <div class="flame-explorer-nav" aria-label="제품 항목 이동">
@@ -3845,7 +3845,7 @@ function flameReservationHTML(){
               </dl>
             </dialog>
           </div>
-          <figure class="flame-product-story-media"><img src="/images/flame-edge-cutout.png" alt="Monnit 엣지 게이트웨이"></figure>
+          <figure class="flame-product-story-media"><img src="/images/flame-edge-cutout.webp" alt="Monnit 엣지 게이트웨이"></figure>
         </article>
 
         <article class="flame-product-story flame-story-coincell">
@@ -3879,7 +3879,7 @@ function flameReservationHTML(){
               </dl>
             </dialog>
           </div>
-          <figure class="flame-product-story-media"><img src="/images/flame-coincell-cutout.png" alt="Monnit 코인셀 센서"></figure>
+          <figure class="flame-product-story-media"><img src="/images/flame-coincell-cutout.webp" alt="Monnit 코인셀 센서"></figure>
         </article>
 
         <article class="flame-product-story flame-story-detector">
@@ -3916,7 +3916,7 @@ function flameReservationHTML(){
               </dl>
             </dialog>
           </div>
-          <figure class="flame-product-story-media"><img src="/images/flame-detector-cutout.png" alt="Monnit 불꽃 감지기"></figure>
+          <figure class="flame-product-story-media"><img src="/images/flame-detector-cutout.webp" alt="Monnit 불꽃 감지기"></figure>
         </article>
 
         <article class="flame-product-story flame-story-p-type">
@@ -3957,16 +3957,16 @@ function flameReservationHTML(){
               </dl>
             </dialog>
           </div>
-          <figure class="flame-product-story-media"><img src="/images/flame-p-type-fireshield-cutout.png" alt="Monnit P형 화재 감지 센서"></figure>
+          <figure class="flame-product-story-media"><img src="/images/flame-p-type-fireshield-cutout.webp" alt="Monnit P형 화재 감지 센서"></figure>
         </article>
       </section>
 
       <section class="flame-immersive" aria-labelledby="flameImmersiveTitle">
         <div class="flame-immersive-sticky">
           <video class="flame-immersive-media" autoplay muted loop playsinline preload="metadata"
-                 poster="/images/flame-product-overview.png"
+                 poster="/images/flame-product-overview.webp"
                  aria-label="Monnit 차세대 화재 감지 솔루션 영상">
-            <source src="/videos/flame-immersive-4k-web.mp4?v=2" type="video/mp4">
+            <source src="/videos/flame-immersive-4k-web.mp4?v=3" type="video/mp4">
           </video>
           <span class="flame-immersive-shade" aria-hidden="true"></span>
           <div class="flame-immersive-copy">
