@@ -3,7 +3,7 @@
 import * as auth from './_ops_auth.mjs';
 import { LOGIN, APP } from './_ops_ui.mjs';
 import { get, set, readLines, available, diag } from './_store.mjs';
-import { configured as adsConfigured, kday as adsKday } from './_ads.mjs';
+import { configured as adsConfigured, missingEnv as adsMissing, kday as adsKday } from './_ads.mjs';
 import * as deals from './_deals.mjs';
 import { rollup, economics } from './_creatives.mjs';
 import { utmAudit, actions as buildActions } from './_insights.mjs';
@@ -238,7 +238,7 @@ async function build(pkey, custom) {
               label: useCustom ? (custom.from + ' ~ ' + custom.to) : P.label,
               days: spanDays, from: dCur, to: dTo, prevFrom: dPrv, prevTo: dCur, custom: !!useCustom },
     periods: Object.entries(PERIODS).map(([k, v]) => ({ k, label: v.label })),
-    ads: { cur: adCur, prev: adPrv, configured: adsConfigured(), sync: syncLog },
+    ads: { cur: adCur, prev: adPrv, configured: adsConfigured(), missing: adsMissing(), sync: syncLog },
     clarity, clarityPages: clPages, ux,
     series: { monthly, quarterly },
     summary: {

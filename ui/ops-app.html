@@ -270,7 +270,7 @@ function load(){
 function render(j){
   killCharts();
   document.getElementById('main').style.display='block';
-  var P=j.period||{}, S=j.summary||{}, A=j.ads||{}, cfg=(A.configured||{});
+  var P=j.period||{}, S=j.summary||{}, A=j.ads||{}, cfg=(A.configured||{}), miss=(A.missing||{});
   document.getElementById('stamp').innerHTML='오늘 접수 <b>'+((S.today||{}).total||0)+'건</b> · '
     +esc(P.label||'')+' <b>'+((S.week||{}).total||0)+'건</b>';
   document.getElementById('kpiRange').textContent=P.label||'';
@@ -280,10 +280,17 @@ function render(j){
   var keys=Object.keys(ENVS), nOk=keys.filter(function(k){return cfg[k];}).length;
   document.getElementById('connTag').textContent=nOk+' / '+keys.length+' 연결';
   document.getElementById('conn').innerHTML=keys.map(function(k){
-    var ok=!!cfg[k];
+    var ok=!!cfg[k], m=miss[k];
+    // 대기 상태면 "무엇이 비었는지"를 이름으로 콕 집어준다. 값은 서버가 보내지 않는다.
+    var body = ok
+      ? EDESC[k]+'<br><code>'+ENVS[k]+'</code>'
+      : (m&&m.length
+          ? EDESC[k]+'<br><span style="color:var(--warn)">비어 있음</span> <code style="color:var(--warn)">'+m.join(', ')+'</code>'
+            +(m.length<ENVS[k].split(', ').length?'<br><span style="color:var(--dim)">나머지는 들어와 있습니다</span>':'')
+          : EDESC[k]+'<br><code>'+ENVS[k]+'</code>');
     return '<div class="cn '+(ok?'ok':'wait')+'"><div class="h"><span class="n">'+ENAME[k]+'</span>'
       +'<span class="tag '+(ok?'t-ok':'t-wait')+'">'+(ok?'연결':'대기')+'</span></div>'
-      +'<div class="d">'+EDESC[k]+'<br><code>'+ENVS[k]+'</code></div></div>';
+      +'<div class="d">'+body+'</div></div>';
   }).join('');
 
   var cur=A.cur||[], prev=A.prev||[];

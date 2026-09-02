@@ -5691,6 +5691,25 @@ body:has(.vi-replica) .topnav,
 .ta-builder__preview { position:sticky; top:88px; min-height:720px; padding:55px 55px 124px; display:grid; place-items:center; overflow:hidden; border-radius:14px; background:#f5f5f7; }
 .ta-builder__plan-image { display:block; width:min(64%,480px); height:min(64%,480px); object-fit:contain; object-position:center center; transition:opacity .18s ease,transform .28s ease; }
 .ta-builder__plan-image[data-plan="water"] { object-position:center calc(50% + 18px); }
+.ta-builder__carousel { position:absolute; inset:0; box-sizing:border-box; padding:0; overflow:hidden; border-radius:inherit; background:#f5f5f7; }
+.ta-builder__carousel .ta-builder__plan-image { width:100%; height:100%; max-width:none; border-radius:12px; object-fit:cover; object-position:center; }
+.ta-builder__carousel.is-product { position:absolute; inset:0; display:block; overflow:hidden; }
+.ta-builder__carousel.is-product .ta-builder__plan-image { width:100%; height:100%; object-fit:contain; }
+.ta-builder__carousel-controls { position:absolute; inset:0; z-index:4; pointer-events:none; }
+.ta-builder__carousel-arrow { position:absolute; top:50%; width:104px; height:104px; padding:0; display:grid; place-items:center; overflow:visible; border:0; border-radius:50%; color:transparent; background:transparent; box-shadow:none; font-size:0; line-height:1; cursor:pointer; pointer-events:auto; transform:translateY(-50%); transition:transform .18s ease,filter .18s ease; }
+.ta-builder__carousel-arrow::before { content:""; width:100%; height:100%; background:url('/images/alarm/carousel-arrow-button.webp') center/contain no-repeat; }
+.ta-builder__carousel-arrow--prev::before { transform:rotate(180deg); }
+.ta-builder__carousel-arrow:hover { background:transparent; filter:brightness(.96); transform:translateY(-50%) scale(1.04); }
+.ta-builder__carousel-arrow:focus-visible { outline:3px solid rgba(0,113,227,.55); outline-offset:3px; }
+.ta-builder__carousel-arrow--prev { left:0; }
+.ta-builder__carousel-arrow--next { right:0; }
+.ta-builder__carousel-dots { position:absolute; left:50%; bottom:26px; display:flex; gap:4px; padding:0; border:0; border-radius:0; background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; transform:translateX(-50%); pointer-events:auto; }
+.ta-builder__carousel-dot { position:relative; width:20px; height:20px; padding:0; border:0; border-radius:50%; background:transparent; box-shadow:none; cursor:pointer; }
+.ta-builder__carousel-dot::before { content:""; position:absolute; left:50%; top:50%; width:8px; height:8px; border-radius:50%; background:rgba(0,0,0,.42); transform:translate(-50%,-50%); transition:background-color .18s ease; }
+.ta-builder__carousel-dot.is-active::before { background:rgba(0,0,0,.8); }
+.ta-builder__carousel-dot:focus-visible { outline:2px solid rgba(0,113,227,.65); outline-offset:1px; }
+.ta-builder__carousel[hidden] { display:none; }
+.ta-builder__preview.has-fire-carousel .ta-builder__site-birds { display:none; }
 .ta-builder__site-birds { position:absolute; right:28px; bottom:24px; max-width:calc(100% - 56px); display:flex; align-items:flex-end; justify-content:flex-end; gap:3px; }
 .ta-builder__site-birds img { flex:0 1 64px; width:clamp(40px,4.35vw,64px); min-width:0; height:auto; object-fit:contain; filter:drop-shadow(0 5px 7px rgba(26,43,65,.12)); animation:taBuilderBirdIn .32s cubic-bezier(.2,.8,.2,1) both; }
 .ta-builder__site-birds img:nth-child(2n){animation-delay:.035s}.ta-builder__site-birds img:nth-child(3n){animation-delay:.07s}
@@ -5714,6 +5733,18 @@ body:has(.vi-replica) .topnav,
 .ta-builder__price strong { margin-top:7px; color:#191f28; font-size:32px; line-height:1.2; font-weight:700; }
 .ta-builder__notice { margin:18px 0 0; color:#8b95a1; font-size:12px; line-height:1.55; }
 .ta-builder__options { display:grid; gap:0; }
+.ta-builder__rail { display:none; pointer-events:none; }
+.ta-builder__mobile-install { display:none; }
+.ta-builder-install-modal { width:min(760px,calc(100% - 20px)); max-width:none; margin:auto; padding:0; overflow:hidden; border:0; border-radius:22px; background:#f5f5f7; box-shadow:0 30px 90px rgba(15,23,42,.28); }
+.ta-builder-install-modal::backdrop { background:rgba(15,23,42,.62); backdrop-filter:blur(6px); }
+.ta-builder-install-modal__close { position:absolute; z-index:4; top:12px; right:12px; width:40px; height:40px; display:grid; place-items:center; border:0; border-radius:50%; color:#4e5968; background:rgba(255,255,255,.9); font-size:25px; line-height:1; cursor:pointer; }
+.ta-builder-install-modal__track { display:flex; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch; touch-action:pan-x; cursor:grab; }
+.ta-builder-install-modal__track.is-dragging { scroll-snap-type:none; cursor:grabbing; }
+.ta-builder-install-modal__track::-webkit-scrollbar { display:none; }
+.ta-builder-install-modal__track img { flex:0 0 100%; width:100%; height:min(68svh,620px); display:block; object-fit:cover; scroll-snap-align:start; }
+.ta-builder-install-modal__dots { position:absolute; z-index:3; left:50%; bottom:16px; display:flex; gap:7px; transform:translateX(-50%); }
+.ta-builder-install-modal__dots i { width:7px; height:7px; display:block; border-radius:50%; background:rgba(255,255,255,.62); box-shadow:0 1px 4px rgba(0,0,0,.24); }
+.ta-builder-install-modal__dots i.is-active { background:#fff; }
 .ta-builder__step { min-height:72vh; margin:0; padding:32px 0 95px; border:0; display:flex; flex-direction:column; gap:13px; }
 .ta-builder__step legend { margin:0 0 22px; padding:0; color:#6e6e73; font-size:24px; line-height:1.35; font-weight:600; letter-spacing:-.04em; }
 .ta-builder__step legend b { color:#1d1d1f; }
@@ -5785,7 +5816,7 @@ body:has(.vi-replica) .topnav,
 @keyframes taBuilderPulse { 0%{opacity:0;transform:scale(.3)}20%{opacity:1}100%{opacity:0;transform:scale(1.35)} }
 @media(max-width:980px){.ta-builder{padding:100px 20px 130px}.ta-builder__layout{grid-template-columns:1fr;gap:65px}.ta-builder__preview{position:relative;top:auto;min-height:580px}.ta-builder__step{min-height:auto;padding-bottom:75px}.ta-builder-addon{margin-top:20px}.ta-builder-addon__grid{grid-template-columns:1fr 1fr}.ta-builder-addon__help{grid-column:1/-1}}
 @media(max-width:980px){.ta-builder-result{margin-top:80px;padding:54px 46px 0;grid-template-columns:1fr 1fr;gap:44px}.ta-builder-result__product{grid-row:span 2}.ta-builder-result__action{grid-column:2}.ta-builder-result__action>a{margin-top:24px}.ta-builder-result__product img{width:100%;height:86%;bottom:-28%}}
-@media(max-width:620px){.ta-builder__header{margin-bottom:55px}.ta-builder__header h3{font-size:42px}.ta-builder__preview{min-height:430px;padding:35px 24px 102px}.ta-builder__plan-image{width:min(72%,300px);height:min(72%,300px)}.ta-builder__site-birds{right:16px;bottom:18px;max-width:calc(100% - 32px);gap:1px}.ta-builder__site-birds img{width:clamp(29px,8.7vw,42px)}.ta-builder__step legend{font-size:21px}.ta-builder__option{min-height:112px;grid-template-columns:1fr}.ta-builder__option em{text-align:left}.ta-builder__stepper{grid-template-columns:62px 1fr 62px}.ta-builder__stepper button{width:62px}}
+@media(max-width:620px){.ta-builder__header{margin-bottom:55px}.ta-builder__header h3{font-size:42px}.ta-builder__preview{min-height:430px;padding:35px 24px 102px}.ta-builder__carousel{padding:0}.ta-builder__carousel .ta-builder__plan-image,.ta-builder__carousel.is-product .ta-builder__plan-image{width:100%;height:100%}.ta-builder__carousel-arrow{width:76px;height:76px}.ta-builder__carousel-arrow--prev{left:-8px}.ta-builder__carousel-arrow--next{right:-8px}.ta-builder__carousel-dots{bottom:16px}.ta-builder__site-birds{right:16px;bottom:18px;max-width:calc(100% - 32px);gap:1px}.ta-builder__site-birds img{width:clamp(29px,8.7vw,42px)}.ta-builder__step legend{font-size:21px}.ta-builder__option{min-height:112px;grid-template-columns:1fr}.ta-builder__option em{text-align:left}.ta-builder__stepper{grid-template-columns:62px 1fr 62px}.ta-builder__stepper button{width:62px}}
 @media(max-width:620px){.ta-builder-addon legend{font-size:21px}.ta-builder-addon__grid{grid-template-columns:1fr}.ta-builder-addon__help{grid-column:auto}.ta-builder-addon__choice,.ta-builder-addon__help{min-height:104px}}
 @media(max-width:620px){.ta-builder-result{min-height:0;margin-top:60px;padding:38px 24px 34px;grid-template-columns:1fr;gap:36px}.ta-builder-result__product{min-height:340px;grid-row:auto}.ta-builder-result__product h4{font-size:36px}.ta-builder-result__product img{left:50%;bottom:-29%;width:100%;height:88%}.ta-builder-result__action{grid-column:auto}.ta-builder-result__action>a{margin-top:28px}}
 @media(prefers-reduced-motion:reduce){.ta-builder__pulse i{animation:none!important}.ta-builder.is-motion-ready .ta-builder__header,.ta-builder.is-motion-ready .ta-builder__preview,.ta-builder.is-motion-ready .ta-builder__step,.ta-builder.is-motion-ready .ta-builder-addon{opacity:1;transform:none;transition:none}}
@@ -5943,6 +5974,20 @@ html { scroll-behavior:smooth; }
 /* 긴급 경보 알리미 — 모바일 경량 버전
    데스크톱의 연출은 유지하고 작은 화면에서만 이동·블러·반복 모션을 제거한다. */
 @media (max-width:768px){
+  #promoDetailBody,
+  #promoDetailBody section,
+  #promoDetailBody article,
+  #promoDetailBody div,
+  #promoDetailBody form,
+  #promoDetailBody fieldset { min-width:0; max-width:100%; box-sizing:border-box; }
+  #promoDetailBody img,
+  #promoDetailBody video,
+  #promoDetailBody svg { max-width:100%; }
+  #promoDetailBody h1,
+  #promoDetailBody h2,
+  #promoDetailBody h3,
+  #promoDetailBody h4,
+  #promoDetailBody p { max-width:100%; box-sizing:border-box; }
   #promoDetailBody .vi-replica { display:none!important; }
   #promoDetailBody .vi-pin { position:relative; top:auto; height:auto; display:flex; flex-direction:column; overflow:visible; background:#000; }
   #promoDetailBody .vi-intro { position:relative; inset:auto; order:1; width:100%; height:56.25vw; transform:none!important; will-change:auto; }
@@ -6003,7 +6048,7 @@ html { scroll-behavior:smooth; }
   #promoDetailBody .ta-reason { min-height:0; grid-template-columns:1fr; gap:24px; }
   #promoDetailBody .ta-reason + .ta-reason { margin-top:78px; }
   #promoDetailBody .ta-reason__copy { padding-inline:0; }
-  #promoDetailBody .ta-reason__copy h4 { margin-top:24px; font-size:34px; }
+  #promoDetailBody .ta-reason__copy h4 { width:100%; margin-top:24px; font-size:clamp(27px,8.7vw,34px); white-space:normal!important; overflow-wrap:break-word; word-break:keep-all; }
   #promoDetailBody .ta-reason__copy p { margin-top:20px; font-size:17px; line-height:1.65; }
   #promoDetailBody .ta-reason__visual { min-height:250px; height:250px; order:-1; align-items:end; transform:none; }
   #promoDetailBody .ta-reason__image { width:min(100%,360px); height:250px; object-position:center bottom; }
@@ -6024,8 +6069,20 @@ html { scroll-behavior:smooth; }
   #promoDetailBody .ta-builder__header h3 { font-size:38px; }
   #promoDetailBody .ta-builder__header p { font-size:16px; }
   #promoDetailBody .ta-builder__layout { gap:44px; }
-  #promoDetailBody .ta-builder__preview { position:relative; top:auto; min-height:360px; padding:28px 20px 82px; }
+  #promoDetailBody .ta-builder__options { position:relative; }
+  #promoDetailBody .ta-builder__rail { position:absolute; z-index:3; right:clamp(-12px,-2.6vw,-8px); top:22px; bottom:calc(-1 * var(--builder-rail-extend,0px)); width:1px; display:block; background:#e5e8eb; }
+  #promoDetailBody .ta-builder__rail i { position:absolute; left:0; top:0; width:1px; height:100%; display:block; background:#3182f6; transform-origin:top; transform:scaleY(var(--builder-progress,0)); transition:transform .12s linear; }
+  #promoDetailBody .ta-builder__preview { display:none!important; }
+  #promoDetailBody .ta-builder__layout { display:block; }
+  #promoDetailBody .ta-builder__mobile-install { margin-top:12px; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:10px; }
+  #promoDetailBody .ta-builder__mobile-install.is-visible { display:grid; }
+  #promoDetailBody .ta-builder__mobile-install-photo { min-width:0; height:116px; padding:0; overflow:hidden; border:0; border-radius:14px; background:#f2f4f6; cursor:pointer; }
+  #promoDetailBody .ta-builder__mobile-install-photo img { width:100%; height:100%; display:block; object-fit:cover; }
+  #promoDetailBody .ta-builder__mobile-install-copy { min-width:0; min-height:116px; padding:14px 12px; display:flex; flex-direction:column; justify-content:center; border-radius:14px; color:#191f28; background:#f2f4f6; }
+  #promoDetailBody .ta-builder__mobile-install-copy b { font-size:13px; line-height:1.35; letter-spacing:-.035em; }
+  #promoDetailBody .ta-builder__mobile-install-copy span { margin-top:10px; font-size:11px; line-height:1.55; letter-spacing:-.035em; }
   #promoDetailBody .ta-builder__plan-image { width:min(72%,250px); height:250px; }
+  #promoDetailBody .ta-builder__carousel:not(.is-product) .ta-builder__plan-image { width:100%; height:100%; }
   #promoDetailBody .ta-builder__step { min-height:0; padding:22px 0 52px; }
   #promoDetailBody .ta-builder__option { min-height:96px; padding:18px; }
   #promoDetailBody .ta-builder-addon { margin-top:6px; }
@@ -6043,7 +6100,8 @@ html { scroll-behavior:smooth; }
   #promoDetailBody .emergency-apply__form { padding:24px 18px; border-radius:13px; }
 
   #promoDetailBody .ta-alert-modal { width:calc(100% - 20px); height:calc(100svh - 20px); border-radius:20px; transform:none!important; }
-  #promoDetailBody .ta-alert-modal__panel { scroll-behavior:auto; }
+  #promoDetailBody .ta-alert-modal__panel { scroll-behavior:auto; scrollbar-width:none; -ms-overflow-style:none; }
+  #promoDetailBody .ta-alert-modal__panel::-webkit-scrollbar { width:0; height:0; display:none; }
   #promoDetailBody .ta-alert-modal__intro { height:auto; min-height:0; padding:46px 12px 12px; }
   #promoDetailBody .ta-alert-modal__intro-media { width:100%; max-height:none; margin:0; opacity:1!important; transform:none!important; filter:none!important; }
   #promoDetailBody .ta-alert-modal__intro img { width:100%; max-height:44svh; object-fit:cover; border-radius:15px; box-shadow:none; }
@@ -7542,6 +7600,39 @@ a.cta-primary, a.big-cta-btn, a.app-cta-btn { text-decoration: none; }
   #promoDetailBody .ta-alerts__title {
     flex-wrap:nowrap;
     white-space:nowrap;
+  }
+}
+
+/* 기기 미리보기처럼 포인터는 PC여도 화면 폭이 모바일이면 모바일 줄바꿈을 최우선 적용한다. */
+@media (max-width:768px) {
+  #promoDetailBody .ti-security__heading h3,
+  #promoDetailBody .ti-security__heading p,
+  #promoDetailBody .ti-security__card-copy h4,
+  #promoDetailBody .ta-alerts__lead,
+  #promoDetailBody .ta-alert-card h4,
+  #promoDetailBody .ta-alert-card p,
+  #promoDetailBody .ta-reasons__title,
+  #promoDetailBody .ta-reason__copy h4,
+  #promoDetailBody .ta-perks__title,
+  #promoDetailBody .ta-perk-card h4,
+  #promoDetailBody .ta-builder__header h3,
+  #promoDetailBody .ta-builder__header p,
+  #promoDetailBody .ta-builder-result__product h4 {
+    max-width:100%;
+    white-space:normal!important;
+    overflow-wrap:break-word;
+    word-break:keep-all;
+  }
+
+  #promoDetailBody .ta-builder-result__product h4 {
+    width:100%;
+    font-size:clamp(27px,8.3vw,33px);
+    line-height:1.2;
+  }
+
+  #promoDetailBody .ta-alerts__title {
+    flex-wrap:wrap!important;
+    white-space:normal!important;
   }
 }
 
@@ -12895,7 +12986,7 @@ const BUILTIN_PROMOS = [{
       <div class="ti-security__cards">
         <article class="ti-security__card ti-reveal">
           <div class="ti-security__card-visual"><img src="/images/alarm/ta-card-icon-1.webp" alt="경보가 발생한 기존 설비" loading="lazy"></div>
-          <div class="ti-security__card-copy"><h4>기존 설비에서 경보가 발생하면</h4></div>
+          <div class="ti-security__card-copy"><h4>기존 설비에서<br class="ti-security__mobile-break">경보가 발생하면</h4></div>
         </article>
         <span class="ti-security__flow-arrow ti-reveal" aria-hidden="true">→</span>
         <article class="ti-security__card ti-reveal">
@@ -13048,10 +13139,18 @@ const BUILTIN_PROMOS = [{
     </header>
     <div class="ta-builder__layout">
       <aside class="ta-builder__preview" aria-live="polite">
-        <img class="ta-builder__plan-image" id="taBuilderPlanImage" src="/images/alarm/ta-plan-fire.webp" alt="선택한 화재 알리미 모델">
+        <div class="ta-builder__carousel" id="taBuilderCarousel">
+          <img class="ta-builder__plan-image" id="taBuilderPlanImage" src="/images/alarm/fire-installation-01.webp" alt="화재 알리미 설치 현장 1" width="1600" height="1200" decoding="async" loading="lazy">
+          <div class="ta-builder__carousel-controls" id="taBuilderCarouselControls">
+            <button class="ta-builder__carousel-arrow ta-builder__carousel-arrow--prev" type="button" data-builder-slide="-1" aria-label="이전 설치 사진">&#8249;</button>
+            <button class="ta-builder__carousel-arrow ta-builder__carousel-arrow--next" type="button" data-builder-slide="1" aria-label="다음 설치 사진">&#8250;</button>
+            <div class="ta-builder__carousel-dots" id="taBuilderCarouselDots" aria-label="화재 알리미 설치 사진 선택"></div>
+          </div>
+        </div>
         <div class="ta-builder__site-birds" id="taBuilderSiteBirds" aria-hidden="true"><img src="/images/alarm/ta-site-birds.webp" alt=""></div>
       </aside>
       <form class="ta-builder__options" id="taBuilderForm">
+        <span class="ta-builder__rail" aria-hidden="true"><i></i></span>
         <fieldset class="ta-builder__step">
           <legend><b>모델.</b> 어떤 알리미를 원하시나요?</legend>
           <label class="ta-builder__option">
@@ -13070,6 +13169,15 @@ const BUILTIN_PROMOS = [{
             <input type="radio" name="plan" value="alarm" data-label="경보 알리미" data-image="/images/alarm/ta-plan-alarm.webp">
             <span><b>경보 알리미</b><small>설비 이상 감지 시 즉시 알림</small></span>
           </label>
+          <div class="ta-builder__mobile-install" id="taBuilderMobileInstall">
+            <button class="ta-builder__mobile-install-photo" id="taBuilderMobileInstallOpen" type="button" aria-label="선택한 알리미 설치 사진 전체 보기">
+              <img id="taBuilderMobileInstallImage" src="/images/alarm/fire-installation-03.webp" alt="화재 알리미 설치 현장" width="773" height="1030" decoding="async" loading="lazy">
+            </button>
+            <div class="ta-builder__mobile-install-copy">
+              <b>우리 현장에는<br>어떻게 설치될까요?</b>
+              <span>사진을 클릭하면<br>실제 설치 현장을 볼 수 있어요!</span>
+            </div>
+          </div>
         </fieldset>
         <fieldset class="ta-builder__step">
           <legend><b>현장.</b> 몇 곳을 관리하시나요?</legend>
@@ -13137,6 +13245,11 @@ const BUILTIN_PROMOS = [{
       </div>
     </section>
   </section>
+  <dialog class="ta-builder-install-modal" id="taBuilderInstallModal" aria-label="알리미 설치 사진">
+    <button class="ta-builder-install-modal__close" type="button" aria-label="설치 사진 닫기">×</button>
+    <div class="ta-builder-install-modal__track" id="taBuilderInstallTrack"></div>
+    <div class="ta-builder-install-modal__dots" id="taBuilderInstallDots" aria-hidden="true"></div>
+  </dialog>
   <section class="emergency-apply" id="emergencyApply" aria-label="알리미 가입 신청 폼">
     <div class="emergency-apply__inner">
       <form class="promo-apply-form emergency-apply__form" onsubmit="return submitPromoApply(event)">
@@ -13858,6 +13971,28 @@ function initEmergencyHero(){
   }
   const builderForm = document.getElementById('taBuilderForm');
   if (builderForm){
+    const railEndEl = document.querySelector('.ta-builder-addon');
+    let railTicking = false, lastProgress = -1, lastExtend = -1;
+    const paintBuilderRail = () => {
+      railTicking = false;
+      const rect = builderForm.getBoundingClientRect();
+      const endRect = railEndEl?.getBoundingClientRect();
+      const endBottom = endRect?.bottom ?? rect.bottom;
+      const extend = Math.max(0,endBottom-rect.bottom);
+      const railHeight = Math.max(1,endBottom-rect.top);
+      const travel = Math.max(1,railHeight-window.innerHeight);
+      const progress = Math.max(0,Math.min(1,-rect.top/travel));
+      if(Math.abs(extend-lastExtend)>0.5){ builderForm.style.setProperty('--builder-rail-extend',`${extend}px`); lastExtend = extend; }
+      if(Math.abs(progress-lastProgress)>0.001){ builderForm.style.setProperty('--builder-progress',progress.toFixed(4)); lastProgress = progress; }
+    };
+    const updateBuilderRail = () => { if(railTicking) return; railTicking = true; requestAnimationFrame(paintBuilderRail); };
+    window.addEventListener('scroll',updateBuilderRail,{passive:true,signal:controller.signal});
+    window.addEventListener('resize',updateBuilderRail,{passive:true,signal:controller.signal});
+    updateBuilderRail();
+    const builderPreviewEl = document.querySelector('.ta-builder__preview');
+    const carouselEl = document.getElementById('taBuilderCarousel');
+    const carouselControlsEl = document.getElementById('taBuilderCarouselControls');
+    const carouselDotsEl = document.getElementById('taBuilderCarouselDots');
     const planImageEl = document.getElementById('taBuilderPlanImage');
     const siteBirdsEl = document.getElementById('taBuilderSiteBirds');
     const siteCountEl = document.getElementById('taBuilderSiteCount');
@@ -13869,6 +14004,152 @@ function initEmergencyHero(){
     const resultSitesEl = document.getElementById('taBuilderResultSites');
     const resultRegionEl = document.getElementById('taBuilderResultRegion');
     const resultConsultingEl = document.getElementById('taBuilderResultConsulting');
+    const mobileInstallPanelEl = document.getElementById('taBuilderMobileInstall');
+    const mobileInstallImageEl = document.getElementById('taBuilderMobileInstallImage');
+    const mobileInstallOpenEl = document.getElementById('taBuilderMobileInstallOpen');
+    const installModalEl = document.getElementById('taBuilderInstallModal');
+    const installTrackEl = document.getElementById('taBuilderInstallTrack');
+    const installDotsEl = document.getElementById('taBuilderInstallDots');
+    const slidesByPlan = {
+      fire:[
+        {src:'/images/alarm/fire-installation-03.webp',alt:'제어반 내부에 설치된 화재 알리미 센서'},
+        {src:'/images/alarm/fire-installation-01.webp',alt:'화재 알리미 설치 현장 1'},
+        {src:'/images/alarm/fire-installation-02.webp',alt:'화재 수신반 내부에 설치된 알리미 센서'},
+        {src:'/images/alarm/fire-installation-04.webp',alt:'소방 시설 제어반에 설치된 화재 알리미 센서'}
+      ],
+      water:[
+        {src:'/images/alarm/water-installation-03.webp',alt:'물감지 알리미 설치 현장 3'},
+        {src:'/images/alarm/water-installation-01.webp',alt:'물감지 알리미 설치 현장 1'},
+        {src:'/images/alarm/water-installation-02.webp',alt:'물감지 알리미 설치 현장 2'},
+        {src:'/images/alarm/water-installation-04.webp',alt:'물감지 알리미 설치 현장 4'}
+      ],
+      outage:[
+        {src:'/images/alarm/outage-installation-01.webp',alt:'정전 알리미 설치 현장 1'},
+        {src:'/images/alarm/outage-installation-02.webp',alt:'정전 알리미 설치 현장 2'},
+        {src:'/images/alarm/outage-installation-03.webp',alt:'정전 알리미 설치 현장 3'},
+        {src:'/images/alarm/outage-installation-04.webp',alt:'정전 알리미 설치 현장 4'}
+      ],
+      alarm:[
+        {src:'/images/alarm/alarm-installation-01.webp',alt:'경보 알리미 설치 현장 1'},
+        {src:'/images/alarm/alarm-installation-02.webp',alt:'경보 알리미 설치 현장 2'},
+        {src:'/images/alarm/alarm-installation-03.webp',alt:'경보 알리미 설치 현장 3'}
+      ]
+    };
+    let currentSlides = slidesByPlan.fire;
+    let slideIndex = 0;
+    let lastPlanValue = '';
+    let expandedPlanValue = null;
+    let suppressInstallClick = false;
+    const syncCurrentSlides = () => {
+      const selectedPlan = builderForm.querySelector('input[name="plan"]:checked');
+      if(selectedPlan) currentSlides = slidesByPlan[selectedPlan.value] || [{src:selectedPlan.dataset.image,alt:`선택한 ${selectedPlan.dataset.label} 모델`}];
+    };
+    const syncInstallModalDots = () => {
+      if(!installTrackEl||!installDotsEl) return;
+      const index = Math.round(installTrackEl.scrollLeft/Math.max(1,installTrackEl.clientWidth));
+      installDotsEl.querySelectorAll('i').forEach((dot,dotIndex)=>dot.classList.toggle('is-active',dotIndex===index));
+    };
+    const openInstallModal = () => {
+      if(!installModalEl||!installTrackEl||!installDotsEl) return;
+      syncCurrentSlides();
+      installTrackEl.innerHTML = currentSlides.map((slide,i)=>`<img src="${slide.src}" alt="${slide.alt}" decoding="async" loading="${i?'lazy':'eager'}">`).join('');
+      installDotsEl.innerHTML = currentSlides.map((_,index)=>`<i class="${index===0?'is-active':''}"></i>`).join('');
+      installTrackEl.scrollLeft = 0;
+      installModalEl.showModal();
+    };
+    mobileInstallOpenEl?.addEventListener('click',openInstallModal,opt);
+    const openMobileInstallFor = (input,allowToggle) => {
+      if(allowToggle&&expandedPlanValue===input.value&&mobileInstallPanelEl?.classList.contains('is-visible')){
+        mobileInstallPanelEl.classList.remove('is-visible');
+        expandedPlanValue = null;
+        return;
+      }
+      const option = input.closest('.ta-builder__option');
+      if(option&&mobileInstallPanelEl) option.insertAdjacentElement('afterend',mobileInstallPanelEl);
+      mobileInstallPanelEl?.classList.add('is-visible');
+      expandedPlanValue = input.value;
+    };
+    builderForm.querySelectorAll('input[name="plan"]').forEach(input=>{
+      input.addEventListener('click',()=>openMobileInstallFor(input,true),opt);
+      // 키보드(방향키)로 라디오를 옮기면 click 이 아니라 change 만 발생한다.
+      input.addEventListener('change',()=>{ if(input.checked&&expandedPlanValue!==input.value) openMobileInstallFor(input,false); },opt);
+    });
+    installModalEl?.querySelector('.ta-builder-install-modal__close')?.addEventListener('click',()=>installModalEl.close(),opt);
+    installModalEl?.addEventListener('click',event=>{
+      if(installModalEl.open&&!event.target.closest('.ta-builder-install-modal__track')) installModalEl.close();
+    },opt);
+    installTrackEl?.addEventListener('click',()=>{
+      if(!suppressInstallClick) installModalEl?.close();
+    },opt);
+    installTrackEl?.addEventListener('scroll',syncInstallModalDots,{passive:true,signal:controller.signal});
+    if(installTrackEl){
+      let dragStartX = 0;
+      let dragStartScroll = 0;
+      let dragging = false;
+      installTrackEl.addEventListener('pointerdown',event=>{
+        if(event.pointerType==='touch') return;
+        dragging = true;
+        suppressInstallClick = false;
+        dragStartX = event.clientX;
+        dragStartScroll = installTrackEl.scrollLeft;
+        installTrackEl.classList.add('is-dragging');
+        installTrackEl.setPointerCapture(event.pointerId);
+      },opt);
+      installTrackEl.addEventListener('pointermove',event=>{
+        if(!dragging) return;
+        if(Math.abs(event.clientX-dragStartX)>8) suppressInstallClick = true;
+        installTrackEl.scrollLeft = dragStartScroll-(event.clientX-dragStartX);
+      },opt);
+      const finishInstallDrag = event=>{
+        if(!dragging) return;
+        dragging = false;
+        installTrackEl.classList.remove('is-dragging');
+        if(installTrackEl.hasPointerCapture(event.pointerId)) installTrackEl.releasePointerCapture(event.pointerId);
+        const page = Math.round(installTrackEl.scrollLeft/Math.max(1,installTrackEl.clientWidth));
+        installTrackEl.scrollTo({left:page*installTrackEl.clientWidth,behavior:'smooth'});
+        if(suppressInstallClick) setTimeout(()=>{suppressInstallClick=false;},0);
+      };
+      installTrackEl.addEventListener('pointerup',finishInstallDrag,opt);
+      installTrackEl.addEventListener('pointercancel',finishInstallDrag,opt);
+      // 터치는 네이티브 스크롤에 맡기되, 스와이프 후 따라오는 click 으로 모달이 닫히지 않게 한다.
+      let touchStartX = 0;
+      installTrackEl.addEventListener('touchstart',event=>{ touchStartX = event.touches[0]?.clientX||0; },{passive:true,signal:controller.signal});
+      installTrackEl.addEventListener('touchend',event=>{
+        const endX = event.changedTouches[0]?.clientX||0;
+        if(Math.abs(endX-touchStartX)>8){ suppressInstallClick = true; setTimeout(()=>{suppressInstallClick=false;},350); }
+      },{passive:true,signal:controller.signal});
+    }
+    const renderCarouselDots = () => {
+      if(!carouselDotsEl) return;
+      carouselDotsEl.innerHTML = currentSlides.map((_,index)=>`<button type="button" class="ta-builder__carousel-dot${index===slideIndex?' is-active':''}" data-builder-dot="${index}" aria-label="${index+1}번째 이미지" aria-current="${index===slideIndex?'true':'false'}"></button>`).join('');
+    };
+    const renderSlide = () => {
+      const slide = currentSlides[slideIndex];
+      if(!slide||!planImageEl) return;
+      planImageEl.src = slide.src;
+      planImageEl.alt = slide.alt;
+      carouselDotsEl?.querySelectorAll('.ta-builder__carousel-dot').forEach((dot,index)=>{
+        const active = index===slideIndex;
+        dot.classList.toggle('is-active',active);
+        dot.setAttribute('aria-current',active?'true':'false');
+      });
+    };
+    if(carouselDotsEl){
+      carouselDotsEl.addEventListener('click',event=>{
+        const dot = event.target.closest('[data-builder-dot]');
+        if(!dot) return;
+        syncCurrentSlides();
+        slideIndex = Number(dot.dataset.builderDot)||0;
+        renderSlide();
+      },opt);
+    }
+    carouselControlsEl?.querySelectorAll('[data-builder-slide]').forEach(button=>{
+      button.addEventListener('click',()=>{
+        syncCurrentSlides();
+        slideIndex = (slideIndex+Number(button.dataset.builderSlide)+currentSlides.length)%currentSlides.length;
+        renderSlide();
+      },opt);
+    });
     const updateBuilder = () => {
       const plan = builderForm.querySelector('input[name="plan"]:checked');
       const region = builderForm.querySelector('input[name="region"]:checked');
@@ -13880,9 +14161,22 @@ function initEmergencyHero(){
       const unit = count>=5 ? 25000 : 30000;
       unitEl.textContent = isQuote ? '10곳 이상 · 별도 견적' : `월 단가 ${unit.toLocaleString('ko-KR')}원`;
       if(planImageEl){
-        planImageEl.src = plan.dataset.image;
-        planImageEl.alt = `선택한 ${plan.dataset.label} 모델`;
+        const hasPhotoSlides = plan.value==='fire'||plan.value==='water'||plan.value==='outage'||plan.value==='alarm';
+        carouselEl?.classList.toggle('is-product',!hasPhotoSlides);
+        builderPreviewEl?.classList.toggle('has-fire-carousel',hasPhotoSlides);
+        if(carouselControlsEl) carouselControlsEl.hidden = (slidesByPlan[plan.value]||[]).length < 2;
+        if(lastPlanValue!==plan.value){
+          currentSlides = slidesByPlan[plan.value] || [{src:plan.dataset.image,alt:`선택한 ${plan.dataset.label} 모델`}];
+          slideIndex = 0;
+          renderCarouselDots();
+        }
+        if(mobileInstallImageEl&&currentSlides[0]){
+          mobileInstallImageEl.src = currentSlides[0].src;
+          mobileInstallImageEl.alt = `${plan.dataset.label} 첫 번째 설치 현장`;
+        }
         planImageEl.dataset.plan = plan.value;
+        renderSlide();
+        lastPlanValue = plan.value;
       }
       if(siteBirdsEl){
         siteBirdsEl.innerHTML = Array.from({length:count},()=>'<img src="/images/alarm/ta-site-birds.webp" alt="">').join('');

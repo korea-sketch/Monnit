@@ -246,14 +246,30 @@ export async function googleAll() {
   return out;
 }
 
+/* 플랫폼별 필수 환경변수 — UI 안내와 판정이 갈리지 않도록 여기 한 곳에서만 정의한다 */
+export const ENV_KEYS = {
+  meta:    ['META_TOKEN', 'META_AD_ACCOUNT'],
+  google:  ['GOOGLE_ADS_SHEET'],           /* 구글은 시트 경유 (개발자토큰 승인 불필요) */
+  naver:   ['NAVER_API_KEY', 'NAVER_SECRET', 'NAVER_CUSTOMER_ID'],
+  ga4:     ['GA4_SA_EMAIL', 'GA4_SA_KEY', 'GA4_PROPERTY_ID'],
+  clarity: ['CLARITY_TOKEN']
+};
+
+/* 값이 없거나 공백뿐이면 미설정으로 본다.
+   (Netlify UI 에서 값을 붙여넣을 때 끝에 개행·공백이 붙는 경우가 잦다) */
+const hasEnv = k => String(process.env[k] ?? '').trim() !== '';
+
+/* 비어 있는 환경변수 "이름" 목록. 값은 담지 않는다. */
+export function missingEnv() {
+  const out = {};
+  for (const [plat, keys] of Object.entries(ENV_KEYS)) out[plat] = keys.filter(k => !hasEnv(k));
+  return out;
+}
+
 export function configured() {
-  return {
-    meta:    !!(process.env.META_TOKEN && process.env.META_AD_ACCOUNT),
-    naver:   !!(process.env.NAVER_API_KEY && process.env.NAVER_SECRET && process.env.NAVER_CUSTOMER_ID),
-    ga4:     !!(process.env.GA4_SA_EMAIL && process.env.GA4_SA_KEY && process.env.GA4_PROPERTY_ID),
-    clarity: !!process.env.CLARITY_TOKEN,
-    google:  !!process.env.GOOGLE_ADS_SHEET   /* 구글은 시트 경유 (개발자토큰 승인 불필요) */
-  };
+  const out = {};
+  for (const [plat, keys] of Object.entries(ENV_KEYS)) out[plat] = keys.every(hasEnv);
+  return out;
 }
 
 /* ── 구글 애즈 — 예약 보고서를 구글 시트로 받아 읽는다 ─────
