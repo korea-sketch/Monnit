@@ -185,7 +185,11 @@ exports.handler = async (event) => {
           method: 'POST',
           headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            sender: { name: 'Monnit Korea', email: 'korea@monnit.com' },
+            /* 발신 주소는 Brevo 에서 인증된 monnit.co.kr 을 쓴다.
+               monnit.com 은 본사 도메인이라 DMARC 가 p=reject 이고 SPF·DKIM 에
+               Brevo 가 없어서, 그 주소로 보내면 수신측이 스푸핑으로 보고 거부한다.
+               답장 주소는 그대로 두므로 고객 회신은 기존 메일함으로 온다. */
+            sender: { name: 'Monnit Korea', email: 'no-reply@monnit.co.kr' },
             to: [{ email }],
             replyTo: { name: 'Monnit Korea', email: 'korea@monnit.com' },
             subject: subject,
