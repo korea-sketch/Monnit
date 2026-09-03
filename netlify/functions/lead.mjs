@@ -58,6 +58,12 @@ export default async (req) => {
       asset: pick(p, ['예약 희망 제품', '주요 회전설비', '시설 유형', '산업군', '교회 규모']),
       product: pick(p, ['예약 희망 제품']),
       interest: pick(p, ['관심분야', '백서명', '신청 프로모션', '문의항목']),
+      /* /promo/consulting 사전 자격 문항 — 없는 폼에서는 그냥 빈 값이다 */
+      exp:       pick(p, ['진동센서 경험']),
+      exp_group: pick(p, ['경험 구분']),
+      line:      pick(p, ['설치 대상 라인']),
+      spot:      pick(p, ['설비 위치']),
+      sla:       pick(p, ['연락 예정']),
       memo: pick(p, ['문의 사항', '문의내용']),
       source: src,
       landing: pick(p, ['유입 페이지']),

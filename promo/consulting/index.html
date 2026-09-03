@@ -673,6 +673,22 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
   .submit{width:100%;background:var(--green);color:var(--ink0);font-weight:800;font-size:18px;padding:17px;border:none;border-radius:13px;cursor:pointer;margin-top:10px;transition:.15s}
   .submit:hover{background:#fff}
   .fnote{text-align:center;color:var(--mut);font-size:13px;margin-top:16px}
+  /* 진동센서 경험 선택 — 라디오지만 카드처럼 눌리게 */
+  .expgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .expopt{position:relative;display:block;cursor:pointer}
+  .expopt input{position:absolute;opacity:0;width:0;height:0}
+  .expopt span{display:block;padding:13px 14px;border:1px solid var(--hair);border-radius:12px;
+    background:rgba(255,255,255,.025);transition:border-color .15s,background .15s}
+  .expopt b{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.4}
+  .expopt i{display:block;font-style:normal;font-size:11.5px;color:var(--mut);margin-top:4px;line-height:1.4}
+  .expopt input:checked+span{border-color:var(--green);background:rgba(51,143,255,.12)}
+  .expopt input:focus-visible+span{outline:2px solid var(--green);outline-offset:2px}
+  .fhint{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.55}
+  .fhint.warn{color:var(--green)}
+  /* .row2 가 820px 에서 한 줄로 내려가므로 3칸 카드도 같이 내려야 한다.
+     640 으로 두면 태블릿 세로(768px)에서 2칸짜리 줄은 이미 쌓였는데
+     3칸 카드만 남아 글자가 짓눌린다. */
+  @media(max-width:820px){.expgrid{grid-template-columns:1fr}}
   .form-ok{display:none;background:rgba(51,143,255,.1);border:1px solid var(--green);border-radius:16px;padding:32px;text-align:center}
   .form-ok.show{display:block}
   .form-ok h3{color:var(--green);font-size:24px;margin-bottom:10px}
@@ -1875,10 +1891,34 @@ h2{margin-bottom:14px!important}
           <div class="field"><label data-k="form-06">담당자명 <span class="req">*</span></label><input id="f_name" placeholder="홍길동" data-kph="form-ph-02"></div>
           <div class="field"><label data-k="form-07">연락처 <span class="req">*</span></label><input id="f_phone" placeholder="010-0000-0000" data-kph="form-ph-03"></div>
         </div>
-        <div class="field"><label data-k="form-08">이메일</label><input id="f_email" placeholder="name@company.com" data-kph="form-ph-04"></div>
-        <div class="row2">
-          <div class="field"><label data-k="form-09">사업장 지역</label><select id="f_region"><option value="" data-k="form-10">선택</option><option data-k="form-11">안산 반월</option><option data-k="form-12">시흥 시화</option><option data-k="form-13">인천 남동</option><option data-k="form-14">기타 수도권</option><option data-k="form-15">수도권 외</option></select></div>
-          <div class="field"><label data-k="form-16">주요 회전설비</label><select id="f_asset"><option value="" data-k="form-17">선택</option><option data-k="form-18">모터</option><option data-k="form-19">펌프</option><option data-k="form-20">팬/블로워</option><option data-k="form-21">컴프레서</option><option data-k="form-22">여러 종류</option></select></div>
+        <div class="field"><label data-k="form-08">이메일 <span class="req">*</span></label><input id="f_email" type="email" placeholder="name@company.com" data-kph="form-ph-04">
+        <div class="fhint" id="mailhint">담당자가 연락드릴 때 함께 쓰는 주소입니다.</div></div>
+        <div class="field"><label data-k="form-16">주요 회전설비</label><select id="f_asset"><option value="" data-k="form-17">선택</option><option data-k="form-18">모터</option><option data-k="form-19">펌프</option><option data-k="form-20">팬/블로워</option><option data-k="form-21">컴프레서</option><option data-k="form-22">여러 종류</option></select></div>
+        <div class="field">
+          <label>진동센서를 써보신 적 있나요? <span class="req">*</span></label>
+          <div class="expgrid" id="f_expgrid" role="radiogroup" aria-label="진동센서 사용 경험">
+            <label class="expopt"><input type="radio" name="f_exp" value="사용 중"><span><b>지금 쓰고 있어요</b><i>이미 운영 중</i></span></label>
+            <label class="expopt"><input type="radio" name="f_exp" value="써봤음"><span><b>써봤지만 지금은 안 써요</b><i>도입·테스트 경험 있음</i></span></label>
+            <label class="expopt"><input type="radio" name="f_exp" value="처음"><span><b>써본 적 없어요</b><i>이번이 처음</i></span></label>
+          </div>
+          <div class="fhint" id="exphint">답에 따라 안내 방식이 달라집니다.</div>
+        </div>
+        <div class="field">
+          <label>어떤 생산라인 · 어느 설비에 붙이시나요? <span class="req">*</span></label>
+          <div class="row2">
+            <select id="f_line">
+              <option value="">선택</option>
+              <option>조립 · 가공 라인</option>
+              <option>포장 · 물류 라인</option>
+              <option>유틸리티 (펌프 · 컴프레서 · 공조)</option>
+              <option>원료 · 배합 · 혼합 공정</option>
+              <option>발전 · 전력 설비</option>
+              <option>용수 · 폐수 처리</option>
+              <option>기타 · 아직 미정</option>
+            </select>
+            <input id="f_spot" placeholder="3라인 급수펌프 2대">
+          </div>
+          <div class="fhint">라인과 설비 위치를 적어주시면 <b>체험 가능한 설비인지 통화 전에 미리 확인</b>해 드립니다.</div>
         </div>
         <div class="field consent">
           <div class="consent-lite">
@@ -1887,7 +1927,7 @@ h2{margin-bottom:14px!important}
             <details class="consent-more">
               <summary data-k="form-23">수집 항목·목적 자세히 보기</summary>
               <table class="cb-table">
-                <tbody><tr><th data-k="form-24">수집 항목</th><td data-k="form-25">회사명, 담당자명, 연락처 <span style="color:var(--mut)">(필수)</span> / 이메일, 사업장 지역, 주요 회전설비 <span style="color:var(--mut)">(선택)</span></td></tr>
+                <tbody><tr><th data-k="form-24">수집 항목</th><td>회사명, 담당자명, 연락처, 이메일, 진동센서 사용 경험, 설치 대상 라인 <span style="color:var(--mut)">(필수)</span> / 주요 회전설비, 설비 위치 <span style="color:var(--mut)">(선택)</span></td></tr>
                 <tr><th data-k="form-26">이용 목적</th><td data-k="form-27">무료 체험 신청 접수·상담, 담당자 연락 및 서비스 안내</td></tr>
                 <tr><th data-k="form-28">보유·이용 기간</th><td data-k="form-29">동의 철회 시까지 (미철회 시 수집일로부터 최대 3년 후 파기)</td></tr>
                 <tr><th data-k="form-30">취급자</th><td data-k="form-31">모넷코리아 담당 부서 · 제3자 제공 없음</td></tr>
@@ -1900,7 +1940,7 @@ h2{margin-bottom:14px!important}
         <button class="submit" onclick="submitForm()" data-k="form-36">우리 설비 적용 가능 여부 확인하기</button>
         <p class="fnote" data-k="form-37">신청 후 담당자 확인 · 02-2088-1454 · korea@monnit.com</p>
       </div>
-      <div class="form-ok" id="ok"><h3 data-k="form-38">✓ 신청이 접수되었습니다</h3><p id="okmsg"></p></div>
+      <div class="form-ok" id="ok"><h3 data-k="form-38">✓ 신청이 접수되었습니다</h3><p id="okmsg"></p><p id="oksub" style="margin-top:10px;font-size:14px;color:var(--mut);line-height:1.6"></p></div>
     </div>
   </div></section>
 
@@ -1918,8 +1958,8 @@ h2{margin-bottom:14px!important}
 
         <h4 data-k="pp-05">1. 수집하는 개인정보 항목</h4>
         <table>
-          <tbody><tr><th data-k="pp-06">필수</th><td data-k="pp-07">회사명, 담당자명, 연락처</td></tr>
-          <tr><th data-k="pp-08">선택</th><td data-k="pp-09">이메일, 사업장 지역, 주요 회전설비</td></tr>
+          <tbody><tr><th data-k="pp-06">필수</th><td>회사명, 담당자명, 연락처, 이메일, 진동센서 사용 경험, 설치 대상 라인</td></tr>
+          <tr><th data-k="pp-08">선택</th><td>주요 회전설비, 설비 위치</td></tr>
           <tr><th data-k="pp-10">자동 수집</th><td data-k="pp-11">신청 일시, 쿠키, 접속 IP, 기기·브라우저 정보, 페이지 방문·이용 기록, 광고 식별자 (제3항 참조)</td></tr>
         </tbody></table>
 
@@ -2019,6 +2059,42 @@ function openPP(e){ if(e)e.preventDefault(); var m=document.getElementById('ppMo
 function closePP(){ var m=document.getElementById('ppModal'); if(m){m.classList.remove('show');document.body.style.overflow=''} }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape')closePP(); });
 
+/* ── 진동센서 경험에 따른 분기 ────────────────────────────────
+   유경험(사용 중 · 써봤음) : 설명 자료 없이 바로 접수
+   무경험(처음)             : 전화보다 자료가 먼저다 → 가이드 자동 발송
+   연락 약속은 양쪽 다 「영업일 기준 3~4일 이내」로 같다. 다른 것은 자료 발송 여부다.
+   설치 위치(f_spot)까지 필수로 받고 싶으면 REQUIRE_SPOT 를 true 로 바꾸면 된다. */
+var REQUIRE_SPOT=false;
+var SLA={ 유경험:'영업일 기준 3~4일 이내', 무경험:'영업일 기준 3~4일 이내' };
+var GUIDE_API='/.netlify/functions/sendguide';
+var GUIDE_TOKEN='mnt-pw-2026-7f3k9';
+
+function expValue(){
+  var r=document.querySelector('input[name="f_exp"]:checked');
+  return r?r.value:'';
+}
+function expGroup(v){ return v==='처음' ? '무경험' : (v ? '유경험' : ''); }
+
+/* 무경험을 고르면 "메일로 자료가 간다"는 걸 그 자리에서 알려준다 */
+(function(){
+  var hint=document.getElementById('exphint'), mh=document.getElementById('mailhint');
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="f_exp"]'),function(el){
+    el.addEventListener('change',function(){
+      var g=expGroup(expValue());
+      if(!hint)return;
+      if(g==='무경험'){
+        hint.className='fhint warn';
+        hint.innerHTML='처음이시군요. <b>접수 즉시 예지보전 가이드를 메일로 보내드립니다.</b> 담당자는 영업일 기준 3~4일 이내에 연락드립니다.';
+        if(mh)mh.innerHTML='<b>가이드를 받으실 주소입니다.</b> 정확히 입력해 주세요.';
+      }else{
+        hint.className='fhint';
+        hint.innerHTML='써보신 적이 있으시군요. <b>자료는 따로 보내지 않습니다.</b> 담당자가 회사·설비를 먼저 확인한 뒤 영업일 기준 3~4일 이내에 바로 연락드립니다.';
+        if(mh)mh.textContent='담당자가 연락드릴 때 함께 쓰는 주소입니다.';
+      }
+    });
+  });
+})();
+
 function submitForm(){
   var btn=document.querySelector('.submit');
   if(btn&&btn.disabled)return; // 중복 제출 방지
@@ -2026,26 +2102,41 @@ function submitForm(){
   var n=document.getElementById('f_name').value.trim();
   var p=document.getElementById('f_phone').value.trim();
   var email=document.getElementById('f_email').value.trim();
-  var region=document.getElementById('f_region').value;
   var asset=document.getElementById('f_asset').value;
+  var exp=expValue(), grp=expGroup(exp);
+  var line=document.getElementById('f_line').value;
+  var spot=document.getElementById('f_spot').value.trim();
   var consent=document.getElementById('f_consent').checked;
   var marketing=document.getElementById('f_marketing').checked;
 
   if(!c||!n||!p){alert('회사명·담당자명·연락처는 필수입니다.');return}
+  if(!email){alert('이메일은 필수입니다. 접수 확인과 자료를 보내드릴 주소입니다.');
+    document.getElementById('f_email').focus();return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('이메일 형식을 확인해 주세요.');
+    document.getElementById('f_email').focus();return}
+  if(!exp){alert('진동센서를 써보신 적 있는지 선택해 주세요.');
+    try{document.getElementById('f_expgrid').scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}return}
+  if(!line){alert('어떤 생산라인에 설치하실지 선택해 주세요.');
+    document.getElementById('f_line').focus();return}
+  if(REQUIRE_SPOT&&!spot){alert('설비 위치를 적어주세요. (예: 3라인 급수펌프 2대)');
+    document.getElementById('f_spot').focus();return}
   if(!consent){alert('[필수] 개인정보 수집·이용 동의가 필요합니다.');return}
-  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('이메일 형식을 확인해 주세요.');return}
 
   var now=new Date().toLocaleString('ko-KR');
   // 홈페이지 sendLead()와 동일한 한글 키 규격
   var payload={
-    _subject:'[무료체험 신청] '+c+' / '+n,
+    _subject:'[무료체험 신청·'+grp+'] '+c+' / '+n,
     '신청 프로모션':(window.MK_PROMO_TITLE||'회전설비 AI 예지보전 1개월 무료 체험'),
     '회사명':c,
     '담당자명':n,
     '전화번호':p,
     '이메일':(email||'(미기재)'),
-    '사업장 지역':(region||'(미기재)'),
     '주요 회전설비':(asset||'(미기재)'),
+    '진동센서 경험':exp,
+    '경험 구분':grp,
+    '설치 대상 라인':line,
+    '설비 위치':(spot||'(미기재)'),
+    '연락 예정':SLA[grp],
     '개인정보 수집·이용 동의(필수)':'동의',
     '마케팅 정보 수신(선택)':(marketing?'동의':'미동의'),
     '동의 일시':now,
@@ -2059,7 +2150,8 @@ function submitForm(){
   // GTM 전환 이벤트 (GA4 · Google Ads) + Clarity
   window.dataLayer=window.dataLayer||[];
   window.dataLayer.push({event:'lead_submit',form_name:'promo_free_trial',
-    company:c,region:region,asset:asset,marketing_consent:marketing});
+    company:c,asset:asset,marketing_consent:marketing,
+    sensor_experience:exp,experience_group:grp,production_line:line});
   if(window.clarity){try{clarity('event','lead_submit')}catch(e){}}
   if(window.gtag){try{gtag('event','generate_lead',{form:'promo_consulting',promo:'consulting',currency:'KRW',value:1})}catch(e){}}
 
@@ -2067,17 +2159,45 @@ function submitForm(){
   function lock(){if(btn){btn.disabled=true;btn.textContent='전송 중…'}}
   function unlock(){if(btn){btn.disabled=false;btn.textContent=prev}}
   function showOk(){
-    // 접수 메시지를 저장해 두고 감사화면으로 리로드 — 인앱 브라우저에서 태그가 초기 로드에 실패해도 재로드 기회를 준다
-    try{sessionStorage.setItem('mk_lead_msg',c+' · '+n+' 님, 접수되었습니다. 영업일 기준 3일 내 '+p+'로 연락드리겠습니다.')}catch(e){}
     /* 원장 기록 — sendBeacon 이라 바로 이동해도 유실되지 않는다 */
     try{ if(window.MonnitLead) window.MonnitLead.record('contact', payload); }catch(e){}
-    location.href='/promo/consulting?submitted=1#apply';
+
+    var msg, sub;
+    if(grp==='무경험'){
+      msg=c+' · '+n+' 님, 접수되었습니다. 방금 '+email+' 으로 예지보전 가이드를 보내드렸습니다.';
+      sub='자료를 먼저 훑어보세요. 담당자가 영업일 기준 3~4일 이내에 '+p+'로 연락드립니다.';
+    }else{
+      msg=c+' · '+n+' 님, 접수되었습니다. 담당자가 영업일 기준 3~4일 이내에 '+p+'로 연락드리겠습니다.';
+      sub='메일은 따로 가지 않습니다. 담당자가 '+(line||'설비')+'에 적용이 되는지 확인한 뒤 전화로 안내드립니다.';
+    }
+    try{sessionStorage.setItem('mk_lead_msg',msg);sessionStorage.setItem('mk_lead_sub',sub)}catch(e){}
+
+    /* 무경험자에게만 가이드 자동 발송. 메일이 실패해도 접수는 그대로 진행한다. */
+    function go(){location.href='/promo/consulting?submitted=1#apply';}
+    if(grp==='무경험'){
+      var done=false, jump=function(){if(!done){done=true;go()}};
+      setTimeout(jump,3500);                      /* 메일 API 가 느려도 3.5초 뒤엔 넘어간다 */
+      fetch(GUIDE_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token:GUIDE_TOKEN,email:email,company:c,name:n,
+          line:line,spot:spot,asset:asset})})
+        .then(function(r){return r.json()})
+        .then(function(j){
+          if(!j||!j.mailed){
+            try{sessionStorage.setItem('mk_lead_msg',c+' · '+n+' 님, 접수되었습니다.');
+                sessionStorage.setItem('mk_lead_sub','가이드는 담당자가 직접 보내드리겠습니다. 영업일 기준 3~4일 이내에 '+p+'로 연락드립니다.')}catch(e){}
+          }
+          jump();
+        })
+        .catch(jump);
+    }else{ go(); }
   }
   function mailFallback(){
     var subject=encodeURIComponent('[무료체험 신청] '+c+' / '+n);
     var body=encodeURIComponent(
       '■ 무료 체험 신청\n\n회사명: '+c+'\n담당자: '+n+'\n연락처: '+p+'\n이메일: '+(email||'-')+
-      '\n사업장 지역: '+(region||'-')+'\n주요 회전설비: '+(asset||'-')+'\n신청 시각: '+now+
+      '\n주요 회전설비: '+(asset||'-')+
+      '\n진동센서 경험: '+exp+' ('+grp+')'+'\n설치 대상 라인: '+(line||'-')+'\n설비 위치: '+(spot||'-')+
+      '\n연락 예정: '+SLA[grp]+'\n신청 시각: '+now+
       '\n\n[동의 기록]\n개인정보 수집·이용(필수): 동의함\n마케팅 정보 수신(선택): '+(marketing?'동의함':'미동의')+'\n동의 일시: '+now+'\n');
     window.open('mailto:'+CONTACT_EMAIL+'?subject='+subject+'&body='+body,'_blank');
     showOk();
@@ -2113,8 +2233,12 @@ function submitForm(){
   var fb=document.getElementById('form-body'),ok=document.getElementById('ok');
   if(fb&&ok){
     fb.style.display='none';
-    var m='';try{m=sessionStorage.getItem('mk_lead_msg')||''}catch(e){}
-    var om=document.getElementById('okmsg');if(om)om.textContent=m||'신청이 접수되었습니다. 영업일 기준 3일 내 연락드리겠습니다.';
+    var m='',sb='';try{m=sessionStorage.getItem('mk_lead_msg')||'';sb=sessionStorage.getItem('mk_lead_sub')||''}catch(e){}
+    var om=document.getElementById('okmsg');
+    if(om){
+      om.textContent=m||'신청이 접수되었습니다. 영업일 기준 3일 내 연락드리겠습니다.';
+      if(sb){var e2=document.getElementById('oksub');if(e2)e2.textContent=sb;}
+    }
     ok.classList.add('show');
     setTimeout(function(){try{ok.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}},350);
   }

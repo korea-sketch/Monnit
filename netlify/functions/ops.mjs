@@ -2,13 +2,30 @@
  *  로그인 전에는 관제 화면 코드조차 내려가지 않는다. */
 import * as auth from './_ops_auth.mjs';
 import { LOGIN, APP } from './_ops_ui.mjs';
-import { get, set, readLines, available, diag } from './_store.mjs';
+import { get, set, append, readLines, available, diag } from './_store.mjs';
 import { configured as adsConfigured, missingEnv as adsMissing, kday as adsKday } from './_ads.mjs';
 import * as deals from './_deals.mjs';
 import { rollup, economics } from './_creatives.mjs';
 import { utmAudit, actions as buildActions } from './_insights.mjs';
 
-export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export'] };
+export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult'] };
+
+/* 수기 접수에서 고를 수 있는 유입 채널 — 리드 원장의 channel 어휘와 같게 맞춘다 */
+const MANUAL_CHANNELS = ['메타', '구글', '네이버', '카카오', '직접', '소개', '전화문자', '우편DM', '기타'];
+const MANUAL_TYPES = { contact: '접수', doc_request: '자료' };
+
+/* 수기 접수도 소재 단위 집계에 태우려면 「출처」 문자열을 만들어줘야 한다.
+   utm_content 를 받아 적으면 폼으로 들어온 리드와 같은 키로 묶인다. */
+const MANUAL_SRC = { '메타': 'facebook', '구글': 'google', '네이버': 'naver', '카카오': 'kakao' };
+function manualSource(channel, utm) {
+  const parts = [];
+  const s = MANUAL_SRC[channel];
+  if (s) { parts.push('utm_source=' + s); parts.push('utm_medium=cpc'); }
+  else if (channel === '직접') parts.push('direct');
+  else parts.push('utm_source=' + (channel === '전화문자' ? 'tel' : channel === '우편DM' ? 'post' : 'offline'));
+  if (utm) parts.push('utm_content=' + String(utm).replace(/[·&\n]/g, ' ').trim());
+  return parts.join(' · ');
+}
 
 const TZ = 'Asia/Seoul';
 const MAX_FAIL = 8, LOCK_MS = 15 * 60 * 1000;
@@ -109,6 +126,31 @@ const quarterOf = ym => {
   return y + ' Q' + Math.ceil(m / 3);
 };
 
+/* ── 지난달 파일 캐시 ────────────────────────────────────────
+   원장은 월 단위 파일이고, 지난달 파일은 다시 쓰이지 않는다.
+   그런데 build() 는 매 새로고침마다 13개월치를 세 종류(leads·ads·adcreatives)
+   전부 다시 읽는다 — 한 번에 40회 가까이. 화면 갱신을 30초로 당겼으니
+   탭 하나만 열어둬도 시간당 5천 회가 넘는다.
+
+   그래서 「이번 달이 아닌 달」은 함수 인스턴스가 살아 있는 동안 재사용한다.
+   이번 달 파일은 새 리드가 계속 붙으므로 매번 새로 읽는다 —
+   화면이 실시간으로 보여야 하는 건 결국 이번 달이다. */
+const _monthCache = new Map();
+
+async function readMonthly(store, key, currentKey) {
+  if (key === currentKey) return readLines(store, key);
+  const ck = store + '/' + key;
+  if (_monthCache.has(ck)) return _monthCache.get(ck);
+  const rows = await readLines(store, key);
+  _monthCache.set(ck, rows);
+  return rows;
+}
+
+async function readConsult() {
+  try { return JSON.parse(await get('ops', 'consult.json') || 'null'); }
+  catch { return null; }
+}
+
 async function build(pkey, custom) {
   const P = PERIODS[pkey] || PERIODS['7d'];
   const now = new Date();
@@ -117,8 +159,13 @@ async function build(pkey, custom) {
   let rows = [];
   const monthKeys = [];
   for (let i = 0; i <= 12; i++) monthKeys.push(monthKey(new Date(now - i * 30.5 * 864e5)));
-  for (const k of [...new Set(monthKeys)]) rows = rows.concat(await readLines('leads', k));
+  const curKey = monthKey(now);
+  for (const k of [...new Set(monthKeys)]) rows = rows.concat(await readMonthly('leads', k, curKey));
   rows = rows.filter(r => r?.ts && !/^__/.test(r.company || ''));   /* 점검용 더미 제외 */
+  /* 월 파일을 최신→과거 순으로 이어 붙였기 때문에 배열 순서가 시간순이 아니다.
+     정렬하지 않으면 아래 slice(-200) 이 「가장 오래된 200건」을 남겨서
+     새로 들어온 문의가 화면에 영영 안 나온다. */
+  rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
 
   const today = kday(now), ago = n => kday(new Date(now - n * 864e5));
   /* 직접 고른 구간이 있으면 그것을 쓴다 (from 초과 ~ to 이하) */
@@ -157,12 +204,12 @@ async function build(pkey, custom) {
 
   /* ── 광고 — 같은 13개월 범위를 읽어 기간·월·분기별로 집계 ── */
   let adRows = [];
-  for (const k of [...new Set(monthKeys)]) adRows = adRows.concat(await readLines('ads', k));
+  for (const k of [...new Set(monthKeys)]) adRows = adRows.concat(await readMonthly('ads', k, curKey));
   adRows = adRows.filter(r => r?.date);
 
   /* 소재(광고) 단위 실적 — 없으면 빈 배열. 없다고 0으로 채우지 않는다. */
   let adAds = [];
-  for (const k of [...new Set(monthKeys)]) adAds = adAds.concat(await readLines('adcreatives', k));
+  for (const k of [...new Set(monthKeys)]) adAds = adAds.concat(await readMonthly('adcreatives', k, curKey));
   adAds = adAds.filter(r => r?.date && r.ad_id);
 
   const sumBy = list => {
@@ -245,6 +292,9 @@ async function build(pkey, custom) {
       today: { contact: cnt(tdy, 'contact'), doc: cnt(tdy, 'doc_request'), sub: cnt(tdy, 'subscribe'), total: tdy.length },
       week:  { contact: cnt(cur, 'contact'), doc: cnt(cur, 'doc_request'), sub: cnt(cur, 'subscribe'), total: cur.length },
       prev:  { contact: cnt(prv, 'contact'), doc: cnt(prv, 'doc_request'), sub: cnt(prv, 'subscribe'), total: prv.length },
+      manual: cur.filter(r => r.entry === 'manual').length,
+      exp_yes: cur.filter(r => r.exp_group === '유경험').length,
+      exp_no:  cur.filter(r => r.exp_group === '무경험').length,
       channel: srt(grp(cur, r => r.channel)),
       point: srt(grp(cur, r => r.point)),
       interest: srt(grp(cur.filter(r => r.type === 'doc_request'), r => r.interest)).slice(0, 8),
@@ -253,8 +303,12 @@ async function build(pkey, custom) {
     creatives, funnel: fun, economics: econ,
     utmAudit: audit, actions: acts,
     stages: deals.STAGES, defaultTerm: deals.DEFAULT_TERM,
-    leads: joined.slice(-200).reverse().map(r => ({
+    manualChannels: MANUAL_CHANNELS,
+    consult: await readConsult(),
+    leads: joined.slice(-400).reverse().map(r => ({
       id: r.id, handled: !!done[r.id] || (r.deal.stage !== '접수'),
+      entry: r.entry === 'manual' ? 'manual' : 'form', memo: r.memo || '',
+      exp: r.exp || '', exp_group: r.exp_group || '', line: r.line || '', spot: r.spot || '', sla: r.sla || '',
       ts: r.ts, label: r.label, type: r.type, channel: r.channel, point: r.point,
       company: r.company, name: r.name, phone: r.phone, email: r.email,
       region: r.region, asset: r.asset, interest: r.interest,
@@ -271,7 +325,9 @@ export default async (req) => {
   const path = new URL(req.url).pathname.replace(/\/+$/, '');
   const sub = path.endsWith('/login') ? 'login' : path.endsWith('/logout') ? 'logout'
             : path.endsWith('/data') ? 'data' : path.endsWith('/diag') ? 'diag'
-            : path.endsWith('/mark') ? 'mark' : path.endsWith('/export') ? 'export' : '';
+            : path.endsWith('/mark') ? 'mark' : path.endsWith('/export') ? 'export'
+            : path.endsWith('/lead') ? 'lead'
+            : path.endsWith('/consult') ? 'consult' : '';
   const authed = auth.valid(auth.cookieFrom({ cookie: req.headers.get('cookie') || '' }));
 
   if (!auth.configured()) return page(LOGIN.replace('__ERR__', '환경변수 OPS_USER · OPS_PASS 를 먼저 설정해 주세요'));
@@ -293,7 +349,7 @@ export default async (req) => {
   }
 
   if (!authed) {
-    if (sub === 'data' || sub === 'diag' || sub === 'mark') return j({ error: 'unauthorized' }, 401);
+    if (sub === 'data' || sub === 'diag' || sub === 'mark' || sub === 'lead' || sub === 'consult') return j({ error: 'unauthorized' }, 401);
     if (sub === 'export') return new Response(null, { status: 302, headers: { ...H, location: '/ops' } });
     return page(LOGIN.replace('__ERR__', ''));
   }
@@ -311,6 +367,77 @@ export default async (req) => {
     } catch (e) { return j({ error: String(e?.message || e) }, 500); }
   }
 
+  /* ── 수기 접수 ──────────────────────────────────────────────
+     광고를 보고 폼을 안 거치고 바로 전화한 사람들. 여기서 넣지 않으면
+     리드 원장에 아예 없는 사람이 되고, 그만큼 광고 성과가 실제보다 낮게 보인다.
+     폼 리드와 같은 원장(leads/YYYY-MM.jsonl)에 같은 모양으로 적는다. */
+  if (sub === 'lead') {
+    if (req.method !== 'POST') return j({ error: 'method' }, 405);
+    try {
+      const b = await req.json();
+      const t = v => String(v == null ? '' : v).trim().slice(0, 200);
+      const company = t(b.company), name = t(b.name), phone = t(b.phone), email = t(b.email);
+      if (!company && !name && !phone && !email)
+        return j({ error: '회사·담당자·전화·이메일 중 하나는 넣어주세요' }, 400);
+
+      const channel = MANUAL_CHANNELS.includes(b.channel) ? b.channel : '기타';
+      const type = b.type === 'doc_request' ? 'doc_request' : 'contact';
+
+      /* 접수일을 직접 고르면 그날로 기록한다(며칠 지나 입력하는 경우가 많다).
+         시각은 원장 정렬용으로 한국시간 정오를 쓴다. */
+      const okDate = /^\d{4}-\d{2}-\d{2}$/.test(String(b.date || ''));
+      const ts = okDate ? new Date(b.date + 'T12:00:00+09:00').toISOString() : new Date().toISOString();
+
+      const row = {
+        ts, type, label: MANUAL_TYPES[type], channel,
+        point: t(b.point) || '전화 유입(수기)',
+        company, name, phone, email,
+        region: t(b.region), asset: t(b.asset),
+        interest: t(b.interest),
+        /* 폼 리드와 같은 어휘 — 전화로 물어본 답도 같은 칸에 들어가야 섞어 볼 수 있다 */
+        exp: t(b.exp),
+        exp_group: b.exp === '처음' ? '무경험' : (b.exp ? '유경험' : ''),
+        line: t(b.line),
+        spot: t(b.spot),
+        sla: b.exp ? '영업일 기준 3~4일 이내' : '',
+        memo: String(b.memo == null ? '' : b.memo).trim().slice(0, 1000),
+        source: manualSource(channel, t(b.utm)),
+        landing: '', consent_mkt: '',
+        entry: 'manual',
+        by: 'ops',
+        created_at: new Date().toISOString()
+      };
+      const mk = monthKey(new Date(ts));
+      const ok = await append('leads', mk, row);
+      /* 소급 입력이면 지난달 파일이 바뀌므로 그 달 캐시는 버린다 */
+      _monthCache.delete('leads/' + mk);
+      if (!ok) return j({ error: '저장소에 쓰지 못했습니다' }, 500);
+      return j({ ok: true, lead: row });
+    } catch (e) { return j({ error: String(e?.message || e) }, 500); }
+  }
+
+  /* ── 현장 진단 컨설팅 배정 현황 ──────────────────────────────
+     /promo/proposal 자료 요청자에게 나가는 안내 메일에 그대로 들어간다.
+     매달·매건 달라지는 숫자라 코드에 박지 않고 여기서 고친다.
+     비워두면 메일에서 그 줄이 아예 빠진다 — 틀린 숫자보다 없는 게 낫다. */
+  if (sub === 'consult') {
+    if (req.method !== 'POST') return j({ error: 'method' }, 405);
+    try {
+      const b = await req.json();
+      const n = v => (v === '' || v == null) ? null : (Number.isFinite(Number(v)) ? Number(v) : null);
+      const next = {
+        month:    String(b.month || '').trim().slice(0, 20),
+        total:    n(b.total),
+        left:     n(b.left),
+        deadline: String(b.deadline || '').trim().slice(0, 30),
+        value:    String(b.value || '').trim().slice(0, 20) || '100만원',
+        updated_at: new Date().toISOString()
+      };
+      await set('ops', 'consult.json', JSON.stringify(next));
+      return j({ ok: true, consult: next });
+    } catch (e) { return j({ error: String(e?.message || e) }, 500); }
+  }
+
   if (sub === 'deal') {
     if (req.method !== 'POST') return j({ error: 'method' }, 405);
     try {
@@ -324,7 +451,8 @@ export default async (req) => {
   if (sub === 'export') {
     const d = await build('90d');
     const head = ['접수일시', '유형', '채널', '소재(utm_content)', '접점', '회사', '담당자', '전화', '이메일',
-                  '지역', '설비', '관심', '단계', '견적일', '견적까지(일)', '견적금액',
+                  '지역', '설비', '관심', '진동센서경험', '경험구분', '설치라인', '설비위치', '연락약속',
+                  '단계', '견적일', '견적까지(일)', '견적금액',
                   '수주일', '수주까지(일)', '월구독료', '일시매출', '유지개월', 'LTV', '실패사유'];
     const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
     const body = d.leads.map(r => {
@@ -333,6 +461,7 @@ export default async (req) => {
       return [
         new Date(r.ts).toLocaleString('ko-KR', { timeZone: TZ }), r.label, r.channel, utm, r.point,
         r.company, r.name, r.phone, r.email, r.region, r.asset, r.interest,
+        r.exp || '', r.exp_group || '', r.line || '', r.spot || '', r.sla || '',
         k.stage || '', k.quoted_at ? k.quoted_at.slice(0, 10) : '', r.days_to_quote == null ? '' : r.days_to_quote,
         k.quote_amount || '', k.won_at ? k.won_at.slice(0, 10) : '', r.days_to_win == null ? '' : r.days_to_win,
         k.mrr || '', k.oneoff || '', k.term_months == null ? '' : k.term_months,

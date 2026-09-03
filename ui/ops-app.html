@@ -156,8 +156,38 @@ padding:7px 9px;font-size:13px;font-family:inherit;width:100%}
 padding:8px 15px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer}
 .ed .msg{font-size:11px;color:var(--up);margin-left:9px}
 .empty{text-align:center;color:var(--dim);font-size:12.5px;padding:22px 0}
+/* 리드 목록 도구모음 — 정렬 · 필터 · 수기 접수 */
+.lbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:2px 0 12px}
+.lbar select{background:rgba(0,0,0,.25);border:1px solid var(--bd);color:var(--ink);border-radius:9px;
+padding:6px 10px;font-size:12px;font-family:inherit;cursor:pointer}
+.lbar .cnt{font-size:11.5px;color:var(--dim);margin-left:auto}
+.bdg{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;
+border:1px solid rgba(255,176,208,.5);background:rgba(255,176,208,.16);color:#FFD3E6;margin-left:6px;vertical-align:middle}
+.bdg.form{border-color:rgba(122,168,255,.35);background:rgba(122,168,255,.12);color:#CFE0FF}
+.bdg.exp{border-color:rgba(79,227,155,.45);background:rgba(79,227,155,.14);color:#CFF7E4}
+.bdg.noexp{border-color:rgba(255,198,92,.45);background:rgba(255,198,92,.14);color:#FFE9BC}
+/* 수기 접수 입력 카드 */
+.nw{border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:13px;background:rgba(0,0,0,.2)}
+.nw .fr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.nw .f{flex:1 1 150px;min-width:0}
+.nw .f.w{flex:1 1 100%}
+.nw label{font-size:10.5px;color:var(--mut);display:block;margin-bottom:3px}
+.nw input,.nw select,.nw textarea{background:rgba(0,0,0,.3);border:1px solid var(--bd);color:var(--ink);
+border-radius:8px;padding:8px 9px;font-size:13px;font-family:inherit;width:100%;box-sizing:border-box}
+.nw textarea{resize:vertical;min-height:52px}
+.nw .save{background:rgba(79,227,155,.22);border:1px solid rgba(79,227,155,.5);color:#DFFFF0;border-radius:9px;
+padding:9px 18px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.nw .msg{font-size:11.5px;margin-left:10px}
 footer{text-align:center;font-size:10.5px;color:var(--dim);padding-top:20px}
 @media(max-width:860px){.quad{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+/* 모바일에서 관제 화면을 열 때 — iOS 는 16px 미만 입력에 포커스하면 화면을 확대한다.
+   확대되면 표가 화면 밖으로 밀려 나가므로 입력 글자만 키운다. */
+@media(max-width:640px){
+  .nw input,.nw select,.nw textarea,.ed input,.ed select,.lbar select{font-size:16px}
+  .lbar{gap:6px}
+  .lbar .cnt{margin-left:0;width:100%}
+  table.gr{min-width:560px}
+}
 </style>
 </head>
 <body>
@@ -228,9 +258,75 @@ footer{text-align:center;font-size:10.5px;color:var(--dim);padding-top:20px}
 <div class="note">헛클릭이 많으면 랜딩에 막힌 곳이 있다는 뜻입니다</div><div class="cl" id="cl"></div></div>
 </div>
 
+<div class="g sec"><h2>현장 진단 컨설팅 배정 <span class="tag t-off" id="csTag"></span></h2>
+<div class="note">여기 넣은 숫자가 <b>/promo/proposal 자료 요청자에게 나가는 안내 메일</b>에 그대로 들어갑니다 · 비워두면 그 줄이 메일에서 빠집니다</div>
+<div class="nw" style="display:block;margin-bottom:0">
+  <div class="fr">
+    <div class="f"><label>월 표기</label><input id="c_month" placeholder="9월"></div>
+    <div class="f"><label>배정 규모 (개사)</label><input id="c_total" type="number" min="0" placeholder="3"></div>
+    <div class="f"><label>잔여 (개사)</label><input id="c_left" type="number" min="0" placeholder="1"></div>
+    <div class="f"><label>접수 마감</label><input id="c_deadline" placeholder="9월 20일"></div>
+    <div class="f"><label>컨설팅 가치 표기</label><input id="c_value" placeholder="100만원"></div>
+  </div>
+  <button class="save" id="c_save">배정 현황 저장</button>
+  <span class="msg" id="c_msg"></span>
+</div></div>
+
 <div class="g sec"><h2>접수 · 견적 진행 <span class="tag t-wait" id="pend"></span></h2>
-<div class="note">단계를 바꾸면 날짜가 자동으로 찍힙니다 · 알리미는 수기 견적이라 여기서 직접 넣습니다</div>
-<div id="leads"></div></div>
+<div class="note">단계를 바꾸면 날짜가 자동으로 찍힙니다 · 광고 보고 바로 전화한 건은 <b>+ 수기 접수</b>로 넣어야 광고 성과에 잡힙니다</div>
+<div class="lbar">
+  <button class="btn" id="newBtn">+ 수기 접수</button>
+  <select id="lsort">
+    <option value="new">최신순</option>
+    <option value="old">오래된순</option>
+    <option value="stale">오래 묵은 미응대순</option>
+    <option value="amt">금액 큰 순</option>
+  </select>
+  <select id="lfilt">
+    <option value="all">전체</option>
+    <option value="open">미응대(접수)만</option>
+    <option value="manual">수기(전화 유입)만</option>
+    <option value="form">폼 접수만</option>
+    <option value="won">수주만</option>
+    <option value="exp">진동센서 유경험만</option>
+    <option value="noexp">진동센서 무경험만</option>
+  </select>
+  <select id="lchan"><option value="">채널 전체</option></select>
+  <span class="cnt" id="lcnt"></span>
+</div>
+<div class="nw" id="nw" style="display:none">
+  <div class="fr">
+    <div class="f"><label>회사 · 시설명</label><input id="n_company" placeholder="(주)○○산업"></div>
+    <div class="f"><label>담당자</label><input id="n_name" placeholder="김○○ 과장"></div>
+    <div class="f"><label>연락처</label><input id="n_phone" inputmode="tel" placeholder="010-0000-0000"></div>
+    <div class="f"><label>이메일</label><input id="n_email" inputmode="email" placeholder="선택"></div>
+  </div>
+  <div class="fr">
+    <div class="f"><label>유입 채널</label><select id="n_channel"></select></div>
+    <div class="f"><label>문의 유형</label><select id="n_type">
+      <option value="contact">문의 · 견적</option><option value="doc_request">자료 요청</option></select></div>
+    <div class="f"><label>접수일</label><input id="n_date" type="date"></div>
+    <div class="f"><label>소재 (utm_content)</label><input id="n_utm" placeholder="예: consulting_50"></div>
+  </div>
+  <div class="fr">
+    <div class="f"><label>관심 분야</label><input id="n_interest" placeholder="긴급 경보 알리미 / 예지보전 …"></div>
+    <div class="f"><label>설비 · 시설 유형</label><input id="n_asset" placeholder="모터 / 공동주택 …"></div>
+    <div class="f"><label>지역</label><input id="n_region" placeholder="선택"></div>
+  </div>
+  <div class="fr">
+    <div class="f"><label>진동센서 경험</label><select id="n_exp">
+      <option value="">모름 · 안 물어봄</option><option>사용 중</option><option>써봤음</option><option>처음</option></select></div>
+    <div class="f"><label>설치 대상 라인</label><select id="n_line">
+      <option value="">선택</option><option>조립 · 가공 라인</option><option>포장 · 물류 라인</option>
+      <option>유틸리티 (펌프 · 컴프레서 · 공조)</option><option>원료 · 배합 · 혼합 공정</option>
+      <option>발전 · 전력 설비</option><option>용수 · 폐수 처리</option><option>기타 · 아직 미정</option></select></div>
+    <div class="f"><label>설비 위치</label><input id="n_spot" placeholder="예: 3라인 급수펌프 2대"></div>
+  </div>
+  <div class="fr"><div class="f w"><label>통화 내용 · 메모</label><textarea id="n_memo" placeholder="어떤 광고를 봤다고 했는지까지 적어두면 소재 성과가 정확해집니다"></textarea></div></div>
+  <button class="save" id="n_save">접수 등록</button>
+  <span class="msg" id="n_msg"></span>
+</div>
+<div id="leads" style="overflow-x:auto"></div></div>
 
 <div style="text-align:center;margin:4px 0 14px">
 <a class="btn" style="text-decoration:none;display:inline-block" href="/ops/export">리드 내려받기 (CSV)</a></div>
@@ -274,7 +370,8 @@ function render(j){
   document.getElementById('stamp').innerHTML='오늘 접수 <b>'+((S.today||{}).total||0)+'건</b> · '
     +esc(P.label||'')+' <b>'+((S.week||{}).total||0)+'건</b>';
   document.getElementById('kpiRange').textContent=P.label||'';
-  document.getElementById('foot').textContent='갱신 '+new Date(j.generated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
+  LAST=new Date(j.generated).getTime()||Date.now();
+  document.getElementById('foot').textContent='갱신 '+new Date(LAST).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul'})+' · 방금';
   if(!PERIOD.from){document.getElementById('f').value=P.from||'';document.getElementById('t').value=P.to||'';}
 
   var keys=Object.keys(ENVS), nOk=keys.filter(function(k){return cfg[k];}).length;
@@ -480,6 +577,7 @@ function render(j){
       +'<span class="n2">'+esc(r.name)+'</span><span class="ms">'+(r.error?'응답없음':(r.ms?r.ms+'ms':''))+'</span></div>';}).join('')
     :'<div class="empty">점검 이력 없음</div>';
 
+  renderConsult(j);
   renderLeads(j);
 }
 
@@ -527,29 +625,136 @@ function when(ts){var d=new Date(ts),m=Math.floor((new Date()-d)/60000);
   if(m<1)return '방금';if(m<60)return m+'분 전';if(m<1440)return Math.floor(m/60)+'시간 전';
   return new Intl.DateTimeFormat('ko-KR',{month:'numeric',day:'numeric',timeZone:'Asia/Seoul'}).format(d);}
 
-function renderLeads(j){
-  var L=j.leads||[],el=document.getElementById('leads');
-  document.getElementById('pend').textContent=j.pending?('미응대 '+j.pending+'건'):'';
-  if(!L.length){el.innerHTML='<div class="empty">아직 접수가 없습니다</div>';return;}
+var LEADS=[];
+var LOPT={sort:'new',filt:'all',chan:''};
+
+function badge(r){
+  var b=r.entry==='manual'
+    ? '<span class="bdg">수기·전화</span>'
+    : '<span class="bdg form">폼</span>';
+  /* 진동센서 경험 — 유경험은 당일 연락 약속이라 눈에 띄어야 한다 */
+  if(r.exp_group==='유경험')b+='<span class="bdg exp" title="'+esc(r.exp||'')+' · 당일 연락">유경험</span>';
+  else if(r.exp_group==='무경험')b+='<span class="bdg noexp" title="가이드 발송 · 3영업일">무경험</span>';
+  return b;
+}
+
+function applyLeadOpts(L){
+  var out=L.slice();
+  if(LOPT.chan)out=out.filter(function(r){return (r.channel||'')===LOPT.chan;});
+  if(LOPT.filt==='open')out=out.filter(function(r){return !r.handled&&r.type!=='subscribe';});
+  else if(LOPT.filt==='manual')out=out.filter(function(r){return r.entry==='manual';});
+  else if(LOPT.filt==='form')out=out.filter(function(r){return r.entry!=='manual';});
+  else if(LOPT.filt==='won')out=out.filter(function(r){return (r.deal||{}).stage==='수주';});
+  else if(LOPT.filt==='exp')out=out.filter(function(r){return r.exp_group==='유경험';});
+  else if(LOPT.filt==='noexp')out=out.filter(function(r){return r.exp_group==='무경험';});
+  var ts=function(r){return new Date(r.ts).getTime()||0;};
+  var amt=function(r){var d=r.deal||{};return d.quote_amount||r.ltv||0;};
+  if(LOPT.sort==='old')out.sort(function(a,b){return ts(a)-ts(b);});
+  else if(LOPT.sort==='amt')out.sort(function(a,b){return amt(b)-amt(a);});
+  else if(LOPT.sort==='stale')out.sort(function(a,b){
+    var ao=a.handled?1:0,bo=b.handled?1:0;
+    if(ao!==bo)return ao-bo;            /* 미응대 먼저 */
+    return ts(a)-ts(b);});              /* 그중 오래된 것 먼저 */
+  else out.sort(function(a,b){return ts(b)-ts(a);});
+  return out;
+}
+
+function paintLeads(){
+  var el=document.getElementById('leads');
+  var L=applyLeadOpts(LEADS);
+  document.getElementById('lcnt').textContent=L.length+' / '+LEADS.length+'건'
+    +(L.length>60?' · 위 60건 표시':'');
+  if(!L.length){el.innerHTML='<div class="empty">조건에 맞는 접수가 없습니다</div>';return;}
   el.innerHTML='<table class="gr"><tr><th>회사·담당</th><th>소재</th><th>단계</th><th>금액</th><th>경과</th></tr>'
-    +L.slice(0,40).map(function(r){
+    +L.slice(0,60).map(function(r){
       var d=r.deal||{stage:'접수'};
       var utm=(String(r.source||'').match(/utm_content=([^·&\n]+)/)||[,''])[1].trim();
       var who=esc(r.company||r.name||r.email||'-');
       var sub=[r.name&&r.company?esc(r.name):'',esc(r.interest||''),esc(r.asset||'')].filter(Boolean).join(' · ');
+      var site=[esc(r.line||''),esc(r.spot||'')].filter(Boolean).join(' · ');
       var ph=r.phone?'<a class="tel" href="tel:'+esc(r.phone).replace(/[^0-9+]/g,'')+'">'+esc(r.phone)+'</a>':'';
       var money=d.quote_amount?W(d.quote_amount):(r.ltv?W(r.ltv)+(r.ltv_assumed?'*':''):'–');
       var el2=[];
       if(r.days_to_quote!=null)el2.push('견적 '+r.days_to_quote+'일');
       if(r.days_to_win!=null)el2.push('수주 '+r.days_to_win+'일');
-      return '<tr><td><div class="co">'+who+'</div>'+(sub?'<div class="mini2">'+sub+'</div>':'')
+      return '<tr><td><div class="co">'+who+badge(r)+'</div>'+(sub?'<div class="mini2">'+sub+'</div>':'')
         +(ph?'<div class="mini2">'+ph+'</div>':'')
+        +(site?'<div class="mini2">📍 '+site+'</div>':'')
+        +(r.memo?'<div class="mini2">'+esc(String(r.memo).slice(0,110))+'</div>':'')
         +(r.type!=='subscribe'?editor(r):'')+'</td>'
         +'<td class="mono'+(utm?'':' none')+'">'+esc(utm||r.channel||'–')+'</td>'
         +'<td><span class="pill s-'+esc(d.stage)+'">'+esc(d.stage)+'</span>'
         +(r.type!=='subscribe'?'<div style="margin-top:5px"><button class="btn" style="padding:4px 9px;font-size:11px" onclick="toggleEd(\''+esc(r.id)+'\')">기록</button></div>':'')+'</td>'
         +'<td class="mini2">'+money+'</td><td class="mini2">'+(el2.join(' · ')||when(r.ts))+'</td></tr>';}).join('')
     +'</table>';
+}
+
+function renderConsult(j){
+  var c=j.consult||{};
+  var set=function(id,v){var e=document.getElementById(id);if(e&&document.activeElement!==e)e.value=(v==null?'':v);};
+  set('c_month',c.month);set('c_total',c.total);set('c_left',c.left);
+  set('c_deadline',c.deadline);set('c_value',c.value);
+  var t=document.getElementById('csTag');
+  if(c.left!=null){t.className='tag '+(c.left>0?'t-ok':'t-wait');t.textContent='잔여 '+c.left+'개사';}
+  else{t.className='tag t-off';t.textContent='숫자 미설정';}
+}
+document.getElementById('c_save').onclick=function(){
+  var v=function(id){return document.getElementById(id).value.trim();};
+  var m=document.getElementById('c_msg'),b=this;
+  b.disabled=true;m.style.color='var(--mut)';m.textContent='저장 중…';
+  fetch('/ops/consult',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({month:v('c_month'),total:v('c_total'),left:v('c_left'),
+                         deadline:v('c_deadline'),value:v('c_value')})})
+    .then(function(r){return r.json().then(function(o){if(!r.ok)throw new Error(o.error||('HTTP '+r.status));return o;});})
+    .then(function(){m.style.color='var(--up)';m.textContent='저장됨 · 다음 발송분부터 적용';b.disabled=false;
+      setTimeout(function(){m.textContent='';},2500);load();})
+    .catch(function(e){m.style.color='#FF7A7A';m.textContent=e.message;b.disabled=false;});
+};
+
+function renderLeads(j){
+  LEADS=j.leads||[];
+  var man=(j.summary&&j.summary.manual)||0;
+  var S2=j.summary||{};
+  var eb=(S2.exp_yes||0)+(S2.exp_no||0);
+  document.getElementById('pend').textContent=
+    (j.pending?('미응대 '+j.pending+'건'):'')
+    +(eb?(j.pending?' · ':'')+'유경험 '+(S2.exp_yes||0)+' / 무경험 '+(S2.exp_no||0):'');
+  /* 채널 선택지는 실제 들어온 값으로만 채운다 */
+  var sel=document.getElementById('lchan'),had=sel.value;
+  var chans=[];LEADS.forEach(function(r){if(r.channel&&chans.indexOf(r.channel)<0)chans.push(r.channel);});
+  chans.sort();
+  sel.innerHTML='<option value="">채널 전체</option>'
+    +chans.map(function(c){return '<option value="'+esc(c)+'">'+esc(c)+'</option>';}).join('');
+  sel.value=chans.indexOf(had)>=0?had:'';LOPT.chan=sel.value;
+  /* 수기 접수 채널 선택지 */
+  var ns=document.getElementById('n_channel');
+  if(ns&&!ns.options.length){
+    ns.innerHTML=(j.manualChannels||['메타','구글','네이버','카카오','직접','소개','기타'])
+      .map(function(c){return '<option'+(c==='메타'?' selected':'')+'>'+esc(c)+'</option>';}).join('');
+  }
+  paintLeads();
+}
+
+/* 수기 접수 등록 */
+function submitLead(){
+  var v=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+  var m=document.getElementById('n_msg'),btn=document.getElementById('n_save');
+  if(!v('n_company')&&!v('n_name')&&!v('n_phone')&&!v('n_email')){
+    m.style.color='#FF7A7A';m.textContent='회사·담당자·전화·이메일 중 하나는 넣어주세요';return;}
+  btn.disabled=true;m.style.color='var(--mut)';m.textContent='등록 중…';
+  fetch('/ops/lead',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({company:v('n_company'),name:v('n_name'),phone:v('n_phone'),email:v('n_email'),
+      channel:v('n_channel'),type:v('n_type'),date:v('n_date'),utm:v('n_utm'),
+      exp:v('n_exp'),line:v('n_line'),spot:v('n_spot'),
+      interest:v('n_interest'),asset:v('n_asset'),region:v('n_region'),memo:v('n_memo')})})
+    .then(function(r){return r.json().then(function(o){if(!r.ok)throw new Error(o.error||('HTTP '+r.status));return o;});})
+    .then(function(){
+      m.style.color='var(--up)';m.textContent='등록됨';
+      ['n_company','n_name','n_phone','n_email','n_utm','n_interest','n_asset','n_region','n_memo','n_spot']
+        .forEach(function(id){document.getElementById(id).value='';});
+      document.getElementById('n_exp').value='';document.getElementById('n_line').value='';
+      btn.disabled=false;setTimeout(function(){load();m.textContent='';},600);})
+    .catch(function(e){m.style.color='#FF7A7A';m.textContent=e.message;btn.disabled=false;});
 }
 
 Array.prototype.forEach.call(document.querySelectorAll('#rb .btn[data-r]'),function(b){
@@ -562,8 +767,34 @@ document.getElementById('apply').onclick=function(){
   if(!f||!t||f>t){alert('시작일이 종료일보다 늦습니다');return;}
   Array.prototype.forEach.call(document.querySelectorAll('#rb .btn[data-r]'),function(x){x.classList.remove('on');});
   PERIOD={p:'30d',from:f,to:t};load();};
+document.getElementById('newBtn').onclick=function(){
+  var b=document.getElementById('nw');
+  var open=b.style.display==='none';
+  b.style.display=open?'block':'none';
+  this.textContent=open?'접기':'+ 수기 접수';
+  if(open&&!document.getElementById('n_date').value){
+    var d=new Date(Date.now()+9*36e5).toISOString().slice(0,10);
+    document.getElementById('n_date').value=d;
+    document.getElementById('n_company').focus();}
+};
+document.getElementById('n_save').onclick=submitLead;
+document.getElementById('lsort').onchange=function(){LOPT.sort=this.value;paintLeads();};
+document.getElementById('lfilt').onchange=function(){LOPT.filt=this.value;paintLeads();};
+document.getElementById('lchan').onchange=function(){LOPT.chan=this.value;paintLeads();};
+
+/* 자동 갱신 — 30초마다. 마지막 갱신이 언제였는지 항상 보이게 한다. */
+var LAST=0;
+setInterval(function(){
+  var f=document.getElementById('foot');
+  if(!f||!LAST)return;
+  var sec=Math.round((Date.now()-LAST)/1000);
+  f.textContent='갱신 '+new Date(LAST).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul'})
+    +' · '+(sec<60?sec+'초 전':Math.floor(sec/60)+'분 전');
+},1000);
 load();
-setInterval(function(){if(document.visibilityState==='visible')load();},120000);
+setInterval(function(){if(document.visibilityState==='visible')load();},30000);
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&Date.now()-LAST>15000)load();});
 </script>
 </body>
 </html>

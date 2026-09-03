@@ -1293,11 +1293,15 @@ function deliverPdf(url){
 }
 
 /* 이메일을 확인받고 10분짜리 서명 링크를 발급받는다 (사이트 공통 방식) */
-function issueDocLink(email){
+function issueDocLink(email, who){
+  /* 회사·담당자를 같이 보내면 안내 메일이 "(주)○○ / 김○○ 님께" 로 시작한다.
+     비어 있어도 발송에는 지장이 없다. */
+  who = who || {};
   return fetch(CONFIG.DOC_API, {
     method : 'POST',
     headers: {'Content-Type':'application/json'},
-    body   : JSON.stringify({token: CONFIG.DOC_TOKEN, email: email, title: CONFIG.DOC_TITLE})
+    body   : JSON.stringify({token: CONFIG.DOC_TOKEN, email: email, title: CONFIG.DOC_TITLE,
+                             company: who.company || '', name: who.name || ''})
   }).then(function(r){ return r.json(); })
     .then(function(j){
       if (!j || !j.ok || !j.url) throw new Error(j && j.error || 'issue_failed');
@@ -1319,7 +1323,7 @@ function requestPdf(e){
   if (e) e.preventDefault();
   var known = alreadyKnown();
   if (known){
-    issueDocLink(known.이메일).then(deliverPdf).catch(function(){ deliverPdf(); });
+    issueDocLink(known.이메일, {company: known.회사명, name: known.이름}).then(deliverPdf).catch(function(){ deliverPdf(); });
     track('download', {content_name:'예지보전 제안 가이드', repeat:'Y'});
     showThanks('다시 보내드렸습니다',
       known.이름 ? (known.이름 + '님, 이미 정보를 남겨주셔서 바로 드렸습니다.') : null);
@@ -1335,7 +1339,7 @@ var again = document.getElementById('dlAgain');
 if (again) again.addEventListener('click', function(e){
   e.preventDefault();
   var k = alreadyKnown();
-  if (k) issueDocLink(k.이메일).then(deliverPdf).catch(function(){ deliverPdf(); });
+  if (k) issueDocLink(k.이메일, {company: k.회사명, name: k.이름}).then(deliverPdf).catch(function(){ deliverPdf(); });
   else   deliverPdf();
 });
 
@@ -1645,7 +1649,7 @@ fmForm.addEventListener('submit', function(e){
 
   /* ① 자료 전달 — 서명 링크 발급, 실패해도 예비 경로로 반드시 드립니다 */
   var deliver = isDoc
-    ? issueDocLink(d.이메일)
+    ? issueDocLink(d.이메일, {company: d.회사명, name: d.이름})
         .then(function(url){ window.__lastDocUrl = url; deliverPdf(url); })
         .catch(function(){ deliverPdf(); })
     : Promise.resolve();
