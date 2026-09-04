@@ -11,594 +11,201 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<style>
-:root{
-  --ground:#F6F7F4; --surface:#FFFFFF; --surface-2:#EEF1EB;
-  --line:#DBE0D6; --line-strong:#C3CBBE;
-  --ink:#141A17; --ink-2:#5A655E; --ink-3:#8C958D;
-  --accent:#0B6B4F; --accent-hover:#095740; --accent-ink:#FFFFFF; --accent-soft:#E2EFE9;
-  --signal:#9A5B12; --signal-soft:#F5EADA; --danger:#A03A2B; --danger-soft:#F7E7E3;
-  --shadow:0 1px 2px rgba(20,26,23,.06), 0 8px 24px -16px rgba(20,26,23,.28);
-  --radius:10px;
-  --mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
-  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ground:#0E1311; --surface:#161D1A; --surface-2:#1D2622;
-    --line:#2B3531; --line-strong:#3C4842;
-    --ink:#E7EDE9; --ink-2:#9CA8A2; --ink-3:#6C7872;
-    --accent:#3FBF92; --accent-hover:#57D0A6; --accent-ink:#07130E; --accent-soft:#15291F;
-    --signal:#D9A05A; --signal-soft:#2A2117; --danger:#E08872; --danger-soft:#2A1714;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
-  }
-}
-:root[data-theme="dark"]{
-  --ground:#0E1311; --surface:#161D1A; --surface-2:#1D2622;
-  --line:#2B3531; --line-strong:#3C4842;
-  --ink:#E7EDE9; --ink-2:#9CA8A2; --ink-3:#6C7872;
-  --accent:#3FBF92; --accent-hover:#57D0A6; --accent-ink:#07130E; --accent-soft:#15291F;
-  --signal:#D9A05A; --signal-soft:#2A2117; --danger:#E08872; --danger-soft:#2A1714;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
-}
-
-*{box-sizing:border-box}
-html{color-scheme:light dark}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
-  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all}
-button{font-family:inherit;font-size:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
-[hidden]{display:none!important}
-.wrap{max-width:1080px;margin:0 auto;padding:26px 20px 64px;overflow-x:hidden}
-
-.masthead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
-  padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:22px}
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand a{text-decoration:none}
-.brand-mark{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.14em;
-  color:var(--accent);text-transform:uppercase}
-.brand-name{font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-.masthead-meta{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.06em}
-
-.banner{border:1px solid var(--line);background:var(--signal-soft);border-left:3px solid var(--signal);
-  border-radius:6px;padding:10px 14px;font-size:13px;color:var(--ink-2);margin-bottom:18px}
-.banner b{color:var(--ink)}
-
-.stage{display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
-.stage > *{min-width:0}
-@media (min-width:920px){.stage{grid-template-columns:288px minmax(0,1fr);gap:32px;align-items:start}}
-
-.brief{display:flex;flex-direction:column;gap:18px}
-.brief h1{margin:0;font-size:27px;line-height:1.28;font-weight:600;letter-spacing:-.02em;text-wrap:balance}
-.brief p.lede{margin:0;color:var(--ink-2);font-size:14px;max-width:38ch}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ink-3);margin:0 0 8px}
-
-.agenda{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.agenda li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:baseline;
-  padding:8px 0;border-bottom:1px dashed var(--line);font-size:13.5px;color:var(--ink-2)}
-.agenda li:last-child{border-bottom:0}
-.agenda li span:first-child{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent)}
-
-.factsheet{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:9px;margin:0}
-.fact{display:grid;grid-template-columns:74px 1fr;gap:12px;font-size:13px;align-items:baseline}
-.fact dt{color:var(--ink-3);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em}
-.fact dd{margin:0;color:var(--ink-2)}
-.freetag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
-  color:var(--accent);background:var(--accent-soft);border-radius:3px;padding:2px 7px}
-
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);overflow:hidden}
-.step{border-bottom:1px solid var(--line)}
-.step:last-child{border-bottom:0}
-.step-head{display:flex;align-items:center;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
-.step-no{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);
-  background:var(--accent-soft);border-radius:3px;padding:2px 6px;letter-spacing:.08em}
-.step-title{font-size:13.5px;font-weight:500}
-.step-note{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right}
-.step-body{padding:12px 18px 18px;min-width:0;overflow:hidden}
-
-/* 보기 전환 */
-.viewtabs{display:flex;gap:0;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-left:12px}
-.viewtabs button{border:0;background:transparent;padding:5px 12px;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
-.viewtabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:500}
-
-/* 월 달력 */
-.calbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-.calbar .m{font-family:var(--mono);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
-.calnav{display:flex;gap:6px}
-.calnav button{border:1px solid var(--line);background:var(--surface);border-radius:6px;
-  width:32px;height:30px;cursor:pointer;color:var(--ink-2);font-size:15px;line-height:1}
-.calnav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.calnav button:disabled{opacity:.35;cursor:not-allowed}
-.calhead{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
-.calhead span{text-align:center;font-size:11.5px;color:var(--ink-3);padding:2px 0}
-.calhead span.s{color:var(--danger)}
-.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cell{min-height:62px;border:1px solid transparent;border-radius:8px;background:var(--surface-2);
-  padding:6px 4px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;
-  cursor:pointer;transition:border-color .12s,background .12s}
-.cell.blank{background:transparent;cursor:default;min-height:0;border:0}
-.cell .n{font-family:var(--mono);font-size:16px;font-weight:500;line-height:1.15}
-.cell .t{font-family:var(--mono);font-size:10px;color:var(--accent);line-height:1.2}
-.cell .r{font-size:9.5px;color:var(--ink-3);line-height:1.2;text-align:center;
-  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cell:hover:not(:disabled):not(.blank){border-color:var(--line-strong)}
-.cell:disabled{opacity:.5;cursor:not-allowed;background:transparent}
-.cell.sun .n,.cell.hol .n{color:var(--danger)}
-.cell.sat .n{color:var(--ink-2)}
-.cell.hol .r{color:var(--danger)}
-.cell[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
-.cell[aria-pressed="true"] .n,.cell[aria-pressed="true"] .t,.cell[aria-pressed="true"] .r{color:var(--accent-ink)}
-.callegend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--ink-3)}
-.callegend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
-
-/* 주간 스트립 */
-.daystrip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:thin}
-.day{flex:0 0 auto;width:76px;background:var(--surface-2);border:1px solid transparent;
-  border-radius:var(--radius);padding:9px 6px;cursor:pointer;text-align:center;
-  display:flex;flex-direction:column;gap:2px;transition:border-color .14s,background .14s}
-.day:hover:not(:disabled){border-color:var(--line-strong)}
-.day .dow{font-size:11.5px;color:var(--ink-3)}
-.day .dnum{font-family:var(--mono);font-size:19px;font-weight:500;line-height:1.1}
-.day .cnt{font-family:var(--mono);font-size:10.5px;color:var(--accent);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.day:disabled{opacity:.45;cursor:not-allowed}
-.day:disabled .cnt{color:var(--ink-3)}
-.day.hol:disabled .cnt{color:var(--danger)}
-.day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
-.day[aria-pressed="true"] .dow,.day[aria-pressed="true"] .dnum,.day[aria-pressed="true"] .cnt{color:var(--accent-ink)}
-.day.sat .dnum{color:var(--ink-2)}
-.day.sun .dnum,.day.hol .dnum{color:var(--danger)}
-.day[aria-pressed="true"].sun .dnum,.day[aria-pressed="true"].sat .dnum{color:var(--accent-ink)}
-
-.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
-.slot{font-family:var(--mono);font-size:13.5px;font-variant-numeric:tabular-nums;
-  background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:9px 4px;
-  cursor:pointer;transition:border-color .14s,background .14s,color .14s}
-.slot:hover{border-color:var(--accent);color:var(--accent)}
-.slot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.empty{font-size:13.5px;color:var(--ink-3);padding:14px 0;margin:0}
-
-.form{display:grid;gap:12px;grid-template-columns:1fr}
-@media (min-width:640px){.form{grid-template-columns:1fr 1fr}}
-.field{display:flex;flex-direction:column;gap:5px;min-width:0}
-.field.full{grid-column:1/-1}
-.field label{font-size:12px;color:var(--ink-2);font-weight:500}
-.field label .req{color:var(--danger);margin-left:2px}
-.field label .sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink-3);margin-top:2px;line-height:1.45}
-.field input,.field textarea,.field select{font-family:inherit;font-size:14px;color:var(--ink);
-  background:var(--ground);border:1px solid var(--line);border-radius:7px;padding:9px 11px;width:100%}
-.field textarea{resize:vertical;min-height:74px;line-height:1.55}
-.field input::placeholder,.field textarea::placeholder{color:var(--ink-3)}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none}
-
-.divider{grid-column:1/-1;display:flex;align-items:center;gap:12px;margin:6px 0 0}
-.divider span{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-3);white-space:nowrap}
-.divider::after{content:"";flex:1;height:1px;background:var(--line)}
-.divider .why{font-family:var(--sans);font-size:12px;letter-spacing:0;text-transform:none;
-  color:var(--ink-3);white-space:normal}
-
-.choices{display:flex;flex-wrap:wrap;gap:8px}
-.choices label{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink);
-  background:var(--ground);border:1px solid var(--line);border-radius:7px;padding:8px 13px;cursor:pointer}
-.choices input{width:auto;padding:0;accent-color:var(--accent)}
-.choices label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-
-.summary{grid-column:1/-1;background:var(--surface-2);border-radius:8px;padding:11px 13px;
-  font-family:var(--mono);font-size:13px;color:var(--ink-2);display:flex;gap:10px;flex-wrap:wrap;
-  font-variant-numeric:tabular-nums}
-.summary b{color:var(--ink);font-weight:600}
-
-.actions{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:2px}
-.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);
-  border-radius:7px;padding:10px 20px;font-weight:500;font-size:14px;cursor:pointer;
-  text-decoration:none;display:inline-block;transition:background .14s,border-color .14s}
-.btn:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
-.btn.ghost:hover{background:var(--surface-2);border-color:var(--ink-3)}
-.btn.sm{padding:6px 12px;font-size:12.5px}
-.hint{font-size:12.5px;color:var(--ink-3)}
-.err{font-size:13px;color:var(--danger)}
-
-.done{padding:30px 22px;display:flex;flex-direction:column;gap:16px;align-items:flex-start}
-.done .tick{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:3px}
-.done h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.015em}
-.done .when{font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums;color:var(--ink)}
-.done p{margin:0;color:var(--ink-2);font-size:14px;max-width:54ch}
-.callout{background:var(--accent-soft);border-radius:8px;padding:13px 15px;font-size:14px;
-  color:var(--ink);max-width:54ch;line-height:1.6}
-.callout b{color:var(--accent)}
-.code{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--ink-2)}
-.done-links{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-a.linkbtn,button.linkbtn{border:1px solid var(--line-strong);border-radius:7px;padding:9px 16px;
-  font-size:13.5px;text-decoration:none;color:var(--ink);background:var(--surface);cursor:pointer}
-a.linkbtn:hover,button.linkbtn:hover{border-color:var(--accent);color:var(--accent)}
-#draftBox{width:100%;min-height:200px;font-family:var(--mono);font-size:12.5px;line-height:1.7;
-  background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:12px;color:var(--ink)}
-
-/* 담당자 화면 */
-.admin-grid{display:grid;gap:20px;grid-template-columns:1fr}
-.admin-grid > *{min-width:0}
-@media (min-width:920px){.admin-grid{grid-template-columns:minmax(0,1fr) 340px;align-items:start}}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-  padding:18px;display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
-.card h3{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em}
-.card h3 .sub{display:block;font-weight:400;font-size:12.5px;color:var(--ink-3);margin-top:3px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.dows{display:flex;gap:6px;flex-wrap:wrap}
-.dow-chip{font-family:var(--mono);font-size:13px;width:38px;padding:8px 0;text-align:center;
-  border:1px solid var(--line);border-radius:6px;background:var(--ground);cursor:pointer}
-.dow-chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.chiplist{display:flex;flex-wrap:wrap;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;
-  background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
-.chip button{border:0;background:transparent;color:var(--danger);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
-.chip .memo{font-family:var(--sans);color:var(--ink-3)}
-.holgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 12px;
-  font-size:12.5px;color:var(--ink-2);max-height:172px;overflow-y:auto;padding-right:4px}
-.holgrid b{font-family:var(--mono);color:var(--ink);font-weight:500;margin-right:6px}
-.preview{display:flex;flex-direction:column;gap:0}
-.pv-row{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;
-  padding:7px 0;border-bottom:1px dashed var(--line)}
-.pv-row:last-child{border-bottom:0}
-.pv-row .k{color:var(--ink-2)}
-.pv-row .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
-.linkout{width:100%;font-family:var(--mono);font-size:12px;background:var(--surface-2);
-  border:1px solid var(--line);border-radius:7px;padding:10px;min-height:76px;color:var(--ink);resize:vertical}
-.statline{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px}
-.stat{display:flex;flex-direction:column}
-.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.stat .v{font-family:var(--mono);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
-
-/* 회수 안내 팝업 */
-.linkish{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--accent);
-  text-decoration:underline;text-underline-offset:2px;cursor:pointer}
-.linkish:hover{color:var(--accent-hover)}
-dialog#retDlg{border:1px solid var(--line);border-radius:var(--radius);padding:0;max-width:440px;
-  width:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
-dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
-.dlg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-  padding:18px 20px 0}
-.dlg-head h3{margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em}
-.dlg-head h3 .sub{display:block;font-weight:400;font-size:12.5px;color:var(--ink-3);margin-top:4px}
-.dlg-x{border:0;background:transparent;color:var(--ink-3);font-size:20px;line-height:1;
-  cursor:pointer;padding:2px 4px}
-.dlg-x:hover{color:var(--ink)}
-.dlg-body{padding:14px 20px 20px;display:flex;flex-direction:column;gap:14px}
-.retbox{background:var(--surface-2);border-radius:8px;padding:13px 15px;display:flex;
-  flex-direction:column;gap:7px}
-.retrow{display:grid;grid-template-columns:62px 1fr;gap:12px;font-size:13.5px;align-items:baseline}
-.retrow dt{color:var(--ink-3);font-family:var(--mono);font-size:11.5px;letter-spacing:.05em}
-.retrow dd{margin:0;color:var(--ink)}
-.retrow dd.addr{font-weight:500;line-height:1.5}
-.retrow dd .zip{font-family:var(--mono);color:var(--ink-2);font-size:12.5px}
-.retsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
-.retsteps li{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:13.5px;color:var(--ink-2);
-  padding:7px 0;border-bottom:1px dashed var(--line)}
-.retsteps li:last-child{border-bottom:0}
-.retsteps li span:first-child{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent)}
-.dlg-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-.foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);
-  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3)}
-.foot a{color:var(--ink-3)}
-</style>
+<link rel="stylesheet" href="/visit.css">
 </head>
 <body>
 <div class="wrap">
   <header class="masthead">
     <div class="brand">
       <a href="/" class="brand-mark">Monnit Korea</a>
-      <span class="brand-name" id="brandName">현장 진단 예약</span>
+      <span class="brand-name">현장 진단 예약</span>
     </div>
     <div class="masthead-meta">ASIA/SEOUL · KST (UTC+9)</div>
   </header>
 
-  <div id="banner" class="banner" hidden></div>
-
-  
-  <div id="view-book">
-    <div class="stage">
-      <aside class="brief">
-        <div>
-          <h1>현장 진단 한 번이면 어디에 붙일지 정해집니다.</h1>
-          <p class="lede">담당자가 현장에서 진동을 계측하고 센서 부착 위치를 정한 뒤, 그날 설치해 한 달간 데이터를 수집합니다. 진단과 체험 모두 비용이 발생하지 않습니다.</p>
-        </div>
-        <div>
-          <p class="eyebrow">방문 개요</p>
-          <ol class="agenda">
-            <li><span>01</span><span>대상 설비 확인</span></li>
-            <li><span>02</span><span>진동 계측 및 이상 징후 진단</span></li>
-            <li><span>03</span><span>센서 부착 위치 선정</span></li>
-            <li><span>04</span><span>센서 설치 · 데이터 수집 시작</span></li>
-            <li><span>05</span><span>체험 종료 후 센서 회수 (택배 반품)<br>
-              <button type="button" class="linkish" data-ret>회수 방법 보기</button></span></li>
-          </ol>
-        </div>
-        <dl class="factsheet">
-          <div class="fact"><dt>소요</dt><dd id="factDur">1시간</dd></div>
-          <div class="fact"><dt>체험</dt><dd>설치일부터 1개월간 데이터 수집</dd></div>
-          <div class="fact"><dt>비용</dt><dd><span class="freetag">진단 · 체험 무료</span></dd></div>
-          <div class="fact"><dt>문의</dt><dd>korea@monnit.com</dd></div>
-        </dl>
-      </aside>
-
-      <section>
-        <div class="panel" id="flow">
-          <div class="step">
-            <div class="step-head">
-              <span class="step-no">01</span><span class="step-title">날짜 선택</span>
-              <div class="viewtabs" role="group" aria-label="날짜 보기 방식">
-                <button type="button" id="tabCal" aria-pressed="true">월 달력</button>
-                <button type="button" id="tabStrip" aria-pressed="false">주간 보기</button>
-              </div>
-              <span class="step-note" id="horizonNote"></span>
-            </div>
-            <div class="step-body">
-              <div id="calWrap">
-                <div class="calbar">
-                  <span class="m" id="calMonthLabel"></span>
-                  <span class="calnav">
-                    <button type="button" id="calPrev" aria-label="이전 달">‹</button>
-                    <button type="button" id="calNext" aria-label="다음 달">›</button>
-                  </span>
-                </div>
-                <div class="calhead">
-                  <span class="s">일</span><span>월</span><span>화</span><span>수</span>
-                  <span>목</span><span>금</span><span class="s">토</span>
-                </div>
-                <div class="calgrid" id="calGrid"></div>
-                <div class="callegend">
-                  <span><i style="background:var(--accent)"></i>선택한 날</span>
-                  <span><i style="background:var(--surface-2);border:1px solid var(--line-strong)"></i>예약 가능</span>
-                  <span><i style="background:transparent;border:1px solid var(--line)"></i>예약 불가</span>
-                  <span style="color:var(--danger)">붉은 글씨는 공휴일입니다</span>
-                </div>
-              </div>
-              <div class="daystrip" id="daystrip" hidden></div>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-head">
-              <span class="step-no">02</span><span class="step-title">시간 선택</span>
-              <span class="step-note" id="slotNote"></span>
-            </div>
-            <div class="step-body"><div id="slotarea"></div></div>
-          </div>
-
-          <div class="step" id="step3">
-            <div class="step-head">
-              <span class="step-no">03</span><span class="step-title">담당자 · 설비 정보</span>
-              <span class="step-note" id="formNote">시간을 먼저 선택해 주세요</span>
-            </div>
-            <div class="step-body">
-              <form class="form" id="bookform" novalidate>
-                <div class="summary" id="summary" hidden></div>
-
-                <div class="field">
-                  <label for="f-company">회사명<span class="req">*</span></label>
-                  <input id="f-company" placeholder="예) 모넷코리아" autocomplete="organization">
-                </div>
-                <div class="field">
-                  <label for="f-name">담당자 성함 / 직함<span class="req">*</span></label>
-                  <input id="f-name" placeholder="예) 홍길동 과장" autocomplete="name">
-                </div>
-                <div class="field">
-                  <label for="f-email">이메일<span class="req">*</span></label>
-                  <input id="f-email" type="email" placeholder="name@company.co.kr" autocomplete="email">
-                </div>
-                <div class="field">
-                  <label for="f-phone">연락처<span class="req">*</span></label>
-                  <input id="f-phone" placeholder="010-0000-0000" autocomplete="tel">
-                </div>
-                <div class="field full">
-                  <label for="f-place">방문 사업장 주소<span class="req">*</span>
-                    <span class="sub">본사가 아닌 실제 설비가 있는 공장 주소를 적어 주세요.</span>
-                  </label>
-                  <input id="f-place" placeholder="예) 경기도 안산시 단원구 원시로 000, 2공장">
-                </div>
-
-                <div class="divider">
-                  <span>설비 정보</span>
-                  <span class="why">현장에서 확인할 항목을 미리 좁히기 위해 필요합니다.</span>
-                </div>
-
-                <div class="field full">
-                  <label>진동센서 또는 진동 계측장비를 사용해 보셨습니까?<span class="req">*</span></label>
-                  <div class="choices" id="expGroup">
-                    <label><input type="radio" name="exp" value="현재 사용 중"> 현재 사용 중</label>
-                    <label><input type="radio" name="exp" value="사용한 적 있음"> 사용한 적 있음</label>
-                    <label><input type="radio" name="exp" value="사용 경험 없음"> 사용 경험 없음</label>
-                  </div>
-                </div>
-
-                <div class="field full">
-                  <label for="f-equipment">센서 설치를 희망하시는 설비와 라인<span class="req">*</span>
-                    <span class="sub">예) 3라인 급수펌프 2대(15kW), 집진 팬 1대, 컴프레서 1대</span>
-                  </label>
-                  <textarea id="f-equipment"></textarea>
-                </div>
-
-                <div class="field full">
-                  <label for="f-symptom">해당 설비에서 가장 확인하고 싶은 것<span class="req">*</span>
-                    <span class="sub">예) 베어링 소음이 커졌는데 언제 교체해야 할지 모르겠다 / 축 정렬 불량이 의심된다</span>
-                  </label>
-                  <textarea id="f-symptom"></textarea>
-                </div>
-
-                <div class="field full">
-                  <label for="f-process">대상 설비의 대략적인 공정 프로세스<span class="req">*</span>
-                    <span class="sub">전공정 → 대상 설비 → 후공정 순서로 간단히 적어 주세요.
-                      예) 원료 투입 → 혼합기 → <b>이송 펌프(대상)</b> → 성형기 → 건조 → 포장</span>
-                  </label>
-                  <textarea id="f-process"></textarea>
-                </div>
-
-                <div class="field full">
-                  <label for="f-access">현장 출입 절차
-                    <span class="sub">안전교육 이수, 출입증 사전 신청, 방문 시간 제한 등이 있으면 알려 주세요.</span>
-                  </label>
-                  <textarea id="f-access" style="min-height:60px"></textarea>
-                </div>
-
-                <div class="field full">
-                  <label for="f-etc">그 밖에 미리 알아야 할 사항</label>
-                  <textarea id="f-etc" style="min-height:60px"></textarea>
-                </div>
-
-                <div class="actions">
-                  <button type="submit" class="btn" id="submitBtn" disabled>현장 진단 예약하기</button>
-                  <span class="hint" id="formHint"></span>
-                </div>
-                <div class="actions"><span class="err" id="formErr" hidden></span></div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel done" id="donecard" hidden>
-          <span class="tick" id="doneTick">접수 완료</span>
-          <h2 id="doneTitle"></h2>
-          <div class="when" id="doneWhen"></div>
-          <div class="callout" id="doneCallout"></div>
-          <p id="doneMsg"></p>
-          <div class="code" id="doneCode"></div>
-          <div class="done-links">
-            <a class="btn" id="mailBtn" href="#" hidden>예약 요청 메일 보내기</a>
-            <a class="linkbtn" id="gcalLink" target="_blank" rel="noopener">Google 캘린더에 추가</a>
-            <button class="linkbtn" id="icsBtn" type="button">.ics 파일 저장</button>
-            <button class="linkbtn" id="copyBtn" type="button">내용 복사</button>
-            <button class="linkbtn" type="button" data-ret>회수 방법 보기</button>
-          </div>
-          <textarea id="draftBox" readonly spellcheck="false" hidden></textarea>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  
-  <div id="view-admin" hidden>
-    <div class="statline">
-      <div class="stat"><span class="k">공개 기간 내 슬롯</span><span class="v" id="stSlots">–</span></div>
-      <div class="stat"><span class="k">방문 가능일</span><span class="v" id="stDays">–</span></div>
-      <div class="stat"><span class="k">첫 방문 가능일</span><span class="v" id="stFirst">–</span></div>
-      <div class="stat"><span class="k">제외된 날</span><span class="v" id="stClosed">–</span></div>
-    </div>
-
-    <div class="admin-grid">
+  <div class="stage">
+    <aside class="brief">
       <div>
-        <div class="card">
-          <h3>근무 조건
-            <span class="sub">여기서 정한 값이 고객 화면의 선택 가능한 시간을 그대로 결정합니다.</span>
-          </h3>
-          <div class="field"><label>방문 가능 요일</label><div class="dows" id="dowset"></div></div>
-          <div class="row2">
-            <div class="field"><label for="s-start">업무 시작</label><input id="s-start" type="time"></div>
-            <div class="field"><label for="s-end">업무 종료</label><input id="s-end" type="time"></div>
+        <h1>현장 진단 한 번이면 어디에 붙일지 정해집니다.</h1>
+        <p class="lede">담당자가 현장에서 진동을 계측하고 센서 부착 위치를 정한 뒤, 그날 설치해 한 달간 데이터를 수집합니다. 진단과 체험 모두 비용이 발생하지 않습니다.</p>
+      </div>
+      <div>
+        <p class="eyebrow">방문 개요</p>
+        <ol class="agenda">
+          <li><span>01</span><span>대상 설비 확인</span></li>
+          <li><span>02</span><span>진동 계측 및 이상 징후 진단</span></li>
+          <li><span>03</span><span>센서 부착 위치 선정</span></li>
+          <li><span>04</span><span>센서 설치 · 데이터 수집 시작</span></li>
+          <li><span>05</span><span>체험 종료 후 센서 회수 (택배 반품)<br>
+            <button type="button" class="linkish" data-ret>회수 방법 보기</button></span></li>
+        </ol>
+      </div>
+      <dl class="factsheet">
+        <div class="fact"><dt>소요</dt><dd id="factDur">1시간</dd></div>
+        <div class="fact"><dt>체험</dt><dd>설치일부터 1개월간 데이터 수집</dd></div>
+        <div class="fact"><dt>비용</dt><dd><span class="freetag">진단 · 체험 무료</span></dd></div>
+        <div class="fact"><dt>문의</dt><dd>korea@monnit.com</dd></div>
+      </dl>
+    </aside>
+
+    <section>
+      <div class="panel" id="flow">
+        <div class="step">
+          <div class="step-head">
+            <span class="step-no">01</span><span class="step-title">날짜 선택</span>
+            <div class="viewtabs" role="group" aria-label="날짜 보기 방식">
+              <button type="button" id="tabCal" aria-pressed="true">월 달력</button>
+              <button type="button" id="tabStrip" aria-pressed="false">주간 보기</button>
+            </div>
+            <span class="step-note" id="horizonNote"></span>
           </div>
-          <div class="row2">
-            <div class="field"><label for="s-lstart">점심 시작</label><input id="s-lstart" type="time"></div>
-            <div class="field"><label for="s-lend">점심 종료</label><input id="s-lend" type="time"></div>
+          <div class="step-body">
+            <div id="calWrap">
+              <div class="calbar">
+                <span class="m" id="calMonthLabel"></span>
+                <span class="calnav">
+                  <button type="button" id="calPrev" aria-label="이전 달">‹</button>
+                  <button type="button" id="calNext" aria-label="다음 달">›</button>
+                </span>
+              </div>
+              <div class="calhead">
+                <span class="s">일</span><span>월</span><span>화</span><span>수</span>
+                <span>목</span><span>금</span><span class="s">토</span>
+              </div>
+              <div class="calgrid" id="calGrid"></div>
+              <div class="callegend">
+                <span><i style="background:var(--accent)"></i>선택한 날</span>
+                <span><i style="background:var(--surface-2);border:1px solid var(--line-strong)"></i>예약 가능</span>
+                <span><i style="background:transparent;border:1px solid var(--line)"></i>예약 불가</span>
+                <span style="color:var(--danger)">붉은 글씨는 공휴일입니다</span>
+              </div>
+            </div>
+            <div class="daystrip" id="daystrip" hidden></div>
           </div>
-          <div class="row3">
-            <div class="field"><label for="s-mins">방문 소요(분)</label><input id="s-mins" type="number" min="15" max="480" step="15"></div>
-            <div class="field"><label for="s-buffer">이동 버퍼(분)</label><input id="s-buffer" type="number" min="0" max="240" step="15"></div>
-            <div class="field"><label for="s-gran">슬롯 간격(분)</label><input id="s-gran" type="number" min="15" max="120" step="15"></div>
-          </div>
-          <div class="row3">
-            <div class="field"><label for="s-lead">최소 리드타임(시간)</label><input id="s-lead" type="number" min="0" max="720"></div>
-            <div class="field"><label for="s-hor">공개 기간(일)</label><input id="s-hor" type="number" min="1" max="120"></div>
-            <div class="field"><label for="s-max">하루 최대 건수</label><input id="s-max" type="number" min="1" max="10"></div>
-          </div>
-          <p class="hint">리드타임은 사전 통화에 필요한 시간입니다. 영업일 3~4일을 확보하려면 72시간 이상으로 두세요.</p>
         </div>
 
-        <div class="card">
-          <h3>휴무일 추가
-            <span class="sub">휴가, 출장, 전사 행사처럼 하루 전체를 비워야 하는 날입니다. 공휴일은 자동으로 빠집니다.</span>
-          </h3>
-          <div class="row2">
-            <div class="field"><label for="c-date">날짜</label><input id="c-date" type="date"></div>
-            <div class="field"><label for="c-memo">메모 (선택)</label><input id="c-memo" placeholder="예) 하계 휴가"></div>
+        <div class="step">
+          <div class="step-head">
+            <span class="step-no">02</span><span class="step-title">시간 선택</span>
+            <span class="step-note" id="slotNote"></span>
           </div>
-          <div class="actions"><button class="btn sm" id="addClosed" type="button">휴무일 추가</button></div>
-          <div class="chiplist" id="closedList"></div>
+          <div class="step-body"><div id="slotarea"></div></div>
         </div>
 
-        <div class="card">
-          <h3>시간대 차단
-            <span class="sub">이미 잡힌 미팅이나 확정된 방문처럼 하루 중 일부만 막을 때 씁니다. 확정된 예약도 여기에 넣어 두면 이중 예약이 생기지 않습니다.</span>
-          </h3>
-          <div class="row3">
-            <div class="field"><label for="b-date">날짜</label><input id="b-date" type="date"></div>
-            <div class="field"><label for="b-start">시작</label><input id="b-start" type="time"></div>
-            <div class="field"><label for="b-end">종료</label><input id="b-end" type="time"></div>
+        <div class="step" id="step3">
+          <div class="step-head">
+            <span class="step-no">03</span><span class="step-title">담당자 · 설비 정보</span>
+            <span class="step-note" id="formNote">시간을 먼저 선택해 주세요</span>
           </div>
-          <div class="field"><label for="b-memo">메모 (선택)</label><input id="b-memo" placeholder="예) LG 가산 방문"></div>
-          <div class="actions"><button class="btn sm" id="addBlock" type="button">시간 차단 추가</button></div>
-          <div class="chiplist" id="blockList"></div>
-        </div>
+          <div class="step-body">
+            <form class="form" id="bookform" novalidate>
+              <div class="summary" id="summary" hidden></div>
 
-        <div class="card">
-          <h3>자동 제외되는 공휴일
-            <span class="sub">대한민국 관공서 공휴일과 대체공휴일입니다. 별도로 넣지 않아도 예약 화면에서 빠집니다.</span>
-          </h3>
-          <div class="holgrid" id="holList"></div>
+              <div class="field">
+                <label for="f-company">회사명<span class="req">*</span></label>
+                <input id="f-company" placeholder="예) 모넷코리아" autocomplete="organization">
+              </div>
+              <div class="field">
+                <label for="f-name">담당자 성함 / 직함<span class="req">*</span></label>
+                <input id="f-name" placeholder="예) 홍길동 과장" autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="f-email">이메일<span class="req">*</span></label>
+                <input id="f-email" type="email" placeholder="name@company.co.kr" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="f-phone">연락처<span class="req">*</span></label>
+                <input id="f-phone" placeholder="010-0000-0000" autocomplete="tel">
+              </div>
+              <div class="field full">
+                <label for="f-place">방문 사업장 주소<span class="req">*</span>
+                  <span class="sub">본사가 아닌 실제 설비가 있는 공장 주소를 적어 주세요.</span>
+                </label>
+                <input id="f-place" placeholder="예) 경기도 안산시 단원구 원시로 000, 2공장">
+              </div>
+
+              <div class="divider">
+                <span>설비 정보</span>
+                <span class="why">현장에서 확인할 항목을 미리 좁히기 위해 필요합니다.</span>
+              </div>
+
+              <div class="field full">
+                <label>진동센서 또는 진동 계측장비를 사용해 보셨습니까?<span class="req">*</span></label>
+                <div class="choices" id="expGroup">
+                  <label><input type="radio" name="exp" value="현재 사용 중"> 현재 사용 중</label>
+                  <label><input type="radio" name="exp" value="사용한 적 있음"> 사용한 적 있음</label>
+                  <label><input type="radio" name="exp" value="사용 경험 없음"> 사용 경험 없음</label>
+                </div>
+              </div>
+
+              <div class="field full">
+                <label for="f-equipment">센서 설치를 희망하시는 설비와 라인<span class="req">*</span>
+                  <span class="sub">예) 3라인 급수펌프 2대(15kW), 집진 팬 1대, 컴프레서 1대</span>
+                </label>
+                <textarea id="f-equipment"></textarea>
+              </div>
+
+              <div class="field full">
+                <label for="f-symptom">해당 설비에서 가장 확인하고 싶은 것<span class="req">*</span>
+                  <span class="sub">예) 베어링 소음이 커졌는데 언제 교체해야 할지 모르겠다 / 축 정렬 불량이 의심된다</span>
+                </label>
+                <textarea id="f-symptom"></textarea>
+              </div>
+
+              <div class="field full">
+                <label for="f-process">대상 설비의 대략적인 공정 프로세스<span class="req">*</span>
+                  <span class="sub">전공정 → 대상 설비 → 후공정 순서로 간단히 적어 주세요.
+                    예) 원료 투입 → 혼합기 → <b>이송 펌프(대상)</b> → 성형기 → 건조 → 포장</span>
+                </label>
+                <textarea id="f-process"></textarea>
+              </div>
+
+              <div class="field full">
+                <label for="f-access">현장 출입 절차
+                  <span class="sub">안전교육 이수, 출입증 사전 신청, 방문 시간 제한 등이 있으면 알려 주세요.</span>
+                </label>
+                <textarea id="f-access" style="min-height:60px"></textarea>
+              </div>
+
+              <div class="field full">
+                <label for="f-etc">그 밖에 미리 알아야 할 사항</label>
+                <textarea id="f-etc" style="min-height:60px"></textarea>
+              </div>
+
+              <div class="actions">
+                <button type="submit" class="btn" id="submitBtn" disabled>현장 진단 예약하기</button>
+                <span class="hint" id="formHint"></span>
+              </div>
+              <div class="actions"><span class="err" id="formErr" hidden></span></div>
+            </form>
+          </div>
         </div>
       </div>
 
-      <div>
-        <div class="card">
-          <h3>고객용 예약 링크
-            <span class="sub">지금 설정을 링크에 담아 만듭니다. 사이트를 다시 올릴 필요 없이 이 링크만 보내면 됩니다.</span>
-          </h3>
-          <div class="actions">
-            <button class="btn" id="makeLink" type="button">링크 만들기</button>
-            <button class="btn ghost sm" id="copyLink" type="button">복사</button>
-          </div>
-          <textarea class="linkout" id="linkOut" readonly spellcheck="false" placeholder="‘링크 만들기’를 누르면 여기에 나옵니다."></textarea>
-          <p class="hint" id="linkHint"></p>
+      <div class="panel done" id="donecard" hidden>
+        <span class="tick" id="doneTick">접수 완료</span>
+        <h2 id="doneTitle"></h2>
+        <div class="when" id="doneWhen"></div>
+        <div class="callout" id="doneCallout"></div>
+        <p id="doneMsg"></p>
+        <div class="code" id="doneCode"></div>
+        <div class="done-links">
+          <a class="btn" id="mailBtn" href="#" hidden>예약 요청 메일 보내기</a>
+          <a class="linkbtn" id="gcalLink" target="_blank" rel="noopener">Google 캘린더에 추가</a>
+          <button class="linkbtn" id="icsBtn" type="button">.ics 파일 저장</button>
+          <button class="linkbtn" id="copyBtn" type="button">내용 복사</button>
+          <button class="linkbtn" type="button" data-ret>회수 방법 보기</button>
         </div>
-
-        <div class="card">
-          <h3>미리보기</h3>
-          <div class="preview" id="previewBox"></div>
-        </div>
-
-        <div class="card">
-          <h3>예약 현황</h3>
-          <p class="hint" style="margin:0">접수된 예약은 monday 보드에 쌓입니다. 상태·담당 엔지니어·설비 정보를 그곳에서 관리하세요.</p>
-          <div class="actions">
-            <a class="btn ghost sm" id="mondayLink" target="_blank" rel="noopener">monday 보드 열기</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>설정 저장</h3>
-          <div class="actions">
-            <button class="btn sm" id="saveCfg" type="button">이 브라우저에 저장</button>
-            <button class="btn ghost sm" id="resetCfg" type="button">기본값으로</button>
-          </div>
-          <p class="hint" id="cfgHint">저장하면 이 브라우저에서 다음에 열 때 그대로 불러옵니다.</p>
-        </div>
+        <textarea id="draftBox" readonly spellcheck="false" hidden></textarea>
       </div>
-    </div>
+    </section>
   </div>
 
   <footer class="foot">
     <span>MONNIT KOREA · <a href="/">monnit.co.kr</a></span>
-    <span id="footR"></span>
+    <span></span>
   </footer>
 </div>
-
 
 <dialog id="retDlg" aria-labelledby="retTitle">
   <div class="dlg-head">
@@ -610,21 +217,18 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
   <div class="dlg-body">
     <dl class="retbox">
       <div class="retrow"><dt>받는 곳</dt>
-        <dd class="addr" id="retAddr">서울특별시 서초구 효령로 380, 2층 모넷코리아<br>
+        <dd class="addr">서울특별시 서초구 효령로 380, 2층 모넷코리아<br>
           <span class="zip">우편번호 06727</span></dd></div>
       <div class="retrow"><dt>받는 분</dt><dd>모넷코리아</dd></div>
       <div class="retrow"><dt>연락처</dt><dd><a href="tel:0220881454">02-2088-1454</a></dd></div>
     </dl>
-
     <ol class="retsteps">
       <li><span>01</span><span>체험이 끝나면 담당자가 회수 안내를 드립니다.</span></li>
       <li><span>02</span><span>설치했던 센서와 게이트웨이를 설치 당시 포장재에 담아 주세요.</span></li>
       <li><span>03</span><span>위 주소로 택배 반품하고 송장번호를 <a href="mailto:korea@monnit.com">korea@monnit.com</a> 으로 알려 주세요.</span></li>
       <li><span>04</span><span>택배비는 모넷코리아가 부담합니다. 착불로 보내셔도 됩니다.</span></li>
     </ol>
-
     <p class="hint" style="margin:0">기기가 파손되거나 분실된 경우가 아니라면 별도로 부담하실 비용은 없습니다.</p>
-
     <div class="dlg-actions">
       <button type="button" class="btn sm" id="retCopy">반품 주소 복사</button>
       <button type="button" class="btn ghost sm" id="retClose2">닫기</button>
@@ -632,123 +236,30 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
   </div>
 </dialog>
 
+<script src="/visit-core.js"></script>
 <script>
 (function(){
   "use strict";
+  var V=window.VisitCore;
 
-  /* ── 사이트 공통 폼 백엔드 (app.js 와 동일) ───────────────────── */
-  var STATICFORMS_URL = "https://api.staticforms.dev/submit";
-  var STATICFORMS_KEY = "sf_e026c9ef91b8eaeba9d1d472";
-  var WEB3FORMS_KEY   = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
-  var CONTACT         = "korea@monnit.com";
-  var MONDAY_BOARD    = "https://monnitk.monday.com/boards/18429687217";
+  /* 사이트 공통 폼 백엔드 (app.js 와 동일한 값) */
+  var STATICFORMS_URL="https://api.staticforms.dev/submit";
+  var STATICFORMS_KEY="sf_e026c9ef91b8eaeba9d1d472";
+  var WEB3FORMS_KEY  ="e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
+  var CONTACT        ="korea@monnit.com";
 
-  var TZ="Asia/Seoul", DOW_KO=["일","월","화","수","목","금","토"];
-  var STORE_KEY="monnit_visit_cfg_v1";
+  var state={cfg:V.loadCfg().cfg, dayKey:null, slotISO:null, last:null, view:"cal", calMonth:null};
 
-  /* 대한민국 관공서 공휴일 · 대체공휴일 (2026–2028) */
-  var HOLIDAYS = {
-    "2026-01-01":"새해","2026-02-16":"설날","2026-02-17":"설날","2026-02-18":"설날",
-    "2026-03-01":"삼일절","2026-03-02":"대체휴일","2026-05-05":"어린이날",
-    "2026-05-24":"석가탄신","2026-05-25":"대체휴일","2026-06-06":"현충일",
-    "2026-07-17":"제헌절","2026-08-15":"광복절","2026-08-17":"대체휴일",
-    "2026-09-24":"추석","2026-09-25":"추석","2026-09-26":"추석",
-    "2026-10-03":"개천절","2026-10-05":"대체휴일","2026-10-09":"한글날","2026-12-25":"성탄절",
-    "2027-01-01":"새해","2027-02-06":"설날","2027-02-07":"설날","2027-02-08":"설날",
-    "2027-02-09":"대체휴일","2027-03-01":"삼일절","2027-05-05":"어린이날",
-    "2027-05-13":"석가탄신","2027-06-06":"현충일","2027-06-07":"대체휴일",
-    "2027-07-17":"제헌절","2027-08-15":"광복절","2027-08-16":"대체휴일",
-    "2027-09-14":"추석","2027-09-15":"추석","2027-09-16":"추석",
-    "2027-10-03":"개천절","2027-10-04":"대체휴일","2027-10-09":"한글날","2027-10-11":"대체휴일",
-    "2027-12-25":"성탄절","2027-12-27":"대체휴일",
-    "2028-01-01":"새해","2028-01-26":"설날","2028-01-27":"설날","2028-03-01":"삼일절",
-    "2028-05-05":"어린이날","2028-06-06":"현충일","2028-07-17":"제헌절",
-    "2028-08-15":"광복절","2028-10-02":"추석","2028-10-03":"추석","2028-10-04":"추석",
-    "2028-10-09":"한글날","2028-12-25":"성탄절"
-  };
-
-  var DEFAULT_CFG={
-    v:1, workdays:[1,2,3,4,5],
-    dayStart:"09:30", dayEnd:"16:00", lunchStart:"12:00", lunchEnd:"13:00",
-    mins:60, buffer:60, granularity:30,
-    leadHours:72, horizonDays:28, maxPerDay:2,
-    closed:[], blocks:[]
-  };
-
-  var state={cfg:null,dayKey:null,slotISO:null,last:null,isAdmin:false,view:"cal",calMonth:null};
-
-  /* ---------- 시간 유틸 (KST 고정) ---------- */
-  var dayFmt=new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"});
-  var hmFmt =new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",minute:"2-digit",hour12:false});
-  function keyOf(d){return dayFmt.format(d);}
-  function hmOf(d){return hmFmt.format(d);}
-  function addDays(k,n){var d=new Date(k+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
-  function dowOf(k){return new Date(k+"T12:00:00Z").getUTCDay();}
-  function inst(k,hm){return new Date(k+"T"+hm+":00+09:00");}
-  function toMin(hm){var p=String(hm||"0:0").split(":");return (parseInt(p[0],10)||0)*60+(parseInt(p[1],10)||0);}
-  function toHM(m){var h=Math.floor(m/60),n=m%60;return (h<10?"0":"")+h+":"+(n<10?"0":"")+n;}
-  function labelDate(k){var p=k.split("-");return p[1].replace(/^0/,"")+"월 "+p[2].replace(/^0/,"")+"일 ("+DOW_KO[dowOf(k)]+")";}
-  function ov(aS,aE,bS,bE){return aS<bE && bS<aE;}
-  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-  function closedMemo(k){var f=state.cfg.closed.filter(function(x){return x.d===k;})[0];return f?(f.memo||"휴무"):null;}
-  function monthOf(k){return k.slice(0,7);}
-  function monthShift(m,n){
-    var y=parseInt(m.slice(0,4),10), mo=parseInt(m.slice(5,7),10)-1+n;
-    y+=Math.floor(mo/12); mo=((mo%12)+12)%12;
-    var mm=mo+1;
-    return y+"-"+(mm<10?"0"+mm:""+mm);
-  }
-
-  /* ---------- 슬롯 엔진 ---------- */
-  function dayStatus(k){
-    if(HOLIDAYS[k]) return {open:false,why:HOLIDAYS[k],hol:true};
-    var m=closedMemo(k); if(m!==null) return {open:false,why:m,hol:false};
-    if(state.cfg.workdays.indexOf(dowOf(k))===-1) return {open:false,why:"휴무",hol:false};
-    return {open:true,why:"",hol:false};
-  }
-  function slotsFor(k){
-    var c=state.cfg;
-    if(!dayStatus(k).open) return [];
-    var out=[], open=toMin(c.dayStart), close=toMin(c.dayEnd);
-    var lS=toMin(c.lunchStart), lE=toMin(c.lunchEnd);
-    var step=c.granularity||30, mins=c.mins||60, buf=c.buffer||0;
-    var earliest=new Date(Date.now()+(c.leadHours||0)*3600000);
-    var blocks=c.blocks.filter(function(b){return b.d===k;});
-    for(var m=open;m+mins<=close;m+=step){
-      var s=inst(k,toHM(m));
-      if(s<earliest) continue;
-      if(lE>lS && ov(m,m+mins,lS,lE)) continue;
-      var hit=false;
-      for(var i=0;i<blocks.length;i++){
-        if(ov(m-buf,m+mins+buf,toMin(blocks[i].s),toMin(blocks[i].e))){hit=true;break;}
-      }
-      if(hit) continue;
-      out.push({iso:s.toISOString(),hm:toHM(m),end:toHM(m+mins)});
-    }
-    return out;
-  }
-  function horizonKeys(){
-    var keys=[],today=keyOf(new Date());
-    for(var i=0;i<(state.cfg.horizonDays||28);i++) keys.push(addDays(today,i));
-    return keys;
-  }
-  function inHorizon(k){
-    var today=keyOf(new Date());
-    return k>=today && k<=addDays(today,(state.cfg.horizonDays||28)-1);
-  }
-
-  /* ---------- 렌더: 월 달력 ---------- */
+  /* ---------- 달력 ---------- */
   function renderCal(){
     var grid=document.getElementById("calGrid");
     var m=state.calMonth, y=parseInt(m.slice(0,4),10), mo=parseInt(m.slice(5,7),10);
     document.getElementById("calMonthLabel").textContent=y+"년 "+mo+"월";
 
-    var first=m+"-01";
-    var lead=dowOf(first);
+    var lead=V.dowOf(m+"-01");
     var daysIn=new Date(Date.UTC(y,mo,0)).getUTCDate();
-    var today=keyOf(new Date());
-    var minM=monthOf(today), maxM=monthOf(addDays(today,(state.cfg.horizonDays||28)-1));
+    var t=V.today();
+    var minM=V.monthOf(t), maxM=V.monthOf(V.addDays(t,(state.cfg.horizonDays||28)-1));
     document.getElementById("calPrev").disabled = m<=minM;
     document.getElementById("calNext").disabled = m>=maxM;
 
@@ -758,14 +269,15 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
     }
     for(var d=1;d<=daysIn;d++){
       var k=m+"-"+(d<10?"0":"")+d;
-      var dw=dowOf(k), st=dayStatus(k), n=inHorizon(k)?slotsFor(k).length:0;
+      var dw=V.dowOf(k), st=V.dayStatus(state.cfg,k);
+      var n=V.inHorizon(state.cfg,k)?V.slotsFor(state.cfg,k).length:0;
       var b=document.createElement("button");
       b.type="button";
       b.className="cell"+(dw===0?" sun":dw===6?" sat":"")+(st.hol?" hol":"");
       b.disabled=n===0;
       b.setAttribute("aria-pressed",String(k===state.dayKey));
       var tail = n ? '<span class="t">'+n+'개</span>'
-                   : '<span class="r">'+esc(!inHorizon(k) ? (k<today?"":"—") : st.why)+'</span>';
+                   : '<span class="r">'+V.esc(!V.inHorizon(state.cfg,k)?(k<t?"":"—"):st.why)+'</span>';
       b.innerHTML='<span class="n">'+d+'</span>'+tail;
       if(st.why) b.title=st.why;
       (function(key){
@@ -780,23 +292,21 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
     updateHorizonNote();
   }
 
-  /* ---------- 렌더: 주간 스트립 ---------- */
   function renderStrip(){
-    var strip=document.getElementById("daystrip"), keys=horizonKeys();
+    var strip=document.getElementById("daystrip"), keys=V.horizonKeys(state.cfg);
     strip.innerHTML="";
     keys.forEach(function(k){
-      var d=dowOf(k), st=dayStatus(k), n=slotsFor(k).length;
+      var d=V.dowOf(k), st=V.dayStatus(state.cfg,k), n=V.slotsFor(state.cfg,k).length;
       var b=document.createElement("button");
       b.type="button";
       b.className="day"+(d===0?" sun":d===6?" sat":"")+(st.hol?" hol":"");
       b.disabled=n===0;
       b.setAttribute("aria-pressed",String(k===state.dayKey));
-      b.innerHTML='<span class="dow">'+DOW_KO[d]+'</span><span class="dnum">'+
-        k.slice(8).replace(/^0/,"")+'</span><span class="cnt">'+esc(n?n+"개":(st.why||"—"))+'</span>';
+      b.innerHTML='<span class="dow">'+V.DOW_KO[d]+'</span><span class="dnum">'+
+        k.slice(8).replace(/^0/,"")+'</span><span class="cnt">'+V.esc(n?n+"개":(st.why||"—"))+'</span>';
       if(!n&&st.why) b.title=st.why;
       b.addEventListener("click",function(){
-        state.dayKey=k; state.slotISO=null;
-        state.calMonth=monthOf(k);
+        state.dayKey=k; state.slotISO=null; state.calMonth=V.monthOf(k);
         renderCal(); renderStrip(); renderSlots(); renderForm();
       });
       strip.appendChild(b);
@@ -806,16 +316,16 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
   }
 
   function updateHorizonNote(){
-    var keys=horizonKeys(), total=0;
-    keys.forEach(function(k){total+=slotsFor(k).length;});
+    var total=0;
+    V.horizonKeys(state.cfg).forEach(function(k){total+=V.slotsFor(state.cfg,k).length;});
     document.getElementById("horizonNote").textContent=
       "앞으로 "+(state.cfg.horizonDays||28)+"일 · 예약 가능 "+total+"건";
   }
   function pickFirstDay(){
-    var keys=horizonKeys();
-    var first=keys.filter(function(k){return slotsFor(k).length>0;})[0]||null;
-    if(!state.dayKey||slotsFor(state.dayKey).length===0) state.dayKey=first;
-    state.calMonth = monthOf(state.dayKey||keyOf(new Date()));
+    var keys=V.horizonKeys(state.cfg);
+    var first=keys.filter(function(k){return V.slotsFor(state.cfg,k).length>0;})[0]||null;
+    if(!state.dayKey||V.slotsFor(state.cfg,state.dayKey).length===0) state.dayKey=first;
+    state.calMonth=V.monthOf(state.dayKey||V.today());
   }
   function setView(v){
     state.view=v;
@@ -832,8 +342,8 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
       area.innerHTML='<p class="empty">현재 공개된 기간에 가능한 시간이 없습니다. '+CONTACT+' 으로 문의해 주세요.</p>';
       note.textContent=""; return;
     }
-    var list=slotsFor(state.dayKey);
-    note.textContent=labelDate(state.dayKey)+" · "+state.cfg.mins+"분";
+    var list=V.slotsFor(state.cfg,state.dayKey);
+    note.textContent=V.labelDate(state.dayKey)+" · "+state.cfg.mins+"분";
     if(!list.length){area.innerHTML='<p class="empty">이 날짜는 가능한 시간이 없습니다.</p>';return;}
     var wrap=document.createElement("div"); wrap.className="slots";
     list.forEach(function(s){
@@ -856,7 +366,7 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
     if(!state.slotISO){sum.hidden=true;btn.disabled=true;note.textContent="시간을 먼저 선택해 주세요";return;}
     var s=new Date(state.slotISO), e=new Date(s.getTime()+state.cfg.mins*60000);
     sum.hidden=false;
-    sum.innerHTML='<span><b>'+esc(labelDate(keyOf(s)))+'</b></span><span><b>'+hmOf(s)+'–'+hmOf(e)+
+    sum.innerHTML='<span><b>'+V.esc(V.labelDate(V.keyOf(s)))+'</b></span><span><b>'+V.hmOf(s)+'–'+V.hmOf(e)+
       '</b> KST</span><span>현장 진단 방문 · '+state.cfg.mins+'분</span>';
     note.textContent="필수 항목을 입력해 주세요";
     btn.disabled=false;
@@ -912,8 +422,7 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
       return fetch(STATICFORMS_URL,{method:"POST",
         headers:{"Content-Type":"application/json","Accept":"application/json"},
         body:JSON.stringify(body)})
-        .then(function(r){return r.json().then(function(j){return r.ok&&!!j.success;},
-                                              function(){return r.ok;});})
+        .then(function(r){return r.json().then(function(j){return r.ok&&!!j.success;},function(){return r.ok;});})
         .catch(function(){return false;});
     }
     function viaWeb3(){
@@ -924,8 +433,7 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
       return fetch("https://api.web3forms.com/submit",{method:"POST",
         headers:{"Content-Type":"application/json","Accept":"application/json"},
         body:JSON.stringify(body)})
-        .then(function(r){return r.json().then(function(j){return r.ok&&(j.success===true||j.success==="true");},
-                                              function(){return r.ok;});})
+        .then(function(r){return r.json().then(function(j){return r.ok&&(j.success===true||j.success==="true");},function(){return r.ok;});})
         .catch(function(){return false;});
     }
     return viaStatic().then(function(ok){return ok?true:viaWeb3();});
@@ -957,19 +465,14 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
 
     var s=new Date(state.slotISO), e=new Date(s.getTime()+state.cfg.mins*60000);
     b.startISO=s.toISOString(); b.endISO=e.toISOString();
-    b.dateLabel=labelDate(keyOf(s)); b.timeLabel=hmOf(s)+"–"+hmOf(e);
-    b.code="MV-"+keyOf(s).replace(/-/g,"")+"-"+hmOf(s).replace(":","")+"-"+
+    b.dateLabel=V.labelDate(V.keyOf(s)); b.timeLabel=V.hmOf(s)+"–"+V.hmOf(e);
+    b.code="MV-"+V.keyOf(s).replace(/-/g,"")+"-"+V.hmOf(s).replace(":","")+"-"+
            Math.random().toString(36).slice(2,6).toUpperCase();
 
-    var btn=document.getElementById("submitBtn");
-    btn.disabled=true; hint.textContent="접수하는 중…";
-
-    sendBooking(b).then(function(ok){
-      hint.textContent="";
-      finish(b,ok);
-    }).catch(function(){
-      hint.textContent=""; finish(b,false);
-    });
+    document.getElementById("submitBtn").disabled=true;
+    hint.textContent="접수하는 중…";
+    sendBooking(b).then(function(ok){ hint.textContent=""; finish(b,ok); })
+                  .catch(function(){ hint.textContent=""; finish(b,false); });
   });
 
   function finish(b,sent){
@@ -982,11 +485,9 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
       ? b.company+"님, 예약이 접수되었습니다."
       : b.company+"님, 요청 내용이 준비되었습니다.";
     document.getElementById("doneWhen").textContent = b.dateLabel+"  "+b.timeLabel+" KST";
-
     document.getElementById("doneCallout").innerHTML = sent
       ? "<b>영업일 기준 3~4일 이내에 담당자가 연락드립니다.</b><br>사전 통화에서 대상 설비와 출입 절차를 확인한 뒤 방문 일정을 확정해 드립니다."
       : "<b>아직 접수 전입니다.</b><br>아래 ‘예약 요청 메일 보내기’로 전송해 주시면 영업일 기준 3~4일 이내에 담당자가 연락드립니다.";
-
     document.getElementById("doneMsg").textContent =
       "일정 변경이 필요하시면 "+CONTACT+" 으로 회신해 주십시오. 설비 목록, 공정 흐름도, 최근 고장 이력 중 공유 가능한 자료를 미리 보내 주시면 방문 당일 확인할 항목을 좁힐 수 있습니다.";
     document.getElementById("doneCode").textContent="예약코드 "+b.code;
@@ -999,7 +500,6 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
 
     var box=document.getElementById("draftBox");
     box.value=plainText(b); box.hidden=sent;
-
     document.getElementById("gcalLink").href=gcalURL(b);
     card.scrollIntoView({behavior:"smooth",block:"nearest"});
   }
@@ -1028,225 +528,12 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
     }
   });
 
-  /* ---------- 담당자 화면 ---------- */
-  function fillAdminForm(){
-    var c=state.cfg;
-    document.getElementById("s-start").value=c.dayStart;
-    document.getElementById("s-end").value=c.dayEnd;
-    document.getElementById("s-lstart").value=c.lunchStart;
-    document.getElementById("s-lend").value=c.lunchEnd;
-    document.getElementById("s-mins").value=c.mins;
-    document.getElementById("s-buffer").value=c.buffer;
-    document.getElementById("s-gran").value=c.granularity;
-    document.getElementById("s-lead").value=c.leadHours;
-    document.getElementById("s-hor").value=c.horizonDays;
-    document.getElementById("s-max").value=c.maxPerDay;
-    var box=document.getElementById("dowset"); box.innerHTML="";
-    DOW_KO.forEach(function(d,i){
-      var b=document.createElement("button");
-      b.type="button"; b.className="dow-chip"; b.textContent=d;
-      b.setAttribute("aria-pressed",String(c.workdays.indexOf(i)!==-1));
-      b.addEventListener("click",function(){
-        b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));
-        pullAdminForm(); renderAdmin();
-      });
-      box.appendChild(b);
-    });
-    document.getElementById("mondayLink").href=MONDAY_BOARD;
-  }
-  function pullAdminForm(){
-    var c=state.cfg, days=[];
-    Array.prototype.forEach.call(document.querySelectorAll("#dowset .dow-chip"),function(b,i){
-      if(b.getAttribute("aria-pressed")==="true") days.push(i);
-    });
-    c.workdays=days;
-    c.dayStart=document.getElementById("s-start").value||"09:30";
-    c.dayEnd=document.getElementById("s-end").value||"18:00";
-    c.lunchStart=document.getElementById("s-lstart").value||"12:00";
-    c.lunchEnd=document.getElementById("s-lend").value||"13:00";
-    c.mins=Math.max(15,parseInt(document.getElementById("s-mins").value,10)||60);
-    c.buffer=Math.max(0,parseInt(document.getElementById("s-buffer").value,10)||0);
-    c.granularity=Math.max(15,parseInt(document.getElementById("s-gran").value,10)||30);
-    c.leadHours=Math.max(0,parseInt(document.getElementById("s-lead").value,10)||0);
-    c.horizonDays=Math.max(1,parseInt(document.getElementById("s-hor").value,10)||28);
-    c.maxPerDay=Math.max(1,parseInt(document.getElementById("s-max").value,10)||1);
-  }
-  function renderClosed(){
-    var box=document.getElementById("closedList");
-    if(!state.cfg.closed.length){box.innerHTML='<span class="hint">등록된 휴무일이 없습니다.</span>';return;}
-    box.innerHTML="";
-    state.cfg.closed.slice().sort(function(a,b){return a.d<b.d?-1:1;}).forEach(function(x){
-      var el=document.createElement("span"); el.className="chip";
-      el.innerHTML=esc(x.d)+(x.memo?' <span class="memo">'+esc(x.memo)+'</span>':'');
-      var del=document.createElement("button"); del.type="button"; del.textContent="×"; del.title="삭제";
-      del.addEventListener("click",function(){
-        state.cfg.closed=state.cfg.closed.filter(function(y){return y.d!==x.d;});
-        renderClosed(); renderAdmin();
-      });
-      el.appendChild(del); box.appendChild(el);
-    });
-  }
-  function renderBlocks(){
-    var box=document.getElementById("blockList");
-    if(!state.cfg.blocks.length){box.innerHTML='<span class="hint">차단된 시간대가 없습니다.</span>';return;}
-    box.innerHTML="";
-    state.cfg.blocks.slice().sort(function(a,b){return (a.d+a.s)<(b.d+b.s)?-1:1;}).forEach(function(x){
-      var el=document.createElement("span"); el.className="chip";
-      el.innerHTML=esc(x.d)+" "+esc(x.s)+"–"+esc(x.e)+(x.memo?' <span class="memo">'+esc(x.memo)+'</span>':'');
-      var del=document.createElement("button"); del.type="button"; del.textContent="×"; del.title="삭제";
-      del.addEventListener("click",function(){
-        state.cfg.blocks=state.cfg.blocks.filter(function(y){
-          return !(y.d===x.d&&y.s===x.s&&y.e===x.e);});
-        renderBlocks(); renderAdmin();
-      });
-      el.appendChild(del); box.appendChild(el);
-    });
-  }
-  function renderHolidays(){
-    var box=document.getElementById("holList"), today=keyOf(new Date()), out=[];
-    Object.keys(HOLIDAYS).sort().forEach(function(k){
-      if(k>=today) out.push('<div><b>'+k+'</b>'+esc(HOLIDAYS[k])+'</div>');
-    });
-    box.innerHTML=out.join("")||'<span class="hint">등록된 공휴일이 없습니다.</span>';
-  }
-  function renderAdmin(){
-    if(!state.isAdmin) return;
-    var keys=horizonKeys(), total=0, days=0, first=null, closedCnt=0;
-    keys.forEach(function(k){
-      var n=slotsFor(k).length;
-      if(n){ total+=n; days++; if(!first) first=k; }
-      else if(HOLIDAYS[k]||closedMemo(k)!==null) closedCnt++;
-    });
-    document.getElementById("stSlots").textContent=total;
-    document.getElementById("stDays").textContent=days+"일";
-    document.getElementById("stFirst").textContent=first?first.slice(5).replace("-","/"):"–";
-    document.getElementById("stClosed").textContent=closedCnt+"일";
-
-    var pv=document.getElementById("previewBox"), rows=[];
-    keys.forEach(function(k){
-      var list=slotsFor(k);
-      if(list.length){
-        rows.push('<div class="pv-row"><span class="k">'+esc(labelDate(k))+'</span><span class="v">'+
-          esc(list[0].hm)+" ~ "+esc(list[list.length-1].hm)+" · "+list.length+'개</span></div>');
-      }
-    });
-    pv.innerHTML=rows.slice(0,12).join("")||'<p class="hint" style="margin:0">지금 조건으로는 예약 가능한 시간이 없습니다. 요일이나 리드타임을 확인해 주세요.</p>';
-    if(rows.length>12) pv.innerHTML+='<p class="hint" style="margin:6px 0 0">외 '+(rows.length-12)+'일 더 있습니다.</p>';
-  }
-
-  function encodeCfg(c){
-    return btoa(unescape(encodeURIComponent(JSON.stringify(c))))
-      .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-  }
-  function decodeCfg(s){
-    try{
-      var b=s.replace(/-/g,"+").replace(/_/g,"/");
-      while(b.length%4) b+="=";
-      return JSON.parse(decodeURIComponent(escape(atob(b))));
-    }catch(e){ return null; }
-  }
-
-  /* ---------- 담당자 화면 이벤트 ---------- */
-  function bindAdmin(){
-    document.getElementById("addClosed").addEventListener("click",function(){
-      var d=document.getElementById("c-date").value, memo=document.getElementById("c-memo").value.trim();
-      if(!d) return;
-      state.cfg.closed=state.cfg.closed.filter(function(x){return x.d!==d;});
-      state.cfg.closed.push({d:d,memo:memo});
-      document.getElementById("c-date").value=""; document.getElementById("c-memo").value="";
-      renderClosed(); renderAdmin();
-    });
-    document.getElementById("addBlock").addEventListener("click",function(){
-      var d=document.getElementById("b-date").value,
-          s=document.getElementById("b-start").value,
-          e=document.getElementById("b-end").value,
-          memo=document.getElementById("b-memo").value.trim();
-      if(!d||!s||!e||toMin(e)<=toMin(s)) return;
-      state.cfg.blocks.push({d:d,s:s,e:e,memo:memo});
-      document.getElementById("b-date").value=""; document.getElementById("b-start").value="";
-      document.getElementById("b-end").value=""; document.getElementById("b-memo").value="";
-      renderBlocks(); renderAdmin();
-    });
-    ["s-start","s-end","s-lstart","s-lend","s-mins","s-buffer","s-gran","s-lead","s-hor","s-max"]
-      .forEach(function(id){
-        document.getElementById(id).addEventListener("change",function(){pullAdminForm();renderAdmin();});
-      });
-    document.getElementById("makeLink").addEventListener("click",function(){
-      pullAdminForm();
-      var base=location.origin+"/visit";
-      var url=base+"?s="+encodeCfg(state.cfg);
-      document.getElementById("linkOut").value=url;
-      document.getElementById("linkHint").textContent=
-        "이 링크를 고객에게 보내면 위 설정이 그대로 적용됩니다. 스케줄을 바꾸면 링크를 다시 만들어 주세요. ("+url.length+"자)";
-      renderAdmin();
-    });
-    document.getElementById("copyLink").addEventListener("click",function(){
-      var t=document.getElementById("linkOut"); if(!t.value) return;
-      var btn=this; t.focus(); t.select();
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(t.value).then(function(){btn.textContent="복사됨";},function(){});
-      } else { try{document.execCommand("copy");btn.textContent="복사됨";}catch(e){} }
-      setTimeout(function(){btn.textContent="복사";},2000);
-    });
-    document.getElementById("saveCfg").addEventListener("click",function(){
-      pullAdminForm();
-      var h=document.getElementById("cfgHint");
-      try{ localStorage.setItem(STORE_KEY,JSON.stringify(state.cfg)); h.textContent="저장했습니다."; }
-      catch(e){ h.textContent="이 브라우저에서는 저장할 수 없습니다. 대신 고객용 링크를 만들어 보관하세요."; }
-      renderAdmin();
-    });
-    document.getElementById("resetCfg").addEventListener("click",function(){
-      state.cfg=JSON.parse(JSON.stringify(DEFAULT_CFG));
-      try{ localStorage.removeItem(STORE_KEY); }catch(e){}
-      fillAdminForm(); renderClosed(); renderBlocks(); renderAdmin();
-      document.getElementById("cfgHint").textContent="기본값으로 되돌렸습니다.";
-    });
-  }
-
-  /* ---------- 부팅 ---------- */
-  function normalize(c){
-    var out=JSON.parse(JSON.stringify(DEFAULT_CFG));
-    Object.keys(DEFAULT_CFG).forEach(function(k){ if(c[k]!==undefined) out[k]=c[k]; });
-    if(!Array.isArray(out.closed)) out.closed=[];
-    if(!Array.isArray(out.blocks)) out.blocks=[];
-    return out;
-  }
-  function loadCfg(){
-    var q=new URLSearchParams(location.search).get("s");
-    if(q){ var c=decodeCfg(q); if(c&&c.workdays) return {cfg:normalize(c),src:"link"}; }
-    try{
-      var raw=localStorage.getItem(STORE_KEY);
-      if(raw){ var l=JSON.parse(raw); if(l&&l.workdays) return {cfg:normalize(l),src:"local"}; }
-    }catch(e){}
-    return {cfg:JSON.parse(JSON.stringify(DEFAULT_CFG)),src:"default"};
-  }
-  function isAdminRoute(){
-    return location.hash.replace("#","").toLowerCase()==="admin" ||
-           /\/visit\/admin\/?$/.test(location.pathname);
-  }
-  function applyRoute(){
-    state.isAdmin=isAdminRoute();
-    document.getElementById("view-book").hidden=state.isAdmin;
-    document.getElementById("view-admin").hidden=!state.isAdmin;
-    document.getElementById("brandName").textContent=state.isAdmin?"스케줄 관리":"현장 진단 예약";
-    document.getElementById("footR").textContent=state.isAdmin?"ADMIN · NOINDEX":"";
-    if(state.isAdmin){ fillAdminForm(); renderClosed(); renderBlocks(); renderHolidays(); renderAdmin(); }
-    else { pickFirstDay(); renderCal(); renderStrip(); renderSlots(); renderForm(); }
-  }
-  window.addEventListener("hashchange",applyRoute);
-
   /* ---------- 회수 안내 팝업 ---------- */
   (function retDialog(){
     var dlg=document.getElementById("retDlg");
     var RETURN_TEXT="서울특별시 서초구 효령로 380, 2층 모넷코리아 (06727) / 모넷코리아 / 02-2088-1454";
-    function open(){
-      if(dlg.showModal) dlg.showModal();
-      else dlg.setAttribute("open","");
-    }
-    function close(){
-      if(dlg.close) dlg.close();
-      else dlg.removeAttribute("open");
-    }
+    function open(){ if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open",""); }
+    function close(){ if(dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
     Array.prototype.forEach.call(document.querySelectorAll("[data-ret]"),function(b){
       b.addEventListener("click",open);
     });
@@ -1266,25 +553,15 @@ dialog#retDlg::backdrop{background:rgba(10,16,14,.55)}
   document.getElementById("tabCal").addEventListener("click",function(){setView("cal");});
   document.getElementById("tabStrip").addEventListener("click",function(){setView("strip");});
   document.getElementById("calPrev").addEventListener("click",function(){
-    state.calMonth=monthShift(state.calMonth,-1); renderCal();
+    state.calMonth=V.monthShift(state.calMonth,-1); renderCal();
   });
   document.getElementById("calNext").addEventListener("click",function(){
-    state.calMonth=monthShift(state.calMonth,1); renderCal();
+    state.calMonth=V.monthShift(state.calMonth,1); renderCal();
   });
-  bindAdmin();
 
-  (function boot(){
-    var loaded=loadCfg();
-    state.cfg=loaded.cfg;
-    document.getElementById("factDur").textContent=state.cfg.mins+"분";
-    setView("cal");
-    applyRoute();
-    if(loaded.src==="default" && state.isAdmin){
-      var b=document.getElementById("banner");
-      b.hidden=false;
-      b.innerHTML="기본 스케줄을 불러왔습니다. 조건을 정한 뒤 <b>‘이 브라우저에 저장’</b> 과 <b>‘링크 만들기’</b> 를 눌러 주세요.";
-    }
-  })();
+  document.getElementById("factDur").textContent=state.cfg.mins+"분";
+  setView("cal");
+  pickFirstDay(); renderCal(); renderStrip(); renderSlots(); renderForm();
 })();
 </script>
 </body>

@@ -183,16 +183,6 @@
   to = "/visit.html"
   status = 200
 
-# 관리 화면 — 같은 파일을 열고, 페이지가 경로를 보고 관리 모드로 전환합니다
-[[redirects]]
-  from = "/visit/admin"
-  to = "/visit.html"
-  status = 200
-
-[[redirects]]
-  from = "/visit/admin/"
-  to = "/visit.html"
-  status = 200
 
 [functions]
   directory = "netlify/functions"
