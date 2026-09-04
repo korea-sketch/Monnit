@@ -167,6 +167,33 @@
   status = 301
   force = true
 
+
+# ─────────────────────────────────────────────────────────────
+# 예지보전 현장 진단 예약 (2026-09-04 추가)
+#   고객 화면 : /visit          관리 화면 : /visit/admin
+#   검색엔진 비노출. 링크를 아는 사람만 들어옵니다.
+# ─────────────────────────────────────────────────────────────
+[[redirects]]
+  from = "/visit"
+  to = "/visit.html"
+  status = 200
+
+[[redirects]]
+  from = "/visit/"
+  to = "/visit.html"
+  status = 200
+
+# 관리 화면 — 같은 파일을 열고, 페이지가 경로를 보고 관리 모드로 전환합니다
+[[redirects]]
+  from = "/visit/admin"
+  to = "/visit.html"
+  status = 200
+
+[[redirects]]
+  from = "/visit/admin/"
+  to = "/visit.html"
+  status = 200
+
 [functions]
   directory = "netlify/functions"
   # 제안서 PDF 를 함수 번들에 포함 (정적 공개 경로로는 접근 불가)
@@ -184,3 +211,20 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
+
+# ── 현장 진단 예약 화면은 검색엔진에서 제외 ──────────────────
+[[headers]]
+  for = "/visit"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[headers]]
+  for = "/visit/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/visit.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
