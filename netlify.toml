@@ -170,8 +170,9 @@
 
 # ─────────────────────────────────────────────────────────────
 # 예지보전 현장 진단 예약 (2026-09-04 추가)
-#   고객 화면 : /visit          관리 화면 : /visit/admin
-#   검색엔진 비노출. 링크를 아는 사람만 들어옵니다.
+#   고객 화면 : /visit
+#   관리 화면 : /visit/admin  → netlify/functions/visitadmin.mjs 가 직접 처리(로그인 필요)
+#   두 화면 모두 검색엔진 비노출
 # ─────────────────────────────────────────────────────────────
 [[redirects]]
   from = "/visit"
@@ -182,7 +183,6 @@
   from = "/visit/"
   to = "/visit.html"
   status = 200
-
 
 [functions]
   directory = "netlify/functions"
