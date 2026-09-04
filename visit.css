@@ -161,6 +161,8 @@ body::after{
     linear-gradient(90deg, transparent 23%, rgba(255,255,255,.5) 24%, transparent 25%);}
 
 button{font-family:inherit;font-size:inherit;color:inherit}
+/* 한국어 줄바꿈 — 마지막 줄에 한 낱말만 남는 모양을 줄입니다 */
+p,li,dd,.sub,.why,.hint,.lede,.step-title,.card h3,.done h2,.callout{text-wrap:pretty}
 /* 손가락 입력 최적화 — 누른 뒤 300ms 지연과 회색 깜빡임을 없앱니다 */
 button,a,label,input,textarea,select{touch-action:manipulation}
 html{-webkit-tap-highlight-color:transparent}
@@ -220,8 +222,19 @@ html{-webkit-tap-highlight-color:transparent}
   padding:24px 22px;box-shadow:var(--e1),var(--inner);
 }
 @media (min-width:920px){.brief{position:sticky;top:96px}}
-.brief h1{margin:0;font-size:26px;line-height:1.3;font-weight:600;letter-spacing:-.025em;text-wrap:balance}
-.brief p.lede{margin:0;color:var(--ink-2);font-size:13.5px;max-width:38ch;line-height:1.72}
+.brief h1{margin:0;font-size:22px;line-height:1.42;font-weight:600;letter-spacing:-.022em;
+  text-wrap:pretty}
+.brief p.lede{margin:0;color:var(--ink-2);font-size:13.5px;max-width:38ch;line-height:1.78;
+  text-wrap:pretty}
+/* 한국어는 띄어쓰기마다 줄이 끊깁니다. 뜻이 붙어 있는 덩어리는 통째로 넘기게 묶습니다. */
+.nb{display:inline-block}
+@media (min-width:920px){
+  /* 사이드바가 좁을 때 제목이 세 줄로 갈라지지 않도록 조금 줄입니다 */
+  .brief h1{font-size:21px}
+}
+@media (min-width:1040px){
+  .brief h1{font-size:23px}
+}
 .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
   color:var(--ink-3);margin:0 0 10px}
 
