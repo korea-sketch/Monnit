@@ -1178,7 +1178,7 @@ var CONFIG = {
   PDF_FALLBACK : "/files/monnit-predictive-maintenance-guide.pdf",
   FILE_NAME    : "모넷코리아_무선IoT_설비예지보전_제안가이드.pdf",
 
-  // 알림 메일 — 1순위 StaticForms(홈페이지 현재 활성 백엔드), 2순위 Web3Forms 폴백
+  // 알림 메일 — 1순위 StaticForms(사이트 공통 활성 백엔드), 2순위 Web3Forms 폴백
   SF_ENDPOINT   : "https://api.staticforms.dev/submit",
   SF_KEY        : "sf_e026c9ef91b8eaeba9d1d472",
   FORM_ENDPOINT : "https://api.web3forms.com/submit",
@@ -1609,8 +1609,8 @@ function toStandard(d){
   };
 }
 
-/* 담당자 알림 메일 — 1순위 StaticForms → 2순위 Web3Forms 폴백
-   (홈페이지 app.js sendLead() 와 동일한 전송 체인) */
+/* 담당자 알림 메일 — 1순위 StaticForms → 실패 시에만 2순위 Web3Forms
+   (사이트 공통 sendLead() 와 동일한 전송 체인) */
 function notifyStaffWeb3(payload){
   var fd = {
     access_key: CONFIG.W3F_KEY,
@@ -1646,8 +1646,7 @@ function notifyStaff(payload){
   }).then(function(ok){
     if (!ok) throw new Error('sf');
   }).catch(function(){
-    // StaticForms 실패 시에만 Web3Forms 로 넘어갑니다
-    return notifyStaffWeb3(payload);
+    return notifyStaffWeb3(payload);   // StaticForms 실패 시에만 Web3Forms
   });
 }
 

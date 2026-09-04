@@ -9964,18 +9964,20 @@ async function sendLead(payload, btn){
         restore(); return true;
       } catch(e){ return mailto(); }
     }
-    // 0b) StaticForms (현재 활성 백엔드)
+    // 0b) StaticForms (현재 활성 백엔드) — 실패하면 아래 Web3Forms 로 이어집니다
     if (STATICFORMS_KEY) {
-      const res = await fetch(STATICFORMS_URL, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify(Object.assign({
-          apiKey: STATICFORMS_KEY,
-          subject: payload._subject || '모닛코리아 웹사이트 접수',
-          email: payload['이메일'] || payload.email || '',
-          replyTo: '@',
-          honeypot: ''
-        }, payload)) });
-      let ok = res.ok; try { const j = await res.json(); ok = ok && !!j.success; } catch(e){}
-      return ok ? (restore(), true) : mailto();
+      try {
+        const res = await fetch(STATICFORMS_URL, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body: JSON.stringify(Object.assign({
+            apiKey: STATICFORMS_KEY,
+            subject: payload._subject || '모닛코리아 웹사이트 접수',
+            email: payload['이메일'] || payload.email || '',
+            replyTo: '@',
+            honeypot: ''
+          }, payload)) });
+        let ok = res.ok; try { const j = await res.json(); ok = ok && !!j.success; } catch(e){}
+        if (ok) { restore(); return true; }
+      } catch(e){ /* 네트워크 오류 — 아래 폴백으로 계속 진행 */ }
     }
     // 1) Google Apps Script (시트 저장 + 메일)
     if (GAS_ENDPOINT) {
