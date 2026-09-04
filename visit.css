@@ -161,6 +161,9 @@ body::after{
     linear-gradient(90deg, transparent 23%, rgba(255,255,255,.5) 24%, transparent 25%);}
 
 button{font-family:inherit;font-size:inherit;color:inherit}
+/* 손가락 입력 최적화 — 누른 뒤 300ms 지연과 회색 깜빡임을 없앱니다 */
+button,a,label,input,textarea,select{touch-action:manipulation}
+html{-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 [hidden]{display:none!important}
@@ -325,7 +328,13 @@ button{font-family:inherit;font-size:inherit;color:inherit}
   vertical-align:middle;box-shadow:var(--e2)}
 
 /* ── 주간 스트립 ────────────────────────────────────────────── */
-.daystrip{display:flex;gap:9px;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:thin}
+.daystrip{
+  display:flex;gap:9px;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:thin;
+  /* 가로로 끝까지 밀었을 때 브라우저 뒤로가기가 걸리지 않게 합니다 */
+  overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;
+}
+.daystrip .day{scroll-snap-align:center}
 .day{
   flex:0 0 auto;width:78px;border:1px solid var(--hair);border-radius:var(--radius-sm);
   background:var(--glass-strong);padding:10px 6px;cursor:pointer;text-align:center;
@@ -607,3 +616,218 @@ dialog#retDlg::backdrop{
   box-shadow:var(--e2);
 }
 .foot a{color:var(--ink-3)}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   인터랙션
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 끝난 단계는 번호가 채워집니다 */
+.step-no.ok{
+  background:linear-gradient(160deg,var(--accent-hover),var(--accent));
+  color:var(--accent-ink);border-color:transparent;
+  box-shadow:0 0 0 2px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+/* 잘못 입력한 칸은 그 자리에서 알려 줍니다 */
+.field.bad input,.field.bad textarea{
+  border-color:var(--danger-line);
+  box-shadow:var(--inner-sunken), 0 0 0 3px var(--danger-soft);
+}
+.field .fieldmsg{font-size:11.5px;color:var(--danger);font-weight:500;margin-top:-1px}
+.choices.bad{
+  border-radius:var(--radius-sm);
+  box-shadow:0 0 0 3px var(--danger-soft);
+}
+
+/* 보내는 중 */
+.spin{
+  display:inline-block;width:13px;height:13px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.32);border-top-color:currentColor;
+  animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 짧은 알림 */
+.toastwrap{
+  position:fixed;left:50%;transform:translateX(-50%);z-index:60;
+  bottom:calc(22px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;gap:9px;align-items:center;pointer-events:none;
+  width:max-content;max-width:calc(100vw - 32px);
+}
+.toastwrap.lifted{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.toast{
+  background:var(--glass-strong);
+  -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur);
+  border:1px solid var(--edge);border-radius:13px;
+  padding:12px 20px;font-size:13.5px;font-weight:500;color:var(--ink);
+  box-shadow:var(--e3),var(--inner);
+  animation:toast-in .22s cubic-bezier(.2,.8,.3,1) both;
+}
+.toast.ok{border-color:var(--accent-line)}
+.toast.ok::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--accent);margin-right:9px;vertical-align:1px;
+  box-shadow:0 0 0 3px var(--accent-glow)}
+.toast.out{animation:toast-out .2s ease-in both}
+@keyframes toast-in{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes toast-out{to{opacity:0;transform:translateY(6px) scale(.98)}}
+
+/* 시간을 고르면 아래에 붙는 확인 막대 — 좁은 화면에서만 */
+.mobilebar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;display:none;
+  align-items:center;gap:12px;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  background:var(--glass-strong);
+  -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur);
+  border-top:1px solid var(--edge);
+  box-shadow:0 -8px 28px -14px rgba(16,32,26,.35);
+  animation:bar-in .24s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes bar-in{from{transform:translateY(100%)}to{transform:none}}
+.mobilebar .mb-when{
+  flex:1;min-width:0;font-family:var(--mono);font-size:13px;font-weight:600;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.35;
+}
+.mobilebar .mb-when small{display:block;font-family:var(--sans);font-weight:400;
+  font-size:11.5px;color:var(--ink-3);letter-spacing:0}
+.mobilebar .btn{padding:11px 18px;font-size:13.5px;white-space:nowrap}
+
+/* 달력에서 화살표 키로 옮겨 다닐 때 지금 칸이 어디인지 */
+.cell:focus-visible,.day:focus-visible,.slot:focus-visible{
+  outline:none;
+  box-shadow:var(--e1), 0 0 0 3px var(--accent-glow), var(--inner);
+  border-color:var(--accent-line);
+}
+
+/* 투명 효과를 줄이도록 설정한 기기에서는 불투명하게 */
+@media (prefers-reduced-transparency: reduce){
+  :root{--glass:rgba(255,255,255,.92);--glass-strong:rgba(255,255,255,.96);
+        --glass-quiet:rgba(255,255,255,.84);--glass-sunken:rgba(255,255,255,.88)}
+  :root[data-theme="dark"],:root:not([data-theme="light"]){
+        --glass:rgba(24,32,28,.94);--glass-strong:rgba(30,40,35,.97);
+        --glass-quiet:rgba(20,28,24,.90);--glass-sunken:rgba(10,16,13,.94)}
+  body::before{opacity:.5}
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   반응형
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 태블릿 — 두 칸 배치가 풀리기 직전 */
+@media (max-width:919px){
+  .wrap{padding:20px 16px 64px}
+  .masthead{top:8px;padding:11px 16px}
+  .brief{padding:20px 18px;gap:18px}
+  .brief h1{font-size:23px}
+  .statline{gap:10px}
+  .stat{flex:1 1 calc(50% - 5px);padding:12px 14px}
+  .stat .v{font-size:23px}
+}
+
+/* 휴대폰 */
+@media (max-width:640px){
+  .wrap{padding:16px 13px 28px}
+  .masthead{
+    padding:10px 14px;border-radius:14px;top:6px;
+    /* 좁은 화면에서는 시간대 표시가 자리만 차지합니다 */
+  }
+  .masthead-meta{font-size:10px;letter-spacing:.06em}
+  .brand-name{font-size:16px}
+  .brand-mark{font-size:10.5px}
+
+  .brief h1{font-size:21px;line-height:1.35}
+  .brief p.lede{font-size:13px}
+
+  .step-head{padding:14px 15px 0;gap:9px}
+  .step-body{padding:12px 15px 16px}
+  .step-title{font-size:13px}
+  .step-note{font-size:10.5px;width:100%;margin-left:0;text-align:left;
+    order:3;color:var(--ink-3)}
+  .viewtabs{margin-left:auto}
+  .viewtabs button{padding:5px 11px;font-size:12px}
+
+  /* 달력 — 7칸이 좁아지므로 군더더기를 뺍니다 */
+  .calbar{margin-bottom:10px}
+  .calbar .m{font-size:14.5px}
+  .calnav button{width:36px;height:34px}
+  .calhead{gap:4px}
+  .calhead span{font-size:10px}
+  .calgrid{gap:4px}
+  .cell{min-height:54px;padding:6px 2px 5px;border-radius:9px;gap:1px}
+  .cell .n{font-size:15px}
+  .cell .t{font-size:9.5px}
+  .cell .r{display:none}          /* 이유는 길게 누르면 나오는 설명으로 남깁니다 */
+  .callegend{gap:10px;font-size:11px;margin-top:12px}
+
+  .daystrip{gap:7px}
+  .day{width:68px;padding:9px 4px}
+  .day .dnum{font-size:18px}
+
+  .slots{grid-template-columns:repeat(auto-fill,minmax(102px,1fr));gap:7px}
+  .slot{font-size:12.5px;padding:12px 2px}
+
+  .form{gap:12px}
+  .field input,.field textarea{font-size:16px;padding:12px 13px}  /* 16px 미만이면 iOS가 화면을 확대합니다 */
+  .field textarea{min-height:88px}
+  .choices label{font-size:13px;padding:10px 13px}
+
+  .actions .btn{width:100%;text-align:center}
+  .actions .btn.sm{width:auto}
+  .actions .hint,.actions .err{width:100%}
+
+  .done{padding:26px 18px;gap:14px}
+  .done h2{font-size:19px}
+  .done .when{font-size:16px}
+  .done-links{gap:8px;width:100%}
+  .done-links .btn,.done-links a.linkbtn,.done-links button.linkbtn{
+    flex:1 1 calc(50% - 4px);text-align:center;padding:11px 10px;font-size:13px}
+  .done-links .btn{flex-basis:100%}
+
+  .card{padding:17px;gap:14px;border-radius:14px}
+  .row2,.row3{grid-template-columns:1fr;gap:11px}
+  .stat{flex:1 1 100%}
+  .holgrid{max-height:150px}
+
+  dialog#retDlg{border-radius:16px}
+  .dlg-head{padding:20px 18px 0}
+  .dlg-body{padding:14px 18px 18px}
+  .retrow{grid-template-columns:56px 1fr;gap:10px;font-size:13px}
+
+  .foot{flex-direction:column;gap:6px;padding:13px 16px;font-size:10.5px}
+
+  /* 아래 확인 막대가 뜨면 그만큼 자리를 비웁니다 */
+  body.has-bar .wrap{padding-bottom:100px}
+  .mobilebar{display:flex}
+}
+
+/* 아주 좁은 화면 */
+@media (max-width:380px){
+  .cell{min-height:48px}
+  .cell .n{font-size:14px}
+  .cell .t{font-size:9px}
+  .slots{grid-template-columns:1fr 1fr}
+  .brief h1{font-size:20px}
+}
+
+/* 가로로 눕힌 휴대폰 — 세로 여백을 줄입니다 */
+@media (max-height:520px) and (orientation:landscape){
+  .wrap{padding-top:12px}
+  .masthead{position:static}
+  .brief{position:static}
+  .login-wrap{padding-top:5vh}
+}
+
+/* 마우스가 없는 기기에서는 hover로 뜨는 효과를 끕니다 */
+@media (hover:none){
+  .cell:hover:not(:disabled):not(.blank),
+  .day:hover:not(:disabled),
+  .slot:hover,
+  .choices label:hover,
+  .btn:hover,
+  a.linkbtn:hover,button.linkbtn:hover,
+  .dow-chip:hover{transform:none}
+  .cell:active:not(:disabled):not(.blank),
+  .day:active:not(:disabled),
+  .slot:active{transform:scale(.97)}
+}

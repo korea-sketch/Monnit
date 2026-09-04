@@ -96,7 +96,9 @@ function LOGIN({ error, notice } = {}) {
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<meta name="theme-color" content="#E6EDE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/visit.css">
 </head>
 <body>
@@ -139,7 +141,9 @@ function ADMIN() {
 <link rel="icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<meta name="theme-color" content="#E6EDE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/visit.css">
 </head>
 <body>
@@ -183,8 +187,25 @@ function ADMIN() {
         </div>
         <div class="row3">
           <div class="field"><label for="s-lead">최소 리드타임(시간)</label><input id="s-lead" type="number" min="0" max="720"></div>
-          <div class="field"><label for="s-hor">공개 기간(일)</label><input id="s-hor" type="number" min="1" max="120"></div>
           <div class="field"><label for="s-max">하루 최대 건수</label><input id="s-max" type="number" min="1" max="10"></div>
+          <div class="field">
+            <label for="s-months">몇 달치 열기</label>
+            <select id="s-months">
+              <option value="0">이번 달 말일까지</option>
+              <option value="1">다음 달 말일까지</option>
+              <option value="2">두 달 뒤 말일까지</option>
+              <option value="3">세 달 뒤 말일까지</option>
+              <option value="6">여섯 달 뒤 말일까지</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" id="horNote"></p>
+        <div class="field">
+          <label for="s-until">여기서 멈추기 (선택)
+            <span class="sub">특정 날짜 이후로는 아예 받지 않으려면 그 날짜를 넣으세요.
+              비워 두면 위의 ‘몇 달치 열기’ 대로 매달 자동으로 이어집니다.</span>
+          </label>
+          <input id="s-until" type="date">
         </div>
         <p class="hint">리드타임은 사전 통화에 필요한 시간입니다. 영업일 3~4일을 확보하려면 72시간 이상으로 두세요.</p>
       </div>
@@ -282,7 +303,8 @@ function ADMIN() {
     document.getElementById("s-buffer").value=cfg.buffer;
     document.getElementById("s-gran").value=cfg.granularity;
     document.getElementById("s-lead").value=cfg.leadHours;
-    document.getElementById("s-hor").value=cfg.horizonDays;
+    document.getElementById("s-months").value=String(cfg.horizonMonths===undefined?1:cfg.horizonMonths);
+    document.getElementById("s-until").value=cfg.horizonUntil||"";
     document.getElementById("s-max").value=cfg.maxPerDay;
     var box=document.getElementById("dowset"); box.innerHTML="";
     V.DOW_KO.forEach(function(d,i){
@@ -310,7 +332,8 @@ function ADMIN() {
     cfg.buffer=Math.max(0,parseInt(document.getElementById("s-buffer").value,10)||0);
     cfg.granularity=Math.max(15,parseInt(document.getElementById("s-gran").value,10)||30);
     cfg.leadHours=Math.max(0,parseInt(document.getElementById("s-lead").value,10)||0);
-    cfg.horizonDays=Math.max(1,parseInt(document.getElementById("s-hor").value,10)||28);
+    cfg.horizonMonths=parseInt(document.getElementById("s-months").value,10)||0;
+    cfg.horizonUntil=document.getElementById("s-until").value||"";
     cfg.maxPerDay=Math.max(1,parseInt(document.getElementById("s-max").value,10)||1);
   }
   function renderClosed(){
@@ -362,6 +385,13 @@ function ADMIN() {
     document.getElementById("stFirst").textContent=first?first.slice(5).replace("-","/"):"–";
     document.getElementById("stClosed").textContent=closedCnt+"일";
 
+    var end=V.horizonEnd(cfg);
+    document.getElementById("horNote").innerHTML=
+      "지금은 <b>"+V.esc(V.labelDate(end))+"</b> 까지 열려 있습니다. "+
+      (cfg.horizonUntil
+        ? "‘여기서 멈추기’ 날짜가 들어가 있어 그 뒤로는 더 열리지 않습니다."
+        : "달이 바뀌면 한 달치가 자동으로 더 열립니다. 따로 손대지 않으셔도 됩니다.");
+
     var pv=document.getElementById("previewBox"), rows=[];
     keys.forEach(function(k){
       var list=V.slotsFor(cfg,k);
@@ -370,8 +400,12 @@ function ADMIN() {
           V.esc(list[0].hm)+" ~ "+V.esc(list[list.length-1].hm)+" \\u00b7 "+list.length+'개</span></div>');
       }
     });
-    pv.innerHTML=rows.slice(0,12).join("")||'<p class="hint" style="margin:0">지금 조건으로는 예약 가능한 시간이 없습니다. 요일이나 리드타임을 확인해 주세요.</p>';
-    if(rows.length>12) pv.innerHTML+='<p class="hint" style="margin:6px 0 0">외 '+(rows.length-12)+'일 더 있습니다.</p>';
+    var SHOW=14;
+    pv.innerHTML=rows.slice(0,SHOW).join("")||'<p class="hint" style="margin:0">지금 조건으로는 예약 가능한 시간이 없습니다. 요일이나 리드타임을 확인해 주세요.</p>';
+    if(rows.length>SHOW){
+      pv.innerHTML+='<p class="hint" style="margin:8px 0 0">외 '+(rows.length-SHOW)+'일 더 있습니다. '+
+        '마지막 공개일은 <b>'+V.esc(V.labelDate(V.horizonEnd(cfg)))+'</b> 입니다.</p>';
+    }
   }
 
   document.getElementById("addClosed").addEventListener("click",function(){
@@ -387,13 +421,15 @@ function ADMIN() {
         s=document.getElementById("b-start").value,
         e=document.getElementById("b-end").value,
         memo=document.getElementById("b-memo").value.trim();
-    if(!d||!s||!e||V.toMin(e)<=V.toMin(s)) return;
+    if(!d){ V.toast("날짜를 골라 주세요"); return; }
+    if(!s||!e){ V.toast("시작과 종료 시간을 넣어 주세요"); return; }
+    if(V.toMin(e)<=V.toMin(s)){ V.toast("종료 시간이 시작보다 빠릅니다"); return; }
     cfg.blocks.push({d:d,s:s,e:e,memo:memo});
     document.getElementById("b-date").value=""; document.getElementById("b-start").value="";
     document.getElementById("b-end").value=""; document.getElementById("b-memo").value="";
     renderBlocks(); render();
   });
-  ["s-start","s-end","s-lstart","s-lend","s-mins","s-buffer","s-gran","s-lead","s-hor","s-max"]
+  ["s-start","s-end","s-lstart","s-lend","s-mins","s-buffer","s-gran","s-lead","s-months","s-until","s-max"]
     .forEach(function(id){
       document.getElementById(id).addEventListener("change",function(){pullForm();render();});
     });
@@ -407,19 +443,18 @@ function ADMIN() {
     render();
   });
   document.getElementById("copyLink").addEventListener("click",function(){
-    var t=document.getElementById("linkOut"); if(!t.value) return;
-    var btn=this; t.focus(); t.select();
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(t.value).then(function(){btn.textContent="복사됨";},function(){});
-    } else { try{document.execCommand("copy");btn.textContent="복사됨";}catch(e){} }
-    setTimeout(function(){btn.textContent="복사";},2000);
+    var t=document.getElementById("linkOut");
+    if(!t.value){ V.toast("먼저 ‘링크 만들기’를 눌러 주세요"); return; }
+    t.focus(); t.select();
+    V.copy(t.value,"링크를 복사했습니다");
   });
   document.getElementById("saveCfg").addEventListener("click",function(){
     pullForm();
-    var h=document.getElementById("cfgHint");
-    h.textContent = V.saveCfg(cfg)
-      ? "저장했습니다."
+    var ok=V.saveCfg(cfg);
+    document.getElementById("cfgHint").textContent = ok
+      ? "이 컴퓨터에 저장해 두었습니다."
       : "이 브라우저에서는 저장할 수 없습니다. 대신 고객용 링크를 만들어 보관하세요.";
+    V.toast(ok?"설정을 저장했습니다":"저장하지 못했습니다", ok?"ok":"");
     render();
   });
   document.getElementById("resetCfg").addEventListener("click",function(){
@@ -427,6 +462,7 @@ function ADMIN() {
     V.clearCfg();
     fillForm(); renderClosed(); renderBlocks(); render();
     document.getElementById("cfgHint").textContent="처음 값으로 되돌렸습니다.";
+    V.toast("처음 값으로 되돌렸습니다");
   });
 
   fillForm(); renderClosed(); renderBlocks(); renderHolidays(); render();

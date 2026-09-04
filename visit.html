@@ -8,9 +8,12 @@
 <title>예지보전 현장 진단 예약 | 모넷코리아</title>
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#E6EDE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="preload" href="/visit-core.js" as="script">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/visit.css">
 </head>
 <body>
@@ -236,6 +239,12 @@
   </div>
 </dialog>
 
+
+<div class="mobilebar" id="mobilebar" hidden>
+  <div class="mb-when" id="mbWhen"></div>
+  <button type="button" class="btn" id="mbGo">정보 입력</button>
+</div>
+
 <script src="/visit-core.js"></script>
 <script>
 (function(){
@@ -259,7 +268,7 @@
     var lead=V.dowOf(m+"-01");
     var daysIn=new Date(Date.UTC(y,mo,0)).getUTCDate();
     var t=V.today();
-    var minM=V.monthOf(t), maxM=V.monthOf(V.addDays(t,(state.cfg.horizonDays||28)-1));
+    var minM=V.monthOf(t), maxM=V.monthOf(V.horizonEnd(state.cfg));
     document.getElementById("calPrev").disabled = m<=minM;
     document.getElementById("calNext").disabled = m>=maxM;
 
@@ -279,22 +288,92 @@
       var tail = n ? '<span class="t">'+n+'개</span>'
                    : '<span class="r">'+V.esc(!V.inHorizon(state.cfg,k)?(k<t?"":"—"):st.why)+'</span>';
       b.innerHTML='<span class="n">'+d+'</span>'+tail;
+      b.dataset.key=k;
+      /* 화면에 안 보이는 이유까지 읽어 주도록 이름을 붙입니다 */
+      b.setAttribute("aria-label",
+        mo+"월 "+d+"일 "+V.DOW_KO[dw]+"요일 "+(n? n+"개 예약 가능" : (st.why||"예약 불가")));
       if(st.why) b.title=st.why;
       (function(key){
-        b.addEventListener("click",function(){
-          state.dayKey=key; state.slotISO=null;
-          renderCal(); renderStrip(); renderSlots(); renderForm();
-          document.getElementById("slotarea").scrollIntoView({behavior:"smooth",block:"nearest"});
-        });
+        b.addEventListener("click",function(){ pickDay(key); });
       })(k);
       grid.appendChild(b);
     }
     updateHorizonNote();
   }
 
+  function pickDay(key){
+    state.dayKey=key; state.slotISO=null;
+    renderCal(); renderStrip(); renderSlots(); renderForm(); syncBar();
+    document.getElementById("slotarea").scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+
+  /* 달력에서 화살표 키로 옮겨 다닙니다. 막힌 날은 자동으로 건너뜁니다. */
+  document.getElementById("calGrid").addEventListener("keydown",function(ev){
+    var keys=["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End","PageUp","PageDown"];
+    if(keys.indexOf(ev.key)===-1) return;
+    var cells=Array.prototype.filter.call(
+      this.querySelectorAll(".cell"), function(c){ return !c.disabled; });
+    if(ev.key==="PageUp"||ev.key==="PageDown"){
+      ev.preventDefault();
+      var minM=V.monthOf(V.today());
+      var maxM=V.monthOf(V.horizonEnd(state.cfg));
+      var next=V.monthShift(state.calMonth, ev.key==="PageDown"?1:-1);
+      if(next<minM||next>maxM) return;
+      state.calMonth=next; renderCal();
+      var first=this.querySelector(".cell:not(:disabled)");
+      if(first) first.focus();
+      return;
+    }
+    if(!cells.length) return;
+    ev.preventDefault();
+    var i=cells.indexOf(document.activeElement);
+    var to;
+    if(ev.key==="Home") to=0;
+    else if(ev.key==="End") to=cells.length-1;
+    else if(i===-1) to=0;
+    else if(ev.key==="ArrowRight"||ev.key==="ArrowDown") to=Math.min(i+1,cells.length-1);
+    else to=Math.max(i-1,0);
+    cells[to].focus();
+  });
+
+  /* 손가락으로 좌우로 밀면 달을 넘깁니다 */
+  (function swipe(){
+    var el=document.getElementById("calGrid"), x0=null, y0=null;
+    el.addEventListener("touchstart",function(e){
+      if(e.touches.length!==1) return;
+      x0=e.touches[0].clientX; y0=e.touches[0].clientY;
+    },{passive:true});
+    el.addEventListener("touchend",function(e){
+      if(x0===null) return;
+      var t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0;
+      x0=null;
+      if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.6) return;   /* 세로 스크롤과 헷갈리지 않게 */
+      var minM=V.monthOf(V.today());
+      var maxM=V.monthOf(V.horizonEnd(state.cfg));
+      var next=V.monthShift(state.calMonth, dx<0?1:-1);
+      if(next<minM||next>maxM) return;
+      state.calMonth=next; renderCal();
+    },{passive:true});
+  })();
+
+  /* 주간 보기는 지금 보고 있는 달만 그립니다.
+     공개 범위가 넉 달이면 단추가 100개 넘게 생겨 스크롤이 무거워집니다. */
+  function stripKeys(){
+    var m=state.calMonth, y=parseInt(m.slice(0,4),10), mo=parseInt(m.slice(5,7),10);
+    var daysIn=new Date(Date.UTC(y,mo,0)).getUTCDate(), out=[];
+    for(var d=1;d<=daysIn;d++){
+      var k=m+"-"+(d<10?"0":"")+d;
+      if(V.inHorizon(state.cfg,k)) out.push(k);
+    }
+    return out;
+  }
   function renderStrip(){
-    var strip=document.getElementById("daystrip"), keys=V.horizonKeys(state.cfg);
+    var strip=document.getElementById("daystrip"), keys=stripKeys();
     strip.innerHTML="";
+    if(!keys.length){
+      strip.innerHTML='<p class="empty" style="padding:8px 2px">이 달에는 예약 가능한 날이 없습니다.</p>';
+      return;
+    }
     keys.forEach(function(k){
       var d=V.dowOf(k), st=V.dayStatus(state.cfg,k), n=V.slotsFor(state.cfg,k).length;
       var b=document.createElement("button");
@@ -305,9 +384,10 @@
       b.innerHTML='<span class="dow">'+V.DOW_KO[d]+'</span><span class="dnum">'+
         k.slice(8).replace(/^0/,"")+'</span><span class="cnt">'+V.esc(n?n+"개":(st.why||"—"))+'</span>';
       if(!n&&st.why) b.title=st.why;
+      b.setAttribute("aria-label",
+        V.labelDate(k)+" "+(n? n+"개 예약 가능" : (st.why||"예약 불가")));
       b.addEventListener("click",function(){
-        state.dayKey=k; state.slotISO=null; state.calMonth=V.monthOf(k);
-        renderCal(); renderStrip(); renderSlots(); renderForm();
+        state.calMonth=V.monthOf(k); pickDay(k);
       });
       strip.appendChild(b);
     });
@@ -318,8 +398,9 @@
   function updateHorizonNote(){
     var total=0;
     V.horizonKeys(state.cfg).forEach(function(k){total+=V.slotsFor(state.cfg,k).length;});
+    var end=V.horizonEnd(state.cfg);
     document.getElementById("horizonNote").textContent=
-      "앞으로 "+(state.cfg.horizonDays||28)+"일 · 예약 가능 "+total+"건";
+      V.labelDate(end).replace(/\s\(.\)$/,"")+"까지 · 예약 가능 "+total+"건";
   }
   function pickFirstDay(){
     var keys=V.horizonKeys(state.cfg);
@@ -351,9 +432,11 @@
       b.type="button"; b.className="slot";
       b.setAttribute("aria-pressed",String(s.iso===state.slotISO));
       b.textContent=s.hm+"–"+s.end;
+      b.setAttribute("aria-label",V.labelDate(state.dayKey)+" "+s.hm+"부터 "+s.end+"까지");
       b.addEventListener("click",function(){
-        state.slotISO=s.iso; renderSlots(); renderForm();
-        document.getElementById("step3").scrollIntoView({behavior:"smooth",block:"nearest"});
+        state.slotISO=s.iso; renderSlots(); renderForm(); syncBar();
+        /* 좁은 화면에서는 아래 막대가 안내하므로 억지로 스크롤하지 않습니다 */
+        if(!isNarrow()) document.getElementById("step3").scrollIntoView({behavior:"smooth",block:"nearest"});
       });
       wrap.appendChild(b);
     });
@@ -363,6 +446,8 @@
   function renderForm(){
     var sum=document.getElementById("summary"), note=document.getElementById("formNote"),
         btn=document.getElementById("submitBtn");
+    markStep(1, !!state.dayKey);
+    markStep(2, !!state.slotISO);
     if(!state.slotISO){sum.hidden=true;btn.disabled=true;note.textContent="시간을 먼저 선택해 주세요";return;}
     var s=new Date(state.slotISO), e=new Date(s.getTime()+state.cfg.mins*60000);
     sum.hidden=false;
@@ -371,6 +456,34 @@
     note.textContent="필수 항목을 입력해 주세요";
     btn.disabled=false;
   }
+
+  /* 끝난 단계의 번호를 채웁니다 */
+  function markStep(n,done){
+    var el=document.querySelectorAll(".step .step-no")[n-1];
+    if(el) el.classList.toggle("ok",!!done);
+  }
+  function isNarrow(){ return window.matchMedia("(max-width:640px)").matches; }
+
+  /* 아래 확인 막대 */
+  function syncBar(){
+    var bar=document.getElementById("mobilebar");
+    /* 시간을 골랐고, 아직 접수 전일 때만 띄웁니다 */
+    var on = !!state.slotISO && !document.getElementById("flow").hidden;
+    bar.hidden=!on;
+    document.body.classList.toggle("has-bar",on);
+    var tw=document.querySelector(".toastwrap");
+    if(tw) tw.classList.toggle("lifted",on&&isNarrow());
+    if(!on) return;
+    var s=new Date(state.slotISO), e=new Date(s.getTime()+state.cfg.mins*60000);
+    document.getElementById("mbWhen").innerHTML=
+      V.esc(V.labelDate(V.keyOf(s)))+" "+V.hmOf(s)+"–"+V.hmOf(e)+
+      "<small>아래에서 정보를 입력하면 예약됩니다</small>";
+  }
+  document.getElementById("mbGo").addEventListener("click",function(){
+    var f=document.getElementById("f-company");
+    document.getElementById("step3").scrollIntoView({behavior:"smooth",block:"start"});
+    setTimeout(function(){ try{ f.focus({preventScroll:true}); }catch(e){ f.focus(); } },420);
+  });
 
   /* ---------- 텍스트 · 캘린더 ---------- */
   function stampUTC(d){return d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");}
@@ -439,6 +552,77 @@
     return viaStatic().then(function(ok){return ok?true:viaWeb3();});
   }
 
+  /* ---------- 입력 내용 임시 보관 ----------
+     실수로 새로고침하거나 전화를 받다 앱이 내려가도 적던 내용이 남습니다. */
+  var DRAFT="monnit_visit_draft_v1";
+  var FIELDS=["f-company","f-name","f-email","f-phone","f-place",
+              "f-equipment","f-symptom","f-process","f-access","f-etc"];
+  function saveDraft(){
+    try{
+      var d={};
+      FIELDS.forEach(function(id){ d[id]=document.getElementById(id).value; });
+      var ex=document.querySelector('input[name="exp"]:checked');
+      d.exp=ex?ex.value:"";
+      localStorage.setItem(DRAFT,JSON.stringify(d));
+    }catch(e){}
+  }
+  function loadDraft(){
+    try{
+      var d=JSON.parse(localStorage.getItem(DRAFT)||"null");
+      if(!d) return false;
+      var any=false;
+      FIELDS.forEach(function(id){
+        if(d[id]){ document.getElementById(id).value=d[id]; any=true; }
+      });
+      if(d.exp){
+        var r=document.querySelector('input[name="exp"][value="'+d.exp+'"]');
+        if(r){ r.checked=true; any=true; }
+      }
+      return any;
+    }catch(e){ return false; }
+  }
+  function clearDraft(){ try{ localStorage.removeItem(DRAFT); }catch(e){} }
+
+  /* ---------- 칸별 오류 표시 ---------- */
+  function fieldOf(id){
+    var el=document.getElementById(id);
+    return el?el.closest(".field"):null;
+  }
+  function clearBad(){
+    Array.prototype.forEach.call(document.querySelectorAll(".field.bad"),function(f){
+      f.classList.remove("bad");
+      var m=f.querySelector(".fieldmsg"); if(m) m.remove();
+    });
+    var g=document.getElementById("expGroup");
+    if(g) g.classList.remove("bad");
+  }
+  function markBad(id,msg){
+    var f=fieldOf(id); if(!f) return;
+    f.classList.add("bad");
+    if(!f.querySelector(".fieldmsg")){
+      var m=document.createElement("span");
+      m.className="fieldmsg"; m.textContent=msg;
+      f.appendChild(m);
+    }
+  }
+  FIELDS.forEach(function(id){
+    var el=document.getElementById(id);
+    el.addEventListener("input",function(){
+      var f=fieldOf(id);
+      if(f&&f.classList.contains("bad")&&el.value.trim()){
+        f.classList.remove("bad");
+        var m=f.querySelector(".fieldmsg"); if(m) m.remove();
+      }
+      saveDraft();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="exp"]'),function(r){
+    r.addEventListener("change",function(){
+      document.getElementById("expGroup").classList.remove("bad");
+      saveDraft();
+    });
+  });
+
   /* ---------- 제출 ---------- */
   document.getElementById("bookform").addEventListener("submit",function(ev){
     ev.preventDefault();
@@ -450,17 +634,35 @@
       place:g("f-place"), exp:expEl?expEl.value:"", equipment:g("f-equipment"),
       symptom:g("f-symptom"), process:g("f-process"), access:g("f-access"), etc:g("f-etc")};
 
-    var miss=[];
-    if(!b.company) miss.push("회사명");
-    if(!b.name) miss.push("담당자 성함");
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)) miss.push("올바른 이메일");
-    if(!b.phone) miss.push("연락처");
-    if(!b.place) miss.push("방문 사업장 주소");
-    if(!b.exp) miss.push("진동 계측장비 사용 경험");
-    if(!b.equipment) miss.push("설치 희망 설비");
-    if(!b.symptom) miss.push("확인하고 싶은 것");
-    if(!b.process) miss.push("공정 프로세스");
-    if(miss.length){errEl.hidden=false;errEl.textContent=miss.join(", ")+"을(를) 확인해 주세요.";return;}
+    clearBad();
+    var bad=[];
+    function need(id,val,msg){ if(!val){ markBad(id,msg); bad.push(id); } }
+    need("f-company",b.company,"회사명을 적어 주세요");
+    need("f-name",b.name,"성함과 직함을 적어 주세요");
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)){
+      markBad("f-email", b.email?"이메일 주소를 다시 확인해 주세요":"이메일을 적어 주세요");
+      bad.push("f-email");
+    }
+    need("f-phone",b.phone,"연락처를 적어 주세요");
+    need("f-place",b.place,"설비가 있는 공장 주소를 적어 주세요");
+    if(!b.exp){ document.getElementById("expGroup").classList.add("bad"); bad.push("expGroup"); }
+    need("f-equipment",b.equipment,"어떤 설비인지 적어 주세요");
+    need("f-symptom",b.symptom,"확인하고 싶은 것을 적어 주세요");
+    need("f-process",b.process,"공정 순서를 간단히 적어 주세요");
+
+    if(bad.length){
+      errEl.hidden=false;
+      errEl.textContent="빨간 표시된 "+bad.length+"곳을 채워 주세요.";
+      var first=document.getElementById(bad[0]);
+      if(first){
+        first.scrollIntoView({behavior:"smooth",block:"center"});
+        setTimeout(function(){
+          var t=first.tagName==="DIV"?first.querySelector("input"):first;
+          if(t){ try{ t.focus({preventScroll:true}); }catch(e){ t.focus(); } }
+        },400);
+      }
+      return;
+    }
     errEl.hidden=true;
 
     var s=new Date(state.slotISO), e=new Date(s.getTime()+state.cfg.mins*60000);
@@ -469,15 +671,24 @@
     b.code="MV-"+V.keyOf(s).replace(/-/g,"")+"-"+V.hmOf(s).replace(":","")+"-"+
            Math.random().toString(36).slice(2,6).toUpperCase();
 
-    document.getElementById("submitBtn").disabled=true;
-    hint.textContent="접수하는 중…";
-    sendBooking(b).then(function(ok){ hint.textContent=""; finish(b,ok); })
-                  .catch(function(){ hint.textContent=""; finish(b,false); });
+    var btn=document.getElementById("submitBtn");
+    btn.disabled=true;
+    btn.innerHTML='<span class="spin" aria-hidden="true"></span>접수하는 중…';
+    hint.textContent="";
+
+    sendBooking(b).then(function(ok){ finish(b,ok); })
+                  .catch(function(){ finish(b,false); });
   });
 
   function finish(b,sent){
     state.last=b;
+    var btn=document.getElementById("submitBtn");
+    btn.textContent="현장 진단 예약하기";
+    if(sent) clearDraft();
     document.getElementById("flow").hidden=true;
+    syncBar();
+    markStep(3,true);
+    V.toast(sent?"예약이 접수되었습니다":"요청 내용이 준비되었습니다", sent?"ok":"");
     var card=document.getElementById("donecard"); card.hidden=false;
 
     document.getElementById("doneTick").textContent = sent?"접수 완료":"요청 준비 완료";
@@ -505,27 +716,20 @@
   }
 
   document.getElementById("icsBtn").addEventListener("click",function(){
-    var b=state.last; if(!b) return; var btn=this;
+    var b=state.last; if(!b) return;
     try{
       var blob=new Blob([icsFor(b)],{type:"text/calendar;charset=utf-8"});
       var url=URL.createObjectURL(blob), a=document.createElement("a");
       a.href=url; a.download="monnit-"+b.code+".ics";
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function(){URL.revokeObjectURL(url);},1500);
-      btn.textContent="저장했습니다";
-    }catch(err){ btn.textContent="이 화면에서는 저장할 수 없습니다"; }
+      V.toast("캘린더 파일을 저장했습니다","ok");
+    }catch(err){ V.toast("이 화면에서는 저장할 수 없습니다"); }
   });
   document.getElementById("copyBtn").addEventListener("click",function(){
-    var b=state.last; if(!b) return; var btn=this, box=document.getElementById("draftBox");
-    box.hidden=false; box.focus(); box.select();
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(plainText(b)).then(function(){btn.textContent="복사했습니다";},
-        function(){ try{document.execCommand("copy");btn.textContent="복사했습니다";}
-                    catch(e){btn.textContent="아래 내용을 직접 복사해 주세요";} });
-    } else {
-      try{document.execCommand("copy");btn.textContent="복사했습니다";}
-      catch(e){btn.textContent="아래 내용을 직접 복사해 주세요";}
-    }
+    var b=state.last; if(!b) return;
+    document.getElementById("draftBox").hidden=false;
+    V.copy(plainText(b),"예약 내용을 복사했습니다");
   });
 
   /* ---------- 회수 안내 팝업 ---------- */
@@ -541,12 +745,7 @@
     document.getElementById("retClose2").addEventListener("click",close);
     dlg.addEventListener("click",function(ev){ if(ev.target===dlg) close(); });
     document.getElementById("retCopy").addEventListener("click",function(){
-      var btn=this;
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(RETURN_TEXT).then(function(){btn.textContent="복사했습니다";},
-          function(){btn.textContent="복사하지 못했습니다";});
-      } else { btn.textContent="복사하지 못했습니다"; }
-      setTimeout(function(){btn.textContent="반품 주소 복사";},2200);
+      V.copy(RETURN_TEXT,"반품 주소를 복사했습니다");
     });
   })();
 
@@ -561,7 +760,16 @@
 
   document.getElementById("factDur").textContent=state.cfg.mins+"분";
   setView("cal");
-  pickFirstDay(); renderCal(); renderStrip(); renderSlots(); renderForm();
+  pickFirstDay(); renderCal(); renderStrip(); renderSlots(); renderForm(); syncBar();
+
+  /* 적다 만 내용이 있으면 되살립니다 */
+  if(loadDraft()) V.toast("적으시던 내용을 되살렸습니다");
+
+  /* 화면을 돌리거나 창 크기가 바뀌면 아래 막대 자리를 다시 잡습니다 */
+  var t=null;
+  window.addEventListener("resize",function(){
+    clearTimeout(t); t=setTimeout(syncBar,150);
+  });
 })();
 </script>
 </body>

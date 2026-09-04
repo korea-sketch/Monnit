@@ -36,7 +36,16 @@ window.VisitCore = (function () {
     dayStart: "09:30", dayEnd: "16:00",
     lunchStart: "12:00", lunchEnd: "13:00",
     mins: 60, buffer: 60, granularity: 30,
-    leadHours: 72, horizonDays: 28, maxPerDay: 2,
+    leadHours: 72,
+    /* 공개 범위 — 아래 셋 중 가장 빨리 끝나는 날까지 보여 줍니다.
+       horizonMonths : 이번 달 포함해서 몇 달 뒤 말일까지 열지. 1이면 다음 달 말일까지.
+                       달이 바뀌면 자동으로 한 달이 더 열립니다.
+       horizonUntil  : 특정 날짜에서 딱 멈추고 싶을 때만 씁니다. 비워 두면 무시합니다.
+       horizonDays   : 안전장치. 위 값이 잘못 들어가도 이 일수를 넘지 않습니다. */
+    horizonMonths: 1,
+    horizonUntil: "",
+    horizonDays: 400,
+    maxPerDay: 2,
     closed: [],   /* [{d:"YYYY-MM-DD", memo:""}] */
     blocks: []    /* [{d:"YYYY-MM-DD", s:"HH:MM", e:"HH:MM", memo:""}] */
   };
@@ -82,7 +91,7 @@ window.VisitCore = (function () {
     if (cfg.workdays.indexOf(dowOf(k)) === -1) return { open: false, why: "휴무", hol: false };
     return { open: true, why: "", hol: false };
   }
-  function slotsFor(cfg, k) {
+  function computeSlots(cfg, k) {
     if (!dayStatus(cfg, k).open) return [];
     var out = [], open = toMin(cfg.dayStart), close = toMin(cfg.dayEnd);
     var lS = toMin(cfg.lunchStart), lE = toMin(cfg.lunchEnd);
@@ -102,14 +111,57 @@ window.VisitCore = (function () {
     }
     return out;
   }
+
+  /* 공개 범위가 넉 달까지 늘어나면 같은 날을 수십 번 다시 계산하게 됩니다.
+     설정이 그대로이고 1분이 지나지 않았으면 앞서 계산한 값을 씁니다. */
+  var memo = { sig: null, bucket: -1, slots: {}, keys: null };
+  function sigOf(cfg) {
+    return [cfg.workdays.join(","), cfg.dayStart, cfg.dayEnd, cfg.lunchStart, cfg.lunchEnd,
+      cfg.mins, cfg.buffer, cfg.granularity, cfg.leadHours,
+      cfg.horizonMonths, cfg.horizonDays, cfg.horizonUntil || "",
+      JSON.stringify(cfg.closed), JSON.stringify(cfg.blocks)].join("|");
+  }
+  function fresh(cfg) {
+    var sig = sigOf(cfg), bucket = Math.floor(Date.now() / 60000);
+    if (memo.sig !== sig || memo.bucket !== bucket) memo = { sig: sig, bucket: bucket, slots: {}, keys: null };
+    return memo;
+  }
+  function slotsFor(cfg, k) {
+    var m = fresh(cfg);
+    if (!m.slots[k]) m.slots[k] = computeSlots(cfg, k);
+    return m.slots[k];
+  }
+
+  function endOfMonth(m) {                     /* m = "YYYY-MM" */
+    var y = parseInt(m.slice(0, 4), 10), mo = parseInt(m.slice(5, 7), 10);
+    var last = new Date(Date.UTC(y, mo, 0)).getUTCDate();
+    return m + "-" + (last < 10 ? "0" : "") + last;
+  }
+
+  /* 공개 마지막 날 — 개월 수 · 지정 날짜 · 안전 일수 중 가장 빠른 날 */
+  function horizonEnd(cfg) {
+    var t = today(), ends = [];
+    var mm = cfg.horizonMonths;
+    if (mm !== undefined && mm !== null && mm !== "") {
+      ends.push(endOfMonth(monthShift(monthOf(t), Math.max(0, parseInt(mm, 10) || 0))));
+    }
+    if (cfg.horizonUntil) ends.push(cfg.horizonUntil);
+    if (cfg.horizonDays) ends.push(addDays(t, Math.max(1, parseInt(cfg.horizonDays, 10) || 28) - 1));
+    if (!ends.length) return addDays(t, 27);
+    ends.sort();
+    return ends[0] < t ? t : ends[0];
+  }
   function horizonKeys(cfg) {
-    var keys = [], t = today();
-    for (var i = 0; i < (cfg.horizonDays || 28); i++) keys.push(addDays(t, i));
+    var m = fresh(cfg);
+    if (m.keys) return m.keys;
+    var keys = [], t = today(), end = horizonEnd(cfg), k = t, guard = 0;
+    while (k <= end && guard++ < 400) { keys.push(k); k = addDays(k, 1); }
+    m.keys = keys;
     return keys;
   }
   function inHorizon(cfg, k) {
     var t = today();
-    return k >= t && k <= addDays(t, (cfg.horizonDays || 28) - 1);
+    return k >= t && k <= horizonEnd(cfg);
   }
 
   /* ---------- 설정 직렬화 ---------- */
@@ -149,13 +201,59 @@ window.VisitCore = (function () {
   }
   function clearCfg() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
 
+  /* ---------- 짧은 알림 ---------- */
+  var toastRoot = null;
+  function toast(msg, kind) {
+    if (!toastRoot) {
+      toastRoot = document.querySelector(".toastwrap");
+      if (!toastRoot) {
+        toastRoot = document.createElement("div");
+        toastRoot.className = "toastwrap";
+        toastRoot.setAttribute("role", "status");
+        toastRoot.setAttribute("aria-live", "polite");
+        document.body.appendChild(toastRoot);
+      }
+    }
+    var el = document.createElement("div");
+    el.className = "toast" + (kind === "ok" ? " ok" : "");
+    el.textContent = msg;
+    toastRoot.appendChild(el);
+    setTimeout(function () {
+      el.classList.add("out");
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 220);
+    }, 2200);
+  }
+  /* 클립보드는 브라우저와 상황에 따라 막히므로 두 가지 방법을 다 시도합니다. */
+  function copy(text, okMsg) {
+    function done() { toast(okMsg || "복사했습니다", "ok"); }
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) { done(); return true; }
+      } catch (e) {}
+      toast("복사하지 못했습니다. 내용을 직접 선택해 주세요.");
+      return false;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+      return;
+    }
+    fallback();
+  }
+
   return {
     TZ: TZ, DOW_KO: DOW_KO, HOLIDAYS: HOLIDAYS, DEFAULT_CFG: DEFAULT_CFG, STORE_KEY: STORE_KEY,
+    toast: toast, copy: copy,
     keyOf: keyOf, hmOf: hmOf, addDays: addDays, dowOf: dowOf, inst: inst,
     toMin: toMin, toHM: toHM, labelDate: labelDate, ov: ov, esc: esc,
     monthOf: monthOf, monthShift: monthShift, today: today,
     closedMemo: closedMemo, dayStatus: dayStatus, slotsFor: slotsFor,
-    horizonKeys: horizonKeys, inHorizon: inHorizon,
+    horizonKeys: horizonKeys, inHorizon: inHorizon, horizonEnd: horizonEnd,
     normalize: normalize, encodeCfg: encodeCfg, decodeCfg: decodeCfg,
     loadCfg: loadCfg, saveCfg: saveCfg, clearCfg: clearCfg
   };
