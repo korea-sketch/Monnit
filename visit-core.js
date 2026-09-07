@@ -183,7 +183,50 @@ window.VisitCore = (function () {
       return JSON.parse(decodeURIComponent(escape(atob(b))));
     } catch (e) { return null; }
   }
-  /* URL(?s=) → localStorage → 기본값 순으로 설정을 찾습니다. */
+  /* ---------- 서버에 저장된 설정 ----------
+     관리 화면에서 저장하면 서버(/visit/config)에 올라가고,
+     고객 화면은 열 때마다 그걸 읽어옵니다. 링크를 다시 만들 필요가 없습니다. */
+  var CONFIG_URL = "/visit/config";
+  function fetchRemote() {
+    try {
+      return fetch(CONFIG_URL, { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (j && j.cfg && j.cfg.workdays) return { cfg: normalize(j.cfg), savedAt: j.savedAt || "" };
+          return null;
+        })
+        .catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  /* 고객 화면이 쓰는 순서 — 링크(?s=)로 콕 집어 준 설정이 있으면 그게 우선,
+     없으면 서버에 저장된 설정, 그것도 없으면 기본값. */
+  function resolveCfg() {
+    var q = null;
+    try { q = new URLSearchParams(location.search).get("s"); } catch (e) {}
+    if (q) {
+      var c = decodeCfg(q);
+      if (c && c.workdays) return Promise.resolve({ cfg: normalize(c), src: "link" });
+    }
+    return fetchRemote().then(function (r) {
+      if (r) return { cfg: r.cfg, src: "server", savedAt: r.savedAt };
+      return { cfg: JSON.parse(JSON.stringify(DEFAULT_CFG)), src: "default" };
+    });
+  }
+
+  /* 관리 화면에서 저장 — 로그인 쿠키가 있어야 통과합니다. */
+  function pushCfg(cfg) {
+    return fetch("/visit/admin/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cfg: cfg })
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok && j && j.ok, error: (j && j.error) || "" }; },
+                           function () { return { ok: r.ok, error: "" }; });
+    }).catch(function () { return { ok: false, error: "network" }; });
+  }
+
+  /* (예전 방식) URL(?s=) → localStorage → 기본값 */
   function loadCfg() {
     try {
       var q = new URLSearchParams(location.search).get("s");
@@ -255,6 +298,7 @@ window.VisitCore = (function () {
     closedMemo: closedMemo, dayStatus: dayStatus, slotsFor: slotsFor,
     horizonKeys: horizonKeys, inHorizon: inHorizon, horizonEnd: horizonEnd,
     normalize: normalize, encodeCfg: encodeCfg, decodeCfg: decodeCfg,
+    fetchRemote: fetchRemote, resolveCfg: resolveCfg, pushCfg: pushCfg,
     loadCfg: loadCfg, saveCfg: saveCfg, clearCfg: clearCfg
   };
 })();

@@ -6,8 +6,48 @@ import * as auth from './_visit_auth.mjs';
 import { get, set } from './_store.mjs';
 
 export const config = {
-  path: ['/visit/admin', '/visit/admin/', '/visit/admin/login', '/visit/admin/logout']
+  path: ['/visit/admin', '/visit/admin/', '/visit/admin/login', '/visit/admin/logout',
+         '/visit/admin/config',   /* 저장 — 로그인한 담당자만 */
+         '/visit/config']         /* 읽기 — 고객 화면이 열 때마다 가져갑니다 */
 };
+
+/* 설정 저장소 — 관리 화면에서 저장하면 여기 올라가고,
+   /visit 이 그걸 읽어 갑니다. 그래서 링크를 다시 만들 필요가 없습니다. */
+const CFG_STORE = 'visit', CFG_KEY = 'config.json';
+
+/* 들어온 값을 그대로 믿지 않고 필요한 것만 골라 담습니다. */
+function cleanCfg(c) {
+  const num = (v, lo, hi, d) => {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d;
+  };
+  const hm = (v, d) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(v)) ? String(v) : d);
+  const day = v => (/^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? String(v) : '');
+  const txt = (v, n) => String(v == null ? '' : v)
+    .replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, n);
+  const days = Array.isArray(c.workdays)
+    ? [...new Set(c.workdays.map(n => parseInt(n, 10)).filter(n => n >= 0 && n <= 6))].sort()
+    : [1, 2, 3, 4, 5];
+  return {
+    v: 1,
+    workdays: days,
+    dayStart: hm(c.dayStart, '09:30'), dayEnd: hm(c.dayEnd, '16:00'),
+    lunchStart: hm(c.lunchStart, '12:00'), lunchEnd: hm(c.lunchEnd, '13:00'),
+    mins: num(c.mins, 15, 480, 60),
+    buffer: num(c.buffer, 0, 240, 60),
+    granularity: num(c.granularity, 15, 120, 30),
+    leadHours: num(c.leadHours, 0, 720, 72),
+    horizonMonths: num(c.horizonMonths, 0, 12, 1),
+    horizonUntil: day(c.horizonUntil),
+    horizonDays: num(c.horizonDays, 1, 400, 400),
+    maxPerDay: num(c.maxPerDay, 1, 10, 2),
+    closed: (Array.isArray(c.closed) ? c.closed : []).slice(0, 200)
+      .map(x => ({ d: day(x && x.d), memo: txt(x && x.memo, 40) })).filter(x => x.d),
+    blocks: (Array.isArray(c.blocks) ? c.blocks : []).slice(0, 400)
+      .map(x => ({ d: day(x && x.d), s: hm(x && x.s, ''), e: hm(x && x.e, ''), memo: txt(x && x.memo, 40) }))
+      .filter(x => x.d && x.s && x.e)
+  };
+}
 
 const MAX_FAIL = 8, LOCK_MS = 15 * 60 * 1000;
 
@@ -42,6 +82,39 @@ const esc = s => String(s == null ? '' : s)
 export default async (req) => {
   const url = new URL(req.url);
   const p = url.pathname.replace(/\/+$/, '') || '/visit/admin';
+
+  const json = (o, status = 200) => new Response(JSON.stringify(o),
+    { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });
+
+  /* ── 고객 화면이 읽어 가는 곳 (누구나) ───────────────────── */
+  if (p === '/visit/config') {
+    if (req.method !== 'GET') return json({ ok: false, error: 'method' }, 405);
+    try {
+      const raw = await get(CFG_STORE, CFG_KEY);
+      if (!raw) return json({ ok: true, cfg: null });          /* 아직 저장 전 — 기본값으로 열립니다 */
+      const o = JSON.parse(raw);
+      return json({ ok: true, cfg: o.cfg, savedAt: o.savedAt || '' });
+    } catch (e) {
+      return json({ ok: true, cfg: null });                    /* 읽기 실패해도 예약 화면은 열려야 합니다 */
+    }
+  }
+
+  /* ── 담당자가 저장하는 곳 (로그인 필요) ──────────────────── */
+  if (p === '/visit/admin/config') {
+    if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
+    if (!auth.configured() || !auth.valid(auth.cookieFrom(req.headers))) {
+      return json({ ok: false, error: 'unauthorized' }, 401);
+    }
+    let body = null;
+    try { body = await req.json(); } catch (e) {}
+    if (!body || !body.cfg) return json({ ok: false, error: 'bad_body' }, 400);
+    const cfg = cleanCfg(body.cfg);
+    if (!cfg.workdays.length) return json({ ok: false, error: 'no_workdays' }, 400);
+    const savedAt = new Date().toISOString();
+    const ok = await set(CFG_STORE, CFG_KEY, JSON.stringify({ cfg, savedAt }));
+    if (!ok) return json({ ok: false, error: 'store' }, 500);
+    return json({ ok: true, savedAt });
+  }
 
   /* 로그아웃 */
   if (p === '/visit/admin/logout') {
@@ -246,14 +319,30 @@ function ADMIN() {
 
     <div>
       <div class="card">
-        <h3>고객에게 보낼 링크
-          <span class="sub">지금 설정을 링크에 담아 만듭니다. 사이트를 다시 올릴 필요가 없습니다.</span>
+        <h3>저장하기
+          <span class="sub">누르면 곧바로 <b>monnit.co.kr/visit</b> 에 반영됩니다.
+            고객에게는 그 주소만 보내시면 됩니다.</span>
         </h3>
         <div class="actions">
-          <button class="btn" id="makeLink" type="button">링크 만들기</button>
+          <button class="btn" id="publishCfg" type="button">저장하고 공개하기</button>
+          <button class="btn ghost sm" id="reloadCfg" type="button">되돌리기</button>
+        </div>
+        <p class="hint" id="pubHint">아직 저장하지 않았습니다.</p>
+        <div class="actions" style="border-top:1px solid var(--hair);padding-top:12px;margin-top:2px">
+          <a class="btn ghost sm" id="openVisit" href="/visit" target="_blank" rel="noopener">고객 화면 열어 보기</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>특정 고객에게만 다른 일정을 줄 때
+          <span class="sub">평소에는 쓰지 않습니다. 지금 화면 설정을 링크에 담아
+            <b>그 고객에게만</b> 다른 일정을 보여 주고 싶을 때만 씁니다.</span>
+        </h3>
+        <div class="actions">
+          <button class="btn ghost sm" id="makeLink" type="button">전용 링크 만들기</button>
           <button class="btn ghost sm" id="copyLink" type="button">복사</button>
         </div>
-        <textarea class="linkout" id="linkOut" readonly spellcheck="false" placeholder="‘링크 만들기’를 누르면 여기에 나옵니다."></textarea>
+        <textarea class="linkout" id="linkOut" readonly spellcheck="false" placeholder="필요할 때만 만드십시오."></textarea>
         <p class="hint" id="linkHint"></p>
       </div>
 
@@ -271,12 +360,13 @@ function ADMIN() {
       </div>
 
       <div class="card">
-        <h3>설정 저장</h3>
+        <h3>처음 값으로</h3>
+        <p class="hint" style="margin:0">설정이 엉켰을 때 기본 조건으로 되돌립니다.
+          되돌린 뒤 <b>저장하고 공개하기</b> 를 눌러야 고객 화면에도 반영됩니다.</p>
         <div class="actions">
-          <button class="btn sm" id="saveCfg" type="button">이 컴퓨터에 저장</button>
           <button class="btn ghost sm" id="resetCfg" type="button">처음 값으로</button>
         </div>
-        <p class="hint" id="cfgHint">저장하면 이 컴퓨터에서 다음에 열 때 그대로 불러옵니다.</p>
+        <p class="hint" id="cfgHint"></p>
       </div>
     </div>
   </div>
@@ -292,7 +382,31 @@ function ADMIN() {
 (function(){
   "use strict";
   var V=window.VisitCore;
-  var cfg=V.loadCfg().cfg;
+  var cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG));
+  var dirty=false;          /* 고친 뒤 아직 저장 안 한 상태 */
+  var savedAt="";
+
+  function stamp(iso){
+    if(!iso) return "";
+    try{
+      var d=new Date(iso);
+      return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"long",day:"numeric",
+        hour:"2-digit",minute:"2-digit"}).format(d);
+    }catch(e){ return ""; }
+  }
+  function showPub(){
+    var h=document.getElementById("pubHint");
+    if(dirty){
+      h.innerHTML="고친 내용이 있습니다. <b>‘저장하고 공개하기’</b> 를 눌러야 고객 화면에 반영됩니다.";
+      h.style.color="var(--signal)";
+      return;
+    }
+    h.style.color="";
+    h.innerHTML = savedAt
+      ? "지금 고객 화면(<b>monnit.co.kr/visit</b>)에 나가는 설정입니다. 마지막 저장 "+V.esc(stamp(savedAt))+"."
+      : "아직 한 번도 저장하지 않았습니다. 고객 화면은 <b>기본 일정</b>으로 열립니다.";
+  }
+  function markDirty(){ dirty=true; showPub(); }
 
   function fillForm(){
     document.getElementById("s-start").value=cfg.dayStart;
@@ -313,7 +427,7 @@ function ADMIN() {
       b.setAttribute("aria-pressed",String(cfg.workdays.indexOf(i)!==-1));
       b.addEventListener("click",function(){
         b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));
-        pullForm(); render();
+        pullForm(); render(); markDirty();
       });
       box.appendChild(b);
     });
@@ -346,7 +460,7 @@ function ADMIN() {
       var del=document.createElement("button"); del.type="button"; del.textContent="\\u00d7"; del.title="삭제";
       del.addEventListener("click",function(){
         cfg.closed=cfg.closed.filter(function(y){return y.d!==x.d;});
-        renderClosed(); render();
+        renderClosed(); render(); markDirty();
       });
       el.appendChild(del); box.appendChild(el);
     });
@@ -361,7 +475,7 @@ function ADMIN() {
       var del=document.createElement("button"); del.type="button"; del.textContent="\\u00d7"; del.title="삭제";
       del.addEventListener("click",function(){
         cfg.blocks=cfg.blocks.filter(function(y){return !(y.d===x.d&&y.s===x.s&&y.e===x.e);});
-        renderBlocks(); render();
+        renderBlocks(); render(); markDirty();
       });
       el.appendChild(del); box.appendChild(el);
     });
@@ -414,7 +528,7 @@ function ADMIN() {
     cfg.closed=cfg.closed.filter(function(x){return x.d!==d;});
     cfg.closed.push({d:d,memo:memo});
     document.getElementById("c-date").value=""; document.getElementById("c-memo").value="";
-    renderClosed(); render();
+    renderClosed(); render(); markDirty();
   });
   document.getElementById("addBlock").addEventListener("click",function(){
     var d=document.getElementById("b-date").value,
@@ -427,11 +541,11 @@ function ADMIN() {
     cfg.blocks.push({d:d,s:s,e:e,memo:memo});
     document.getElementById("b-date").value=""; document.getElementById("b-start").value="";
     document.getElementById("b-end").value=""; document.getElementById("b-memo").value="";
-    renderBlocks(); render();
+    renderBlocks(); render(); markDirty();
   });
   ["s-start","s-end","s-lstart","s-lend","s-mins","s-buffer","s-gran","s-lead","s-months","s-until","s-max"]
     .forEach(function(id){
-      document.getElementById(id).addEventListener("change",function(){pullForm();render();});
+      document.getElementById(id).addEventListener("change",function(){pullForm();render();markDirty();});
     });
 
   document.getElementById("makeLink").addEventListener("click",function(){
@@ -448,24 +562,47 @@ function ADMIN() {
     t.focus(); t.select();
     V.copy(t.value,"링크를 복사했습니다");
   });
-  document.getElementById("saveCfg").addEventListener("click",function(){
+  /* ── 저장하고 공개하기 ── */
+  var pubBtn=document.getElementById("publishCfg");
+  pubBtn.addEventListener("click",function(){
     pullForm();
-    var ok=V.saveCfg(cfg);
-    document.getElementById("cfgHint").textContent = ok
-      ? "이 컴퓨터에 저장해 두었습니다."
-      : "이 브라우저에서는 저장할 수 없습니다. 대신 고객용 링크를 만들어 보관하세요.";
-    V.toast(ok?"설정을 저장했습니다":"저장하지 못했습니다", ok?"ok":"");
-    render();
+    if(!cfg.workdays.length){ V.toast("방문 가능 요일을 하나 이상 켜 주세요"); return; }
+    pubBtn.disabled=true; pubBtn.textContent="저장하는 중…";
+    V.pushCfg(cfg).then(function(r){
+      pubBtn.disabled=false; pubBtn.textContent="저장하고 공개하기";
+      if(r.ok){
+        dirty=false; savedAt=new Date().toISOString(); showPub();
+        V.toast("저장했습니다. 고객 화면에 반영되었습니다","ok");
+      } else if(r.error==="unauthorized"){
+        V.toast("로그인이 풀렸습니다. 새로고침 후 다시 로그인해 주세요");
+      } else {
+        V.toast("저장하지 못했습니다. 잠시 후 다시 눌러 주세요");
+      }
+    });
   });
+
+  /* 서버에 저장된 설정으로 되돌리기 */
+  function pullFromServer(quiet){
+    return V.fetchRemote().then(function(r){
+      if(r){ cfg=r.cfg; savedAt=r.savedAt||""; }
+      else { cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG)); savedAt=""; }
+      dirty=false;
+      fillForm(); renderClosed(); renderBlocks(); render(); showPub();
+      if(!quiet) V.toast(r?"저장된 설정을 불러왔습니다":"저장된 설정이 없어 기본값으로 두었습니다");
+    });
+  }
+  document.getElementById("reloadCfg").addEventListener("click",function(){ pullFromServer(false); });
+
   document.getElementById("resetCfg").addEventListener("click",function(){
     cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG));
-    V.clearCfg();
-    fillForm(); renderClosed(); renderBlocks(); render();
-    document.getElementById("cfgHint").textContent="처음 값으로 되돌렸습니다.";
+    fillForm(); renderClosed(); renderBlocks(); render(); markDirty();
+    document.getElementById("cfgHint").textContent=
+      "처음 값으로 되돌렸습니다. ‘저장하고 공개하기’ 를 눌러야 고객 화면에도 반영됩니다.";
     V.toast("처음 값으로 되돌렸습니다");
   });
 
-  fillForm(); renderClosed(); renderBlocks(); renderHolidays(); render();
+  renderHolidays();
+  pullFromServer(true);
 })();
 </script>
 </body>

@@ -168,7 +168,9 @@
   force = true
 
 
-# 예지보전 현장 진단 예약 — 고객 /visit · 관리 /visit/admin(로그인 필요)
+# 예지보전 현장 진단 예약
+#   고객 /visit · 관리 /visit/admin(로그인) · 설정 읽기 /visit/config
+#   /visit/config 와 /visit/admin/* 는 netlify/functions/visitadmin.mjs 가 처리합니다
 [[redirects]]
   from = "/visit"
   to = "/visit.html"

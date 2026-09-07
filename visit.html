@@ -259,7 +259,10 @@
   var WEB3FORMS_KEY  ="e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
   var CONTACT        ="korea@monnit.com";
 
-  var state={cfg:V.loadCfg().cfg, dayKey:null, slotISO:null, last:null, view:"cal", calMonth:null};
+  /* 일정은 담당자가 관리 화면에서 저장한 값을 서버에서 읽어옵니다.
+     ?s= 링크로 콕 집어 준 설정이 있으면 그쪽이 우선입니다. */
+  var state={cfg:JSON.parse(JSON.stringify(V.DEFAULT_CFG)), dayKey:null, slotISO:null,
+             last:null, view:"cal", calMonth:null};
 
   /* ---------- 달력 ---------- */
   function renderCal(){
@@ -809,9 +812,20 @@
     state.calMonth=V.monthShift(state.calMonth,1); renderCal();
   });
 
-  document.getElementById("factDur").textContent=state.cfg.mins+"분";
-  setView("cal");
-  pickFirstDay(); renderCal(); renderStrip(); renderSlots(); renderForm(); syncBar();
+  function paint(){
+    document.getElementById("factDur").textContent=state.cfg.mins+"분";
+    setView(state.view);
+    pickFirstDay(); renderCal(); renderStrip(); renderSlots(); renderForm(); syncBar();
+  }
+
+  /* 먼저 기본 일정으로 그려 두고, 서버 설정이 오면 다시 그립니다.
+     느린 통신에서도 화면이 비어 있지 않습니다. */
+  document.getElementById("slotarea").innerHTML='<p class="empty">일정을 불러오는 중…</p>';
+  paint();
+  V.resolveCfg().then(function(r){
+    state.cfg=r.cfg; state.dayKey=null; state.slotISO=null;
+    paint();
+  }).catch(function(){});
 
   /* 적다 만 내용이 있으면 되살립니다 */
   if(loadDraft()) V.toast("적으시던 내용을 되살렸습니다");
