@@ -818,6 +818,18 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         var company = g('f-co'), contact = g('f-tel'), facility = g('f-type');
         var status = document.getElementById('mkLeadStatus');
         if (!company || !contact){ if (status) status.textContent = '회사·시설명과 연락처를 입력해 주세요.'; return; }
+        /* 형식이 틀린 연락처·이메일은 여기서 막는다.
+           예전에는 비어 있지만 않으면 통과해서 'ㅁㄴㅇㄹ' 같은 접수가 그대로 들어왔다. */
+        var _V = window.MonnitValid;
+        if (_V){
+          var _ck = contact.indexOf('@') > -1 ? _V.email(contact) : _V.phone(contact);
+          if (!_ck.ok){
+            if (status) status.textContent = _ck.message;
+            var _fi = document.getElementById('f-tel'); if (_fi) _fi.focus();
+            return;
+          }
+          if (_ck.value) contact = _ck.value;
+        }
         var payload = {
           '회사/시설명': company,
           '연락처': contact,

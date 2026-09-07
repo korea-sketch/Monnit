@@ -169,6 +169,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 56px;font-size:12.5px;col
 footer p{margin:0 0 4px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<script src="/valid.js" defer></script>
 </head>
 <body>
 
@@ -302,6 +303,13 @@ footer p{margin:0 0 4px}
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if(!form.checkValidity()){ err.style.display='block'; form.reportValidity(); return; }
+    var _V=window.MonnitValid;
+    if(_V){
+      var _em=(form.email&&form.email.value||'').trim();
+      var _ph=(form.phone&&form.phone.value||'').trim();
+      var _e=_V.email(_em); if(!_e.ok){ err.textContent=_e.message; err.style.display='block'; if(form.email)form.email.focus(); return; }
+      if(_ph){ var _p=_V.phone(_ph); if(!_p.ok){ err.textContent=_p.message; err.style.display='block'; form.phone.focus(); return; } form.phone.value=_p.value; }
+    }
     err.style.display='none';
     btn.disabled = true; btn.textContent = '전송 중…';
 

@@ -8488,6 +8488,18 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         var company = g('f-co'), contact = g('f-tel'), facility = g('f-type');
         var status = document.getElementById('mkLeadStatus');
         if (!company || !contact){ if (status) status.textContent = '회사·시설명과 연락처를 입력해 주세요.'; return; }
+        /* 형식이 틀린 연락처·이메일은 여기서 막는다.
+           예전에는 비어 있지만 않으면 통과해서 'ㅁㄴㅇㄹ' 같은 접수가 그대로 들어왔다. */
+        var _V = window.MonnitValid;
+        if (_V){
+          var _ck = contact.indexOf('@') > -1 ? _V.email(contact) : _V.phone(contact);
+          if (!_ck.ok){
+            if (status) status.textContent = _ck.message;
+            var _fi = document.getElementById('f-tel'); if (_fi) _fi.focus();
+            return;
+          }
+          if (_ck.value) contact = _ck.value;
+        }
         var payload = {
           _subject: '[무료 현장 진단 신청] ' + company,
           '회사/시설명': company,
@@ -12789,7 +12801,8 @@ function renderPhotoGallery(container, key){ renderGalleryItems(container, getPh
 async function subscribeMsg(id) {
   const el = document.getElementById(id);
   const v = el ? el.value.trim() : '';
-  if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); return; }
+  var _e = window.MonnitValid ? window.MonnitValid.email(v) : {ok:!!v && v.indexOf('@')>0};
+  if (!_e.ok) { alert(_e.message || '올바른 이메일 주소를 입력해 주세요.'); return; }
   const kind = (id === 'wpEmail') ? '백서 신청' : '뉴스레터 구독';
   const btn = el.parentElement ? el.parentElement.querySelector('button') : null;
   const ok = await sendLead({
@@ -12833,7 +12846,8 @@ async function wpRequest(){
   const idx = sel ? sel.value : '';
   const v   = em ? em.value.trim() : '';
   if (idx === '' || !WHITEPAPERS[idx]) { alert('받아보실 제안서를 먼저 선택해 주세요.'); if (sel) sel.focus(); return; }
-  if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); if (em) em.focus(); return; }
+  var _e = window.MonnitValid ? window.MonnitValid.email(v) : {ok:!!v && v.indexOf('@')>0};
+  if (!_e.ok) { alert(_e.message || '올바른 이메일 주소를 입력해 주세요.'); if (em) em.focus(); return; }
   const wp = WHITEPAPERS[idx];
   const dl = (wp.url || '').trim();
   /* 시트 Whitepapers 탭의 url 열이 비어 있으면 메일만 보내고 끝나는 상황을 막습니다 */
@@ -12905,7 +12919,9 @@ async function contactSubmit() {
   if (industry === '기타' && industryOther.trim()) industry = '기타: ' + industryOther.trim();
   if (inquiry === '기타' && inquiryOther.trim()) inquiry = '기타: ' + inquiryOther.trim();
   const msg = (document.getElementById('ctMsg')||{}).value || '';
-  if (!name.trim() || !email.includes('@')) { alert('이름과 올바른 이메일을 입력해 주세요.'); return; }
+  if (!name.trim()) { alert('이름을 입력해 주세요.'); return; }
+  var _e2 = window.MonnitValid ? window.MonnitValid.email(email) : {ok:email.indexOf('@')>0};
+  if (!_e2.ok) { alert(_e2.message || '올바른 이메일을 입력해 주세요.'); return; }
   if (industry === '기타' && !industryOther.trim()) { alert('산업군을 직접 입력해 주세요.'); return; }
   if (inquiry === '기타' && !inquiryOther.trim()) { alert('문의 항목을 직접 입력해 주세요.'); return; }
   const btn = document.querySelector('#view-contact .form-btn');

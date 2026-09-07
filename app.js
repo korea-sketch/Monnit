@@ -142,6 +142,16 @@ function buildMailto(payload){
   return 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 async function sendLead(payload, btn){
+  /* 마지막 방어선 — 어느 폼을 거쳐 오든 형식이 틀린 연락처는 여기서 끊는다. */
+  try {
+    var _V = window.MonnitValid;
+    if (_V) {
+      var _em = payload['이메일'] || payload.email || '';
+      var _ph = payload['전화번호'] || '';
+      if (_em && !_V.email(_em).ok) { alert(_V.email(_em).message); return false; }
+      if (_ph && !_V.phone(_ph).ok) { alert(_V.phone(_ph).message); return false; }
+    }
+  } catch(e){}
   const prevText = btn ? btn.textContent : '';
   if (btn){ btn.disabled = true; btn.dataset._t = prevText; btn.textContent = '전송 중…'; }
   const restore = () => { if (btn){ btn.disabled = false; btn.textContent = btn.dataset._t || prevText; } };

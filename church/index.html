@@ -1193,6 +1193,10 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
   var elPriv=el('[name=privacyConsent]'), elMkt=el('[name=marketingConsent]');
   var name=((elName&&elName.value)||'').trim(), tel=((elTel&&elTel.value)||'').trim(), fac=((elFac&&elFac.value)||'').trim();
   if(!name||!tel){alert('교회명(성함)과 연락처를 입력해 주세요.');return;}
+  var _V=window.MonnitValid;
+  if(_V){var _ck=tel.indexOf('@')>-1?_V.email(tel):_V.phone(tel);
+    if(!_ck.ok){alert(_ck.message);if(elTel)elTel.focus();return;}
+    if(_ck.value)tel=_ck.value;}
   if(!elPriv||!elPriv.checked){alert('개인정보 수집·이용 필수 동의가 필요합니다.');if(elPriv)elPriv.focus();return;}
   var marketing=(elMkt&&elMkt.checked)?'동의':'미동의';
   var btn=document.getElementById('lf-submit');btn.disabled=true;btn.textContent='전송 중…';
