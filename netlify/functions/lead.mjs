@@ -1,6 +1,8 @@
 /** 리드 원장 — 사이트 모든 접점의 접수를 한 곳에 기록한다.
  *  · 기록이 실패해도 항상 성공(204)으로 응답한다. 메일 경로가 안전망이다. */
 import { append } from './_store.mjs';
+import _valid from '../../valid.js';
+const VALID = _valid.MonnitValid;
 
 export const config = { path: '/api/lead' };
 
@@ -46,13 +48,21 @@ export default async (req) => {
     if (!_clean(_co) && !_clean(_nm) && !_clean(_ph) && !_clean(_em))
       return new Response(null, { status: 204, headers: cors });
 
+    /* 형식이 틀린 연락처는 기록해도 연락이 닿지 않는다.
+       메일은 이미 나갔으므로 접수를 버리지 않고 원장에 표시만 남긴다. */
+    const _emOk  = _em ? VALID.email(_em).ok : true;
+    const _phChk = _ph ? VALID.phone(_ph, { required: false }) : { ok: true };
+    const _flags = [];
+    if (_em && !_emOk) _flags.push('이메일형식');
+    if (_ph && !_phChk.ok) _flags.push('연락처형식');
+
     await append('leads', monthKey(body.ts), {
       ts: body.ts || new Date().toISOString(),
       type, label: TYPE_LABEL[type], channel: channel(src),
       point: pick(p, ['접점']) || String(body.page || ''),
       company: _co,
       name: _nm,
-      phone: _ph,
+      phone: (_phChk.ok && _phChk.value) ? _phChk.value : _ph,
       email: _em,
       region: pick(p, ['사업장 지역', '지역']),
       asset: pick(p, ['예약 희망 제품', '주요 회전설비', '시설 유형', '산업군', '교회 규모']),
@@ -65,6 +75,7 @@ export default async (req) => {
       spot:      pick(p, ['설비 위치']),
       sla:       pick(p, ['연락 예정']),
       memo: pick(p, ['문의 사항', '문의내용']),
+      flags: _flags.join(','),
       source: src,
       landing: pick(p, ['유입 페이지']),
       consent_mkt: pick(p, ['마케팅 정보 수신(선택)']),

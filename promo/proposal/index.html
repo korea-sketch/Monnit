@@ -680,6 +680,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
 }
 #fm, .fm-body, #lb, #lb .stage { overscroll-behavior: contain; }
 </style>
+  <script src="/valid.js?v=1"></script>
 </head>
 <body>
 
@@ -1495,8 +1496,19 @@ function validate(){
     var bad = false;
 
     if (fl.hasAttribute('data-req') && !v) bad = true;
-    if (input.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) bad = true;
-    if (input.type === 'tel'   && v && (v.replace(/\D/g,'').length < 8)) bad = true;
+    if (input.type === 'email' && v){
+      var er = window.MonnitValid ? window.MonnitValid.email(v)
+             : { ok: /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(v) };
+      if (!er.ok){ bad = true;
+        var m1 = fl.querySelector('.msg'); if (m1 && er.message) m1.textContent = er.message; }
+    }
+    if (input.type === 'tel' && v){
+      var pr = window.MonnitValid ? window.MonnitValid.phone(v)
+             : { ok: v.replace(/\D/g,'').length >= 9 };
+      if (!pr.ok){ bad = true;
+        var m2 = fl.querySelector('.msg'); if (m2 && pr.message) m2.textContent = pr.message; }
+      else if (pr.value) input.value = pr.value;
+    }
 
     fl.classList.toggle('err', bad);
     if (bad){ ok = false; first = first || input; }

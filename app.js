@@ -3012,11 +3012,29 @@ function renderGalleryItems(container, photos){
 }
 function renderPhotoGallery(container, key){ renderGalleryItems(container, getPhotos(key)); }
 
+
+/* ── 이메일·전화번호 검사 (valid.js) ─────────────────────────────
+   valid.js 가 늦게 뜨거나 빠져도 최소한의 형식은 보도록 대비해 둔다. */
+function mkCheckEmail(v, el) {
+  const V = window.MonnitValid;
+  const r = V ? V.email(v)
+              : { ok: /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(String(v || '').trim()) };
+  if (!r.ok) { alert(r.message || '올바른 이메일 주소를 입력해 주세요.'); if (el) el.focus(); }
+  return r;
+}
+function mkCheckPhone(v, el, required) {
+  const V = window.MonnitValid;
+  if (!V) return { ok: true };
+  const r = V.phone(v, { required: !!required });
+  if (!r.ok) { alert(r.message || '연락처를 확인해 주세요.'); if (el) el.focus(); }
+  return r;
+}
+
 /* ========== FORM HANDLERS (실제 발송) ========== */
 async function subscribeMsg(id) {
   const el = document.getElementById(id);
   const v = el ? el.value.trim() : '';
-  if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); return; }
+  if (!mkCheckEmail(v, el).ok) return;
   const kind = (id === 'wpEmail') ? '백서 신청' : '뉴스레터 구독';
   const btn = el.parentElement ? el.parentElement.querySelector('button') : null;
   const _type = (id === 'wpEmail') ? 'doc_request' : 'subscribe';
@@ -3062,7 +3080,7 @@ async function wpRequest(){
   const idx = sel ? sel.value : '';
   const v   = em ? em.value.trim() : '';
   if (idx === '' || !WHITEPAPERS[idx]) { alert('받아보실 제안서를 먼저 선택해 주세요.'); if (sel) sel.focus(); return; }
-  if (!v || !v.includes('@')) { alert('올바른 이메일 주소를 입력해 주세요.'); if (em) em.focus(); return; }
+  if (!mkCheckEmail(v, em).ok) return;
   const wp = WHITEPAPERS[idx];
 
   /* ── 다운로드 주소는 브라우저가 갖고 있지 않다 ──────────────────────────
@@ -3135,7 +3153,9 @@ async function contactSubmit() {
   if (industry === '기타' && industryOther.trim()) industry = '기타: ' + industryOther.trim();
   if (inquiry === '기타' && inquiryOther.trim()) inquiry = '기타: ' + inquiryOther.trim();
   const msg = (document.getElementById('ctMsg')||{}).value || '';
-  if (!name.trim() || !email.includes('@')) { alert('이름과 올바른 이메일을 입력해 주세요.'); return; }
+  if (!name.trim()) { alert('이름을 입력해 주세요.'); return; }
+  if (!mkCheckEmail(email, document.getElementById('ctEmail')).ok) return;
+  if (!mkCheckPhone(phone, document.getElementById('ctPhone'), false).ok) return;
   if (industry === '기타' && !industryOther.trim()) { alert('산업군을 직접 입력해 주세요.'); return; }
   if (inquiry === '기타' && !inquiryOther.trim()) { alert('문의 항목을 직접 입력해 주세요.'); return; }
   const btn = document.querySelector('#view-contact .form-btn');

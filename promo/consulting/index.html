@@ -1506,6 +1506,7 @@ h2{margin-bottom:14px!important}
   .rb-draw .rb-fill{display:none}
 }
 </style>
+  <script src="/valid.js?v=1"></script>
 </head>
 <body>
   
@@ -2112,8 +2113,13 @@ function submitForm(){
   if(!c||!n||!p){alert('회사명·담당자명·연락처는 필수입니다.');return}
   if(!email){alert('이메일은 필수입니다. 접수 확인과 자료를 보내드릴 주소입니다.');
     document.getElementById('f_email').focus();return}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('이메일 형식을 확인해 주세요.');
+  var _er=window.MonnitValid?window.MonnitValid.email(email)
+        :{ok:/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email)};
+  if(!_er.ok){alert(_er.message||'이메일 형식을 확인해 주세요.');
     document.getElementById('f_email').focus();return}
+  var _pr=window.MonnitValid?window.MonnitValid.phone(p):{ok:true};
+  if(!_pr.ok){alert(_pr.message||'연락처를 확인해 주세요.');
+    document.getElementById('f_phone').focus();return}
   if(!exp){alert('진동센서를 써보신 적 있는지 선택해 주세요.');
     try{document.getElementById('f_expgrid').scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}return}
   if(!line){alert('어떤 생산라인에 설치하실지 선택해 주세요.');

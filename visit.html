@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="/valid.js" as="script">
 <link rel="preload" href="/visit-core.js" as="script">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/visit.css">
@@ -245,6 +246,7 @@
   <button type="button" class="btn" id="mbGo">정보 입력</button>
 </div>
 
+<script src="/valid.js?v=1"></script>
 <script src="/visit-core.js"></script>
 <script>
 (function(){
@@ -552,6 +554,46 @@
     return viaStatic().then(function(ok){return ok?true:viaWeb3();});
   }
 
+  /* 리드 원장(/ops 관제 화면)에도 남깁니다.
+     app.js 의 다른 폼들과 같은 경로라 접수 내역이 한곳에서 보입니다.
+     실패해도 메일은 이미 나갔으므로 조용히 넘깁니다. */
+  function logLead(b){
+    var memo=[
+      b.symptom?("확인하고 싶은 것: "+b.symptom):"",
+      b.process?("공정 프로세스: "+b.process):"",
+      b.access?("출입 절차: "+b.access):"",
+      b.etc?("기타: "+b.etc):""
+    ].filter(Boolean).join(" / ");
+    try{
+      fetch("/api/lead",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        keepalive:true,
+        body:JSON.stringify({
+          lead_type:"contact",
+          ts:new Date().toISOString(),
+          page:"visit_booking",
+          payload:{
+            "접점":"현장진단 예약",
+            "회사명":b.company,
+            "담당자명":b.name,
+            "연락처":b.phone,
+            "이메일":b.email,
+            "사업장 지역":b.place,
+            "주요 회전설비":b.equipment,
+            "설치 대상 라인":b.equipment,
+            "진동센서 경험":b.exp,
+            "연락 예정":"영업일 3~4일 이내",
+            "관심분야":"예지보전 현장 진단 · "+b.dateLabel+" "+b.timeLabel+" · "+b.code,
+            "문의 사항":memo,
+            "출처":(location.search||"").replace(/^\?/,"")||"direct",
+            "유입 페이지":location.pathname
+          }
+        })
+      }).catch(function(){});
+    }catch(e){}
+  }
+
   /* ---------- 입력 내용 임시 보관 ----------
      실수로 새로고침하거나 전화를 받다 앱이 내려가도 적던 내용이 남습니다. */
   var DRAFT="monnit_visit_draft_v1";
@@ -639,11 +681,20 @@
     function need(id,val,msg){ if(!val){ markBad(id,msg); bad.push(id); } }
     need("f-company",b.company,"회사명을 적어 주세요");
     need("f-name",b.name,"성함과 직함을 적어 주세요");
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)){
-      markBad("f-email", b.email?"이메일 주소를 다시 확인해 주세요":"이메일을 적어 주세요");
-      bad.push("f-email");
-    }
-    need("f-phone",b.phone,"연락처를 적어 주세요");
+
+    /* 이메일·연락처는 사이트 공통 규칙(valid.js)으로 봅니다.
+       형식만 맞추는 게 아니라 일회용 주소와 자리 채우기 번호도 걸러 냅니다. */
+    var MV=window.MonnitValid;
+    var er = MV ? MV.email(b.email)
+                : { ok:/^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$/.test(b.email),
+                    message: b.email?"이메일 주소를 다시 확인해 주세요":"이메일을 적어 주세요" };
+    if(!er.ok){ markBad("f-email", er.message); bad.push("f-email"); }
+    else if(er.value){ b.email=er.value; }
+
+    var pr = MV ? MV.phone(b.phone)
+                : { ok:!!b.phone, message:"연락처를 적어 주세요" };
+    if(!pr.ok){ markBad("f-phone", pr.message); bad.push("f-phone"); }
+    else if(pr.value){ b.phone=pr.value; document.getElementById("f-phone").value=pr.value; }
     need("f-place",b.place,"설비가 있는 공장 주소를 적어 주세요");
     if(!b.exp){ document.getElementById("expGroup").classList.add("bad"); bad.push("expGroup"); }
     need("f-equipment",b.equipment,"어떤 설비인지 적어 주세요");
@@ -652,7 +703,7 @@
 
     if(bad.length){
       errEl.hidden=false;
-      errEl.textContent="빨간 표시된 "+bad.length+"곳을 채워 주세요.";
+      errEl.textContent="빨간 표시된 "+bad.length+"곳을 확인해 주세요.";
       var first=document.getElementById(bad[0]);
       if(first){
         first.scrollIntoView({behavior:"smooth",block:"center"});
@@ -676,7 +727,7 @@
     btn.innerHTML='<span class="spin" aria-hidden="true"></span>접수하는 중…';
     hint.textContent="";
 
-    sendBooking(b).then(function(ok){ finish(b,ok); })
+    sendBooking(b).then(function(ok){ if(ok) logLead(b); finish(b,ok); })
                   .catch(function(){ finish(b,false); });
   });
 

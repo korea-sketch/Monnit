@@ -168,11 +168,7 @@
   force = true
 
 
-# ─────────────────────────────────────────────────────────────
-# 예지보전 현장 진단 예약 (2026-09-04 추가)
-#   고객 화면 : /visit
-#   관리 화면 : /visit/admin  → netlify/functions/visitadmin.mjs 가 직접 처리(로그인 필요)
-# ─────────────────────────────────────────────────────────────
+# 예지보전 현장 진단 예약 — 고객 /visit · 관리 /visit/admin(로그인 필요)
 [[redirects]]
   from = "/visit"
   to = "/visit.html"
@@ -201,7 +197,6 @@
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
 
-# ── 현장 진단 예약 화면 ──────────────────────────────────────
 [[headers]]
   for = "/visit"
   [headers.values]
@@ -222,11 +217,14 @@
 [[headers]]
   for = "/visit.css"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "public, max-age=3600, must-revalidate"
 
 [[headers]]
   for = "/visit-core.js"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
+  for = "/valid.js"
+  [headers.values]
     Cache-Control = "public, max-age=3600, must-revalidate"

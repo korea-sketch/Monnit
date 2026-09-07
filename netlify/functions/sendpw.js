@@ -12,6 +12,7 @@
  *    DL_SECRET     : 링크 서명 키 (없으면 코드 기본값 사용 — 운영에서는 설정 권장)
  */
 const { lookup, SECRET, TTL_MS, norm } = require('./_docmap');
+const VALID = require('../../valid.js').MonnitValid;
 
 /* ── 현장 진단 컨설팅 제안 ────────────────────────────────────
    /promo/proposal 로 「예지보전 제안 가이드」를 받아간 분에게는
@@ -137,7 +138,9 @@ exports.handler = async (event) => {
     if (d.token !== TOKEN) return reply(401, { ok: false, error: 'unauthorized' });
 
     const email = String(d.email || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(400, { ok: false, error: 'bad_email' });
+    /* 형식·일회용 주소·장난 주소를 서버에서 막는다. 브라우저 검사만으로는 우회된다. */
+    const _ev = VALID.email(email);
+    if (!_ev.ok) return reply(400, { ok: false, error: 'bad_email', reason: _ev.reason, message: _ev.message, suggest: _ev.suggest || '' });
 
     const title = String(d.title || '').slice(0, 120).trim();
     if (!title) return reply(400, { ok: false, error: 'no_title' });

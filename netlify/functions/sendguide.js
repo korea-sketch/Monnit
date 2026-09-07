@@ -16,6 +16,7 @@
  *    DL_SECRET     : 링크 서명 키 (_docmap 기본값 있음)
  */
 const { lookup, SECRET } = require('./_docmap');
+const VALID = require('../../valid.js').MonnitValid;
 const crypto = require('crypto');
 
 const TOKEN = 'mnt-pw-2026-7f3k9';                 /* sendpw 와 동일 */
@@ -50,7 +51,9 @@ exports.handler = async (event) => {
     if (d.token !== TOKEN) return reply(401, { ok: false, error: 'unauthorized' });
 
     const email = String(d.email || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply(400, { ok: false, error: 'bad_email' });
+    /* 형식·일회용 주소·장난 주소를 서버에서 막는다. 브라우저 검사만으로는 우회된다. */
+    const _ev = VALID.email(email);
+    if (!_ev.ok) return reply(400, { ok: false, error: 'bad_email', reason: _ev.reason, message: _ev.message, suggest: _ev.suggest || '' });
 
     const company = String(d.company || '').slice(0, 80).trim();
     const name    = String(d.name || '').slice(0, 40).trim();
