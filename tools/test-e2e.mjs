@@ -83,3 +83,8 @@ const j2 = await r2.json();
 console.log('\n=== 커스텀 기간 2026-08-15 ~ 08-20 ===');
 P('period', j2.period.label+' custom='+j2.period.custom+' days='+j2.period.days);
 P('creatives', j2.creatives.map(c=>c.key+'('+c.leads+')').join(', '));
+
+/* 뒷정리 — 안 지우면 netlify/functions 에 남아 배포본에 딸려 간다 */
+for (const f of ['_store_mem.mjs', '_ops_test.mjs', '_deals_test.mjs']) {
+  try { fs.unlinkSync(F + f); } catch (e) {}
+}

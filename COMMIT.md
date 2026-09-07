@@ -1,28 +1,29 @@
-커밋 bca359dfcf761e837afd999a1af26ad456987067
-작성 2026-09-07 16:25:57 +0900
+커밋 65df3021001a02f812559de28ac9f675e08b33c8
+작성 2026-09-07 16:56:03 +0900
 
-확정 규칙 3가지에 맞춰 정리
+회귀 수정 — 자체 sendLead 를 쓰는 랜딩의 원장 기록이 사라졌다
 
-  1) 모든 문의 알림 → 0702yeom@gmail.com · ops 와 먼데이에 동시 기록
-  2) 고객 응대 메일은 백서(sendpw)·컨설팅(sendguide)만. 답장 korea@monnit.com.
-     알리미·일반 문의는 고객 회신 없이 알림만 나간다.
-  3) 발송은 StaticForms 기본 → 실패 시 Web3Forms → 최후 Brevo
+무엇이 깨졌나
+  track() 에서 record() 를 빼면서, app.js 의 sendLead 를 쓰지 않고
+  자기 사본을 가진 랜딩 페이지들이 원장 기록 경로를 통째로 잃었다.
+    /promo/alarm     자체 sendLead + track() 만 호출  → 기록 0
+    /promo/proposal  성공 시 track(), 실패 시에만 record() → 기록 0
+  실측: 1004test 로 3개 페이지에 접수 → 먼데이에 residence 1건만 생성.
+  alarm 과 proposal 은 ops·알림·먼데이 어디에도 남지 않았다.
 
-변경
-  _notify.mjs   발송 순서를 StaticForms → Web3Forms → Brevo 로 재구성.
-                무료 250건/월 한도에 한쪽이 걸려도 알림이 끊기지 않는다.
-                항목을 표로 보내 사장님이 보시던 형식을 유지한다.
-                어느 경로로 나갔는지(via)와 실패 이력(tried)을 항상 반환한다.
-  _reply.mjs    삭제. 백서·컨설팅은 sendpw·sendguide 가 이미 담당하고,
-                알리미는 고객 회신을 보내지 않기로 확정했다.
-  lead.mjs      응대 메일 호출 제거. 알림 + 먼데이만 병렬 실행.
+수정
+  monnit-lead.js  _submitted 플래그 도입.
+                  submit() 이 성공하면 세우고, track() 은 그때만 건너뛴다.
+                  submit() 이 실패하면 track() 이 백업으로 기록한다.
+                  build() 때마다 초기화한다.
+  캐시 버전       monnit-lead.js v=3 → v=4
 
-사실 정정
-  StaticForms 는 「메일을 안 보낸」 게 아니라 「0702yeom@gmail.com 으로 보낸」
-  것이었다. korea@monnit.com 이 수신자에서 빠져 있었고 API 는 계속 success 를
-  돌려줬다. StaticForms Inbox 의 Delivery 기록으로 확인했다.
-  Web3Forms 수신자도 0702yeom@gmail.com 으로 변경 완료.
+정리
+  netlify/functions 에 남아 있던 테스트 잔재 3개 제거
+  (_ops_test.mjs · _deals_test.mjs · _store_mem.mjs)
+  test-e2e.mjs 에 뒷정리 추가 — 안 지우면 배포본에 딸려 간다
 
 검증
-  test-rules  규칙 3가지를 코드에 직접 대조 (20개 항목)
+  test-landing (신규)  랜딩 4개 페이지의 원장 기록 경로를 직접 확인.
+                       수정을 되돌리면 실패하는 것까지 확인했다.
 

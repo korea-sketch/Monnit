@@ -60,6 +60,7 @@
     if (!payload['유입 페이지'])   payload['유입 페이지'] = String(w.location.href).split('#')[0];
     _last = payload;
     _lastType = type;
+    _submitted = false;
     return payload;
   }
 
@@ -72,6 +73,7 @@
   var _last = null;
   var _lastType = 'contact';
   var _notified = false;   /* 브라우저가 알림 메일을 이미 보냈는가 */
+  var _submitted = false;  /* submit() 이 원장 기록을 이미 끝냈는가 */
 
   function record(type, payload) {
     try {
@@ -114,7 +116,11 @@
     return w.fetch(LEAD_API, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: body, keepalive: true
-    }).then(function (r) { return !!(r && r.ok); }).catch(function () { return false; });
+    }).then(function (r) {
+      var ok = !!(r && r.ok);
+      if (ok) _submitted = true;   /* track() 이 같은 건을 또 쓰지 않도록 */
+      return ok;
+    }).catch(function () { return false; });
   }
 
   function track(type, detail) {
@@ -136,7 +142,13 @@
       });
     } catch (e) {}
     try { if (w.clarity) w.clarity('event', t.event); } catch (e) {}
-    /* 원장 기록은 sendLead 의 submit() 이 이미 했다. 여기서 또 쓰면 두 번 들어간다. */
+    /* 원장 기록.
+       app.js 의 sendLead 는 submit() 으로 이미 기록했으므로 건너뛴다.
+       하지만 /promo/alarm · /promo/proposal 처럼 자체 sendLead 를 가진 랜딩은
+       여기가 유일한 기록 경로다. 이 줄을 빼면 그 페이지들의 접수가 통째로 사라진다.
+       (2026-09-07 실제로 그렇게 만들었다가 테스트 접수 3건 중 2건을 잃었다) */
+    if (!_submitted) record(type, _last);
+    _submitted = false;
     _last = null;
   }
 
