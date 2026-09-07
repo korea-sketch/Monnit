@@ -1832,14 +1832,18 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       각 제안서는 16페이지 분량으로 과제 정의, 시스템 구성도, 존별 센서 배치, 투자 대비 효과, 도입 절차와 체크리스트를 담고 있습니다.</p>
       <div class="band">
         <h3>제안서를 이메일로 받아보세요</h3>
-        <p>필요한 산업별 제안서를 선택하고 이메일을 입력해 신청하시면 다운로드가 바로 시작됩니다. PDF는 비밀번호 없이 바로 열람하실 수 있으며, 문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.</p>
-        <div class="inline-form">
+        <p>필요한 산업별 제안서를 선택하고 아래 항목을 모두 입력해 신청하시면 다운로드가 바로 시작됩니다. PDF는 비밀번호 없이 바로 열람하실 수 있으며, 문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.</p>
+        <div class="inline-form inline-form--doc">
           <select id="wpSelect" aria-label="다운로드할 제안서 선택">
             <option value="">받아보실 제안서를 선택하세요</option>
           </select>
-          <input type="email" placeholder="이메일 주소" id="wpEmail">
+          <input type="text"  placeholder="회사명"      id="wpCompany" autocomplete="organization" aria-label="회사명">
+          <input type="text"  placeholder="담당자명"    id="wpName"    autocomplete="name"         aria-label="담당자명">
+          <input type="email" placeholder="이메일 주소" id="wpEmail"   autocomplete="email"        aria-label="이메일 주소">
+          <input type="tel"   placeholder="연락처"      id="wpPhone"   autocomplete="tel"          aria-label="연락처">
           <button onclick="wpRequest()">제안서 신청 · 다운로드</button>
         </div>
+        <p class="band-note">모든 항목은 필수입니다. 담당 엔지니어가 확인 후 필요한 자료를 추가로 안내드립니다.</p>
       </div>
       <div class="cat-bar" id="wpCatBar" style="margin-top:32px;"></div>
       <div class="wp-list" id="wpList">
@@ -1879,8 +1883,10 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
           <dt>Business Hours</dt><dd>평일 09:00 – 18:00 (KST)</dd>
         </dl>
         <div class="form-card">
-          <label>이름 / 회사명</label>
-          <input type="text" id="ctName" placeholder="홍길동 / (주)모넷코리아">
+          <label>회사명</label>
+          <input type="text" id="ctCompany" placeholder="(주)모넷코리아" autocomplete="organization">
+          <label>담당자명</label>
+          <input type="text" id="ctName" placeholder="홍길동" autocomplete="name">
           <label>이메일</label>
           <input type="email" id="ctEmail" placeholder="you@company.com">
           <label>전화번호</label>
@@ -2049,7 +2055,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=123"></script>
+  <script src="/app.js?v=124"></script>
   <script src="/js/why-rolling.js?v=2" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=1" defer></script>

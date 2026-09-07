@@ -140,7 +140,8 @@ footer a{color:var(--sub);text-decoration:underline}
       <h2>무료 현장 상담 신청</h2>
       <p class="sub">담당 컨설턴트가 24시간 내 연락드립니다.</p>
       <form id="leadForm">
-        <div class="field"><label for="lf-name">이름 / 회사명</label><input id="lf-name" name="name" type="text" autocomplete="organization" placeholder="예) 홍길동 / 모닛물류" required></div>
+        <div class="field"><label for="lf-company">회사명</label><input id="lf-company" name="company" type="text" autocomplete="organization" placeholder="예) 모닛물류" required></div>
+        <div class="field"><label for="lf-name">담당자명</label><input id="lf-name" name="name" type="text" autocomplete="name" placeholder="예) 홍길동" required></div>
         <div class="field"><label for="lf-tel">연락처</label><input id="lf-tel" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="예) 010-1234-5678" required></div>
         <div class="field"><label for="lf-fac">시설 유형 (선택)</label>
           <select id="lf-fac" name="facility"><option value="">선택 안 함</option><option>물류·창고</option><option>공장·제조</option><option>빌딩·오피스</option><option>병원·제약</option><option>학교·공공</option><option>교회·종교시설</option><option>기타</option></select>
@@ -265,11 +266,16 @@ function parseCSV(text){var rows=[],row=[],field='',i=0,inQ=false;text=text.repl
 function adSource(){try{var p=new URLSearchParams(location.search);var parts=['promo='+PID];['utm_source','utm_medium','utm_campaign','fbclid'].forEach(function(k){var v=p.get(k);if(v)parts.push(k+'='+v);});return parts.join(' · ');}catch(e){return 'promo='+PID;}}
 function scrollForm(where){try{if(window.gtag)gtag('event','cta_click',{location:where,promo:PID});}catch(e){}
   var el=document.getElementById('apply');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-  setTimeout(function(){var n=document.getElementById('lf-name');if(n)n.focus({preventScroll:true});},450);}
+  setTimeout(function(){var n=document.getElementById('lf-company')||document.getElementById('lf-name');if(n)n.focus({preventScroll:true});},450);}
 document.getElementById('leadForm').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target;if(f.honeypot&&f.honeypot.value)return;
+  var company=(f.company&&f.company.value||'').trim();
   var name=(f.name.value||'').trim(),tel=(f.phone.value||'').trim(),fac=(f.facility.value||'').trim();
-  if(!name||!tel)return;
+  /* 회사명·담당자명·연락처 전부 필수. 한 칸에 묶어 받던 시절에는 원장에서
+     둘을 갈라내지 못해 담당자가 통째로 비어 들어왔다. */
+  if(!company){alert('회사명을 입력해 주세요.');try{f.company.focus();}catch(e){}return;}
+  if(!name){alert('담당자명을 입력해 주세요.');try{f.name.focus();}catch(e){}return;}
+  if(!tel){alert('연락처를 입력해 주세요.');try{f.phone.focus();}catch(e){}return;}
   var _V=window.MonnitValid;
   if(_V){var _ck=tel.indexOf('@')>-1?_V.email(tel):_V.phone(tel);
     if(!_ck.ok){alert(_ck.message);try{f.phone.focus();}catch(e){}return;}
@@ -277,7 +283,7 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
   var btn=document.getElementById('lf-submit');btn.disabled=true;btn.textContent='전송 중…';
   var src=adSource(), promoName=CUR.title||PID;
   var isMail=tel.indexOf('@')>-1;
-  var core={'이름/회사명':name,'전화번호':isMail?'':tel,'이메일':isMail?tel:'','산업군':fac,
+  var core={'회사명':company,'담당자명':name,'전화번호':isMail?'':tel,'이메일':isMail?tel:'','산업군':fac,
     '문의항목':'프로모션: '+promoName,'문의내용':'프로모션 랜딩 상담 신청 · 시설:'+(fac||'미기재'),'출처':src};
   if(window.MonnitLead) core=window.MonnitLead.build('contact','promo_lp',promoName+' 상담 신청',core);
   else core._subject='[모넷·접수] '+promoName+' 상담 신청';
@@ -288,8 +294,8 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
     .then(function(r){return r.json().catch(function(){return{success:r.ok};});})
     .then(function(j){if(j&&(j.success||j.ok))done();else web3();}).catch(web3);
   function web3(){fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:core._subject,from_name:name,이름회사:name,전화번호:tel,시설:fac,출처:src})})
-    .then(done).catch(function(){window.location.href='mailto:korea@monnit.com?subject='+encodeURIComponent('[프로모션] '+promoName+' 상담 신청')+'&body='+encodeURIComponent('이름/회사: '+name+'\n연락처: '+tel+'\n시설: '+fac+'\n출처: '+src);done();});}
+      body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:core._subject,from_name:name,회사명:company,담당자명:name,전화번호:tel,시설:fac,출처:src})})
+    .then(done).catch(function(){window.location.href='mailto:korea@monnit.com?subject='+encodeURIComponent('[프로모션] '+promoName+' 상담 신청')+'&body='+encodeURIComponent('회사명: '+company+'\n담당자: '+name+'\n연락처: '+tel+'\n시설: '+fac+'\n출처: '+src);done();});}
 });
 </script>
 </body>

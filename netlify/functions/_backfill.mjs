@@ -4,8 +4,10 @@
  *  배포 직후 그 건들을 「평소와 똑같은 형식으로 한 건에 한 통씩」 보낸다.
  *  묶어 보내면 어느 게 새 문의인지 구분이 안 되고, 응대 기록도 건별로 안 남는다.
  *
+ *  메일과 함께 먼데이 보드에도 올린다 — 접수는 ops·메일·먼데이 세 곳에 남아야 한다.
  *  로그인도 버튼도 필요 없다 — 배포만 하면 15분 안에 나간다.
  *  이미 보낸 건은 id 로 기억해 두 번 보내지 않는다. 실패한 건만 다음 주기에 재시도한다.
+ *  (먼데이는 자체 중복 방지가 있어 여러 번 불러도 안전하다)
  *
  *  환경변수
  *    BACKFILL_FROM   시작일 (기본 2026-09-04)
@@ -14,6 +16,7 @@
  */
 import { get, set, readLines } from './_store.mjs';
 import { notify } from './_notify.mjs';
+import { pushLead } from './_monday.mjs';
 
 const STATE = 'backfill_state.json';
 
@@ -63,11 +66,16 @@ export async function runOnce() {
   const batch = todo.slice(0, MAX);
   const sentNow = [];
   const failed = [];
+  let boarded = 0;
 
   for (const r of batch) {
     /* 평소 문의 알림과 똑같은 형식. 밀린 건이라는 표시만 덧붙인다. */
     const lead = { ...r, memo: [r.memo, `(${kday(new Date(r.ts))} 접수 · 알림이 나가지 않아 뒤늦게 보냅니다)`].filter(Boolean).join('\n') };
     const res = await notify(lead, {});
+
+    /* 먼데이에도 올린다. 메일이 실패해도 보드에는 남겨야 한다. */
+    try { const m = await pushLead(idOf(r), r); if (m.ok && !m.skipped) boarded++; } catch { /* 무시 */ }
+
     if (res.ok) sentNow.push(idOf(r)); else failed.push({ id: idOf(r), error: res.error });
   }
 
@@ -77,5 +85,5 @@ export async function runOnce() {
     at: now.toISOString(), sent, complete: remaining === 0
   }));
 
-  return { sent: sentNow.length, remaining, complete: remaining === 0, failed };
+  return { sent: sentNow.length, boarded, remaining, complete: remaining === 0, failed };
 }

@@ -299,7 +299,10 @@ footer{text-align:center;font-size:10.5px;color:var(--dim);padding-top:20px}
     <option value="noexp">진동센서 무경험만</option>
   </select>
   <select id="lchan"><option value="">채널 전체</option></select>
+  <button class="btn" id="delBtn" style="display:none">선택 삭제</button>
+  <button class="btn" id="undoBtn" style="display:none">방금 삭제 되돌리기</button>
   <span class="cnt" id="lcnt"></span>
+  <span class="cnt" id="lmsg"></span>
 </div>
 <div class="nw" id="nw" style="display:none">
   <div class="fr">
@@ -672,8 +675,11 @@ function paintLeads(){
   document.getElementById('lcnt').textContent=L.length+' / '+LEADS.length+'건'
     +(L.length>60?' · 위 60건 표시':'');
   if(!L.length){el.innerHTML='<div class="empty">조건에 맞는 접수가 없습니다</div>';return;}
-  el.innerHTML='<table class="gr"><tr><th>회사·담당</th><th>소재</th><th>단계</th><th>금액</th><th>경과</th></tr>'
-    +L.slice(0,60).map(function(r){
+  var shown=L.slice(0,60);
+  el.innerHTML='<table class="gr"><tr>'
+    +'<th style="width:30px"><input type="checkbox" id="ckAll" title="화면에 보이는 건 전체 선택"></th>'
+    +'<th>회사·담당</th><th>소재</th><th>단계</th><th>금액</th><th>경과</th></tr>'
+    +shown.map(function(r){
       var d=r.deal||{stage:'접수'};
       var utm=(String(r.source||'').match(/utm_content=([^·&\n]+)/)||[,''])[1].trim();
       var who=esc(r.company||r.name||r.email||'-');
@@ -684,7 +690,9 @@ function paintLeads(){
       var el2=[];
       if(r.days_to_quote!=null)el2.push('견적 '+r.days_to_quote+'일');
       if(r.days_to_win!=null)el2.push('수주 '+r.days_to_win+'일');
-      return '<tr><td><div class="co">'+who+badge(r)+'</div>'+(sub?'<div class="mini2">'+sub+'</div>':'')
+      return '<tr><td style="vertical-align:top;padding-top:12px">'
+        +'<input type="checkbox" class="ck" data-id="'+esc(r.id)+'"'+(SEL[r.id]?' checked':'')+'></td>'
+        +'<td><div class="co">'+who+badge(r)+'</div>'+(sub?'<div class="mini2">'+sub+'</div>':'')
         +(ph?'<div class="mini2">'+ph+'</div>':'')
         +(site?'<div class="mini2">📍 '+site+'</div>':'')
         +(r.memo?'<div class="mini2">'+esc(String(r.memo).slice(0,110))+'</div>':'')
@@ -694,7 +702,77 @@ function paintLeads(){
         +(r.type!=='subscribe'?'<div style="margin-top:5px"><button class="btn" style="padding:4px 9px;font-size:11px" onclick="toggleEd(\''+esc(r.id)+'\')">기록</button></div>':'')+'</td>'
         +'<td class="mini2">'+money+'</td><td class="mini2">'+(el2.join(' · ')||when(r.ts))+'</td></tr>';}).join('')
     +'</table>';
+
+  /* 체크박스 연결 — innerHTML 로 표를 다시 그리므로 매번 새로 건다 */
+  var all=document.getElementById('ckAll');
+  if(all) all.onclick=function(){
+    var on=this.checked;
+    shown.forEach(function(r){ if(on) SEL[r.id]=1; else delete SEL[r.id]; });
+    Array.prototype.forEach.call(el.querySelectorAll('.ck'),function(c){c.checked=on;});
+    paintDelBar();
+  };
+  Array.prototype.forEach.call(el.querySelectorAll('.ck'),function(c){
+    c.onclick=function(){
+      if(this.checked) SEL[this.getAttribute('data-id')]=1;
+      else delete SEL[this.getAttribute('data-id')];
+      paintDelBar();
+    };
+  });
+  paintDelBar();
 }
+
+/* ── 접수 삭제 ────────────────────────────────────────────────────────
+   중복 접수·장난 접수·잘못 들어온 건을 화면에서 치운다.
+   원장에서 줄을 지우지는 않는다 — 「안 보이게」 표시할 뿐이라
+   잘못 눌러도 되돌리기 한 번이면 그대로 돌아온다. */
+var SEL={}, LAST_DEL=[];
+
+function paintDelBar(){
+  var ids=Object.keys(SEL);
+  var b=document.getElementById('delBtn');
+  b.style.display=ids.length?'':'none';
+  b.textContent='선택 '+ids.length+'건 삭제';
+  document.getElementById('undoBtn').style.display=LAST_DEL.length?'':'none';
+}
+
+function leadsPost(url,ids,doneMsg){
+  var m=document.getElementById('lmsg');
+  m.style.color='var(--mut)'; m.textContent='처리 중…';
+  return fetch(url,{method:'POST',credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:ids})})
+    .then(function(r){return r.json().then(function(o){if(!r.ok)throw new Error(o.error||('HTTP '+r.status));return o;});})
+    .then(function(o){
+      m.style.color='var(--up)'; m.textContent=doneMsg(o);
+      setTimeout(function(){m.textContent='';},4000);
+      return o;
+    })
+    .catch(function(e){ m.style.color='#FF7A7A'; m.textContent=e.message; throw e; });
+}
+
+document.getElementById('delBtn').onclick=function(){
+  var ids=Object.keys(SEL);
+  if(!ids.length) return;
+  /* 무엇을 지우는지 이름으로 보여준다. id 만 보여주면 확인이 안 된다. */
+  var byId={}; LEADS.forEach(function(r){byId[r.id]=r;});
+  var names=ids.slice(0,8).map(function(i){
+    var r=byId[i]||{}; return '· '+(r.company||r.name||r.email||i);
+  }).join('\n');
+  if(!confirm('접수 '+ids.length+'건을 목록에서 지웁니다.\n\n'+names
+      +(ids.length>8?'\n· 그 외 '+(ids.length-8)+'건':'')
+      +'\n\n집계에서도 빠집니다. 되돌릴 수 있습니다.')) return;
+  this.disabled=true;
+  leadsPost('/ops/delete',ids,function(o){return o.changed+'건 삭제됨';})
+    .then(function(){ LAST_DEL=ids; SEL={}; load(); })
+    .finally(function(){ document.getElementById('delBtn').disabled=false; });
+};
+
+document.getElementById('undoBtn').onclick=function(){
+  if(!LAST_DEL.length) return;
+  this.disabled=true;
+  leadsPost('/ops/restore',LAST_DEL,function(o){return o.changed+'건 되돌림';})
+    .then(function(){ LAST_DEL=[]; load(); })
+    .finally(function(){ document.getElementById('undoBtn').disabled=false; });
+};
 
 function renderConsult(j){
   var c=j.consult||{};
@@ -723,9 +801,15 @@ function renderLeads(j){
   var man=(j.summary&&j.summary.manual)||0;
   var S2=j.summary||{};
   var eb=(S2.exp_yes||0)+(S2.exp_no||0);
-  document.getElementById('pend').textContent=
-    (j.pending?('미응대 '+j.pending+'건'):'')
-    +(eb?(j.pending?' · ':'')+'유경험 '+(S2.exp_yes||0)+' / 무경험 '+(S2.exp_no||0):'');
+  /* 테스트로 넣은 접수는 숫자에서 뺐다는 사실을 화면에 남긴다.
+     조용히 빼면 「왜 건수가 다르지」가 되고, 결국 아무도 숫자를 안 믿게 된다. */
+  var _tx=j.testExcluded||0, _dx=j.deletedCount||0;
+  var _bits=[];
+  if(j.pending) _bits.push('미응대 '+j.pending+'건');
+  if(eb) _bits.push('유경험 '+(S2.exp_yes||0)+' / 무경험 '+(S2.exp_no||0));
+  if(_tx) _bits.push('테스트 '+_tx+'건 제외');
+  if(_dx) _bits.push('삭제 '+_dx+'건');
+  document.getElementById('pend').textContent=_bits.join(' · ');
   /* 채널 선택지는 실제 들어온 값으로만 채운다 */
   var sel=document.getElementById('lchan'),had=sel.value;
   var chans=[];LEADS.forEach(function(r){if(r.channel&&chans.indexOf(r.channel)<0)chans.push(r.channel);});

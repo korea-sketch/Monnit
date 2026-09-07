@@ -13,7 +13,10 @@ MEM.leads[ymPrev+'.jsonl']=[
   lead('2026-08-16T01:00:00Z','contact','utm_source=facebook · utm_medium=cpc · utm_content=alarm_noshow','B사','b@x.com'),
   lead('2026-08-19T01:00:00Z','doc_request','utm_source=google · utm_medium=cpc · utm_content=01_소방','C사','c@x.com'),
   lead('2026-08-20T01:00:00Z','contact','ref=https://search.naver.com/search.naver?q=화재알리미','D사','d@x.com'),
-  lead('2026-08-25T01:00:00Z','contact','direct','E사','e@x.com')
+  lead('2026-08-25T01:00:00Z','contact','direct','E사','e@x.com'),
+  /* 우리가 손으로 넣어 본 점검 2건 — 집계에서 빠져야 한다 */
+  lead('2026-08-26T01:00:00Z','contact','utm_source=facebook · utm_medium=cpc · utm_content=alarm_noshow','1004test','1004@monnit.com'),
+  lead('2026-08-27T01:00:00Z','doc_request','direct','테스트회사','zz@x.com')
 ].join('\n');
 const ad=(d,ch,sp,im,ck)=>JSON.stringify({channel:ch,date:d,spend:sp,impressions:im,clicks:ck,results:0});
 MEM.ads[ymPrev+'.jsonl']=[ad('2026-08-05','메타',20000,900,12),ad('2026-08-16','메타',20000,880,11),
@@ -76,6 +79,82 @@ P('funnel 총', j.funnel.total+' / 견적 '+j.funnel.reached.견적+' / 수주 '
 P('견적 중앙값', j.funnel.days_to_quote_median+'일');
 P('economics CAC', j.economics.cac+' LTV '+j.economics.avg_ltv+' LTV:CAC '+j.economics.ltv_cac);
 P('leads', j.leads.length+' (첫 건 단계: '+j.leads[j.leads.length-1].deal.stage+')');
+P('테스트 제외', j.testExcluded+'건');
+
+/* 점검 2건이 실제로 빠졌는지 못을 박는다.
+   숫자에서만 빼는 게 아니라 목록에도 안 나와야 한다 —
+   목록에 남으면 그걸 보고 영업이 전화를 건다. */
+{
+  let bad = 0;
+  const say = (ok, m) => { if (!ok) { bad++; console.log('  FAIL ' + m); } else console.log('  ok   ' + m); };
+  console.log('\n=== 내부 테스트 접수 제외 ===');
+  say(j.testExcluded === 2, '테스트 2건을 인식했다 (받음 ' + j.testExcluded + ')');
+  const names = j.leads.map(r => r.company + '|' + r.email).join(' ');
+  say(!/1004@monnit\.com/.test(names), '1004@monnit.com 이 목록에 없다');
+  say(!/테스트회사/.test(names), '「테스트회사」가 목록에 없다');
+  say(j.leads.length === 5, '남은 리드는 진짜 5건 (받음 ' + j.leads.length + ')');
+  const meta = j.creatives.find(c => c.key === 'alarm_noshow');
+  say(!meta || meta.leads === 2, '소재 집계에도 안 섞인다 — alarm_noshow leads=' + (meta ? meta.leads : '없음'));
+  if (bad) { console.log('\n제외 시험 실패 ' + bad + '건'); process.exitCode = 1; }
+}
+
+/* ── 접수 삭제 ─────────────────────────────────────────────────────── */
+{
+  let bad = 0;
+  const say = (ok, m) => { if (!ok) { bad++; console.log('  FAIL ' + m); } else console.log('  ok   ' + m); };
+  console.log('\n=== 접수 삭제 · 되돌리기 ===');
+
+  const post = (u, b) => M.default(new Request('https://x' + u, {
+    method: 'POST', headers: { cookie: COOKIE, 'content-type': 'application/json' },
+    body: JSON.stringify(b)
+  }));
+  const data = async () => (await M.default(new Request('https://x/ops/data?p=90d', { headers: { cookie: COOKIE } }))).json();
+
+  const before = await data();
+  const pick = before.leads.slice(0, 2).map(r => r.id);
+  say(pick.length === 2, '지울 대상 2건을 골랐다');
+
+  /* 로그인 안 한 요청은 막혀야 한다 — 목록을 지우는 일이라 특히 */
+  const noAuth = await M.default(new Request('https://x/ops/delete', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ ids: pick })
+  }));
+  say(noAuth.status === 401 || noAuth.status === 302, '로그인 없이는 못 지운다 (status ' + noAuth.status + ')');
+
+  const r1 = await post('/ops/delete', { ids: pick });
+  const o1 = await r1.json();
+  say(r1.status === 200 && o1.changed === 2, '2건 삭제됨 (changed ' + o1.changed + ')');
+
+  const after = await data();
+  say(after.leads.length === before.leads.length - 2, '목록에서 2건 줄었다 ('
+      + before.leads.length + ' → ' + after.leads.length + ')');
+  say(!after.leads.some(r => pick.includes(r.id)), '지운 건이 목록에 안 보인다');
+  say(after.deletedCount === 2, '삭제 건수를 화면에 알려준다 (' + after.deletedCount + ')');
+  say(after.funnel.total === before.funnel.total - 2, '깔때기 총계에서도 빠졌다 ('
+      + before.funnel.total + ' → ' + after.funnel.total + ')');
+
+  /* 같은 건을 또 눌러도 두 번 세지 않는다 */
+  const o2 = await (await post('/ops/delete', { ids: pick })).json();
+  say(o2.changed === 0 && o2.total === 2, '두 번 눌러도 중복으로 안 쌓인다');
+
+  /* 되돌리기 */
+  const o3 = await (await post('/ops/restore', { ids: pick })).json();
+  say(o3.changed === 2, '2건 되돌림');
+  const back = await data();
+  say(back.leads.length === before.leads.length, '목록이 원래대로 (' + back.leads.length + ')');
+  say(back.deletedCount === 0, '삭제 표시가 사라졌다');
+
+  /* 원장은 그대로여야 한다 — 진짜로 줄을 지우면 되돌릴 수 없다 */
+  const raw = (globalThis.__MEM.leads['2026-08.jsonl'] || '').split('\n').filter(Boolean).length;
+  say(raw === 7, '원장 원본은 그대로 7줄 (받음 ' + raw + ')');
+
+  /* 빈 요청·과한 요청 방어 */
+  say((await post('/ops/delete', { ids: [] })).status === 400, '대상이 없으면 400');
+  const many = Array.from({ length: 201 }, (_, i) => 'x' + i);
+  say((await post('/ops/delete', { ids: many })).status === 400, '한 번에 200건 넘으면 400');
+
+  if (bad) { console.log('\n삭제 시험 실패 ' + bad + '건'); process.exitCode = 1; }
+}
 
 /* 커스텀 기간 */
 const r2 = await M.default(new Request('https://x/ops/data?p=30d&from=2026-08-15&to=2026-08-20',{headers:{cookie:COOKIE}}));

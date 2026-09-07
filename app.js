@@ -99,7 +99,8 @@ function ensureSolutionTwin(){
 const GOOGLE_FORM_URL = "";   // 예: "https://docs.google.com/forms/d/e/1FAIpQLS.../formResponse"
 const GOOGLE_FORM_FIELDS = {  // 사이트 폼 필드 → 구글폼 entry 번호
   '구분':        "",   // 예: "entry.111111111"
-  '이름/회사명': "",   // 예: "entry.222222222"
+  '회사명':      "",   // 예: "entry.222222222"
+  '담당자명':    "",
   '이메일':      "",
   '전화번호':    "",
   '산업군':      "",
@@ -3155,13 +3156,34 @@ function pickWhitepaper(i){
   const em = document.getElementById('wpEmail');
   if (em) setTimeout(() => em.focus({ preventScroll:true }), 450);
 }
+function wpClear(sel, co, nm, em, ph){
+  [co, nm, em, ph].forEach(function(e){ if (e) e.value = ''; });
+  if (sel) sel.value = '';
+}
 async function wpRequest(){
   const sel = document.getElementById('wpSelect');
   const em  = document.getElementById('wpEmail');
+  const co  = document.getElementById('wpCompany');
+  const nm  = document.getElementById('wpName');
+  const ph  = document.getElementById('wpPhone');
   const idx = sel ? sel.value : '';
   const v   = em ? em.value.trim() : '';
+  const _co = co ? co.value.trim() : '';
+  const _nm = nm ? nm.value.trim() : '';
+  const _ph = ph ? ph.value.trim() : '';
+
+  /* ── 전 항목 필수 ────────────────────────────────────────────────
+     2026-09-07 이전에는 「제안서 선택 + 이메일」 두 칸이 전부였다.
+     그래서 이름·회사·연락처가 통째로 빈 리드가 21건 쌓였고, 영업이
+     연락할 방법이 없었다. 이제 네 항목을 모두 채워야 PDF 를 내준다.
+     검증은 sendpw 호출 「전」에 있어야 한다 — 뒤에 두면 자료는
+     이미 나간 뒤라 막는 의미가 없다. */
   if (idx === '' || !WHITEPAPERS[idx]) { alert('받아보실 제안서를 먼저 선택해 주세요.'); if (sel) sel.focus(); return; }
+  if (!_co) { alert('회사명을 입력해 주세요.');   if (co) co.focus(); return; }
+  if (!_nm) { alert('담당자명을 입력해 주세요.'); if (nm) nm.focus(); return; }
   if (!mkCheckEmail(v, em).ok) return;
+  if (!_ph) { alert('연락처를 입력해 주세요.');   if (ph) ph.focus(); return; }
+  if (!mkCheckPhone(_ph, ph, true).ok) return;
   const wp = WHITEPAPERS[idx];
 
   /* ── 다운로드 주소는 브라우저가 갖고 있지 않다 ──────────────────────────
@@ -3198,7 +3220,8 @@ async function wpRequest(){
 
   /* 리드 기록 (다운로드 성패와 무관하게 남긴다) */
   const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
-  let _p = { 구분: '제안서 신청', 백서명: wp.title, 관심분야: wp.title, 이메일: v };
+  let _p = { 구분: '제안서 신청', 백서명: wp.title, 관심분야: wp.title,
+             회사명: _co, 담당자명: _nm, 이메일: v, 연락처: _ph };
   _p = window.MonnitLead ? window.MonnitLead.build('doc_request', 'proposal', wp.title + ' 제안서', _p)
                          : Object.assign(_p, { _subject: '[모넷코리아 웹사이트] 제안서 신청 — ' + wp.title, 출처: location.href });
   const ok = await sendLead(_p, btn);
@@ -3207,10 +3230,10 @@ async function wpRequest(){
   if (!dl) return;
   if (ok === true) {
     alert('「' + wp.title + '」 신청이 접수되었습니다.\n다운로드가 새 창에서 시작됩니다.\nPDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.');
-    if (em) em.value = ''; if (sel) sel.value = '';
+    wpClear(sel, co, nm, em, ph);
   } else if (ok === 'mailto') {
     alert('다운로드가 시작되었습니다.\n메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
-    if (em) em.value = ''; if (sel) sel.value = '';
+    wpClear(sel, co, nm, em, ph);
   } else {
     alert('다운로드는 시작되었습니다. 신청 접수 중 오류가 발생했습니다. 잠시 후 다시 시도하시거나 korea@monnit.com 으로 연락 주세요.');
   }
@@ -3224,6 +3247,7 @@ function toggleOtherField(selectId, otherId){
   if (show) other.focus(); else other.value = '';
 }
 async function contactSubmit() {
+  const company = (document.getElementById('ctCompany')||{}).value || '';
   const name = (document.getElementById('ctName')||{}).value || '';
   const email = (document.getElementById('ctEmail')||{}).value || '';
   const phone = (document.getElementById('ctPhone')||{}).value || '';
@@ -3234,14 +3258,20 @@ async function contactSubmit() {
   if (industry === '기타' && industryOther.trim()) industry = '기타: ' + industryOther.trim();
   if (inquiry === '기타' && inquiryOther.trim()) inquiry = '기타: ' + inquiryOther.trim();
   const msg = (document.getElementById('ctMsg')||{}).value || '';
-  if (!name.trim()) { alert('이름을 입력해 주세요.'); return; }
+  /* 회사명·담당자명을 한 칸에 받던 시절에는 원장에서 둘을 갈라내지 못해
+     상담 신청 5건이 전부 「담당자 없음」으로 들어왔다. 칸을 나누고 둘 다 필수로 둔다.
+     연락처도 필수다 — 이메일만으로는 회신이 늦다. */
+  if (!company.trim()) { alert('회사명을 입력해 주세요.'); const e0=document.getElementById('ctCompany'); if(e0) e0.focus(); return; }
+  if (!name.trim()) { alert('담당자명을 입력해 주세요.'); const e1=document.getElementById('ctName'); if(e1) e1.focus(); return; }
   if (!mkCheckEmail(email, document.getElementById('ctEmail')).ok) return;
-  if (!mkCheckPhone(phone, document.getElementById('ctPhone'), false).ok) return;
+  if (!phone.trim()) { alert('전화번호를 입력해 주세요.'); const e2=document.getElementById('ctPhone'); if(e2) e2.focus(); return; }
+  if (!mkCheckPhone(phone, document.getElementById('ctPhone'), true).ok) return;
   if (industry === '기타' && !industryOther.trim()) { alert('산업군을 직접 입력해 주세요.'); return; }
   if (inquiry === '기타' && !inquiryOther.trim()) { alert('문의 항목을 직접 입력해 주세요.'); return; }
   const btn = document.querySelector('#view-contact .form-btn');
   let _p = {
-    구분: '상담 신청', '이름/회사명': name.trim(), 이메일: email.trim(), 전화번호: phone.trim(),
+    구분: '상담 신청', 회사명: company.trim(), 담당자명: name.trim(),
+    이메일: email.trim(), 전화번호: phone.trim(),
     산업군: industry, 문의항목: inquiry, 문의내용: msg.trim()
   };
   _p = window.MonnitLead ? window.MonnitLead.build('contact', 'contact_page', '상담 신청 — ' + name.trim() + (inquiry ? ' / ' + inquiry : ''), _p)
@@ -3250,12 +3280,12 @@ async function contactSubmit() {
   if (ok === true && window.MonnitLead) window.MonnitLead.track('contact', { page: 'contact_page', interest: inquiry || '상담' });
   if (ok === true) {
     alert('상담 신청이 접수되었습니다. 빠르게 연락드리겠습니다!');
-    ['ctName','ctEmail','ctPhone','ctMsg','ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.value=''; });
+    ['ctCompany','ctName','ctEmail','ctPhone','ctMsg','ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.value=''; });
     ['ctIndustry','ctInquiry'].forEach(i => { const e=document.getElementById(i); if(e) e.selectedIndex=0; });
     ['ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.style.display='none'; });
   } else if (ok === 'mailto') {
     alert('메일 앱이 열립니다. 내용이 자동 입력되어 있으니 [보내기]를 누르면 상담 신청이 완료됩니다.');
-    ['ctName','ctEmail','ctPhone','ctMsg','ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.value=''; });
+    ['ctCompany','ctName','ctEmail','ctPhone','ctMsg','ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.value=''; });
     ['ctIndustry','ctInquiry'].forEach(i => { const e=document.getElementById(i); if(e) e.selectedIndex=0; });
     ['ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.style.display='none'; });
   } else {

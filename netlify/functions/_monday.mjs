@@ -105,6 +105,19 @@ function utmOf(lead) {
   return m ? m[1].trim() : '';
 }
 
+/** 그룹의 맨 위 아이템 id. 새 접수를 그 앞에 꽂아 최신이 위로 오게 한다.
+ *  아이템이 없으면 null — 그때는 그냥 만든다. */
+async function topItemOf(groupId) {
+  try {
+    const d = await gql(
+      `query($b:[ID!],$g:[String!]){ boards(ids:$b){ groups(ids:$g){ items_page(limit:1){ items{ id } } } } }`,
+      { b: [BOARD], g: [groupId] }
+    );
+    const items = d?.boards?.[0]?.groups?.[0]?.items_page?.items || [];
+    return items.length ? items[0].id : null;
+  } catch { return null; }
+}
+
 /** 사람이 보드에서 알아볼 이름 */
 function itemName(lead) {
   return String(lead.company || lead.name || lead.email || lead.phone || '(미식별 리드)').slice(0, 200);
@@ -151,19 +164,47 @@ async function readMap() {
 }
 
 /** 접수 한 건을 보드에 만든다. 이미 올린 건은 건너뛴다. 실패해도 throw 하지 않는다. */
+/** 내부 테스트 접수인가 — ops.mjs 의 isTestLead 와 같은 규칙이다.
+ *  두 곳이 갈라지면 「원장에서는 빠졌는데 보드에는 남는」 일이 생기므로
+ *  tools/test-testlead.mjs 가 두 판정이 같은지 확인한다. */
+export function isTestLead(r) {
+  if (!r) return false;
+  const em = String(r.email || '').trim().toLowerCase();
+  if (/@monnit\.com$/.test(em)) return true;
+  if (/^\/ops/.test(String(r.point || ''))) return true;
+  if (/\btest\b|테스트/i.test([r.company, r.name, r.memo].filter(Boolean).join(' '))) return true;
+  return false;
+}
+
 export async function pushLead(id, lead) {
   if (!TOKEN) return { ok: false, skipped: 'MONDAY_TOKEN 없음' };
+  /* 내부 테스트 접수는 보드에 올리지 않는다. 리드 원장(CRM)은 영업이 보는
+     화면이라 점검용 행이 섞이면 건수와 전환율이 어긋난다.
+     원장(ops)에는 그대로 남으므로 접수 경로가 살아 있는지는 거기서 본다. */
+  if (isTestLead(lead)) return { ok: true, skipped: '테스트 접수' };
   try {
     const map = await readMap();
     if (map[id]) return { ok: true, skipped: '이미 등록됨', itemId: map[id] };
 
     const group = await groupIdFor(lead.ts);
-    const d = await gql(
-      `mutation($b:ID!,$g:String!,$n:String!,$v:JSON!){
-         create_item(board_id:$b, group_id:$g, item_name:$n, column_values:$v,
-                     create_labels_if_missing:false){ id } }`,
-      { b: BOARD, g: group, n: itemName(lead), v: JSON.stringify(columnValues(lead)) }
-    );
+    const top = await topItemOf(group);
+
+    /* 맨 위 아이템 「앞」에 꽂는다. 먼데이는 기본이 맨 아래라서,
+       그냥 두면 새 문의가 스크롤 끝에 숨어 못 보고 지나친다. */
+    const d = top
+      ? await gql(
+          `mutation($b:ID!,$g:String!,$n:String!,$v:JSON!,$r:ID!){
+             create_item(board_id:$b, group_id:$g, item_name:$n, column_values:$v,
+                         create_labels_if_missing:false,
+                         relative_to:$r, position_relative_method:before_at){ id } }`,
+          { b: BOARD, g: group, n: itemName(lead), v: JSON.stringify(columnValues(lead)), r: top }
+        )
+      : await gql(
+          `mutation($b:ID!,$g:String!,$n:String!,$v:JSON!){
+             create_item(board_id:$b, group_id:$g, item_name:$n, column_values:$v,
+                         create_labels_if_missing:false){ id } }`,
+          { b: BOARD, g: group, n: itemName(lead), v: JSON.stringify(columnValues(lead)) }
+        );
     const itemId = d.create_item.id;
 
     /* 지도 갱신 — 다시 읽어서 쓴다(그 사이 다른 건이 들어왔을 수 있다) */

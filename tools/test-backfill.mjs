@@ -4,6 +4,7 @@ const F = process.cwd() + '/netlify/functions/';
 
 globalThis.__MEM = { ops: {}, leads: {} };
 globalThis.__SENT = [];
+globalThis.__BOARD = [];
 globalThis.__FAILNEXT = false;
 
 const lead = (ts, co) => JSON.stringify({ ts, company: co, name: '담당', phone: '010-1111-2222',
@@ -27,9 +28,15 @@ export async function notify(lead,p,o){
   if (globalThis.__FAILON && globalThis.__FAILON.has(lead.company)) return {ok:false, error:'발송 실패'};
   globalThis.__SENT.push(lead); return {ok:true, to:'0702yeom@gmail.com'};
 }`);
+fs.writeFileSync(F + '_monday_b.mjs', `
+export async function pushLead(id,l){
+  if (globalThis.__BOARD.some(x=>x.id===id)) return {ok:true, skipped:'이미 등록됨'};
+  globalThis.__BOARD.push({id,l}); return {ok:true, itemId:'i'+globalThis.__BOARD.length};
+}`);
 fs.writeFileSync(F + '_backfill_b.mjs', fs.readFileSync(F + '_backfill.mjs', 'utf8')
   .replace("from './_store.mjs'", "from './_store_b.mjs'")
-  .replace("from './_notify.mjs'", "from './_notify_b.mjs'"));
+  .replace("from './_notify.mjs'", "from './_notify_b.mjs'")
+  .replace("from './_monday.mjs'", "from './_monday_b.mjs'"));
 
 process.env.BACKFILL_FROM = '2026-09-04';
 const { runOnce } = await import(F + '_backfill_b.mjs');
@@ -62,7 +69,8 @@ ok('완료 후 재실행은 건너뜀', r3.skipped === '완료됨', r3);
 ok('  발송은 여전히 3통', globalThis.__SENT.length === 3, globalThis.__SENT.length);
 
 /* 한 주기 상한 */
-globalThis.__MEM.ops = {}; globalThis.__SENT = []; process.env.BACKFILL_MAX = '2';
+globalThis.__MEM.ops = {}; globalThis.__SENT = [];
+globalThis.__BOARD = []; process.env.BACKFILL_MAX = '2';
 const r4 = await runOnce();
 ok('한 주기 상한 2통', r4.sent === 2 && r4.remaining === 1, r4);
 const r5 = await runOnce();
@@ -75,6 +83,6 @@ const r6 = await runOnce();
 ok('BACKFILL_OFF 로 중단', r6.skipped === '꺼짐', r6);
 delete process.env.BACKFILL_OFF;
 
-for (const f of ['_store_b.mjs', '_notify_b.mjs', '_backfill_b.mjs']) fs.unlinkSync(F + f);
+for (const f of ['_store_b.mjs', '_notify_b.mjs', '_monday_b.mjs', '_backfill_b.mjs']) fs.unlinkSync(F + f);
 console.log(fail ? `\n❌ ${fail}건 실패` : '\n✅ 전부 통과');
 process.exit(fail ? 1 : 0);

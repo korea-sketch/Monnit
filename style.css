@@ -3797,6 +3797,16 @@ a.res-link:hover .b-link{ text-decoration:underline; }
 .band .inline-form button { padding: 14px 26px; background: var(--btn-bg); color:#fff; border:none; border-radius:7px; font-weight:500; cursor:pointer; font-family:var(--fb); }
 .band .inline-form button:hover { background: var(--btn-bg-h); }
 
+/* 자료실(제안서) 신청 — 이메일 한 칸이던 것을 회사명·담당자·이메일·연락처로 늘렸습니다.
+   flex 로는 칸 수가 늘 때 줄바꿈이 제멋대로라 2열 격자로 고정합니다. */
+.band .inline-form--doc { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+.band .inline-form--doc input,
+.band .inline-form--doc select { min-width:0; width:100%; flex:none; }
+.band .inline-form--doc select,
+.band .inline-form--doc button { grid-column:1 / -1; }
+.band .band-note { margin-top:12px; font-size:13px; opacity:.72; }
+@media (max-width:700px){ .band .inline-form--doc { grid-template-columns:1fr; } }
+
 .wp-list { margin-top: 40px; display:grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
 /* 카드 = [미디어 섹션] + [본문]. 미디어에 어떤 비율의 사진을 넣어도 박스에 맞춰 자동 크롭(cover) */
 .wp-card { display:grid; grid-template-columns: 116px 1fr; gap: 0; background: var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; align-items:stretch; }

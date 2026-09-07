@@ -10,7 +10,7 @@ import { utmAudit, actions as buildActions } from './_insights.mjs';
 import { notify, configured as notifyConfigured } from './_notify.mjs';
 import { pushLead, ping as mondayPing } from './_monday.mjs';
 
-export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult', '/ops/testmail', '/ops/resend'] };
+export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult', '/ops/testmail', '/ops/resend', '/ops/delete', '/ops/restore'] };
 
 /* 수기 접수에서 고를 수 있는 유입 채널 — 리드 원장의 channel 어휘와 같게 맞춘다 */
 const MANUAL_CHANNELS = ['메타', '구글', '네이버', '카카오', '직접', '소개', '전화문자', '우편DM', '기타'];
@@ -153,6 +153,31 @@ async function readConsult() {
   catch { return null; }
 }
 
+/** 내부 테스트로 넣은 접수인가.
+ *  판정 기준은 셋. 하나라도 걸리면 집계에서 뺀다.
+ *    · 이메일이 우리 도메인(@monnit.com) — 고객이 우리 주소로 문의할 일은 없다
+ *    · 접점이 /ops 로 시작 — 관제에서 직접 찔러 본 점검
+ *    · 회사·담당자·메모에 test / 테스트 가 들어 있다
+ *  테스트할 때는 1004@monnit.com 을 쓰면 자동으로 걸러진다. */
+export function isTestLead(r) {
+  if (!r) return false;
+  const em = String(r.email || '').trim().toLowerCase();
+  if (/@monnit\.com$/.test(em)) return true;
+  if (/^\/ops/.test(String(r.point || ''))) return true;
+  if (/\btest\b|테스트/i.test([r.company, r.name, r.memo].filter(Boolean).join(' '))) return true;
+  return false;
+}
+
+const DEL_KEY = 'deleted.json';
+
+/** 화면에서 지운 접수 목록. { 리드id: 지운시각 } 꼴이다.
+ *  원장(leads/*.jsonl)은 append-only 라 실제로 줄을 지우지 않는다.
+ *  대신 여기에 담아 두고 집계·목록에서 뺀다. 잘못 지워도 되돌릴 수 있고,
+ *  원본이 남아 있어 나중에 「그때 그 문의」를 다시 찾을 수 있다. */
+async function readDeleted() {
+  try { return JSON.parse(await get('ops', DEL_KEY) || '{}'); } catch { return {}; }
+}
+
 async function build(pkey, custom) {
   const P = PERIODS[pkey] || PERIODS['7d'];
   const now = new Date();
@@ -164,6 +189,21 @@ async function build(pkey, custom) {
   const curKey = monthKey(now);
   for (const k of [...new Set(monthKeys)]) rows = rows.concat(await readMonthly('leads', k, curKey));
   rows = rows.filter(r => r?.ts && !/^__/.test(r.company || ''));   /* 점검용 더미 제외 */
+
+  /* ── 내부 테스트 접수는 집계에서 뺀다 ────────────────────────────────
+     사이트를 고칠 때마다 우리 손으로 접수를 넣어 본다. 그게 그대로 쌓이면
+     건수·전환율·CAC 가 전부 어긋난다. 실제로 2026-09-07 에 테스트 4건이
+     리드로 잡혀 그 주 수치를 못 믿게 됐다.
+     지우지는 않는다 — 원장에는 남기고 숫자에서만 뺀다. 몇 건을 뺐는지도
+     화면에 알려서 「조용히 사라진 것」이 없게 한다. */
+  const testRows = rows.filter(isTestLead);
+  rows = rows.filter(r => !isTestLead(r));
+
+  /* 화면에서 지운 접수도 뺀다 (중복 접수·장난 접수·잘못 들어온 건) */
+  const _del = await readDeleted();
+  const _delId = r => (r.ts || '') + '|' + (r.email || r.phone || r.company || '');
+  const delRows = rows.filter(r => _del[_delId(r)]);
+  rows = rows.filter(r => !_del[_delId(r)]);
   /* 월 파일을 최신→과거 순으로 이어 붙였기 때문에 배열 순서가 시간순이 아니다.
      정렬하지 않으면 아래 slice(-200) 이 「가장 오래된 200건」을 남겨서
      새로 들어온 문의가 화면에 영영 안 나온다. */
@@ -307,6 +347,8 @@ async function build(pkey, custom) {
     stages: deals.STAGES, defaultTerm: deals.DEFAULT_TERM,
     manualChannels: MANUAL_CHANNELS,
     consult: await readConsult(),
+    testExcluded: testRows.length,
+    deletedCount: delRows.length,
     leads: joined.slice(-400).reverse().map(r => ({
       id: r.id, handled: !!done[r.id] || (r.deal.stage !== '접수'),
       entry: r.entry === 'manual' ? 'manual' : 'form', memo: r.memo || '',
@@ -332,7 +374,9 @@ export default async (req) => {
             : path.endsWith('/consult') ? 'consult'
             : path.endsWith('/deal') ? 'deal'
             : path.endsWith('/testmail') ? 'testmail'
-            : path.endsWith('/resend') ? 'resend' : '';
+            : path.endsWith('/resend') ? 'resend'
+            : path.endsWith('/delete') ? 'delete'
+            : path.endsWith('/restore') ? 'restore' : '';
   const authed = auth.valid(auth.cookieFrom({ cookie: req.headers.get('cookie') || '' }));
 
   if (!auth.configured()) return page(LOGIN.replace('__ERR__', '환경변수 OPS_USER · OPS_PASS 를 먼저 설정해 주세요'));
@@ -354,7 +398,7 @@ export default async (req) => {
   }
 
   if (!authed) {
-    if (['data','diag','mark','lead','consult','deal','testmail','resend'].includes(sub)) return j({ error: 'unauthorized' }, 401);
+    if (['data','diag','mark','lead','consult','deal','testmail','resend','delete','restore'].includes(sub)) return j({ error: 'unauthorized' }, 401);
     if (sub === 'export') return new Response(null, { status: 302, headers: { ...H, location: '/ops' } });
     return page(LOGIN.replace('__ERR__', ''));
   }
@@ -429,6 +473,30 @@ export default async (req) => {
         failed:  pushed.filter(p => !p.ok)
       }
     });
+  }
+
+  /* ── 접수 삭제 · 되돌리기 ────────────────────────────────────────────
+     여러 건을 한 번에 지울 수 있다. 실제로 지우는 게 아니라 「안 보이게」
+     표시할 뿐이라, 잘못 눌러도 /ops/restore 로 그대로 돌아온다. */
+  if (sub === 'delete' || sub === 'restore') {
+    if (req.method !== 'POST') return j({ error: 'method' }, 405);
+    try {
+      const body = await req.json();
+      const ids = (Array.isArray(body?.ids) ? body.ids : [body?.id])
+        .map(v => String(v || '').trim()).filter(Boolean);
+      if (!ids.length) return j({ error: '지울 대상이 없습니다' }, 400);
+      if (ids.length > 200) return j({ error: '한 번에 200건까지만 됩니다' }, 400);
+
+      const cur = await readDeleted();
+      const at = new Date().toISOString();
+      let n = 0;
+      for (const id of ids) {
+        if (sub === 'delete') { if (!cur[id]) { cur[id] = at; n++; } }
+        else if (cur[id]) { delete cur[id]; n++; }
+      }
+      await set('ops', DEL_KEY, JSON.stringify(cur));
+      return j({ ok: true, changed: n, total: Object.keys(cur).length });
+    } catch (e) { return j({ error: String(e?.message || e) }, 500); }
   }
 
   if (sub === 'mark') {

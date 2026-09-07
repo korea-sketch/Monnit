@@ -1,29 +1,21 @@
-커밋 65df3021001a02f812559de28ac9f675e08b33c8
-작성 2026-09-07 16:56:03 +0900
+커밋 5afd87b643558beb9126f7f98752908623ce93c7
+작성 2026-09-07 17:04:13 +0900
 
-회귀 수정 — 자체 sendLead 를 쓰는 랜딩의 원장 기록이 사라졌다
+먼데이 신규 아이템을 그룹 맨 위로 · 백필도 먼데이에 등록
 
-무엇이 깨졌나
-  track() 에서 record() 를 빼면서, app.js 의 sendLead 를 쓰지 않고
-  자기 사본을 가진 랜딩 페이지들이 원장 기록 경로를 통째로 잃었다.
-    /promo/alarm     자체 sendLead + track() 만 호출  → 기록 0
-    /promo/proposal  성공 시 track(), 실패 시에만 record() → 기록 0
-  실측: 1004test 로 3개 페이지에 접수 → 먼데이에 residence 1건만 생성.
-  alarm 과 proposal 은 ops·알림·먼데이 어디에도 남지 않았다.
+신규가 위로
+  먼데이는 기본이 맨 아래라 새 문의가 스크롤 끝에 숨었다.
+  create_item 에 relative_to + position_relative_method:before_at 을 붙여
+  그룹의 맨 위 아이템 앞에 꽂는다. 그룹이 비어 있으면 그냥 만든다.
+  실제 보드에 검증 아이템을 만들어 맨 위에 오는 것을 확인하고 삭제했다.
 
-수정
-  monnit-lead.js  _submitted 플래그 도입.
-                  submit() 이 성공하면 세우고, track() 은 그때만 건너뛴다.
-                  submit() 이 실패하면 track() 이 백업으로 기록한다.
-                  build() 때마다 초기화한다.
-  캐시 버전       monnit-lead.js v=3 → v=4
+  보드 「미응대」 뷰가 접수일 오름차순(오래된 것부터)이었다. 내림차순으로 변경.
 
-정리
-  netlify/functions 에 남아 있던 테스트 잔재 3개 제거
-  (_ops_test.mjs · _deals_test.mjs · _store_mem.mjs)
-  test-e2e.mjs 에 뒷정리 추가 — 안 지우면 배포본에 딸려 간다
+밀린 건도 먼데이에
+  _backfill.mjs 가 메일만 보내고 있었다. 접수는 ops·메일·먼데이 세 곳에
+  남아야 하므로 pushLead 를 함께 호출한다. 메일이 실패해도 보드에는 남긴다.
+  먼데이는 자체 중복 방지가 있어 여러 번 돌아도 안전하다.
 
 검증
-  test-landing (신규)  랜딩 4개 페이지의 원장 기록 경로를 직접 확인.
-                       수정을 되돌리면 실패하는 것까지 확인했다.
+  test-backfill  먼데이 등록 건수·중복 없음 항목 추가
 
