@@ -188,6 +188,8 @@ footer{text-align:center;font-size:10.5px;color:var(--dim);padding-top:20px}
   .lbar .cnt{margin-left:0;width:100%}
   table.gr{min-width:560px}
 }
+.opsfix{margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.opsfix .note{margin:0;flex:1;min-width:200px}
 </style>
 </head>
 <body>
@@ -211,7 +213,12 @@ footer{text-align:center;font-size:10.5px;color:var(--dim);padding-top:20px}
 
 <div class="g sec"><h2>데이터 연동 <span class="tag t-off" id="connTag"></span></h2>
 <div class="note">키를 Netlify 환경변수에 넣으면 코드 수정 없이 자동으로 켜집니다</div>
-<div class="conn" id="conn"></div></div>
+<div class="conn" id="conn"></div>
+<div class="opsfix">
+  <button class="btn" id="mailTest">알림 메일 발송 점검</button>
+  <button class="btn" id="mailFix">누락분 복구</button>
+  <span class="note" id="mailMsg">복구는 알림이 나가지 않은 기간의 접수를 메일로 다시 보내고 먼데이 보드에 올립니다</span>
+</div></div>
 
 <div class="g sec"><h2>핵심 지표 <span class="tag t-off" id="kpiRange"></span></h2>
 <div class="note">직전 같은 길이의 기간과 비교합니다</div><div class="kpi" id="kpi"></div></div>
@@ -791,6 +798,43 @@ setInterval(function(){
   f.textContent='갱신 '+new Date(LAST).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul'})
     +' · '+(sec<60?sec+'초 전':Math.floor(sec/60)+'분 전');
 },1000);
+(function(){
+  var t=document.getElementById('mailTest'), f=document.getElementById('mailFix'), m=document.getElementById('mailMsg');
+  if(!t||!f) return;
+  function busy(b,on,txt){ b.disabled=on; if(on){b.dataset._t=b.textContent;b.textContent=txt;} else {b.textContent=b.dataset._t||b.textContent;} }
+
+  t.onclick=function(){
+    busy(t,true,'보내는 중…'); m.textContent='';
+    fetch('/ops/testmail').then(function(r){return r.json();}).then(function(j){
+      m.textContent = j.sent
+        ? '발송 요청 성공. 1~2분 뒤 받은편지함과 스팸함을 확인하세요. 안 오면 받는 쪽 메일 서버가 막는 것입니다.'
+        : '발송 실패: ' + ((j.detail&&j.detail.error)||'알 수 없는 오류');
+    }).catch(function(e){ m.textContent='요청 실패: '+e.message; })
+      .then(function(){ busy(t,false); });
+  };
+
+  f.onclick=function(){
+    var from=prompt('복구 시작일 (YYYY-MM-DD)','2026-09-05'); if(!from) return;
+    var to=prompt('복구 종료일 (YYYY-MM-DD)', new Date(Date.now()+324e5).toISOString().slice(0,10)); if(!to) return;
+    busy(f,true,'확인 중…'); m.textContent='';
+    fetch('/ops/resend?dry=1&from='+from+'&to='+to).then(function(r){return r.json();}).then(function(j){
+      if(j.error){ m.textContent=j.error; busy(f,false); return; }
+      if(!j.count){ m.textContent='그 기간에 접수가 없습니다.'; busy(f,false); return; }
+      var names=j.leads.slice(0,10).map(function(x){return x.회사||x.담당||x.이메일||'(미식별)';}).join(', ');
+      if(!confirm(j.count+'건을 메일로 다시 보내고 먼데이에 올립니다.\n\n'+names+(j.count>10?' 외 '+(j.count-10)+'건':'')+'\n\n진행할까요?')){
+        m.textContent='취소했습니다.'; busy(f,false); return; }
+      busy(f,true,'복구 중…');
+      return fetch('/ops/resend?from='+from+'&to='+to).then(function(r){return r.json();}).then(function(k){
+        m.textContent='접수 '+k.count+'건 · 메일 '+(k.mail?'발송':'실패')
+          +' · 먼데이 신규 '+k.monday.created+'건, 이미 있던 것 '+k.monday.already+'건'
+          +(k.monday.failed.length?', 실패 '+k.monday.failed.length+'건':'');
+        load();
+      });
+    }).catch(function(e){ m.textContent='요청 실패: '+e.message; })
+      .then(function(){ busy(f,false); });
+  };
+})();
+
 load();
 setInterval(function(){if(document.visibilityState==='visible')load();},30000);
 document.addEventListener('visibilitychange',function(){

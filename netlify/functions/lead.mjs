@@ -1,6 +1,8 @@
 /** 리드 원장 — 사이트 모든 접점의 접수를 한 곳에 기록한다.
  *  · 기록이 실패해도 항상 성공(204)으로 응답한다. 메일 경로가 안전망이다. */
 import { append } from './_store.mjs';
+import { notify } from './_notify.mjs';
+import { pushLead } from './_monday.mjs';
 import _valid from '../../valid.js';
 const VALID = _valid.MonnitValid;
 
@@ -10,8 +12,11 @@ const TYPE_LABEL = { contact: '접수', doc_request: '자료', subscribe: '구�
 
 function channel(src) {
   const s = String(src || '').toLowerCase();
-  if (/fbclid|facebook|instagram/.test(s)) return '메타';
-  if (/gclid|gbraid|wbraid|utm_source=google/.test(s)) return '구글';
+  /* utm_source 는 우리가 광고 URL 에 직접 박는 값이라 표기가 제각각이다.
+     meta / facebook / fb / ig 를 모두 메타로 본다 — 예전에는 utm_source=meta 가
+     아무 데도 안 걸려서 「기타」로 떨어졌다. */
+  if (/fbclid|facebook|instagram|utm_source=(meta|fb|ig)\b/.test(s)) return '메타';
+  if (/gclid|gbraid|wbraid|utm_source=(google|youtube|gdn)\b/.test(s)) return '구글';
   if (/naver/.test(s)) return '네이버';
   if (/utm_source=email/.test(s)) return '이메일';
   if (/utm_source=tel/.test(s)) return '전화문자';
@@ -56,7 +61,7 @@ export default async (req) => {
     if (_em && !_emOk) _flags.push('이메일형식');
     if (_ph && !_phChk.ok) _flags.push('연락처형식');
 
-    await append('leads', monthKey(body.ts), {
+    const lead = {
       ts: body.ts || new Date().toISOString(),
       type, label: TYPE_LABEL[type], channel: channel(src),
       point: pick(p, ['접점']) || String(body.page || ''),
@@ -80,7 +85,23 @@ export default async (req) => {
       landing: pick(p, ['유입 페이지']),
       consent_mkt: pick(p, ['마케팅 정보 수신(선택)']),
       ua: String(req.headers.get('user-agent') || '').slice(0, 180)
-    });
+    };
+
+    /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
+    await append('leads', monthKey(body.ts), lead);
+
+    const id = lead.ts + '|' + (lead.email || lead.phone || lead.company || '');
+
+    /* 접수 한 건에 두 가지가 같이 일어난다. 하나가 실패해도 나머지는 진행한다.
+         · 알림 메일  → 0702yeom@gmail.com (StaticForms → Web3Forms → Brevo 순)
+         · 먼데이     → 리드 원장 보드에 아이템 생성
+       원장(ops) 기록은 바로 위에서 이미 끝났다.
+
+       고객에게 나가는 응대 메일은 여기서 보내지 않는다.
+       백서는 sendpw.js, 컨설팅 무경험자는 sendguide.js 가 각각 보낸다
+       (둘 다 답장 주소가 korea@monnit.com).
+       알리미·일반 문의는 고객 회신 없이 알림만 나간다 — 2026-09-07 확정. */
+    await Promise.allSettled([ notify(lead, p), pushLead(id, lead) ]);
   } catch (e) { /* 조용히 넘긴다 */ }
 
   return new Response(null, { status: 204, headers: cors });

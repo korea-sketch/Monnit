@@ -2,9 +2,9 @@
  *  로그인 전에는 관제 화면 코드조차 내려가지 않는다. */
 import * as auth from './_ops_auth.mjs';
 import { LOGIN, APP } from './_ops_ui.mjs';
-import { get, set, append, readLines, available, diag } from './_store.mjs';
+import { get, set, append, readLines, available, diag } from './_store_mem.mjs';
 import { configured as adsConfigured, missingEnv as adsMissing, kday as adsKday } from './_ads.mjs';
-import * as deals from './_deals.mjs';
+import * as deals from './_deals_test.mjs';
 import { rollup, economics } from './_creatives.mjs';
 import { utmAudit, actions as buildActions } from './_insights.mjs';
 import { notify, configured as notifyConfigured } from './_notify.mjs';

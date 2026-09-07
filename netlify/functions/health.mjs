@@ -1,11 +1,15 @@
 /** 사이트·폼 상시 감시 (15분 주기)
  *  광고가 도는 동안 신청 폼이 죽으면 광고비가 전액 낭비된다. 그 공백을 없앤다. */
 import { append, set, get } from './_store.mjs';
+import { runOnce as backfillOnce } from './_backfill.mjs';
 
 export const config = { schedule: '*/15 * * * *' };
 
 const SITE = 'https://monnit.co.kr';
-const ALERT_TO = 'korea@monnit.com';
+/* 사이트 장애 알림 수신자. 접수 알림과 같은 스위치를 쓴다.
+   다만 Web3Forms 로 나가는 경로는 키에 등록된 주소로만 가므로,
+   실제로 주소를 바꾸려면 Brevo 경로(_notify.mjs)를 타야 한다. */
+const ALERT_TO = process.env.NOTIFY_TO || '0702yeom@gmail.com';
 const WEB3FORMS_KEY = process.env.WEB3FORMS_KEY || 'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
 
 const PAGES = [
@@ -68,6 +72,9 @@ async function alertMail(fails) {
 }
 
 export default async () => {
+  /* 밀린 접수 1회 자동 발송 — 배포 직후 한 번만 돈다. 실패해도 감시는 계속한다. */
+  try { await backfillOnce(); } catch (e) {}
+
   const results = [];
   for (const p of PAGES) results.push(await checkPage(p));
   results.push(await checkBackend());

@@ -116,12 +116,30 @@ const GAS_ENDPOINT = "";   // 예: "https://script.google.com/macros/s/AKfy.../e
    각 서비스 가입 후 발급받은 "폼 엔드포인트 URL" 을 아래에 붙여넣기 (이 한 줄만). 활성화 클릭·OAuth 불필요. */
 const FORM_POST_URL = "";  // 예: "https://formspree.io/f/xxxx" / "https://api.staticforms.dev/submit/xxxx"
 
-/* ★★ StaticForms (현재 활성 백엔드) — staticforms.dev 가입 후 발급받은 apiKey.
-   서버·활성화 클릭·OAuth 불필요. 키만 바꾸면 됩니다. */
+/* ══ 알림 발송처 설정 ══════════════════════════════════════════════
+   2026-09-04 사고 요약: StaticForms 가 200 { success:true } 를 돌려주면서
+   메일은 보내지 않았다. 예전 코드는 그 성공을 믿고 즉시 return 해서,
+   멀쩡히 살아 있던 Web3Forms 를 건너뛰었다. 한 곳이 거짓말하면 전체가 멈췄다.
+
+   그래서 「누가 성공을 판정하는가」를 한 줄로 분리했다.
+     · NOTIFY_VIA 로 지정한 곳만 성공/실패를 판정한다
+     · 나머지 한 곳은 보내고 잊는다 — 응답을 읽지 않으므로 거짓말에 속지 않는다
+
+   StaticForms 메일이 다시 오는 걸 확인하면:
+     NOTIFY_VIA = "staticforms"  로 바꾸면 사장님이 보시던 그 형식으로 돌아간다.
+     그때 NOTIFY_BOTH 를 false 로 두면 메일이 한 통만 온다.
+   ══════════════════════════════════════════════════════════════ */
+const NOTIFY_VIA  = "web3forms";  /* "web3forms" | "staticforms" — 성공을 판정하는 쪽 */
+const NOTIFY_BOTH = false;        /* true = 나머지 한 곳에도 사본 발송 (메일 2통) */
+
 const STATICFORMS_URL = "https://api.staticforms.dev/submit";
 const STATICFORMS_KEY = "sf_e026c9ef91b8eaeba9d1d472";
 
-/* (대안) Web3Forms — 월 250건 무료. web3forms.com 에서 키 발급 후 붙여넣기 */
+/* ★★ Web3Forms — 서버가 죽었을 때만 쓰는 비상 경로.
+   평소 알림은 서버가 Brevo 로 NOTIFY_TO(0702yeom@gmail.com) 에 보낸다.
+   이 키는 「키에 등록된 주소」로만 발송되므로 여기서 수신자를 정할 수 없다.
+   수신자를 이 경로까지 바꾸려면 web3forms.com 에서 0702yeom@gmail.com 으로
+   새 access key 를 발급받아 아래 한 줄만 교체하면 된다. */
 const WEB3FORMS_KEY = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
 
 /* (대안) FormSubmit — 무제한 무료. 단, 최초 1회 활성화 메일 클릭 필요 */
@@ -155,7 +173,19 @@ async function sendLead(payload, btn){
   const prevText = btn ? btn.textContent : '';
   if (btn){ btn.disabled = true; btn.dataset._t = prevText; btn.textContent = '전송 중…'; }
   const restore = () => { if (btn){ btn.disabled = false; btn.textContent = btn.dataset._t || prevText; } };
-  const mailto = () => { restore(); try { window.location.href = buildMailto(payload); } catch(e){} return 'mailto'; };
+  /* 브라우저에서 알림 메일이 나갔는지 원장에 알려준다.
+     서버는 이 값을 보고 「안 나갔을 때만」 한 통 보낸다 → 총 1통. */
+  const notified = (v) => { try { if (window.MonnitLead && window.MonnitLead.setNotified) window.MonnitLead.setNotified(v); } catch(e){} };
+  notified(false);
+
+  const mailto = () => {
+    restore();
+    /* 메일 경로가 전부 실패해도 접수 사실은 원장에 남긴다.
+       전환(track)은 부르지 않는다 — 실패 건이 전환으로 잡히면 안 된다. */
+    try { if (window.MonnitLead && window.MonnitLead.recordPending) window.MonnitLead.recordPending(payload); } catch(e){}
+    try { window.location.href = buildMailto(payload); } catch(e){}
+    return 'mailto';
+  };
   try {
     // 0) Google Forms (구글 인증 없음 · 응답이 구글시트에 자동 저장) — 최우선
     if (GOOGLE_FORM_URL) {
@@ -170,20 +200,61 @@ async function sendLead(payload, btn){
         restore(); return true;
       } catch(e){ return mailto(); }
     }
-    // 0b) StaticForms (현재 활성 백엔드) — 실패하면 아래 Web3Forms 로 이어집니다
-    if (STATICFORMS_KEY) {
+    /* 0b) 두 발송처의 요청 본문 */
+    const sfBody = () => JSON.stringify(Object.assign({
+      apiKey: STATICFORMS_KEY,
+      subject: payload._subject || '모넷코리아 웹사이트 접수',
+      email: payload['이메일'] || payload.email || '',
+      replyTo: '@',
+      honeypot: ''
+    }, payload));
+    const w3Body = () => JSON.stringify(Object.assign({
+      access_key: WEB3FORMS_KEY,
+      subject: payload._subject || '모넷코리아 웹사이트 접수',
+      from_name: 'Monnit Korea 웹사이트',
+      replyto: payload['이메일'] || payload.email || '',
+      botcheck: false
+    }, payload));
+    const JSON_HEAD = { 'Content-Type':'application/json', 'Accept':'application/json' };
+
+    /* 사본 — 응답을 읽지 않고 기다리지도 않는다. 여기서 무슨 일이 나도 본 경로는 간다. */
+    const copyTo = (which) => {
       try {
-        const res = await fetch(STATICFORMS_URL, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body: JSON.stringify(Object.assign({
-            apiKey: STATICFORMS_KEY,
-            subject: payload._subject || '모넷코리아 웹사이트 접수',
-            email: payload['이메일'] || payload.email || '',
-            replyTo: '@',
-            honeypot: ''
-          }, payload)) });
+        if (which === 'staticforms' && STATICFORMS_KEY)
+          fetch(STATICFORMS_URL, { method:'POST', keepalive:true, headers:JSON_HEAD, body:sfBody() }).catch(function(){});
+        if (which === 'web3forms' && WEB3FORMS_KEY)
+          fetch('https://api.web3forms.com/submit', { method:'POST', keepalive:true, headers:JSON_HEAD, body:w3Body() }).catch(function(){});
+      } catch(e){}
+    };
+
+    /* 1순위 — 우리 서버. 원장 기록 · 고객 응대 메일 · 알림 메일 · 먼데이를 여기서 다 한다.
+       알림 받는 주소를 우리가 정하려면 서버(Brevo)를 거쳐야 한다.
+       Web3Forms · StaticForms 는 키에 등록된 주소로만 보내므로 받는 사람을 못 바꾼다. */
+    try {
+      if (window.MonnitLead && window.MonnitLead.submit) {
+        const served = await window.MonnitLead.submit(payload);
+        if (served) { notified(true); restore(); return true; }
+      }
+    } catch(e){}
+
+    /* 2순위 — 서버가 죽었을 때. 주소는 korea@monnit.com 이 되지만 0통보다 낫다. */
+    if (NOTIFY_VIA === 'staticforms' && STATICFORMS_KEY) {
+      if (NOTIFY_BOTH) copyTo('web3forms');
+      try {
+        const res = await fetch(STATICFORMS_URL, { method:'POST', headers:JSON_HEAD, body:sfBody() });
         let ok = res.ok; try { const j = await res.json(); ok = ok && !!j.success; } catch(e){}
-        if (ok) { restore(); return true; }
-      } catch(e){ /* 네트워크 오류 — 아래 폴백으로 계속 진행 */ }
+        if (ok) { notified(true); restore(); return true; }
+      } catch(e){}
+      return mailto();
+    }
+    if (NOTIFY_VIA === 'web3forms' && WEB3FORMS_KEY) {
+      if (NOTIFY_BOTH) copyTo('staticforms');
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', { method:'POST', headers:JSON_HEAD, body:w3Body() });
+        let ok = res.ok; try { const j = await res.json(); ok = ok && (j.success === true || j.success === 'true'); } catch(e){}
+        if (ok) { notified(true); restore(); return true; }
+      } catch(e){}
+      return mailto();
     }
     // 1) Google Apps Script (시트 저장 + 메일)
     if (GAS_ENDPOINT) {

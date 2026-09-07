@@ -59,6 +59,7 @@
     if (!payload['출처'])         payload['출처'] = source();
     if (!payload['유입 페이지'])   payload['유입 페이지'] = String(w.location.href).split('#')[0];
     _last = payload;
+    _lastType = type;
     return payload;
   }
 
@@ -69,6 +70,8 @@
      실패해도 기존 메일 경로는 그대로이므로 리드를 잃지 않는다. */
   var LEAD_API = '/api/lead';
   var _last = null;
+  var _lastType = 'contact';
+  var _notified = false;   /* 브라우저가 알림 메일을 이미 보냈는가 */
 
   function record(type, payload) {
     try {
@@ -83,7 +86,9 @@
         lead_type: type,
         payload: d,
         page: String(w.location.pathname),
-        ts: new Date().toISOString()
+        ts: new Date().toISOString(),
+        /* 이미 브라우저에서 알림이 나갔으면 서버는 보내지 않는다 (중복 방지) */
+        notified: !!_notified
       });
       if (w.navigator && w.navigator.sendBeacon) {
         w.navigator.sendBeacon(LEAD_API, new Blob([body], { type: 'application/json' }));
@@ -92,6 +97,24 @@
                             body: body, keepalive: true }).catch(function () {});
       }
     } catch (e) {}
+  }
+
+  /* 원장에 보내고 「서버가 받았는지」를 알려준다.
+     알림 메일은 서버가 보낸다(받는 주소를 우리가 정해야 하므로).
+     그래서 이 요청의 성공 여부가 곧 접수 성공 여부다. */
+  function submit(payload) {
+    var d = payload || _last || {};
+    var body = JSON.stringify({
+      lead_type: _lastType || 'contact',
+      payload: d,
+      page: String(w.location.pathname),
+      ts: new Date().toISOString()
+    });
+    if (!w.fetch) { record(_lastType, d); return Promise.resolve(false); }
+    return w.fetch(LEAD_API, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: body, keepalive: true
+    }).then(function (r) { return !!(r && r.ok); }).catch(function () { return false; });
   }
 
   function track(type, detail) {
@@ -113,12 +136,18 @@
       });
     } catch (e) {}
     try { if (w.clarity) w.clarity('event', t.event); } catch (e) {}
-    record(type, _last);
+    /* 원장 기록은 sendLead 의 submit() 이 이미 했다. 여기서 또 쓰면 두 번 들어간다. */
     _last = null;
   }
 
   try { source(); } catch (e) {}   /* 진입 즉시 출처 저장 */
 
-  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, track: track, record: record };
+  /* 메일 발송이 전부 실패했을 때 쓰는 기록 전용 경로.
+     전환 이벤트는 발생시키지 않고 원장에만 남긴다. */
+  function recordPending(payload) { record(_lastType || 'contact', payload || _last); }
+
+  function setNotified(v) { _notified = !!v; }
+
+  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, submit: submit, track: track, record: record, recordPending: recordPending, setNotified: setNotified };
   if (!w.MK_SOURCE) w.MK_SOURCE = source;
 })(window, document);
