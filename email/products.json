@@ -1,0 +1,105 @@
+{
+  "_common": {
+    "CATALOG_URL": "https://drive.google.com/file/d/1OHnkLK6de1toj9e27oCKCA4N95c6L9g6/view?usp=sharing",
+    "PROMO_URL": "https://monnit.co.kr/promo/alarm",
+    "FIRE_BLOG_URL": "https://blog.naver.com/monnitkorea/224144715009",
+    "CASE_BLOG_URL": "https://blog.naver.com/monnitkorea/224168487117",
+    "IMG_BASE": "https://monnit.co.kr/email/images",
+    "DOC_SERVICE_URL": "https://monnit.co.kr/files/alarm-service-4types.pdf",
+    "DOC_PLATFORM_URL": "https://monnit.co.kr/files/scube-platform-2026.pdf",
+    "DOC_COMPANY_URL": "https://monnit.co.kr/files/monnit-korea-company-profile.pdf",
+    "UNSUBSCRIBE_URL": "mailto:korea@monnit.com?subject=%EC%88%98%EC%8B%A0%EA%B1%B0%EB%B6%80%20%EC%9A%94%EC%B2%AD",
+    "CUSTOMER_NAME": "고객"
+  },
+
+  "alarm": {
+    "PRODUCT": "경보",
+    "SUBJECT": "[모넷코리아] 경보 알리미 신청이 접수되었습니다 · 소개 자료 안내",
+    "PREHEADER": "신청해 주신 경보 알리미 솔루션 소개 자료와 카탈로그를 보내드립니다. 담당자가 곧 연락드리겠습니다.",
+    "BLOG_URL": "https://blog.naver.com/monnitkorea/224389814713",
+    "DETECT_TARGET": "보일러·펌프·설비 이상 등을 감지하고",
+    "FEATURES": [
+      "24시간 실시간 모니터링",
+      "보일러·펌프·설비 이상 신호 감지 즉시 관리자에게 알림 전송 (PC · Mobile · 문자메시지)",
+      "여러 건물 통합 관제 가능",
+      "배선 공사 불필요 (10분이면 설치 완료)",
+      "센서 배터리 10년 지속",
+      "정전 시에도 작동"
+    ],
+    "SENSOR_NAME": "드라이 컨택 센서",
+    "SENSOR_TITLE": "드라이 컨택 센서 (AA 배터리형)",
+    "SENSOR_IMG": "sensor-drycontact.png",
+    "SENSOR_DESC": "경보 알리미 솔루션은 보일러·펌프 등 주요 설비의 자체 경보 시스템에 드라이 컨택 센서를 연동해 경보 신호를 감지하는 방식입니다. 기존 설비를 그대로 활용할 수 있어 모든 시스템에 무리 없이 적용됩니다.",
+    "COMPARE_IMG": "compare-alarm.png",
+    "CASE_IMG": "case-alarm.jpg",
+    "EXPAND_LIST": "화재 · 정전 · 경보 · 물감지 알리미"
+  },
+
+  "fire": {
+    "PRODUCT": "소방",
+    "SUBJECT": "[모넷코리아] 소방 알리미 신청이 접수되었습니다 · 소개 자료 안내",
+    "PREHEADER": "신청해 주신 소방 알리미 솔루션 소개 자료와 카탈로그를 보내드립니다. 담당자가 곧 연락드리겠습니다.",
+    "BLOG_URL": "https://blog.naver.com/monnitkorea/224144715009",
+    "DETECT_TARGET": "화재 발생을 감지하고",
+    "FEATURES": [
+      "24시간 실시간 모니터링",
+      "소방수신기 신호 감지 즉시 관리자에게 알림 전송 (PC · Mobile · 문자메시지)",
+      "여러 건물 통합 관제 가능",
+      "배선 공사 불필요 (10분이면 설치 완료)",
+      "센서 배터리 10년 지속"
+    ],
+    "SENSOR_NAME": "VDC 전압 센서",
+    "SENSOR_TITLE": "VDC 전압 센서 (AA 배터리형)",
+    "SENSOR_IMG": "sensor-vdc.png",
+    "SENSOR_DESC": "소방 알리미 솔루션은 소방 수신기의 신호 단자에 VDC 전압 센서를 연동해 화재 신호를 감지하는 방식입니다. 기존 소방 설비를 그대로 활용할 수 있어 모든 소방 수신기에 무리 없이 적용됩니다.",
+    "COMPARE_IMG": "compare-fire.png",
+    "CASE_IMG": "case-fire.jpg",
+    "EXPAND_LIST": "화재 · 정전 · 경보 알리미"
+  },
+
+  "power": {
+    "PRODUCT": "정전",
+    "SUBJECT": "[모넷코리아] 정전 알리미 신청이 접수되었습니다 · 소개 자료 안내",
+    "PREHEADER": "신청해 주신 정전 알리미 솔루션 소개 자료와 카탈로그를 보내드립니다. 담당자가 곧 연락드리겠습니다.",
+    "BLOG_URL": "https://blog.naver.com/monnitkorea/224389814713",
+    "DETECT_TARGET": "차단기 트립 발생을 감지하고",
+    "FEATURES": [
+      "24시간 실시간 모니터링",
+      "차단기 트립 신호 감지 즉시 관리자에게 알림 전송 (PC · Mobile · 문자메시지)",
+      "여러 건물 통합 관제 가능",
+      "배선 공사 불필요 (10분이면 설치 완료)",
+      "센서 배터리 10년 지속",
+      "정전 시에도 작동"
+    ],
+    "SENSOR_NAME": "드라이 컨택 센서",
+    "SENSOR_TITLE": "드라이 컨택 센서 (AA 배터리형)",
+    "SENSOR_IMG": "sensor-drycontact.png",
+    "SENSOR_DESC": "정전 알리미 솔루션은 UPS 등 중요 전력 장치 차단기의 신호 단자에 드라이 컨택 센서를 연동해 차단기 트립 신호를 감지하는 방식입니다. 기존 설비를 그대로 활용할 수 있어 모든 전력 장치에 무리 없이 적용됩니다.",
+    "COMPARE_IMG": "compare-power.png",
+    "CASE_IMG": "case-power.jpg",
+    "EXPAND_LIST": "화재 · 정전 · 경보 · 물감지 알리미"
+  },
+
+  "water": {
+    "PRODUCT": "물감지",
+    "SUBJECT": "[모넷코리아] 물감지 알리미 신청이 접수되었습니다 · 소개 자료 안내",
+    "PREHEADER": "신청해 주신 물감지 알리미 솔루션 소개 자료와 카탈로그를 보내드립니다. 담당자가 곧 연락드리겠습니다.",
+    "BLOG_URL": "https://blog.naver.com/monnitkorea/224389814713",
+    "DETECT_TARGET": "물을 감지하고",
+    "FEATURES": [
+      "24시간 실시간 모니터링",
+      "물 감지 즉시 관리자에게 알림 전송 (PC · Mobile · 문자메시지)",
+      "여러 건물 통합 관제 가능",
+      "배선 공사 불필요 (10분이면 설치 완료)",
+      "센서 배터리 10년 지속",
+      "정전 시에도 작동"
+    ],
+    "SENSOR_NAME": "물감지 센서",
+    "SENSOR_TITLE": "물감지 센서 (AA 배터리형)",
+    "SENSOR_IMG": "sensor-water.png",
+    "SENSOR_DESC": "집수정 침수 모니터링에는 오뚜기볼(Float Switch) 기반의 물감지 센서가 가장 많이 활용됩니다. 집수정 수위가 설정 높이까지 오르면 오뚜기볼이 부력으로 작동하고, 센서가 이를 감지해 게이트웨이를 통해 관제 플랫폼으로 상태를 전송합니다. 이외에 로프형·전극봉형 물감지 센서도 있으니, 설치를 원하시는 설비와 상황을 알려주시면 최적 제품을 추천해 드리겠습니다.",
+    "COMPARE_IMG": "compare-water.png",
+    "CASE_IMG": "case-water.jpg",
+    "EXPAND_LIST": "화재 · 정전 · 경보 · 물감지 알리미"
+  }
+}

@@ -185,7 +185,8 @@
 [functions]
   directory = "netlify/functions"
   # 제안서 PDF 를 함수 번들에 포함 (정적 공개 경로로는 접근 불가)
-  included_files = ["proposals/**"]
+  # 알리미 자동 응답 메일 템플릿도 함수에서 읽으므로 같이 포함한다
+  included_files = ["proposals/**", "email/template.html", "email/products.json"]
 
 # ── 관제 화면은 검색엔진에서 완전히 제외 (개인정보 포함) ──────────
 [[headers]]
@@ -231,3 +232,19 @@
   for = "/valid.js"
   [headers.values]
     Cache-Control = "public, max-age=3600, must-revalidate"
+
+# ── 알리미 자동 응답 메일 이미지 ────────────────────────────────
+# 메일 본문이 https://monnit.co.kr/email/images/... 로 불러옵니다.
+# 한 번 보낸 메일은 몇 달 뒤에도 열리므로 오래 캐시해도 안전합니다.
+[[headers]]
+  for = "/email/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+    X-Robots-Tag = "noindex"
+
+# 알리미 메일 미리보기·테스트 발송 (검색 비노출)
+[[headers]]
+  for = "/api/mailpreview"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"

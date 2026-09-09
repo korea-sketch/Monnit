@@ -1482,7 +1482,10 @@ function stripHtmlComments(){
   let n = 0;
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach(e => {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()){ if (!/^(node_modules|\.git|functions)$/.test(e.name)) walk(p); return; }
+    /* email/ 은 메일 템플릿입니다. Outlook 은 <!--[if mso]> 조건부 주석으로만
+       레이아웃을 잡으므로 여기서 주석을 지우면 아웃룩에서 폭이 무너집니다.
+       공개 페이지가 아니라 함수가 읽는 원본이므로 제외합니다. */
+    if (e.isDirectory()){ if (!/^(node_modules|\.git|functions|email)$/.test(e.name)) walk(p); return; }
     if (!/\.html$/i.test(e.name) || SKIP.has(e.name)) return;
     const h = fs.readFileSync(p, 'utf8');
     const out = strip(h);
