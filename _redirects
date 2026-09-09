@@ -63,6 +63,7 @@
 /적용방법.md                              /404.html    404!
 /제안서-다운로드-설정.md                  /404.html    404!
 /크롤링수정-변경내역.md                 /404.html    404!
+/source/*                                     /404.html    404!
 /build.js                                     /404.html    404!
 /promo-consulting-sheet-template.csv          /404.html    404!
 /package.json                                 /404.html    404!
@@ -88,6 +89,21 @@
 /promo/proposal/         /promo-proposal.html    200
 /promo-proposal.html     /promo/proposal         301!
 /promo-proposal          /promo/proposal         301
+
+# 광고 전용 랜딩 — 무선 온도 감시 (2026-09-08 · 검색·사이트 메뉴 비노출)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다.
+#   실제 파일(promo/temperature/index.html)이 있어 Netlify 가 먼저 서빙하지만,
+#   슬래시 없는 주소까지 확실히 잡으려고 규칙을 함께 둡니다.
+/promo/temperature       /promo/temperature/index.html   200
+/promo/temperature/      /promo/temperature/index.html   200
+/promo/temp              /promo/temperature              301
+/promo-temperature       /promo/temperature              301
+
+# 광고 전용 랜딩 — 무선센서 Modbus 연동 백서 (2026-09-09 · 검색 비노출)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다.
+/promo/modbus            /promo/modbus/index.html        200
+/promo/modbus/           /promo/modbus/index.html        200
+/modbus                  /promo/modbus                   301
 
 # 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소는 그대로 유지)
 /promo/*  /promo.html?id=:splat  200

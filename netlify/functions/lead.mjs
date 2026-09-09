@@ -116,7 +116,7 @@ export default async (req) => {
        고객 응대 메일(sendAlarmReply)은 서버만 보내므로 이 조건과 무관하게 항상 나간다. */
     const _browserSent = body.notified === true;
 
-    const [, , _reply] = await Promise.allSettled([
+    const [_notified, , _reply] = await Promise.allSettled([
       _browserSent ? Promise.resolve({ ok: true, via: 'browser' }) : notify(lead, p),
       pushLead(id, lead),
       sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin })
@@ -124,6 +124,25 @@ export default async (req) => {
     /* 나갔는지 안 나갔는지는 따로 남긴다 — 2026-09-04 사고의 교훈.
        리드 원장(leads)은 이미 위에서 기록이 끝났으므로 건드리지 않는다.
        같은 파일을 두 번 쓰면 동시 접수 때 한 건이 덮여 사라진다. */
+    /* ── 알림이 진짜로 나갔는지 남긴다 (2026-09-09) ────────────────────
+       notify() 는 { ok, via, tried } 를 돌려주는데 그동안 아무도 안 읽고 버렸다.
+       그래서 「서버는 접수를 받았는데 발송처 세 곳이 전부 죽어 아무도 못 받은」
+       상황이 어디에도 안 남는다. /api/lead 는 기록 실패와 무관하게 204 를 주므로
+       브라우저도 그 사실을 모르고, 자기 백업 경로(StaticForms)를 쓰지 않는다.
+       원장에는 접수가 남으니 리드를 잃지는 않지만, 「왜 알림이 안 오지」를
+       함수 로그를 뒤져야만 알 수 있었다. 이제 /ops/automail 에서 바로 보인다. */
+    try {
+      const nv = (_notified && _notified.status === 'fulfilled') ? _notified.value : null;
+      await append('ops', 'notify-' + monthKey(body.ts), {
+        ts: lead.ts,
+        ok: !!(nv && nv.ok),
+        via: (nv && nv.via) || '',                       /* browser · staticforms · web3forms · brevo */
+        tried: (nv && nv.tried) ? String(nv.tried) : '',  /* 어디까지 시도했는가 */
+        browser: _browserSent,                            /* 브라우저가 이미 보냈다고 한 건 */
+        point: lead.point || '', company: lead.company || ''
+      });
+    } catch (e) { /* 관측용 기록이 접수를 막으면 안 된다 */ }
+
     if (_reply && _reply.status === 'fulfilled' && _reply.value) {
       const r = _reply.value;
       await append('ops', 'automail-' + monthKey(body.ts), {

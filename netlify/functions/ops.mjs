@@ -8,9 +8,12 @@ import * as deals from './_deals.mjs';
 import { rollup, economics } from './_creatives.mjs';
 import { utmAudit, actions as buildActions } from './_insights.mjs';
 import { notify, configured as notifyConfigured } from './_notify.mjs';
+import { configured as alarmMailConfigured } from './_alarmmail.mjs';
 import { pushLead, ping as mondayPing } from './_monday.mjs';
 
-export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult', '/ops/testmail', '/ops/resend', '/ops/delete', '/ops/restore'] };
+/* 이 목록은 화이트리스트다. 여기에 없는 경로는 함수까지 오지 못하고 404 가 된다.
+   아래 라우팅(sub)에 분기를 추가하면 이 배열에도 반드시 같이 넣어야 한다. */
+export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult', '/ops/testmail', '/ops/automail', '/ops/resend', '/ops/delete', '/ops/restore'] };
 
 /* 수기 접수에서 고를 수 있는 유입 채널 — 리드 원장의 channel 어휘와 같게 맞춘다 */
 const MANUAL_CHANNELS = ['메타', '구글', '네이버', '카카오', '직접', '소개', '전화문자', '우편DM', '기타'];
@@ -374,6 +377,7 @@ export default async (req) => {
             : path.endsWith('/consult') ? 'consult'
             : path.endsWith('/deal') ? 'deal'
             : path.endsWith('/testmail') ? 'testmail'
+            : path.endsWith('/automail') ? 'automail'
             : path.endsWith('/resend') ? 'resend'
             : path.endsWith('/delete') ? 'delete'
             : path.endsWith('/restore') ? 'restore' : '';
@@ -398,12 +402,79 @@ export default async (req) => {
   }
 
   if (!authed) {
-    if (['data','diag','mark','lead','consult','deal','testmail','resend','delete','restore'].includes(sub)) return j({ error: 'unauthorized' }, 401);
+    if (['data','diag','mark','lead','consult','deal','testmail','automail','resend','delete','restore'].includes(sub)) return j({ error: 'unauthorized' }, 401);
     if (sub === 'export') return new Response(null, { status: 302, headers: { ...H, location: '/ops' } });
     return page(LOGIN.replace('__ERR__', ''));
   }
 
-  if (sub === 'diag') return j({ ...(await diag()), monday: await mondayPing(), notify: notifyConfigured() });
+  if (sub === 'diag') return j({
+    ...(await diag()),
+    monday: await mondayPing(),
+    notify: notifyConfigured(),
+    /* 알리미 자동 응답이 켜져 있는지 · 어느 주소로 나가는지 (2026-09-08) */
+    alarmMail: alarmMailConfigured()
+  });
+
+  /* ── 알리미 자동 응답 발송 내역 ────────────────────────────────────
+     lead.mjs 가 접수마다 ops/automail-YYYY-MM.jsonl 에 한 줄씩 남기지만
+     그동안 이걸 볼 화면이 없었다. 「메일이 나갔는지」를 물어보려면
+     함수 로그를 뒤져야 했다. 이제 여기서 바로 확인한다.
+
+       GET /ops/automail            최근 3개월 요약 + 최근 100건
+       GET /ops/automail?m=2026-09  특정 월만
+     실패 건(sent=false)은 note 에 이유가 들어 있다 —
+     no_key(키 없음) · not_alarm(알리미 접수 아님) · no_email(주소 형식) ·
+     off(긴급 차단) · brevo 4xx/5xx(발송 거절). */
+  if (sub === 'automail') {
+    const q = new URL(req.url).searchParams;
+    const one = String(q.get('m') || '').trim();
+    const now = new Date();
+    const keys = /^\d{4}-\d{2}$/.test(one)
+      ? [one + '.jsonl']
+      : [...new Set([0, 1, 2].map(i => monthKey(new Date(now - i * 30.5 * 864e5))))];
+
+    let rows = [];
+    for (const k of keys) rows = rows.concat(await readLines('ops', 'automail-' + k).catch(() => []));
+    rows = rows.filter(r => r && r.ts);
+    rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+
+    /* 담당자 알림이 실제로 나갔는지 (2026-09-09 추가)
+       여기서 ok=false 가 쌓이면 접수는 들어오는데 아무도 못 받고 있다는 뜻이다.
+       via 가 비어 있고 tried 에 세 곳이 다 찍혀 있으면 발송처가 전멸한 것이다. */
+    let nrows = [];
+    for (const k of keys) nrows = nrows.concat(await readLines('ops', 'notify-' + k).catch(() => []));
+    nrows = nrows.filter(r => r && r.ts);
+    nrows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+    const nOk = nrows.filter(r => r.ok);
+    const byVia = {};
+    for (const r of nOk) byVia[r.via || '미상'] = (byVia[r.via || '미상'] || 0) + 1;
+
+    const sent = rows.filter(r => r.sent);
+    const byProduct = {}, byNote = {};
+    for (const r of sent)  byProduct[r.product || '미상'] = (byProduct[r.product || '미상'] || 0) + 1;
+    for (const r of rows) if (!r.sent) byNote[r.note || '미상'] = (byNote[r.note || '미상'] || 0) + 1;
+
+    return j({
+      months: keys.map(k => k.replace('.jsonl', '')),
+      total: rows.length,
+      sent: sent.length,
+      failed: rows.length - sent.length,
+      byProduct: Object.entries(byProduct).sort((a, b) => b[1] - a[1]),
+      /* 「안 나간 이유」별 집계. not_alarm 이 대부분인 건 정상이다 —
+         알리미가 아닌 접수까지 전부 이 원장을 지나가기 때문이다. */
+      byReason: Object.entries(byNote).sort((a, b) => b[1] - a[1]),
+      recent: rows.slice(-100).reverse(),
+
+      /* 담당자 알림 현황 — 이게 0 이 아닌데 failed 가 쌓이면 즉시 확인해야 한다 */
+      notify: {
+        total: nrows.length,
+        sent: nOk.length,
+        failed: nrows.length - nOk.length,
+        byVia: Object.entries(byVia).sort((a, b) => b[1] - a[1]),
+        recentFailed: nrows.filter(r => !r.ok).slice(-30).reverse()
+      }
+    });
+  }
 
   /* 알림 메일이 실제로 나가는지 확인한다 — 아무것도 저장하지 않는다 */
   if (sub === 'testmail') {

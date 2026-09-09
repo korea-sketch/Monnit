@@ -142,34 +142,66 @@ exports.handler = async (event) => {
     const _ev = VALID.email(email);
     if (!_ev.ok) return reply(400, { ok: false, error: 'bad_email', reason: _ev.reason, message: _ev.message, suggest: _ev.suggest || '' });
 
-    const title = String(d.title || '').slice(0, 120).trim();
-    if (!title) return reply(400, { ok: false, error: 'no_title' });
+    /* ── 제안서 1건 또는 여러 건 ────────────────────────────────────
+       예전에는 title 하나만 받았다. 그래서 온도 랜딩처럼 「3종 모두」를
+       주는 페이지가 이 함수를 세 번 부르고, 신청자 한 사람에게 안내 메일이
+       세 통 갔다. 받는 쪽에서는 스팸으로 보이고 Brevo 발송량도 세 배가 된다.
+       이제 titles 배열을 받으면 링크는 전부 발급하되 메일은 한 통만 보낸다.
+       기존 호출(title 문자열 하나)은 그대로 동작한다. */
+    const rawTitles = Array.isArray(d.titles) ? d.titles : [d.title];
+    const titles = rawTitles
+      .map(t => String(t || '').slice(0, 120).trim())
+      .filter(Boolean)
+      .filter((t, i, a) => a.indexOf(t) === i)   /* 같은 제목을 두 번 보내도 한 번만 */
+      .slice(0, 5);                              /* 한 번에 다섯 건까지 */
+    if (!titles.length) return reply(400, { ok: false, error: 'no_title' });
+
     const company = String(d.company || '').slice(0, 80).trim();
     const person  = String(d.name || '').slice(0, 40).trim();
 
-    /* ── 이 조회를 통과해야만 주소가 밖으로 나간다 ── */
-    const hit = lookup(title);
-    if (!hit) return reply(404, { ok: false, error: 'not_ready' });
-    const [file, dlname] = hit;
-
-    const exp = Date.now() + TTL_MS;
-    const url = '/.netlify/functions/getdoc?f=' + encodeURIComponent(file) +
-                '&e=' + exp + '&s=' + sign(file, exp) + '&n=' + encodeURIComponent(dlname);
-
     const origin = (event.headers && (event.headers.origin || event.headers.referer)) || 'https://monnit.co.kr';
-    const abs = (origin.match(/^https?:\/\/[^/]+/) || ['https://monnit.co.kr'])[0] + url;
+    const base = (origin.match(/^https?:\/\/[^/]+/) || ['https://monnit.co.kr'])[0];
+
+    /* ── 이 조회를 통과해야만 주소가 밖으로 나간다 ── */
+    const items = [];
+    for (const t of titles) {
+      const hit = lookup(t);
+      if (!hit) continue;                        /* 등록 안 된 제목은 건너뛴다 */
+      const [file, dlname] = hit;
+      const exp = Date.now() + TTL_MS;
+      const u = '/.netlify/functions/getdoc?f=' + encodeURIComponent(file) +
+                '&e=' + exp + '&s=' + sign(file, exp) + '&n=' + encodeURIComponent(dlname);
+      items.push({ title: t, url: u, abs: base + u });
+    }
+    /* 한 건도 못 찾으면 예전처럼 not_ready 다 — 페이지가 대체 경로로 넘어간다 */
+    if (!items.length) return reply(404, { ok: false, error: 'not_ready' });
+
+    const title = items[0].title;
+    const url   = items[0].url;
+    const abs   = items[0].abs;
 
     /* ── 안내 메일 (실패해도 다운로드는 진행) ── */
     const isConsult = norm(title) === norm(CONSULT_DOC);
     const slots = isConsult ? await readSlots() : null;
 
+    /* 여러 건이면 제목·주소를 나란히 적는다. 한 건이면 예전 문구 그대로다. */
+    const many = items.length > 1;
+    const docLines = many
+      ? items.map((it, i) => '  ' + (i + 1) + ') ' + it.title + '\n     ' + it.abs).join('\n\n')
+      : '';
+
     const plainBody =
       '안녕하세요, Monnit Korea입니다.\n\n' +
-      '요청하신 「' + title + '」 제안서를 신청해 주셔서 감사합니다.\n' +
-      '브라우저에서 다운로드가 자동으로 시작됩니다.\n' +
-      '혹시 시작되지 않았다면 아래 주소로 10분 이내에 내려받아 주세요.\n\n' +
-      '■ 제안서   : ' + title + '\n' +
-      '■ 다운로드 : ' + abs + '\n' +
+      (many
+        ? '요청하신 제안서 ' + items.length + '종을 신청해 주셔서 감사합니다.\n' +
+          '브라우저에서 첫 번째 자료의 다운로드가 자동으로 시작됩니다.\n' +
+          '나머지는 아래 주소로 10분 이내에 내려받아 주세요.\n\n' +
+          '■ 제안서 ' + items.length + '종\n' + docLines + '\n\n'
+        : '요청하신 「' + title + '」 제안서를 신청해 주셔서 감사합니다.\n' +
+          '브라우저에서 다운로드가 자동으로 시작됩니다.\n' +
+          '혹시 시작되지 않았다면 아래 주소로 10분 이내에 내려받아 주세요.\n\n' +
+          '■ 제안서   : ' + title + '\n' +
+          '■ 다운로드 : ' + abs + '\n') +
       '■ 유효시간 : 발급 후 10분 (만료 시 사이트에서 다시 신청)\n' +
       '■ 열람     : 비밀번호 없이 바로 열림\n' +
       '■ 편집     : 보호됨 (수정이 필요하시면 담당자에게 요청해 주세요)\n\n' +
@@ -203,7 +235,13 @@ exports.handler = async (event) => {
       }
     } catch (e) { /* 메일 실패가 다운로드를 막지 않는다 */ }
 
-    return reply(200, { ok: true, url, mailed, consult: isConsult });
+    /* url 은 예전 응답 그대로 둔다 — 기존 페이지들이 이 필드만 읽는다.
+       urls 는 여러 건을 신청했을 때 나머지를 받아 가는 새 필드다. */
+    return reply(200, {
+      ok: true, url, mailed, consult: isConsult,
+      urls: items.map(it => ({ title: it.title, url: it.url })),
+      missing: titles.filter(t => !items.some(it => it.title === t))
+    });
   } catch (e) {
     return reply(500, { ok: false, error: 'server' });
   }

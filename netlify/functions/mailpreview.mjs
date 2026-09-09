@@ -46,10 +46,17 @@ export default async (req) => {
     }
 
     const { subject, html } = await renderEmail(p, { CUSTOMER_NAME: name, SITE_ORIGIN: origin });
-    /* 제목은 브라우저에서 안 보이므로 맨 위에 한 줄 얹어 준다 */
-    const bar = `<div style="background:#0F2B5B;color:#fff;padding:10px 16px;font:13px/1.5 -apple-system,'Apple SD Gothic Neo',sans-serif">
-      <b>미리보기</b> · 제목: ${subject.replace(/</g, '&lt;')} · 제품키: ${p}</div>`;
-    return new Response(html.replace('<body id="body"', bar + '<body id="body"').replace(bar + '<body', '<body'), {
+
+    /* 제목은 브라우저에서 안 보이므로 본문 맨 위에 한 줄 얹어 준다.
+       예전 코드는 <body ...> 앞에 막대를 끼워 넣은 뒤 곧바로 같은 문자열을
+       다시 지우고 있어서(두 번째 replace 가 첫 번째를 되돌렸다) 막대가
+       한 번도 보이지 않았다. 여는 <body ...> 태그 "뒤"에 넣는 것이 맞다 —
+       <body> 바깥의 요소는 브라우저가 body 안으로 옮겨 버려 배경색이 깨진다. */
+    const bar = `<div style="background:#0F2B5B;color:#fff;padding:10px 16px;font:13px/1.5 -apple-system,'Apple SD Gothic Neo',sans-serif">`
+      + `<b>미리보기</b> · 제목: ${subject.replace(/</g, '&lt;')} · 제품키: ${p}</div>`;
+    const shown = html.replace(/<body\b[^>]*>/i, m => m + bar);
+
+    return new Response(shown, {
       status: 200,
       headers: { ...H, 'Content-Type': 'text/html; charset=utf-8' }
     });

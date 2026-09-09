@@ -15,6 +15,15 @@ const WEB3FORMS_KEY = process.env.WEB3FORMS_KEY || 'e4d5cb03-1b25-425c-a47d-f04e
 const PAGES = [
   { path: '/promo/consulting', name: '광고 랜딩(예지보전)', must: ['id="apply"', 'monnit-lead.js', 'GTM-T8H73VW'] },
   { path: '/promo/proposal',   name: '광고 랜딩(제안가이드)', must: ['id="fmForm"', 'monnit-lead.js', 'GTM-T8H73VW'] },
+  /* 온도 감시 랜딩 — 이미지 11장과 제안서 3종이 함께 걸려 있어 깨질 구석이 많다.
+     og-image 경로를 함께 보는 이유: 이미지 폴더를 통째로 안 올리면 페이지는
+     멀쩡히 뜨는데 사진만 전부 빈칸이 된다. 그 상태로 광고가 계속 돈다. */
+  { path: '/promo/temperature', name: '광고 랜딩(온도감시)',
+    must: ['id="fmForm"', 'monnit-lead.js', 'GTM-T8H73VW', '/images/temp-packages/og-image.jpg'] },
+  /* Modbus 백서 랜딩 — 백서 신청 폼과 공통 스크립트가 살아 있는지 본다.
+     이 페이지는 1MB 단일 HTML 이라 배포가 잘리면 폼만 조용히 사라진다. */
+  { path: '/promo/modbus',     name: '광고 랜딩(Modbus백서)',
+    must: ['wpForm-hero', 'monnit-lead.js', 'GTM-T8H73VW', 'sendpw'] },
   { path: '/',                 name: '홈',                  must: ['mk-leadForm', 'monnit-lead.js', 'GTM-T8H73VW'] },
   { path: '/contact',          name: '문의 페이지',          must: ['GTM-T8H73VW'] }
 ];
