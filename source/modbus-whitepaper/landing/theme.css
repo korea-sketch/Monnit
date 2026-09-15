@@ -137,6 +137,54 @@ section[id],header[id],div[id="download"]{scroll-margin-top:70px}
 .hero .btn-ghost{border-color:rgba(255,255,255,.24);color:#fff}
 .hero .btn-ghost:hover{border-color:rgba(255,255,255,.5)}
 
+/* ── 안을 먼저 보여 주기 (페이지 미리보기 + 크게 보기) ──────
+   제안서를 받기 전에 안이 어떤지 먼저 보게 합니다.
+   카드는 종이 한 장이 위에서 살짝 잘려 들어온 모양 — 아래를 자르면
+   "더 있다" 는 인상이 남습니다. 전부 보여 주면 받을 이유가 없어집니다. */
+.pages{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
+.pages figure{
+  margin:0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  cursor:zoom-in;display:flex;flex-direction:column;
+  transition:transform .28s var(--ease),box-shadow .28s var(--ease),border-color .28s var(--ease);
+}
+.pages figure:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(16,24,40,.12);border-color:#d8dee8}
+.pages figure:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.pages figure:active{transform:scale(.99);transition:transform .1s}
+.pages .shot{background:var(--bg-alt);padding:20px 20px 0;height:238px;overflow:hidden}
+.pages .shot img{
+  display:block;width:100%;height:auto;border-radius:6px 6px 0 0;
+  box-shadow:0 3px 16px rgba(16,24,40,.14);transition:transform .5s var(--ease);
+}
+.pages figure:hover .shot img{transform:scale(1.035)}
+.pages figcaption{padding:20px 22px 22px;flex:1;display:flex;flex-direction:column}
+.pages figcaption b{
+  display:block;font-size:17px;font-weight:700;color:var(--ink);
+  letter-spacing:-.02em;margin-bottom:6px;
+}
+.pages figcaption span{display:block;font-size:14px;color:var(--ink-2);line-height:1.55}
+.pages .zl{margin-top:auto;padding-top:13px;font-size:13.5px;color:var(--brand);font-weight:600}
+.pages .zl::after{content:" ›"}
+
+.lb{
+  position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;padding:32px 20px;
+  background:rgba(8,12,20,.9);opacity:0;transition:opacity .18s var(--ease);
+}
+.lb.on{opacity:1}
+.lb[hidden]{display:none}
+.lb-stage{max-width:min(980px,100%);max-height:calc(100vh - 150px);overflow:auto;border-radius:10px}
+.lb-stage img{display:block;width:100%;height:auto;background:#fff;border-radius:10px}
+.lb-cap{
+  max-width:720px;margin:0;text-align:center;color:rgba(255,255,255,.78);
+  font-size:13.5px;line-height:1.62;
+}
+.lb-close{
+  position:absolute;top:18px;right:20px;width:42px;height:42px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;
+  font-size:17px;cursor:pointer;font-family:inherit;line-height:1;
+}
+.lb-close:hover{background:rgba(255,255,255,.18)}
+
 /* ── 전화 ────────────────────────────────────────────────
    폼을 채우기보다 한 번 통화하는 편이 빠른 사람이 늘 있습니다.
    그 사람이 번호를 찾아 헤매지 않도록 상단 바 · 히어로 · 기술지원
@@ -500,7 +548,8 @@ footer a{color:#6db3e8}
   .shots{grid-template-columns:1fr}
 }
 @media (max-width:860px){
-  .ind-grid,.easy,.gwpick,.dl-grid,.sup,.foot-grid,.toc{grid-template-columns:1fr}
+  .ind-grid,.easy,.gwpick,.dl-grid,.sup,.foot-grid,.toc,.pages{grid-template-columns:1fr}
+  .pages .shot{height:300px;padding:18px 18px 0}   /* 1열에서 전부 펼치면 카드 하나가 화면을 넘깁니다 */
   .reasons,.chain,.cost-grid{grid-template-columns:1fr}
   .chain li{padding-right:0}
   .flow-in{grid-template-columns:1fr;gap:14px}
@@ -520,6 +569,9 @@ footer a{color:#6db3e8}
   .steps{grid-template-columns:1fr}
   .ind{padding:26px 22px 24px}
   .easy article,.gw{padding:26px 22px}
+  .lb{padding:20px 12px}
+  .lb-stage{max-height:calc(100vh - 128px)}
+  .lb-close{top:10px;right:12px}
   .dgm svg{min-width:520px}
 }
 @media (prefers-reduced-motion:reduce){
