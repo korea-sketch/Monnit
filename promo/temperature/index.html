@@ -16,21 +16,13 @@
 <meta property="og:url" content="https://monnit.co.kr/promo/temperature/">
 <meta property="og:image" content="https://monnit.co.kr/images/temp-packages/og-image.jpg">
 
-<!-- 동의 배너 + GTM · GA4 · Clarity (사이트 공통 · 다른 랜딩 18개와 같은 설정)
-     이 두 줄이 없으면 아래 track() 안의 gtag·fbq 가 전부 빈 호출이 된다.
-     페이지는 멀쩡히 뜨고 콘솔에도 아무 말이 없으므로, 광고를 한 달 돌린 뒤
-     "전환이 0건인데 왜죠" 를 물어보게 된다. 실제로 이 페이지만 빠져 있었다. -->
+
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
 <script src="/js/monnit-consent.js?v=111"></script>
-<!-- 사이트 공통 입력 검증기. 이 페이지만 빠져 있었습니다.
-     서버(sendpw)는 valid.js 와 같은 규칙으로 이메일을 막는데, 화면 검사가
-     그보다 느슨하면 폼은 통과하고 서버가 거절합니다. 그러면 catch 로 떨어져
-     공개 대체 경로 PDF 가 그냥 내려갑니다 — 리드 수집 게이트가 뚫립니다.
-     오타 안내(gmial→gmail)도 여기서 나옵니다. -->
+
 <script src="/valid.js?v=1"></script>
 
-<!-- 첫 화면 커버 3장 중 가운데(가장 큰 것)를 미리 받아 둡니다.
-     히어로 이미지는 HTML 을 다 읽은 뒤에 요청되면 그만큼 LCP 가 늦어집니다. -->
+
 <link rel="preload" as="image" href="/images/temp-packages/cover-pharma-480.jpg" fetchpriority="high">
 <style>
 /* ══════════════════════════════════════════════════════════
@@ -597,7 +589,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </header>
 
-<!-- ══════════ HERO ══════════ -->
+
 <div class="hero">
   <div class="wrap">
     <div>
@@ -638,7 +630,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </div>
 
-<!-- ══════════ 설치 사례 ══════════ -->
+
 <section id="cases">
   <div class="wrap">
     <div class="casehead" data-reveal>
@@ -667,7 +659,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ 이 문서는 무엇인가 ══════════ -->
+
 <section class="alt" id="inside">
   <div class="wrap">
     <div data-reveal>
@@ -705,7 +697,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ 페이지 미리보기 ══════════ -->
+
 <section id="pages">
   <div class="wrap">
     <div data-reveal>
@@ -730,7 +722,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ 목차 ══════════ -->
+
 <section class="alt" id="toc">
   <div class="wrap">
     <div data-reveal>
@@ -791,7 +783,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ 센서 선택 ══════════ -->
+
 <section class="alt" id="sensors">
   <div class="wrap">
     <div data-reveal>
@@ -948,7 +940,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ 도입 절차 ══════════ -->
+
 <section id="steps">
   <div class="wrap">
     <div data-reveal>
@@ -965,7 +957,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ FAQ ══════════ -->
+
 <section id="faq">
   <div class="wrap">
     <div data-reveal>
@@ -1008,7 +1000,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </section>
 
-<!-- ══════════ 연락 ══════════ -->
+
 <div class="contact" id="contact">
   <div class="narrow">
     <div class="kicker">CONTACT</div>

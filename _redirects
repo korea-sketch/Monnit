@@ -99,10 +99,14 @@
 /promo/temp              /promo/temperature              301
 /promo-temperature       /promo/temperature              301
 
-# 광고 전용 랜딩 — 무선센서 Modbus 연동 백서 (2026-09-09 · 검색 비노출)
+# Modbus 시스템 연동 기술지원 랜딩
+#   2026-09-09 에는 광고 직링크 전용이었으나, 2026-09-15 /promotions 목록에
+#   올리면서 색인 대상으로 바꿉니다.
 # ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다.
 /promo/modbus            /promo/modbus/index.html        200
 /promo/modbus/           /promo/modbus/index.html        200
+/promo-modbus.html       /promo/modbus                   301!
+/promo-modbus            /promo/modbus                   301
 /modbus                  /promo/modbus                   301
 
 # 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소는 그대로 유지)

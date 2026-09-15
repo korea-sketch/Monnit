@@ -877,6 +877,18 @@ const promoPages = [];   // sitemap 용
   fs.copyFileSync(source, path.join(targetDir, 'index.html'));
 })();
 
+/* /promo/modbus — Modbus 구성 제안 랜딩.
+   2026-09-09 에는 광고 직링크 전용(noindex)이었으나, /promotions 목록에 올리면서
+   색인 대상으로 바꿉니다. 실제 파일이 있어야 Netlify 가 /promo/* 와일드카드보다
+   먼저 서빙하므로 여기서 사본을 만듭니다. */
+(function buildModbusPromoAlias() {
+  const source = path.join(__dirname, 'promo-modbus.html');
+  if (!fs.existsSync(source)) return;
+  const targetDir = path.join(__dirname, 'promo', 'modbus');
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(source, path.join(targetDir, 'index.html'));
+})();
+
 (function buildAlarmPromoAlias() {
   const source = path.join(__dirname, 'promo-alarm.html');
   if (!fs.existsSync(source)) return;
@@ -1361,6 +1373,7 @@ const urls = [
   { loc: SITE + '/promo/consulting', pri: '0.9' },
   { loc: SITE + '/promo/residence', pri: '0.9' },
   { loc: SITE + '/promo/alarm', pri: '0.9' },
+  { loc: SITE + '/promo/modbus', pri: '0.9' },
   { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' })),
   ...promoPages                                        // /promotions/{slug} 상세
@@ -1485,7 +1498,10 @@ function stripHtmlComments(){
     /* email/ 은 메일 템플릿입니다. Outlook 은 <!--[if mso]> 조건부 주석으로만
        레이아웃을 잡으므로 여기서 주석을 지우면 아웃룩에서 폭이 무너집니다.
        공개 페이지가 아니라 함수가 읽는 원본이므로 제외합니다. */
-    if (e.isDirectory()){ if (!/^(node_modules|\.git|functions|email)$/.test(e.name)) walk(p); return; }
+    /* source/ 는 랜딩·백서의 작업 원본을 그대로 보관해 둔 곳입니다. 서빙되지 않고,
+       주석이야말로 그 파일의 내용입니다. 여기까지 지우면 다음 사람이 왜 이렇게
+       짰는지 읽을 데가 없어집니다. (2026-09-15 modbus 백서 원본을 넣으며 발견) */
+    if (e.isDirectory()){ if (!/^(node_modules|\.git|functions|email|source)$/.test(e.name)) walk(p); return; }
     if (!/\.html$/i.test(e.name) || SKIP.has(e.name)) return;
     const h = fs.readFileSync(p, 'utf8');
     const out = strip(h);

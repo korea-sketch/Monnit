@@ -3345,6 +3345,24 @@ const BUILTIN_PROMOS = [{
   end:   '',             // 비워두면 자동 종료 없음 — 내릴 때 forcedEnded:true 로 바꾸거나 이 배열을 비우세요
   order: 3
 }, {
+  /* 시스템 연동 기술지원 — 할인 프로모션이 아니라 「기술지원을 무료로 붙여 드린다」는
+     제안입니다. 그래서 period 자리에 기간 대신 제공 범위를 적었습니다. 할인 문구를
+     넣으면 카드가 다른 특가와 섞여서, 정작 찾아와야 할 설비·관제 담당자가 그냥 지나갑니다.
+     link 가 '/promo/' 로 시작하므로 build.js 는 /promotions/modbus 를 따로 만들지
+     않습니다 — 실제 랜딩(/promo/modbus/index.html) 과 주소가 겹치지 않게 하는 규칙입니다. */
+  id: 'modbus',
+  title: 'PLC·BMS·SCADA 시스템 연동 기술지원',
+  html: '',
+  period: '무료 현장 구성 검토 · 연동 자료 제공',
+  badge: '기술지원',
+  desc: '쓰던 관제 시스템은 그대로 두고 무선센서만 Modbus로 붙입니다. 현장 구성을 함께 검토해 드리고, 센서 수량과 점유 레지스터 주소까지 정리한 구성 제안 자료를 보내 드립니다.',
+  image: '/images/promo-modbus.webp',
+  images: [],
+  link: '/promo/modbus',
+  start: '2026-09-15',   // 한국시간 이 날 00:00 부터 오픈
+  end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
+  order: 2
+}, {
   id: 'flame-reservation',
   title: '사전 예약 프로모션',
   html: '',
@@ -3356,7 +3374,7 @@ const BUILTIN_PROMOS = [{
   link: '',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end: '',               // 마감일 없음 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 2
+  order: 4
 }, {
   id: 'residence',
   title: '누수까지 놓치지 않는 레지던스 관리',

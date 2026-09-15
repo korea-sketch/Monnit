@@ -1,39 +1,36 @@
 #!/usr/bin/env python3
 """랜딩페이지 빌드 — 템플릿의 자리표시자를 채워 배포용 HTML을 만듭니다.
 
-    python3 build.py              # 기본: PDF를 별도 파일로 두고 링크 (웹서버 배포용, 권장)
-    python3 build.py --inline     # PDF까지 base64로 품은 단일 HTML (파일 하나로 전달할 때)
+    python3 build.py
 
 landing/ 디렉터리에서 실행하세요.
+
+백서 PDF는 페이지 안에 담지 않고, 같은 폴더에 나란히 올려 두고 링크로 겁니다.
+발급 API(DOC_API)를 설정하면 그쪽을 우선 사용하고, 비어 있으면 직접 링크로 동작합니다.
 
 배포 전 아래 SITE_URL / GA4_ID / META_PIXEL_ID 를 채우면
 링크 미리보기(OG)와 전환 추적이 함께 들어갑니다. 비워 두면 그 부분만 빠집니다.
 """
 
-import argparse
 import base64
 import pathlib
+import re
 import sys
 import unicodedata
 from urllib.parse import quote
 
 # ─────────────────────────────────────────────────────────────
-# 배포 설정 — 광고를 켜기 전에 채워 주세요
+# 배포 설정
 # ─────────────────────────────────────────────────────────────
 
-# 랜딩페이지가 올라갈 최종 주소 (끝에 / 포함). 예: "https://www.monnitkorea.com/modbus/"
-# 비워 두면 카카오톡·메일 링크 미리보기(OG 태그)가 들어가지 않습니다.
 SITE_URL = "https://monnit.co.kr/promo/modbus/"
 
-# Google Analytics 4 측정 ID. 예: "G-XXXXXXXXXX"
-GA4_ID = "G-49THHRYKR4"
+# 이미 사이트 전역에 GTM이 들어가 있다면 비워 두십시오 (중복 삽입 방지).
+GA4_ID = ""
+META_PIXEL_ID = ""
 
-# Meta(페이스북) 픽셀 ID. 예: "123456789012345"
-META_PIXEL_ID = "319816936268197"
-
-# 서버가 한글 파일명을 제대로 처리하지 못할 때만 사용합니다.
-# 예: PDF를 "monnit-modbus-whitepaper.pdf" 로 바꿔 올렸다면 그 이름을 여기에 적으세요.
-# (다운로드될 때의 파일명은 여전히 한글로 저장됩니다.)
+# 서버가 한글 파일명을 처리하지 못할 때만 사용합니다.
+# PDF를 영문 이름으로 바꿔 올렸다면 그 이름을 적으십시오. (저장될 때의 이름은 그대로 한글입니다)
 PDF_URL_NAME = ""
 
 # ─────────────────────────────────────────────────────────────
@@ -42,43 +39,23 @@ HERE = pathlib.Path(__file__).resolve().parent
 DIST = HERE.parent / "dist"
 
 TEMPLATE = HERE / "landing_template.html"
-OUTPUT = DIST / "modbus_landing.html"
+THEME = HERE / "theme.css"
+OUTPUT = DIST / "promo-modbus.html"
 PDF_NAME = "무선센서_Modbus_연동_백서_MonnitKorea.pdf"
 OG_IMAGE = DIST / "og-image.jpg"
-OG_SOURCE = HERE / "assets/ads/plc.jpg"
-
-
-def find_pdf() -> pathlib.Path:
-    """백서 PDF를 찾습니다.
-
-    macOS는 한글 파일명을 자모가 분리된 형태(NFD)로 저장하는데, 리눅스 서버나 CI에서는
-    이 차이 때문에 같은 이름인데도 파일을 못 찾습니다. 정규화를 맞춰 한 번 더 찾습니다.
-    """
-    exact = DIST / PDF_NAME
-    if exact.exists():
-        return exact
-    want = unicodedata.normalize("NFC", PDF_NAME)
-    for p in DIST.glob("*.pdf"):
-        if unicodedata.normalize("NFC", p.name) == want:
-            return p
-    return exact  # 없으면 아래에서 "파일을 찾을 수 없습니다"로 걸립니다
-
-
-PDF = find_pdf()
+OG_SOURCE = HERE / "assets/ads/plc.jpg"   # 링크 미리보기용 (광고 소재)
 
 IMAGES = {
-    "{{IMG_PLC}}": HERE / "assets/ads/plc.jpg",
-    "{{IMG_BMS}}": HERE / "assets/ads/bms.jpg",
+    # 실제 제품 사진 (Monnit Component 자산)
+    "{{PROD_HERO}}": HERE / "assets/product/hero-products.png",
+    # 다운로드 패널 구성도
     "{{IMG_BP}}": HERE / "assets/ads/bp.jpg",
-    "{{SHOT_SETTINGS}}": HERE / "assets/shots/f_settings_lan.jpg",
-    "{{SHOT_RWDEF}}": HERE / "assets/shots/f_rwdef.jpg",
-    "{{SHOT_POLL}}": HERE / "assets/shots/f_poll_th.jpg",
 }
 
-OG_TITLE = "무선센서 Modbus 연동 백서 | Monnit Korea"
+OG_TITLE = "Modbus 구성 제안 | Monnit Korea"
 OG_DESC = (
-    "PLC·BMS·SCADA를 교체하지 않고 무선센서 데이터를 Modbus 레지스터로 읽는 방법. "
-    "설정 화면 22컷을 실은 32페이지 기술 백서를 등록 절차 없이 받으실 수 있습니다."
+    "PLC·BMS·SCADA를 그대로 두고 무선센서를 Modbus로 붙이는 구성 제안 4종. "
+    "현장 유형별 센서 수량과 점유 레지스터 주소까지 43페이지로 정리했습니다."
 )
 
 
@@ -99,16 +76,13 @@ def make_og_image() -> bool:
     scale = max(tw / src.width, th / src.height)
     resized = src.resize((round(src.width * scale), round(src.height * scale)), Image.LANCZOS)
     left = (resized.width - tw) // 2
-    top = round(resized.height * 0.06)  # 헤드라인이 살아 있도록 위쪽 기준으로 자릅니다
-    top = max(0, min(top, resized.height - th))
+    top = max(0, min(round(resized.height * 0.06), resized.height - th))
     resized.crop((left, top, left + tw, top + th)).save(OG_IMAGE, quality=88, optimize=True)
     return True
 
 
 def head_social() -> str:
-    """OG·트위터 카드와 분석 스크립트를 만듭니다. 설정이 비어 있으면 해당 부분만 빠집니다."""
     out = []
-
     if SITE_URL:
         base = SITE_URL if SITE_URL.endswith("/") else SITE_URL + "/"
         out += [
@@ -128,7 +102,7 @@ def head_social() -> str:
             f'<meta name="twitter:image" content="{base}og-image.jpg">',
         ]
     else:
-        out.append("<!-- SITE_URL 미설정: 링크 미리보기(OG) 태그가 빠졌습니다. build.py 상단을 채워 주세요. -->")
+        out.append("<!-- SITE_URL 미설정: 링크 미리보기(OG) 태그가 빠졌습니다. -->")
 
     if GA4_ID:
         out += [
@@ -137,7 +111,7 @@ def head_social() -> str:
             f"gtag('js',new Date());gtag('config','{GA4_ID}');</script>",
         ]
     else:
-        out.append("<!-- GA4_ID 미설정: 방문·다운로드 집계가 되지 않습니다. -->")
+        out.append("<!-- GA4: 사이트 전역 GTM에서 처리 (여기서는 삽입하지 않음) -->")
 
     if META_PIXEL_ID:
         out += [
@@ -151,38 +125,26 @@ def head_social() -> str:
             f' src="https://www.facebook.com/tr?id={META_PIXEL_ID}&ev=PageView&noscript=1"></noscript>',
         ]
     else:
-        out.append("<!-- META_PIXEL_ID 미설정: 메타 광고 전환 최적화가 동작하지 않습니다. -->")
+        out.append("<!-- Meta Pixel: 사이트 전역 GTM에서 처리 (여기서는 삽입하지 않음) -->")
 
     return "\n".join(out)
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="랜딩페이지 빌드")
-    ap.add_argument("--inline", action="store_true",
-                    help="PDF를 HTML 안에 base64로 포함 (파일 하나로 전달할 때만 사용)")
-    args = ap.parse_args()
-
-    missing = [str(p) for p in [TEMPLATE, PDF, *IMAGES.values()] if not p.exists()]
+    missing = [str(p) for p in [TEMPLATE, THEME, *IMAGES.values()] if not p.exists()]
     if missing:
         print("파일을 찾을 수 없습니다:", *missing, sep="\n  ")
         return 1
 
     html = TEMPLATE.read_text(encoding="utf-8")
-
     for slot, path in IMAGES.items():
         html = html.replace(slot, b64(path))
-
+    html = html.replace("{{THEME_CSS}}", THEME.read_text(encoding="utf-8"))
     html = html.replace("{{HEAD_SOCIAL}}", head_social())
-    html = html.replace("{{PDF_NAME}}", unicodedata.normalize("NFC", PDF.name))
-
-    if args.inline:
-        html = html.replace("{{PDF_HREF}}", "#download")
-        html = html.replace("{{PDF_B64}}", b64(PDF))
-    else:
-        # 같은 폴더에 PDF를 함께 올리는 것을 전제로 상대 경로로 겁니다.
-        # 한글 파일명은 퍼센트 인코딩해야 서버·브라우저 환경을 덜 탑니다.
-        html = html.replace("{{PDF_HREF}}", quote(PDF_URL_NAME or unicodedata.normalize("NFC", PDF.name)))
-        html = html.replace("{{PDF_B64}}", "")
+    pdf_name = unicodedata.normalize("NFC", PDF_NAME)
+    html = html.replace("{{PDF_NAME}}", pdf_name)
+    # PDF 는 공개 주소가 없습니다. sendpw 게이트로만 전달되므로 직접 링크는 쓰지 않습니다.
+    html = html.replace("{{PDF_HREF}}", "#download")
 
     if "{{" in html:
         leftover = sorted({html[i:i + 40] for i in range(len(html)) if html.startswith("{{", i)})
@@ -191,24 +153,30 @@ def main() -> int:
 
     DIST.mkdir(exist_ok=True)
     OUTPUT.write_text(html, encoding="utf-8")
-
-    size = len(html.encode()) / 1048576
-    mode = "단일 파일 (PDF 인라인)" if args.inline else "PDF 분리"
-    print(f"{OUTPUT}  ({size:.2f} MB, {mode})")
+    print(f"{OUTPUT}  ({len(html.encode()) / 1048576:.2f} MB)")
 
     if make_og_image():
         print(f"{OG_IMAGE}  (1200×630)")
 
-    print("\n업로드할 파일")
-    print(f"  - {OUTPUT.name}")
-    if not args.inline:
-        print(f"  - {unicodedata.normalize('NFC', PDF.name)}          ← 같은 폴더에 함께 올려야 다운로드가 됩니다")
-    print(f"  - {OG_IMAGE.name}                    ← 링크 미리보기용")
+    pdf = DIST / pdf_name
+    if not pdf.exists():
+        for p in DIST.glob("*.pdf"):
+            if unicodedata.normalize("NFC", p.name) == pdf_name:
+                pdf = p
+                break
 
-    todo = [n for n, v in [("SITE_URL", SITE_URL), ("GA4_ID", GA4_ID),
-                           ("META_PIXEL_ID", META_PIXEL_ID)] if not v]
-    if todo:
-        print("\n아직 비어 있는 설정: " + ", ".join(todo) + "  (build.py 상단)")
+    # ── 저장소(Monnit-main) 배치 경로 ──────────────────────────
+    print("\n저장소에 넣을 위치")
+    print(f"  promo-modbus.html                              ← {OUTPUT.name}")
+    print("  promo/modbus/index.html                        ← 같은 파일 사본 (build.js 가 자동 생성)")
+    print(f"  promo/modbus/og-image.jpg                      ← {OG_IMAGE.name}")
+    print(f"  proposals/modbus-integration-whitepaper.pdf    ← {pdf_name}")
+
+    m = re.search(r'var\s+DOC_TITLE\s*=\s*"([^"]+)"', html)
+    print(f"\n· 자료 게이트: sendpw → getdoc   DOC_TITLE = {m.group(1) if m else '(없음)'}")
+    print("  이 제목이 netlify/functions/_docmap.js 의 키와 한 글자라도 다르면 not_ready 로 떨어집니다.")
+    if 'name="robots"' in html:
+        print("  ⚠ robots 메타가 남아 있습니다 — /promotions 노출이면 빼야 합니다.")
 
     return 0
 
