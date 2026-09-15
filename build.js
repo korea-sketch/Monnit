@@ -165,7 +165,12 @@ let PROMOS = __src ? __src.PROMOS : (extract('let PROMOS =') || []);
 /* app.js 의 내장 프로모션(시트에 없는 항목)을 정적 페이지에도 반영 */
 const BUILTIN_PROMOS = extract('const BUILTIN_PROMOS =') || [];
 BUILTIN_PROMOS.forEach(b => { if (!PROMOS.some(p => p.id === b.id)) PROMOS.push(b); });
-PROMOS = PROMOS.sort((a, b) => (parseInt(a.order,10)||999) - (parseInt(b.order,10)||999));
+/* order 는 0 도 유효한 값입니다. parseInt()||999 로 쓰면 0 이 falsy 라
+   맨 앞에 두려던 카드가 맨 뒤로 갑니다. 실제로 「긴급 경보 알리미」가
+   화면에서는 첫 칸, 이 정적 스냅샷에서는 마지막 칸으로 어긋나 있었습니다.
+   app.js 의 sortPromos 는 (a.order||0) 을 쓰므로 둘이 달랐던 것입니다. */
+const promoOrd = v => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 999; };
+PROMOS = PROMOS.sort((a, b) => promoOrd(a.order) - promoOrd(b.order));
 
 /* ---------- data.js 에서 지식베이스/가이드 로드 ---------- */
 let KNOWLEDGEBASE = [], GUIDES = [];

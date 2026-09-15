@@ -3330,7 +3330,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/alarm',
   start: '2026-08-26',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 0
+  order: 1
 }, {
   id: 'consulting',
   title: '회전설비 AI 예지보전 1개월 무료 체험',
@@ -3343,7 +3343,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/consulting',
   start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 비워두면 자동 종료 없음 — 내릴 때 forcedEnded:true 로 바꾸거나 이 배열을 비우세요
-  order: 3
+  order: 2
 }, {
   /* 시스템 연동 기술지원 — 할인 프로모션이 아니라 「기술지원을 무료로 붙여 드린다」는
      제안입니다. 그래서 period 자리에 기간 대신 제공 범위를 적었습니다. 할인 문구를
@@ -3361,7 +3361,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/modbus',
   start: '2026-09-15',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 2
+  order: 3
 }, {
   id: 'flame-reservation',
   title: '사전 예약 프로모션',
@@ -3374,7 +3374,7 @@ const BUILTIN_PROMOS = [{
   link: '',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end: '',               // 마감일 없음 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 4
+  order: 5
 }, {
   id: 'residence',
   title: '누수까지 놓치지 않는 레지던스 관리',
@@ -3387,7 +3387,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/residence',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end:   '2026-09-24',   // 한국시간 이 날 자정까지 — 이후 자동 '종료' 표시
-  order: 1
+  order: 4
 }];
 /* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
    (여기서 바로 채우면 status 가 없어 첫 화면에서 모든 카드가 '진행 중이 아님'으로 보입니다) */
@@ -3549,7 +3549,8 @@ function mapPromotions(rows){
       image: normalizeImageUrl(o.image||''),
       // 상세 페이지용 이미지들 (||로 여러 장 구분). 각 항목의 ':: 캡션' 부분은 제거. images 없으면 image 한 장 사용
       images: (o.images||'').split('||').map(s=>normalizeImageUrl((s.split('::')[0]||'').trim())).filter(Boolean),
-      order: parseInt(o.order,10) || 999
+      /* 0 도 유효한 순서입니다. || 999 를 쓰면 0 이 falsy 라 맨 뒤로 갑니다. */
+      order: (function(){ const n = parseInt(o.order, 10); return Number.isFinite(n) ? n : 999; })()
     }))
     .sort((a,b) => a.order - b.order);
   // 시트에 없는 내장 프로모션을 합칩니다 (시트 우선)
