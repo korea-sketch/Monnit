@@ -24,8 +24,8 @@
 <meta name="twitter:title" content="현장 설치 사례 갤러리 — Monnit Korea">
 <meta name="twitter:description" content="산업용 무선 IoT 센서의 실제 설치 현장 사진과 산업별 적용 사례.">
 <meta name="twitter:image" content="https://monnit.co.kr/images/field-review/og-1200.jpg">
-<link rel="preload" as="image" type="image/webp" media="(max-width:760px)" imagesrcset="images/field-review/hero-m-800.webp 800w, images/field-review/hero-m-1200.webp 1200w, images/field-review/hero-m-1600.webp 1600w" imagesizes="calc(100vw - 44px)" fetchpriority="high">
-<link rel="preload" as="image" type="image/webp" media="(min-width:761px)" imagesrcset="images/field-review/hero-800.webp 800w, images/field-review/hero-1200.webp 1200w, images/field-review/hero-1600.webp 1600w, images/field-review/hero-2400.webp 2400w" imagesizes="(max-width:1320px) calc(100vw - 96px), 1224px" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" media="(max-width:899px)" imagesrcset="images/field-review/hero-m-800.webp 800w, images/field-review/hero-m-1200.webp 1200w, images/field-review/hero-m-1600.webp 1600w" imagesizes="(max-width:760px) calc(100vw - 44px), calc(100vw - 96px)" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="images/field-review/hero-v2-800.webp 800w, images/field-review/hero-v2-1200.webp 1200w, images/field-review/hero-v2-1600.webp 1600w, images/field-review/hero-v2-2400.webp 2400w" imagesizes="(max-width:1320px) calc(100vw - 96px), 1224px" fetchpriority="high">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://docs.google.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -238,6 +238,19 @@ body.dark .wrap{max-width:1320px;padding:0 48px}
 body.dark .masthead{padding-top:28px}
 @media(prefers-reduced-motion:reduce){.frhero img{opacity:1;transform:none;transition:none}}
 @media print{.frhero img{opacity:1;transform:none}}
+/* 문구가 들어간 배너는 900px 이상에서만. 그보다 좁으면 봉황 중심 2:1 크롭 + 문구를 HTML로 올려 가독성 확보 */
+.frtag{display:none}
+@media(max-width:899px){
+  .frhero{aspect-ratio:2/1;container-type:inline-size}
+  .frhero img{object-position:50% 50%}
+  .frtag{display:block;position:absolute;z-index:1;top:22%;transform:translateY(-50%);color:#fff;
+    font-family:var(--sans);letter-spacing:-.01em;text-shadow:0 1px 8px rgba(8,12,22,.55);
+    opacity:0;transition:opacity 1.1s ease .25s}
+  .frhero.in .frtag{opacity:1}
+  .frtag-l{left:5.5%;font-weight:600;font-size:3.1vw;font-size:clamp(10px,3.1cqw,19px)}
+  .frtag-r{right:5%;text-align:center;font-weight:500;line-height:1.3;font-size:2.9vw;font-size:clamp(10px,2.9cqw,18px)}
+}
+@media(max-width:899px) and (prefers-reduced-motion:reduce){.frtag{opacity:1;transition:none}}
 
 /* ===== 반응형 최적화 (2026-09-16) ===== */
 :root{--sbh:61px}
@@ -264,8 +277,7 @@ body{overflow-x:hidden}
 @media(max-width:760px){
   :root{--sbh:57px}
   .sitebar-in{padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
-  .frhero{margin-top:24px;aspect-ratio:2/1;border-radius:0}
-  .frhero img{object-position:50% 50%}
+  .frhero{margin-top:24px}
   body.dark .masthead{padding:16px 0 24px}
   .masthead .estd{font-size:11px;margin-bottom:12px}
   .masthead .subt{font-size:14px;margin-top:10px}
@@ -341,11 +353,13 @@ body{overflow-x:hidden}
 <div class="wrap">
 <figure class="frhero" aria-hidden="true">
  <picture>
-  <source type="image/webp" media="(max-width:760px)" srcset="images/field-review/hero-m-800.webp 800w, images/field-review/hero-m-1200.webp 1200w, images/field-review/hero-m-1600.webp 1600w" sizes="calc(100vw - 44px)">
-  <source media="(max-width:760px)" srcset="images/field-review/hero-m-1200.jpg">
-  <source type="image/webp" srcset="images/field-review/hero-800.webp 800w, images/field-review/hero-1200.webp 1200w, images/field-review/hero-1600.webp 1600w, images/field-review/hero-2400.webp 2400w" sizes="(max-width:1320px) calc(100vw - 96px), 1224px">
-  <img src="images/field-review/hero-1600.jpg" alt="" width="1600" height="490" fetchpriority="high" decoding="async">
+  <source type="image/webp" media="(max-width:899px)" srcset="images/field-review/hero-m-800.webp 800w, images/field-review/hero-m-1200.webp 1200w, images/field-review/hero-m-1600.webp 1600w" sizes="(max-width:760px) calc(100vw - 44px), calc(100vw - 96px)">
+  <source media="(max-width:899px)" srcset="images/field-review/hero-m-1200.jpg">
+  <source type="image/webp" srcset="images/field-review/hero-v2-800.webp 800w, images/field-review/hero-v2-1200.webp 1200w, images/field-review/hero-v2-1600.webp 1600w, images/field-review/hero-v2-2400.webp 2400w" sizes="(max-width:1320px) calc(100vw - 96px), 1224px">
+  <img src="images/field-review/hero-v2-1600.jpg" alt="" width="1600" height="490" fetchpriority="high" decoding="async">
  </picture>
+ <div class="frtag frtag-l">MONNIT KOREA</div>
+ <div class="frtag frtag-r">모든 선택에는,<br>분명한 이유가 있다.</div>
 </figure>
 <div class="masthead">
  <div class="estd">Wireless Sensing</div>
