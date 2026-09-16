@@ -13,6 +13,7 @@
  */
 const { lookup, SECRET, TTL_MS, norm } = require('./_docmap');
 const VALID = require('../../valid.js').MonnitValid;
+const { guard } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
 
 /* ── 현장 진단 컨설팅 제안 ────────────────────────────────────
    /promo/proposal 로 「예지보전 제안 가이드」를 받아간 분에게는
@@ -158,6 +159,15 @@ exports.handler = async (event) => {
 
     const company = String(d.company || '').slice(0, 80).trim();
     const person  = String(d.name || '').slice(0, 40).trim();
+
+    /* ── 경쟁사 차단 (2026-09-16) ──────────────────────────────────────
+       차단 대상이면 「자료 준비 중」과 똑같은 응답을 준다. 막혔다는 걸 알리지 않는다.
+       링크도 메일도 나가지 않고, 시도는 /ops/block 에 기록된다. */
+    const _blk = await guard(event.headers, {
+      email, company, name: person, phone: d.phone || '',
+      title: [].concat(d.titles || d.title || []).join(', ')
+    }, 'sendpw');
+    if (_blk) return reply(404, { ok: false, error: 'not_ready' });
 
     const origin = (event.headers && (event.headers.origin || event.headers.referer)) || 'https://monnit.co.kr';
     const base = (origin.match(/^https?:\/\/[^/]+/) || ['https://monnit.co.kr'])[0];

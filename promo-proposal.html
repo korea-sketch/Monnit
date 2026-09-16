@@ -1176,7 +1176,9 @@ var CONFIG = {
   DOC_API   : "/.netlify/functions/sendpw",
   DOC_TOKEN : "mnt-pw-2026-7f3k9",
   // 서명 링크 발급이 실패했을 때만 쓰는 예비 경로
-  PDF_FALLBACK : "/files/monnit-predictive-maintenance-guide.pdf",
+  /* 2026-09-16 공개 예비 경로 제거 — 폼·차단을 우회하는 통로였습니다.
+     링크 발급이 실패하면 파일 대신 「메일로 보내드리겠다」는 안내를 띄웁니다. */
+  PDF_FALLBACK : "",
   FILE_NAME    : "모넷코리아_무선IoT_설비예지보전_제안가이드.pdf",
 
   // 알림 메일 — 1순위 StaticForms(사이트 공통 활성 백엔드), 2순위 Web3Forms 폴백
@@ -1284,6 +1286,7 @@ function track(name, params){
    PC : download 속성으로 바로 저장 / 모바일 : 새 탭 (랜딩이 뒤에 남음) */
 function deliverPdf(url){
   url = url || CONFIG.PDF_FALLBACK;
+  if (!url) { markDocPending(); return; }
   if (isMobile && CONFIG.MOBILE_MODE === 'newtab') {
     window.open(url, '_blank', 'noopener');
   } else {
@@ -1346,8 +1349,19 @@ if (again) again.addEventListener('click', function(e){
   else   deliverPdf();
 });
 
+/* 링크 발급 실패 — 파일을 못 드렸으니 안내 문구를 바꾼다 (2026-09-16)
+   담당자에게는 접수 알림이 이미 갔으므로 메일로 후속 전달한다. */
+var DOC_PENDING_T = '신청이 접수되었습니다';
+var DOC_PENDING_D = '자료 준비에 시간이 걸리고 있습니다. 담당자가 확인 후 입력하신 메일로 보내드리겠습니다.';
+function markDocPending(){
+  window.__docPending = true;
+  var box = document.getElementById('thanks');
+  if (box && box.classList.contains('on')) showThanks(DOC_PENDING_T, DOC_PENDING_D);
+}
+
 /* 페이지 본문의 다운로드 확인 패널 */
 function showThanks(title, desc){
+  if (window.__docPending) { title = DOC_PENDING_T; desc = DOC_PENDING_D; }
   var box = document.getElementById('thanks'),
       t   = document.getElementById('thanksTitle');
   if (t && title) t.textContent = title;

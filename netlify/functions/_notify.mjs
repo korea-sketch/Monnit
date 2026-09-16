@@ -51,7 +51,9 @@ export function fieldsOf(lead, payload) {
     '관심분야': lead.interest || '',
     '문의내용': lead.memo || '',
     '출처': lead.source || '',
-    '유입 페이지': lead.landing || ''
+    '유입 페이지': lead.landing || '',
+    /* 경쟁사로 의심되면 이 IP 를 /ops/block 에 넣어 바로 막는다 (2026-09-16) */
+    '접속 IP': lead.ip || ''
   };
   if (lead.flags) f['형식 확인 필요'] = lead.flags;
   for (const k of Object.keys(payload || {})) {

@@ -1162,13 +1162,13 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
 var DOCS = {
   pharma:{title:"의약품·백신 냉장 및 초저온 보관 온도 감시 제안서",
           file:"모넷코리아_의약품·백신_냉장·초저온_온도감시_제안서.pdf",
-          fb:"/files/monnit-temp-pharma-guide.pdf", label:"의약품 · 초저온"},
+          fb:"", label:"의약품 · 초저온"},
   ex:    {title:"방폭 구역 온도 감시 IECEx Zone 1 제안서",
           file:"모넷코리아_방폭구역_온도감시_IECEx_제안서.pdf",
-          fb:"/files/monnit-temp-iecex-guide.pdf", label:"방폭 IECEx"},
+          fb:"", label:"방폭 IECEx"},
   cold:  {title:"콜드체인·냉동물류창고 온도 감시 제안서",
           file:"모넷코리아_콜드체인·냉동물류창고_온도감시_제안서.pdf",
-          fb:"/files/monnit-temp-coldchain-guide.pdf", label:"콜드체인"}
+          fb:"", label:"콜드체인"}
 };
 var CONFIG = {
   DOC_API:"/.netlify/functions/sendpw", DOC_TOKEN:"mnt-pw-2026-7f3k9",
@@ -1226,6 +1226,16 @@ function track(name, params){
 function deliverPdf(url, key){
   var doc = DOCS[key] || DOCS.pharma;
   url = url || doc.fb;
+  /* 2026-09-16 공개 예비 경로(/files/...) 제거 — 폼·차단을 우회하는 통로였습니다.
+     링크가 없으면 파일을 열지 않습니다. 담당자에게 접수 알림이 가므로 메일로 후속 전달합니다. */
+  if (!url) {
+    window.__docPending = true;
+    var t=$('#fmOkTitle'), x=$('#fmOkTx'), n=$('#fmOkNote');
+    if (t) t.textContent = '신청이 접수되었습니다';
+    if (x) x.textContent = '자료 준비에 시간이 걸리고 있습니다. 담당자가 확인 후 입력하신 메일로 보내드리겠습니다.';
+    if (n) n.style.display = 'none';
+    return;
+  }
   if (isMobile && CONFIG.MOBILE_MODE==='newtab') window.open(url,'_blank','noopener');
   else { var a=document.createElement('a'); a.href=url; a.setAttribute('download',doc.file); a.rel='noopener';
          document.body.appendChild(a); a.click(); document.body.removeChild(a); }
@@ -1571,7 +1581,7 @@ fmForm.addEventListener('submit', function(e){
   track(isDoc?'download':'form_submit',{content_name:'온도 감시', lead_grade:d.리드등급, value:d.리드점수});
   Promise.all([deliver,notify]).then(function(){
     fmSubmit.disabled=false; fmSubTx.textContent=FM_TEXT[mode].btn;
-    if (isDoc && isMobile && d.자료==='all'){
+    if (isDoc && isMobile && d.자료==='all' && !window.__docPending){
       $('#fmOkTx').innerHTML = '첫 번째 자료가 열렸습니다. 나머지 자료 링크는 <b>'+
         (d.이메일||'입력하신 메일')+'</b> 로 함께 보내드렸습니다.';
     }

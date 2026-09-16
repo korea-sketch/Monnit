@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { lookup, SECRET } = require('./_docmap');
+const { guard, ipOf, uaOf } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
 
 function sign(file, exp) {
   return crypto.createHmac('sha256', SECRET).update(file + '|' + exp).digest('hex').slice(0, 32);
@@ -21,12 +22,23 @@ exports.handler = async (event) => {
   if (Date.now() > exp) return { statusCode: 410, body: '다운로드 링크가 만료되었습니다. 다시 신청해 주세요.' };
   if (sign(file, exp) !== sig) return { statusCode: 403, body: '유효하지 않은 링크입니다.' };
 
+  /* 경쟁사 차단 (2026-09-16) — 다른 사람이 받은 링크를 넘겨받아도 차단 IP 에서는 열리지 않는다.
+     만료와 같은 문구를 보여 준다. */
+  if (await guard(event.headers, { title: file }, 'getdoc'))
+    return { statusCode: 410, headers: { 'Cache-Control': 'no-store' }, body: '다운로드 링크가 만료되었습니다. 다시 신청해 주세요.' };
+
   const root = process.env.LAMBDA_TASK_ROOT || process.cwd();
   let buf = null;
   for (const p of [path.join(root, 'proposals', file), path.join(process.cwd(), 'proposals', file)]) {
     try { buf = fs.readFileSync(p); break; } catch (e) { /* 다음 후보 */ }
   }
   if (!buf) return { statusCode: 404, body: '파일을 찾을 수 없습니다.' };
+
+  /* 방문 기록에 「자료 다운로드」로 남긴다 — IP 별로 무엇을 받아 갔는지 보인다 (2026-09-16) */
+  try {
+    const V = await import('./_visits.mjs');
+    await V.record(ipOf(event.headers), { p: '/[자료 다운로드] ' + file, ua: uaOf(event.headers), dl: 1 });
+  } catch (e) { /* 기록 실패는 무시 */ }
 
   const dl = String(q.n || file);
   return {

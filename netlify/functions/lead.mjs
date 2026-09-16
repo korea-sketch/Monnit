@@ -5,6 +5,7 @@ import { notify } from './_notify.mjs';
 import { pushLead } from './_monday.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
 import _valid from '../../valid.js';
+import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
 const VALID = _valid.MonnitValid;
 
 export const config = { path: '/api/lead' };
@@ -62,6 +63,15 @@ export default async (req) => {
     if (_em && !_emOk) _flags.push('이메일형식');
     if (_ph && !_phChk.ok) _flags.push('연락처형식');
 
+    /* ── 경쟁사 차단 (2026-09-16) ──────────────────────────────────────
+       차단 대상은 리드 원장·먼데이·자동 응답에 올리지 않고 차단 기록에만 남긴다.
+       브라우저에는 평소처럼 204 를 준다. */
+    const _blk = await _guard.guard(req.headers, {
+      email: _em, company: _co, name: _nm, phone: _ph,
+      title: pick(p, ['관심분야', '백서명', '신청 프로모션', '문의항목']) || String(body.page || '')
+    }, 'lead');
+    if (_blk) return new Response(null, { status: 204, headers: cors });
+
     const lead = {
       ts: body.ts || new Date().toISOString(),
       type, label: TYPE_LABEL[type], channel: channel(src),
@@ -85,7 +95,9 @@ export default async (req) => {
       source: src,
       landing: pick(p, ['유입 페이지']),
       consent_mkt: pick(p, ['마케팅 정보 수신(선택)']),
-      ua: String(req.headers.get('user-agent') || '').slice(0, 180)
+      ua: String(req.headers.get('user-agent') || '').slice(0, 180),
+      /* 접속 IP — 나중에 경쟁사로 밝혀지면 /ops/block 에서 이 값으로 바로 막는다 (2026-09-16) */
+      ip: _guard.ipOf(req.headers)
     };
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */

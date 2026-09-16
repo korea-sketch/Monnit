@@ -42,6 +42,16 @@
 /pdm-guide%202/*               /404.html    404!
 /monnit-promo-proposal/*       /404.html    404!
 
+# [2026-09-16] 게이트 우회 경로 추가 차단 ─────────────────────────
+# 제안 가이드·온도 제안서 3종이 /files/ 아래에도 공개로 남아 있었습니다.
+# 게이트(proposals/)와 똑같은 파일이라 주소만 알면 폼 없이 받아 갈 수 있었고,
+# 랜딩 페이지 소스에 그 주소가 「예비 경로」로 그대로 적혀 있었습니다.
+# 경쟁사 차단(_guard.js)을 걸어도 여기로 새면 소용이 없으므로 막습니다.
+/files/monnit-predictive-maintenance-guide.pdf   /404.html    404!
+/files/monnit-temp-pharma-guide.pdf              /404.html    404!
+/files/monnit-temp-iecex-guide.pdf               /404.html    404!
+/files/monnit-temp-coldchain-guide.pdf           /404.html    404!
+
 # 알리미 자동 응답 메일 템플릿 소스 공개 차단 (이미지 /email/images/* 는 열어 둡니다)
 /알리미-자동응답메일-적용안내.md   /404.html    404!
 /email/template.html           /404.html    404!
@@ -55,6 +65,8 @@
 /COMMIT_NOTES-2026-08-25.md                   /404.html    404!
 /PATCH-flame직링크전용-적용안내.md     /404.html    404!
 /PATCH-적용안내.md                         /404.html    404!
+/PATCH-경쟁사차단-적용안내.md              /404.html    404!
+/PATCH-경쟁사차단-적용안내.md              /404.html    404!
 /PROMO-CONSULTING-적용안내.md              /404.html    404!
 /README-복구및적용.md                     /404.html    404!
 /README-적용안내.md                        /404.html    404!

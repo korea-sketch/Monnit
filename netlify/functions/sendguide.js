@@ -18,6 +18,7 @@
 const { lookup, SECRET } = require('./_docmap');
 const VALID = require('../../valid.js').MonnitValid;
 const crypto = require('crypto');
+const { guard } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
 
 const TOKEN = 'mnt-pw-2026-7f3k9';                 /* sendpw 와 동일 */
 /* 무경험자에게 보내는 자료 — _docmap 의 제목 키를 그대로 쓴다.
@@ -60,6 +61,10 @@ exports.handler = async (event) => {
     const line    = String(d.line || '').slice(0, 80).trim();
     const spot    = String(d.spot || '').slice(0, 120).trim();
     const asset   = String(d.asset || '').slice(0, 40).trim();
+
+    /* 경쟁사 차단 (2026-09-16) — 막혔다는 걸 알리지 않고 「준비 중」으로 돌려준다 */
+    if (await guard(event.headers, { email, company, name, phone: d.phone || '', title: '예지보전 가이드(sendguide)' }, 'sendguide'))
+      return reply(404, { ok: false, error: 'not_ready' });
 
     const exp = Date.now() + LINK_TTL_MS;
     const origin = (event.headers && (event.headers.origin || event.headers.referer)) || 'https://monnit.co.kr';
