@@ -28,6 +28,8 @@
 <link rel="preload" as="image" type="image/webp" media="(min-width:900px)" imagesrcset="images/field-review/hero-v2-800.webp 800w, images/field-review/hero-v2-1200.webp 1200w, images/field-review/hero-v2-1600.webp 1600w, images/field-review/hero-v2-2400.webp 2400w" imagesizes="(max-width:1320px) calc(100vw - 96px), 1224px" fetchpriority="high">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://docs.google.com">
+<link rel="preconnect" href="https://wsrv.nl" crossorigin>
+<link rel="preconnect" href="https://i.ibb.co" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -306,7 +308,7 @@ body{overflow-x:hidden}
   .art h3{font-size:18px}
   .ibody{padding-top:14px}
   .seckick{font-size:11.5px;margin-bottom:10px}
-  .art-detail{padding:6px 10px}
+  .art-detail{padding:6px 10px;min-height:36px}
   .clientbanner{padding:12px 14px}
   footer{margin-top:64px;padding:40px 0 calc(56px + env(safe-area-inset-bottom))}
   .fquote{font-size:20px}
@@ -335,6 +337,81 @@ body{overflow-x:hidden}
   .art:hover .ibody::before{opacity:0}
 }
 </style>
+<style>
+/* ===== 전환 CTA (2026-09-16) — 상담 문의 · 프로모션 진입점 ===== */
+.sbcta{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:-.01em;color:#08121e;background:var(--teal);border-radius:8px;padding:8px 14px;transition:filter .2s ease,transform .2s ease;white-space:nowrap}
+.sbcta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.sitebar .bpromo{color:var(--ink)}
+.sitebar .bpromo:hover{color:var(--teal)}
+.frbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 20px;border-radius:10px;font-family:var(--sans);font-size:15px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease,filter .2s ease;-webkit-tap-highlight-color:transparent}
+.frbtn svg{width:16px;height:16px;flex:none}
+.frbtn.pri{background:var(--teal);color:#08121e;border:1px solid var(--teal)}
+.frbtn.pri:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.frbtn.sec{background:rgba(255,255,255,.03);color:var(--ink);border:1px solid var(--line2)}
+.frbtn.sec:hover{border-color:var(--teal);color:var(--teal)}
+.frbtn:focus-visible,.sbcta:focus-visible,.mbar a:focus-visible,.fab:focus-visible,.lbcta:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+/* 마스트헤드 CTA */
+.mhcta{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:26px}
+/* 그리드 중간 CTA 밴드 */
+.gcta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px 32px;flex-wrap:wrap;padding:30px 34px;border:1px solid rgba(63,215,154,.32);border-radius:16px;background:linear-gradient(120deg,rgba(63,215,154,.08),rgba(74,130,196,.06))}
+.gcta-k{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.gcta-t{font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-.015em;line-height:1.3}
+.gcta-d{font-size:14.5px;color:var(--body);margin-top:8px;line-height:1.6;max-width:600px}
+.gcta-b{display:flex;gap:10px;flex-wrap:wrap}
+.empty .gcta-b{justify-content:center;margin-top:20px}
+.empty small{display:block;margin-top:8px;font-size:14px;color:var(--mut)}
+/* 하단 CTA 2단 */
+.endcta{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:80px}
+.endcta .casecta{margin:0;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:22px}
+.endcta .casecta.hl{border-color:rgba(63,215,154,.45);background:linear-gradient(120deg,rgba(63,215,154,.12),rgba(74,130,196,.06))}
+.endcta .casecta-arrow{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:-.01em;border-radius:10px;border-color:var(--line2)}
+.endcta .casecta.hl .casecta-arrow{background:var(--teal);color:#08121e;border-color:var(--teal)}
+.endline{grid-column:1/-1;display:flex;justify-content:center;flex-wrap:wrap;gap:6px 22px;padding-top:6px;font-size:14px;color:var(--mut)}
+.endline a{color:var(--ink);font-weight:500}
+.endline a:hover{color:var(--teal)}
+/* 라이트박스 CTA */
+.lbcta{align-self:center;display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;color:#08121e;background:#3FD79A;transition:filter .2s ease}
+.lbcta:hover{filter:brightness(1.08)}
+/* 데스크톱 플로팅 버튼 */
+.fab{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));z-index:90;display:inline-flex;align-items:center;gap:8px;padding:13px 20px;border-radius:999px;background:var(--teal);color:#08121e;font-size:14.5px;font-weight:700;letter-spacing:-.01em;box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 0 1px rgba(63,215,154,.4);opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s ease,transform .3s ease,filter .2s ease}
+.fab svg{width:17px;height:17px}
+.fab.show{opacity:1;transform:none;pointer-events:auto}
+.fab:hover{filter:brightness(1.08)}
+/* 모바일 하단 고정 바 */
+.mbar{display:none}
+@media(max-width:760px){
+  .sitebar .bhomeback{display:none}
+  .sbcta{font-size:12.5px;padding:7px 11px}
+  .sitebar .bpromo{display:none}
+  .fab{display:none}
+  .mhcta{margin-top:20px;gap:8px}
+  .mhcta .frbtn{flex:1 1 0;min-width:0;padding:0 12px;font-size:14px}
+  .gcta{padding:24px 20px;gap:18px}
+  .gcta-t{font-size:19px}
+  .gcta-b{width:100%}
+  .gcta-b .frbtn{flex:1 1 0;min-width:0;padding:0 12px}
+  .endcta{grid-template-columns:1fr;margin-top:56px;gap:14px}
+  .endcta .casecta{padding:24px 22px}
+  .mbar{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));background:rgba(8,12,22,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s ease}
+  .mbar.show{transform:none}
+  .mbar a{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;border-radius:10px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--ink);border:1px solid var(--line2);background:rgba(255,255,255,.03);-webkit-tap-highlight-color:transparent}
+  .mbar a svg{width:16px;height:16px;flex:none}
+  .mbar a.pri{background:var(--teal);border-color:var(--teal);color:#08121e}
+  body.has-mbar footer{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+}
+@media(max-width:400px){
+  .mhcta{flex-direction:column}
+  .mhcta .frbtn{flex:none;width:100%}
+  .gcta-b{flex-direction:column}
+  .gcta-b .frbtn{flex:none;width:100%}
+  .endline{flex-direction:column;align-items:center}
+  .mbar{grid-template-columns:1fr 1fr 1.4fr;gap:6px}
+  .mbar a{font-size:13px;gap:4px}
+}
+@media(max-width:380px){.sitebar .bcase{display:none}}
+@media(prefers-reduced-motion:reduce){.fab,.mbar,.frbtn,.sbcta{transition:none}}
+@media print{.fab,.mbar,.mhcta,.gcta,.endcta,.sbcta{display:none!important}}
+</style>
 </head>
 <body class="dark">
 
@@ -342,7 +419,9 @@ body{overflow-x:hidden}
   <a class="bhome" href="index.html">MONNIT<span>KOREA</span></a>
   <div class="sitebar-links">
     <a class="bback bcase" href="index.html#stories">도입 사례 &rarr;</a>
-    <a class="bback" href="index.html">&larr; 홈으로</a>
+    <a class="bback bpromo" href="/promotions" data-cta="sitebar_promo">프로모션</a>
+    <a class="bback bhomeback" href="index.html">&larr; 홈으로</a>
+    <a class="sbcta" href="/contact?from=field-review" data-cta="sitebar_contact">상담 문의</a>
   </div>
 </div></div>
 
@@ -365,6 +444,10 @@ body{overflow-x:hidden}
  <div class="estd">Wireless Sensing</div>
  <h1>The Field Review</h1>
  <div class="subt">모넷코리아 산업용 IoT 센서 설치 사례집</div>
+ <div class="mhcta">
+  <a class="frbtn pri" href="/contact?from=field-review" data-cta="hero_contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>우리 현장 상담받기</a>
+  <a class="frbtn sec" href="/promotions" data-cta="hero_promo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>진행 중인 프로모션</a>
+ </div>
  <div class="dbl"><div class="dblrow">
    <span><b id="s1">—</b> Installations</span>
    <span><b id="s2">—</b> Sectors</span>
@@ -391,18 +474,41 @@ body{overflow-x:hidden}
 <div class="count" id="count"></div>
 <div class="grid" id="grid"></div>
 
+<section class="endcta" aria-label="상담 및 프로모션 안내">
+ <a class="casecta hl" href="/contact?from=field-review" data-cta="end_contact">
+  <div><div class="casecta-k">Consultation</div>
+  <div class="casecta-t">우리 현장에 맞는 구성,<br>상담으로 시작하세요</div>
+  <div class="casecta-d">업종과 설비, 관리하려는 위험 요소를 알려주시면 적합한 센서와 설치 방식을 함께 검토해 드립니다.</div></div>
+  <span class="casecta-arrow">상담 문의 &rarr;</span>
+ </a>
+ <a class="casecta" href="/promotions" data-cta="end_promo">
+  <div><div class="casecta-k">Promotion</div>
+  <div class="casecta-t">지금 신청할 수 있는<br>프로모션</div>
+  <div class="casecta-d">무료 체험, 제안 가이드 등 현재 진행 중인 프로그램을 확인해 보세요.</div></div>
+  <span class="casecta-arrow">프로모션 보기 &rarr;</span>
+ </a>
+ <div class="endline"><span>바로 연락하기</span><a href="tel:0220881454" data-cta="end_tel">02-2088-1454</a><a href="mailto:korea@monnit.com" data-cta="end_mail">korea@monnit.com</a></div>
+</section>
+
 <footer>
  <div class="fquote">현장을 읽고 미래를 설계합니다</div>
  <div class="colophon">Monnit Korea · The Field Review · MMXXVI</div>
 </footer>
 </div>
 
+<a class="fab" id="frFab" href="/contact?from=field-review" data-cta="fab_contact" aria-label="상담 문의"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>상담 문의</a>
+<nav class="mbar" id="frMbar" aria-label="빠른 문의">
+ <a href="tel:0220881454" data-cta="mbar_tel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>전화</a>
+ <a href="/promotions" data-cta="mbar_promo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>프로모션</a>
+ <a class="pri" href="/contact?from=field-review" data-cta="mbar_contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>상담 문의</a>
+</nav>
+
 <div id="lb">
  <button class="lbx" onclick="lbClose()" aria-label="close">&times;</button>
  <button class="lbnav lbprev" onclick="lbStep(-1,event)" aria-label="prev">&#8249;</button>
  <button class="lbnav lbnext" onclick="lbStep(1,event)" aria-label="next">&#8250;</button>
  <div class="lbstage"><img id="lbimg" alt=""></div>
- <div class="lbbar"><span class="lsub" id="lbsub"></span><span class="lbcap" id="lbcap"></span><span class="lbcount" id="lbcount"></span></div>
+ <div class="lbbar"><span class="lsub" id="lbsub"></span><span class="lbcap" id="lbcap"></span><span class="lbcount" id="lbcount"></span><a class="lbcta" id="lbcta" href="/contact?from=field-review" data-cta="lightbox_contact" onclick="event.stopPropagation()">이 현장과 비슷한 구성 문의 &rarr;</a></div>
 </div>
 
 <script>
@@ -419,7 +525,7 @@ function dbxFix(u){u=(u||'').trim();if(!u)return'';if(/dropbox\.com\//i.test(u))
 function phHtml(c,i){
  const g=c.gal&&c.gal.length?c.gal:[{t:c.thumb,r:c.img}];
  const imgs=g.map((x,k)=>{
-   const full=dbxFix(x.r||x.t);
+   const full=dbxFix(x.t||x.r);
    const srcAttr = k===0 ? `src="${full}"` : `data-src="${full}"`;  /* 첫 장만 즉시 로드, 나머지는 호버 시 */
    return `<img class="gi${k===0?' on':''}" loading="lazy" decoding="async" ${srcAttr} onerror="this.onerror=null;this.src='${(x.r||x.t||'')}'">`;
  }).join('');
@@ -454,6 +560,15 @@ const secf=document.getElementById('secf');secf.innerHTML='';
 buildSensorChips();
 }
 document.getElementById('q').oninput=e=>{fQ=e.target.value.trim().toLowerCase();render();};
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);}
+function CTA_URL(pos,extra,key){let u='/contact?from=field-review&pos='+encodeURIComponent(pos);if(extra)u+='&'+(key||'case')+'='+encodeURIComponent(extra);return u;}
+function gridCta(n){
+ const sec=fSec!=='All'?fSec:'';
+ if(n===3) return `<aside class="gcta" aria-label="프로모션 안내"><div><div class="gcta-k">Promotion</div><div class="gcta-t">도입 전에 먼저 확인해 보고 싶다면</div><div class="gcta-d">무료 체험, 제안 가이드 등 지금 신청할 수 있는 프로모션을 모아 두었습니다.</div></div><div class="gcta-b"><a class="frbtn pri" href="/promotions" data-cta="grid3_promo">프로모션 보기</a><a class="frbtn sec" href="${CTA_URL('grid3',sec,'sector')}" data-cta="grid3_contact">상담 문의</a></div></aside>`;
+ const t=n===1?(sec?esc(sec)+' 현장을 운영하고 계신가요?':'비슷한 현장을 운영하고 계신가요?'):'마음에 드는 사례를 찾으셨나요?';
+ const d=n===1?'현장 환경과 관리 대상을 알려주시면 실제 설치 사례를 바탕으로 필요한 센서 구성을 함께 검토해 드립니다.':'보신 사례를 말씀해 주시면 우리 현장에 맞게 어떻게 적용할 수 있을지 안내해 드립니다.';
+ return `<aside class="gcta" aria-label="상담 안내"><div><div class="gcta-k">For your site</div><div class="gcta-t">${t}</div><div class="gcta-d">${d}</div></div><div class="gcta-b"><a class="frbtn pri" href="${CTA_URL('grid'+n,sec,'sector')}" data-cta="grid${n}_contact">상담 문의</a><a class="frbtn sec" href="tel:0220881454" data-cta="grid${n}_tel">02-2088-1454</a></div></aside>`;
+}
 function render(){
  let list=cases.filter(c=>{
   if(fClient&&!(c.cl||'').includes(fClient))return false;
@@ -461,16 +576,19 @@ function render(){
   if(fSens.size&&![...fSens].every(s=>c.sensors.includes(s)))return false;
   if(fQ){const b=(c.t+c.cl+c.site+c.sector+c.cat+c.desc+c.sensors.join('')).toLowerCase();if(!b.includes(fQ))return false;}
   return true;});
- document.getElementById('grid').innerHTML=list.length?list.map(card).join(''):'<div class="empty">해당 조건의 사례가 없습니다.</div>';
+ const _h=list.map(card);if(_h.length>48)_h.splice(48,0,gridCta(3));if(_h.length>24)_h.splice(24,0,gridCta(2));if(_h.length>6)_h.splice(6,0,gridCta(1));else if(_h.length)_h.push(gridCta(1));
+ document.getElementById('grid').innerHTML=list.length?_h.join(''):'<div class="empty">해당 조건의 공개 사례가 없습니다.<small>찾으시는 현장 유형을 알려주시면 비슷한 적용 사례를 찾아 안내해 드립니다.</small><div class="gcta-b"><a class="frbtn pri" href="'+CTA_URL('empty')+'" data-cta="empty_contact">사례 문의하기</a><a class="frbtn sec" href="/promotions" data-cta="empty_promo">프로모션 보기</a></div></div>';
  document.getElementById('count').textContent=`${String(list.length).padStart(2,'0')} / ${cases.length} 사례`;
  attachHover();
 }
 let LB={imgs:[],i:0};
-function lbRender(){const o=LB.imgs[LB.i];const im=document.getElementById('lbimg');im.onerror=function(){this.onerror=null;this.src=(o.r||o.t||'');};im.src=dbxFix(o.r||o.t);const multi=LB.imgs.length>1;document.getElementById('lbcount').textContent=multi?(LB.i+1)+' / '+LB.imgs.length:'';document.querySelector('.lbprev').classList.toggle('hide',!multi);document.querySelector('.lbnext').classList.toggle('hide',!multi);}
-function lbOpenArr(imgs,start,sub,cap){if(!imgs||!imgs.length)return;LB.imgs=imgs;LB.i=start||0;document.getElementById('lbsub').textContent=sub||'';document.getElementById('lbcap').textContent=cap||'';lbRender();document.getElementById('lb').classList.add('on');document.body.style.overflow='hidden';}
+/* 라이트박스: ibb 원본(평균 2~3MB) 대신 화면 크기에 맞춘 WebP (실패 시 onerror 로 원본) */
+function lbSrc(u){ if(!/^https:\/\/i\.ibb\.co\//i.test(u)) return u; const w=Math.min(2000,Math.round(Math.max(innerWidth,innerHeight)*Math.min(devicePixelRatio||1,2)/200)*200||1600); return 'https://wsrv.nl/?url='+encodeURIComponent(u)+'&w='+w+'&q=80&output=webp&we'; }
+function lbRender(){const o=LB.imgs[LB.i];const im=document.getElementById('lbimg');im.onerror=function(){this.onerror=null;this.src=(o.r||o.t||'');};im.src=lbSrc(dbxFix(o.r||o.t));const multi=LB.imgs.length>1;document.getElementById('lbcount').textContent=multi?(LB.i+1)+' / '+LB.imgs.length:'';document.querySelector('.lbprev').classList.toggle('hide',!multi);document.querySelector('.lbnext').classList.toggle('hide',!multi);}
+function lbOpenArr(imgs,start,sub,cap){document.body.classList.add('lb-open');if(!imgs||!imgs.length)return;LB.imgs=imgs;LB.i=start||0;document.getElementById('lbsub').textContent=sub||'';document.getElementById('lbcap').textContent=cap||'';lbRender();document.getElementById('lb').classList.add('on');document.body.style.overflow='hidden';}
 function lbStep(d,ev){if(ev)ev.stopPropagation();LB.i=(LB.i+d+LB.imgs.length)%LB.imgs.length;lbRender();}
-function lbClose(){document.getElementById('lb').classList.remove('on');document.body.style.overflow='';}
-function lbCase(id,el){const c=cases[id];let start=el&&el.dataset.cur?+el.dataset.cur:0;lbOpenArr(c.gal&&c.gal.length?c.gal:[{t:c.thumb,r:c.img}],start,c.sector+' — '+c.cat,c.t);}
+function lbClose(){document.body.classList.remove('lb-open');document.getElementById('lb').classList.remove('on');document.body.style.overflow='';}
+function lbCase(id,el){const c=cases[id];try{document.getElementById('lbcta').href=CTA_URL('lightbox',c.t||'');}catch(e){}let start=el&&el.dataset.cur?+el.dataset.cur:0;lbOpenArr(c.gal&&c.gal.length?c.gal:[{t:c.thumb,r:c.img}],start,c.sector+' — '+c.cat,c.t);}
 const lbe=document.getElementById('lb');
 lbe.addEventListener('click',e=>{if(e.target===lbe||e.target.classList.contains('lbstage'))lbClose();});
 document.addEventListener('keydown',e=>{if(!lbe.classList.contains('on'))return;if(e.key==='Escape')lbClose();else if(e.key==='ArrowRight')lbStep(1);else if(e.key==='ArrowLeft')lbStep(-1);});
@@ -500,13 +618,16 @@ function showClientBanner(){ if(!fClient) return; var cb=document.getElementById
 (function(){
   var SHEET_ID="1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc";  /* 사이트와 동일 시트 */
   function gv(tab){return "https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:csv&sheet="+encodeURIComponent(tab)+"&_cb="+Date.now();}
-  function dbx(u){u=(u||'').trim();if(!u)return'';if(/dropbox\.com/.test(u)){u=u.replace(/([?&])dl=\d/,'$1raw=1');if(!/[?&]raw=1/.test(u))u+=(u.indexOf('?')>-1?'&':'?')+'raw=1';}return u;}
+  function dbx(u){u=(u||'').trim().replace(/\s+::\s.*$/,'');  /* 시트 업로드 흔적(' :: C:\\fakepath\\01.jpg') 제거 */if(!u)return'';if(/dropbox\.com/.test(u)){u=u.replace(/([?&])dl=\d/,'$1raw=1');if(!/[?&]raw=1/.test(u))u+=(u.indexOf('?')>-1?'&':'?')+'raw=1';}return u;}
+  /* 카드용 썸네일: 시트 thumbs 칸이 비어 있으면 ibb 원본을 680px WebP 로 줄여 받는다 (실패 시 원본으로 폴백) */
+  function autoThumb(u){ if(/^https:\/\/i\.ibb\.co\//i.test(u)) return 'https://wsrv.nl/?url='+encodeURIComponent(u)+'&w=680&q=72&output=webp&we&il'; return u; }
   function splitList(v){return String(v||'').split(/\s*(?:\|\||\n|,)\s*/).map(function(x){return x.trim();}).filter(Boolean);}
   function pcsv(t){var rows=[],row=[],f='',i=0,q=false;while(i<t.length){var c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else{q=false;}}else{f+=c;}}else{if(c==='"'){q=true;}else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c==='\r'){}else{f+=c;}}i++;}if(f!==''||row.length){row.push(f);rows.push(row);}return rows;}
   function toObj(rows){if(!rows.length)return[];var h=rows[0].map(function(x){return String(x||'').trim().toLowerCase();});var out=[];for(var r=1;r<rows.length;r++){var o={},any=false;for(var c=0;c<h.length;c++){var v=(rows[r][c]||'').trim();o[h[c]]=v;if(v)any=true;}if(any){out.push(o);}}return out;}
   function build(list){
     var cs=list.map(function(o){
-      var imgs=splitList(o.images||o.image||o.gallery||o.gal).map(function(u){var d=dbx(u);return{t:d,r:d};});
+      var th=splitList(o.thumbs||o.thumb);
+      var imgs=splitList(o.images||o.image||o.gallery||o.gal).map(function(u,k){var d=dbx(u);return{t:(th[k]||autoThumb(d)),r:d};});
       return {t:o.title||o.t||'',cl:o.client||o.customer||o.cl||'',site:o.site||'',sector:o.sector||'',
         cat:o.category||o.cat||'',sensors:splitList(o.sensors),desc:o.desc||o.description||'',
         thumb:(imgs[0]&&imgs[0].t)||'',img:(imgs[0]&&imgs[0].r)||'',gal:imgs};
@@ -637,5 +758,31 @@ img, .gi, .ph, .dimg img, #lbimg, .dcell{
 (function(){var f=document.querySelector('.frhero');if(!f)return;var i=f.querySelector('img');
 function on(){f.classList.add('in');}
 if(i.complete&&i.naturalWidth)on();else{i.addEventListener('load',on);i.addEventListener('error',on);setTimeout(on,2500);}})();
+</script>
+<script>
+/* ===== 전환 CTA: 노출 제어 + 클릭 측정 (dataLayer: cta_click) ===== */
+(function(){
+ var fab=document.getElementById('frFab'), bar=document.getElementById('frMbar');
+ var hero=document.querySelector('.mhcta'), end=document.querySelector('.endcta');
+ var pastHero=false, atEnd=false;
+ if(bar) document.body.classList.add('has-mbar');
+ function upd(){
+  var lb=document.body.classList.contains('lb-open');
+  var on=pastHero && !atEnd && !lb;
+  if(fab) fab.classList.toggle('show',on);
+  if(bar) bar.classList.toggle('show',pastHero && !lb);
+ }
+ if('IntersectionObserver' in window){
+  if(hero) new IntersectionObserver(function(es){ es.forEach(function(e){ pastHero=!e.isIntersecting && e.boundingClientRect.top<0; }); upd(); }).observe(hero);
+  else pastHero=true;
+  if(end) new IntersectionObserver(function(es){ es.forEach(function(e){ atEnd=e.isIntersecting; }); upd(); }).observe(end);
+ } else { pastHero=true; }
+ new MutationObserver(upd).observe(document.body,{attributes:true,attributeFilter:['class']});
+ upd();
+ document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('[data-cta]'); if(!a) return;
+  try{ (window.dataLayer=window.dataLayer||[]).push({event:'cta_click',page:'installation-photos',cta_position:a.getAttribute('data-cta'),cta_url:a.getAttribute('href')}); }catch(_){}
+ },true);
+})();
 </script>
 </body></html>
