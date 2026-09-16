@@ -105,3 +105,7 @@
   X-Robots-Tag: noindex, nofollow
 /promotions/flame-reservation/*
   X-Robots-Tag: noindex, nofollow
+
+# 설치 사례(The Field Review) 히어로 배너 — 교체 시 파일명을 바꿔 캐시를 무효화하세요
+/images/field-review/*
+  Cache-Control: public, max-age=2592000

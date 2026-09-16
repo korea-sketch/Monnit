@@ -2,7 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0C1220">
+<meta name="color-scheme" content="dark">
 <title>현장 설치 사례 갤러리 — Monnit Korea The Field Review</title>
 <meta name="description" content="Monnit Korea 현장 설치 사례 갤러리 — 화재·누수·설비 이상·환경 모니터링을 위한 산업용 무선 IoT 센서의 실제 설치 현장 사진과 산업별 적용 사례를 소개합니다.">
 <link rel="canonical" href="https://monnit.co.kr/installation-photos.html">
@@ -13,11 +15,19 @@
 <meta property="og:title" content="현장 설치 사례 갤러리 — Monnit Korea The Field Review">
 <meta property="og:description" content="산업용 무선 IoT 센서의 실제 설치 현장 사진과 산업별 적용 사례. 화재·누수·설비 이상·환경 모니터링 현장을 사진으로 확인하세요.">
 <meta property="og:url" content="https://monnit.co.kr/installation-photos.html">
-<meta property="og:image" content="https://monnit.co.kr/images/img-41.jpg">
+<meta property="og:image" content="https://monnit.co.kr/images/field-review/og-1200.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Field Review — 모넷코리아 산업용 IoT 센서 설치 사례집">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="현장 설치 사례 갤러리 — Monnit Korea">
 <meta name="twitter:description" content="산업용 무선 IoT 센서의 실제 설치 현장 사진과 산업별 적용 사례.">
+<meta name="twitter:image" content="https://monnit.co.kr/images/field-review/og-1200.jpg">
+<link rel="preload" as="image" type="image/webp" media="(max-width:760px)" imagesrcset="images/field-review/hero-m-800.webp 800w, images/field-review/hero-m-1200.webp 1200w, images/field-review/hero-m-1600.webp 1600w" imagesizes="calc(100vw - 44px)" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" media="(min-width:761px)" imagesrcset="images/field-review/hero-800.webp 800w, images/field-review/hero-1200.webp 1200w, images/field-review/hero-1600.webp 1600w, images/field-review/hero-2400.webp 2400w" imagesizes="(max-width:1320px) calc(100vw - 96px), 1224px" fetchpriority="high">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://docs.google.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -218,6 +228,100 @@ body.dark .wrap{max-width:1320px;padding:0 48px}
 .casecta-arrow{font-family:var(--mono);font-size:13px;letter-spacing:.05em;color:var(--ink);white-space:nowrap;border:1px solid var(--line);border-radius:3px;padding:12px 18px;transition:background .2s ease,color .2s ease,border-color .2s ease}
 .casecta:hover .casecta-arrow{background:var(--teal);color:#0C1220;border-color:var(--teal)}
 @media(max-width:640px){.casecta{padding:26px 24px}.casecta-t{font-size:19px}.casecta-arrow{padding:11px 15px}}
+/* ===== The Field Review 히어로 배너 (한옥 지붕 · 봉황) ===== */
+.frhero{position:relative;margin:64px 0 0;overflow:hidden;background:#0C1220;aspect-ratio:2400/735}
+.frhero picture,.frhero img{display:block;width:100%;height:100%}
+.frhero img{object-fit:cover;object-position:50% 40%;opacity:0;transform:scale(1.03);transition:opacity 1.1s ease,transform 1.6s cubic-bezier(.16,1,.3,1)}
+.frhero.in img{opacity:1;transform:none}
+.frhero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(12,18,32,0) 78%,rgba(12,18,32,.5) 92%,#0C1220 100%)}
+body.dark .masthead{padding-top:28px}
+@media(prefers-reduced-motion:reduce){.frhero img{opacity:1;transform:none;transition:none}}
+@media print{.frhero img{opacity:1;transform:none}}
+
+/* ===== 반응형 최적화 (2026-09-16) ===== */
+:root{--sbh:61px}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overflow-x:hidden}
+/* 필터 바가 상단 사이트바 밑으로 숨지 않도록 사이트바 높이만큼 내려서 고정 */
+.controls{top:var(--sbh);z-index:40}
+.sitebar-in{padding-left:max(48px,env(safe-area-inset-left));padding-right:max(48px,env(safe-area-inset-right))}
+/* 카테고리 키커: 한글 자간 과다 방지 */
+.seckick{letter-spacing:.06em!important}
+.sbtn,.chip{-webkit-tap-highlight-color:transparent;user-select:none}
+.sbtn:focus-visible,.chip:focus-visible,.filttoggle:focus-visible,.art-detail:focus-visible,.ph:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.ph{touch-action:pan-y}
+.lbx{top:max(16px,env(safe-area-inset-top))}
+.lbbar{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+
+/* 태블릿 */
+@media(max-width:1024px){
+  .frhero{margin-top:40px}
+  .lead{white-space:normal}
+  .grid{gap:40px 24px}
+}
+/* 모바일 */
+@media(max-width:760px){
+  :root{--sbh:57px}
+  .sitebar-in{padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
+  .frhero{margin-top:24px;aspect-ratio:2/1;border-radius:0}
+  .frhero img{object-position:50% 50%}
+  body.dark .masthead{padding:16px 0 24px}
+  .masthead .estd{font-size:11px;margin-bottom:12px}
+  .masthead .subt{font-size:14px;margin-top:10px}
+  .dbl{margin-top:24px}
+  .dblrow{display:grid;grid-template-columns:repeat(3,1fr)}
+  .dblrow span{padding:14px 4px;font-size:12px;white-space:nowrap}
+  .dblrow b{font-size:22px}
+  .sec{padding:36px 0 4px}
+  .sectitle{font-size:24px}
+  .lead{font-size:15px;line-height:1.6}
+  .controls{margin-top:22px}
+  .cinner{padding:12px 0}
+  .search{font-size:16px;padding:10px 0}
+  /* 섹터·센서 필터는 한 줄 가로 스크롤 */
+  #secf,#senf{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:-22px;margin-right:-22px;padding:0 22px;scroll-padding:0 22px}
+  #secf::-webkit-scrollbar,#senf::-webkit-scrollbar{display:none}
+  #secf{margin-top:12px}
+  #senf{margin-top:10px}
+  #secf>*,#senf>*{flex:0 0 auto;white-space:nowrap}
+  .sbtn{padding:7px 12px}
+  .chip{padding:7px 12px}
+  .controls.compact.open #secf,.controls.compact.open #senf{flex-wrap:nowrap;overflow-x:auto}
+  .controls.compact.open #senf{max-height:none;margin-top:10px}
+  .controls.compact .filttoggle{padding:6px 10px}
+  .count{margin:22px 0 16px}
+  .art h3{font-size:18px}
+  .ibody{padding-top:14px}
+  .seckick{font-size:11.5px;margin-bottom:10px}
+  .art-detail{padding:6px 10px}
+  .clientbanner{padding:12px 14px}
+  footer{margin-top:64px;padding:40px 0 calc(56px + env(safe-area-inset-bottom))}
+  .fquote{font-size:20px}
+  .casecta{margin-top:48px}
+}
+@media(max-width:380px){
+  .dblrow span{font-size:11px}
+  .dblrow b{font-size:20px}
+  .sitebar .bback{font-size:10.5px}
+  .sitebar-links{gap:10px}
+}
+/* 스크롤 시 접힌 필터: [필터] 버튼과 섹터 줄을 한 줄로 */
+.controls.compact .cinner{display:flex;align-items:center;flex-wrap:wrap;gap:0 12px}
+.controls.compact #secf{flex:1 1 0;min-width:0;margin-top:0!important}
+.controls.compact.open .search,.controls.compact.open #secf,.controls.compact.open #senf{flex:1 1 100%}
+.controls.compact.open .search{margin-top:10px}
+.controls.compact.open #secf{margin-top:12px!important}
+@media(max-width:760px){
+  .controls.compact #secf{margin-left:0;margin-right:-22px;padding-left:0}
+  .controls.compact.open #secf{margin-left:-22px;padding-left:22px}
+}
+/* 터치 기기: 호버 부상 효과 제거(스크롤 중 튐 방지) */
+@media(hover:none){
+  .art:hover{transform:none}
+  .dcell:hover .dimg{transform:none}
+  .art:hover .ibody::before{opacity:0}
+}
 </style>
 </head>
 <body class="dark">
@@ -235,6 +339,14 @@ body.dark .wrap{max-width:1320px;padding:0 48px}
 </div></div>
 
 <div class="wrap">
+<figure class="frhero" aria-hidden="true">
+ <picture>
+  <source type="image/webp" media="(max-width:760px)" srcset="images/field-review/hero-m-800.webp 800w, images/field-review/hero-m-1200.webp 1200w, images/field-review/hero-m-1600.webp 1600w" sizes="calc(100vw - 44px)">
+  <source media="(max-width:760px)" srcset="images/field-review/hero-m-1200.jpg">
+  <source type="image/webp" srcset="images/field-review/hero-800.webp 800w, images/field-review/hero-1200.webp 1200w, images/field-review/hero-1600.webp 1600w, images/field-review/hero-2400.webp 2400w" sizes="(max-width:1320px) calc(100vw - 96px), 1224px">
+  <img src="images/field-review/hero-1600.jpg" alt="" width="1600" height="490" fetchpriority="high" decoding="async">
+ </picture>
+</figure>
 <div class="masthead">
  <div class="estd">Wireless Sensing</div>
  <h1>The Field Review</h1>
@@ -255,7 +367,7 @@ body.dark .wrap{max-width:1320px;padding:0 48px}
 
 <div class="controls"><div class="wrap"><div class="cinner">
  <button class="filttoggle" id="filttoggle" type="button">필터 ▾</button>
- <input class="search" id="q" placeholder="고객사 · 현장 · 센서로 검색  —  예: 데이터센터, 누수, 전류, 한화, SK">
+ <input class="search" id="q" type="search" enterkeyhint="search" autocomplete="off" aria-label="설치 사례 검색" placeholder="고객사 · 현장 · 센서로 검색  —  예: 데이터센터, 누수, 전류, 한화, SK">
  <div class="frow" id="secf"><span class="flab">Sector</span></div>
  <div class="frow" id="senf"><span class="flab">Sensor</span></div>
 </div></div></div>
@@ -467,5 +579,49 @@ img, .gi, .ph, .dimg img, #lbimg, .dcell{
   window.addEventListener('focus', function(){ veil(false); });
   document.addEventListener('visibilitychange', function(){ veil(document.hidden); });
 })();
+</script>
+<script>
+(function(){
+ /* 사이트바 실제 높이 → 필터 sticky 오프셋 */
+ var sb=document.querySelector('.sitebar');
+ function sbh(){ if(sb) document.documentElement.style.setProperty('--sbh', Math.round(sb.getBoundingClientRect().height)+'px'); }
+ sbh(); window.addEventListener('resize',sbh,{passive:true}); window.addEventListener('load',sbh);
+ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(sbh);
+ /* 모바일 검색창 안내 문구 축약 */
+ var q=document.getElementById('q'); var mq=window.matchMedia('(max-width:760px)');
+ var ph0=q?q.getAttribute('placeholder'):'';
+ function phs(){ if(q) q.setAttribute('placeholder', mq.matches?'고객사 · 현장 · 센서 검색':ph0); }
+ phs(); if(mq.addEventListener) mq.addEventListener('change',phs);
+ /* 필터 칩 키보드 접근 (span → 버튼 역할) */
+ function a11y(root){ if(!root) return; root.querySelectorAll('.sbtn,.chip').forEach(function(b){ if(b.dataset.a11y) return; b.dataset.a11y=1; b.setAttribute('role','button'); b.setAttribute('tabindex','0'); b.setAttribute('aria-pressed', b.classList.contains('on')?'true':'false'); }); root.querySelectorAll('.sbtn,.chip').forEach(function(b){ b.setAttribute('aria-pressed', b.classList.contains('on')?'true':'false'); }); }
+ ['secf','senf'].forEach(function(id){ var el=document.getElementById(id); if(!el) return; a11y(el);
+   new MutationObserver(function(){ a11y(el); }).observe(el,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+   el.addEventListener('keydown',function(e){ var t=e.target; if((e.key==='Enter'||e.key===' ')&&t.matches&&t.matches('.sbtn,.chip')){ e.preventDefault(); t.click(); } });
+   /* 모바일: 선택된 섹터 칩을 가로 스크롤 안으로 */
+   el.addEventListener('click',function(e){ var t=e.target; if(mq.matches&&t.matches&&t.matches('.sbtn,.chip')&&t.scrollIntoView){ try{ t.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }catch(_){} } });
+ });
+ /* 카드 사진: 키보드로 라이트박스 열기 + 터치 스와이프로 사진 넘기기 */
+ var grid=document.getElementById('grid');
+ function prep(){ if(!grid) return; grid.querySelectorAll('.ph').forEach(function(ph){
+   if(ph.dataset.prep) return; ph.dataset.prep=1; ph.setAttribute('role','button'); ph.setAttribute('tabindex','0');
+   var h=ph.parentNode&&ph.parentNode.querySelector('h3'); ph.setAttribute('aria-label',(h?h.textContent:'설치 사진')+' 사진 크게 보기');
+   ph.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ph.click(); } });
+   var n=+ph.dataset.g; if(n<2) return;
+   var sx=0,sy=0,moved=false;
+   ph.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; moved=false;
+     ph.querySelectorAll('.gi[data-src]').forEach(function(g){ g.src=g.dataset.src; g.removeAttribute('data-src'); }); },{passive:true});
+   ph.addEventListener('touchend',function(e){ var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+     if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3){ moved=true;
+       var gis=ph.querySelectorAll('.gi'), dots=ph.querySelectorAll('.dots i'), cnt=ph.querySelector('.gcount');
+       var k=((+ph.dataset.cur||0)+(dx<0?1:-1)+n)%n;
+       gis.forEach(function(g,j){ g.classList.toggle('on',j===k); }); dots.forEach(function(d,j){ d.classList.toggle('on',j===k); });
+       if(cnt) cnt.textContent=(k+1)+'/'+n; ph.dataset.cur=k; } },{passive:true});
+   ph.addEventListener('click',function(e){ if(moved){ moved=false; e.stopImmediatePropagation(); e.preventDefault(); } },true);
+ }); }
+ if(grid){ prep(); new MutationObserver(prep).observe(grid,{childList:true}); }
+})();
+(function(){var f=document.querySelector('.frhero');if(!f)return;var i=f.querySelector('img');
+function on(){f.classList.add('in');}
+if(i.complete&&i.naturalWidth)on();else{i.addEventListener('load',on);i.addEventListener('error',on);setTimeout(on,2500);}})();
 </script>
 </body></html>
