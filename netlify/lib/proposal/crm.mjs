@@ -1,7 +1,7 @@
 /** 맞춤 제안서 — 외부 대장 연동 (먼데이)
  *
  *  설정이 있을 때만 동작한다. 없으면 아무 일도 하지 않는다(사이트 안 발송 대장이 기준 기록).
- *    PROPOSAL_MONDAY_TOKEN   (없으면 MONDAY_API_TOKEN)   먼데이 API 토큰
+ *    PROPOSAL_MONDAY_TOKEN   (없으면 관제와 같은 MONDAY_TOKEN)   먼데이 API 토큰
  *    PROPOSAL_MONDAY_BOARD   「제안서 발송 대장」 보드 ID
  *    PROPOSAL_MONDAY_GROUP   (선택) 그룹 ID
  *    PROPOSAL_MONDAY_COLUMNS (선택) 열 연결 JSON — 예
@@ -13,7 +13,7 @@
 import { CFG } from './config.mjs';
 
 const env = k => { try { const v = globalThis.Netlify && globalThis.Netlify.env && globalThis.Netlify.env.get(k); if (v) return v; } catch (e) { /* 무시 */ } return process.env[k] || ''; };
-const token = () => env('PROPOSAL_MONDAY_TOKEN') || env('MONDAY_API_TOKEN');
+const token = () => env('PROPOSAL_MONDAY_TOKEN') || env('MONDAY_TOKEN') || env('MONDAY_API_TOKEN');   /* 관제(_monday.mjs)가 쓰는 MONDAY_TOKEN 을 그대로 쓴다 */
 const board = () => env('PROPOSAL_MONDAY_BOARD');
 export const configured = () => !!(token() && board());
 

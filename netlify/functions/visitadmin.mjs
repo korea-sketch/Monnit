@@ -1,0 +1,610 @@
+/** 현장 진단 예약 — 스케줄 관리 화면 (/visit/admin)
+ *  로그인 전에는 관리 화면 코드조차 내려가지 않는다.
+ *  아이디·비밀번호는 Netlify 환경변수 VISIT_USER / VISIT_PASS 로만 받는다.
+ */
+import * as auth from './_visit_auth.mjs';
+import { get, set } from './_store.mjs';
+
+export const config = {
+  path: ['/visit/admin', '/visit/admin/', '/visit/admin/login', '/visit/admin/logout',
+         '/visit/admin/config',   /* 저장 — 로그인한 담당자만 */
+         '/visit/config']         /* 읽기 — 고객 화면이 열 때마다 가져갑니다 */
+};
+
+/* 설정 저장소 — 관리 화면에서 저장하면 여기 올라가고,
+   /visit 이 그걸 읽어 갑니다. 그래서 링크를 다시 만들 필요가 없습니다. */
+const CFG_STORE = 'visit', CFG_KEY = 'config.json';
+
+/* 들어온 값을 그대로 믿지 않고 필요한 것만 골라 담습니다. */
+function cleanCfg(c) {
+  const num = (v, lo, hi, d) => {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d;
+  };
+  const hm = (v, d) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(v)) ? String(v) : d);
+  const day = v => (/^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? String(v) : '');
+  const txt = (v, n) => String(v == null ? '' : v)
+    .replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, n);
+  const days = Array.isArray(c.workdays)
+    ? [...new Set(c.workdays.map(n => parseInt(n, 10)).filter(n => n >= 0 && n <= 6))].sort()
+    : [1, 2, 3, 4, 5];
+  return {
+    v: 1,
+    workdays: days,
+    dayStart: hm(c.dayStart, '09:30'), dayEnd: hm(c.dayEnd, '16:00'),
+    lunchStart: hm(c.lunchStart, '12:00'), lunchEnd: hm(c.lunchEnd, '13:00'),
+    mins: num(c.mins, 15, 480, 60),
+    buffer: num(c.buffer, 0, 240, 60),
+    granularity: num(c.granularity, 15, 120, 30),
+    leadHours: num(c.leadHours, 0, 720, 72),
+    horizonMonths: num(c.horizonMonths, 0, 12, 1),
+    horizonUntil: day(c.horizonUntil),
+    horizonDays: num(c.horizonDays, 1, 400, 400),
+    maxPerDay: num(c.maxPerDay, 1, 10, 2),
+    closed: (Array.isArray(c.closed) ? c.closed : []).slice(0, 200)
+      .map(x => ({ d: day(x && x.d), memo: txt(x && x.memo, 40) })).filter(x => x.d),
+    blocks: (Array.isArray(c.blocks) ? c.blocks : []).slice(0, 400)
+      .map(x => ({ d: day(x && x.d), s: hm(x && x.s, ''), e: hm(x && x.e, ''), memo: txt(x && x.memo, 40) }))
+      .filter(x => x.d && x.s && x.e)
+  };
+}
+
+const MAX_FAIL = 8, LOCK_MS = 15 * 60 * 1000;
+
+const H = {
+  'cache-control': 'no-store, no-cache, must-revalidate',
+  'x-robots-tag': 'noindex, nofollow, noarchive',
+  'referrer-policy': 'no-referrer',
+  'x-frame-options': 'DENY'
+};
+const page = (body, extra) => new Response(body,
+  { status: 200, headers: { ...H, 'content-type': 'text/html; charset=utf-8', ...(extra || {}) } });
+const redirect = (to, extra) => new Response(null,
+  { status: 303, headers: { ...H, location: to, ...(extra || {}) } });
+
+function ipOf(req) {
+  return String(req.headers.get('x-nf-client-connection-ip')
+    || req.headers.get('x-forwarded-for') || '?').split(',')[0].trim().slice(0, 45)
+    .replace(/[^\w.:-]/g, '_');
+}
+async function fails(k) {
+  try {
+    const o = JSON.parse(await get('ops', 'visitfail_' + k) || 'null');
+    return (o && Date.now() - o.t < LOCK_MS) ? o : { n: 0, t: 0 };
+  } catch { return { n: 0, t: 0 }; }
+}
+
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* ─────────────────────────────────────────────────────────── */
+export default async (req) => {
+  const url = new URL(req.url);
+  const p = url.pathname.replace(/\/+$/, '') || '/visit/admin';
+
+  const json = (o, status = 200) => new Response(JSON.stringify(o),
+    { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });
+
+  /* ── 고객 화면이 읽어 가는 곳 (누구나) ───────────────────── */
+  if (p === '/visit/config') {
+    if (req.method !== 'GET') return json({ ok: false, error: 'method' }, 405);
+    try {
+      const raw = await get(CFG_STORE, CFG_KEY);
+      if (!raw) return json({ ok: true, cfg: null });          /* 아직 저장 전 — 기본값으로 열립니다 */
+      const o = JSON.parse(raw);
+      return json({ ok: true, cfg: o.cfg, savedAt: o.savedAt || '' });
+    } catch (e) {
+      return json({ ok: true, cfg: null });                    /* 읽기 실패해도 예약 화면은 열려야 합니다 */
+    }
+  }
+
+  /* ── 담당자가 저장하는 곳 (로그인 필요) ──────────────────── */
+  if (p === '/visit/admin/config') {
+    if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
+    if (!auth.configured() || !auth.valid(auth.cookieFrom(req.headers))) {
+      return json({ ok: false, error: 'unauthorized' }, 401);
+    }
+    let body = null;
+    try { body = await req.json(); } catch (e) {}
+    if (!body || !body.cfg) return json({ ok: false, error: 'bad_body' }, 400);
+    const cfg = cleanCfg(body.cfg);
+    if (!cfg.workdays.length) return json({ ok: false, error: 'no_workdays' }, 400);
+    const savedAt = new Date().toISOString();
+    const ok = await set(CFG_STORE, CFG_KEY, JSON.stringify({ cfg, savedAt }));
+    if (!ok) return json({ ok: false, error: 'store' }, 500);
+    return json({ ok: true, savedAt });
+  }
+
+  /* 로그아웃 */
+  if (p === '/visit/admin/logout') {
+    return redirect('/visit/admin', { 'set-cookie': auth.clearCookie() });
+  }
+
+  /* 로그인 처리 */
+  if (p === '/visit/admin/login' && req.method === 'POST') {
+    if (!auth.configured()) return page(LOGIN({ notice: '아직 잠금이 설정되지 않았습니다. Netlify 환경변수 VISIT_USER / VISIT_PASS 를 먼저 등록해 주세요.' }));
+
+    const key = ipOf(req);
+    const f = await fails(key);
+    if (f.n >= MAX_FAIL) {
+      const left = Math.ceil((LOCK_MS - (Date.now() - f.t)) / 60000);
+      return page(LOGIN({ error: `여러 번 틀렸습니다. ${left}분 뒤에 다시 시도해 주세요.` }));
+    }
+
+    let u = '', pw = '';
+    try {
+      const fd = await req.formData();
+      u = String(fd.get('u') || '');
+      pw = String(fd.get('p') || '');
+    } catch { /* 파싱 실패는 실패로 처리 */ }
+
+    if (auth.check(u, pw)) {
+      try { await set('ops', 'visitfail_' + key, JSON.stringify({ n: 0, t: 0 })); } catch {}
+      return redirect('/visit/admin', { 'set-cookie': auth.setCookie(auth.issue()) });
+    }
+    try { await set('ops', 'visitfail_' + key, JSON.stringify({ n: f.n + 1, t: Date.now() })); } catch {}
+    return page(LOGIN({ error: '아이디 또는 비밀번호가 맞지 않습니다.' }));
+  }
+
+  /* 그 외 — 인증 확인 */
+  if (!auth.configured()) {
+    return page(LOGIN({ notice: '아직 잠금이 설정되지 않았습니다. Netlify 환경변수 VISIT_USER / VISIT_PASS 를 등록한 뒤 다시 열어 주세요.' }));
+  }
+  if (!auth.valid(auth.cookieFrom(req.headers))) {
+    return page(LOGIN({}));
+  }
+  return page(ADMIN());
+};
+
+/* ═══════════════════════ 로그인 화면 ═══════════════════════ */
+function LOGIN({ error, notice } = {}) {
+  return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>스케줄 관리 로그인 | 모넷코리아</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="theme-color" content="#E6EDE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/visit.css">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <h1>스케줄 관리
+      <span class="sub">현장 진단 방문 일정을 여는 화면입니다.<br>담당자만 들어올 수 있습니다.</span>
+    </h1>
+    ${error ? `<div class="banner bad" style="margin:0">${esc(error)}</div>` : ''}
+    ${notice ? `<div class="banner" style="margin:0">${esc(notice)}</div>` : ''}
+    <form method="post" action="/visit/admin/login">
+      <div class="field">
+        <label for="u">아이디</label>
+        <input id="u" name="u" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="p">비밀번호</label>
+        <input id="p" name="p" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="actions"><button class="btn" type="submit">들어가기</button></div>
+    </form>
+    <p class="hint" style="margin:0">
+      고객용 예약 화면은 <a href="/visit">monnit.co.kr/visit</a> 입니다.
+    </p>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+/* ═══════════════════════ 관리 화면 ═══════════════════════ */
+function ADMIN() {
+  return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>스케줄 관리 | 모넷코리아</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="theme-color" content="#E6EDE8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/visit.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="brand">
+      <a href="/" class="brand-mark">Monnit Korea</a>
+      <span class="brand-name">스케줄 관리</span>
+    </div>
+    <div class="masthead-meta">
+      <a href="/visit/admin/logout" style="color:var(--ink-3)">로그아웃</a>
+    </div>
+  </header>
+
+  <div class="statline">
+    <div class="stat"><span class="k">공개 기간 내 슬롯</span><span class="v" id="stSlots">–</span></div>
+    <div class="stat"><span class="k">방문 가능일</span><span class="v" id="stDays">–</span></div>
+    <div class="stat"><span class="k">첫 방문 가능일</span><span class="v" id="stFirst">–</span></div>
+    <div class="stat"><span class="k">제외된 날</span><span class="v" id="stClosed">–</span></div>
+  </div>
+
+  <div class="admin-grid">
+    <div>
+      <div class="card">
+        <h3>근무 조건
+          <span class="sub">여기서 정한 값이 고객 화면의 선택 가능한 시간을 그대로 결정합니다.</span>
+        </h3>
+        <div class="field"><label>방문 가능 요일</label><div class="dows" id="dowset"></div></div>
+        <div class="row2">
+          <div class="field"><label for="s-start">업무 시작</label><input id="s-start" type="time"></div>
+          <div class="field"><label for="s-end">업무 종료</label><input id="s-end" type="time"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="s-lstart">점심 시작</label><input id="s-lstart" type="time"></div>
+          <div class="field"><label for="s-lend">점심 종료</label><input id="s-lend" type="time"></div>
+        </div>
+        <div class="row3">
+          <div class="field"><label for="s-mins">방문 소요(분)</label><input id="s-mins" type="number" min="15" max="480" step="15"></div>
+          <div class="field"><label for="s-buffer">이동 버퍼(분)</label><input id="s-buffer" type="number" min="0" max="240" step="15"></div>
+          <div class="field"><label for="s-gran">슬롯 간격(분)</label><input id="s-gran" type="number" min="15" max="120" step="15"></div>
+        </div>
+        <div class="row3">
+          <div class="field"><label for="s-lead">최소 리드타임(시간)</label><input id="s-lead" type="number" min="0" max="720"></div>
+          <div class="field"><label for="s-max">하루 최대 건수</label><input id="s-max" type="number" min="1" max="10"></div>
+          <div class="field">
+            <label for="s-months">몇 달치 열기</label>
+            <select id="s-months">
+              <option value="0">이번 달 말일까지</option>
+              <option value="1">다음 달 말일까지</option>
+              <option value="2">두 달 뒤 말일까지</option>
+              <option value="3">세 달 뒤 말일까지</option>
+              <option value="6">여섯 달 뒤 말일까지</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" id="horNote"></p>
+        <div class="field">
+          <label for="s-until">여기서 멈추기 (선택)
+            <span class="sub">특정 날짜 이후로는 아예 받지 않으려면 그 날짜를 넣으세요.
+              비워 두면 위의 ‘몇 달치 열기’ 대로 매달 자동으로 이어집니다.</span>
+          </label>
+          <input id="s-until" type="date">
+        </div>
+        <p class="hint">리드타임은 사전 통화에 필요한 시간입니다. 영업일 3~4일을 확보하려면 72시간 이상으로 두세요.</p>
+      </div>
+
+      <div class="card">
+        <h3>쉬는 날 추가
+          <span class="sub">휴가, 출장, 전사 행사처럼 하루 전체를 비워야 하는 날입니다. 공휴일은 자동으로 빠집니다.</span>
+        </h3>
+        <div class="row2">
+          <div class="field"><label for="c-date">날짜</label><input id="c-date" type="date"></div>
+          <div class="field"><label for="c-memo">메모 (선택)</label><input id="c-memo" placeholder="예) 하계 휴가"></div>
+        </div>
+        <div class="actions"><button class="btn sm" id="addClosed" type="button">쉬는 날 추가</button></div>
+        <div class="chiplist" id="closedList"></div>
+      </div>
+
+      <div class="card">
+        <h3>시간 막기
+          <span class="sub">이미 잡힌 미팅이나 확정된 방문처럼 하루 중 일부만 막을 때 씁니다. 확정된 예약도 여기에 넣어 두면 이중 예약이 생기지 않습니다.</span>
+        </h3>
+        <div class="row3">
+          <div class="field"><label for="b-date">날짜</label><input id="b-date" type="date"></div>
+          <div class="field"><label for="b-start">시작</label><input id="b-start" type="time"></div>
+          <div class="field"><label for="b-end">종료</label><input id="b-end" type="time"></div>
+        </div>
+        <div class="field"><label for="b-memo">메모 (선택)</label><input id="b-memo" placeholder="예) LG 가산 방문"></div>
+        <div class="actions"><button class="btn sm" id="addBlock" type="button">시간 막기 추가</button></div>
+        <div class="chiplist" id="blockList"></div>
+      </div>
+
+      <div class="card">
+        <h3>자동으로 빠지는 공휴일
+          <span class="sub">대한민국 관공서 공휴일과 대체공휴일입니다. 따로 넣지 않아도 예약 화면에서 빠집니다.</span>
+        </h3>
+        <div class="holgrid" id="holList"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>저장하기
+          <span class="sub">누르면 곧바로 <b>monnit.co.kr/visit</b> 에 반영됩니다.
+            고객에게는 그 주소만 보내시면 됩니다.</span>
+        </h3>
+        <div class="actions">
+          <button class="btn" id="publishCfg" type="button">저장하고 공개하기</button>
+          <button class="btn ghost sm" id="reloadCfg" type="button">되돌리기</button>
+        </div>
+        <p class="hint" id="pubHint">아직 저장하지 않았습니다.</p>
+        <div class="actions" style="border-top:1px solid var(--hair);padding-top:12px;margin-top:2px">
+          <a class="btn ghost sm" id="openVisit" href="/visit" target="_blank" rel="noopener">고객 화면 열어 보기</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>특정 고객에게만 다른 일정을 줄 때
+          <span class="sub">평소에는 쓰지 않습니다. 지금 화면 설정을 링크에 담아
+            <b>그 고객에게만</b> 다른 일정을 보여 주고 싶을 때만 씁니다.</span>
+        </h3>
+        <div class="actions">
+          <button class="btn ghost sm" id="makeLink" type="button">전용 링크 만들기</button>
+          <button class="btn ghost sm" id="copyLink" type="button">복사</button>
+        </div>
+        <textarea class="linkout" id="linkOut" readonly spellcheck="false" placeholder="필요할 때만 만드십시오."></textarea>
+        <p class="hint" id="linkHint"></p>
+      </div>
+
+      <div class="card">
+        <h3>미리보기</h3>
+        <div class="preview" id="previewBox"></div>
+      </div>
+
+      <div class="card">
+        <h3>들어온 예약 보기</h3>
+        <p class="hint" style="margin:0">접수된 예약은 monday 보드에 쌓입니다. 상태·담당 엔지니어·설비 정보를 그곳에서 관리하세요.</p>
+        <div class="actions">
+          <a class="btn ghost sm" href="https://monnitk.monday.com/boards/18429687217" target="_blank" rel="noopener">monday 보드 열기</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>처음 값으로</h3>
+        <p class="hint" style="margin:0">설정이 엉켰을 때 기본 조건으로 되돌립니다.
+          되돌린 뒤 <b>저장하고 공개하기</b> 를 눌러야 고객 화면에도 반영됩니다.</p>
+        <div class="actions">
+          <button class="btn ghost sm" id="resetCfg" type="button">처음 값으로</button>
+        </div>
+        <p class="hint" id="cfgHint"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>MONNIT KOREA · 스케줄 관리</span>
+    <span>ADMIN · NOINDEX</span>
+  </footer>
+</div>
+
+<script src="/visit-core.js"></script>
+<script>
+(function(){
+  "use strict";
+  var V=window.VisitCore;
+  var cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG));
+  var dirty=false;          /* 고친 뒤 아직 저장 안 한 상태 */
+  var savedAt="";
+
+  function stamp(iso){
+    if(!iso) return "";
+    try{
+      var d=new Date(iso);
+      return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"long",day:"numeric",
+        hour:"2-digit",minute:"2-digit"}).format(d);
+    }catch(e){ return ""; }
+  }
+  function showPub(){
+    var h=document.getElementById("pubHint");
+    if(dirty){
+      h.innerHTML="고친 내용이 있습니다. <b>‘저장하고 공개하기’</b> 를 눌러야 고객 화면에 반영됩니다.";
+      h.style.color="var(--signal)";
+      return;
+    }
+    h.style.color="";
+    h.innerHTML = savedAt
+      ? "지금 고객 화면(<b>monnit.co.kr/visit</b>)에 나가는 설정입니다. 마지막 저장 "+V.esc(stamp(savedAt))+"."
+      : "아직 한 번도 저장하지 않았습니다. 고객 화면은 <b>기본 일정</b>으로 열립니다.";
+  }
+  function markDirty(){ dirty=true; showPub(); }
+
+  function fillForm(){
+    document.getElementById("s-start").value=cfg.dayStart;
+    document.getElementById("s-end").value=cfg.dayEnd;
+    document.getElementById("s-lstart").value=cfg.lunchStart;
+    document.getElementById("s-lend").value=cfg.lunchEnd;
+    document.getElementById("s-mins").value=cfg.mins;
+    document.getElementById("s-buffer").value=cfg.buffer;
+    document.getElementById("s-gran").value=cfg.granularity;
+    document.getElementById("s-lead").value=cfg.leadHours;
+    document.getElementById("s-months").value=String(cfg.horizonMonths===undefined?1:cfg.horizonMonths);
+    document.getElementById("s-until").value=cfg.horizonUntil||"";
+    document.getElementById("s-max").value=cfg.maxPerDay;
+    var box=document.getElementById("dowset"); box.innerHTML="";
+    V.DOW_KO.forEach(function(d,i){
+      var b=document.createElement("button");
+      b.type="button"; b.className="dow-chip"; b.textContent=d;
+      b.setAttribute("aria-pressed",String(cfg.workdays.indexOf(i)!==-1));
+      b.addEventListener("click",function(){
+        b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));
+        pullForm(); render(); markDirty();
+      });
+      box.appendChild(b);
+    });
+  }
+  function pullForm(){
+    var days=[];
+    Array.prototype.forEach.call(document.querySelectorAll("#dowset .dow-chip"),function(b,i){
+      if(b.getAttribute("aria-pressed")==="true") days.push(i);
+    });
+    cfg.workdays=days;
+    cfg.dayStart=document.getElementById("s-start").value||"09:30";
+    cfg.dayEnd=document.getElementById("s-end").value||"16:00";
+    cfg.lunchStart=document.getElementById("s-lstart").value||"12:00";
+    cfg.lunchEnd=document.getElementById("s-lend").value||"13:00";
+    cfg.mins=Math.max(15,parseInt(document.getElementById("s-mins").value,10)||60);
+    cfg.buffer=Math.max(0,parseInt(document.getElementById("s-buffer").value,10)||0);
+    cfg.granularity=Math.max(15,parseInt(document.getElementById("s-gran").value,10)||30);
+    cfg.leadHours=Math.max(0,parseInt(document.getElementById("s-lead").value,10)||0);
+    cfg.horizonMonths=parseInt(document.getElementById("s-months").value,10)||0;
+    cfg.horizonUntil=document.getElementById("s-until").value||"";
+    cfg.maxPerDay=Math.max(1,parseInt(document.getElementById("s-max").value,10)||1);
+  }
+  function renderClosed(){
+    var box=document.getElementById("closedList");
+    if(!cfg.closed.length){box.innerHTML='<span class="hint">등록된 쉬는 날이 없습니다.</span>';return;}
+    box.innerHTML="";
+    cfg.closed.slice().sort(function(a,b){return a.d<b.d?-1:1;}).forEach(function(x){
+      var el=document.createElement("span"); el.className="chip";
+      el.innerHTML=V.esc(x.d)+(x.memo?' <span class="memo">'+V.esc(x.memo)+'</span>':'');
+      var del=document.createElement("button"); del.type="button"; del.textContent="\\u00d7"; del.title="삭제";
+      del.addEventListener("click",function(){
+        cfg.closed=cfg.closed.filter(function(y){return y.d!==x.d;});
+        renderClosed(); render(); markDirty();
+      });
+      el.appendChild(del); box.appendChild(el);
+    });
+  }
+  function renderBlocks(){
+    var box=document.getElementById("blockList");
+    if(!cfg.blocks.length){box.innerHTML='<span class="hint">막아 둔 시간이 없습니다.</span>';return;}
+    box.innerHTML="";
+    cfg.blocks.slice().sort(function(a,b){return (a.d+a.s)<(b.d+b.s)?-1:1;}).forEach(function(x){
+      var el=document.createElement("span"); el.className="chip";
+      el.innerHTML=V.esc(x.d)+" "+V.esc(x.s)+"\\u2013"+V.esc(x.e)+(x.memo?' <span class="memo">'+V.esc(x.memo)+'</span>':'');
+      var del=document.createElement("button"); del.type="button"; del.textContent="\\u00d7"; del.title="삭제";
+      del.addEventListener("click",function(){
+        cfg.blocks=cfg.blocks.filter(function(y){return !(y.d===x.d&&y.s===x.s&&y.e===x.e);});
+        renderBlocks(); render(); markDirty();
+      });
+      el.appendChild(del); box.appendChild(el);
+    });
+  }
+  function renderHolidays(){
+    var box=document.getElementById("holList"), t=V.today(), out=[];
+    Object.keys(V.HOLIDAYS).sort().forEach(function(k){
+      if(k>=t) out.push('<div><b>'+k+'</b>'+V.esc(V.HOLIDAYS[k])+'</div>');
+    });
+    box.innerHTML=out.join("")||'<span class="hint">등록된 공휴일이 없습니다.</span>';
+  }
+  function render(){
+    var keys=V.horizonKeys(cfg), total=0, days=0, first=null, closedCnt=0;
+    keys.forEach(function(k){
+      var n=V.slotsFor(cfg,k).length;
+      if(n){ total+=n; days++; if(!first) first=k; }
+      else if(V.HOLIDAYS[k]||V.closedMemo(cfg,k)!==null) closedCnt++;
+    });
+    document.getElementById("stSlots").textContent=total;
+    document.getElementById("stDays").textContent=days+"일";
+    document.getElementById("stFirst").textContent=first?first.slice(5).replace("-","/"):"–";
+    document.getElementById("stClosed").textContent=closedCnt+"일";
+
+    var end=V.horizonEnd(cfg);
+    document.getElementById("horNote").innerHTML=
+      "지금은 <b>"+V.esc(V.labelDate(end))+"</b> 까지 열려 있습니다. "+
+      (cfg.horizonUntil
+        ? "‘여기서 멈추기’ 날짜가 들어가 있어 그 뒤로는 더 열리지 않습니다."
+        : "달이 바뀌면 한 달치가 자동으로 더 열립니다. 따로 손대지 않으셔도 됩니다.");
+
+    var pv=document.getElementById("previewBox"), rows=[];
+    keys.forEach(function(k){
+      var list=V.slotsFor(cfg,k);
+      if(list.length){
+        rows.push('<div class="pv-row"><span class="k">'+V.esc(V.labelDate(k))+'</span><span class="v">'+
+          V.esc(list[0].hm)+" ~ "+V.esc(list[list.length-1].hm)+" \\u00b7 "+list.length+'개</span></div>');
+      }
+    });
+    var SHOW=14;
+    pv.innerHTML=rows.slice(0,SHOW).join("")||'<p class="hint" style="margin:0">지금 조건으로는 예약 가능한 시간이 없습니다. 요일이나 리드타임을 확인해 주세요.</p>';
+    if(rows.length>SHOW){
+      pv.innerHTML+='<p class="hint" style="margin:8px 0 0">외 '+(rows.length-SHOW)+'일 더 있습니다. '+
+        '마지막 공개일은 <b>'+V.esc(V.labelDate(V.horizonEnd(cfg)))+'</b> 입니다.</p>';
+    }
+  }
+
+  document.getElementById("addClosed").addEventListener("click",function(){
+    var d=document.getElementById("c-date").value, memo=document.getElementById("c-memo").value.trim();
+    if(!d) return;
+    cfg.closed=cfg.closed.filter(function(x){return x.d!==d;});
+    cfg.closed.push({d:d,memo:memo});
+    document.getElementById("c-date").value=""; document.getElementById("c-memo").value="";
+    renderClosed(); render(); markDirty();
+  });
+  document.getElementById("addBlock").addEventListener("click",function(){
+    var d=document.getElementById("b-date").value,
+        s=document.getElementById("b-start").value,
+        e=document.getElementById("b-end").value,
+        memo=document.getElementById("b-memo").value.trim();
+    if(!d){ V.toast("날짜를 골라 주세요"); return; }
+    if(!s||!e){ V.toast("시작과 종료 시간을 넣어 주세요"); return; }
+    if(V.toMin(e)<=V.toMin(s)){ V.toast("종료 시간이 시작보다 빠릅니다"); return; }
+    cfg.blocks.push({d:d,s:s,e:e,memo:memo});
+    document.getElementById("b-date").value=""; document.getElementById("b-start").value="";
+    document.getElementById("b-end").value=""; document.getElementById("b-memo").value="";
+    renderBlocks(); render(); markDirty();
+  });
+  ["s-start","s-end","s-lstart","s-lend","s-mins","s-buffer","s-gran","s-lead","s-months","s-until","s-max"]
+    .forEach(function(id){
+      document.getElementById(id).addEventListener("change",function(){pullForm();render();markDirty();});
+    });
+
+  document.getElementById("makeLink").addEventListener("click",function(){
+    pullForm();
+    var url=location.origin+"/visit?s="+V.encodeCfg(cfg);
+    document.getElementById("linkOut").value=url;
+    document.getElementById("linkHint").textContent=
+      "이 링크를 고객에게 보내면 위 설정이 그대로 적용됩니다. 스케줄을 바꾸면 링크를 다시 만들어 주세요. ("+url.length+"자)";
+    render();
+  });
+  document.getElementById("copyLink").addEventListener("click",function(){
+    var t=document.getElementById("linkOut");
+    if(!t.value){ V.toast("먼저 ‘링크 만들기’를 눌러 주세요"); return; }
+    t.focus(); t.select();
+    V.copy(t.value,"링크를 복사했습니다");
+  });
+  /* ── 저장하고 공개하기 ── */
+  var pubBtn=document.getElementById("publishCfg");
+  pubBtn.addEventListener("click",function(){
+    pullForm();
+    if(!cfg.workdays.length){ V.toast("방문 가능 요일을 하나 이상 켜 주세요"); return; }
+    pubBtn.disabled=true; pubBtn.textContent="저장하는 중…";
+    V.pushCfg(cfg).then(function(r){
+      pubBtn.disabled=false; pubBtn.textContent="저장하고 공개하기";
+      if(r.ok){
+        dirty=false; savedAt=new Date().toISOString(); showPub();
+        V.toast("저장했습니다. 고객 화면에 반영되었습니다","ok");
+      } else if(r.error==="unauthorized"){
+        V.toast("로그인이 풀렸습니다. 새로고침 후 다시 로그인해 주세요");
+      } else {
+        V.toast("저장하지 못했습니다. 잠시 후 다시 눌러 주세요");
+      }
+    });
+  });
+
+  /* 서버에 저장된 설정으로 되돌리기 */
+  function pullFromServer(quiet){
+    return V.fetchRemote().then(function(r){
+      if(r){ cfg=r.cfg; savedAt=r.savedAt||""; }
+      else { cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG)); savedAt=""; }
+      dirty=false;
+      fillForm(); renderClosed(); renderBlocks(); render(); showPub();
+      if(!quiet) V.toast(r?"저장된 설정을 불러왔습니다":"저장된 설정이 없어 기본값으로 두었습니다");
+    });
+  }
+  document.getElementById("reloadCfg").addEventListener("click",function(){ pullFromServer(false); });
+
+  document.getElementById("resetCfg").addEventListener("click",function(){
+    cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG));
+    fillForm(); renderClosed(); renderBlocks(); render(); markDirty();
+    document.getElementById("cfgHint").textContent=
+      "처음 값으로 되돌렸습니다. ‘저장하고 공개하기’ 를 눌러야 고객 화면에도 반영됩니다.";
+    V.toast("처음 값으로 되돌렸습니다");
+  });
+
+  renderHolidays();
+  pullFromServer(true);
+})();
+</script>
+</body>
+</html>`;
+}

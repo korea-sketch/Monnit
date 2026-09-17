@@ -133,7 +133,7 @@
         '<input class="mkpa-in" form="mkpa-off" id="' + id + 's" maxlength="60" placeholder="' + esc(L('예: 평택 2공장, 가산 IDC 3층', 'e.g. Plant 2, IDC 3F')) + '">' +
         '<label class="mkpa-agree"><input type="checkbox" form="mkpa-off"><span><b>' + L('[필수]', '[Required]') + '</b> ' +
           L('맞춤 제안서 발송을 위해 회사명·성함·이메일·연락처를 이용하고 1년 뒤 파기하는 데 동의합니다.', 'I agree to the use of my company, name, email and phone to send the proposal; deleted after one year.') +
-          ' <a href="/privacy.html" target="_blank" rel="noopener">' + L('자세히', 'Details') + '</a></span></label>' +
+          ' <a href="/privacy.html" target="_blank" rel="noopener">' + L('개인정보처리방침 보기', 'Privacy policy') + '</a></span></label>' +
       '</div>';
     if (keep) {
       if (keep.prop) { root.querySelector('input[value="prop"]').checked = true; root.querySelectorAll('.mkpa-opt')[0].classList.remove('on'); root.querySelectorAll('.mkpa-opt')[1].classList.add('on'); root.querySelector('.mkpa-more').hidden = false; }

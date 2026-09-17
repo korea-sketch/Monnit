@@ -14,7 +14,7 @@
   --ink: #EEF1F6;
   --ink-mid: #B7BECD;
   --ink-soft: #838C9E;
-  --ink-faint: #6E7688;
+  --ink-faint: #8A93A5;   /* 2026-09-17 #6E7688 → 어두운 카드(#141C2E) 위 작은 글자 대비 4.5:1 이상 (WCAG AA) */
   --line: #26304A;
   --line-strong: #384358;
   /* 액센트 — 밝은 사이언 제거, 채도 낮춘 신뢰감 있는 스틸/딥 블루 */
@@ -3838,7 +3838,7 @@ button.wp-card.wp-pick:hover .wp-dl-hint { text-decoration: underline; }
 .site-footer li a[data-nav] { background:none; border:none; cursor:pointer; color:#9A938A; font-family:var(--fb); font-size: 13.5px; padding:0; transition: color 0.15s ease; }
 .site-footer li button:hover,
 .site-footer li a[data-nav]:hover { color:#fff; }
-.footer-base { border-top:1px solid #33302B; margin-top: 56px; padding-top: 28px; font-size: 12px; color:#6B665E; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.footer-base { border-top:1px solid #33302B; margin-top: 56px; padding-top: 28px; font-size: 12px; color:#9A958C; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 .footer-base .wrap { display:flex; justify-content:space-between; grid-template-columns:none; }
 .foot-contact { display: inline-flex; align-items: center; gap: 24px; flex-wrap: nowrap; }
 .foot-contact .fc-item { display: inline-flex; align-items: center; gap: 8px; color: #C8C2B6; text-decoration: none; font-size: 15px; font-weight: 600; white-space: nowrap; transition: color .15s ease; }
@@ -8471,3 +8471,12 @@ select optgroup{ background:#FFFFFF; color:#15192E; }
 .band .wp-submit-row button:focus-visible { outline:2px solid var(--pp-sig, #74C4DC); outline-offset:2px; }
 .band .wp-submit-row button[disabled] { opacity:.7; cursor:wait; }
 .band .wp-prop-slot .mkpa { margin-top:16px; }
+
+/* 접근성 보정 (2026-09-17 점검) — 작은 글자 대비 · 푸터 제목 순서 */
+.hcc-cta { color: var(--accent-dark); }
+.site-footer .f-h { font-family:var(--fm); font-size:12.5px; font-weight:500; line-height:1.4; letter-spacing:0.14em; text-transform:uppercase; color:#C8C2B6; margin:0 0 16px; }
+@media (max-width: 560px) { .site-footer .f-h { margin-bottom: 12px; } }
+
+/* 히어로 지표 단위(종+·년+)가 좁은 화면에서 두 줄로 갈라지지 않게 (2026-09-17) */
+.nh-hs-u { white-space: nowrap; }
+dt:has(> .nh-hs-u) { white-space: nowrap; }

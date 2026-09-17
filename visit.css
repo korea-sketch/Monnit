@@ -28,7 +28,7 @@
   --sheen:rgba(255,255,255,.72);
 
   /* 글자 */
-  --ink:#0F1A16; --ink-2:#41524B; --ink-3:#6E7F77;
+  --ink:#0F1A16; --ink-2:#41524B; --ink-3:#5A6B64;   /* 2026-09-17 #6E7F77 → 대비 4.5:1 이상 */
 
   /* 강조 */
   --accent:#0B6B4F; --accent-hover:#095740; --accent-ink:#FFFFFF;

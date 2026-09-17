@@ -12,6 +12,53 @@
 const fs = require('fs');
 const path = require('path');
 
+/* ---------- 배포 전 필수 파일 점검 (2026-09-17) ----------
+   폴더째 덮어쓰기(Finder 「대치」 등)로 js/·netlify/functions/ 안의 파일이 통째로 사라진 채
+   커밋된 적이 두 번 있었습니다(2026-09-16 · 09-17). 그러면 함수 묶기 단계에서 알아보기 어려운
+   오류로 배포가 멈추고, 사이트는 예전 배포에 머뭅니다. 여기서 먼저 찾아 한국어로 알려 줍니다.
+   · 함수 파일이 불러오는 상대 경로(import · require)가 실제로 있는지
+   · index.html · 프로모션 랜딩이 불러오는 /js/*.js · 루트 스크립트가 있는지 */
+(function preflight() {
+  const missing = [];
+  const exists = f => fs.existsSync(f);
+  const FN = path.join(__dirname, 'netlify', 'functions');
+  const scan = (dir) => {
+    if (!exists(dir)) return;
+    for (const name of fs.readdirSync(dir)) {
+      const f = path.join(dir, name);
+      if (fs.statSync(f).isDirectory()) { scan(f); continue; }
+      if (!/\.(m?js)$/.test(name)) continue;
+      const src = fs.readFileSync(f, 'utf8');
+      const re = /(?:import\s[^'"]*?from\s*|import\s*\(\s*|require\s*\(\s*)['"](\.{1,2}\/[^'"]+)['"]/g;
+      let m;
+      while ((m = re.exec(src))) {
+        const target = path.resolve(path.dirname(f), m[1]);
+        if (!exists(target) && !exists(target + '.js') && !exists(target + '.mjs')) missing.push(path.relative(__dirname, f) + ' → ' + m[1]);
+      }
+    }
+  };
+  scan(FN);
+  scan(path.join(__dirname, 'netlify', 'lib'));
+  scan(path.join(__dirname, 'netlify', 'edge-functions'));
+  const pages = ['index.html', 'promo-consulting.html', 'promo-modbus.html', 'promo-proposal.html', 'promo-alarm.html', 'promo-residence.html', 'promo.html', 'visit.html', 'promo/temperature/index.html'];
+  for (const pg of pages) {
+    const f = path.join(__dirname, pg);
+    if (!exists(f)) { missing.push('(페이지 없음) ' + pg); continue; }
+    const html = fs.readFileSync(f, 'utf8');
+    for (const m of html.matchAll(/<script[^>]+src=["'](\/[^"'?#]+\.js)/g)) {
+      if (!exists(path.join(__dirname, m[1]))) missing.push(pg + ' → ' + m[1]);
+    }
+  }
+  if (missing.length) {
+    console.error('\n[build] ✖ 필수 파일이 빠져 있어 배포를 멈춥니다 (' + missing.length + '곳)');
+    missing.slice(0, 40).forEach(x => console.error('   · ' + x));
+    console.error('   → 폴더를 통째로 「대치」하지 말고 파일 단위로 덮어쓰거나, 이전 커밋에서 파일을 되살려 주세요.\n');
+    process.exit(1);
+  }
+  console.log('[build] 필수 파일 점검 OK');
+  if (process.env.PREFLIGHT_ONLY) process.exit(0);   /* 점검만 (적용-복구파일.sh) */
+})();
+
 const SITE = 'https://monnit.co.kr';           // 대표 도메인
 const TODAY = new Date().toISOString().slice(0, 10);
 const OUT_PAGES = path.join(__dirname, 'pages');
@@ -1358,13 +1405,37 @@ const LEGACY_RULES = (function(){
 })();
 
 
+/* ---------- 비공개 파일 차단 (_redirects 자동 관리, 2026-09-17) ----------
+   publish 폴더가 저장소 루트(.)라서 문서·스크립트·함수 소스가 주소만 알면 열렸습니다.
+   (확인: /netlify/functions/lead.mjs · /tools/*.mjs · /ui/ops-app.html · /README-적용안내.md 가 200)
+   · 한글 파일명은 Netlify 가 퍼센트 인코딩 주소로 비교하므로 원문·인코딩 두 줄을 씁니다.
+   · 루트의 문서(.md)·스크립트(.sh)·설정 파일은 빌드 때마다 목록을 새로 만듭니다 — 새 안내 문서를 올려도 자동으로 막힙니다. */
+const PRIVATE_RULES = (function () {
+  const DIRS = ['netlify', 'tools', 'scripts', 'ui', 'source', 'functions', 'node_modules', 'data/proposal'];
+  const KEEP = new Set(['robots.txt', 'llms.txt', 'llms-full.txt', 'humans.txt', 'sitemap.xml', 'manifest.json']);
+  const PRIVATE_EXT = /\.(md|sh|toml|csv|lock|log|env)$/i;
+  const PRIVATE_NAME = /^(package(-lock)?\.json|gitignore\.txt|build\.js|_headers|_redirects)$|미리보기\.html$/;
+  let names = [];
+  try { names = fs.readdirSync(__dirname, { withFileTypes: true }).filter(d => d.isFile()).map(d => d.name); } catch (e) {}
+  const files = names.filter(n => !KEEP.has(n) && (PRIVATE_EXT.test(n) || PRIVATE_NAME.test(n))).sort();
+  const lines = [];
+  const add = pth => {
+    lines.push(pth.padEnd(46) + ' /404.html    404!');
+    const enc = pth.split('/').map(seg => seg === '*' ? seg : encodeURIComponent(seg)).join('/');
+    if (enc !== pth) lines.push(enc.padEnd(46) + ' /404.html    404!');
+  };
+  DIRS.forEach(dname => add('/' + dname + '/*'));
+  files.forEach(n => add('/' + n));
+  return '# --- 비공개 파일 차단 (문서·스크립트·함수 소스 — 빌드 때 목록 자동 갱신)\n' + lines.join('\n') + '\n';
+})();
+
 try {
   const RD_PATH = path.join(__dirname, '_redirects');
   let rd = fs.existsSync(RD_PATH) ? fs.readFileSync(RD_PATH, 'utf8') : '';
   const bi = rd.indexOf(RD_BEGIN), ei = rd.indexOf(RD_END);
   if (bi !== -1 && ei !== -1 && ei > bi) rd = rd.slice(0, bi) + rd.slice(ei + RD_END.length);
   rd = rd.replace(/\s+$/, '');
-  rd += '\n\n' + RD_BEGIN + '\n' + LEGACY_RULES.trim() + '\n' + RD_END + '\n';
+  rd += '\n\n' + RD_BEGIN + '\n' + PRIVATE_RULES + '\n' + LEGACY_RULES.trim() + '\n' + RD_END + '\n';
   fs.writeFileSync(RD_PATH, rd);
 
   const _n = LEGACY_RULES.split('\n').filter(l => l.trim().startsWith('/')).length;

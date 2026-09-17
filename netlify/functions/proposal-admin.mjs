@@ -388,7 +388,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;background:var(--card)}tr.r{c
 </style></head><body>
 ${OPS_NAV}
 ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
-<span id="hq"><select id="month"><option value="">전체 기간</option></select><button id="tickBtn">정기 점검 실행</button><button id="healthBtn">연동 점검</button><a href="/ops/proposals/export.csv"><button>CSV</button></a></span>
+<span id="hq" style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center"><select id="month"><option value="">전체 기간</option></select><button id="tickBtn">정기 점검 실행</button><button id="healthBtn">연동 점검</button><a href="/ops/proposals/export.csv"><button>CSV</button></a></span>
 <span id="ha" hidden><select id="amonth"><option value="">전체 기간</option></select><select id="akind"><option value="">모든 자료</option><option value="proposal">제안서</option><option value="resend">재발송</option><option value="followup">후속 안내</option></select><input id="aq" placeholder="회사·이메일·과제 검색" size="18"><a href="/ops/proposals/archive.csv"><button>대장 CSV</button></a></span>
 <span id="hi" hidden><select id="days"><option value="30">최근 30일</option><option value="90" selected>최근 90일</option><option value="365">최근 1년</option><option value="0">전체</option></select></span>
 <button id="refresh">새로고침</button><span id="tickInfo" class="mut small"></span><span style="flex:1"></span><span class="mut small hide-m">1·2·3 키로 탭 이동</span>${keyLogin ? '<button id="logout">로그아웃</button>' : ''}</header>
@@ -589,7 +589,7 @@ function drawArchive(){
   const rows=A.rows.filter(r=>(!k||r.kind===k)&&(!q||[r.company,r.to.email,r.to.name,r.problems.join(' '),r.industry.label,r.no].join(' ').toLowerCase().includes(q)));
   const cos=new Set(rows.map(r=>r.companyKey)).size;
   $('#abar').innerHTML=A.monday?'<div class="infobar">먼데이 「제안서 발송 대장」 보드와 연결되어 있습니다 — 발송 1건마다 항목이 생기고 열람·연락·추가 요청이 업데이트로 쌓입니다.</div>'
-    :'<div class="infobar">사이트 안 대장이 기준 기록입니다. 먼데이에도 쌓으려면 환경변수 PROPOSAL_MONDAY_TOKEN(또는 MONDAY_API_TOKEN)·PROPOSAL_MONDAY_BOARD 를 넣으세요. 분석은 「대장 CSV」를 스프레드시트·BI에 붙여도 됩니다.</div>';
+    :'<div class="infobar">사이트 안 대장이 기준 기록입니다. 먼데이에도 쌓으려면 환경변수 PROPOSAL_MONDAY_TOKEN(없으면 관제의 MONDAY_TOKEN)·PROPOSAL_MONDAY_BOARD 를 넣으세요. 분석은 「대장 CSV」를 스프레드시트·BI에 붙여도 됩니다.</div>';
   $('#akpis').innerHTML=[['나간 자료',rows.length],['회사',cos],['제안서',rows.filter(r=>r.kind==='proposal').length],['재발송',rows.filter(r=>r.kind==='resend').length],['후속 안내',rows.filter(r=>r.kind==='followup').length],['AI 문안',rows.filter(r=>r.ai).length],['열람',rows.filter(r=>r.opens>0&&r.kind!=='followup').length],['추가 요청',rows.filter(r=>r.asks).length]].map(([l,v])=>'<div class="kpi"><b>'+v+'</b><span>'+l+'</span></div>').join('');
   $('#arows').innerHTML=rows.map(r=>'<tr><td class="small">'+esc(r.atText)+'<div class="mut">'+esc(r.no)+'</div></td>'
     +'<td><b>'+esc(r.company)+'</b><div class="small mut">'+esc(r.to.name)+' '+esc(r.to.title)+' · '+esc(r.to.email||'(파기)')+'</div></td>'

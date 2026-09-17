@@ -77,6 +77,7 @@
     /* ── 맞춤 제안서 v5 (2026-09-17) — 신청·진행·상담 폼·파인더·자료실 ── */
     "개국 Monnit 글로벌 레퍼런스": "countries with Monnit references",
     "글로벌 고객사": "customers worldwide",
+    "개인정보처리방침 보기": "Privacy policy",
     "공공기관·국내 대기업 도입": "Public agencies & major Korean firms",
     "몇 시간 이내": "Within hours",
     "접수 순서대로 순차 발송": "Sent in the order received",

@@ -29,7 +29,7 @@
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/valid.js?v=1"></script>
 <script src="/js/monnit-lead.js?v=4"></script>
-<script src="/js/proposal-addon.js?v=1" defer></script>
+<script src="/js/proposal-addon.js?v=2" defer></script>
 
 
 
@@ -82,7 +82,7 @@
   /* 글자 */
   --ink:#16181d;
   --ink-2:#53565d;
-  --ink-3:#86868b;
+  --ink-3:#6E6E73;   /* 2026-09-17 #86868b → 작은 글자 대비 4.5:1 이상 */
   --on-dark:#f5f6f8;
   --on-dark-2:#a1a5ad;
 
@@ -601,7 +601,9 @@ footer{background:var(--bg-dark);color:var(--on-dark-2);padding:clamp(56px,7vw,8
 footer b{color:#fff;font-weight:600}
 footer a{color:#6db3e8}
 .rule{height:1px;background:var(--line-dark);margin:38px 0 26px}
-.fine{font-size:13px;line-height:1.8;color:#6f747d;margin:0}
+.fine{font-size:13px;line-height:1.8;color:#8F95A0;margin:0}
+.fine a{text-decoration:underline;text-underline-offset:2px}
+.zoomable .shot:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 
 /* ── 스크롤 진입 모션 ────────────────────────────────────── */
 .rv{opacity:0;transform:translateY(18px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
@@ -1550,9 +1552,12 @@ footer a{color:#6db3e8}
     });
     // 키보드로도 열립니다 — 카드가 tabindex 를 갖도록 아래에서 지정합니다
     Array.prototype.forEach.call(document.querySelectorAll(".zoomable"), function (fig) {
-      fig.tabIndex = 0;
-      fig.setAttribute("role", "button");
-      fig.addEventListener("keydown", function (e) {
+      /* figure 에는 role=button 을 줄 수 없어(접근성 규칙) 안쪽 사진 칸에 준다 — 2026-09-17 */
+      var t = fig.querySelector(".shot") || fig, im = fig.querySelector("img");
+      t.tabIndex = 0;
+      if (t !== fig) t.setAttribute("role", "button");
+      t.setAttribute("aria-label", ((im && im.alt) || "제안서 페이지") + " — 크게 보기");
+      t.addEventListener("keydown", function (e) {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLb(fig); }
       });
     });

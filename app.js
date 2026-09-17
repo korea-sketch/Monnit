@@ -1144,7 +1144,7 @@ function applySiteContentNow(){
     const row = SITE_CONTENT[key];
     if(!row){ dlog('[ASC-skip]', key); skipped++; return; }
     if(kind==='img'){
-      if(row.image && row.image.trim()){ const u=normalizeImageUrl(row.image.trim()); if(el.getAttribute('src')!==u){ el.setAttribute('src',u); applied++; } }
+      if(row.image && row.image.trim()){ const u=normalizeImageUrl(row.image.trim()); if(el.getAttribute('src')!==u){ el.removeAttribute('srcset'); el.removeAttribute('data-srcset'); el.setAttribute('src',u); applied++; } }
     } else {
       const val = (lang==='en' && row.en && row.en.trim()) ? row.en : row.ko;
       if(val!=null && String(val).trim()!==''){ 
@@ -3204,7 +3204,7 @@ function wpPropMount(){
       doc: wpPickedTitle, fac: function(){ return wpHint(WP_FAC); }, con: function(){ return wpHint(WP_CON); } });
   };
   if (window.MKPropAddon) return go();
-  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=1'; s.async = true; s.onload = go;
+  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=2'; s.async = true; s.onload = go;
   s.onerror = function(){ slot.dataset.on = ''; };
   document.head.appendChild(s);
 }
@@ -3481,7 +3481,7 @@ async function contactSubmit() {
   if (inquiry === '기타' && !inquiryOther.trim()) { alert('문의 항목을 직접 입력해 주세요.'); return; }
   const btn = document.querySelector('#view-contact .form-btn');
   /* 「맞춤 제안서도 받기」 — 제안서 서버가 접수·담당자 알림을 맡고, 사이트 원장에는 알림 없이 한 줄만 남깁니다(메일 2통 방지) */
-  if (ctPropMode() === 'proposal') {
+  if (typeof ctPropMode === 'function' && ctPropMode() === 'proposal') {
     const cs = document.getElementById('ctPropConsent');
     if (!cs || !cs.checked) { alert('맞춤 제안서를 받으시려면 개인정보 이용에 동의해 주세요.'); if (cs) cs.focus(); return; }
     const done = await contactProposal({

@@ -56,7 +56,7 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=123">
+<link rel="stylesheet" href="/style.css?v=124">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -104,7 +104,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 
 <nav class="topnav">
   <div class="topnav-inner">
-    <a class="brand" data-nav="home"><img fetchpriority="high" decoding="async" class="brand-logo" src="/images/img-01.png?v=2" alt="Monnit" onerror="if(!this.dataset.r){this.dataset.r=1;this.src='/images/img-01.png?r='+Date.now()}"></a>
+    <a class="brand" href="/" data-nav="home" aria-label="Monnit Korea 홈"><img fetchpriority="high" decoding="async" class="brand-logo" src="/images/img-01.png?v=2" srcset="/images/img-01-600.webp 600w, /images/img-01.png?v=2 910w" sizes="200px" alt="Monnit" onerror="if(!this.dataset.r){this.dataset.r=1;this.src='/images/img-01.png?r='+Date.now()}"></a>
     <ul class="nav-links" id="navLinks">
       <li class="nav-item">
         <button class="nav-link has-caret">About us</button>
@@ -332,28 +332,28 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       </div>
       <div class="nh-grid nh-values">
         <article class="nh-value">
-          <div class="nh-value-media"><img src="/images/val-01-safety-v2.webp" alt="거울처럼 반사되는 도시 전경" loading="lazy"></div>
+          <div class="nh-value-media"><img src="/images/val-01-safety-v2.webp" srcset="/images/val-01-safety-v2-380.webp 380w, /images/val-01-safety-v2.webp 760w" sizes="(max-width: 760px) 50vw, 25vw" alt="거울처럼 반사되는 도시 전경" loading="lazy"></div>
           <div class="nh-value-body">
             <h3 data-sc="home2.val1.t" data-sc-label="핵심가치1 · 제목">사고 예방</h3>
             <p data-sc="home2.val1.d" data-sc-label="핵심가치1 · 설명">위험을 예측하고 선제적으로 대응하여<br>더 안전한 환경을 만듭니다.</p>
           </div>
         </article>
         <article class="nh-value">
-          <div class="nh-value-media"><img src="/images/val-02-detect-v2.webp" alt="빛이 들어오는 공간을 바라보는 사람" loading="lazy"></div>
+          <div class="nh-value-media"><img src="/images/val-02-detect-v2.webp" srcset="/images/val-02-detect-v2-380.webp 380w, /images/val-02-detect-v2.webp 760w" sizes="(max-width: 760px) 50vw, 25vw" alt="빛이 들어오는 공간을 바라보는 사람" loading="lazy"></div>
           <div class="nh-value-body">
             <h3 data-sc="home2.val2.t" data-sc-label="핵심가치2 · 제목">설비 이상 조기 감지</h3>
             <p data-sc="home2.val2.d" data-sc-label="핵심가치2 · 설명">미세한 변화를 놓치지 않고 감지하여<br>설비의 안정성을 높입니다.</p>
           </div>
         </article>
         <article class="nh-value">
-          <div class="nh-value-media"><img src="/images/val-03-energy-v2.webp" alt="야간 플랜트 전경" loading="lazy"></div>
+          <div class="nh-value-media"><img src="/images/val-03-energy-v2.webp" srcset="/images/val-03-energy-v2-380.webp 380w, /images/val-03-energy-v2.webp 760w" sizes="(max-width: 760px) 50vw, 25vw" alt="야간 플랜트 전경" loading="lazy"></div>
           <div class="nh-value-body">
             <h3 data-sc="home2.val3.t" data-sc-label="핵심가치3 · 제목">에너지·운영 비용 절감</h3>
             <p data-sc="home2.val3.d" data-sc-label="핵심가치3 · 설명">에너지 사용을 최적화하여<br>효율적인 운영과 비용 절감을 실현합니다.</p>
           </div>
         </article>
         <article class="nh-value">
-          <div class="nh-value-media"><img src="/images/val-04-ai-v2.webp" alt="데이터 흐름을 나타내는 파형" loading="lazy"></div>
+          <div class="nh-value-media"><img src="/images/val-04-ai-v2.webp" srcset="/images/val-04-ai-v2-380.webp 380w, /images/val-04-ai-v2.webp 760w" sizes="(max-width: 760px) 50vw, 25vw" alt="데이터 흐름을 나타내는 파형" loading="lazy"></div>
           <div class="nh-value-body">
             <h3 data-sc="home2.val4.t" data-sc-label="핵심가치4 · 제목">AI 기반 자동제어</h3>
             <p data-sc="home2.val4.d" data-sc-label="핵심가치4 · 설명">AI가 스스로 분석하고 제어하여<br>최적의 상태를 지속적으로 유지합니다.</p>
@@ -365,7 +365,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 
   
   <section class="nh-section nh-metrics-section">
-    <div class="nh-metrics-bg" aria-hidden="true"><img loading="lazy" decoding="async" src="/images/img-42.jpg" alt=""><span></span></div>
+    <div class="nh-metrics-bg" aria-hidden="true"><img loading="lazy" decoding="async" src="/images/img-42.webp" alt=""><span></span></div>
     <div class="wrap">
       <div class="nh-metrics">
         <div class="nh-metric">
@@ -391,11 +391,11 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
   
   <section class="nh-section nh-why-section">
     <div class="nh-why-bg" aria-hidden="true" data-roll-interval="5600">
-      <figure class="nh-roll-slide is-active"><img src="/images/why-roll-01-motor.webp" alt="" loading="lazy" data-sc="home2.why.img2" data-sc-label="Why Monnit · 배경 사진 1 (모터·설비 대시보드)"></figure>
-      <figure class="nh-roll-slide"><img data-src="/images/why-roll-02-ups.webp" alt="" loading="lazy" data-sc="home2.why.img3" data-sc-label="Why Monnit · 배경 사진 2 (데이터센터 UPS)"></figure>
-      <figure class="nh-roll-slide"><img data-src="/images/why-roll-03-crane.webp" alt="" loading="lazy" data-sc="home2.why.img4" data-sc-label="Why Monnit · 배경 사진 3 (건설 현장 가스감지)"></figure>
-      <figure class="nh-roll-slide"><img data-src="/images/why-roll-04-barn.webp" alt="" loading="lazy" data-sc="home2.why.img5" data-sc-label="Why Monnit · 배경 사진 4 (축사 환경관제)"></figure>
-      <figure class="nh-roll-slide"><img data-src="/images/why-roll-05-fridge.webp" alt="" loading="lazy" data-sc="home2.why.img6" data-sc-label="Why Monnit · 배경 사진 5 (냉장 도어센서)"></figure>
+      <figure class="nh-roll-slide is-active"><img src="/images/why-roll-01-motor.webp" srcset="/images/why-roll-01-motor-720.webp 720w, /images/why-roll-01-motor.webp 1440w" sizes="100vw" alt="" loading="lazy" data-sc="home2.why.img2" data-sc-label="Why Monnit · 배경 사진 1 (모터·설비 대시보드)"></figure>
+      <figure class="nh-roll-slide"><img data-src="/images/why-roll-02-ups.webp" data-srcset="/images/why-roll-02-ups-720.webp 720w, /images/why-roll-02-ups.webp 1440w" sizes="100vw" alt="" loading="lazy" data-sc="home2.why.img3" data-sc-label="Why Monnit · 배경 사진 2 (데이터센터 UPS)"></figure>
+      <figure class="nh-roll-slide"><img data-src="/images/why-roll-03-crane.webp" data-srcset="/images/why-roll-03-crane-720.webp 720w, /images/why-roll-03-crane.webp 1440w" sizes="100vw" alt="" loading="lazy" data-sc="home2.why.img4" data-sc-label="Why Monnit · 배경 사진 3 (건설 현장 가스감지)"></figure>
+      <figure class="nh-roll-slide"><img data-src="/images/why-roll-04-barn.webp" data-srcset="/images/why-roll-04-barn-720.webp 720w, /images/why-roll-04-barn.webp 1440w" sizes="100vw" alt="" loading="lazy" data-sc="home2.why.img5" data-sc-label="Why Monnit · 배경 사진 4 (축사 환경관제)"></figure>
+      <figure class="nh-roll-slide"><img data-src="/images/why-roll-05-fridge.webp" data-srcset="/images/why-roll-05-fridge-720.webp 720w, /images/why-roll-05-fridge.webp 1440w" sizes="100vw" alt="" loading="lazy" data-sc="home2.why.img6" data-sc-label="Why Monnit · 배경 사진 5 (냉장 도어센서)"></figure>
     </div>
     <div class="wrap nh-why-inner">
       <div class="nh-why-copy">
@@ -1927,7 +1927,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
               </div>
               <div class="mkp-fld" data-f="region"><label for="ppRegion">지역</label><input id="ppRegion" maxlength="30" placeholder="예: 경기 평택"></div>
               <div class="mkp-fld" data-f="memo"><label for="ppMemo">현장 상황을 조금 더 알려 주세요 (선택)</label><textarea id="ppMemo" maxlength="600" rows="3" placeholder="예: 작년에 항온항습기 하부 누수가 두 번 있었고, 야간에는 상주 인력이 1명입니다."></textarea></div>
-              <label class="mkp-agree"><input type="checkbox" id="ppConsent"><span><b>[필수]</b> 개인정보 수집·이용 동의 — 회사명·성함·이메일·연락처를 맞춤 제안서 발송과 상담에 쓰고, 1년 뒤 파기합니다. <a href="/privacy.html" target="_blank" rel="noopener">자세히</a></span></label>
+              <label class="mkp-agree"><input type="checkbox" id="ppConsent"><span><b>[필수]</b> 개인정보 수집·이용 동의 — 회사명·성함·이메일·연락처를 맞춤 제안서 발송과 상담에 쓰고, 1년 뒤 파기합니다. <a href="/privacy.html" target="_blank" rel="noopener">개인정보처리방침 보기</a></span></label>
               <p class="mkp-ferr" id="ppErrConsent"></p>
               <label class="mkp-agree"><input type="checkbox" id="ppConsentMkt"><span>[선택] 신규 사례·세미나 소식 받기</span></label>
               <p class="form-note">영업 전화로 괴롭히지 않습니다. 제안서는 접수 순서대로 보내드리고, 담당 엔지니어가 내용이 현장에 맞는지만 확인드립니다.</p>
@@ -2049,7 +2049,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
                 <button type="button" data-c="fire" aria-pressed="false">화재·과열</button><button type="button" data-c="leak" aria-pressed="false">누수·침수·동파</button><button type="button" data-c="temp" aria-pressed="false">온도·습도</button><button type="button" data-c="cold" aria-pressed="false">냉장·콜드체인</button><button type="button" data-c="equip" aria-pressed="false">설비 고장·진동</button><button type="button" data-c="power" aria-pressed="false">전력·에너지</button><button type="button" data-c="air" aria-pressed="false">공기질·가스</button><button type="button" data-c="security" aria-pressed="false">보안·출입</button><button type="button" data-c="control" aria-pressed="false">통합관제</button><button type="button" data-c="comply" aria-pressed="false">규정·온도기록</button>
               </div>
               <input type="text" id="ctFacility" maxlength="60" placeholder="시설 이름·유형 (선택) — 예: 평택 2공장, 가산 IDC 3층">
-              <label class="ct-prop-agree"><input type="checkbox" id="ctPropConsent"><span><b>[필수]</b> 맞춤 제안서 발송을 위해 회사명·성함·이메일·연락처를 이용하고 1년 뒤 파기하는 데 동의합니다. <a href="/privacy.html" target="_blank" rel="noopener">자세히</a></span></label>
+              <label class="ct-prop-agree"><input type="checkbox" id="ctPropConsent"><span><b>[필수]</b> 맞춤 제안서 발송을 위해 회사명·성함·이메일·연락처를 이용하고 1년 뒤 파기하는 데 동의합니다. <a href="/privacy.html" target="_blank" rel="noopener">개인정보처리방침 보기</a></span></label>
             </div>
           </div>
           <button class="form-btn" id="ctSubmit" onclick="contactSubmit()">상담 신청 보내기</button>
@@ -2140,11 +2140,11 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 <footer class="site-footer">
   <div class="wrap">
     <div class="brand-col">
-      <div class="fb-logo"><img loading="lazy" decoding="async" class="fb-logo-img" src="/images/img-01.png?v=2" alt="Monnit"><span style="color:var(--accent);font-size:14px;font-family:var(--fm);">KOREA</span></div>
+      <div class="fb-logo"><img loading="lazy" decoding="async" class="fb-logo-img" src="/images/img-01.png?v=2" srcset="/images/img-01-600.webp 600w, /images/img-01.png?v=2 910w" sizes="200px" alt="Monnit"><span style="color:var(--accent);font-size:14px;font-family:var(--fm);">KOREA</span></div>
       <p>Expert Consulting. Integrated Solutions.<br>현장을 이해하는 전문가 그룹의 맞춤형 무선 IoT 통합 솔루션 파트너.</p>
     </div>
     <div>
-      <h5>About us</h5>
+      <h2 class="f-h">About us</h2>
       <ul>
         <li><a href="/who-we-are" data-nav="who-we-are">Who we are</a></li>
         <li><a href="/our-solution" data-nav="our-solution">Our solution</a></li>
@@ -2153,7 +2153,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       </ul>
     </div>
     <div>
-      <h5>Solutions</h5>
+      <h2 class="f-h">Solutions</h2>
       <ul>
         <li><a href="/stories" data-nav="stories">Use case</a></li>
         <li><a href="/applications" data-nav="applications">Applications</a></li>
@@ -2161,7 +2161,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       </ul>
     </div>
     <div>
-      <h5>Resources</h5>
+      <h2 class="f-h">Resources</h2>
       <ul>
         <li><a href="/blog" data-nav="blog">Blog</a></li>
         <li><a href="/newsletter" data-nav="newsletter">Newsletter</a></li>
@@ -2170,7 +2170,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       </ul>
     </div>
     <div>
-      <h5>Support</h5>
+      <h2 class="f-h">Support</h2>
       <ul>
         <li><a href="/contact" data-nav="contact">Contact Us</a></li>
         <li><a href="/faqs" data-nav="faqs">FAQs</a></li>
@@ -2189,14 +2189,14 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=128"></script>
-  <script src="/js/why-rolling.js?v=2" defer></script>
+  <script src="/app.js?v=129"></script>
+  <script src="/js/why-rolling.js?v=3" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
-  <script src="/js/galaxy-hero.js?v=1" defer></script>
+  <script src="/js/galaxy-hero.js?v=2" defer></script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
-    function load(){var s=document.createElement('script');s.src='/i18n.js?v=114';s.defer=true;document.head.appendChild(s);}
+    function load(){var s=document.createElement('script');s.src='/i18n.js?v=115';s.defer=true;document.head.appendChild(s);}
     if(lang==='en'){load();}else{(window.requestIdleCallback||function(f){setTimeout(f,1500);})(load);}
   })();
   </script>
