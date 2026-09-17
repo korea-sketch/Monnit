@@ -380,6 +380,10 @@ function ssgWrite(slug, parts){
   set(/<meta property="og:url" content="[^"]*">/, '<meta property="og:url" content="' + url + '">');
   set(/<meta name="twitter:title" content="[^"]*">/, '<meta name="twitter:title" content="' + esc(title) + '">');
   set(/<meta name="twitter:description" content="[^"]*">/, '<meta name="twitter:description" content="' + esc(desc) + '">');
+  if (parts.image){
+    set(/<meta property="og:image" content="[^"]*">/, '<meta property="og:image" content="' + parts.image + '">');
+    set(/<meta name="twitter:image" content="[^"]*">/, '<meta name="twitter:image" content="' + parts.image + '">');
+  }
   if (parts.jsonld){
     h = h.replace('</head>', '<script type="application/ld+json">' + JSON.stringify(parts.jsonld) + '</script>\n</head>');
   }
@@ -420,8 +424,8 @@ function ssgWrite(slug, parts){
 }
 let ssgCount = 0;
 
-function page({ slug, title, desc, h1, bodyHtml, jsonld }) {
-  _lastParts = { slug, title, desc, h1, bodyHtml, jsonld };
+function page({ slug, title, desc, h1, bodyHtml, jsonld, image }) {
+  _lastParts = { slug, title, desc, h1, bodyHtml, jsonld, image };
   const url = SITE + slugToPath(slug);   // canonical 은 항상 새 경로
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -443,6 +447,7 @@ function page({ slug, title, desc, h1, bodyHtml, jsonld }) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${url}">
+${image ? `<meta property="og:image" content="${image}">` : ''}
 <meta property="og:site_name" content="Monnit Korea">
 <meta name="robots" content="index,follow">
 ${jsonld ? '<script type="application/ld+json">' + JSON.stringify(jsonld) + '</script>' : ''}
@@ -1133,6 +1138,48 @@ ${WP_LIST.map(([t, d]) => `<h3>${esc(t)}</h3><p>${esc(d)}</p>`).join('\n')}
 <p><a href="${SITE}/applications">활용 분야 보기</a> · <a href="${SITE}/contact">제안서 신청·문의</a></p>`
 }), '산업별 제안서');
 
+/* --- 4-9-4b) 맞춤 제안서 (2026-09-17) — SPA 화면 view-proposal 의 크롤러용 본문 ---
+   산업별 플레이북(data/proposal/playbooks/*.json)의 고질적 문제·세부 업종을 그대로 싣습니다.
+   진행 현황(/proposal/status)은 개인 화면이라 만들지 않습니다(_redirects SPA 폴백 · robots 차단). */
+{
+  const PB_DIR = path.join(__dirname, 'data', 'proposal', 'playbooks');
+  const IND_LABEL = { manufacturing: '제조·생산 공장', bio_pharma: '제약·바이오·연구소', datacenter: '데이터센터·전산실', building_fm: '빌딩·복합시설 FM', energy: '에너지·발전·수처리', cold_chain: '유통·콜드체인·물류', public: '공공·국방·인프라', edu_med: '병원·학교·복지시설', food_agri: '식품·외식·농수산', construction: '건설·현장', general: '그 외 시설', residential: '주거·호텔·숙박' };
+  let pbs = [];
+  try { pbs = fs.readdirSync(PB_DIR).filter(f => f.endsWith('.json')).map(f => JSON.parse(fs.readFileSync(path.join(PB_DIR, f), 'utf8'))); }
+  catch (e) { console.warn('[build] 플레이북을 읽지 못했습니다 — 맞춤 제안서 본문을 간단히 만듭니다:', e.message); }
+  const FAQ = [
+    ['맞춤 제안서는 비용이 드나요?', '무료입니다. 받아보신 뒤 도입 여부에 대한 제약도 없습니다.'],
+    ['언제 받을 수 있나요?', '접수 순서대로 순차 발송하며, 보통 몇 시간 이내에 이메일로 도착합니다. 입력 내용만으로 판단이 어려운 경우에는 담당 엔지니어가 확인한 뒤 영업일 기준 1일 안에 보내드립니다. 바로 상담이 필요하시면 견적 요청이나 전화(02-2088-1454)로 연락 주세요.'],
+    ['여러 과제를 한꺼번에 볼 수 있나요?', '무료 맞춤 제안서는 가장 고민되는 과제 하나를 깊게 다룹니다. 다른 과제와 현장 전체의 구역별 수량·설치 위치·견적은 견적 요청을 남겨 주시면 담당 엔지니어가 함께 정리합니다.'],
+    ['제안서에는 무엇이 들어가나요?', '귀사 현장 이해, 산업의 고질적인 문제, 담당자별 어려움, 선택 과제와 연결된 공정·구역, 비슷한 Monnit 레퍼런스 3곳, 권장 구성과 스마트 관리 로드맵, 현장 진단 체크리스트가 담긴 PDF입니다.']
+  ];
+  writePage('proposal', page({
+    slug: 'proposal',
+    title: '우리 현장 맞춤 제안서 받기 — Monnit Korea',
+    desc: '130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스와 공공기관·대기업을 포함한 국내 도입 현장 데이터를 대조해, 우리 현장 맞춤 제안서(PDF)를 무료로 보내드립니다.',
+    h1: '우리 현장만을 위한 맞춤 제안서',
+    image: SITE + '/assets/brand/proposal-og.jpg',
+    jsonld: { '@context': 'https://schema.org', '@graph': [
+      { '@type': 'Service', name: '모넷 맞춤 제안서', serviceType: '무선 IoT 모니터링 맞춤 제안', provider: ORG_LD, areaServed: { '@type': 'Country', name: '대한민국' },
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW', url: SITE + '/proposal' },
+        description: '가장 고민되는 과제를 알려주시면 Monnit 글로벌 레퍼런스와 산업별 플레이북을 대조해 맞춤 제안서를 이메일로 보내드립니다.' },
+      { '@type': 'FAQPage', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }
+    ] },
+    bodyHtml: `
+<p>누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스와 공공기관·대기업을 포함한 국내 도입 현장 데이터, 12개 산업 현장 플레이북을 대조해 PDF로 정리하고 접수 순서대로 이메일로 보내드립니다. 홈 화면의 솔루션 파인더에서 시설과 고민을 고른 뒤 담당자 정보만 입력해도 됩니다.</p>
+<h2>제안서 구성</h2>
+<ul><li>제안 요약 · 귀사 현장 이해</li><li>산업의 고질적인 문제</li><li>담당자별 어려움과 센서로 대처할 수 있는 부분</li><li>선택 과제와 연결된 공정·구역 모니터링 맵</li><li>선택 과제 진단과 가장 닮은 Monnit 레퍼런스 3곳</li><li>권장 구성(940MHz 무선 게이트웨이 · iMonnit)과 스마트 관리 로드맵</li><li>현장 진단 체크리스트 · 규정·기준 대응 포인트</li></ul>
+<p>다른 과제와 현장 전체의 구성·수량·견적은 <a href="${SITE}/contact">견적 요청</a>으로 받아 보실 수 있습니다.</p>
+<h2>산업별 플레이북</h2>
+${pbs.map(p => `<h3>${esc(IND_LABEL[p.key] || p.key)}</h3><p>${esc(p.context || '')}</p>`
+  + `<ul>${(p.chronic || []).map(c => `<li><strong>${esc(c.title)}</strong> — ${esc(c.detail)}</li>`).join('')}</ul>`
+  + (Object.keys(p.segments || {}).length ? `<p class="muted">세부 업종: ${Object.values(p.segments).map(g => esc(g.label)).join(' · ')}</p>` : '')).join('\n')}
+<h2>자주 묻는 질문</h2>
+${FAQ.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('\n')}
+<p><a href="${SITE}/whitepaper">산업별 제안서(공통)</a> · <a href="${SITE}/stories">도입 사례</a> · <a href="${SITE}/contact">상담 신청</a></p>`
+  }), '맞춤 제안서');
+}
+
 /* --- 4-9-5) 뉴스레터 --- */
 writePage('newsletter', page({
   slug: 'newsletter',
@@ -1199,7 +1246,7 @@ try {
 
    ※ /pages/ 는 일부러 차단하지 않습니다. /pages/*.html 는 새 경로로 301 하는
      통로라, 차단하면 크롤러가 301 을 따라가지 못해 색인 이전이 끊깁니다. */
-const DISALLOW = ['/editor', '/editor.html', '/church', '/church/', '/ops', '/ops/', '/api/'];
+const DISALLOW = ['/editor', '/editor.html', '/church', '/church/', '/ops', '/ops/', '/api/', '/proposal/status', '/proposal-status.html'];
 const AI_BOTS = [
   /* OpenAI */          'GPTBot', 'OAI-SearchBot', 'ChatGPT-User',
   /* Anthropic */       'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'anthropic-ai',
@@ -1298,7 +1345,13 @@ const LEGACY_RULES = (function(){
 /case/*               /index.html          200
 /kb/*                 /index.html          200
 /guide/*              /index.html          200
-/promotions/*         /promo.html?id=:splat  200`;
+/promotions/*         /promo.html?id=:splat  200
+
+# --- 맞춤 제안서 (SPA 화면) — 진행 현황은 개인 화면이라 정적 파일 없이 홈 껍데기가 받습니다
+/proposal/status      /index.html          200
+/proposal/status/     /index.html          200
+/proposal.html        /proposal            301!
+/proposal-status.html /proposal/status     301!`;
 
   return '\n# --- 예전 /pages 주소 → 새 경로 (' + generated.filter(g=>g.slug).length + '개)\n'
        + pageRules + '\n' + oldRules + '\n' + editorRules + '\n' + fallback + '\n';

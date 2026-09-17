@@ -1,6 +1,9 @@
 # 제안서 PDF 직접 접근 차단 — 반드시 이메일 신청 후 getdoc 함수를 통해서만 받는다
 /proposals/*    /404.html    404!
 
+# 맞춤 제안서 PDF 글꼴 — 함수 전용 (2026-09-17)
+/assets/fonts/*    /404.html    404!
+
 # 이미지 PNG → WebP 전환 (2026-08-29)
 # 구글 시트(에디터)·외부 링크가 예전 .png 주소를 갖고 있어도 그대로 열립니다. PNG → WebP
 /images/alarm/anywhere.png                          /images/alarm/anywhere.webp    200
@@ -300,4 +303,10 @@
 /kb/*                 /index.html          200
 /guide/*              /index.html          200
 /promotions/*         /promo.html?id=:splat  200
+
+# --- 맞춤 제안서 (SPA 화면) — 진행 현황은 개인 화면이라 정적 파일 없이 홈 껍데기가 받습니다
+/proposal/status      /index.html          200
+/proposal/status/     /index.html          200
+/proposal.html        /proposal            301!
+/proposal-status.html /proposal/status     301!
 # <<< AUTO-LEGACY-REDIRECTS <<<

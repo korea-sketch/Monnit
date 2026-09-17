@@ -844,3 +844,35 @@ dialog#retDlg::backdrop{
   .day:active:not(:disabled),
   .slot:active{transform:scale(.97)}
 }
+
+/* ── 프로모션 신청에서 넘어온 경우 (2026-09-17) ──
+   /promo/consulting 에서 신청한 뒤 들어오면 위쪽에 이어지는 단계를 보여 주고,
+   이미 받은 회사·담당자·연락처는 한 줄 요약으로 접습니다. */
+.handoff{
+  display:grid;gap:12px;margin-bottom:20px;padding:16px 18px;
+  border-radius:var(--radius);border:1px solid var(--accent-line);border-left:3px solid var(--accent);
+  background:var(--accent-soft);box-shadow:var(--e2);
+  -webkit-backdrop-filter:var(--blur-soft);backdrop-filter:var(--blur-soft);
+  animation:hoIn .35s ease both;
+}
+.handoff[hidden]{display:none}
+.handoff .ho-t{font-size:15px;font-weight:700;color:var(--ink);line-height:1.45}
+.handoff .ho-s{font-size:13px;color:var(--ink-2);line-height:1.6}
+.ho-steps{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.ho-steps li{display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap;padding:5px 10px;border-radius:999px;
+  font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-3);
+  border:1px solid var(--hair-strong);background:var(--glass-quiet)}
+.ho-steps li.done{color:var(--accent);border-color:var(--accent-line)}
+.ho-steps li.done::before{content:"✓"}
+.ho-steps li.now{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+@keyframes hoIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+.knownbox{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  grid-column:1/-1;padding:12px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--hair-strong);background:var(--glass-sunken);box-shadow:var(--inner-sunken)}
+.knownbox[hidden]{display:none}
+.knownbox .kb-l{font-size:13px;color:var(--ink-2);line-height:1.55;min-width:0}
+.knownbox .kb-l b{display:block;font-size:14px;color:var(--ink)}
+.knownbox .kb-l span{overflow-wrap:anywhere}
+.form.is-known .known-f{display:none}
+@media (prefers-reduced-motion:reduce){.handoff{animation:none}}

@@ -24,6 +24,7 @@
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/js/monnit-lead.js?v=4"></script>
+<script src="/js/proposal-addon.js?v=1" defer></script>
 
 
 <link rel="preload" as="image" type="image/avif" href="/images/proposal-guide/cover-800.avif"
@@ -1079,6 +1080,8 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
           </label>
         </div>
 
+        <div data-only="download" id="wpPropSlot"></div>
+
         <label class="agree" id="fmAgree">
           <input type="checkbox" name="동의">
           <span>
@@ -1102,6 +1105,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
       <div class="fm-ok">
         <div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
         <h4 id="fmOkTitle">다운로드가 시작되었습니다</h4>
+        <div id="wpPropRes" aria-live="polite"></div>
         <p id="fmOkTx">
           자료를 보시다가 <b>“우리 설비면 몇 포인트인가”</b>가 궁금해지면 바로 물어보셔도 됩니다.
         </p>
@@ -1333,6 +1337,7 @@ function requestPdf(e){
     track('download', {content_name:'예지보전 제안 가이드', repeat:'Y'});
     showThanks('다시 보내드렸습니다',
       known.이름 ? (known.이름 + '님, 이미 정보를 남겨주셔서 바로 드렸습니다.') : null);
+    if (PA) { var rb = document.getElementById('wpPropRes'); if (rb) rb.innerHTML = ''; PA.cta(rb); }
     return;
   }
   openFm('download');
@@ -1676,9 +1681,20 @@ function notifyStaff(payload){
   });
 }
 
+/* 「우리 현장 맞춤 제안서도 받기」 — 자료 받기(download) 모드에서만 보인다 */
+var PA = null;
+function mountPA(){
+  if (PA || !window.MKPropAddon) return;
+  PA = window.MKPropAddon.mount(document.getElementById('wpPropSlot'), {
+    theme: 'light', page: CONFIG.PAGE, doc: CONFIG.DOC_TITLE, fac: 'factory', con: 'equip'
+  });
+}
+if (document.readyState === 'complete') mountPA(); else window.addEventListener('load', mountPA);
+
 fmForm.addEventListener('submit', function(e){
   e.preventDefault();
   if (!validate()) return;
+  if (fm.getAttribute('data-mode') === 'download' && PA && !PA.check()) return;
 
   var mode = fm.getAttribute('data-mode'),
       isDoc = (mode === 'download'),
@@ -1720,9 +1736,17 @@ fmForm.addEventListener('submit', function(e){
     value       : d.리드점수
   });
 
-  Promise.all([deliver, notify]).then(function(){
+  /* ④ 맞춤 제안서 — 고른 경우에만, 자료 전달과 따로 */
+  var resBox = document.getElementById('wpPropRes');
+  if (resBox) resBox.innerHTML = '';
+  var prop = (isDoc && PA && PA.wanted())
+    ? PA.send({company: d.회사명, name: d.이름, email: d.이메일, phone: d.연락처 || '', memo: d.설비규모 ? '설비 규모: ' + d.설비규모 : ''})
+    : Promise.resolve(null);
+
+  Promise.all([deliver, notify, prop]).then(function(r){
     fmSubmit.disabled = false;
     fmSubTx.textContent = FM_TEXT[mode].btn;
+    if (r[2]) { PA.result(r[2], resBox); if (r[2].ok) PA.reset(); }
     fm.classList.add('done');
     fm.querySelector('.fm-body').scrollTop = 0;
     if (isDoc) showThanks('자료를 보내드렸습니다', null);

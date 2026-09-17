@@ -56,6 +56,14 @@
     '인사이트 & 기술 블로그': 'Insights & <em>Tech Blog</em>',
     'Inside the IoT 뉴스레터': 'Inside the <span class="nw"><em>IoT</em> Newsletter</span>',
     '산업별 제안서': 'Industry <em>Proposals</em>',
+    /* ── 맞춤 제안서 v5 (2026-09-17) — 여러 조각으로 나뉜 문단은 통째로 ([data-i18n-html]) ── */
+    "무료 맞춤 제안서는 과제 하나를 깊게 다룹니다. 여러 과제나 현장 전체 구성·수량·견적이 필요하시면 견적 요청으로 받아 보세요.": "The free proposal goes deep on <b>one concern</b>. For several challenges or a full-site configuration, quantities and pricing, <a href=\"/contact?quote=scope\" data-nav-quote=\"1\">request a quote</a>.",
+    "접수 순서대로 순차 발송하며, 보통 몇 시간 이내에 메일로 도착합니다. 진행 상황은 신청 뒤 열리는 화면에서 단계별로 보실 수 있습니다. 입력 내용만으로 판단이 어려운 경우에는 담당 엔지니어가 확인한 뒤 영업일 기준 1일 안에 보내드립니다. 바로 상담이 필요하시면 견적 요청이나 전화(02-2088-1454)로 연락 주세요.": "Proposals are sent in the order received and usually arrive within a few hours. You can follow each step on the page that opens after you submit. If we need an engineer to check your details, we send it within 1 business day. Need to talk now? <a href=\"/contact?quote=scope\" data-nav-quote=\"1\">Request a quote</a> or call +82-2-2088-1454.",
+    "무료 맞춤 제안서는 가장 고민되는 문제 하나를 기준으로 깊게 만들어 드립니다(회사·이메일당 30일에 한 번). 다른 문제나 현장 전체의 구역별 수량·설치 위치·견적은 견적 요청을 남겨 주시면 담당 엔지니어가 설비 목록이나 도면을 받아 함께 정리합니다.": "The free proposal focuses on your top concern (once every 30 days per company and email). For other challenges, or quantities, locations and pricing across your whole site, <a href=\"/contact?quote=scope\" data-nav-quote=\"1\">request a quote</a> and an engineer will work through your equipment list or floor plan with you.",
+    "회사명·문의 내용으로 업종을 파악해, Monnit 글로벌 레퍼런스와 산업별 플레이북으로 제안서를 만들어 접수 순서대로 보내드립니다. 가장 고민되는 주제 하나를 고르면 그 과제 기준으로 깊게 정리해 드립니다. 여러 과제·현장 전체 견적은 위 문의 내용에 적어 주시면 상담에서 함께 봅니다.": "We identify your industry from your company name and message, build a proposal from Monnit global references and industry playbooks, and send it in the order received. Pick <b>your top concern</b> and we’ll go deep on it. For several challenges or a full-site quote, describe them in the message above and we’ll cover them in the consultation.",
+    /* ── 맞춤 제안서 (2026-09-17) — 서비스·PDF 는 한국어로 제공 ── */
+    '우리 현장만을 위한 맞춤 제안서': 'A Proposal Built for <em>Your Site</em>',
+    '선택하신 조건으로바로 만듭니다': 'We\'ll Build It from<br><em>Your Selection</em>',
     '도입 문의 & 상담 신청': 'Inquiries & <em>Consultation</em>',
     '자주 묻는 질문': 'Frequently Asked <em>Questions</em>',
     '기술 문서 & 가이드': 'Technical Docs & <em>Guides</em>',
@@ -66,6 +74,106 @@
 
   /* 일반 라벨/문단 사전 (정규화 KO → EN). 사전에 없는 문구는 한국어로 남습니다(기술문서 등). */
   var DICT = {
+    /* ── 맞춤 제안서 v5 (2026-09-17) — 신청·진행·상담 폼·파인더·자료실 ── */
+    "개국 Monnit 글로벌 레퍼런스": "countries with Monnit references",
+    "글로벌 고객사": "customers worldwide",
+    "공공기관·국내 대기업 도입": "Public agencies & major Korean firms",
+    "몇 시간 이내": "Within hours",
+    "접수 순서대로 순차 발송": "Sent in the order received",
+    "회사와 담당자 정보만 입력해 주세요. 고르신 시설·고민을 Monnit 글로벌 레퍼런스와 산업 플레이북에 대조해 맞춤 제안서를 만들고, 접수 순서대로 보내드립니다.": "Just enter your company and contact details. We’ll match your facility and concern against Monnit global references and industry playbooks, and send your proposal in the order received.",
+    "누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 산업과 가장 고민되는 문제 하나를 알려주시면 130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스와 공공기관·대기업을 포함한 국내 도입 현장, 산업별 플레이북을 대조해 PDF로 정리하고 접수 순서대로 메일로 보내드립니다.": "Instead of the same catalog for everyone, we send a proposal built for your company and site. Tell us your industry and top concern — we match it against Monnit references used in 130+ countries, Korean deployments including public agencies and major enterprises, and our industry playbooks, then email you a PDF in the order received.",
+    "조건 선택": "Your selection",
+    "담당자 정보": "Your details",
+    "제안서 작성": "Proposal writing",
+    "순차 발송": "Sent in order",
+    "어떤 현장인가요?": "What kind of site is it?",
+    "하나만 골라 주세요": "Pick one",
+    "이 산업": "This industry",
+    "현장에서 가장 고민되는 문제": "— your top concern",
+    "가장 고민되는 문제를 하나 골라 주세요": "Please pick your top concern",
+    "도입하면 무엇이 달라지길 원하세요?": "What would you like to change?",
+    "최대 4개": "Up to 4",
+    "감시 규모": "Monitoring scale",
+    "선택 안 함": "Not selected",
+    "도입 검토 시점": "Timeline",
+    "제안서를 받으실 분": "Who should receive the proposal",
+    "회사명": "Company",
+    "시설 이름·유형": "Site name / type",
+    "성함": "Name",
+    "직함": "Job title",
+    "회사 이메일": "Work email",
+    "연락처": "Phone",
+    "지역": "Region",
+    "현장 상황을 조금 더 알려 주세요 (선택)": "Tell us more about your site (optional)",
+    "[필수]": "[Required]",
+    "개인정보 수집·이용 동의 — 회사명·성함·이메일·연락처를 맞춤 제안서 발송과 상담에 쓰고, 1년 뒤 파기합니다.": "I agree to the collection and use of my company name, name, email and phone to send the proposal and follow up; data is deleted after 1 year.",
+    "자세히": "Details",
+    "[선택] 신규 사례·세미나 소식 받기": "[Optional] Send me new case studies and seminar news",
+    "영업 전화로 괴롭히지 않습니다. 제안서는 접수 순서대로 보내드리고, 담당 엔지니어가 내용이 현장에 맞는지만 확인드립니다.": "No pushy sales calls. We send proposals in the order received, and an engineer only checks that it fits your site.",
+    "제안서에는 무엇이 들어가나요?": "What’s in the proposal?",
+    "제안 요약 · 귀사 현장 이해": "Summary · understanding your site",
+    "회사·세부 업종 기준으로 정리한 과제와 방향": "Challenges and direction for your company and segment",
+    "산업의 고질적인 문제": "Recurring industry problems",
+    "그 업종 현장에서 반복되는 문제와 놓쳤을 때 생기는 일": "What keeps going wrong in your industry, and what it costs when missed",
+    "담당자별 어려움": "Pain points by role",
+    "시설·품질·안전·운영 조직별로 센서가 도울 수 있는 부분": "Where sensors help facilities, quality, safety and operations teams",
+    "공정·구역별 모니터링 맵": "Zone monitoring map",
+    "구역마다 관리 포인트, 모넷 센서, 있으면 좋은 것": "Checkpoints, Monnit sensors and nice-to-haves by zone",
+    "선택 과제 진단 · 비슷한 모넷 사례 3곳": "Diagnosis of your concern · 3 closest Monnit references",
+    "일치도, 당시 과제, 적용한 해결, 성과": "Match score, challenges, solutions and results",
+    "공정·구역 맵과 로드맵은 고르신 과제와 연결된 구역·우선 단계를 자세히 담고, 나머지는 견적 요청 때 함께 정리합니다.": "The zone map and roadmap detail the zones and first steps linked to your concern; the rest is covered with a quote request.",
+    "권장 구성 · 스마트 관리 로드맵": "Recommended setup · smart operations roadmap",
+    "940MHz 무선 구성에서 알림 체계·시스템 연동·자동 제어·예측까지": "From a 940MHz wireless setup to alerting, system integration, automated control and prediction",
+    "현장 진단 체크리스트 · 다음 단계": "Site survey checklist · next steps",
+    "진단 때 확인할 질문, 규정·기준 대응 포인트": "Questions for the survey and compliance points",
+    "언제 받을 수 있나요?": "When will I receive it?",
+    "어떤 데이터와 대조하나요?": "What data is it matched against?",
+    "130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스, 공공기관·국내 대기업을 포함한 모넷코리아 도입 현장, 12개 산업·46개 세부 업종의 현장 플레이북을 대조해 가장 닮은 현장과 구성을 고릅니다. 사례 수치는 각 현장의 공개 결과이며 귀사 적용 시 효과를 약속하지 않습니다.": "We match Monnit references used in 130+ countries, Monnit Korea deployments including public agencies and major Korean companies, and field playbooks for 12 industries and 46 segments to find the closest sites and setup. Figures are published results from each site and are not a promise of outcomes for yours.",
+    "여러 문제를 한꺼번에 보고 싶어요": "I want to cover several problems at once",
+    "비용이 들거나, 받은 뒤 의무가 있나요?": "Is there a cost or any obligation?",
+    "무료이고 의무도 없습니다. 제안서는 입력하신 정보를 Monnit 글로벌 레퍼런스·국내 도입 현장 데이터와 대조해 만들며, 정확한 수량과 비용은 현장 확인 뒤에 정해집니다.": "It’s free with no obligation. The proposal is built by matching your details against Monnit’s global references and Korean deployments; exact quantities and costs are set after a site check.",
+    "산업을 고르면 가장 닮은 Monnit 레퍼런스를 찾아 드립니다": "Choose an industry to find the closest Monnit reference",
+    "산업부터 골라 주세요 →": "Choose your industry →",
+    "Custom Proposal / 진행 현황": "Custom Proposal / Status",
+    "기다리는 동안 현장 진단 예약 →": "Book a site survey while you wait →",
+    "담당자가 24시간 내 연락": "We’ll contact you within 24 hours",
+    "무료 · 몇 시간 이내 순차 발송": "Free · sent in order within hours",
+    "가장 고민되는 주제 하나": "your top concern",
+    "화재·과열": "Fire & overheating",
+    "누수·침수·동파": "Leaks, flooding & freezing",
+    "온도·습도": "Temperature & humidity",
+    "냉장·콜드체인": "Cold storage & cold chain",
+    "설비 고장·진동": "Equipment failure & vibration",
+    "전력·에너지": "Power & energy",
+    "공기질·가스": "Air quality & gas",
+    "보안·출입": "Security & access",
+    "통합관제": "Integrated monitoring",
+    "규정·온도기록": "Compliance & temperature logs",
+    "맞춤 제안서 발송을 위해 회사명·성함·이메일·연락처를 이용하고 1년 뒤 파기하는 데 동의합니다.": "I agree to the use of my company name, name, email and phone to send the proposal; data is deleted after 1 year.",
+    "회사·담당자 정보만 입력하면, 130여 개국 Monnit 글로벌 레퍼런스와 산업 플레이북으로 만든 맞춤 제안서(PDF)를 접수 순서대로 메일로 보내드립니다.": "Enter just your company and contact details and we’ll email a custom PDF proposal, built from Monnit references in 130+ countries and industry playbooks, in the order received.",
+    "산업 공통 제안서 대신, 우리 회사만을 위한 제안서가 필요하다면": "Need a proposal for your company rather than a generic industry deck?",
+    "회사·현장 정보를 넣으면 Monnit 글로벌 레퍼런스와 산업 플레이북을 대조한 맞춤 제안서를 몇 시간 이내에 순차적으로 보내드립니다.": "Enter your company and site details and we’ll send a custom proposal, matched against Monnit global references and industry playbooks, within a few hours.",
+    "맞춤 제안서 받기 →": "Get a Custom Proposal →",
+    "맞춤 제안서": "Custom Proposal",
+    "공사 없이 15분 · 운영 중단 0": "15-minute install · zero downtime",
+    "이 구성으로 무료 상담": "Free consultation for this setup",
+    "상세 보기": "View details",
+    "산업 선택": "Industry",
+    "가장 고민되는 문제": "Top concern",
+    "원하는 효과": "Desired outcomes",
+    "(주)모넷물류": "Monnit Logistics Co.",
+    "예: 평택 2공장, 가산 IDC 3층": "e.g. Plant 2, Data center 3F",
+    "예: 시설팀장": "e.g. Facilities manager",
+    "제안서를 받으실 주소": "Where we should send the proposal",
+    "예: 경기 평택": "e.g. Pyeongtaek, Gyeonggi",
+    "예: 작년에 항온항습기 하부 누수가 두 번 있었고, 야간에는 상주 인력이 1명입니다.": "e.g. We had two leaks under the CRAC units last year, and only one person on site at night.",
+    "전화 상담": "Call us",
+    "받으실 내용": "What you’d like to receive",
+    "가장 고민되는 주제": "Top concern",
+    "시설 이름·유형 (선택) — 예: 평택 2공장, 가산 IDC 3층": "Site name / type (optional) — e.g. Plant 2, Data center 3F",
+    "내 맞춤 제안서 진행 현황": "My proposal status",
+    "맞춤 제안서 신청으로 돌아가기": "Back to my proposal request",
+    "견적 요청": "Request a quote",
     /* ── Our Solution 라이브 티저 & 카테고리 바로가기 (2026-07) ── */
     "측정 → 분석 → 자동제어. 진동·온도·전류 데이터가 실시간으로 이상을 감지합니다.": "Sense → Analyze → Act. Vibration, temperature, and current data detect anomalies in real time.",
     "진동 예지보전 · 회전설비 실시간 통합관제": "Vibration Predictive Maintenance · Live Rotating-Equipment Monitoring",
@@ -338,6 +446,18 @@
     'Who we are · 회사 소개': 'Who we are', 'Our solution · 솔루션': 'Our solution',
     'What we do · 사업 영역': 'What we do', 'Award · 수상 내역': 'Award',
     'Blog · 블로그': 'Blog', 'Newsletter · 뉴스레터': 'Newsletter', 'Proposal · 산업별 제안서': 'Proposal',
+    'Custom Proposal · 맞춤 제안서': 'Custom Proposal', '맞춤 제안서': 'Custom Proposal',
+    '이 조건으로 맞춤 제안서 받기 →': 'Get a Custom Proposal →',
+    '상담만 신청': 'Consultation only', '맞춤 제안서도 받기': 'Also send a custom proposal',
+    '상담 신청 + 맞춤 제안서 받기': 'Send Request + Get Proposal',
+    '전화 대신 맞춤 제안서(PDF)로 먼저 받아보기 →': 'Get a custom proposal (PDF) first →',
+    '맞춤 제안서 받기 →': 'Get a Custom Proposal →',
+    '하나만 골라 주세요': 'Pick one', '조건 바꾸기': 'Change conditions',
+    '현장 전체 견적 요청 →': 'Request a full-site quote →', '견적 요청으로 이어서 받기 →': 'Continue with a quote request →',
+    '무료 · 과제 1개 기준 PDF를 몇 분 안에': 'Free · one-topic PDF in minutes',
+    '약 3분': '~3 min', '입력부터 메일 도착까지': 'From form to inbox', '대조하는 설치 사례': 'Installations compared',
+    '12개 산업': '12 industries', '현장 플레이북': 'Site playbooks', '무료': 'Free', '도입 의무 없음': 'No obligation',
+    '누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 산업과 겪고 있는 문제를 알려주시면 모넷 설치 사례와 산업별 현장 플레이북을 대조해 PDF로 정리하고, 몇 분 안에 메일로 보내드립니다.': 'Instead of a one-size-fits-all catalog, we send a proposal tailored to your company and site. Tell us your industry and challenges — we compare them with Monnit installations and industry playbooks and email you a PDF within minutes. (Proposals are provided in Korean.)',
     'Contact Us · 문의': 'Contact Us', 'FAQs · 자주 묻는 질문': 'FAQs',
     'Tech Support · 기술지원': 'Tech Support', 'Support / 기술지원': 'Support',
     'Knowledgebase · 기술 문서': 'Knowledgebase', '상담 신청': 'Get a Consultation',
@@ -2179,7 +2299,7 @@ Object.assign(DICT, {
   var LANG = (function () { try { return localStorage.getItem('mlang') || 'ko'; } catch (e) { return 'ko'; } })();
   var busy = false;
   var handled = new WeakSet();
-  var HEADLINE_SEL = 'h1,h2,h3,p.home-lede,.astat-l';
+  var HEADLINE_SEL = 'h1,h2,h3,p.home-lede,.astat-l,[data-i18n-html]';
 
   function translateTree(root) {
     if (LANG !== 'en' || !root) return;
@@ -2219,6 +2339,11 @@ Object.assign(DICT, {
         var e = ph[j], en2 = DICT[norm(e.getAttribute('placeholder'))];
         if (en2 != null) { if (e.__koPh == null) e.__koPh = e.getAttribute('placeholder'); e.setAttribute('placeholder', en2); }
       }
+      var al = root.querySelectorAll('[aria-label]');
+      for (var q = 0; q < al.length; q++) {
+        var ea = al[q], en3 = DICT[norm(ea.getAttribute('aria-label'))];
+        if (en3 != null) { if (ea.__koAl == null) ea.__koAl = ea.getAttribute('aria-label'); ea.setAttribute('aria-label', en3); }
+      }
     }
   }
 
@@ -2232,6 +2357,7 @@ Object.assign(DICT, {
       var el = all[i];
       if (el.__ko != null) { el.innerHTML = el.__ko; el.__ko = null; }
       if (el.__koPh != null) { el.setAttribute('placeholder', el.__koPh); el.__koPh = null; }
+      if (el.__koAl != null) { el.setAttribute('aria-label', el.__koAl); el.__koAl = null; }
     }
     handled = new WeakSet();
   }

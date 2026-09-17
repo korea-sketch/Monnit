@@ -159,7 +159,10 @@ tr.hit td{background:rgba(255,122,122,.06)}
 [hidden]{display:none!important}
 .pg{max-width:340px;word-break:break-all}
 .lead{color:var(--warn);font-weight:700}
-</style></head><body><div class="wrap">
+</style></head><body><style>.opsnav{display:flex;gap:4px;padding:10px 16px 0;border-bottom:1px solid rgba(255,255,255,.11);background:rgba(8,12,22,.85);backdrop-filter:blur(10px);overflow-x:auto;position:sticky;top:0;z-index:50;font-family:inherit}
+.opsnav a{color:#A6B3CC;text-decoration:none;padding:9px 14px;border-radius:10px 10px 0 0;font-size:13.5px;font-weight:600;white-space:nowrap;border:1px solid transparent;border-bottom:0}
+.opsnav a:hover{color:#F2F5FA}.opsnav a.on{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}</style>
+<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/block" class="on">차단 관리</a></nav><div class="wrap">
 <header>
   <h1>경쟁사 차단 관리<small>막힌 상대에게는 차단 사실을 알리지 않습니다 · 변경은 1분 안에 반영됩니다</small></h1>
   <div class="acts"><a class="btn" href="/ops">← 관제 화면</a><button class="btn" id="reload">새로고침</button></div>

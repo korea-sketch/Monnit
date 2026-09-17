@@ -694,6 +694,30 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
   .form-ok h3{color:var(--green);font-size:24px;margin-bottom:10px}
   .form-ok p{color:var(--ink);font-size:16px}
 
+  /* 한글이 글자 중간에서 끊기지 않게 (좁은 화면에서 「반/납」처럼 갈라지던 것) */
+  body{word-break:keep-all;overflow-wrap:break-word}
+  /* ── 신청 → 현장 진단 예약 (2026-09-17) ── */
+  .nx{margin-top:22px;padding:20px;border-radius:14px;border:1px solid var(--hair);background:rgba(6,11,22,.55);text-align:left}
+  .nx-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;list-style:none;margin:0 0 16px;padding:0;counter-reset:nx}
+  .nx-steps li{position:relative;padding:10px 10px 10px 36px;border-radius:10px;border:1px solid var(--hair);font-size:13px;font-weight:700;color:var(--mut);line-height:1.35}
+  .nx-steps li::before{counter-increment:nx;content:counter(nx);position:absolute;left:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;border:1px solid var(--hair);color:var(--mut)}
+  .nx-steps li.done{color:var(--ink)}.nx-steps li.done::before{content:'✓';background:var(--green);border-color:var(--green);color:#fff}
+  .nx-steps li.now{color:#fff;border-color:var(--green);background:var(--green-tint)}.nx-steps li.now::before{border-color:var(--green);color:#fff;animation:nxPulse 1.6s ease-in-out infinite}
+  .nx-steps li small{display:block;font-weight:500;font-size:11.5px;color:var(--mut);margin-top:2px}
+  @keyframes nxPulse{50%{box-shadow:0 0 0 6px rgba(43,132,245,.18)}}
+  .nx h4{margin:0 0 6px;font-size:19px;color:#fff;line-height:1.4}
+  .nx p{margin:0;font-size:14px!important;color:var(--mut)!important;line-height:1.65}
+  .nx-go{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;margin-top:16px;border-radius:12px;background:var(--green);color:#fff;font-weight:800;font-size:17px;text-decoration:none;transition:transform .15s,filter .15s}
+  .nx-go:hover{filter:brightness(1.08);transform:translateY(-1px)}.nx-go:active{transform:scale(.99)}
+  .nx-go i{position:absolute;left:0;bottom:0;height:3px;width:0;background:rgba(255,255,255,.75)}
+  .nx-go.run i{width:100%;transition:width var(--nx-t,5s) linear}
+  .nx-go:focus-visible,.nx-later:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  .nx-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:var(--mut)}
+  .nx-later{background:none;border:0;padding:8px 0;min-height:40px;color:var(--mut);font:inherit;font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .nx-later:hover{color:#fff}
+  @media(max-width:560px){.nx{padding:16px}.nx-steps{grid-template-columns:1fr}.nx-steps li{padding:9px 10px 9px 36px}}
+  @media(prefers-reduced-motion:reduce){.nx-steps li.now::before{animation:none}.nx-go.run i{transition:none}}
+
   /* PRIVACY POLICY MODAL */
   .modal-ov{position:fixed;inset:0;z-index:200;background:rgba(3,6,12,.74);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
   .modal-ov.show{display:flex}
@@ -1941,7 +1965,19 @@ h2{margin-bottom:14px!important}
         <button class="submit" onclick="submitForm()" data-k="form-36">우리 설비 적용 가능 여부 확인하기</button>
         <p class="fnote" data-k="form-37">신청 후 담당자 확인 · 02-2088-1454 · korea@monnit.com</p>
       </div>
-      <div class="form-ok" id="ok"><h3 data-k="form-38">✓ 신청이 접수되었습니다</h3><p id="okmsg"></p><p id="oksub" style="margin-top:10px;font-size:14px;color:var(--mut);line-height:1.6"></p></div>
+      <div class="form-ok" id="ok"><h3 data-k="form-38">✓ 신청이 접수되었습니다</h3><p id="okmsg"></p><p id="oksub" style="margin-top:10px;font-size:14px;color:var(--mut);line-height:1.6"></p>
+        <div class="nx" id="nx" hidden>
+          <ol class="nx-steps" aria-label="진행 단계">
+            <li class="done">무료 체험 신청<small>접수 완료</small></li>
+            <li class="now" aria-current="step">현장 진단 날짜<small>지금 1분</small></li>
+            <li>방문 · 센서 설치<small>1개월 데이터 수집</small></li>
+          </ol>
+          <h4>이어서 현장 진단 날짜를 잡아 두세요</h4>
+          <p>입력하신 회사·연락처·설비 정보는 예약 화면에 그대로 채워집니다. <b style="color:#fff">날짜와 시간만 고르시면</b> 담당자가 통화에서 바로 확정해 드립니다.</p>
+          <a class="nx-go" id="nxGo" href="/visit?from=consulting"><span id="nxGoTx">현장 진단 날짜 고르기 →</span><i aria-hidden="true"></i></a>
+          <div class="nx-row"><span id="nxHint" aria-live="polite"></span><button type="button" class="nx-later" id="nxLater">나중에 예약할게요 (담당자 전화로 정하기)</button></div>
+        </div>
+      </div>
     </div>
   </div></section>
 
@@ -2177,6 +2213,9 @@ function submitForm(){
       sub='메일은 따로 가지 않습니다. 담당자가 '+(line||'설비')+'에 적용이 되는지 확인한 뒤 전화로 안내드립니다.';
     }
     try{sessionStorage.setItem('mk_lead_msg',msg);sessionStorage.setItem('mk_lead_sub',sub)}catch(e){}
+    /* 다음 단계(현장 진단 예약)에 넘길 값 — 이 탭 저장소에만 둔다(주소·분석 도구에 남지 않게) */
+    try{sessionStorage.setItem('mk_visit_from',JSON.stringify({src:'promo_consulting',at:Date.now(),
+      company:c,name:n,email:email,phone:p,exp:exp,line:line,spot:spot,asset:asset}))}catch(e){}
 
     /* 무경험자에게만 가이드 자동 발송. 메일이 실패해도 접수는 그대로 진행한다. */
     function go(){location.href='/promo/consulting?submitted=1#apply';}
@@ -2247,6 +2286,7 @@ function submitForm(){
     }
     ok.classList.add('show');
     setTimeout(function(){try{ok.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}},350);
+    nextStep();
   }
   var fired='';try{fired=sessionStorage.getItem('mk_lead_fired')||''}catch(e){}
   if(fired!=='1'){
@@ -2255,6 +2295,46 @@ function submitForm(){
     try{sessionStorage.setItem('mk_lead_fired','1')}catch(e){}
   }
 })();
+
+// ===== 신청 다음 단계 — 현장 진단 예약(/visit)으로 자연스럽게 =====
+/* 신청 값이 이 탭에 있을 때만 예약 안내를 띄운다(새로고침·공유 주소로 들어오면 일반 감사 화면).
+   5초 뒤 자동 이동 — 손을 대거나(스크롤·클릭·키) 「나중에」를 누르면 멈춘다. */
+function nextStep(){
+  var box=document.getElementById('nx'); if(!box)return;
+  var v=null; try{v=JSON.parse(sessionStorage.getItem('mk_visit_from')||'null')}catch(e){}
+  if(!v||!v.company||Date.now()-(v.at||0)>6*3600000)return;
+  box.hidden=false;
+  var go=document.getElementById('nxGo'), hint=document.getElementById('nxHint'), later=document.getElementById('nxLater');
+  var SEC=5, left=SEC, timer=null, stopped=false;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function track(ev){window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:ev,form_name:'promo_free_trial'});}
+  function stop(msg){
+    if(stopped)return; stopped=true; clearInterval(timer);
+    go.classList.remove('run'); hint.textContent=msg||'';
+  }
+  function leave(){ stop(''); track('visit_booking_start'); location.href=go.getAttribute('href'); }
+  go.addEventListener('click',function(e){ if(e.metaKey||e.ctrlKey||e.shiftKey)return; e.preventDefault(); leave(); });
+  later.addEventListener('click',function(){
+    stop('괜찮습니다. 담당자가 연락드릴 때 일정을 함께 정하겠습니다.');
+    track('visit_booking_later');
+    later.hidden=true;
+  });
+  if(reduce||document.hidden){ hint.textContent='버튼을 누르면 예약 화면으로 이동합니다.'; return; }
+  /* 자동 이동 — 화면이 보일 때만 센다 */
+  setTimeout(function(){
+    if(stopped)return;
+    go.style.setProperty('--nx-t',SEC+'s'); go.classList.add('run');
+    hint.textContent=left+'초 뒤 예약 화면으로 이동합니다';
+    timer=setInterval(function(){
+      if(document.hidden){ stop('버튼을 누르면 예약 화면으로 이동합니다.'); return; }
+      left--; if(left<=0){ clearInterval(timer); leave(); return; }
+      hint.textContent=left+'초 뒤 예약 화면으로 이동합니다';
+    },1000);
+    ['wheel','touchstart','keydown'].forEach(function(t){
+      window.addEventListener(t,function(e){ if(e.target&&e.target.closest&&e.target.closest('#nxGo'))return; stop('버튼을 누르면 예약 화면으로 이동합니다.'); },{once:true,passive:true});
+    });
+  },900);
+}
 
 // ===== 지표 쉽게 이해하기 (탭 인터랙션) =====
 var EXPLAIN={

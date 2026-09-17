@@ -1105,6 +1105,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
                 <option>1개월 이내</option><option>1~3개월</option><option>3~6개월</option>
                 <option>내년 예산 검토 중</option><option>정보 수집 단계</option></select></div>
           </div>
+          <div data-only="download" id="wpPropSlot" style="grid-column:1/-1"></div>
           <label class="agree" id="fmAgree">
             <input type="checkbox" name="동의">
             <span>자료 발송 및 제품 문의 응대를 위한 <b>개인정보 수집·이용에 동의</b>합니다.
@@ -1126,6 +1127,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
       <div class="done-view">
         <div class="ic">✓</div>
         <h4 id="fmOkTitle">다운로드가 시작되었습니다</h4>
+        <div id="wpPropRes" aria-live="polite" style="text-align:left"></div>
         <p id="fmOkTx">보시다가 <b>우리 보관고면 몇 포인트인지</b> 궁금해지시면 바로 문의 주십시오.</p>
         <p class="again" id="fmOkNote">다운로드가 안 되면 <a id="fmRetry">여기를 눌러 다시 받으세요</a></p>
         <p style="margin-top:20px"><button class="btn" id="fmDone">닫기</button></p>
@@ -1149,6 +1151,7 @@ header.stuck{box-shadow:0 1px 0 rgba(255,255,255,.12)}
   </div>
 </div>
 <script src="/js/monnit-lead.js?v=4"></script>
+<script src="/js/proposal-addon.js?v=1"></script>
 <script>
 (function(){
 'use strict';
@@ -1452,6 +1455,7 @@ function requestDoc(which){
     openFm('download', which); fm.classList.add('done');
     $('#fmOkTitle').textContent = '다시 보내드렸습니다';
     $('#fmOkTx').innerHTML = (known.이름 ? known.이름+'님, ' : '') + '이미 정보를 남겨주셔서 바로 드렸습니다.';
+    if (PA) { var rb=$('#wpPropRes'); if (rb) rb.innerHTML=''; PA.cta(rb); }
     return;
   }
   openFm('download', which);
@@ -1554,9 +1558,17 @@ function notifyStaff(payload){
     .then(function(r){ return r.json().catch(function(){return {};}); })
     .then(function(j){ if(!j||!(j.success===true||j.success==='true')) throw new Error('mail'); });
 }
+/* 「우리 현장 맞춤 제안서도 받기」 — 고른 자료로 시설 유형을 정한다 */
+var PA_FAC = { pharma:'pharma', ex:'factory', cold:'logistics' };
+var PA = window.MKPropAddon ? window.MKPropAddon.mount(document.getElementById('wpPropSlot'), {
+  theme:'light', page:CONFIG.PAGE, con:function(){ return ($('#fmDoc').value==='cold') ? 'cold' : 'temp'; },
+  fac:function(){ return PA_FAC[$('#fmDoc').value] || ''; },
+  doc:function(){ var k=$('#fmDoc').value; return k==='all' ? '온도 감시 제안서 3종' : (DOCS[k] ? DOCS[k].title : '온도 감시 제안서'); }
+}) : null;
 fmForm.addEventListener('submit', function(e){
   e.preventDefault();
   if (!validate()) return;
+  if (fm.getAttribute('data-mode')==='download' && PA && !PA.check()) return;
   var mode=fm.getAttribute('data-mode'), isDoc=(mode==='download'),
       d=leadPayload(), std=toStandard(d), leadType = isDoc?'doc_request':'contact';
   var payload = window.MonnitLead
@@ -1579,8 +1591,13 @@ fmForm.addEventListener('submit', function(e){
       {page:CONFIG.PAGE, interest:'온도 감시'}); }catch(err){} })
     .catch(function(){ try{ window.MonnitLead && window.MonnitLead.record(leadType,payload); }catch(err){} });
   track(isDoc?'download':'form_submit',{content_name:'온도 감시', lead_grade:d.리드등급, value:d.리드점수});
-  Promise.all([deliver,notify]).then(function(){
+  var resBox=$('#wpPropRes'); if (resBox) resBox.innerHTML='';
+  var prop = (isDoc && PA && PA.wanted())
+    ? PA.send({company:d.회사명, name:d.이름, email:d.이메일, phone:d.연락처||'', memo:d.포인트규모?'감시 포인트: '+d.포인트규모:''})
+    : Promise.resolve(null);
+  Promise.all([deliver,notify,prop]).then(function(r){
     fmSubmit.disabled=false; fmSubTx.textContent=FM_TEXT[mode].btn;
+    if (r[2]) { PA.result(r[2], resBox); if (r[2].ok) PA.reset(); }
     if (isDoc && isMobile && d.자료==='all' && !window.__docPending){
       $('#fmOkTx').innerHTML = '첫 번째 자료가 열렸습니다. 나머지 자료 링크는 <b>'+
         (d.이메일||'입력하신 메일')+'</b> 로 함께 보내드렸습니다.';

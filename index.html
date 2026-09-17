@@ -9,6 +9,11 @@
 if(/^_gcl_(aw|dc|gb|gs)$/.test(n)&&/TEST/i.test(v)){['','; domain=.monnit.co.kr','; domain=monnit.co.kr'].forEach(function(d){
 document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}});}catch(e){}})();
 </script>
+<script>/* 맞춤 제안서 진행 화면(/proposal/status) — 개인 링크의 토큰(?t=)을 주소창·분석 도구(GA·Clarity)에
+   남기지 않도록 이 탭의 저장소로 옮기고 주소에서 뺍니다. 저장소를 못 쓰는 환경이면 주소에 그대로 둡니다. */
+(function(){try{var l=location;if(/^\/proposal\/status\/?$/.test(l.pathname)){var p=new URLSearchParams(l.search),t=p.get('t');
+if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.delete('t');var q=p.toString();history.replaceState(null,'',l.pathname+(q?'?'+q:'')+l.hash);}}}catch(e){}})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* 광고 랜딩 가속 — #promotions/{id} 해시로 직접 들어오면 무거운 SPA 대신 초경량 정적 랜딩(promo.html)으로 즉시 이동 (utm·fbclid 유지). SPA 내부 이동에는 영향 없음. */
 (function(){try{var m=(location.pathname||'').match(/^\/promotions\/([^/?&]+)\/?$/)||(location.hash||'').match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);if(id==='flame-reservation')return;var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
@@ -51,7 +56,7 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=118">
+<link rel="stylesheet" href="/style.css?v=123">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -136,6 +141,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <button class="nav-link has-caret">Resources</button>
         <div class="nav-dd">
           <div class="dd-meta">자료실</div>
+          <a href="/proposal" data-nav="proposal">Custom Proposal · 맞춤 제안서</a>
           <a href="/blog" data-nav="blog">Blog · 블로그</a>
           <a href="/newsletter" data-nav="newsletter">Newsletter · 뉴스레터</a>
           <a href="/whitepaper" data-nav="whitepaper">Proposal · 산업별 제안서</a>
@@ -524,10 +530,12 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
             <div id="rScaleBox" hidden><b>권장 구성</b><span id="rScale"></span></div>
             <div><b>설치</b><span>공사 없이 15분 · 운영 중단 0</span></div>
           </div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
-            <a class="mkbtn mkbtn-primary" id="rCta" data-nav="contact" style="cursor:pointer">이 구성으로 무료 상담</a>
+          <div class="wiz-actions" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px">
+            <a class="mkbtn mkbtn-primary" id="rProp" href="/proposal" data-sc="home2.finder.propbtn" data-sc-label="솔루션 파인더 · 맞춤 제안서 버튼">이 조건으로 맞춤 제안서 받기 →</a>
+            <a class="mkbtn mkbtn-outline" id="rCta" data-nav="contact" style="cursor:pointer">이 구성으로 무료 상담</a>
             <a class="mkbtn mkbtn-outline" id="rMore" href="#">상세 보기</a>
           </div>
+          <p class="wiz-prop-note" data-sc="home2.finder.propnote" data-sc-label="솔루션 파인더 · 맞춤 제안서 안내">회사·담당자 정보만 입력하면, 130여 개국 Monnit 글로벌 레퍼런스와 산업 플레이북으로 만든 맞춤 제안서(PDF)를 접수 순서대로 메일로 보내드립니다.</p>
         </div>
           </div>
         </div>
@@ -799,6 +807,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
             <button class="mkbtn mkbtn-primary" type="submit" data-sc="home2.cta.btn" data-sc-label="상담 · 버튼">무료 현장 진단 신청</button>
             <p class="fine" data-sc="home2.cta.fine" data-sc-label="상담 · 하단 안내">제출 정보는 상담 목적 외에 사용하지 않습니다.</p>
             <p class="fine" id="mkLeadStatus" style="min-height:1em"></p>
+            <a class="cta2-prop" href="/proposal" data-nav="proposal" data-sc="home2.cta.prop" data-sc-label="상담 · 맞춤 제안서 링크">전화 대신 맞춤 제안서(PDF)로 먼저 받아보기 →</a>
             <div class="cta2-badges">
               <span data-sc="home2.cta.a1" data-sc-label="상담 · 보증1">24시간 내 회신</span>
               <span data-sc="home2.cta.a2" data-sc-label="상담 · 보증2">현장 진단 무료</span>
@@ -1806,6 +1815,12 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       <h2 class="seo-h1">산업별 <em>제안서</em></h2>
       <p class="lead">현장에서 실제로 겪는 문제부터 출발해, 센서 구성·설치·운영·도입 효과까지 16종의 산업별 제안서로 정리했습니다.
       각 제안서는 16페이지 분량으로 과제 정의, 시스템 구성도, 존별 센서 배치, 투자 대비 효과, 도입 절차와 체크리스트를 담고 있습니다.</p>
+      <a class="wp-custom" href="/proposal" data-nav="proposal">
+        <span class="wp-custom-k">NEW · Custom Proposal</span>
+        <b>산업 공통 제안서 대신, 우리 회사만을 위한 제안서가 필요하다면</b>
+        <span>회사·현장 정보를 넣으면 Monnit 글로벌 레퍼런스와 산업 플레이북을 대조한 맞춤 제안서를 몇 시간 이내에 순차적으로 보내드립니다.</span>
+        <i aria-hidden="true">맞춤 제안서 받기 →</i>
+      </a>
       <div class="band">
         <h3>제안서를 이메일로 받아보세요</h3>
         <p>필요한 산업별 제안서를 선택하고 아래 항목을 모두 입력해 신청하시면 다운로드가 바로 시작됩니다. PDF는 비밀번호 없이 바로 열람하실 수 있으며, 문서 내용은 무단 편집·수정을 막기 위해 보호되어 있습니다.</p>
@@ -1817,8 +1832,10 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
           <input type="text"  placeholder="담당자명"    id="wpName"    autocomplete="name"         aria-label="담당자명">
           <input type="email" placeholder="이메일 주소" id="wpEmail"   autocomplete="email"        aria-label="이메일 주소">
           <input type="tel"   placeholder="연락처"      id="wpPhone"   autocomplete="tel"          aria-label="연락처">
-          <button onclick="wpRequest()">제안서 신청 · 다운로드</button>
         </div>
+        <div id="wpPropSlot" class="wp-prop-slot"></div>
+        <div class="wp-submit-row"><button type="button" id="wpSubmit" onclick="wpRequest()">제안서 신청 · 다운로드</button></div>
+        <div id="wpPropRes" aria-live="polite"></div>
         <p class="band-note">모든 항목은 필수입니다. 담당 엔지니어가 확인 후 필요한 자료를 추가로 안내드립니다.</p>
       </div>
       <div class="cat-bar" id="wpCatBar" style="margin-top:32px;"></div>
@@ -1841,6 +1858,133 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <div class="wp-card"><div class="wp-ico">▤</div><div><h4>리테일 · 매장 · 외식 온도 관리</h4><p>여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다.</p></div></div>
       </div>
     </div>
+  </div>
+</section>
+<section class="view" id="view-proposal">
+  <div class="cpage mkp" id="ppRoot">
+    <div class="wrap-mid">
+      <div class="crumb">Resources / Custom Proposal</div>
+      <div class="mkp-hero" id="ppHero">
+        <h2 class="seo-h1" data-sc="proposal.head" data-sc-label="맞춤 제안서 · 제목">우리 현장만을 위한 <em>맞춤 제안서</em></h2>
+        <p class="lead" data-sc="proposal.lead" data-sc-label="맞춤 제안서 · 설명">누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 산업과 가장 고민되는 문제 하나를 알려주시면 130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스와 공공기관·대기업을 포함한 국내 도입 현장, 산업별 플레이북을 대조해 PDF로 정리하고 접수 순서대로 메일로 보내드립니다.</p>
+        <ul class="mkp-facts">
+          <li><b data-sc="proposal.fact1.n" data-sc-label="맞춤 제안서 · 지표1 숫자">130+</b><span data-sc="proposal.fact1.l" data-sc-label="맞춤 제안서 · 지표1 설명">개국 Monnit 글로벌 레퍼런스</span></li>
+          <li><b data-sc="proposal.fact2.n" data-sc-label="맞춤 제안서 · 지표2 숫자">64,000+</b><span data-sc="proposal.fact2.l" data-sc-label="맞춤 제안서 · 지표2 설명">글로벌 고객사</span></li>
+          <li><b data-sc="proposal.fact3.n" data-sc-label="맞춤 제안서 · 지표3 숫자">몇 시간 이내</b><span data-sc="proposal.fact3.l" data-sc-label="맞춤 제안서 · 지표3 설명">접수 순서대로 순차 발송</span></li>
+          <li><b data-sc="proposal.fact4.n" data-sc-label="맞춤 제안서 · 지표4 숫자">무료</b><span data-sc="proposal.fact4.l" data-sc-label="맞춤 제안서 · 지표4 설명">도입 의무 없음</span></li>
+        </ul>
+      </div>
+
+      <div class="mkp-quick" id="ppQuick" hidden>
+        <span class="nh-eyebrow">Solution Finder → Custom Proposal</span>
+        <h2 class="seo-h1 mkp-quick-h">선택하신 조건으로<br><em>바로 만듭니다</em></h2>
+        <p class="lead">회사와 담당자 정보만 입력해 주세요. 고르신 시설·고민을 Monnit 글로벌 레퍼런스와 산업 플레이북에 대조해 맞춤 제안서를 만들고, 접수 순서대로 보내드립니다.</p>
+        <div class="mkp-chips" id="ppQChips"></div>
+        <ol class="mkp-flow" aria-hidden="true"><li class="done">조건 선택</li><li class="on">담당자 정보</li><li>제안서 작성</li><li>순차 발송</li></ol>
+        <button type="button" class="mkp-link" id="ppQEdit">조건 바꾸기</button>
+      </div>
+
+      <div class="mkp-grid">
+        <div class="mkp-main">
+          <div class="mkp-step" id="ppS1">
+            <div class="mkp-step-h"><span class="mkp-no">01</span><h3>어떤 현장인가요?</h3><small>하나만 골라 주세요</small></div>
+            <div class="mkp-inds" id="ppInds" role="group" aria-label="산업 선택"></div>
+          </div>
+
+          <div class="mkp-step" id="ppS2" hidden>
+            <div class="mkp-step-h"><span class="mkp-no">02</span><h3><span id="ppIndShort">이 산업</span> 현장에서 가장 고민되는 문제</h3><small>하나만 골라 주세요</small></div>
+            <p class="mkp-hint" id="ppIndHero"></p>
+            <div class="mkp-chronic" id="ppChronic" hidden></div>
+            <div class="mkp-plist is-one" id="ppPlist" role="radiogroup" aria-label="가장 고민되는 문제"></div>
+            <p class="mkp-err" id="ppErrProblems" hidden>가장 고민되는 문제를 하나 골라 주세요</p>
+            <p class="mkp-scope-note" data-i18n-html>무료 맞춤 제안서는 <b>과제 하나</b>를 깊게 다룹니다. 여러 과제나 현장 전체 구성·수량·견적이 필요하시면 <a href="/contact?quote=scope" data-nav-quote="1">견적 요청</a>으로 받아 보세요.</p>
+          </div>
+
+          <div class="mkp-step" id="ppS3" hidden>
+            <div class="mkp-step-h"><span class="mkp-no">03</span><h3>도입하면 무엇이 달라지길 원하세요?</h3><small>최대 4개</small></div>
+            <div class="mkp-chips" id="ppGoals" role="group" aria-label="원하는 효과"></div>
+            <div class="mkp-row2">
+              <div class="mkp-fld"><label for="ppScale">감시 규모</label><select id="ppScale"><option value="">선택 안 함</option></select></div>
+              <div class="mkp-fld"><label for="ppTimeline">도입 검토 시점</label><select id="ppTimeline"><option value="">선택 안 함</option></select></div>
+            </div>
+          </div>
+
+          <div class="mkp-step form-card" id="ppS4" hidden>
+            <div class="mkp-step-h"><span class="mkp-no">04</span><h3>제안서를 받으실 분</h3></div>
+            <form id="ppForm" novalidate autocomplete="on">
+              <input class="mkp-hp" type="text" name="website" id="ppWebsite" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <div class="mkp-row2">
+                <div class="mkp-fld" data-f="company"><label for="ppCompany">회사명 <em>*</em></label><input id="ppCompany" name="organization" autocomplete="organization" maxlength="60" placeholder="(주)모넷물류"><p class="mkp-ferr"></p><div class="mkp-detect" id="ppDetect" hidden aria-live="polite"></div></div>
+                <div class="mkp-fld" data-f="facility"><label for="ppFacility">시설 이름·유형</label><input id="ppFacility" maxlength="60" placeholder="예: 평택 2공장, 가산 IDC 3층"></div>
+              </div>
+              <div class="mkp-row2">
+                <div class="mkp-fld" data-f="name"><label for="ppName">성함 <em>*</em></label><input id="ppName" name="name" autocomplete="name" maxlength="30"><p class="mkp-ferr"></p></div>
+                <div class="mkp-fld" data-f="title"><label for="ppTitle">직함</label><input id="ppTitle" name="title" autocomplete="organization-title" maxlength="30" placeholder="예: 시설팀장"></div>
+              </div>
+              <div class="mkp-row2">
+                <div class="mkp-fld" data-f="email"><label for="ppEmail">회사 이메일 <em>*</em></label><input id="ppEmail" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="제안서를 받으실 주소"><p class="mkp-ferr"></p></div>
+                <div class="mkp-fld" data-f="phone"><label for="ppPhone">연락처</label><input id="ppPhone" name="tel" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="010-0000-0000"><p class="mkp-ferr"></p></div>
+              </div>
+              <div class="mkp-fld" data-f="region"><label for="ppRegion">지역</label><input id="ppRegion" maxlength="30" placeholder="예: 경기 평택"></div>
+              <div class="mkp-fld" data-f="memo"><label for="ppMemo">현장 상황을 조금 더 알려 주세요 (선택)</label><textarea id="ppMemo" maxlength="600" rows="3" placeholder="예: 작년에 항온항습기 하부 누수가 두 번 있었고, 야간에는 상주 인력이 1명입니다."></textarea></div>
+              <label class="mkp-agree"><input type="checkbox" id="ppConsent"><span><b>[필수]</b> 개인정보 수집·이용 동의 — 회사명·성함·이메일·연락처를 맞춤 제안서 발송과 상담에 쓰고, 1년 뒤 파기합니다. <a href="/privacy.html" target="_blank" rel="noopener">자세히</a></span></label>
+              <p class="mkp-ferr" id="ppErrConsent"></p>
+              <label class="mkp-agree"><input type="checkbox" id="ppConsentMkt"><span>[선택] 신규 사례·세미나 소식 받기</span></label>
+              <p class="form-note">영업 전화로 괴롭히지 않습니다. 제안서는 접수 순서대로 보내드리고, 담당 엔지니어가 내용이 현장에 맞는지만 확인드립니다.</p>
+              <p class="mkp-msg" id="ppMsg" role="alert" hidden></p>
+            </form>
+          </div>
+
+          <div class="mkp-faq">
+            <details><summary>제안서에는 무엇이 들어가나요?</summary><div><ol class="mkp-toc">
+              <li><b>제안 요약 · 귀사 현장 이해</b> 회사·세부 업종 기준으로 정리한 과제와 방향</li>
+              <li><b>산업의 고질적인 문제</b> 그 업종 현장에서 반복되는 문제와 놓쳤을 때 생기는 일</li>
+              <li><b>담당자별 어려움</b> 시설·품질·안전·운영 조직별로 센서가 도울 수 있는 부분</li>
+              <li><b>공정·구역별 모니터링 맵</b> 구역마다 관리 포인트, 모넷 센서, 있으면 좋은 것</li>
+              <li><b>선택 과제 진단 · 비슷한 모넷 사례 3곳</b> 일치도, 당시 과제, 적용한 해결, 성과</li>
+              <li class="mkp-toc-note">공정·구역 맵과 로드맵은 고르신 과제와 연결된 구역·우선 단계를 자세히 담고, 나머지는 견적 요청 때 함께 정리합니다.</li>
+              <li><b>권장 구성 · 스마트 관리 로드맵</b> 940MHz 무선 구성에서 알림 체계·시스템 연동·자동 제어·예측까지</li>
+              <li><b>현장 진단 체크리스트 · 다음 단계</b> 진단 때 확인할 질문, 규정·기준 대응 포인트</li>
+            </ol></div></details>
+            <details><summary>언제 받을 수 있나요?</summary><div data-i18n-html>접수 순서대로 순차 발송하며, 보통 몇 시간 이내에 메일로 도착합니다. 진행 상황은 신청 뒤 열리는 화면에서 단계별로 보실 수 있습니다. 입력 내용만으로 판단이 어려운 경우에는 담당 엔지니어가 확인한 뒤 영업일 기준 1일 안에 보내드립니다. 바로 상담이 필요하시면 <a href="/contact?quote=scope" data-nav-quote="1">견적 요청</a>이나 전화(02-2088-1454)로 연락 주세요.</div></details>
+            <details><summary>어떤 데이터와 대조하나요?</summary><div>130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스, 공공기관·국내 대기업을 포함한 모넷코리아 도입 현장, 12개 산업·46개 세부 업종의 현장 플레이북을 대조해 가장 닮은 현장과 구성을 고릅니다. 사례 수치는 각 현장의 공개 결과이며 귀사 적용 시 효과를 약속하지 않습니다.</div></details>
+            <details><summary>여러 문제를 한꺼번에 보고 싶어요</summary><div data-i18n-html>무료 맞춤 제안서는 가장 고민되는 문제 하나를 기준으로 깊게 만들어 드립니다(회사·이메일당 30일에 한 번). 다른 문제나 현장 전체의 구역별 수량·설치 위치·견적은 <a href="/contact?quote=scope" data-nav-quote="1">견적 요청</a>을 남겨 주시면 담당 엔지니어가 설비 목록이나 도면을 받아 함께 정리합니다.</div></details>
+            <details><summary>비용이 들거나, 받은 뒤 의무가 있나요?</summary><div>무료이고 의무도 없습니다. 제안서는 입력하신 정보를 Monnit 글로벌 레퍼런스·국내 도입 현장 데이터와 대조해 만들며, 정확한 수량과 비용은 현장 확인 뒤에 정해집니다.</div></details>
+          </div>
+        </div>
+
+        <aside class="mkp-side" id="ppSide">
+          <div class="mkp-live" id="ppLive">
+            <div class="mkp-live-h"><span>MONNIT INSIGHT</span><b id="ppLmPct">–</b></div>
+            <div class="mkp-meter"><i id="ppLmBar"></i></div>
+            <p class="mkp-live-t" id="ppLmText">산업을 고르면 가장 닮은 Monnit 레퍼런스를 찾아 드립니다</p>
+            <div id="ppTopCase"></div>
+            <div id="ppPeek"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <div class="mkp-bar" id="ppBar"><div class="mkp-bar-in">
+      <a class="mkp-call" href="tel:02-2088-1454" aria-label="전화 상담">☎</a>
+      <button type="button" class="mkp-cta" id="ppCta">산업부터 골라 주세요 →</button>
+    </div></div>
+  </div>
+</section>
+<section class="view" id="view-proposal-status">
+  <div class="cpage mkp mkps" id="ppsRoot">
+    <div class="wrap-mid">
+      <div class="crumb">Custom Proposal / 진행 현황</div>
+      <div id="ppsApp" aria-live="polite">
+        <div class="mkp-skel" style="height:34px;width:60%"></div>
+        <div class="mkp-skel" style="height:34px;width:40%;margin-top:10px"></div>
+        <div class="mkp-skel" style="height:260px;margin-top:30px"></div>
+      </div>
+    </div>
+    <div class="mkp-toasts" id="ppToasts" aria-live="polite"></div>
+    <div class="mkp-bar"><div class="mkp-bar-in">
+      <a class="mkp-call" href="tel:02-2088-1454" aria-label="전화 상담">☎</a>
+      <a class="mkp-cta" id="ppsCta" href="/visit?utm_source=proposal_status&amp;utm_medium=web&amp;utm_campaign=custom_proposal">기다리는 동안 현장 진단 예약 →</a>
+    </div></div>
   </div>
 </section>
 <section class="view" id="view-contact">
@@ -1894,7 +2038,21 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
           <input type="text" id="ctInquiryOther" placeholder="문의 항목을 직접 입력해 주세요" style="display:none;margin-top:8px;">
           <label>문의 내용</label>
           <textarea id="ctMsg" rows="4" placeholder="도입을 고려 중인 산업·현장과 필요한 모니터링 항목을 알려주세요."></textarea>
-          <button class="form-btn" onclick="contactSubmit()">상담 신청 보내기</button>
+          <div class="ct-prop" id="ctProp">
+            <div class="ct-prop-seg" role="radiogroup" aria-label="받으실 내용">
+              <label class="on"><input type="radio" name="ctMode" value="consult" checked><span><b>상담만 신청</b><small>담당자가 24시간 내 연락</small></span></label>
+              <label><input type="radio" name="ctMode" value="proposal"><span><b>맞춤 제안서도 받기</b><small>무료 · 몇 시간 이내 순차 발송</small></span></label>
+            </div>
+            <div class="ct-prop-more" id="ctPropMore" hidden>
+              <p data-i18n-html>회사명·문의 내용으로 업종을 파악해, Monnit 글로벌 레퍼런스와 산업별 플레이북으로 제안서를 만들어 접수 순서대로 보내드립니다. <b>가장 고민되는 주제 하나</b>를 고르면 그 과제 기준으로 깊게 정리해 드립니다. 여러 과제·현장 전체 견적은 위 문의 내용에 적어 주시면 상담에서 함께 봅니다.</p>
+              <div class="ct-prop-chips" id="ctPropChips" role="radiogroup" aria-label="가장 고민되는 주제">
+                <button type="button" data-c="fire" aria-pressed="false">화재·과열</button><button type="button" data-c="leak" aria-pressed="false">누수·침수·동파</button><button type="button" data-c="temp" aria-pressed="false">온도·습도</button><button type="button" data-c="cold" aria-pressed="false">냉장·콜드체인</button><button type="button" data-c="equip" aria-pressed="false">설비 고장·진동</button><button type="button" data-c="power" aria-pressed="false">전력·에너지</button><button type="button" data-c="air" aria-pressed="false">공기질·가스</button><button type="button" data-c="security" aria-pressed="false">보안·출입</button><button type="button" data-c="control" aria-pressed="false">통합관제</button><button type="button" data-c="comply" aria-pressed="false">규정·온도기록</button>
+              </div>
+              <input type="text" id="ctFacility" maxlength="60" placeholder="시설 이름·유형 (선택) — 예: 평택 2공장, 가산 IDC 3층">
+              <label class="ct-prop-agree"><input type="checkbox" id="ctPropConsent"><span><b>[필수]</b> 맞춤 제안서 발송을 위해 회사명·성함·이메일·연락처를 이용하고 1년 뒤 파기하는 데 동의합니다. <a href="/privacy.html" target="_blank" rel="noopener">자세히</a></span></label>
+            </div>
+          </div>
+          <button class="form-btn" id="ctSubmit" onclick="contactSubmit()">상담 신청 보내기</button>
           <p class="form-note">* 보내주신 내용은 담당 엔지니어에게 이메일로 즉시 전달됩니다. 영업일 기준 24시간 내 회신드립니다.</p>
         </div>
       </div>
@@ -2008,6 +2166,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <li><a href="/blog" data-nav="blog">Blog</a></li>
         <li><a href="/newsletter" data-nav="newsletter">Newsletter</a></li>
         <li><a href="/whitepaper" data-nav="whitepaper">산업별 제안서</a></li>
+        <li><a href="/proposal" data-nav="proposal">맞춤 제안서</a></li>
       </ul>
     </div>
     <div>
@@ -2030,14 +2189,14 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=124"></script>
+  <script src="/app.js?v=128"></script>
   <script src="/js/why-rolling.js?v=2" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=1" defer></script>
   <script>
   /* i18n.js(KO/EN 사전, 214KB) 지연 로딩 — 기본(한국어)은 초기 로딩을 막지 않도록 idle에 로드, 영어 모드면 즉시 로드 */
   (function(){var lang='ko';try{lang=localStorage.getItem('mlang')||'ko';}catch(e){}
-    function load(){var s=document.createElement('script');s.src='/i18n.js?v=111';s.defer=true;document.head.appendChild(s);}
+    function load(){var s=document.createElement('script');s.src='/i18n.js?v=114';s.defer=true;document.head.appendChild(s);}
     if(lang==='en'){load();}else{(window.requestIdleCallback||function(f){setTimeout(f,1500);})(load);}
   })();
   </script>
@@ -2072,6 +2231,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     {t:'파트너',sub:'Partners',kw:'파트너 partners 협력',nav:'partners'},
     {t:'블로그',sub:'Blog',kw:'블로그 blog 소식',nav:'blog'},
     {t:'뉴스레터',sub:'Newsletter',kw:'뉴스레터 newsletter',nav:'newsletter'},
+    {t:'맞춤 제안서 받기',sub:'Custom Proposal · 우리 현장 전용 PDF',kw:'맞춤 제안서 견적 구성안 custom proposal 컨설팅 제안 pdf',nav:'proposal'},
     {t:'산업별 제안서',sub:'Proposal · Whitepaper',kw:'제안서 백서 proposal whitepaper 자료',nav:'whitepaper'},
     {t:'문의하기',sub:'Contact Us · 상담 신청',kw:'문의 상담 contact 연락 견적',nav:'contact'},
     {t:'자주 묻는 질문',sub:'FAQs',kw:'faq 질문 자주묻는 궁금',nav:'faqs'},
@@ -2449,6 +2609,20 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     /* 결과 링크 우선순위: 조합별 매칭(그리드) → 고민별 링크 → 시설별 링크 → 기본 활용분야 (모두 editor 수정 가능) */
     var route=(getMatrixLink(fac,con)||getLink('finder.link.con.'+con)||getLink('finder.link.fac.'+fac)||('app/'+(ctx.app||'facility'))).trim();
     var m=document.getElementById('rMore');if(m){m.setAttribute('href','#');m.onclick=function(e){e.preventDefault();go(route);};m.textContent='활용분야 상세 보기';}
+    /* 맞춤 제안서 — 고른 시설·고민·규모를 그대로 넘기고, 신청 화면에서는 회사·담당자 정보만 받습니다 */
+    var pp=document.getElementById('rProp');
+    if(pp){
+      var pq='from=finder&fac='+encodeURIComponent(fac)+'&con='+encodeURIComponent(con)+(scale?'&scale='+encodeURIComponent(scale):'')
+        +'&fl='+encodeURIComponent(facLabel)+'&cl='+encodeURIComponent(conLabel);
+      pp.setAttribute('href','/proposal?'+pq);
+      pp.onclick=function(e){
+        if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button===1) return;
+        e.preventDefault(); go('');
+        try{ history.pushState({route:'proposal'},'','/proposal?'+pq); }catch(x){}
+        try{ (window.dataLayer=window.dataLayer||[]).push({event:'proposal_entry_click',from:'finder',fac:fac,con:con}); }catch(x){}
+        if(typeof navigate==='function') navigate('proposal'); else location.href='/proposal?'+pq;
+      };
+    }
     var sb=document.getElementById('rScaleBox'), sc=(scale&&SCALE[scale])?SCALE[scale]:null;
     if(sb){ if(sc){ set('rScale', sc.rec); sb.hidden=false; } else { sb.hidden=true; } }
     var out=document.getElementById('wizOut');if(out){out.classList.add('show');out.scrollIntoView({behavior:'smooth',block:'nearest'});}

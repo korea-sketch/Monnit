@@ -29,6 +29,7 @@
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/valid.js?v=1"></script>
 <script src="/js/monnit-lead.js?v=4"></script>
+<script src="/js/proposal-addon.js?v=1" defer></script>
 
 
 
@@ -633,6 +634,7 @@ footer a{color:#6db3e8}
   .cta-row .btn{width:100%;justify-content:center}
   .callbar .call{width:100%;justify-content:center}
   .bar a.mini.tel{display:none}   /* 좁은 화면에서는 히어로·기술지원 버튼으로 충분합니다 */
+  .bar a.mini{display:none}       /* 2026-09-17 — 390px 에서 위쪽 메뉴가 화면 밖으로 밀려 가로 스크롤이 생기던 것 */
   .steps{grid-template-columns:1fr}
   .ind{padding:26px 22px 24px}
   .easy article,.gw{padding:26px 22px}
@@ -1168,6 +1170,7 @@ footer a{color:#6db3e8}
                   <option value="그 외">그 외</option>
                 </select></label>
             </div>
+            <div id="wpPropSlot"></div>
             <label class="wp-agree"><input type="checkbox"> <span>개인정보 수집 · 이용에 동의합니다.
               제안서 발송과 문의 응대에만 사용합니다.
               <a href="/privacy.html" target="_blank" rel="noopener">처리방침</a></span></label>
@@ -1176,6 +1179,7 @@ footer a{color:#6db3e8}
             </div>
             <p class="wp-safe">영업 전화로 괴롭히지 않습니다. 한 번 남기시면 90일간 다시 묻지 않습니다.</p>
             <p class="dl-msg" id="msg-main"></p>
+            <div id="wpPropRes" aria-live="polite"></div>
             <div class="after-dl" id="after-main">
               레지스터 매핑표 초안이 필요하시면 <a href="#support">현장 구성만 알려주세요</a>. 상위 시스템과 계측 항목 기준으로 정리해 드립니다.
             </div>
@@ -1391,9 +1395,20 @@ footer a{color:#6db3e8}
   }
 
   var wform = document.getElementById("wpForm-main");
+  /* 「우리 현장 맞춤 제안서도 받기」 — 관심 구성안을 시설 유형 기본값으로 쓴다 */
+  var PA = null, PA_FAC = { "공장 · 제조": "factory", "데이터센터 · IDC": "datacenter", "대형 건물 · FM": "commercial", "에너지 · 인프라": "energy" };
+  function mountPA() {
+    if (PA || !window.MKPropAddon || !wform) return;
+    PA = window.MKPropAddon.mount(document.getElementById("wpPropSlot"), {
+      theme: "light", page: LEAD_PAGE, doc: DOC_TITLE, con: "control",
+      fac: function () { var s = wform.querySelector('[name="관심분야"]'); return (s && PA_FAC[s.value]) || ""; }
+    });
+  }
+  if (document.readyState === "complete") mountPA(); else window.addEventListener("load", mountPA);
   if (wform) wform.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!wpValidate(wform)) return;
+    if (PA && !PA.check()) return;
 
     var g = function (n) { var i = wform.querySelector('[name="' + n + '"]'); return i ? i.value.trim() : ""; };
     var interest = g("관심분야") || "Modbus 구성 제안";
@@ -1435,6 +1450,11 @@ footer a{color:#6db3e8}
             window.MonnitLead.track("doc_request", { page: LEAD_PAGE, interest: interest, lead: payload });
           }
         } catch (err) {}
+        /* 맞춤 제안서 — 자료 전달과 따로, 같은 입력값으로 접수 */
+        if (PA && PA.wanted()) {
+          PA.send({ company: std["회사명"], name: std["담당자명"], email: std["이메일"], phone: std["연락처"], memo: "관심 구성안: " + interest })
+            .then(function (x) { PA.result(x, document.getElementById("wpPropRes")); if (x && x.ok) PA.reset(); });
+        }
       });
   });
   // ---- 기술지원 문의: 브라우저 안에서 텍스트로 정리 ----

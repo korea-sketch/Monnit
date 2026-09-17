@@ -70,6 +70,28 @@ function ensureDataJS(cb){
 }
 /* 솔루션 페이지 HVAC 디지털 트윈 스크립트(약 400KB) — #our-solution 진입 시 1회만 로드
    (홈·광고 등에서는 로드하지 않아 초기 파싱/실행 부담을 없앰) */
+/* 맞춤 제안서 화면(/proposal · /proposal/status) — 들어올 때만 데이터(약 45KB)와 화면 스크립트를 불러옵니다 */
+function ensureProposal(cb){
+  if (window.MKProposal){ if (cb) cb(window.MKProposal); return; }
+  window.__propCbs = window.__propCbs || [];
+  if (cb) window.__propCbs.push(cb);
+  if (window.__propLoading) return;
+  window.__propLoading = true;
+  var add = function(src, next){
+    var s = document.createElement('script'); s.src = src; s.async = true;
+    s.onload = next;
+    s.onerror = function(){ window.__propLoading = false; console.warn('[proposal] 스크립트 로드 실패:', src);
+      var box = document.getElementById('ppsApp') || document.getElementById('ppLmText');
+      if (box) box.textContent = '화면을 불러오지 못했습니다. 새로고침하시거나 02-2088-1454 로 연락 주세요.'; };
+    document.head.appendChild(s);
+  };
+  var done = function(){
+    window.__propLoading = false;
+    (window.__propCbs || []).forEach(function(f){ try { f && f(window.MKProposal); } catch(e){ console.warn('[proposal]', e); } });
+    window.__propCbs = [];
+  };
+  add('/js/proposal-data.js?v=5', function(){ add('/js/proposal-view.js?v=5', done); });
+}
 function ensureSolutionTwin(){
   if (window.__twinLoaded || window.__twinLoading) return;
   var mount = document.getElementById('mhTwin');
@@ -1073,7 +1095,7 @@ function mapKnowledgebase(rows){
    index.html 을 건드리지 않고, 각 뷰의 제목·문단·이미지에 런타임 키를 부여하여
    SiteContent 탭(열: key, ko, en, image)의 값으로 덮어쓴다. 값이 비어 있으면 기존 기본값 유지. */
 let SITE_CONTENT = {};
-const SITE_VIEWS = ['view-home','view-who-we-are','view-what-we-do','view-our-solution','view-stories','view-applications','view-blog','view-products','view-partners','view-awards','view-knowledgebase','view-faqs','view-guides','view-whitepaper'];
+const SITE_VIEWS = ['view-home','view-proposal','view-who-we-are','view-what-we-do','view-our-solution','view-stories','view-applications','view-blog','view-products','view-partners','view-awards','view-knowledgebase','view-faqs','view-guides','view-whitepaper'];
 const SLOT_TEXT_SEL = 'h1,h2,h3,h4,h5,p,figcaption,.sp-k,.sp-v,.sp-d,.hs-t,.hs-d,.step-title,.step-desc';
 let _siteToggleHooked = false;
 function eachSlot(cb){
@@ -1081,7 +1103,7 @@ function eachSlot(cb){
   SITE_VIEWS.forEach(function(vid){
     const root = document.getElementById(vid); if(!root) return;
     const base = vid.replace('view-','');
-    if (vid === 'view-home' || vid === 'view-who-we-are'){
+    if (vid === 'view-home' || vid === 'view-who-we-are' || vid === 'view-proposal'){
       /* data-sc 슬롯 기반 (홈 + About us) — 시트 SiteContent 값으로 텍스트·이미지 덮어쓰기 */
       const slots = root.querySelectorAll('[data-sc]');
       slots.forEach(function(el){
@@ -1331,10 +1353,22 @@ function pathToRoute(pathname){
   return decodeURIComponent(p);
 }
 let _navSilent = false;                  // 뒤로가기 처리 중에는 주소를 다시 쌓지 않습니다
+/* 맞춤 제안서 화면의 조건·개인 링크 값은 다른 화면 주소로 따라가지 않게 뺍니다 */
+const PROPOSAL_QS = ['t','dup','lim','demo','from','fac','con','scale','fl','cl','co','nm','ti','ind','pr','gl','sgl','rc','industry','problems','goals'];
+function searchFor(target){
+  try{
+    if (/^proposal(\/|$)/.test(String(target||''))) return location.search;
+    if (!/^\/proposal(\/|$)/.test(location.pathname)) return location.search;
+    const p = new URLSearchParams(location.search);
+    PROPOSAL_QS.forEach(k => p.delete(k));
+    const q = p.toString();
+    return q ? '?' + q : '';
+  }catch(e){ return location.search; }
+}
 function setURL(target, replace){
   if (_navSilent) return;
   try{
-    const url = routeToPath(target) + location.search;
+    const url = routeToPath(target) + searchFor(target);
     if (location.pathname + location.search !== url){
       history[replace ? 'replaceState' : 'pushState']({ route:String(target||'') }, '', url);
     }
@@ -1355,6 +1389,7 @@ function navigate(target) {
       document.getElementById('view-coming').classList.add('active');
       { const _n=document.querySelector('.nav-link[data-nav="stories"]'); if(_n) _n.classList.add('active'); }
       setURL(target);
+      proposalPill(target);
       window.scrollTo({ top: 0, behavior: 'instant' });
       return;
     }
@@ -1370,6 +1405,7 @@ function navigate(target) {
       document.getElementById('view-coming').classList.add('active');
       { const _n=document.querySelector('.nav-link[data-nav="applications"]'); if(_n) _n.classList.add('active'); }
       setURL(target);
+      proposalPill(target);
       window.scrollTo({ top: 0, behavior: 'instant' });
       return;
     }
@@ -1423,6 +1459,14 @@ function navigate(target) {
     { const gc=document.getElementById('gSearchClear'); if(gc) gc.style.display='none'; }
     if (!window.__DATA_READY){ const _g=document.getElementById('gGrid'); if(_g) _g.innerHTML='<div style="padding:48px 0;text-align:center;color:var(--ink-soft,#8598b4)">가이드를 불러오는 중…</div>'; }
     ensureDataJS(function(){ if (typeof guideModule !== 'undefined' && guideModule.render) guideModule.render(); });
+  } else if (target === 'proposal' || target.startsWith('proposal/')) {
+    /* /proposal — 맞춤 제안서 신청 · /proposal/status — 신청 뒤 진행 현황(개인 화면, 색인 제외) */
+    const isStatus = target.startsWith('proposal/status');
+    if (!isStatus && target !== 'proposal') target = 'proposal';
+    const _pv = document.getElementById(isStatus ? 'view-proposal-status' : 'view-proposal');
+    if (_pv) _pv.classList.add('active');
+    setURL(isStatus ? 'proposal/status' : 'proposal');
+    ensureProposal(function(M){ M.enter(isStatus ? 'status' : 'apply'); });
   } else if (target === 'customers') {
     /* /customers — 고객사 목록. SPA 에서는 도입 사례(view-stories) 안에 그려지므로
        같은 화면을 열되 주소는 /customers 로 유지합니다 (case/ · app/ 과 같은 방식). */
@@ -1437,6 +1481,8 @@ function navigate(target) {
     const navBtn = document.querySelector(`.nav-link[data-nav="${target}"]`);
     if (navBtn) navBtn.classList.add('active');
     setURL(target);
+
+    if (target === 'contact') applyContactQuote();
 
     // 솔루션 페이지 진입 시에만 HVAC 디지털 트윈 스크립트 지연 로드
     if (target === 'our-solution' && typeof ensureSolutionTwin === 'function') { ensureSolutionTwin(); }
@@ -1459,6 +1505,8 @@ function navigate(target) {
   }
   // 뷰를 열 때마다 최신 시트 본문(SiteContent)을 다시 적용 → 어떤 화면이든 시트 값이 항상 반영
   try { if (typeof applySiteContent === 'function' && SITE_CONTENT && Object.keys(SITE_CONTENT).length) applySiteContent(); } catch(e){}
+  proposalPill(target);
+  if (target === 'whitepaper') wpPropMount();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -3137,6 +3185,29 @@ async function subscribeMsg(id) {
   }
 }
 /* ===== 백서 신청: 드롭다운에서 백서 선택 → 이메일 입력 시 다운로드 제공 ===== */
+/* 백서 폼의 「우리 현장 맞춤 제안서도 받기」 — js/proposal-addon.js 를 처음 열 때만 불러온다 */
+const WP_FAC = [[/데이터센터|IDC|전산/, 'datacenter'], [/공장|예지보전|진동|제조|Modbus/i, 'factory'], [/건설|토목/, 'construction'],
+  [/UPS|ESS|전력|에너지|발전/, 'energy'], [/콜드체인|물류|창고/, 'logistics'], [/제약|바이오|의약|초저온|병원/, 'pharma'],
+  [/호텔|리조트|FM|시설관리|빌딩|HVAC/, 'commercial'], [/공공|국방|학교|교회|요양|시니어/, 'public'], [/리테일|매장|외식|식품/, 'food'],
+  [/농업|골프|토양/, 'agri']];
+const WP_CON = [[/화재|소방/, 'fire'], [/누수|동파/, 'leak'], [/콜드체인|냉장|냉동|초저온/, 'cold'], [/예지보전|진동/, 'equip'],
+  [/UPS|ESS|전력/, 'power'], [/Modbus|연동|통합/i, 'control'], [/온도|습도/, 'temp']];
+function wpPickedTitle(){ const s = document.getElementById('wpSelect'); const w = s && WHITEPAPERS[s.value]; return w ? w.title : ''; }
+function wpHint(list){ const t = wpPickedTitle(); const hit = list.find(x => x[0].test(t)); return hit ? hit[1] : ''; }
+function wpPropMount(){
+  const slot = document.getElementById('wpPropSlot');
+  if (!slot || slot.dataset.on) return;
+  slot.dataset.on = '1';
+  const go = function(){
+    if (!window.MKPropAddon) return;
+    window.__wpProp = window.MKPropAddon.mount(slot, { theme: 'site', page: 'whitepaper',
+      doc: wpPickedTitle, fac: function(){ return wpHint(WP_FAC); }, con: function(){ return wpHint(WP_CON); } });
+  };
+  if (window.MKPropAddon) return go();
+  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=1'; s.async = true; s.onload = go;
+  s.onerror = function(){ slot.dataset.on = ''; };
+  document.head.appendChild(s);
+}
 function populateWpSelect(){
   const sel = document.getElementById('wpSelect'); if (!sel) return;
   const cur = sel.value;
@@ -3184,6 +3255,7 @@ async function wpRequest(){
   if (!mkCheckEmail(v, em).ok) return;
   if (!_ph) { alert('연락처를 입력해 주세요.');   if (ph) ph.focus(); return; }
   if (!mkCheckPhone(_ph, ph, true).ok) return;
+  if (window.__wpProp && !window.__wpProp.check()) return;
   const wp = WHITEPAPERS[idx];
 
   /* ── 다운로드 주소는 브라우저가 갖고 있지 않다 ──────────────────────────
@@ -3219,7 +3291,7 @@ async function wpRequest(){
   }
 
   /* 리드 기록 (다운로드 성패와 무관하게 남긴다) */
-  const btn = (sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null;
+  const btn = document.getElementById('wpSubmit') || ((sel && sel.parentElement) ? sel.parentElement.querySelector('button') : null);
   let _p = { 구분: '제안서 신청', 백서명: wp.title, 관심분야: wp.title,
              회사명: _co, 담당자명: _nm, 이메일: v, 연락처: _ph };
   _p = window.MonnitLead ? window.MonnitLead.build('doc_request', 'proposal', wp.title + ' 제안서', _p)
@@ -3227,9 +3299,17 @@ async function wpRequest(){
   const ok = await sendLead(_p, btn);
   if (ok === true && window.MonnitLead) window.MonnitLead.track('doc_request', { page: 'proposal', interest: wp.title });
 
+  /* 「맞춤 제안서도 받기」를 골랐으면 같은 입력값으로 접수 — 자료 전달과 따로 간다 */
+  let _prop = null;
+  if (window.__wpProp && window.__wpProp.wanted()) {
+    _prop = await window.__wpProp.send({ company: _co, name: _nm, email: v, phone: _ph });
+    window.__wpProp.result(_prop, document.getElementById('wpPropRes'));
+    if (_prop && _prop.ok) window.__wpProp.reset();
+  }
+
   if (!dl) return;
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n다운로드가 새 창에서 시작됩니다.\nPDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.');
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n다운로드가 새 창에서 시작됩니다.\nPDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.' + (_prop && _prop.ok && _prop.token ? '\n\n맞춤 제안서도 접수되었습니다. 몇 시간 이내, 접수 순서대로 보내드립니다.' : ''));
     wpClear(sel, co, nm, em, ph);
   } else if (ok === 'mailto') {
     alert('다운로드가 시작되었습니다.\n메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');
@@ -3245,6 +3325,137 @@ function toggleOtherField(selectId, otherId){
   const show = sel.value === '기타';
   other.style.display = show ? 'block' : 'none';
   if (show) other.focus(); else other.value = '';
+}
+/* 맞춤 제안서 → 「현장 전체 견적 요청」 — /contact?quote=제안번호&qc=회사&qn=성함&qt=과제
+   상담 폼을 견적 요청으로 채워 둡니다(한 번만). 주소의 값은 채운 뒤 지웁니다. */
+function applyContactQuote(){
+  try{
+    const Q = new URLSearchParams(location.search);
+    const no = (Q.get('quote') || '').slice(0, 40);
+    if (!no) return;
+    const box = document.getElementById('view-contact'); if (!box) return;
+    const en = document.documentElement.getAttribute('lang') === 'en';
+    const isNo = /^MK-P[\w-]{4,30}$/.test(no);
+    /* 회사·성함은 주소가 아니라 이 탭 저장소에서만 받는다(개인정보가 주소·분석 도구에 남지 않게) */
+    let q = {};
+    try { q = JSON.parse(sessionStorage.getItem('mk_quote') || '{}') || {}; } catch(e) { q = {}; }
+    if (q.no !== no) q = {};
+    const set = (id, v) => { const e = document.getElementById(id); if (e && v && !e.value) e.value = String(v).slice(0, 60); };
+    set('ctCompany', q.company); set('ctName', q.name);
+    const inq = document.getElementById('ctInquiry');
+    if (inq) { const o = [].find.call(inq.options, x => x.text === '견적' || x.text === 'Quote' || x.value === '견적'); if (o) { inq.value = o.value; inq.dispatchEvent(new Event('change')); } }
+    const msg = document.getElementById('ctMsg');
+    if (msg && box.dataset.quote !== no) {
+      const topic = String(q.topic || '').slice(0, 60);
+      msg.value = isNo
+        ? (en ? `[Full-site quote request] I received custom proposal ${no}${topic ? ' (focused on "' + topic + '")' : ''}. I'd like a configuration, quantities and a quote for our whole site, including other challenges.\n\n- Site / facility:\n- Other challenges to cover:\n- Equipment list or floor plan available:\n`
+              : `[현장 전체 견적 요청] 맞춤 제안서(${no}${topic ? ', 「' + topic + '」 기준' : ''})를 받았습니다. 다른 과제와 현장 전체 구성·수량·견적을 요청드립니다.\n\n- 현장·시설:\n- 추가로 보고 싶은 과제:\n- 설비 목록·도면 여부:\n`)
+        : (en ? `[Quote request] I'd like a configuration, quantities and a quote covering several challenges across our site.\n\n- Site / facility:\n- Challenges to cover:\n- Equipment list or floor plan available:\n`
+              : `[견적 요청] 여러 과제와 현장 전체 구성·수량·견적을 요청드립니다.\n\n- 현장·시설:\n- 보고 싶은 과제:\n- 설비 목록·도면 여부:\n`);
+      box.dataset.quote = no;
+    }
+    /* 견적 요청은 상담으로 받는다 — 제안서 받기 선택은 끈다 */
+    const cons = document.querySelector('input[name="ctMode"][value="consult"]');
+    if (cons && !cons.checked) { cons.checked = true; cons.dispatchEvent(new Event('change', { bubbles: true })); }
+    try { (window.dataLayer = window.dataLayer || []).push({ event: 'quote_request_view', proposal_no: isNo ? no : '', from: isNo ? 'proposal' : 'proposal_scope' }); } catch(x){}
+    Q.delete('quote');
+    const qs = Q.toString();
+    history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : ''));
+    if (msg) setTimeout(() => { msg.focus({ preventScroll: true }); msg.setSelectionRange(msg.value.length, msg.value.length); msg.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 160);
+  }catch(e){}
+}
+
+/* ── 「내 맞춤 제안서」 돌아가기 버튼 — 사례 페이지 등 다른 화면에 있어도 한 번에 돌아온다 ──
+   · 사례를 누르고 나간 경우(mk_prop_back) → 신청 화면 또는 진행 현황으로
+   · 이 탭에서 신청한 적이 있으면(mk_prop_t) → 진행 현황으로 (닫으면 이 탭에서는 다시 안 뜸) */
+function proposalPill(target){
+  try{
+    let el = document.getElementById('mkReturn');
+    const ss = window.sessionStorage;
+    const back = ss.getItem('mk_prop_back');
+    const has = ss.getItem('mk_prop_t') && ss.getItem('mk_prop_pill_off') !== '1';
+    const onProposal = /^proposal([\/-]|$)/.test(String(target || ''));
+    const dest = back || (has ? 'proposal/status' : '');
+    if (onProposal || !dest) { if (el) el.hidden = true; return; }
+    const en = document.documentElement.getAttribute('lang') === 'en';
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'mkReturn'; el.className = 'mk-return';
+      el.setAttribute('role', 'region');
+      el.innerHTML = '<a class="mk-return-go" href="/proposal/status"><span class="mk-return-dot" aria-hidden="true"></span><span class="mk-return-t"></span></a><button type="button" class="mk-return-x" aria-label="닫기">×</button>';
+      document.body.appendChild(el);
+      el.addEventListener('click', function(e){
+        if (e.target.closest('.mk-return-x')) { ss.setItem('mk_prop_pill_off', '1'); ss.removeItem('mk_prop_back'); el.hidden = true; return; }
+        const a = e.target.closest('.mk-return-go'); if (!a || e.metaKey || e.ctrlKey) return;
+        e.preventDefault();
+        const r = a.dataset.route;
+        try { (window.dataLayer = window.dataLayer || []).push({ event: 'proposal_return_click', to: r }); } catch(x){}
+        try { history.pushState({ route: r }, '', '/' + r); } catch(x){}
+        navigate(r);
+      });
+    }
+    const a = el.querySelector('.mk-return-go');
+    a.dataset.route = dest; a.setAttribute('href', '/' + dest);
+    el.querySelector('.mk-return-t').textContent = dest === 'proposal'
+      ? (en ? 'Back to my proposal request' : '맞춤 제안서 신청으로 돌아가기')
+      : (en ? 'My proposal status' : '내 맞춤 제안서 진행 현황');
+    el.querySelector('.mk-return-x').setAttribute('aria-label', en ? 'Close' : '닫기');
+    el.setAttribute('aria-label', en ? 'Return to your custom proposal' : '맞춤 제안서로 돌아가기');
+    el.hidden = false;
+  }catch(e){}
+}
+window.addEventListener('monnit:langchange', function(){ const v = document.querySelector('.view.active'); proposalPill(v ? v.id.replace(/^view-/, '') : ''); });
+document.addEventListener('click', function(e){
+  const a = e.target.closest && e.target.closest('[data-nav-quote]');
+  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  try { history.pushState({ route:'contact' }, '', a.getAttribute('href')); } catch(x){}
+  navigate('contact');
+});
+/* 상담 폼 — 「상담만 / 맞춤 제안서도 받기」 */
+function ctPropMode(){ const r = document.querySelector('input[name="ctMode"]:checked'); return r ? r.value : 'consult'; }
+(function bindCtProp(){
+  const box = document.getElementById('ctProp'); if (!box) return;
+  const more = document.getElementById('ctPropMore'), btn = document.getElementById('ctSubmit');
+  box.addEventListener('change', function(e){
+    if (e.target.name !== 'ctMode') return;
+    box.querySelectorAll('.ct-prop-seg label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+    const on = ctPropMode() === 'proposal';
+    if (more) more.hidden = !on;
+    if (btn) btn.textContent = on ? '상담 신청 + 맞춤 제안서 받기' : '상담 신청 보내기';
+    try { (window.dataLayer = window.dataLayer || []).push({ event: 'proposal_contact_toggle', mode: ctPropMode() }); } catch(x){}
+    if (on) ensureProposal();   /* 미리 불러 두면 제출 뒤 화면 전환이 빠릅니다 */
+  });
+  box.addEventListener('click', function(e){
+    const b = e.target.closest('#ctPropChips button'); if (!b) return;
+    /* 무료 제안서는 가장 고민되는 주제 하나 — 다른 칩을 누르면 바뀐다 */
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    box.querySelectorAll('#ctPropChips button').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', String(on));
+  });
+})();
+function contactProposal(body, btn){
+  return new Promise(function(resolve){
+    ensureProposal(function(M){
+      M.fromContact(body, btn).then(function(r){
+        if (!r || !r.ok) { resolve(false); return; }
+        try {
+          if (window.MonnitLead) {
+            window.MonnitLead.build('contact', 'contact_page', '상담 신청 + 맞춤 제안서 — ' + body.name, {
+              구분: '상담 신청(맞춤 제안서)', 회사명: body.company, 담당자명: body.name, 이메일: body.email, 전화번호: body.phone,
+              산업군: body.industryText, 문의항목: body.inquiry, 문의내용: body.memo
+            });
+            window.MonnitLead.setNotified(true);
+            window.MonnitLead.track('contact', { page: 'contact_page', interest: '맞춤 제안서' });
+          }
+        } catch(e){}
+        ['ctCompany','ctName','ctEmail','ctPhone','ctMsg','ctFacility','ctIndustryOther','ctInquiryOther'].forEach(i => { const e=document.getElementById(i); if(e) e.value=''; });
+        resolve(true);
+        M.goStatus(r);
+      });
+    });
+    setTimeout(function(){ resolve(false); }, 20000);
+  });
 }
 async function contactSubmit() {
   const company = (document.getElementById('ctCompany')||{}).value || '';
@@ -3269,6 +3480,19 @@ async function contactSubmit() {
   if (industry === '기타' && !industryOther.trim()) { alert('산업군을 직접 입력해 주세요.'); return; }
   if (inquiry === '기타' && !inquiryOther.trim()) { alert('문의 항목을 직접 입력해 주세요.'); return; }
   const btn = document.querySelector('#view-contact .form-btn');
+  /* 「맞춤 제안서도 받기」 — 제안서 서버가 접수·담당자 알림을 맡고, 사이트 원장에는 알림 없이 한 줄만 남깁니다(메일 2통 방지) */
+  if (ctPropMode() === 'proposal') {
+    const cs = document.getElementById('ctPropConsent');
+    if (!cs || !cs.checked) { alert('맞춤 제안서를 받으시려면 개인정보 이용에 동의해 주세요.'); if (cs) cs.focus(); return; }
+    const done = await contactProposal({
+      company: company.trim(), name: name.trim(), email: email.trim(), phone: phone.trim(),
+      industryText: industry, inquiry: inquiry, memo: msg.trim(),
+      facility: ((document.getElementById('ctFacility')||{}).value || '').trim(),
+      concerns: [].map.call(document.querySelectorAll('#ctPropChips [aria-pressed="true"]'), b => b.dataset.c)
+    }, btn);
+    if (done) return;
+    /* 제안서 접수가 안 되면 아래 일반 상담 접수로 이어갑니다 — 상담 신청은 잃지 않습니다 */
+  }
   let _p = {
     구분: '상담 신청', 회사명: company.trim(), 담당자명: name.trim(),
     이메일: email.trim(), 전화번호: phone.trim(),
@@ -5024,7 +5248,7 @@ async function boot() {
     try { history.replaceState(null, '', routeToPath(initRoute) + location.search); } catch(e){}
   }
   if (initRoute && initRoute !== 'home') navigate(initRoute);
-  else setURL('home', true);
+  else { setURL('home', true); proposalPill('home'); }
   try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
   // 2) 구글 시트/에디터 데이터가 로드되면 최신 값으로 "다시 렌더 + 본문(SiteContent) 재적용"
   //    → 렌더 함수가 모두 멱등(idempotent)이라 중복 없이 시트 변경이 반드시 반영된다.

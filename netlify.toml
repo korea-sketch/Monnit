@@ -1,7 +1,8 @@
 # Monnit Korea — Netlify 설정
 # 빌드 시 build.js 가 robots.txt / sitemap.xml / llms.txt / llms-full.txt / pages/*.html 를 생성합니다.
 [build]
-  command = "node build.js"
+  # proposal-sync: 맞춤 제안서 사례 데이터를 구글 시트에서 갱신 (실패해도 스냅샷으로 계속 진행)
+  command = "node scripts/proposal-sync.mjs && node build.js"
   publish = "."
 
 # Node 18+ (Function/ESM 없이 순수 CommonJS라 버전 민감도 낮음)
@@ -58,6 +59,54 @@
   from = "/church/"
   to = "/church/index.html"
   status = 200
+
+# ── 맞춤 제안서 (2026-09-17) ─────────────────────────────────────
+#   신청  /proposal          → SPA 화면 view-proposal (build.js 가 /proposal/index.html 생성)
+#   현황  /proposal/status   → SPA 화면 view-proposal-status (_redirects 폴백 → index.html · 색인 금지)
+#   API   /api/proposal/*    · 관리 /ops/proposals  → netlify/functions/proposal-*.mjs
+[[headers]]
+  for = "/proposal/status"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/proposal/status/"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-view.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-addon.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-data.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# PDF 글꼴 — 함수 안에서만 읽는다. 공개 주소는 _redirects 에서 404.
+# 제안서를 만드는(renderPdf) 함수 셋에만 넣는다 (6.7MB).
+[functions."proposal-api"]
+  included_files = ["netlify/functions/_guard.js", "netlify/functions/_store.mjs"]
+
+[functions."proposal-build-background"]
+  included_files = ["assets/fonts/Pretendard-*.ttf"]
+
+[functions."proposal-dispatch"]
+  included_files = ["assets/fonts/Pretendard-*.ttf"]
+
+[functions."proposal-admin"]
+  # _ops_auth.mjs: 통합 관제(/ops) 로그인을 함께 쓰기 위해 실행 시점에 읽는다(없으면 관리 키 로그인만)
+  included_files = ["assets/fonts/Pretendard-*.ttf", "netlify/functions/_ops_auth.mjs", "netlify/functions/_store.mjs"]
 
 # 프로모션 랜딩: 회전설비 AI 예지보전 1개월 무료 체험 (컨설팅)
 # ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다

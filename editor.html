@@ -1200,6 +1200,8 @@ function homeGroup(key){
   if(key.startsWith('about2.r')||key==='about2.why.head') return '▣ About us · Ⓓ 왜 Monnit인가 6가지';
   if(key.startsWith('about2.step')||key==='about2.mfg.head') return '▣ About us · Ⓔ 설계→제조·검증 3단계';
   if(key.startsWith('about2.cmp')) return '▣ About us · Ⓕ 유선/무선 비교표';
+  /* ===== 맞춤 제안서 (proposal.*) ===== */
+  if(key.startsWith('proposal.')) return '◆ 맞춤 제안서 · /proposal 상단 (제목·설명·지표)';
   /* ===== 구버전 호환 (혹시 남아있을 경우) ===== */
   if(key.startsWith('home.')) return '⑫ (구버전) 기타';
   return '⑫ 기타';
