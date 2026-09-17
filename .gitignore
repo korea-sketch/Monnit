@@ -30,3 +30,6 @@ __pycache__/
 
 # 데스크톱 앱 작업 결과 폴더 — 저장소에 올리지 않음
 Claude outputs/
+
+# Netlify CLI 로컬 캐시 (배포와 무관)
+.netlify/
