@@ -89,7 +89,13 @@ window.VisitCore = (function () {
     var m = closedMemo(cfg, k);
     if (m !== null) return { open: false, why: m, hol: false };
     if (cfg.workdays.indexOf(dowOf(k)) === -1) return { open: false, why: "휴무", hol: false };
+    /* 이미 잡힌 예약이 하루 최대 건수에 닿으면 마감 */
+    if (takenOn(cfg, k).length >= (cfg.maxPerDay || 99)) return { open: false, why: "예약 마감", hol: false };
     return { open: true, why: "", hol: false };
+  }
+  /* 다른 고객이 이미 잡은 시간 — 서버(/visit/config)가 날짜·시각만 내려 준다 (고객 화면에서만 씀) */
+  function takenOn(cfg, k) {
+    return (cfg.taken || []).filter(function (t) { return t && t.d === k; });
   }
   function computeSlots(cfg, k) {
     if (!dayStatus(cfg, k).open) return [];
@@ -97,7 +103,7 @@ window.VisitCore = (function () {
     var lS = toMin(cfg.lunchStart), lE = toMin(cfg.lunchEnd);
     var step = cfg.granularity || 30, mins = cfg.mins || 60, buf = cfg.buffer || 0;
     var earliest = new Date(Date.now() + (cfg.leadHours || 0) * 3600000);
-    var blocks = cfg.blocks.filter(function (b) { return b.d === k; });
+    var blocks = cfg.blocks.filter(function (b) { return b.d === k; }).concat(takenOn(cfg, k));
     for (var m = open; m + mins <= close; m += step) {
       var s = inst(k, toHM(m));
       if (s < earliest) continue;
@@ -119,7 +125,7 @@ window.VisitCore = (function () {
     return [cfg.workdays.join(","), cfg.dayStart, cfg.dayEnd, cfg.lunchStart, cfg.lunchEnd,
       cfg.mins, cfg.buffer, cfg.granularity, cfg.leadHours,
       cfg.horizonMonths, cfg.horizonDays, cfg.horizonUntil || "",
-      JSON.stringify(cfg.closed), JSON.stringify(cfg.blocks)].join("|");
+      JSON.stringify(cfg.closed), JSON.stringify(cfg.blocks), JSON.stringify(cfg.taken || [])].join("|");
   }
   function fresh(cfg) {
     var sig = sigOf(cfg), bucket = Math.floor(Date.now() / 60000);
@@ -192,8 +198,9 @@ window.VisitCore = (function () {
       return fetch(CONFIG_URL, { cache: "no-store" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (j) {
-          if (j && j.cfg && j.cfg.workdays) return { cfg: normalize(j.cfg), savedAt: j.savedAt || "" };
-          return null;
+          var taken = (j && Array.isArray(j.taken)) ? j.taken : [];
+          if (j && j.cfg && j.cfg.workdays) return { cfg: normalize(j.cfg), savedAt: j.savedAt || "", taken: taken };
+          return j && j.ok ? { cfg: null, taken: taken } : null;
         })
         .catch(function () { return null; });
     } catch (e) { return Promise.resolve(null); }
@@ -204,13 +211,18 @@ window.VisitCore = (function () {
   function resolveCfg() {
     var q = null;
     try { q = new URLSearchParams(location.search).get("s"); } catch (e) {}
+    var link = null;
     if (q) {
       var c = decodeCfg(q);
-      if (c && c.workdays) return Promise.resolve({ cfg: normalize(c), src: "link" });
+      if (c && c.workdays) link = normalize(c);
     }
     return fetchRemote().then(function (r) {
-      if (r) return { cfg: r.cfg, src: "server", savedAt: r.savedAt };
-      return { cfg: JSON.parse(JSON.stringify(DEFAULT_CFG)), src: "default" };
+      var taken = (r && r.taken) || [];
+      var out = link ? { cfg: link, src: "link" }
+        : (r && r.cfg) ? { cfg: r.cfg, src: "server", savedAt: r.savedAt }
+        : { cfg: JSON.parse(JSON.stringify(DEFAULT_CFG)), src: "default" };
+      out.cfg.taken = taken;
+      return out;
     });
   }
 

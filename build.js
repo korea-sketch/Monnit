@@ -1411,9 +1411,11 @@ const LEGACY_RULES = (function(){
    · 한글 파일명은 Netlify 가 퍼센트 인코딩 주소로 비교하므로 원문·인코딩 두 줄을 씁니다.
    · 루트의 문서(.md)·스크립트(.sh)·설정 파일은 빌드 때마다 목록을 새로 만듭니다 — 새 안내 문서를 올려도 자동으로 막힙니다. */
 const PRIVATE_RULES = (function () {
-  const DIRS = ['netlify', 'tools', 'scripts', 'ui', 'source', 'functions', 'node_modules', 'data/proposal'];
+  const DIRS = ['netlify', 'tools', 'scripts', 'ui', 'source', 'functions', 'node_modules', 'data/proposal',
+    /* 데스크톱 앱이 작업 결과를 저장하는 폴더 — 저장소에 섞여 올라가도 공개되지 않게 (2026-09-17 실서버에서 패치 파일이 열렸다) */
+    'Claude outputs', 'claude-outputs', 'outputs'];
   const KEEP = new Set(['robots.txt', 'llms.txt', 'llms-full.txt', 'humans.txt', 'sitemap.xml', 'manifest.json']);
-  const PRIVATE_EXT = /\.(md|sh|toml|csv|lock|log|env)$/i;
+  const PRIVATE_EXT = /\.(md|sh|toml|csv|lock|log|env|patch|diff|zip|pem|key)$/i;
   const PRIVATE_NAME = /^(package(-lock)?\.json|gitignore\.txt|build\.js|_headers|_redirects)$|미리보기\.html$/;
   let names = [];
   try { names = fs.readdirSync(__dirname, { withFileTypes: true }).filter(d => d.isFile()).map(d => d.name); } catch (e) {}

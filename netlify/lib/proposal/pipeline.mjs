@@ -73,15 +73,23 @@ export async function switchToReview(id, reason) {
 export async function buildJob(id, { ai = true, autoSend = false } = {}) {
   const r = await buildOnce(id, { ai });
   if (!autoSend) return r;
-  const job = await S.getJob(id).catch(() => null);
+  let job = await S.getJob(id).catch(() => null);
   if (!job || modeOf(job) !== 'instant') return r;
   if (!r.ok) {
     if (!r.busy) await switchToReview(id, '제안서 생성 오류 — ' + String(r.error || '').slice(0, 80));
     return r;
   }
   if (job.status !== 'drafted') return r;
-  /* 규칙 점검에 걸린 문안은 자동으로 보내지 않고 엔지니어 확인으로 */
-  const bad = ((job.draft && job.draft.checks) || []).filter(c => !c.ok && !c.warn);
+  /* 규칙 점검에 걸린 AI 문안은 보내지 않는다 — 검증된 템플릿 문안으로 다시 만들어 그대로 자동 발송한다.
+     (예전에는 엔지니어 확인으로만 넘겨, 담당자가 손대지 않으면 걸린 문안이 예정 시각에 그대로 나갔다) */
+  let bad = hardFails(job);
+  if (bad.length && job.draft.ai) {
+    const labels = bad.map(c => c.label).join(', ');
+    const t = await buildOnce(id, { ai: false, note: 'AI 문안 규칙 점검 실패(' + labels + ') → 템플릿 문안으로 교체' });
+    job = await S.getJob(id);
+    bad = t.ok ? hardFails(job) : bad;
+    if (t.ok && !bad.length) await Mail.notifyStaff('review', job, { '알림': 'AI 문안이 규칙 점검(' + labels + ')에 걸려 템플릿 문안으로 바꿔 자동 발송합니다. 필요하면 관리 화면에서 재생성하세요.' }).catch(() => {});
+  }
   if (bad.length) { await switchToReview(id, '규칙 점검 — ' + bad.map(c => c.label).join(', ')); return { ...r, sent: false, checks: bad.length }; }
   const wait = job.dueAt - Date.now();
   if (wait > 0) await sleep(Math.min(wait, 8 * MIN));
@@ -89,7 +97,9 @@ export async function buildJob(id, { ai = true, autoSend = false } = {}) {
   return { ...r, sent: !!s.ok, send: s };
 }
 
-async function buildOnce(id, { ai = true } = {}) {
+const hardFails = job => ((job && job.draft && job.draft.checks) || []).filter(c => !c.ok && !c.warn);
+
+async function buildOnce(id, { ai = true, note = '' } = {}) {
   const release = await S.lease('build-' + id, 5 * MIN);
   if (!release) return { ok: false, busy: true };
   try {
@@ -103,7 +113,7 @@ async function buildOnce(id, { ai = true } = {}) {
     if (!wasHold) job.status = 'drafting';
     await S.saveJob(job);
 
-    const logs = [];
+    const logs = note ? [note] : [];
     let copy;
     try { copy = ai ? await buildCopy(job, m => logs.push(m)) : templateCopy(job); }
     catch (e) { logs.push('문안 오류 → 템플릿: ' + e.message); copy = templateCopy(job); }
@@ -355,7 +365,11 @@ export async function tick({ now = Date.now(), origin, budgetMs = 22000 } = {}) 
       out.preview++;
     }
 
-    /* ③ 발송 */
+    /* ③ 발송 — 규칙 점검에 걸린 AI 문안이면 템플릿 문안으로 다시 만든 뒤 보낸다 */
+    if (due <= now && job.draft && job.draft.ai && hardFails(job).length && left() > 12000) {
+      const b = await buildOnce(id, { ai: false, note: '발송 전 규칙 점검 실패 → 템플릿 문안으로 교체' });
+      if (b.ok) out.built++;
+    }
     if (due <= now) {
       const r = await sendJob(id, { now });
       if (r.ok && !r.skipped) out.sent++;

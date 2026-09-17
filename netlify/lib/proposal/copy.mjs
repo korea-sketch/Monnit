@@ -9,9 +9,10 @@
  *   · 길이 제한을 넘으면 자른다 */
 import { CFG } from './config.mjs';
 import { PROBLEMS, GOALS } from './kb.mjs';
+import { josa } from './josa.mjs';
 
 const clip = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1).replace(/[\s,.·]+\S*$/, '') + '…' : s; };
-const BANNED = /(보장|확실히|반드시\s*해결|100%\s*해결|무조건|최저가|원\s*\/|만\s*원|억\s*원|가격|단가|견적가)/;
+const BANNED = /(보장|확실히|반드시\s*해결|100%\s*해결|무조건|최저가|원\s*\/|만\s*원|억\s*원|가격|단가|견적가|청와대|공공\s*데이터\s*활용|데키스트|dekist)/i;
 
 function allowedNumbers(m) {
   const set = new Set();
@@ -44,7 +45,7 @@ export function templateCopy(job) {
   const goals = m.input.goals.map(k => GOALS[k].label);
   const top = m.top[0];
   const where = L.facility ? `${L.facility}` : `${L.company}의 ${m.industry.short} 현장`;
-  const summary = `${where}에서 가장 고민된다고 말씀하신 ${probs.slice(0, 2).map(p => p.label).join(', ')}${probs.length > 2 ? ` 등 ${probs.length}가지 과제` : ''}를 기준으로, ` +
+  const summary = `${where}에서 가장 고민된다고 말씀하신 ${josa(probs.slice(0, 2).map(p => p.label).join(', ') + (probs.length > 2 ? ` 등 ${probs.length}가지 과제` : ''), '을', '를')} 기준으로, ` +
     `${CFG.brand.countries}개국 Monnit 글로벌 레퍼런스와 국내 도입 현장(${CFG.brand.publicRef} 등) 데이터에서 ${m.industry.label} 현장과 가장 닮은 사례를 골랐습니다. ` +
     (top ? `가장 가까운 사례는 ${top.name}(일치도 ${top.pct}%)이며, ` : '') +
     `목표로 말씀하신 「${goals.slice(0, 2).join(', ')}」에 맞춰, 무선 센서를 먼저 작게 붙여 데이터로 확인한 뒤 넓혀 가는 방식을 제안드립니다.`;
@@ -82,7 +83,7 @@ export function templateCopy(job) {
 
     const fz = pb.zones.filter(z => z.focus).map(z => z.zone);
     extra.zoneFocus = fz.length
-      ? `말씀하신 ${probs.slice(0, 2).map(p => p.label).join(', ')}와 직접 연결되는 구역은 ${fz.slice(0, 3).join(', ')}입니다. 이 구역부터 센서를 붙여 데이터를 확인한 뒤 다른 구역으로 넓히는 순서를 권합니다.`
+      ? `말씀하신 ${josa(probs.slice(0, 2).map(p => p.label).join(', '), '과', '와')} 직접 연결되는 구역은 ${fz.slice(0, 3).join(', ')}입니다. 이 구역부터 센서를 붙여 데이터를 확인한 뒤 다른 구역으로 넓히는 순서를 권합니다.`
       : `${seg} 현장에서 일반적으로 먼저 살피는 구역입니다. 현장 진단에서 우선순위를 함께 정합니다.`;
     extra.roadmapIntro = `센서를 붙이는 것은 시작입니다. 처음에는 가시화와 알림·대응 체계(L1~L2)로 이상을 놓치지 않는 데 집중하고, 데이터가 쌓이면 기존 시스템 연동·자동 제어·예측(L3~L5)으로 넓혀 ${goals[0] || '운영 목표'}에 가까워지는 방식을 제안드립니다.`;
   }

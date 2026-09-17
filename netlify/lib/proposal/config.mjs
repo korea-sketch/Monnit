@@ -20,7 +20,9 @@ export const CFG = {
   /* 무료 맞춤 제안서 범위 — 과제 몇 개까지 다룰지 · 같은 회사·이메일에 몇 일에 한 번 보낼지 */
   get maxProblems() { return Math.min(6, Math.max(1, num('PROPOSAL_MAX_PROBLEMS', 1))); },
   get onePerDays() { return Math.max(1, num('PROPOSAL_ONE_PER_DAYS', 30)); },
-  get reviewHours() { return num('PROPOSAL_REVIEW_HOURS', 24); },
+  /* 엔지니어 확인 건의 발송 시각 — 접수 후 N시간, 영업시간 밖이면 다음 영업일 오전.
+     화면·메일이 「몇 시간 이내」라고 안내하므로 기본 4시간 (예전 24시간은 목요일 밤 접수가 월요일에 나갔다) */
+  get reviewHours() { return num('PROPOSAL_REVIEW_HOURS', 4); },
   /* 즉시 방식 도착 안내 — 분 단위로 약속하지 않고 넉넉하게 */
   get etaText() { return env('PROPOSAL_ETA_TEXT', '몇 시간 이내'); },
   get callbackText() { return env('PROPOSAL_CALLBACK_TEXT', '영업일 기준 1일 안에'); },

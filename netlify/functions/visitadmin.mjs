@@ -8,12 +8,34 @@ import { get, set } from './_store.mjs';
 export const config = {
   path: ['/visit/admin', '/visit/admin/', '/visit/admin/login', '/visit/admin/logout',
          '/visit/admin/config',   /* 저장 — 로그인한 담당자만 */
-         '/visit/config']         /* 읽기 — 고객 화면이 열 때마다 가져갑니다 */
+         '/visit/admin/holds',    /* 자동으로 잡힌 예약 시간 보기·해제 — 로그인한 담당자만 */
+         '/visit/config',         /* 읽기 — 고객 화면이 열 때마다 가져갑니다 */
+         '/visit/hold']           /* 고객이 예약하는 순간 그 시간을 잡습니다 (이중 예약 방지) */
 };
 
 /* 설정 저장소 — 관리 화면에서 저장하면 여기 올라가고,
    /visit 이 그걸 읽어 갑니다. 그래서 링크를 다시 만들 필요가 없습니다. */
 const CFG_STORE = 'visit', CFG_KEY = 'config.json';
+
+/* ── 자동 예약 잡기 (2026-09-17) ─────────────────────────────────────
+   예전에는 같은 시간에 두 고객이 예약할 수 있었고, 관리 화면의 「하루 최대 건수」도 적용되지 않았다.
+   (담당자가 확정된 예약을 「시간 막기」에 손으로 넣어야 했다)
+   이제 고객이 예약하는 순간 서버가 그 시간을 잡고, 고객 화면은 잡힌 시간(개인정보 없이 날짜·시각만)을 빼고 보여 준다.
+   잡힌 시간은 관리 화면 「자동으로 잡힌 예약」에서 해제할 수 있다. */
+const HOLD_KEY = 'holds.json';
+const KST = 9 * 3600000;
+const kstParts = ms => { const x = new Date(ms + KST).toISOString(); return { d: x.slice(0, 10), hm: x.slice(11, 16), dow: new Date(ms + KST).getUTCDay() }; };
+const toMin = hm => { const [h, m] = String(hm).split(':').map(Number); return h * 60 + m; };
+async function readHolds() {
+  try { const o = JSON.parse((await get(CFG_STORE, HOLD_KEY)) || '[]'); return Array.isArray(o) ? o : []; }
+  catch (e) { return []; }
+}
+async function readCfg() {
+  try { const o = JSON.parse((await get(CFG_STORE, CFG_KEY)) || 'null'); return o && o.cfg ? cleanCfg(o.cfg) : cleanCfg({}); }
+  catch (e) { return cleanCfg({}); }
+}
+const publicHolds = (holds, now) => holds.filter(h => h.end > now).map(h => ({ d: h.d, s: h.s, e: h.e }));
+const ipHash = ip => { let x = 0; for (const c of String(ip)) x = (x * 31 + c.charCodeAt(0)) >>> 0; return x.toString(36); };
 
 /* 들어온 값을 그대로 믿지 않고 필요한 것만 골라 담습니다. */
 function cleanCfg(c) {
@@ -90,13 +112,69 @@ export default async (req) => {
   if (p === '/visit/config') {
     if (req.method !== 'GET') return json({ ok: false, error: 'method' }, 405);
     try {
+      const taken = publicHolds(await readHolds(), Date.now());
       const raw = await get(CFG_STORE, CFG_KEY);
-      if (!raw) return json({ ok: true, cfg: null });          /* 아직 저장 전 — 기본값으로 열립니다 */
+      if (!raw) return json({ ok: true, cfg: null, taken });   /* 아직 저장 전 — 기본값으로 열립니다 */
       const o = JSON.parse(raw);
-      return json({ ok: true, cfg: o.cfg, savedAt: o.savedAt || '' });
+      return json({ ok: true, cfg: o.cfg, savedAt: o.savedAt || '', taken });
     } catch (e) {
       return json({ ok: true, cfg: null });                    /* 읽기 실패해도 예약 화면은 열려야 합니다 */
     }
+  }
+
+  /* ── 고객이 예약하는 순간 시간 잡기 (누구나 · 검증 후) ────────── */
+  if (p === '/visit/hold') {
+    if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
+    const site = req.headers.get('sec-fetch-site') || '';
+    if (site === 'cross-site') return json({ ok: false, error: 'origin' }, 403);
+    let b = null;
+    try { b = await req.json(); } catch (e) {}
+    const start = Date.parse(b && b.start);
+    const code = String((b && b.code) || '').replace(/[^A-Z0-9-]/gi, '').slice(0, 40);
+    if (!Number.isFinite(start) || !code) return json({ ok: false, error: 'bad_body' }, 400);
+    const now = Date.now();
+    const cfg = await readCfg();
+    const k = kstParts(start), sMin = toMin(k.hm), eMin = sMin + cfg.mins;
+    /* 고객 화면이 보여 줄 수 있는 시간인지 — 과거·휴무·업무시간 밖·점심·리드타임 */
+    const wrong =
+      start < now + cfg.leadHours * 3600000 - 5 * 60000 ||
+      !cfg.workdays.includes(k.dow) || cfg.closed.some(x => x.d === k.d) ||
+      sMin < toMin(cfg.dayStart) || eMin > toMin(cfg.dayEnd) ||
+      (sMin < toMin(cfg.lunchEnd) && toMin(cfg.lunchStart) < eMin) ||
+      (sMin - toMin(cfg.dayStart)) % cfg.granularity !== 0 ||
+      cfg.blocks.some(x => x.d === k.d && sMin - cfg.buffer < toMin(x.e) && toMin(x.s) < eMin + cfg.buffer);
+    if (wrong) return json({ ok: false, error: 'unavailable' }, 409);
+    const ip = ipOf(req), ih = ipHash(ip);
+    let holds = (await readHolds()).filter(h => h.end > now - 86400000);   /* 지난 건 정리 */
+    if (holds.some(h => h.code === code)) return json({ ok: true, again: true });
+    if (holds.filter(h => h.ih === ih && h.at > now - 86400000).length >= 3) return json({ ok: false, error: 'rate' }, 429);
+    const sameDay = holds.filter(h => h.d === k.d && h.end > now);
+    const clash = sameDay.some(h => sMin - cfg.buffer < toMin(h.e) && toMin(h.s) < eMin + cfg.buffer);
+    if (clash) return json({ ok: false, error: 'taken' }, 409);
+    if (sameDay.length >= cfg.maxPerDay) return json({ ok: false, error: 'full' }, 409);
+    const eHM = String(Math.floor(eMin / 60)).padStart(2, '0') + ':' + String(eMin % 60).padStart(2, '0');
+    holds.push({
+      code, start, end: start + cfg.mins * 60000, d: k.d, s: k.hm, e: eHM, at: now, ih,
+      company: String((b && b.company) || '').replace(/[\u0000-\u001f<>]/g, '').slice(0, 60)
+    });
+    if (!(await set(CFG_STORE, HOLD_KEY, JSON.stringify(holds)))) return json({ ok: false, error: 'store' }, 503);
+    return json({ ok: true });
+  }
+
+  /* ── 자동으로 잡힌 예약 — 보기·해제 (로그인 필요) ──────────── */
+  if (p === '/visit/admin/holds') {
+    if (!auth.configured() || !auth.valid(auth.cookieFrom(req.headers))) return json({ ok: false, error: 'unauthorized' }, 401);
+    const now = Date.now();
+    let holds = await readHolds();
+    if (req.method === 'POST') {
+      let b = null;
+      try { b = await req.json(); } catch (e) {}
+      const code = String((b && b.release) || '');
+      holds = holds.filter(h => h.code !== code);
+      if (!(await set(CFG_STORE, HOLD_KEY, JSON.stringify(holds)))) return json({ ok: false, error: 'store' }, 500);
+    }
+    return json({ ok: true, holds: holds.filter(h => h.end > now).sort((a, b) => a.start - b.start)
+      .map(h => ({ code: h.code, d: h.d, s: h.s, e: h.e, company: h.company || '' })) });
   }
 
   /* ── 담당자가 저장하는 곳 (로그인 필요) ──────────────────── */
@@ -310,6 +388,13 @@ function ADMIN() {
       </div>
 
       <div class="card">
+        <h3>자동으로 잡힌 예약
+          <span class="sub">고객이 예약하면 그 시간이 자동으로 잡혀 다른 고객에게는 보이지 않습니다. 취소·변경된 예약은 해제하면 다시 열립니다. (저장 버튼 없이 바로 반영)</span>
+        </h3>
+        <div class="chiplist" id="holdList"><span class="hint">불러오는 중…</span></div>
+      </div>
+
+      <div class="card">
         <h3>자동으로 빠지는 공휴일
           <span class="sub">대한민국 관공서 공휴일과 대체공휴일입니다. 따로 넣지 않아도 예약 화면에서 빠집니다.</span>
         </h3>
@@ -377,7 +462,7 @@ function ADMIN() {
   </footer>
 </div>
 
-<script src="/visit-core.js"></script>
+<script src="/visit-core.js?v=2"></script>
 <script>
 (function(){
   "use strict";
@@ -584,11 +669,11 @@ function ADMIN() {
   /* 서버에 저장된 설정으로 되돌리기 */
   function pullFromServer(quiet){
     return V.fetchRemote().then(function(r){
-      if(r){ cfg=r.cfg; savedAt=r.savedAt||""; }
+      if(r&&r.cfg){ cfg=r.cfg; savedAt=r.savedAt||""; }
       else { cfg=JSON.parse(JSON.stringify(V.DEFAULT_CFG)); savedAt=""; }
       dirty=false;
       fillForm(); renderClosed(); renderBlocks(); render(); showPub();
-      if(!quiet) V.toast(r?"저장된 설정을 불러왔습니다":"저장된 설정이 없어 기본값으로 두었습니다");
+      if(!quiet) V.toast(r&&r.cfg?"저장된 설정을 불러왔습니다":"저장된 설정이 없어 기본값으로 두었습니다");
     });
   }
   document.getElementById("reloadCfg").addEventListener("click",function(){ pullFromServer(false); });
@@ -601,8 +686,32 @@ function ADMIN() {
     V.toast("처음 값으로 되돌렸습니다");
   });
 
+  /* 자동으로 잡힌 예약 */
+  function renderHolds(list){
+    var box=document.getElementById("holdList");
+    if(!list||!list.length){box.innerHTML='<span class="hint">잡힌 예약이 없습니다.</span>';return;}
+    box.innerHTML="";
+    list.forEach(function(x){
+      var el=document.createElement("span"); el.className="chip";
+      el.innerHTML=V.esc(x.d)+" "+V.esc(x.s)+"\u2013"+V.esc(x.e)+' <span class="memo">'+V.esc(x.company||x.code)+'</span>';
+      var del=document.createElement("button"); del.type="button"; del.textContent="\u00d7"; del.title="해제";
+      del.addEventListener("click",function(){
+        if(!confirm(x.d+" "+x.s+" 예약 시간을 해제할까요? 고객 화면에 다시 열립니다.")) return;
+        loadHolds({release:x.code}).then(function(){ V.toast("해제했습니다","ok"); });
+      });
+      el.appendChild(del); box.appendChild(el);
+    });
+  }
+  function loadHolds(body){
+    return fetch("/visit/admin/holds",{method:body?"POST":"GET",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined,cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(j){ if(j&&j.ok) renderHolds(j.holds); else document.getElementById("holdList").innerHTML='<span class="hint">불러오지 못했습니다.</span>'; })
+      .catch(function(){ document.getElementById("holdList").innerHTML='<span class="hint">불러오지 못했습니다.</span>'; });
+  }
+
   renderHolidays();
   pullFromServer(true);
+  loadHolds();
 })();
 </script>
 </body>

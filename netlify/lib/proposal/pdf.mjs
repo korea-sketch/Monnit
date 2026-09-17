@@ -37,6 +37,7 @@ import { PROBLEMS, GOALS, SENSORS, AUTOMATION_KIT } from './kb.mjs';
 import { fmtKST } from './schedule.mjs';
 import { scopeOf } from './match.mjs';
 import * as BRAND from './brand.data.mjs';
+import { josa } from './josa.mjs';
 
 const A4 = [595.28, 841.89];
 const M = 48;                       /* 좌우 여백 */
@@ -74,7 +75,15 @@ class Doc {
     s = String(s == null ? '' : s).replace(/[\r\t]/g, ' ');
     if (!this.charset) this.charset = new Set(this.F.R.getCharacterSet());
     let out = '';
-    for (const ch of s) { const cp = ch.codePointAt(0); out += (ch === '\n' || this.charset.has(cp)) ? ch : (cp > 0x2e80 && cp < 0xa000 ? '□' : ''); }
+    const has = t => [...t].every(c => this.charset.has(c.codePointAt(0)));
+    for (const ch of s) {
+      const cp = ch.codePointAt(0);
+      if (ch === '\n' || this.charset.has(cp)) { out += ch; continue; }
+      /* 글꼴에 없는 호환 문자는 풀어서 쓴다 — ㈜→(주), ㈔→(사), ①→1, 전각 영숫자→반각 (예전에는 「□ 대한」으로 찍혔다) */
+      const n = ch.normalize('NFKC');
+      if (n !== ch && has(n)) { out += n; continue; }
+      out += (cp > 0x2e80 && cp < 0xa000 ? '□' : '');
+    }
     return out;
   }
   w(s, size, font = this.F.R) { return font.widthOfTextAtSize(this.safe(s), size); }
@@ -356,7 +365,7 @@ function casesPage(D, job, copy) {
   const [W] = A4; const m = job.match;
   const EB = 'MATCHED REFERENCES', T = '가장 닮은 Monnit 레퍼런스';
   D.newPage(T, EB);
-  D.para(`입력하신 산업·과제·목표를 Monnit 글로벌 레퍼런스와 ${CFG.brand.publicRef}을 포함한 국내 도입 현장 데이터에 대조해, 일치도가 높은 순으로 골랐습니다.`, { size: 9.5, color: C.mute, gap: 8 });
+  D.para(`입력하신 산업·과제·목표를 Monnit 글로벌 레퍼런스와 ${josa(CFG.brand.publicRef, '을', '를')} 포함한 국내 도입 현장 데이터에 대조해, 일치도가 높은 순으로 골랐습니다.`, { size: 9.5, color: C.mute, gap: 8 });
   if (m.ownCase) {
     const o = m.ownCase, iw = W - 2 * M - 32;
     const rs = o.results.slice(0, 3).map(r => `${r.n} ${r.l}`).join('  ·  ');

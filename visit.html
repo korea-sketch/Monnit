@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="/valid.js" as="script">
-<link rel="preload" href="/visit-core.js" as="script">
+<link rel="preload" href="/visit-core.js?v=2" as="script">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/visit.css">
 </head>
@@ -261,7 +261,7 @@
 </div>
 
 <script src="/valid.js?v=1"></script>
-<script src="/visit-core.js"></script>
+<script src="/visit-core.js?v=2"></script>
 <script>
 (function(){
   "use strict";
@@ -575,7 +575,7 @@
   /* 리드 원장(/ops 관제 화면)에도 남깁니다.
      app.js 의 다른 폼들과 같은 경로라 접수 내역이 한곳에서 보입니다.
      실패해도 메일은 이미 나갔으므로 조용히 넘깁니다. */
-  function logLead(b){
+  function logLead(b,mailed){
     var memo=[
       b.symptom?("확인하고 싶은 것: "+b.symptom):"",
       b.process?("공정 프로세스: "+b.process):"",
@@ -583,7 +583,7 @@
       b.etc?("기타: "+b.etc):""
     ].filter(Boolean).join(" / ");
     try{
-      fetch("/api/lead",{
+      return fetch("/api/lead",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         keepalive:true,
@@ -591,6 +591,9 @@
           lead_type:"contact",
           ts:new Date().toISOString(),
           page:"visit_booking",
+          /* 브라우저에서 알림 메일이 나갔으면 서버는 다시 보내지 않는다(담당자 메일 1통).
+             브라우저 메일이 실패했으면 서버가 StaticForms → Web3Forms → Brevo 순으로 보낸다. */
+          notified:!!mailed,
           payload:{
             "접점":"현장진단 예약",
             "회사명":b.company,
@@ -610,8 +613,22 @@
             "유입 페이지":location.pathname
           }
         })
-      }).catch(function(){});
-    }catch(e){}
+      }).then(function(r){return r.ok;}).catch(function(){return false;});
+    }catch(e){ return Promise.resolve(false); }
+  }
+
+  /* 예약 시간 잡기 — 같은 시간에 두 분이 예약하지 않도록 서버가 먼저 확인합니다.
+     서버가 응답하지 않으면(통신 오류 등) 예전처럼 접수는 그대로 진행합니다. */
+  function holdSlot(b){
+    return fetch("/visit/hold",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({start:b.startISO,code:b.code,company:b.company})})
+      .then(function(r){ return r.json().then(function(j){ return {status:r.status,j:j||{}}; },function(){ return {status:r.status,j:{}}; }); })
+      .then(function(x){
+        if(x.status===409) return {ok:false,why:x.j.error||"taken"};
+        if(x.status===429) return {ok:false,why:"rate"};
+        return {ok:true};
+      })
+      .catch(function(){ return {ok:true}; });
   }
 
   /* ---------- 입력 내용 임시 보관 ----------
@@ -749,9 +766,34 @@
     btn.innerHTML='<span class="spin" aria-hidden="true"></span>접수하는 중…';
     hint.textContent="";
 
-    sendBooking(b).then(function(ok){ if(ok) logLead(b); finish(b,ok); })
-                  .catch(function(){ finish(b,false); });
+    holdSlot(b).then(function(h){
+      if(!h.ok) return slotGone(h.why);
+      return sendBooking(b).then(function(mailed){
+        return logLead(b,mailed).then(function(logged){ finish(b, mailed||logged); });
+      });
+    }).catch(function(){ finish(b,false); });
   });
+
+  /* 방금 다른 분이 같은 시간을 예약했거나 그날 예약이 찼을 때 — 입력한 내용은 그대로 두고 시간만 다시 고르게 합니다 */
+  function slotGone(why){
+    var btn=document.getElementById("submitBtn");
+    btn.innerHTML="현장 진단 예약하기"; btn.disabled=false;
+    var errEl=document.getElementById("formErr");
+    errEl.hidden=false;
+    errEl.textContent = why==="rate"
+      ? "이미 여러 건 예약하셨습니다. 일정 조정이 필요하시면 02-2088-1454 또는 "+CONTACT+" 으로 연락 주세요."
+      : "방금 다른 분이 이 시간을 예약했습니다. 다른 시간을 골라 주세요. 입력하신 내용은 그대로 남아 있습니다.";
+    if(why==="rate") return;
+    V.toast("선택하신 시간이 마감되었습니다. 다른 시간을 골라 주세요");
+    var keepDay=state.dayKey;
+    V.resolveCfg().then(function(r){
+      state.cfg=r.cfg; state.slotISO=null;
+      state.dayKey = V.slotsFor(state.cfg,keepDay||"").length ? keepDay : null;
+      if(!state.dayKey) pickFirstDay();
+      renderCal(); renderStrip(); renderSlots(); renderForm(); syncBar();
+      document.getElementById("slotarea").scrollIntoView({behavior:"smooth",block:"center"});
+    }).catch(function(){});
+  }
 
   function finish(b,sent){
     state.last=b;

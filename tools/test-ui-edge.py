@@ -291,8 +291,64 @@ async def t_consult(br, errs):
     rec('예약 화면 from=consulting 인데 저장값 없음 → 오류 없이 빈 폼', True, '')
     await ctx.close()
 
+# ── 예약: 같은 시간을 두 사람이 동시에 ─────────────────────────
+async def book_fill(pg, company):
+    await pg.fill('#f-company', company); await pg.fill('#f-name', '예약 담당'); await pg.fill('#f-email', em())
+    await pg.fill('#f-phone', '010-3141-5926'); await pg.fill('#f-place', '경기도 안산시 단원구 원시로 1')
+    await pg.locator('input[name=exp]').first.check()
+    await pg.fill('#f-equipment', '펌프 2대'); await pg.fill('#f-symptom', '진동'); await pg.fill('#f-process', '원료 → 이송')
+
+async def t_visit(br, errs):
+    a = await mk(br, viewport={'width': 1280, 'height': 900}); pa = await page(a, errs, 'V-A')
+    b = await mk(br, viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True); pb = await page(b, errs, 'V-B')
+    for pg in (pa, pb):
+        await pg.goto(B + '/visit', wait_until='load'); await pg.wait_for_timeout(1800)
+    # 같은 날짜·같은 첫 시간
+    day_a = await pa.evaluate('(()=>{const b=[...document.querySelectorAll("#calGrid .cell")].find(x=>!x.disabled&&x.dataset.key);return b&&b.dataset.key})()')
+    await pb.evaluate('k=>{const b=document.querySelector(\'#calGrid .cell[data-key="\'+k+\'"]\');b&&b.click()}', day_a)
+    await pa.evaluate('k=>{const b=document.querySelector(\'#calGrid .cell[data-key="\'+k+\'"]\');b&&b.click()}', day_a)
+    await pa.wait_for_timeout(300); await pb.wait_for_timeout(300)
+    slot_a = await pa.locator('#slotarea .slot').first.inner_text()
+    await pa.locator('#slotarea .slot').first.click(); await pb.locator('#slotarea .slot').first.click()
+    slot_b = await pb.locator('#slotarea .slot[aria-pressed=true]').inner_text()
+    rec('예약 — 두 사람이 같은 시간 선택', slot_a.split()[0] == slot_b.split()[0], (slot_a, slot_b))
+    await book_fill(pa, '먼저예약정밀'); await book_fill(pb, '나중예약정밀')
+    await pa.click('#submitBtn'); await pa.wait_for_timeout(2500)
+    rec('예약 — 먼저 누른 사람 접수 완료', await pa.locator('#donecard').is_visible(), '')
+    await pb.click('#submitBtn'); await pb.wait_for_timeout(2500)
+    msg = await pb.locator('#formErr').inner_text() if await pb.locator('#formErr').is_visible() else ''
+    rec('예약 — 나중 사람은 「다른 분이 예약」 안내', '다른 분이' in msg and not await pb.locator('#donecard').is_visible(), msg)
+    slots_b = await pb.locator('#slotarea .slot').all_inner_texts()
+    rec('예약 — 나중 사람 화면에서 그 시간이 사라짐', all(s.split()[0] != slot_a.split()[0] for s in slots_b), slots_b[:6])
+    rec('예약 — 나중 사람 입력값 유지', (await pb.input_value('#f-company')) == '나중예약정밀', '')
+    if slots_b:
+        await pb.locator('#slotarea .slot').first.click(); await pb.click('#submitBtn'); await pb.wait_for_timeout(2500)
+        rec('예약 — 다른 시간으로 다시 접수 완료', await pb.locator('#donecard').is_visible(), '')
+    rec('예약 — 메일은 브라우저 경로 1회(서버 알림 생략)', a.calls['static'] == 1 and a.calls['lead'] == 1, a.calls)
+    # 새로 연 화면에서도 두 시간이 빠져 있다
+    c = await mk(br, viewport={'width': 1280, 'height': 900}); pc = await page(c, errs, 'V-C')
+    await pc.goto(B + '/visit', wait_until='load'); await pc.wait_for_timeout(1800)
+    await pc.evaluate('k=>{const b=document.querySelector(\'#calGrid .cell[data-key="\'+k+\'"]\');b&&b.click()}', day_a)
+    await pc.wait_for_timeout(300)
+    lab = await pc.evaluate('k=>{const b=document.querySelector(\'#calGrid .cell[data-key="\'+k+\'"]\');return b?b.getAttribute("aria-label"):""}', day_a)
+    rec('예약 — 하루 최대 건수 도달 → 그날 마감 표시', '예약 마감' in lab, lab)
+    # 메일 서비스 둘 다 실패해도 접수(서버 알림)
+    d = await mk(br, viewport={'width': 1280, 'height': 900}); pd = await page(d, errs, 'V-D')
+    async def sf_fail(r):
+        u = r.request.url
+        if 'staticforms' in u or 'web3forms' in u:
+            return await r.fulfill(status=500, body='{}')
+        return await r.continue_() if u.startswith(B) else await r.abort()
+    await d.unroute('**/*'); await d.route('**/*', sf_fail)
+    await pd.goto(B + '/visit', wait_until='load'); await pd.wait_for_timeout(1800)
+    await pd.locator('#slotarea .slot').first.click()
+    await book_fill(pd, '메일장애정밀'); await pd.click('#submitBtn'); await pd.wait_for_timeout(3000)
+    t = await pd.locator('#doneTick').inner_text()
+    rec('예약 — 메일 서비스 장애여도 서버 기록·알림으로 접수 완료', t == '접수 완료', t)
+    for x in (a, b, c, d): await x.close()
+
 async def main():
-    only = sys.argv[1:] or ['proposal', 'status', 'hosts', 'consult']
+    only = sys.argv[1:] or ['proposal', 'status', 'hosts', 'consult', 'visit']
     async with async_playwright() as p:
         br = await p.chromium.launch()
         errs = []
@@ -300,6 +356,7 @@ async def main():
         if 'status' in only: await t_status(br, errs)
         if 'hosts' in only: await t_hosts(br, errs)
         if 'consult' in only: await t_consult(br, errs)
+        if 'visit' in only: await t_visit(br, errs)
         rec('페이지 스크립트 오류 없음', not errs, errs[:8])
         await br.close()
     bad = [r for r in RESULTS if not r[1]]
