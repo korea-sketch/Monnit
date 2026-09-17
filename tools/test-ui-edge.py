@@ -1,8 +1,8 @@
 # 화면 경우의 수 테스트 (Playwright) — 2026-09-17
-# 실행: netlify dev 를 띄운 뒤  python3 tools/test-ui-edge.py [proposal|status|hosts|consult]
+# 실행: netlify dev 를 띄운 뒤  python3 tools/test-ui-edge.py [proposal|status|hosts|consult|visit|chat]
 #       (주소를 바꾸려면 SITE=http://localhost:8888)
 # 서버 오류·네트워크 끊김·연타·저장소 차단·중복 신청·영문 화면을 브라우저로 확인한다.
-import asyncio, json, sys, re
+import asyncio, json, sys, re, time
 from playwright.async_api import async_playwright
 import os
 B = os.environ.get('SITE', 'http://localhost:8888')
@@ -347,8 +347,68 @@ async def t_visit(br, errs):
     rec('예약 — 메일 서비스 장애여도 서버 기록·알림으로 접수 완료', t == '접수 완료', t)
     for x in (a, b, c, d): await x.close()
 
+
+# ── 대화로 신청 (제안서 챗봇) ───────────────────────────────────────────
+async def chat_open(pg):
+    await pg.goto(B + '/proposal', wait_until='load'); await pg.wait_for_timeout(1200)
+    await pg.click('#ppModeChat'); await pg.wait_for_timeout(1500)
+
+async def chat_say(pg, text):
+    await pg.fill('#pcText', text); await pg.click('#pcSend'); await pg.wait_for_timeout(1200)
+    m = await pg.locator('#pcLog .pc-msg.bot span').all_inner_texts()
+    return m[-1] if m else ''
+
+async def t_chat(br, errs):
+    a = await mk(br, viewport={'width': 1280, 'height': 950}); pa = await page(a, errs, 'C-A')
+    await chat_open(pa)
+    rec('대화 — 첫 인사·단계별 폼 숨김', '안녕하세요' in (await pa.locator('#pcLog .pc-msg.bot span').first.inner_text()) and await pa.locator('#ppRoot .mkp-grid').is_hidden())
+    t = await chat_say(pa, '대한정밀입니다'); rec('대화 — 회사명 → 성함 질문', '성함' in t, t)
+    t = await chat_say(pa, '김현장 팀장'); rec('대화 — 성함 → 이메일 질문', '이메일' in t, t)
+    mail = 'chat.ui+%d@daehan-ui.co.kr' % int(time.time())
+    t = await chat_say(pa, mail)
+    rec('대화 — 이메일 → 현장 질문 + 선택 칩', '현장' in t and await pa.locator('#pcChips .pc-chip').count() >= 8, t)
+    await pa.locator('#pcChips .pc-chip').first.click(); await pa.wait_for_timeout(1200)
+    await pa.locator('#pcChips .pc-chip').first.click(); await pa.wait_for_timeout(1400)
+    card = await pa.locator('#pcCard').inner_text()
+    rec('대화 — 확인 카드에 입력값 그대로', await pa.locator('#pcCard').is_visible() and '대한정밀' in card and mail in card, card[:160])
+    before = a.calls['proposal']
+    await pa.click('#pcSubmit'); await pa.wait_for_timeout(800)
+    rec('대화 — 동의 없이 접수 막음', await pa.locator('#pcCardMsg').is_visible() and a.calls['proposal'] == before, (before, a.calls))
+    await pa.check('#pcAgree'); await pa.click('#pcSubmit'); await pa.wait_for_timeout(6000)
+    txt = await pa.locator('#view-proposal-status').inner_text() if await pa.locator('#view-proposal-status').count() else ''
+    rec('대화 — 접수 → 진행 화면·제안 번호', '/proposal/status' in pa.url and 'MK-P' in txt, pa.url + ' ' + txt[:100])
+
+    b = await mk(br, viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True); pb = await page(b, errs, 'C-B')
+    await chat_open(pb); await chat_say(pb, '누리물류입니다')
+    await pb.reload(wait_until='load'); await pb.wait_for_timeout(2000)
+    rec('대화 — 새로고침해도 대화·값 유지', await pb.locator('#pcLog .pc-msg').count() >= 3 and await pb.locator('#ppChat').is_visible())
+    t = await chat_say(pb, '센서 한 대에 얼마인가요?')
+    rec('대화 — 가격 질문은 담당자 연결로', '담당' in t, t)
+    rec('대화 — 모바일 가로 넘침 없음', await pb.evaluate('document.documentElement.scrollWidth') <= 392)
+
+    c = await mk(br, viewport={'width': 1280, 'height': 950}); pc = await page(c, errs, 'C-C')
+    await chat_open(pc); await pc.click('#ppModeForm'); await pc.wait_for_timeout(500)
+    await pc.locator('#ppInds .mkp-ind').first.click(); await pc.wait_for_timeout(400)
+    rec('대화 — 단계별 신청으로 되돌아가도 그대로 동작', await pc.locator('#ppRoot .mkp-grid').is_visible() and await pc.locator('#ppChat').is_hidden() and await pc.locator('#ppPlist .mkp-pitem').count() > 0)
+
+    d = await br.new_context(viewport={'width': 1280, 'height': 950})
+    async def r500(r):
+        u = r.request.url
+        if '/api/proposal/chat' in u and 'fail' in (r.request.post_data or ''):
+            return await r.fulfill(status=500, content_type='application/json', body='{"ok":false}')
+        return await r.continue_() if u.startswith(B) else await r.abort()
+    await d.route('**/*', r500)
+    await d.add_init_script("try{localStorage.setItem('mnk_cookie_consent_v1', JSON.stringify({v:1,analytics:false,marketing:false,ts:1}))}catch(e){}")
+    pd = await d.new_page(); pd.on('pageerror', lambda e: errs.append('C-D ' + str(e)[:180]))
+    await chat_open(pd)
+    t = await chat_say(pd, 'fail 테스트입니다')
+    rec('대화 — 서버 오류에도 멈추지 않고 단계별 신청 안내', '불안정' in t and await pd.locator('#pcToForm').is_visible(), t)
+    await pd.click('#pcToForm'); await pd.wait_for_timeout(500)
+    rec('대화 — 안내 버튼으로 단계별 신청 전환', await pd.locator('#ppRoot .mkp-grid').is_visible())
+    for x in (a, b, c, d): await x.close()
+
 async def main():
-    only = sys.argv[1:] or ['proposal', 'status', 'hosts', 'consult', 'visit']
+    only = sys.argv[1:] or ['proposal', 'status', 'hosts', 'consult', 'visit', 'chat']
     async with async_playwright() as p:
         br = await p.chromium.launch()
         errs = []
@@ -357,6 +417,7 @@ async def main():
         if 'hosts' in only: await t_hosts(br, errs)
         if 'consult' in only: await t_consult(br, errs)
         if 'visit' in only: await t_visit(br, errs)
+        if 'chat' in only: await t_chat(br, errs)
         rec('페이지 스크립트 오류 없음', not errs, errs[:8])
         await br.close()
     bad = [r for r in RESULTS if not r[1]]

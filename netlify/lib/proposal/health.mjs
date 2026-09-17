@@ -25,6 +25,19 @@ export async function runHealth({ deep = false, origin = CFG.site } = {}) {
   add('site', '사이트 주소', /^https:\/\//.test(CFG.site) || /localhost/.test(CFG.site), CFG.site);
   add('mailkey', '메일(BREVO_API_KEY)', !!CFG.brevoKey, CFG.brevoKey ? '설정됨' : '없음 — 고객 메일이 나가지 않습니다');
   add('aikey', 'Claude(ANTHROPIC_API_KEY)', !!CFG.aiKey, CFG.aiKey ? CFG.aiModel : '없음 — 템플릿 문안 + 규칙 점검으로 동작', true);
+  /* 대화로 신청 — 사용 모델·이번 달 비용·한도 */
+  try {
+    const U = await import('./aiusage.mjs');
+    const u = await U.readUsage();
+    const on = CFG.chatOn && !!CFG.aiKey;
+    add('chat', '대화로 신청(제안서 챗봇)', on, on ? `켜짐 · ${CFG.chatModel} · 규칙으로 못 알아들을 때만 호출` : (CFG.chatOn ? 'Claude 키 없음 — 규칙 대화만 동작' : 'PROPOSAL_CHAT=off — 단계별 신청만 노출'), true);
+    const pct = Math.round((u.pct || 0) * 100);
+    add('chatbudget', '대화 AI 이번 달 사용액', !u.paused,
+      u.budget ? `$${u.usd.toFixed(2)} / $${u.budget} (${pct}%) · ${u.calls}회 · ${u.month}` + (u.paused ? ' — 한도 ' + Math.round(CFG.chatPauseAt * 100) + '% 도달로 점검 중 안내 표시' : '')
+               : `$${u.usd.toFixed(2)} · ${u.calls}회 · ${u.month} · 한도 없음(PROPOSAL_AI_BUDGET_USD 미설정)`,
+      true);
+  } catch (e) { add('chat', '대화로 신청(제안서 챗봇)', false, e.message, true); }
+
   add('staff', '담당자 알림 주소', CFG.staffTo.length > 0, CFG.staffTo.join(', '));
 
   /* 저장소 */

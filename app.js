@@ -90,7 +90,7 @@ function ensureProposal(cb){
     (window.__propCbs || []).forEach(function(f){ try { f && f(window.MKProposal); } catch(e){ console.warn('[proposal]', e); } });
     window.__propCbs = [];
   };
-  add('/js/proposal-data.js?v=5', function(){ add('/js/proposal-view.js?v=5', done); });
+  add('/js/proposal-data.js?v=5', function(){ add('/js/proposal-view.js?v=5', function(){ add('/js/proposal-chat.js?v=1', done); }); });
 }
 function ensureSolutionTwin(){
   if (window.__twinLoaded || window.__twinLoading) return;

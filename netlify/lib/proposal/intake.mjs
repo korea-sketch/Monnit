@@ -17,7 +17,7 @@ import PLAYBOOKS from './playbooks.data.mjs';
 import { CFG } from './config.mjs';
 
 /* whitepaper — 백서·제안 자료 다운로드 폼의 「우리 현장 맞춤 제안서도 받기」 (프로모션 랜딩 · /whitepaper) */
-export const ENTRIES = ['proposal', 'finder', 'contact', 'widget', 'whitepaper'];
+export const ENTRIES = ['proposal', 'finder', 'contact', 'widget', 'whitepaper', 'chat'];
 
 /* 문의 글에서 과제를 알아볼 입말 — PROBLEMS.kw(사례 매칭용)보다 넓게 */
 const MEMO_KW = {

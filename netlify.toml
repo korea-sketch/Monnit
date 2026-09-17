@@ -84,6 +84,11 @@
     Cache-Control = "public, max-age=300, must-revalidate"
 
 [[headers]]
+  for = "/js/proposal-chat.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
   for = "/js/proposal-addon.js"
   [headers.values]
     Cache-Control = "public, max-age=300, must-revalidate"
@@ -96,6 +101,9 @@
 # PDF 글꼴 — 함수 안에서만 읽는다. 공개 주소는 _redirects 에서 404.
 # 제안서를 만드는(renderPdf) 함수 셋에만 넣는다 (6.7MB).
 [functions."proposal-api"]
+  included_files = ["netlify/functions/_guard.js", "netlify/functions/_store.mjs"]
+
+[functions."proposal-chat"]
   included_files = ["netlify/functions/_guard.js", "netlify/functions/_store.mjs"]
 
 [functions."proposal-build-background"]

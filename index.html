@@ -56,7 +56,7 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=124">
+<link rel="stylesheet" href="/style.css?v=125">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -1884,6 +1884,25 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <button type="button" class="mkp-link" id="ppQEdit">조건 바꾸기</button>
       </div>
 
+      <div class="mkp-modes" role="tablist" aria-label="신청 방식">
+        <button type="button" class="mkp-mode on" id="ppModeForm" role="tab" aria-selected="true">단계별 신청</button>
+        <button type="button" class="mkp-mode" id="ppModeChat" role="tab" aria-selected="false">대화로 신청<em>AI</em></button>
+      </div>
+
+      <section class="mkp-chat" id="ppChat" hidden aria-label="대화로 맞춤 제안서 신청">
+        <div class="pc-log" id="pcLog" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <div class="pc-chips" id="pcChips" hidden></div>
+        <div class="pc-card" id="pcCard" hidden></div>
+        <p class="pc-notice" id="pcNotice" hidden></p>
+        <form class="pc-in" id="pcForm" autocomplete="off">
+          <input type="text" id="pcWeb" name="website" class="pc-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <label class="pc-sr" for="pcText">메시지 입력</label>
+          <input id="pcText" maxlength="300" placeholder="예: 평택 2공장인데 분전반 과열이 걱정입니다">
+          <button type="submit" id="pcSend">보내기</button>
+        </form>
+        <p class="pc-foot">회사명·성함·이메일만 확인되면 바로 만들어 드립니다. 가격·납기 문의는 담당 엔지니어에게 연결해 드립니다. 입력하신 정보는 제안서 발송에만 쓰고 1년 뒤 파기합니다.</p>
+      </section>
+
       <div class="mkp-grid">
         <div class="mkp-main">
           <div class="mkp-step" id="ppS1">
@@ -2189,7 +2208,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=130"></script>
+  <script src="/app.js?v=131"></script>
   <script src="/js/why-rolling.js?v=3" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=2" defer></script>
