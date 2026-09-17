@@ -328,7 +328,7 @@ export async function tick({ now = Date.now(), origin, budgetMs = 22000 } = {}) 
   for (const key of queue) {
     if (left() < 4000) break;
     const id = idOf(key), due = dueOf(key);
-    const job = await S.getJob(id);
+    let job = await S.getJob(id);
     if (!job) { await S.del(key); continue; }
     if (['sent', 'canceled'].includes(job.status)) { await S.del(key); continue; }
 
@@ -338,7 +338,9 @@ export async function tick({ now = Date.now(), origin, budgetMs = 22000 } = {}) 
       const age = now - Date.parse(job.updatedAt || job.createdAt);
       if (age > 3 * MIN && (job.buildAttempts || 0) < 3) {
         /* 발송 시각이 지났으면 백그라운드를 기다리지 않고 템플릿으로 바로 만든다 */
-        if (due <= now && left() > 12000) { const b = await buildJob(id, { ai: false }); if (b.ok) out.built++; }
+        /* 방금 만든 건은 아래에서 그대로 발송한다 — 읽어 둔 job 은 생성 전 상태라 다시 읽는다
+           (예전에는 만든 직후 「생성 미완료」로 보고 엔지니어 확인으로 넘겨 발송이 멈췄다) */
+        if (due <= now && left() > 12000) { const b = await buildJob(id, { ai: false }); if (b.ok) { out.built++; job = (await S.getJob(id)) || job; } }
         else { const k = await kickBuild(origin, id); if (k.ok) out.kicked++; }
       }
       if (due > now) continue;

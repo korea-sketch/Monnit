@@ -2214,11 +2214,13 @@ function submitForm(){
     }
     try{sessionStorage.setItem('mk_lead_msg',msg);sessionStorage.setItem('mk_lead_sub',sub)}catch(e){}
     /* 다음 단계(현장 진단 예약)에 넘길 값 — 이 탭 저장소에만 둔다(주소·분석 도구에 남지 않게) */
+    var kept=false;
     try{sessionStorage.setItem('mk_visit_from',JSON.stringify({src:'promo_consulting',at:Date.now(),
-      company:c,name:n,email:email,phone:p,exp:exp,line:line,spot:spot,asset:asset}))}catch(e){}
+      company:c,name:n,email:email,phone:p,exp:exp,line:line,spot:spot,asset:asset}));kept=true}catch(e){}
 
-    /* 무경험자에게만 가이드 자동 발송. 메일이 실패해도 접수는 그대로 진행한다. */
-    function go(){location.href='/promo/consulting?submitted=1#apply';}
+    /* 무경험자에게만 가이드 자동 발송. 메일이 실패해도 접수는 그대로 진행한다.
+       저장소를 못 쓰는 브라우저(사파리 사생활 보호 등)도 예약 안내는 보이게 nx=1 을 붙인다 — 개인정보는 싣지 않는다 */
+    function go(){location.href='/promo/consulting?submitted=1'+(kept?'':'&nx=1')+'#apply';}
     if(grp==='무경험'){
       var done=false, jump=function(){if(!done){done=true;go()}};
       setTimeout(jump,3500);                      /* 메일 API 가 느려도 3.5초 뒤엔 넘어간다 */
@@ -2301,8 +2303,10 @@ function submitForm(){
    5초 뒤 자동 이동 — 손을 대거나(스크롤·클릭·키) 「나중에」를 누르면 멈춘다. */
 function nextStep(){
   var box=document.getElementById('nx'); if(!box)return;
-  var v=null; try{v=JSON.parse(sessionStorage.getItem('mk_visit_from')||'null')}catch(e){}
-  if(!v||!v.company||Date.now()-(v.at||0)>6*3600000)return;
+  var v=null, noStore=false;
+  try{v=JSON.parse(sessionStorage.getItem('mk_visit_from')||'null')}catch(e){noStore=true}
+  var fresh=v&&v.company&&Date.now()-(v.at||0)<=6*3600000;
+  if(!fresh&&!(noStore&&/[?&]nx=1/.test(location.search)))return;
   box.hidden=false;
   var go=document.getElementById('nxGo'), hint=document.getElementById('nxHint'), later=document.getElementById('nxLater');
   var SEC=5, left=SEC, timer=null, stopped=false;

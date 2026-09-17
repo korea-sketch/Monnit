@@ -12,8 +12,10 @@ import { resolveIntake } from './intake.mjs';
 const VALID = _valid.MonnitValid;
 
 /* 제어문자·꺾쇠 제거 후 길이 제한 */
-const CTRL = new RegExp('[\\x00-\\x1f\\x7f<>]', 'g');
-const clip = (v, n) => String(v == null ? '' : v).replace(CTRL, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
+/* 제어문자·꺾쇠 + 글자 방향을 뒤집는 유니코드(메일·화면에서 이름을 거꾸로 보이게 하는 속임수) */
+const CTRL = new RegExp('[\\x00-\\x1f\\x7f<>\\u200b-\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ufeff]', 'g');
+/* 문자·숫자만 받는다 — 객체·배열이 오면 "[object Object]" 같은 값이 회사명으로 저장되던 것을 막는다 */
+const clip = (v, n) => String(typeof v === 'string' || typeof v === 'number' ? v : '').replace(CTRL, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
 const oneOf = (v, list) => list.includes(v) ? v : '';
 
 /** 브라우저 입력 → 검증된 입력. 문제가 있으면 { errors }

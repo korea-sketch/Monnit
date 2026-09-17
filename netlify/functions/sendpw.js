@@ -11,7 +11,7 @@
  *    BREVO_API_KEY : 안내 메일 발송 (없으면 메일만 건너뛰고 다운로드는 정상)
  *    DL_SECRET     : 링크 서명 키 (없으면 코드 기본값 사용 — 운영에서는 설정 권장)
  */
-const { lookup, SECRET, TTL_MS, norm } = require('./_docmap');
+const { lookup, SECRET, TTL_MS, norm, siteBase } = require('./_docmap');
 const VALID = require('../../valid.js').MonnitValid;
 const { guard } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
 
@@ -169,8 +169,7 @@ exports.handler = async (event) => {
     }, 'sendpw');
     if (_blk) return reply(404, { ok: false, error: 'not_ready' });
 
-    const origin = (event.headers && (event.headers.origin || event.headers.referer)) || 'https://monnit.co.kr';
-    const base = (origin.match(/^https?:\/\/[^/]+/) || ['https://monnit.co.kr'])[0];
+    const base = siteBase(event.headers && (event.headers.origin || event.headers.referer));
 
     /* ── 이 조회를 통과해야만 주소가 밖으로 나간다 ── */
     const items = [];

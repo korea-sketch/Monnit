@@ -138,6 +138,7 @@ export const CONTACT_INDUSTRY = {
   '공장·제조': 'manufacturing', '병원·제약': 'bio_pharma', '교회·학교·시설': 'edu_med', '물류·콜드체인': 'cold_chain',
   '데이터센터': 'datacenter', '빌딩·부동산': 'building_fm'
 };
+Object.setPrototypeOf(CONTACT_INDUSTRY, null);   /* 'constructor' 같은 입력이 산업으로 잡히지 않게 */
 
 const low = s => String(s || '').toLowerCase();
 /* 흔한 낱말과 겹치는 이름 — 정확히 같을 때만 */

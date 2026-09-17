@@ -36,7 +36,9 @@ const SRC = [
   grab('function mkCheckEmail('),
   grab('function mkCheckPhone('),
   grab('function wpClear('),
+  'let _wpBusy = false;',
   grab('async function wpRequest('),
+  grab('async function wpRequestRun('),
   grab('async function contactSubmit(')
 ].join('\n\n');
 
@@ -122,6 +124,16 @@ console.log('\n자료실(제안서) 신청 — 전 항목 필수');
   await h2.api.wpRequest();
   is(h2.log.opened.length, 0, '막힌 신청은 PDF 가 내려가지 않는다');
   is(h2.log.sentLead, null, '막힌 신청은 원장에도 남기지 않는다');
+}
+
+console.log('\n자료실 — 연타');
+{
+  const h = harness(DOC_FULL);
+  await Promise.all([h.api.wpRequest(), h.api.wpRequest(), h.api.wpRequest()]);
+  is(h.log.sendpw, 1, '세 번 눌러도 PDF 발급 요청은 1번');
+  const before = h.log.alerts.length;
+  await h.api.wpRequest();   /* 성공 후 칸이 비워졌으므로 이번에는 「선택해 주세요」 안내가 떠야 한다 = 잠금이 풀렸다 */
+  is(h.log.alerts.length > before && /제안서/.test(h.log.alerts[h.log.alerts.length - 1]), true, '끝난 뒤에는 다시 누를 수 있다(잠금 해제)');
 }
 
 console.log('\n자료실 — 다 채우면 통과하고 값이 실린다');

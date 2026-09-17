@@ -157,7 +157,7 @@ async function create(req, url) {
         if (nowKey === oldKey && age < 24 * 3600000) {
           await S.patchJob(old.id, j => { addLog(j, '24시간 내 재신청 → 진행 화면 링크 메일 재발송'); j.meta.resubmits = (j.meta.resubmits || 0) + 1; });
           await resend();
-          return json({ ok: true, dup: true, mailed: true });
+          return json({ ok: true, dup: true, mailed: true, same: true, days: CFG.onePerDays });
         }
         const ask = { at: new Date().toISOString(), problem: asked, entry: intake.entry, memo: lead.memo.slice(0, 200), also: (intake.also || []).map(k => (PROBLEMS[k] || {}).label).filter(Boolean) };
         const r = await Mail.notifyStaff('more', old, {

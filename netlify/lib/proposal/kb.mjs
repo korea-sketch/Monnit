@@ -254,3 +254,7 @@ export function fromFinder({ fac, con, scale } = {}) {
   }
   return { industry, segment: FINDER_SEGMENT[fac] || '', problems, goals, scale: FINDER_SCALE[scale] || '' };
 }
+
+/* 사용자 입력 키로 찾는 사전 — Object 기본 속성(constructor·__proto__ 등)이 「있는 과제」로 잡히지 않게
+   프로토타입을 끊는다. (예: problems=['constructor'] 가 들어오면 PROBLEMS.constructor.kw 에서 500 이 났다) */
+for (const o of [SENSORS, AUTOMATION_KIT, PROBLEMS, GOALS, CASE_INDUSTRY, FINDER_FAC, FINDER_SEGMENT, FINDER_CON, FINDER_SCALE]) Object.setPrototypeOf(o, null);

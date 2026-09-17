@@ -170,7 +170,7 @@ const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + encodeURIComponent(CONTACT
 
 /* 제안서 비밀번호 발송용 Apps Script 웹앱 (korea@monnit.com 명의 발신)
    — 배포 후 받은 웹 앱 URL을 아래에 붙여넣으면 자동 전환됩니다. 비어 있으면 FormSubmit 자동회신 사용 */
-const PW_MAIL_URL = "/sendpw"; /* CF Pages 경로 — 실패 시 Netlify 경로로 자동 폴백 */
+const PW_MAIL_URL = "/.netlify/functions/sendpw"; /* 2026-09-17: 예전 CF Pages 경로(/sendpw)는 Netlify 에서 404 라 매번 두 번 호출됐다 → 바로 Netlify 경로 */
 const PW_MAIL_TOKEN = "mnt-pw-2026-7f3k9";
 
 /* 폼 데이터를 실제로 전송하는 공통 함수 (AJAX — 페이지 이동 없음)
@@ -3204,7 +3204,7 @@ function wpPropMount(){
       doc: wpPickedTitle, fac: function(){ return wpHint(WP_FAC); }, con: function(){ return wpHint(WP_CON); } });
   };
   if (window.MKPropAddon) return go();
-  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=2'; s.async = true; s.onload = go;
+  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=3'; s.async = true; s.onload = go;
   s.onerror = function(){ slot.dataset.on = ''; };
   document.head.appendChild(s);
 }
@@ -3231,7 +3231,21 @@ function wpClear(sel, co, nm, em, ph){
   [co, nm, em, ph].forEach(function(e){ if (e) e.value = ''; });
   if (sel) sel.value = '';
 }
+/* 연타 방지 — 요청이 끝날 때까지 버튼을 잠근다.
+   (2026-09-17 확인: 세 번 누르면 자료 링크 6건·리드 3건·맞춤 제안서 3건이 접수됐다) */
+let _wpBusy = false;
 async function wpRequest(){
+  if (_wpBusy) return;
+  _wpBusy = true;
+  const b = document.getElementById('wpSubmit');
+  if (b) { b.disabled = true; b.setAttribute('aria-busy', 'true'); }
+  try { await wpRequestRun(); }
+  finally {
+    _wpBusy = false;
+    if (b) { b.disabled = false; b.removeAttribute('aria-busy'); }
+  }
+}
+async function wpRequestRun(){
   const sel = document.getElementById('wpSelect');
   const em  = document.getElementById('wpEmail');
   const co  = document.getElementById('wpCompany');
@@ -3270,7 +3284,7 @@ async function wpRequest(){
   let _res = null;
   try {
     let r = await _post(PW_MAIL_URL || '/.netlify/functions/sendpw');
-    if (r.status === 404 || r.status === 405) r = await _post('/.netlify/functions/sendpw');
+    if ((r.status === 404 || r.status === 405) && PW_MAIL_URL !== '/.netlify/functions/sendpw') r = await _post('/.netlify/functions/sendpw');
     _res = await r.json().catch(() => null);
   } catch (e) { _res = null; }
 

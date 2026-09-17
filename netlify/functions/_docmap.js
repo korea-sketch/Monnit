@@ -55,3 +55,22 @@ exports.norm = norm;
 exports.lookup = (title) => INDEX[norm(title)] || null;
 exports.SECRET = process.env.DL_SECRET || 'mnk-dl-2026-c4f81a97e2';
 exports.TTL_MS = 10 * 60 * 1000;   /* 링크 유효시간 10분 */
+
+/* 메일에 넣을 사이트 주소 — 요청 머리글(Origin·Referer)을 그대로 믿지 않는다 (2026-09-17)
+   예전에는 Origin 을 그대로 썼다. 페이지에 박힌 토큰으로 누구나 함수를 부를 수 있으므로,
+   Origin 을 남의 주소로 바꿔 보내면 「모넷코리아 발신 메일」 안에 남의 사이트 링크가 들어갈 수 있었다.
+   이 사이트(monnit.co.kr)와 이 사이트의 Netlify 배포 주소·로컬만 허용하고, 나머지는 monnit.co.kr 로 쓴다. */
+exports.siteBase = function siteBase(origin) {
+  const def = 'https://monnit.co.kr';
+  const m = String(origin || '').match(/^https?:\/\/[^/]+/i);
+  if (!m) return def;
+  const b = m[0].toLowerCase();
+  let host = '';
+  try { host = new URL(b).hostname; } catch (e) { return def; }
+  if (/^(www\.)?monnit\.co\.kr$/.test(host) && b.startsWith('https://')) return b;
+  if (/^(localhost|127\.0\.0\.1)$/.test(host)) return b;
+  for (const k of ['URL', 'DEPLOY_URL', 'DEPLOY_PRIME_URL']) {
+    try { if (process.env[k] && new URL(process.env[k]).hostname === host) return b; } catch (e) { /* 무시 */ }
+  }
+  return def;
+};

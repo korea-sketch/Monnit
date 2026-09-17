@@ -246,7 +246,8 @@
           '<div class="acts"><a class="pri" href="/proposal" data-mkpa-go="proposal">' + L('맞춤 제안서 받기 →', 'Get my proposal →') + '</a></div>';
       } else {
         el.className = 'mkpa mkpa-res is-warn';
-        var why = x.fields ? Object.keys(x.fields).map(function (k) { return x.fields[k]; }).join(' · ') : '';
+        /* 입력 오류면 칸별 안내, 접수 제한(429)·서버 오류면 서버가 준 안내문을 그대로 보여 준다 */
+        var why = x.fields ? Object.keys(x.fields).map(function (k) { return x.fields[k]; }).join(' · ') : (!en() && x.message ? String(x.message) : '');
         html = '<span class="k"><i aria-hidden="true"></i>' + L('맞춤 제안서는 접수되지 않았습니다', 'Proposal not submitted') + '</span>' +
           '<b class="t">' + L('자료는 정상적으로 보내드렸습니다', 'Your document was delivered') + '</b>' +
           '<p>' + (why ? esc(why) + ' — ' : '') + L('맞춤 제안서 신청 화면에서 다시 신청하실 수 있습니다.', 'You can request the proposal again on the proposal page.') + '</p>' +

@@ -25,3 +25,5 @@ images/_logo_orig/
 
 # npm 설치 폴더 — Netlify 가 배포 때 package.json 으로 설치합니다
 node_modules/
+
+__pycache__/

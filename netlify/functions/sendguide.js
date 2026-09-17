@@ -15,7 +15,7 @@
  *    BREVO_API_KEY : 없으면 메일만 건너뛴다. 접수 자체는 실패시키지 않는다.
  *    DL_SECRET     : 링크 서명 키 (_docmap 기본값 있음)
  */
-const { lookup, SECRET } = require('./_docmap');
+const { lookup, SECRET, siteBase } = require('./_docmap');
 const VALID = require('../../valid.js').MonnitValid;
 const crypto = require('crypto');
 const { guard } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
@@ -67,8 +67,7 @@ exports.handler = async (event) => {
       return reply(404, { ok: false, error: 'not_ready' });
 
     const exp = Date.now() + LINK_TTL_MS;
-    const origin = (event.headers && (event.headers.origin || event.headers.referer)) || 'https://monnit.co.kr';
-    const base = (origin.match(/^https?:\/\/[^/]+/) || ['https://monnit.co.kr'])[0];
+    const base = siteBase(event.headers && (event.headers.origin || event.headers.referer));
 
     /* 자료가 하나라도 빠지면 링크 없는 메일이 나가므로, 있는 것만 추려서 보낸다 */
     const docs = [];

@@ -6,6 +6,7 @@ import { pushLead } from './_monday.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
 import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
+import _docmap from './_docmap.js';   /* siteBase — 메일 링크 주소 검증 */
 const VALID = _valid.MonnitValid;
 
 export const config = { path: '/api/lead' };
@@ -117,8 +118,9 @@ export default async (req) => {
        모두 답장 주소가 korea@monnit.com 이다.
        알리미 자동 응답은 '알리미 모델'이 잡히고 이메일 형식이 맞을 때만 나간다.
        실패해도 원장·알림에는 영향이 없다 (allSettled + 내부 try). */
-    const _origin = (req.headers.get('origin') || req.headers.get('referer') || '')
-      .match(/^https?:\/\/[^/]+/)?.[0] || undefined;
+    /* 요청 머리글의 주소는 이 사이트일 때만 쓴다 — 남의 주소가 고객 메일의 링크로 들어가지 않게 */
+    const _hdrOrigin = req.headers.get('origin') || req.headers.get('referer') || '';
+    const _origin = _hdrOrigin ? _docmap.siteBase(_hdrOrigin) : undefined;
 
     /* 브라우저가 이미 알림 메일을 보냈으면 서버는 보내지 않는다 → 총 1통.
        monnit-lead.js 의 record() 가 notified 플래그를 함께 보낸다.
