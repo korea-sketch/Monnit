@@ -4,6 +4,7 @@
  */
 import * as auth from './_visit_auth.mjs';
 import { get, set } from './_store.mjs';
+import * as LOCK from './_loginlock.mjs';
 
 export const config = {
   path: ['/visit/admin', '/visit/admin/', '/visit/admin/login', '/visit/admin/logout',
@@ -90,12 +91,8 @@ function ipOf(req) {
     || req.headers.get('x-forwarded-for') || '?').split(',')[0].trim().slice(0, 45)
     .replace(/[^\w.:-]/g, '_');
 }
-async function fails(k) {
-  try {
-    const o = JSON.parse(await get('ops', 'visitfail_' + k) || 'null');
-    return (o && Date.now() - o.t < LOCK_MS) ? o : { n: 0, t: 0 };
-  } catch { return { n: 0, t: 0 }; }
-}
+/* 실패 횟수는 _loginlock 이 파일 개수로 센다 — 동시에 들어와도 어긋나지 않는다.
+   예전 방식(읽고-1더해-쓰기)은 한꺼번에 보내면 8회 제한이 걸리지 않았다. (2026-09-18) */
 
 const esc = s => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -207,11 +204,8 @@ export default async (req) => {
     if (!auth.configured()) return page(LOGIN({ notice: '아직 잠금이 설정되지 않았습니다. Netlify 환경변수 VISIT_USER / VISIT_PASS 를 먼저 등록해 주세요.' }));
 
     const key = ipOf(req);
-    const f = await fails(key);
-    if (f.n >= MAX_FAIL) {
-      const left = Math.ceil((LOCK_MS - (Date.now() - f.t)) / 60000);
-      return page(LOGIN({ error: `여러 번 틀렸습니다. ${left}분 뒤에 다시 시도해 주세요.` }));
-    }
+    const f = await LOCK.recent('visit', key);
+    if (f.locked) return page(LOGIN({ error: LOCK.lockText(f.until) }));
 
     let u = '', pw = '';
     try {
@@ -221,10 +215,10 @@ export default async (req) => {
     } catch { /* 파싱 실패는 실패로 처리 */ }
 
     if (auth.check(u, pw)) {
-      try { await set('ops', 'visitfail_' + key, JSON.stringify({ n: 0, t: 0 })); } catch {}
+      await LOCK.clear('visit', key);
       return redirect('/visit/admin', { 'set-cookie': auth.setCookie(auth.issue()) });
     }
-    try { await set('ops', 'visitfail_' + key, JSON.stringify({ n: f.n + 1, t: Date.now() })); } catch {}
+    await LOCK.fail('visit', key);
     return page(LOGIN({ error: '아이디 또는 비밀번호가 맞지 않습니다.' }));
   }
 

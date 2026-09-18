@@ -23,9 +23,12 @@ const mk = (mondayMod) => {
   return import(F + '_lead_c.mjs?' + Date.now());
 };
 
-const post = (M, payload, type) => M.default(new Request('https://x/api/lead', {
+/* 접수 시각 — 서버가 「지금에서 이틀 안쪽」만 받아들인다(lead.mjs safeTs).
+   그래서 검사도 현재 시각을 쓴다. 옛 날짜를 보내면 어떻게 되는지는 아래에서 따로 본다. */
+const NOW_TS = new Date().toISOString();
+const post = (M, payload, type, ts) => M.default(new Request('https://x/api/lead', {
   method: 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'test' },
-  body: JSON.stringify({ lead_type: type || 'contact', ts: '2026-09-07T01:00:00.000Z', page: '/promo/alarm', payload })
+  body: JSON.stringify({ lead_type: type || 'contact', ts: ts === undefined ? NOW_TS : ts, page: '/promo/alarm', payload })
 }));
 
 let fail = 0;
@@ -45,7 +48,8 @@ ok('① 원장 1건', rows.length === 1, rows.length);
 ok('② 알림 메일 1통', globalThis.__NOTIFY.length === 1, globalThis.__NOTIFY.length);
 ok('③ 먼데이 1건', globalThis.__MON.length === 1, globalThis.__MON.length);
 ok('먼데이 id = ops id 규격',
-   globalThis.__MON[0].id === '2026-09-07T01:00:00.000Z|a@x.com', globalThis.__MON[0].id);
+   globalThis.__MON[0].id === NOW_TS + '|a@x.com', globalThis.__MON[0].id);
+ok('  원장과 먼데이가 같은 시각을 쓴다', rows[0].ts === NOW_TS, { ops: rows[0].ts, monday: globalThis.__MON[0].id });
 ok('채널 판별 메타', rows[0].channel === '메타', rows[0].channel);
 ok('회사명 전달', globalThis.__MON[0].l.company === '가나전자', globalThis.__MON[0].l.company);
 
@@ -64,6 +68,49 @@ res = await post(M, { '회사명': '다라산업', '이메일': 'b@x.com', '접�
 ok('먼데이 예외에도 204', res.status === 204, res.status);
 ok('먼데이 예외에도 원장 기록', (globalThis.__MEM.leads['2026-09.jsonl'] || '').includes('다라산업'));
 ok('먼데이 예외에도 알림 메일', globalThis.__NOTIFY.length === 1, globalThis.__NOTIFY.length);
+
+/* ── 접수 시각을 화면이 마음대로 정하지 못하게 (2026-09-18) ──────────────
+   예전에는 body.ts 를 그대로 원장 키로 썼다.
+     · 과거 날짜를 넣으면 저장은 되지만 /ops 조회 범위 밖이라 영영 안 보였고
+     · 날짜가 아닌 값이면 월 키를 만들다 예외가 나 접수가 통째로 사라졌다.
+   이제 「진짜 날짜이고 지금에서 이틀 안쪽」일 때만 받아들인다. */
+{
+  const monthOf = t => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit' }).format(new Date(t)).slice(0, 7) + '.jsonl';
+  const thisMonth = monthOf(Date.now());
+
+  globalThis.__MEM = { leads: {} }; globalThis.__NOTIFY = []; globalThis.__MON = [];
+  M = await mk('_monday_c.mjs');
+  res = await post(M, { '회사명': '과거날짜', '이메일': 'old@x.com' }, 'contact', '2020-01-01T00:00:00.000Z');
+  const oldRows = (globalThis.__MEM.leads[thisMonth] || '').split('\n').filter(Boolean).map(JSON.parse);
+  ok('과거 날짜를 보내도 접수는 성공', res.status === 204, res.status);
+  ok('  이번 달 원장에 들어간다(숨지 않는다)', oldRows.length === 1, Object.keys(globalThis.__MEM.leads));
+  ok('  시각은 서버가 정한 값으로 바뀐다', oldRows[0] && Math.abs(Date.parse(oldRows[0].ts) - Date.now()) < 120000, oldRows[0] && oldRows[0].ts);
+
+  globalThis.__MEM = { leads: {} }; globalThis.__NOTIFY = []; globalThis.__MON = [];
+  res = await post(M, { '회사명': '깨진날짜', '이메일': 'bad@x.com' }, 'contact', 'not-a-date');
+  const badRows = (globalThis.__MEM.leads[thisMonth] || '').split('\n').filter(Boolean).map(JSON.parse);
+  ok('날짜가 아닌 값을 보내도 접수가 사라지지 않는다', res.status === 204 && badRows.length === 1, { status: res.status, rows: badRows.length });
+
+  globalThis.__MEM = { leads: {} }; globalThis.__NOTIFY = []; globalThis.__MON = [];
+  res = await post(M, { '회사명': '미래날짜', '이메일': 'fut@x.com' }, 'contact', '2099-01-01T00:00:00.000Z');
+  const futRows = (globalThis.__MEM.leads[thisMonth] || '').split('\n').filter(Boolean).map(JSON.parse);
+  ok('먼 미래 날짜도 서버 시각으로 바로잡는다', futRows.length === 1 && Math.abs(Date.parse(futRows[0].ts) - Date.now()) < 120000, futRows[0] && futRows[0].ts);
+
+  globalThis.__MEM = { leads: {} }; globalThis.__NOTIFY = []; globalThis.__MON = [];
+  const near = new Date(Date.now() - 60 * 60 * 1000).toISOString();   /* 한 시간 전 — 느린 전송·시계 오차 */
+  res = await post(M, { '회사명': '한시간전', '이메일': 'near@x.com' }, 'contact', near);
+  const nearRows = (globalThis.__MEM.leads[monthOf(near)] || '').split('\n').filter(Boolean).map(JSON.parse);
+  ok('가까운 과거(한 시간 전)는 그대로 살린다', nearRows.length === 1 && nearRows[0].ts === near, nearRows[0] && nearRows[0].ts);
+}
+
+/* ── 본문이 지나치게 크면 받지 않는다 ── */
+{
+  const big = await M.default(new Request('https://x/api/lead', {
+    method: 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'test' },
+    body: JSON.stringify({ lead_type: 'contact', payload: { '회사명': 'x'.repeat(40000) } })
+  }));
+  ok('32KB 초과 본문 → 413', big.status === 413, big.status);
+}
 
 for (const f of ['_store_c.mjs', '_notify_c.mjs', '_monday_c.mjs', '_monday_boom.mjs', '_lead_c.mjs'])
   fs.unlinkSync(F + f);

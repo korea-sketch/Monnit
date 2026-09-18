@@ -215,10 +215,14 @@ async function pdf(url) {
   return new Response(b, { headers: { ...H, 'content-type': 'application/pdf', 'content-disposition': `inline; filename="${job.no}.pdf"` } });
 }
 
+/* 엑셀 수식 주입 막기 — 셀이 = + - @ 나 제어문자로 시작하면 엑셀이 「수식」으로 읽는다.
+   회사명에 =HYPERLINK("http://나쁜곳","청구서") 를 넣어 접수하면, 담당자가 CSV 를
+   여는 순간 그 링크가 셀에 만들어진다. 앞에 작은따옴표를 붙이면 엑셀이 글자로 읽는다. (2026-09-18) */
+const noFormula = t => /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
 async function csv() {
   const jobs = await allJobs(5000);
   const cols = ['no', 'created', 'status', 'grade', 'score', 'gradeWhy', 'company', 'name', 'title', 'email', 'phone', 'industry', 'segment', 'entry', 'facility', 'region', 'scale', 'timeline', 'problems', 'also', 'moreAsks', 'goals', 'memo', 'source', 'sent', 'pdfOpens', 'views', 'consentMkt'];
-  const q = v => '"' + String(Array.isArray(v) ? v.join(' / ') : v == null ? '' : v).replace(/"/g, '""') + '"';
+  const q = v => '"' + noFormula(String(Array.isArray(v) ? v.join(' / ') : v == null ? '' : v)).replace(/"/g, '""') + '"';
   const body = '\uFEFF' + cols.join(',') + '\n' + jobs.map(row).map(r => cols.map(c => q(r[c])).join(',')).join('\n');
   return new Response(body, { headers: { ...H, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="custom-proposals-${new Date().toISOString().slice(0, 10)}.csv"` } });
 }
@@ -341,7 +345,7 @@ async function archiveCsv() {
     ['entry', '입구'], ['channel', '채널'], ['grade', '등급'], ['score', '점수'], ['mode', '발송 방식'], ['ai', 'AI 문안'], ['model', '모델'], ['version', '버전'], ['review.verdict', '검토'],
     ['pages', '쪽수'], ['sha', '파일 지문'], ['opens', 'PDF 열람'], ['firstOpenAt', '첫 열람'], ['contacted', '확인 연락'], ['asks', '추가 요청'], ['by', '발송 주체'], ['via', '경로']];
   const get = (o, path) => path.split('.').reduce((v, k) => (v == null ? '' : v[k]), o);
-  const q = v => '"' + String(Array.isArray(v) ? v.join(' / ') : v == null ? '' : v).replace(/"/g, '""') + '"';
+  const q = v => '"' + noFormula(String(Array.isArray(v) ? v.join(' / ') : v == null ? '' : v)).replace(/"/g, '""') + '"';
   const body = '﻿' + cols.map(c => c[1]).join(',') + '\n' + d.rows.map(r => cols.map(c => q(get(r, c[0]))).join(',')).join('\n');
   return new Response(body, { headers: { ...H, 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="proposal-archive-${new Date().toISOString().slice(0, 10)}.csv"` } });
 }

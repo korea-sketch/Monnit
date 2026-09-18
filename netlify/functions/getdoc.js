@@ -6,6 +6,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { lookup, SECRET } = require('./_docmap');
 const { guard, ipOf, uaOf } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
+const { eq } = require('./_eq');                     /* 서명은 상수시간으로 비교 (2026-09-18) */
 
 function sign(file, exp) {
   return crypto.createHmac('sha256', SECRET).update(file + '|' + exp).digest('hex').slice(0, 32);
@@ -20,7 +21,7 @@ exports.handler = async (event) => {
   if (!file || !exp || !sig) return { statusCode: 400, body: '잘못된 요청입니다.' };
   if (!/^[a-z0-9-]+\.pdf$/.test(file)) return { statusCode: 400, body: '잘못된 요청입니다.' };
   if (Date.now() > exp) return { statusCode: 410, body: '다운로드 링크가 만료되었습니다. 다시 신청해 주세요.' };
-  if (sign(file, exp) !== sig) return { statusCode: 403, body: '유효하지 않은 링크입니다.' };
+  if (!eq(sign(file, exp), sig)) return { statusCode: 403, body: '유효하지 않은 링크입니다.' };
 
   /* 경쟁사 차단 (2026-09-16) — 다른 사람이 받은 링크를 넘겨받아도 차단 IP 에서는 열리지 않는다.
      만료와 같은 문구를 보여 준다. */

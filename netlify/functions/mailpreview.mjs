@@ -15,6 +15,7 @@
  *  다만 발송은 남용될 수 있으므로 토큰으로 잠근다. 검색엔진에는 노출하지 않는다.
  */
 import { renderEmail, sendAlarmReply, configured } from './_alarmmail.mjs';
+import EQ from './_eq.js';                 /* 토큰은 상수시간으로 비교 (2026-09-18) */
 
 export const config = { path: '/api/mailpreview' };
 
@@ -40,7 +41,7 @@ export default async (req) => {
   try {
     if (to) {
       if (!TOKEN) return json(400, { ok: false, error: 'MAIL_PREVIEW_TOKEN 환경변수가 없어 테스트 발송이 잠겨 있습니다.' });
-      if (u.searchParams.get('t') !== TOKEN) return json(403, { ok: false, error: '토큰이 맞지 않습니다.' });
+      if (!EQ.eq(u.searchParams.get('t'), TOKEN)) return json(403, { ok: false, error: '토큰이 맞지 않습니다.' });
       const r = await sendAlarmReply({ product: p, email: to, name, origin });
       return json(200, { ok: !!r.sent, ...r, to });
     }

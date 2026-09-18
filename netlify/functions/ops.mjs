@@ -3,6 +3,7 @@
 import * as auth from './_ops_auth.mjs';
 import { LOGIN, APP } from './_ops_ui.mjs';
 import { get, set, append, readLines, available, diag } from './_store.mjs';
+import * as LOCK from './_loginlock.mjs';
 import { configured as adsConfigured, missingEnv as adsMissing, kday as adsKday } from './_ads.mjs';
 import * as deals from './_deals.mjs';
 import { rollup, economics } from './_creatives.mjs';
@@ -79,21 +80,13 @@ function ipOf(req) {
     || req.headers.get('x-forwarded-for') || '?').split(',')[0].trim().slice(0, 45)
     .replace(/[^\w.:-]/g, '_');
 }
-async function fails(k) {
-  try { const o = JSON.parse(await get('ops', 'fail_' + k) || 'null');
-        return (o && Date.now() - o.t < LOCK_MS) ? o : { n: 0, t: 0 }; }
-  catch { return { n: 0, t: 0 }; }
-}
+/* 실패 횟수는 _loginlock 이 센다 — 읽고-쓰기가 아니라 파일 개수로 세므로
+   여러 요청이 동시에 들어와도 숫자가 어긋나지 않는다. (2026-09-18) */
 /** 잠금이 언제 풀리는지 — 「마지막으로 틀린 시각 + 15분」이다.
  *  잠긴 동안 다시 눌러도 기록하지 않으므로 시간이 뒤로 밀리지 않는다.
  *  예전에는 「15분 뒤 다시 해주세요」라고만 적어서, 누를 때마다 15분이
  *  새로 시작되는 것처럼 보였다. 이제 남은 시간을 분·초로 알려 준다. (2026-09-18) */
-function lockMsg(f) {
-  const left = Math.max(0, f.t + LOCK_MS - Date.now());
-  const m = Math.floor(left / 60000), sec = Math.ceil((left % 60000) / 1000);
-  const when = new Date(f.t + LOCK_MS).toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit' });
-  return `로그인 시도가 많아 잠시 막았습니다. ${m > 0 ? m + '분 ' : ''}${sec}초 뒤(${when})에 다시 해주세요. 다시 눌러도 시간이 늘어나지는 않습니다.`;
-}
+const lockMsg = f => LOCK.lockText(f.until);
 
 /* ── UX 자동 진단 ───────────────────────────────────────────────
    Clarity 지표를 읽고 "무엇이 문제이고 무엇을 고쳐야 하는지"로 옮긴다.
@@ -419,16 +412,15 @@ export default async (req) => {
 
   if (sub === 'login') {
     if (req.method !== 'POST') return new Response(null, { status: 302, headers: { location: '/ops' } });
-    const key = ipOf(req), f = await fails(key);
-    if (f.n >= MAX_FAIL) return page(LOGIN.replace('__ERR__', lockMsg(f)));
+    const key = ipOf(req), f = await LOCK.recent('ops', key);
+    if (f.locked) return page(LOGIN.replace('__ERR__', lockMsg(f)));
     const q = new URLSearchParams(await req.text());
     if (auth.check(q.get('u'), q.get('p'))) {
-      await set('ops', 'fail_' + key, JSON.stringify({ n: 0, t: 0 }));
+      await LOCK.clear('ops', key);
       return new Response(null, { status: 302, headers: { ...H, location: '/ops', 'set-cookie': auth.setCookie(auth.issue()) } });
     }
-    const n = (f.n || 0) + 1;
-    await set('ops', 'fail_' + key, JSON.stringify({ n, t: Date.now() }));
-    const left = MAX_FAIL - n;
+    await LOCK.fail('ops', key);
+    const left = MAX_FAIL - (f.n + 1);
     return page(LOGIN.replace('__ERR__', '아이디 또는 비밀번호가 맞지 않습니다'
       + (left > 0 && left <= 3 ? ` (${left}번 더 틀리면 15분 동안 막힙니다)` : '')));
   }
@@ -723,7 +715,10 @@ export default async (req) => {
                   '지역', '설비', '관심', '진동센서경험', '경험구분', '설치라인', '설비위치', '연락약속',
                   '단계', '견적일', '견적까지(일)', '견적금액',
                   '수주일', '수주까지(일)', '월구독료', '일시매출', '유지개월', 'LTV', '실패사유'];
-    const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    /* 엑셀 수식 주입 막기 — = + - @ 로 시작하는 셀은 엑셀이 수식으로 실행한다.
+       회사명에 =HYPERLINK(...) 를 넣어 접수하면 CSV 를 여는 담당자에게 그대로 간다. (2026-09-18) */
+    const noFormula = t => /^[=+\-@\t\r]/.test(t) ? "'" + t : t;
+    const esc = v => '"' + noFormula(String(v == null ? '' : v)).replace(/"/g, '""') + '"';
     const body = d.leads.map(r => {
       const k = r.deal || {};
       const utm = (String(r.source || '').match(/utm_content=([^·&\n]+)/) || [, ''])[1].trim();

@@ -482,11 +482,11 @@ function page({ slug, title, desc, h1, bodyHtml, jsonld, image }) {
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T8H73VW');</script>
-<script>
-(function(){var G='G-49THHRYKR4';var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+G;document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',G);
-(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,'clarity','script','x38egtft64');})();
-</script>
+<!-- 분석·광고 태그는 동의 뒤에만 — 예전에는 이 페이지들만 gtag 를 직접 심어
+     방문 즉시 GA4·Clarity 가 떴다(SPA·프로모션 페이지는 동의를 거치는데 여기만 샜다).
+     monnit-consent.js 가 「기본 거부」를 먼저 선언한 뒤 GTM·GA4·Clarity 를 올린다. (2026-09-18) -->
+<script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'x38egtft64',privacyUrl:'/privacy.html'};</script>
+<script src="/js/monnit-consent.js" defer></script>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${url}">
@@ -501,7 +501,6 @@ ${jsonld ? '<script type="application/ld+json">' + JSON.stringify(jsonld) + '</s
 <style>body{font-family:'Pretendard',system-ui,sans-serif;max-width:900px;margin:0 auto;padding:32px 20px;line-height:1.7;color:#1a2130;background:#fff}a{color:#2E5C9A}h1{font-size:30px}h2{font-size:22px;margin-top:36px;border-top:1px solid #e5e8ef;padding-top:24px}h3{font-size:17px;margin:20px 0 4px}.muted{color:#666}.back{display:inline-block;margin-bottom:20px;font-size:14px}nav.crumb{font-size:13px;color:#888;margin-bottom:8px}ul{padding-left:18px}li{margin:6px 0}.card{border:1px solid #e5e8ef;border-radius:10px;padding:16px 18px;margin:12px 0}</style>
 </head>
 <body>
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8H73VW" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <nav class="crumb"><a href="${SITE}/">Monnit Korea</a> / ${esc(title.split('—')[0].trim())}</nav>
 <a class="back" href="${SITE}/">← 메인으로</a>
 <h1>${esc(h1)}</h1>
@@ -1203,17 +1202,17 @@ ${WP_LIST.map(([t, d]) => `<h3>${esc(t)}</h3><p>${esc(d)}</p>`).join('\n')}
   writePage('proposal', page({
     slug: 'proposal',
     title: '우리 현장 맞춤 제안서 받기 — Monnit Korea',
-    desc: '130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스와 공공기관·대기업을 포함한 국내 도입 현장 데이터를 대조해, 우리 현장 맞춤 제안서(PDF)를 무료로 보내드립니다.',
+    desc: '130여 개국 Monnit 글로벌 운영 데이터와 국내 도입 현장 데이터를 조회·분석해, 우리 현장에 맞는 구성을 산출한 맞춤 제안서(PDF)를 무료로 보내드립니다.',
     h1: '우리 현장만을 위한 맞춤 제안서',
     image: SITE + '/assets/brand/proposal-og.jpg',
     jsonld: { '@context': 'https://schema.org', '@graph': [
       { '@type': 'Service', name: '모넷 맞춤 제안서', serviceType: '무선 IoT 모니터링 맞춤 제안', provider: ORG_LD, areaServed: { '@type': 'Country', name: '대한민국' },
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW', url: SITE + '/proposal' },
-        description: '가장 고민되는 과제를 알려주시면 Monnit 글로벌 레퍼런스와 산업별 플레이북을 대조해 맞춤 제안서를 이메일로 보내드립니다.' },
+        description: '가장 고민되는 과제를 알려주시면 Monnit 글로벌 운영 데이터와 산업별 플레이북을 함께 분석해 현장에 맞는 구성을 산출하고 맞춤 제안서를 이메일로 보내드립니다.' },
       { '@type': 'FAQPage', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }
     ] },
     bodyHtml: `
-<p>누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 130여 개국에서 쓰이는 Monnit 글로벌 레퍼런스와 공공기관·대기업을 포함한 국내 도입 현장 데이터, 12개 산업 현장 플레이북을 대조해 PDF로 정리하고 접수 순서대로 이메일로 보내드립니다. 홈 화면의 솔루션 파인더에서 시설과 고민을 고른 뒤 담당자 정보만 입력해도 됩니다.</p>
+<p>누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 알려주신 현장 조건으로 130여 개국 Monnit 글로벌 운영 데이터와 공공기관·대기업을 포함한 국내 도입 현장 데이터를 조회하고, 12개 산업 현장 플레이북과 함께 분석해 귀사 현장에 맞는 구성을 산출합니다. 그 결과를 PDF로 정리해 접수 순서대로 이메일로 보내드립니다. 홈 화면의 솔루션 파인더에서 시설과 고민을 고른 뒤 담당자 정보만 입력해도 됩니다.</p>
 <h2>제안서 구성</h2>
 <ul><li>제안 요약 · 귀사 현장 이해</li><li>산업의 고질적인 문제</li><li>담당자별 어려움과 센서로 대처할 수 있는 부분</li><li>선택 과제와 연결된 공정·구역 모니터링 맵</li><li>선택 과제 진단과 가장 닮은 Monnit 레퍼런스 3곳</li><li>권장 구성(940MHz 무선 게이트웨이 · iMonnit)과 스마트 관리 로드맵</li><li>현장 진단 체크리스트 · 규정·기준 대응 포인트</li></ul>
 <p>다른 과제와 현장 전체의 구성·수량·견적은 <a href="${SITE}/contact">견적 요청</a>으로 받아 보실 수 있습니다.</p>

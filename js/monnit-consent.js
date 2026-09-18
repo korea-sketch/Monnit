@@ -98,11 +98,24 @@
     inject('https://www.clarity.ms/tag/' + CLARITY_ID);
   }
 
+  /* Clarity 는 구글 동의모드를 따르지 않는다. (2026-09-18)
+     이 파일은 동의 전에 Clarity 를 올리지 않지만, GTM 컨테이너 안에 Clarity 태그가
+     들어 있으면 우리 코드와 상관없이 뜬다. 그때도 쿠키를 만들지 않도록
+     Clarity 자체 동의 API 에 「아직 동의 없음」을 먼저 말해 둔다.
+     태그가 나중에 로드돼도 큐에 쌓여 있다가 전달된다. */
+  function clarityConsent(ok) {
+    try {
+      w.clarity = w.clarity || function () { (w.clarity.q = w.clarity.q || []).push(arguments); };
+      w.clarity('consent', !!ok);
+    } catch (e) {}
+  }
+
   /* ── 상태 적용 ──────────────────────────────────────────────── */
   function apply(state, persist) {
     if (persist !== false) save(state);
     pushConsent(state);
     loadGoogle();                       // 동의모드를 따르므로 항상 로드 (거부 시 쿠키 미저장)
+    clarityConsent(!!state.analytics);  // GTM 이 올린 Clarity 까지 함께 막거나 푼다
     if (state.analytics) loadClarity(); // Clarity 는 동의했을 때만 로드
     w.MonnitConsent.state = { analytics: !!state.analytics, marketing: !!state.marketing };
     try { w.dispatchEvent(new CustomEvent('monnit:consent', { detail: w.MonnitConsent.state })); } catch (e) {}
@@ -294,6 +307,8 @@
   var SHOW_BANNER_ON_MOBILE = CFG.mobileBanner === true;
 
   function boot() {
+    /* 무엇보다 먼저 「아직 동의 없음」을 선언한다 — 태그가 어디서 뜨든 이 값을 본다 */
+    if (!saved || !saved.analytics) clarityConsent(false);
     if (saved) { apply(saved, false); }        // 기존 동의 재적용 (재저장 없음)
     else if (isMobile() && !SHOW_BANNER_ON_MOBILE) {
       loadGoogle();                            // 모바일: 배너 없이 denied 상태로만 로드 (쿠키 미저장)

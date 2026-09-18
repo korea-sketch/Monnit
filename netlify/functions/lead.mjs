@@ -45,8 +45,12 @@ export default async (req) => {
   let body = null;
 
   try {
-    body = await req.json();
-    const p = body.payload || {};
+    /* 본문 크기 제한 — 없으면 누구나 큰 덩어리를 보내 저장소를 채울 수 있다. (2026-09-18) */
+    const _raw = await req.text();
+    if (_raw.length > 32000) return new Response(null, { status: 413, headers: cors });
+    body = JSON.parse(_raw);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return new Response(null, { status: 400, headers: cors });
+    const p = (body.payload && typeof body.payload === 'object' && !Array.isArray(body.payload)) ? body.payload : {};
     const type = ['contact', 'doc_request', 'subscribe'].includes(body.lead_type) ? body.lead_type : 'contact';
     const src = pick(p, ['출처']);
 
@@ -77,7 +81,7 @@ export default async (req) => {
     if (_blk) return new Response(null, { status: 204, headers: cors });
 
     const lead = {
-      ts: body.ts || new Date().toISOString(),
+      ts: safeTs(body.ts),
       type, label: TYPE_LABEL[type], channel: channel(src),
       point: pick(p, ['접점']) || String(body.page || ''),
       company: _co,
@@ -119,13 +123,13 @@ export default async (req) => {
     if (_test.isCertainTest(_env)) {
       lead.test = true;
       lead.company = _test.tag(lead.company);
-      await append('leads-test', monthKey(body.ts), lead).catch(() => {});
+      await append('leads-test', monthKey(safeTs(body.ts)), lead).catch(() => {});
       return new Response(null, { status: 204, headers: cors });
     }
     if (_test.isTest(_env)) lead.test = true;   /* 원장에는 남기되 표시만 해 둔다 */
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
-    await append('leads', monthKey(body.ts), lead);
+    await append('leads', monthKey(safeTs(body.ts)), lead);
 
     const id = lead.ts + '|' + (lead.email || lead.phone || lead.company || '');
 
@@ -170,7 +174,7 @@ export default async (req) => {
        함수 로그를 뒤져야만 알 수 있었다. 이제 /ops/automail 에서 바로 보인다. */
     try {
       const nv = (_notified && _notified.status === 'fulfilled') ? _notified.value : null;
-      await append('ops', 'notify-' + monthKey(body.ts), {
+      await append('ops', 'notify-' + monthKey(safeTs(body.ts)), {
         ts: lead.ts,
         ok: !!(nv && nv.ok),
         via: (nv && nv.via) || '',                       /* browser · staticforms · web3forms · brevo */
@@ -182,7 +186,7 @@ export default async (req) => {
 
     if (_reply && _reply.status === 'fulfilled' && _reply.value) {
       const r = _reply.value;
-      await append('ops', 'automail-' + monthKey(body.ts), {
+      await append('ops', 'automail-' + monthKey(safeTs(body.ts)), {
         ts: lead.ts, email: lead.email, product: r.product || lead.product || '',
         sent: !!r.sent, note: r.skipped || r.error || ''
       }).catch(() => {});
@@ -193,7 +197,7 @@ export default async (req) => {
        상태를 함수 로그를 뒤져야만 알 수 있었다. 이제 /ops 에서 바로 보인다. */
     console.error('[lead] 접수 처리 실패', e);
     try {
-      await append('ops', 'lead-failed-' + monthKey(body && body.ts), {
+      await append('ops', 'lead-failed-' + monthKey(safeTs(body && body.ts)), {
         ts: new Date().toISOString(), error: String(e && e.message || e).slice(0, 200),
         page: String((body && body.page) || ''),
         company: String(((body && body.payload) || {})['회사명'] || ''),
@@ -206,6 +210,22 @@ export default async (req) => {
 
   return new Response(null, { status: 204, headers: cors });
 };
+
+/** 접수 시각 — 화면이 보낸 값을 그대로 믿지 않는다. (2026-09-18)
+ *  예전에는 body.ts 를 그대로 썼다. 과거 날짜를 넣으면 원장에는 저장되지만
+ *  /ops 조회 범위 밖이라 영영 보이지 않았고, 날짜가 아닌 값이면 월 키를 만들다
+ *  예외가 나 접수가 통째로 사라졌다.
+ *  이제 「진짜 날짜이고, 지금에서 이틀 안쪽일 때」만 받아들이고 아니면 서버 시각을 쓴다.
+ *  (시계가 조금 어긋난 기기·느린 전송은 살리고, 조작만 막는 범위다.) */
+const TS_SLACK = 2 * 24 * 3600 * 1000;
+function safeTs(v) {
+  const now = Date.now();
+  if (typeof v === 'string' || typeof v === 'number') {
+    const t = new Date(v).getTime();
+    if (Number.isFinite(t) && Math.abs(t - now) <= TS_SLACK) return new Date(t).toISOString();
+  }
+  return new Date(now).toISOString();
+}
 
 function monthKey(ts) {
   const d = ts ? new Date(ts) : new Date();

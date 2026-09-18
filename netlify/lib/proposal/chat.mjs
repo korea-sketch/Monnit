@@ -184,7 +184,7 @@ export function nextAsk(f = {}) {
 
 const T = {
   ko: {
-    hello: '안녕하세요. 모넷코리아 맞춤 제안서 도우미입니다. 어느 회사(또는 시설) 현장이신지 알려주시면, 비슷한 현장 사례를 대조해 PDF 제안서를 만들어 메일로 보내드립니다.',
+    hello: '안녕하세요. 모넷코리아 맞춤 제안서 도우미입니다. 어느 회사(또는 시설) 현장이신지 알려주시면, 130여 개국 Monnit 글로벌 운영 데이터를 조회해 같은 조건의 현장을 찾고, 산업별 플레이북과 함께 분석해 귀사 현장에 맞는 구성을 산출한 PDF 제안서를 메일로 보내드립니다.',
     company: '어느 회사(또는 시설) 현장이신가요? 회사명을 알려주시면 업종을 맞춰 정리해 드립니다.',
     name: '제안서를 받으실 분 성함과 직함을 알려주세요.',
     email: '제안서를 보내드릴 이메일 주소를 알려주세요.',
@@ -204,7 +204,7 @@ const T = {
     paused: 'AI 상담은 잠시 점검 중입니다. 아래 단계별 신청으로 진행해 주시면 제안서는 평소대로 보내드립니다.'
   },
   en: {
-    hello: 'Hello — this is the Monnit Korea proposal assistant. Tell us the company or site, and we will match similar sites and email you a PDF proposal.',
+    hello: 'Hello — this is the Monnit Korea proposal assistant. Tell us the company or site, and we will query Monnit global operating data from 130+ countries, analyse comparable sites against our industry playbooks, and email you a PDF proposal with a configuration derived for your site.',
     company: 'Which company or site is this for?',
     name: 'Who should receive the proposal? Please share your name and title.',
     email: 'What email address should we send the proposal to?',
