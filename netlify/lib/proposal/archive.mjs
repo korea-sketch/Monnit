@@ -36,6 +36,8 @@ export function channelOf(src) {
 
 /** 발송 한 건 기록 — kind: proposal · resend · followup */
 export async function recordSend(job, { kind = 'proposal', bytes = null, via = '', attached = false, messageId = '', by = 'auto' } = {}) {
+  /* 테스트 접수는 발송 대장·고객 인사이트에 섞지 않는다 (2026-09-18) */
+  if (job && job.test === true) return { skipped: 'test' };
   try {
     const n = (job.sendSeq || 0) + 1;
     const at = Date.now();

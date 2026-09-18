@@ -162,14 +162,8 @@ async function readConsult() {
  *    · 접점이 /ops 로 시작 — 관제에서 직접 찔러 본 점검
  *    · 회사·담당자·메모에 test / 테스트 가 들어 있다
  *  테스트할 때는 1004@monnit.com 을 쓰면 자동으로 걸러진다. */
-export function isTestLead(r) {
-  if (!r) return false;
-  const em = String(r.email || '').trim().toLowerCase();
-  if (/@monnit\.com$/.test(em)) return true;
-  if (/^\/ops/.test(String(r.point || ''))) return true;
-  if (/\btest\b|테스트/i.test([r.company, r.name, r.memo].filter(Boolean).join(' '))) return true;
-  return false;
-}
+export { isTestLead } from './_istest.mjs';
+import { isTestLead } from './_istest.mjs';
 
 const DEL_KEY = 'deleted.json';
 

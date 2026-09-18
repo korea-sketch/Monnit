@@ -167,14 +167,8 @@ async function readMap() {
 /** 내부 테스트 접수인가 — ops.mjs 의 isTestLead 와 같은 규칙이다.
  *  두 곳이 갈라지면 「원장에서는 빠졌는데 보드에는 남는」 일이 생기므로
  *  tools/test-testlead.mjs 가 두 판정이 같은지 확인한다. */
-export function isTestLead(r) {
-  if (!r) return false;
-  const em = String(r.email || '').trim().toLowerCase();
-  if (/@monnit\.com$/.test(em)) return true;
-  if (/^\/ops/.test(String(r.point || ''))) return true;
-  if (/\btest\b|테스트/i.test([r.company, r.name, r.memo].filter(Boolean).join(' '))) return true;
-  return false;
-}
+export { isTestLead } from './_istest.mjs';
+import { isTestLead } from './_istest.mjs';
 
 export async function pushLead(id, lead) {
   if (!TOKEN) return { ok: false, skipped: 'MONDAY_TOKEN 없음' };

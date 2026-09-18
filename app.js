@@ -156,14 +156,14 @@ const NOTIFY_VIA  = "web3forms";  /* "web3forms" | "staticforms" — 성공을 �
 const NOTIFY_BOTH = false;        /* true = 나머지 한 곳에도 사본 발송 (메일 2통) */
 
 const STATICFORMS_URL = "https://api.staticforms.dev/submit";
-const STATICFORMS_KEY = (/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"sf_e026c9ef91b8eaeba9d1d472");
+const STATICFORMS_KEY = ((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':"sf_e026c9ef91b8eaeba9d1d472");
 
 /* ★★ Web3Forms — 서버가 죽었을 때만 쓰는 비상 경로.
    평소 알림은 서버가 Brevo 로 NOTIFY_TO(0702yeom@gmail.com) 에 보낸다.
    이 키는 「키에 등록된 주소」로만 발송되므로 여기서 수신자를 정할 수 없다.
    수신자를 이 경로까지 바꾸려면 web3forms.com 에서 0702yeom@gmail.com 으로
    새 access key 를 발급받아 아래 한 줄만 교체하면 된다. */
-const WEB3FORMS_KEY = (/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2");
+const WEB3FORMS_KEY = ((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2");
 
 /* (대안) FormSubmit — 무제한 무료. 단, 최초 1회 활성화 메일 클릭 필요 */
 const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + encodeURIComponent(CONTACT_EMAIL);

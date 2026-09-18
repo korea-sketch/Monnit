@@ -1133,8 +1133,8 @@ footer a{color:#333}
 /* 홈페이지(monnit.co.kr)와 동일한 리드 접수 체인
    1순위 StaticForms → 2순위 Web3Forms → 3순위 방문자 메일앱 */
 var STATICFORMS_URL='https://api.staticforms.dev/submit';
-var STATICFORMS_KEY=(/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':'sf_e026c9ef91b8eaeba9d1d472');
-var WEB3FORMS_KEY=(/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2');
+var STATICFORMS_KEY=((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':'sf_e026c9ef91b8eaeba9d1d472');
+var WEB3FORMS_KEY=((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2');
 var CONTACT_EMAIL='korea@monnit.com';
 var PID='church', PROMO_NAME='교회 건물관리 솔루션', PROMO_CODE='MNK5230';
 

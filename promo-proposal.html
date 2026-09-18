@@ -1187,9 +1187,9 @@ var CONFIG = {
 
   // 알림 메일 — 1순위 StaticForms(사이트 공통 활성 백엔드), 2순위 Web3Forms 폴백
   SF_ENDPOINT   : "https://api.staticforms.dev/submit",
-  SF_KEY        : (/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"sf_e026c9ef91b8eaeba9d1d472"),
+  SF_KEY        : ((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':"sf_e026c9ef91b8eaeba9d1d472"),
   FORM_ENDPOINT : "https://api.web3forms.com/submit",
-  W3F_KEY       : (/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2"),
+  W3F_KEY       : ((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2"),
 
   /* 모바일에서 PDF 를 여는 방식
      "newtab"   : 새 탭에서 열기 — 랜딩이 뒤에 남습니다 ← 권장

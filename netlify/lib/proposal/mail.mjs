@@ -185,6 +185,8 @@ export function intakeLines(job) {
   return out;
 }
 export async function notifyStaff(kind, job, extra = {}) {
+  /* 테스트 접수는 담당자 메일함으로 보내지 않는다 (2026-09-18) */
+  if (job && job.test === true) return { ok: true, skipped: 'test', via: 'test' };
   const L = job.lead, g = (job.meta && job.meta.grade) || {};
   const admin = CFG.site + '/ops/proposals#' + job.id;
   const flag = kind === 'more' ? '·연락 필요' : kind === 'new' ? (modeOf(job) === 'instant' ? '·즉시 발송' : modeOf(job) === 'review' ? '·확인 필요' : '') : kind === 'sent' && modeOf(job) === 'instant' ? '·연락 필요' : '';

@@ -3,6 +3,7 @@
 import { append } from './_store.mjs';
 import { notify } from './_notify.mjs';
 import { pushLead } from './_monday.mjs';
+import * as _test from './_istest.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
 import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
@@ -41,8 +42,10 @@ export default async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method !== 'POST') return new Response(null, { status: 405, headers: cors });
 
+  let body = null;
+
   try {
-    const body = await req.json();
+    body = await req.json();
     const p = body.payload || {};
     const type = ['contact', 'doc_request', 'subscribe'].includes(body.lead_type) ? body.lead_type : 'contact';
     const src = pick(p, ['출처']);
@@ -100,6 +103,20 @@ export default async (req) => {
       /* 접속 IP — 나중에 경쟁사로 밝혀지면 /ops/block 에서 이 값으로 바로 막는다 (2026-09-16) */
       ip: _guard.ipOf(req.headers)
     };
+
+    /* ── 테스트 접수 분리 (2026-09-18) ────────────────────────────────
+       자동 테스트가 만든 가짜 접수는 실제 문의와 섞이면 안 된다.
+         · 리드 원장(leads)·먼데이·담당자 알림에 올리지 않는다
+         · 대신 'leads-test' 로 따로 남겨 테스트가 제대로 돌았는지는 확인할 수 있다
+       판정은 _istest.mjs — 루프백 IP · localhost 유입 · 테스트 계정 · [테스트] 표시. */
+    const _isTest = _test.isTest({ ip: lead.ip, landing: lead.landing, email: lead.email,
+      company: lead.company, name: lead.name, memo: lead.memo, flag: typeof body.test === 'boolean' ? body.test : undefined, point: lead.point });
+    if (_isTest) {
+      lead.test = true;
+      lead.company = _test.tag(lead.company);
+      await append('leads-test', monthKey(body.ts), lead).catch(() => {});
+      return new Response(null, { status: 204, headers: cors });
+    }
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
     await append('leads', monthKey(body.ts), lead);
@@ -164,7 +181,22 @@ export default async (req) => {
         sent: !!r.sent, note: r.skipped || r.error || ''
       }).catch(() => {});
     }
-  } catch (e) { /* 조용히 넘긴다 */ }
+  } catch (e) {
+    /* 조용히 넘기되 흔적은 남긴다 (2026-09-18).
+       전에는 여기서 오류가 나면 접수가 소리 없이 사라져, 「메일은 왔는데 원장에는 없는」
+       상태를 함수 로그를 뒤져야만 알 수 있었다. 이제 /ops 에서 바로 보인다. */
+    console.error('[lead] 접수 처리 실패', e);
+    try {
+      await append('ops', 'lead-failed-' + monthKey(body && body.ts), {
+        ts: new Date().toISOString(), error: String(e && e.message || e).slice(0, 200),
+        page: String((body && body.page) || ''),
+        company: String(((body && body.payload) || {})['회사명'] || ''),
+        email: String(((body && body.payload) || {})['이메일'] || ''),
+        phone: String(((body && body.payload) || {})['연락처'] || ''),
+        raw: JSON.stringify(body || {}).slice(0, 1800)   /* 손으로 복구할 수 있게 원문을 남긴다 */
+      });
+    } catch (e2) { /* 여기까지 실패하면 함수 로그만 남는다 */ }
+  }
 
   return new Response(null, { status: 204, headers: cors });
 };

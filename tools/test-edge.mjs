@@ -48,7 +48,11 @@ const req = (path, { method = 'POST', body, headers = {}, raw } = {}) => API(new
 }), {});
 const js = async r => { try { return await r.json(); } catch (e) { return null; } };
 let seq = 0;
+/* test:false = 「실제 접수처럼 다뤄 달라」 — 담당자 알림·원장 경로 자체를 검증하기 위해서다.
+   회사명에 「테스트」가 들어가면 기본은 테스트 접수로 분류되어 알림이 나가지 않는다
+   (netlify/functions/_istest.mjs). 그 분류가 제대로 막는지는 아래에서 따로 확인한다. */
 const lead = (o = {}) => ({
+  test: false,
   company: '엣지테스트' + (++seq) + '(주)', name: '김현장', title: '팀장', email: `field.kim${seq}@edge-corp.co.kr`,
   phone: '010-2957-48' + String(10 + seq).slice(-2), industry: 'manufacturing', problems: ['elec_fire'], goals: ['safety'],
   consent: true, elapsed: 12000, entry: 'proposal', ...o

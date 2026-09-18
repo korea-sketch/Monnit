@@ -14,6 +14,7 @@
  *   · 요청 크기 16KB 제한 · JSON 만 · 다른 사이트에서 보낸 요청 거절(Origin / Sec-Fetch-Site)
  *   · 저장소 장애 시에도 담당자 알림 메일로 접수 내용을 남긴다 */
 import * as S from '../lib/proposal/store.mjs';
+import * as _test from './_istest.mjs';
 import { CFG } from '../lib/proposal/config.mjs';
 import { cleanInput, createJob, grade, dedupeKey, tokenKey, publicView, verifyPdf, addNotice, addLog, hash } from '../lib/proposal/jobs.mjs';
 import { progress, noticeTimeline, fmtKST, kDay } from '../lib/proposal/schedule.mjs';
@@ -188,6 +189,11 @@ async function create(req, url) {
   };
   const job = createJob(lead, meta, Date.now(), intake);
   job.meta.grade = grade(lead, meta, job.intake, job.match);
+  /* 테스트 접수 표시 (2026-09-18) — 담당자 알림·발송 대장·먼데이에 올리지 않는다.
+     제안서 생성·PDF·고객 메일은 그대로 돌아가므로 자동 테스트는 계속 유효하다. */
+  job.test = _test.isTest({ ip: meta.ip, landing: meta.landing, email: lead.email,
+    company: lead.company, name: lead.name, memo: lead.memo, flag: typeof b.test === 'boolean' ? b.test : undefined, point: intake && intake.entry ? '/' + intake.entry : '' });
+  if (job.test) job.lead.company = _test.tag(job.lead.company);
 
   /* 저장 — 실패하면 담당자 메일로라도 남긴다 */
   try {

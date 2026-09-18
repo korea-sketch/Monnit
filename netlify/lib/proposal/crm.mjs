@@ -65,6 +65,8 @@ const body = rec => [
 ].filter(Boolean).join('\n');
 
 export async function pushSend(job, rec) {
+  /* 테스트 접수는 먼데이 보드에 올리지 않는다 (2026-09-18) */
+  if (job && job.test === true) return { skipped: 'test' };
   if (!configured()) return { skipped: true };
   let itemId = job.crm && job.crm.monday;
   if (!itemId) {
@@ -79,6 +81,7 @@ export async function pushSend(job, rec) {
 
 /** 열람 · 재방문 · 추가 요청 · 확인 연락 같은 반응을 같은 항목에 한 줄씩 */
 export async function pushEvent(job, text) {
+  if (job && job.test === true) return { skipped: 'test' };
   if (!configured() || !(job && job.crm && job.crm.monday)) return { skipped: true };
   return gql(`mutation ($i: ID!, $t: String!) { create_update (item_id: $i, body: $t) { id } }`, { i: job.crm.monday, t: String(text).slice(0, 2000) });
 }

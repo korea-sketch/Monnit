@@ -49,8 +49,13 @@ const S = await import('../netlify/lib/proposal/store.mjs');
 const P = await import('../netlify/lib/proposal/pipeline.mjs');
 const ADMIN = (await import('../netlify/functions/proposal-admin.mjs')).default;
 
+/* test:false = 「실제 접수처럼 다뤄 달라」 — 담당자 알림·발송 대장·먼데이 경로 자체를
+   검증하려면 필요하다. 실제 브라우저 요청에는 이 값이 없고, 테스트 계정(@monnit.com)·
+   회사명의 「테스트」 표시·로컬 접속은 자동으로 테스트로 분류된다(netlify/functions/_istest.mjs).
+   분류가 제대로 막는지는 아래 「테스트 접수 분리」 항목에서 따로 확인한다. */
 const post = (body, ip = '1.2.3.4') => API(new Request('https://monnit.co.kr/api/proposal', {
-  method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://monnit.co.kr', 'x-nf-client-connection-ip': ip, 'user-agent': 'Mozilla/5.0 (iPhone)' }, body: JSON.stringify(body)
+  method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://monnit.co.kr', 'x-nf-client-connection-ip': ip, 'user-agent': 'Mozilla/5.0 (iPhone)' },
+  body: JSON.stringify(Object.assign({ test: false }, body))
 }), {});
 const good = {
   company: '(주)한빛데이터센터', name: '김서연', title: '시설팀장', email: 'sy.kim@hanbit-dc.co.kr', phone: '010-3456-7812',

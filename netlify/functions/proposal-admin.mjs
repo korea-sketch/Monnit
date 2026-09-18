@@ -119,9 +119,12 @@ export default async (req) => {
   return j({ ok: false, error: 'not_found' }, 404);
 };
 
-async function allJobs(limit = 600) {
+async function allJobs(limit = 600, withTest = false) {
   const keys = (await S.list('job/', 5000)).slice(-limit);
-  const jobs = (await Promise.all(keys.map(k => S.getJSON(k).catch(() => null)))).filter(Boolean);
+  let jobs = (await Promise.all(keys.map(k => S.getJSON(k).catch(() => null)))).filter(Boolean);
+  /* 테스트 접수는 기본으로 숨긴다 — 실제 문의와 섞이면 안 된다 (2026-09-18).
+     확인이 필요하면 주소에 ?test=1 을 붙인다. */
+  if (!withTest) jobs = jobs.filter(j => j.test !== true);
   return jobs.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 }
 
@@ -162,7 +165,7 @@ async function one(id) {
 }
 
 async function data(url) {
-  const jobs = await allJobs();
+  const jobs = await allJobs(600, url.searchParams.get('test') === '1');
   const month = url.searchParams.get('month') || '';
   const list = month ? jobs.filter(x => fmtMonth(x.createdAt) === month) : jobs;
   const sent = list.filter(x => x.status === 'sent');
