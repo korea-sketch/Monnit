@@ -195,10 +195,12 @@
     box.hidden = false;
     var list = P.chronic.slice(0, 4).filter(function (c) { return pbL(c.title); });
     if (!list.length) { box.hidden = true; return; }
-    box.innerHTML = '<p class="mkp-chronic-h">' + L('모넷이 이 산업 현장에서 반복해서 보는 문제', 'Recurring problems Monnit sees in this industry') + '</p>' + list.map(function (c) {
-      var on = (c.problems || []).some(function (k) { return A.st.problems.indexOf(k) >= 0; });
-      return '<div class="mkp-ch' + (on ? ' on' : '') + '"><b>' + esc(pbL(c.title)) + '</b><span>' + esc(pbL(c.detail)) + '</span></div>';
-    }).join('');
+    /* 처음에는 접어 둔다 — 고르는 일에 먼저 집중하도록 (2026-09-18) */
+    box.innerHTML = '<summary class="mkp-chronic-h">' + L('모넷이 이 현장에서 반복해서 보는 문제 ' + list.length + '가지 — 눌러서 보기', 'What Monnit sees repeatedly here — ' + list.length + ' problems') + '</summary>'
+      + '<div class="mkp-chronic-b">' + list.map(function (c) {
+        var on = (c.problems || []).some(function (k) { return A.st.problems.indexOf(k) >= 0; });
+        return '<div class="mkp-ch' + (on ? ' on' : '') + '"><b>' + esc(pbL(c.title)) + '</b><span>' + esc(pbL(c.detail)) + '</span></div>';
+      }).join('') + '</div>';
   }
   function renderGoals() {
     var I = ind(A.st.industry); if (!I) return;
@@ -238,10 +240,11 @@
     if (!pb || !pb.zones) { box.innerHTML = ''; return; }
     var seg = pb.segment ? pbL(pb.segment.label) : '';
     box.innerHTML =
-      '<p class="mkp-peek-h">' + L('제안서에 들어갈 공정·구역 모니터링 맵', 'Zone monitoring map in your proposal') + (seg ? ' · ' + esc(seg) : '') + '</p>' +
-      '<div class="mkp-zones">' + pb.zones.filter(function (z) { return pbL(z.zone); }).map(function (z) { return '<span class="' + (z.focus ? 'on' : '') + '">' + esc(pbL(z.zone)) + '</span>'; }).join('') + '</div>' +
-      '<p class="mkp-peek-h">' + L('센서 이후 — 스마트 관리 로드맵', 'Beyond sensors — smart operations roadmap') + '</p>' +
-      '<div class="mkp-road">' + (pb.automation || []).map(function (a, i) { return '<i class="' + (i >= 2 ? 'lock' : '') + '" style="height:' + (34 + i * 10) + 'px"><em>L' + (i + 1) + '</em>' + esc(pbL(a) || a) + '</i>'; }).join('') + '</div>';
+      /* 2026-09-18 — 옆 칸이 화면보다 길어져 아래에 빈 공간이 생기던 것을 고침: 상세는 접어 둔다 */
+      '<details class="mkp-peek-d"><summary class="mkp-peek-h">' + L('제안서에 들어갈 공정·구역 ' + pb.zones.length + '곳', pb.zones.length + ' zones in your proposal') + (seg ? ' · ' + esc(seg) : '') + '</summary>' +
+      '<div class="mkp-zones">' + pb.zones.filter(function (z) { return pbL(z.zone); }).map(function (z) { return '<span class="' + (z.focus ? 'on' : '') + '">' + esc(pbL(z.zone)) + '</span>'; }).join('') + '</div></details>' +
+      '<details class="mkp-peek-d"><summary class="mkp-peek-h">' + L('센서 이후 — 스마트 관리 로드맵 ' + (pb.automation || []).length + '단계', 'Beyond sensors — ' + (pb.automation || []).length + '-step roadmap') + '</summary>' +
+      '<div class="mkp-road">' + (pb.automation || []).map(function (a, i) { return '<i class="' + (i >= 2 ? 'lock' : '') + '" style="height:' + (34 + i * 10) + 'px"><em>L' + (i + 1) + '</em>' + esc(pbL(a) || a) + '</i>'; }).join('') + '</div></details>';
   }
 
   /* 실시간 매칭 (서버 계산, 5분 캐시) */

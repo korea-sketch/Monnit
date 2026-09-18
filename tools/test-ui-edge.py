@@ -324,7 +324,9 @@ async def t_visit(br, errs):
     if slots_b:
         await pb.locator('#slotarea .slot').first.click(); await pb.click('#submitBtn'); await pb.wait_for_timeout(2500)
         rec('예약 — 다른 시간으로 다시 접수 완료', await pb.locator('#donecard').is_visible(), '')
-    rec('예약 — 메일은 브라우저 경로 1회(서버 알림 생략)', a.calls['static'] == 1 and a.calls['lead'] == 1, a.calls)
+    # 2026-09-18 — 개발 주소(localhost)에서는 외부 알림 메일을 절대 보내지 않는다.
+    #              테스트가 담당자 메일함으로 가짜 접수를 흘려보내던 문제를 막은 결과다.
+    rec('예약 — 개발 주소에서는 외부 메일 0건 · 원장 기록은 정상', a.calls['static'] == 0 and a.calls['lead'] == 1, a.calls)
     # 새로 연 화면에서도 두 시간이 빠져 있다
     c = await mk(br, viewport={'width': 1280, 'height': 900}); pc = await page(c, errs, 'V-C')
     await pc.goto(B + '/visit', wait_until='load'); await pc.wait_for_timeout(1800)

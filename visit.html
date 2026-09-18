@@ -269,8 +269,8 @@
 
   /* 사이트 공통 폼 백엔드 (app.js 와 동일한 값) */
   var STATICFORMS_URL="https://api.staticforms.dev/submit";
-  var STATICFORMS_KEY="sf_e026c9ef91b8eaeba9d1d472";
-  var WEB3FORMS_KEY  ="e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
+  var STATICFORMS_KEY=(/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"sf_e026c9ef91b8eaeba9d1d472");
+  var WEB3FORMS_KEY  =(/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2");
   var CONTACT        ="korea@monnit.com";
 
   /* 일정은 담당자가 관리 화면에서 저장한 값을 서버에서 읽어옵니다.
@@ -545,8 +545,13 @@
       _url:location.href
     };
   }
+  /* 개발·테스트 주소에서는 외부 알림 메일을 보내지 않는다 (2026-09-18) */
+  function _devHost(){ try{ var h=location.hostname;
+    return h==='localhost'||h==='127.0.0.1'||h==='::1'||h==='0.0.0.0'||/\.local$/.test(h)||/^192\.168\./.test(h)||/^10\./.test(h);
+  }catch(e){ return false; } }
   function sendBooking(b){
     var p=payloadOf(b);
+    if(_devHost()){ try{console.info('[모넷] 개발 주소 — 예약 알림 메일 생략');}catch(e){} return Promise.resolve(false); }
     function viaStatic(){
       if(!STATICFORMS_KEY) return Promise.resolve(false);
       var body={}; for(var k in p) if(Object.prototype.hasOwnProperty.call(p,k)) body[k]=p[k];

@@ -173,7 +173,7 @@ footer a{color:var(--sub);text-decoration:underline}
 <script>
 /* ===== [설정] ===== */
 var SHEET_ID='1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
-var STATICFORMS_URL='https://api.staticforms.dev/submit', STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472', WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
+var STATICFORMS_URL='https://api.staticforms.dev/submit', STATICFORMS_KEY=(/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':'sf_e026c9ef91b8eaeba9d1d472'), WEB3FORMS_KEY=(/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2');
 /* 시트 로드 전에도 즉시 렌더되도록 하는 기본 문구 + 테마색 + 최적화 로컬 이미지(있으면) */
 var THEME={fire:'#FF5A2C',flame:'#FF5A2C',water:'#3B82F6',elect:'#F59E0B',church:'#3FD7C0'};
 var LOCAL_IMG={                                    // 에디터 image 칸이 비었을 때만 쓰는 예비 이미지

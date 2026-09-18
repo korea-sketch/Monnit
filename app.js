@@ -90,7 +90,7 @@ function ensureProposal(cb){
     (window.__propCbs || []).forEach(function(f){ try { f && f(window.MKProposal); } catch(e){ console.warn('[proposal]', e); } });
     window.__propCbs = [];
   };
-  add('/js/proposal-data.js?v=5', function(){ add('/js/proposal-view.js?v=5', function(){ add('/js/proposal-chat.js?v=1', done); }); });
+  add('/js/proposal-data.js?v=5', function(){ add('/js/proposal-view.js?v=7', function(){ add('/js/proposal-chat.js?v=1', done); }); });
 }
 function ensureSolutionTwin(){
   if (window.__twinLoaded || window.__twinLoading) return;
@@ -156,14 +156,14 @@ const NOTIFY_VIA  = "web3forms";  /* "web3forms" | "staticforms" — 성공을 �
 const NOTIFY_BOTH = false;        /* true = 나머지 한 곳에도 사본 발송 (메일 2통) */
 
 const STATICFORMS_URL = "https://api.staticforms.dev/submit";
-const STATICFORMS_KEY = "sf_e026c9ef91b8eaeba9d1d472";
+const STATICFORMS_KEY = (/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"sf_e026c9ef91b8eaeba9d1d472");
 
 /* ★★ Web3Forms — 서버가 죽었을 때만 쓰는 비상 경로.
    평소 알림은 서버가 Brevo 로 NOTIFY_TO(0702yeom@gmail.com) 에 보낸다.
    이 키는 「키에 등록된 주소」로만 발송되므로 여기서 수신자를 정할 수 없다.
    수신자를 이 경로까지 바꾸려면 web3forms.com 에서 0702yeom@gmail.com 으로
    새 access key 를 발급받아 아래 한 줄만 교체하면 된다. */
-const WEB3FORMS_KEY = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2";
+const WEB3FORMS_KEY = (/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname)?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2");
 
 /* (대안) FormSubmit — 무제한 무료. 단, 최초 1회 활성화 메일 클릭 필요 */
 const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + encodeURIComponent(CONTACT_EMAIL);
@@ -182,6 +182,15 @@ function buildMailto(payload){
   const body = lines.join('\n');
   return 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
+/* 개발·테스트 주소인가 — 여기서는 외부 메일 서비스를 부르지 않는다 (2026-09-18) */
+window.MonnitNotify = window.MonnitNotify || {};
+window.MonnitNotify.isDevHost = function(){
+  try {
+    var h = location.hostname;
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0' || /\.local$/.test(h) || /^192\.168\./.test(h) || /^10\./.test(h);
+  } catch(e){ return false; }
+};
+
 async function sendLead(payload, btn){
   /* 마지막 방어선 — 어느 폼을 거쳐 오든 형식이 틀린 연락처는 여기서 끊는다. */
   try {
@@ -193,6 +202,14 @@ async function sendLead(payload, btn){
       if (_ph && !_V.phone(_ph).ok) { alert(_V.phone(_ph).message); return false; }
     }
   } catch(e){}
+  /* 개발·테스트 주소(localhost)에서는 실제 알림 메일을 절대 보내지 않는다. (2026-09-18)
+     화면 자동 테스트가 담당자 메일함으로 가짜 접수를 흘려보내던 문제를 막는다.
+     접수 자체(원장 기록·화면 흐름)는 그대로 진행되므로 테스트는 계속 유효하다. */
+  if (window.MonnitNotify && window.MonnitNotify.isDevHost && window.MonnitNotify.isDevHost()) {
+    try { console.info('[모넷] 개발 주소 — 알림 메일 보내지 않음', payload._subject || ''); } catch(e){}
+    try { if (window.MonnitLead && window.MonnitLead.setNotified) window.MonnitLead.setNotified(false); } catch(e){}
+    return true;
+  }
   const prevText = btn ? btn.textContent : '';
   if (btn){ btn.disabled = true; btn.dataset._t = prevText; btn.textContent = '전송 중…'; }
   const restore = () => { if (btn){ btn.disabled = false; btn.textContent = btn.dataset._t || prevText; } };

@@ -147,7 +147,9 @@ export default async (req) => {
     const ip = ipOf(req), ih = ipHash(ip);
     let holds = (await readHolds()).filter(h => h.end > now - 86400000);   /* 지난 건 정리 */
     if (holds.some(h => h.code === code)) return json({ ok: true, again: true });
-    if (holds.filter(h => h.ih === ih && h.at > now - 86400000).length >= 3) return json({ ok: false, error: 'rate' }, 429);
+    /* 같은 IP 하루 3건 제한 — 로컬(127.0.0.1)은 개발·자동 테스트뿐이라 세지 않는다 (2026-09-18) */
+    const isLocal = /^(127\.|::1$|::ffff:127\.|0\.0\.0\.0$)/.test(String(ip || ''));
+    if (!isLocal && holds.filter(h => h.ih === ih && h.at > now - 86400000).length >= 3) return json({ ok: false, error: 'rate' }, 429);
     const sameDay = holds.filter(h => h.d === k.d && h.end > now);
     const clash = sameDay.some(h => sMin - cfg.buffer < toMin(h.e) && toMin(h.s) < eMin + cfg.buffer);
     if (clash) return json({ ok: false, error: 'taken' }, 409);

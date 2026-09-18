@@ -129,7 +129,9 @@ async function create(req, url) {
   const day = kDay(Date.now()), hour = new Date().toISOString().slice(0, 13);
   try {
     const ipKey = 'rate/' + hour + '/' + hash('ip|' + ip).slice(0, 16);
-    if (ip && await S.count(ipKey) >= CFG.perIpHour) return json({ ok: false, error: 'rate', message: '잠시 후 다시 신청해 주세요. 급하시면 ' + CFG.company.tel + ' 로 연락 주세요.' }, 429);
+    /* 로컬(127.0.0.1)은 개발·자동 테스트뿐이라 시간당 제한을 세지 않는다 (2026-09-18) */
+    const isLocal = /^(127\.|::1$|::ffff:127\.|0\.0\.0\.0$)/.test(String(ip || ''));
+    if (ip && !isLocal && await S.count(ipKey) >= CFG.perIpHour) return json({ ok: false, error: 'rate', message: '잠시 후 다시 신청해 주세요. 급하시면 ' + CFG.company.tel + ' 로 연락 주세요.' }, 429);
     if (await S.count('day/' + day) >= CFG.perDay) return json({ ok: false, error: 'rate_day', message: '오늘 신청이 많아 접수가 잠시 멈췄습니다. ' + CFG.company.tel + ' 로 연락 주시면 바로 안내드리겠습니다.' }, 429);
     if (ip) await S.bump(ipKey);
     await S.bump('day/' + day);
