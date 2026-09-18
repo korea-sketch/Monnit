@@ -17,7 +17,7 @@
 import crypto from 'node:crypto';
 import * as S from '../lib/proposal/store.mjs';
 import { CFG } from '../lib/proposal/config.mjs';
-import { addLog, addNotice, statusUrl } from '../lib/proposal/jobs.mjs';
+import { addLog, addNotice, statusUrl, tokenKey } from '../lib/proposal/jobs.mjs';
 import { fmtKST } from '../lib/proposal/schedule.mjs';
 import { PROBLEMS, GOALS } from '../lib/proposal/kb.mjs';
 import { intakeLines } from '../lib/proposal/mail.mjs';
@@ -58,9 +58,19 @@ async function recentFails(ip) {
   const pre = 'adminfail/' + hashIp(ip) + '/';
   const keys = await S.list(pre, 200).catch(() => []);
   const now = Date.now();
-  const live = keys.filter(k => now - Number(k.slice(pre.length).split('-')[0]) < FAIL_WIN);
+  const at = k => Number(k.slice(pre.length).split('-')[0]);
+  const live = keys.filter(k => now - at(k) < FAIL_WIN);
   keys.filter(k => !live.includes(k)).slice(0, 20).forEach(k => S.del(k).catch(() => {}));
-  return live.length;
+  /* 언제 풀리는지도 함께 준다 — 가장 오래된 기록이 15분을 넘기면 한 칸이 빈다 */
+  const until = live.length ? Math.min(...live.map(at)) + FAIL_WIN : 0;
+  return { n: live.length, until };
+}
+/** 남은 시간을 분·초로 (다시 눌러도 늘어나지 않는다) — 2026-09-18 */
+function lockText(until) {
+  const left = Math.max(0, until - Date.now());
+  const m = Math.floor(left / 60000), sec = Math.ceil((left % 60000) / 1000);
+  const when = new Date(until).toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit' });
+  return `로그인 시도가 많아 잠시 막았습니다. ${m > 0 ? m + '분 ' : ''}${sec}초 뒤(${when})에 다시 해주세요. 다시 눌러도 시간이 늘어나지는 않습니다.`;
 }
 const hashIp = ip => crypto.createHmac('sha256', CFG.secret).update('ip|' + ip).digest('hex').slice(0, 16);
 /* 화면 보안 헤더 — 스크립트는 이번 응답의 nonce 가 붙은 것만 실행 */
@@ -80,7 +90,8 @@ export default async (req) => {
     let b = {}; try { b = JSON.parse((await req.text()).slice(0, 2000)); } catch (e) { /* 빈 값 */ }
     if (!CFG.adminKey) return j({ ok: false, error: 'PROPOSAL_ADMIN_KEY 환경변수가 없습니다' }, 503);
     const ip = ipOf(req);
-    if (await recentFails(ip) >= FAIL_MAX) return j({ ok: false, error: '로그인 시도가 많아 15분 동안 막았습니다' }, 429);
+    const _f = await recentFails(ip);
+    if (_f.n >= FAIL_MAX) return j({ ok: false, error: lockText(_f.until) }, 429);
     if (!eq(String(b.key || ''), CFG.adminKey)) {
       await S.setJSON('adminfail/' + hashIp(ip) + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), 1).catch(() => {});
       await new Promise(r => setTimeout(r, 900));
@@ -272,6 +283,28 @@ async function action(b, url) {
     case 'no_followup':
       await S.patchJob(id, x => { x.meta.noFollowup = true; addLog(x, who + ' 후속 안내 끔'); });
       return { ok: true };
+
+    /* ── 접수 삭제 (2026-09-18) ──────────────────────────────────────
+       내가 점검하려고 넣은 접수를 목록에서 지운다.
+       · 개인정보(성함·이메일·전화·메모)와 PDF 사본을 실제로 지운다
+       · 대기 중이면 발송 예약도 함께 지워 나가지 않게 한다
+       · 「누가 언제 무엇을 지웠는지」는 남긴다 — 나중에 「그때 그 문의」를 찾기 위해서다
+       · 이미 고객에게 발송된 건은 기본적으로 막는다(force 를 줘야 지워진다) */
+    case 'delete': {
+      if (job.status === 'sent' && !b.force)
+        return { ok: false, error: '이미 고객에게 발송된 건입니다. 정말 지우려면 「발송된 건도 지우기」를 켜 주세요' };
+      await S.del(S.queueKey(job.dueAt, id)).catch(() => {});
+      if (job.token) await S.del(tokenKey(job.token)).catch(() => {});
+      await S.del('pdf/' + id + '.pdf').catch(() => {});
+      for (const v of job.versions || []) if (v.pdfKey) await S.del(v.pdfKey).catch(() => {});
+      await S.del(S.jobKey(id)).catch(() => {});
+      await S.setJSON('deleted/' + id + '.json', {
+        id, no: job.no, at: new Date().toISOString(), by: who,
+        company: job.lead && job.lead.company || '', status: job.status,
+        reason: String(b.reason || '').slice(0, 200)
+      }).catch(() => {});
+      return { ok: true, deleted: 1 };
+    }
     default:
       return { ok: false, error: '알 수 없는 작업' };
   }
@@ -397,7 +430,8 @@ ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
 <button id="refresh">새로고침</button><span id="tickInfo" class="mut small"></span><span style="flex:1"></span><span class="mut small hide-m">1·2·3 키로 탭 이동</span>${keyLogin ? '<button id="logout">로그아웃</button>' : ''}</header>
 <div class="wrap">
 <section id="t-queue"><div id="health" class="card" style="margin-bottom:12px" hidden></div><div id="warns"></div><div class="kpis" id="kpis"></div>
-<table><thead><tr><th>접수</th><th>상태</th><th>등급</th><th>회사 · 담당</th><th class="hide-m">산업 · 과제</th><th class="hide-m">1위 사례</th><th>발송 예정</th><th class="hide-m">열람</th></tr></thead><tbody id="rows"></tbody></table></section>
+<div id="delbar" class="small" style="display:none;gap:10px;align-items:center;margin:0 0 10px"><span id="delcnt"></span><button id="delBtn">선택한 접수 지우기</button><label class="small mut"><input type="checkbox" id="delForce"> 발송된 건도 지우기</label><button id="delClear">선택 해제</button></div>
+<table><thead><tr><th style="width:28px"><input type="checkbox" id="chkAll" title="전체 선택"></th><th>접수</th><th>상태</th><th>등급</th><th>회사 · 담당</th><th class="hide-m">산업 · 과제</th><th class="hide-m">1위 사례</th><th>발송 예정</th><th class="hide-m">열람</th></tr></thead><tbody id="rows"></tbody></table></section>
 <section id="t-archive" hidden><div id="abar"></div><div class="kpis" id="akpis"></div>
 <div style="overflow-x:auto"><table><thead><tr><th>발송 시각</th><th>받는 분</th><th>나간 자료</th><th class="hide-m">기준 과제 · 산업</th><th>등급</th><th>반응</th><th></th></tr></thead><tbody id="arows"></tbody></table></div>
 <p class="mut small">발송할 때마다 한 줄씩 남고, PDF는 그때 보낸 파일 그대로 보관합니다. 보관 기간(${Math.round(CFG.retainDays / 30)}개월)이 지나면 받는 분 정보와 PDF 사본은 지우고 회사·업종·과제·반응만 남깁니다.</p></section>
@@ -452,7 +486,7 @@ function render(){
   $('#kpis').innerHTML=[['접수',s.total],['대기',s.waiting],['보류',s.hold],['실패',s.failed],['발송',s.sent],['열람률',openRate],['A등급',s.gradeA],['방식',c.mode==='instant'?'즉시':c.mode==='review'?'확인 후':'예약'],['연락 대기',wait],['검토 대기',cand]].map(([l,v])=>'<div class="kpi"><b>'+esc(v)+'</b><span>'+l+'</span></div>').join('')
    +'<div class="kpi" style="grid-column:span 2"><span>산업</span><div class="small">'+Object.entries(s.industry).map(([k,v])=>esc(k)+' '+v).join(' · ')+'</div><span>채널</span><div class="small">'+Object.entries(s.channel).map(([k,v])=>esc(k)+' '+v).join(' · ')+'</div></div>';
   const tag=(t,bg,fg,title)=>' <span class="tag" style="background:'+bg+';color:'+fg+'"'+(title?' title="'+esc(title)+'"':'')+'>'+t+'</span>';
-  $('#rows').innerHTML=D.rows.map(r=>'<tr class="r" data-id="'+r.id+'"><td class="small">'+esc(r.created)+'<div class="mut">'+esc(r.no)+'</div></td><td><span class="tag s-'+r.status+'">'+ST[r.status]+'</span>'
+  $('#rows').innerHTML=D.rows.map(r=>'<tr class="r" data-id="'+r.id+'"><td class="nosel"><input type="checkbox" class="chk" data-id="'+r.id+'"></td><td class="small">'+esc(r.created)+'<div class="mut">'+esc(r.no)+'</div></td><td><span class="tag s-'+r.status+'">'+ST[r.status]+'</span>'
     +(r.mode==='instant'&&r.status==='sent'&&!r.contacted?tag('연락 필요','#3a2a0a','#fbbf24'):'')
     +(r.moreOpen?tag('추가 요청 '+r.moreAsks,'#3b1d4a','#e9b3ff','다른 과제로 다시 신청 — 전체 현장 견적 상담 연결'):'')
     +(r.mode==='review'&&!/sent|canceled/.test(r.status)?tag('확인 필요','#0f2a44','#93c5fd'):'')
@@ -462,7 +496,9 @@ function render(){
     +'<td><b>'+esc(r.company)+'</b>'+(r.customer?tag('기존 고객','#0f3d3a','#5eead4'):'')+'<div class="small mut">'+({finder:'파인더 · ',contact:'상담폼 · ',widget:'빠른상담 · ',whitepaper:'백서 · '}[r.entry]||'')+esc(r.name)+' '+esc(r.title)+' · '+esc(r.phone||r.email)+'</div></td>'
     +'<td class="hide-m small">'+esc(r.industry)+'<div class="mut">'+esc(r.problems.join(', '))+(r.also.length?' <span title="'+esc(r.also.join(', '))+'">+'+r.also.length+'</span>':'')+'</div></td>'
     +'<td class="hide-m small">'+(r.top[0]?esc(r.top[0].name)+' '+r.top[0].pct+'%':'')+'</td><td class="small">'+(r.status==='sent'?'<span class="mut">'+esc(r.sent)+'</span>':esc(r.due))+'</td><td class="hide-m small">PDF '+r.pdfOpens+' · 화면 '+r.views+(r.sends>1?'<div class="mut">발송 '+r.sends+'회</div>':'')+'</td></tr>').join('')||'<tr><td colspan="8" class="mut">아직 접수가 없습니다.</td></tr>';
-  $$('tr.r').forEach(tr=>tr.onclick=()=>openJob(tr.dataset.id));
+  $$('tr.r').forEach(tr=>tr.onclick=e=>{ if(e.target.closest('.nosel'))return; openJob(tr.dataset.id); });
+  $$('#rows .chk').forEach(c=>c.onchange=syncDel);
+  syncDel();
   if(location.hash.length>2&&!CUR)openJob(location.hash.slice(1));
 }
 
@@ -575,6 +611,34 @@ async function health(deep){
    +'<div class="chk">'+(x.items||[]).map(i=>'<i>'+(i.ok?'✅':i.warn?'⚠️':'❌')+'</i><span>'+esc(i.label)+'</span><span class="mut">'+esc(i.detail)+'</span>').join('')+'</div>'
    +'<div class="acts">'+(deep?'':'<button data-h="deep" class="pri">외부 서비스까지 확인 (읽기 전용)</button>')+'<button data-h="close">닫기</button></div>';
 }
+/* ── 접수 지우기 (2026-09-18) ────────────────────────────────────
+   점검하려고 내가 넣은 접수를 목록에서 없앤다. 개인정보·PDF 사본을 실제로 지우고
+   대기 중이면 발송 예약도 함께 지운다. 누가 언제 무엇을 지웠는지는 따로 남는다. */
+function selIds(){ return $$('#rows .chk').filter(c=>c.checked).map(c=>c.dataset.id); }
+function syncDel(){
+  const n=selIds().length, bar=$('#delbar');
+  bar.style.display=n?'flex':'none';
+  $('#delcnt').textContent=n+'건 선택됨';
+  const all=$('#chkAll'); if(all){ const t=$$('#rows .chk').length; all.checked=t>0&&n===t; all.indeterminate=n>0&&n<t; }
+}
+document.addEventListener('change',e=>{ if(e.target&&e.target.id==='chkAll'){ $$('#rows .chk').forEach(c=>c.checked=e.target.checked); syncDel(); }});
+document.addEventListener('click',async e=>{
+  if(e.target&&e.target.id==='delClear'){ $$('#rows .chk').forEach(c=>c.checked=false); syncDel(); return; }
+  if(!e.target||e.target.id!=='delBtn')return;
+  const ids=selIds(); if(!ids.length)return;
+  const force=$('#delForce').checked;
+  const names=ids.map(id=>{const r=(D.rows||[]).find(x=>x.id===id);return r?r.company+' ('+r.no+')':id;});
+  if(!confirm('아래 '+ids.length+'건을 지웁니다. 되돌릴 수 없습니다.\n\n'+names.slice(0,10).join('\n')+(names.length>10?'\n… 외 '+(names.length-10)+'건':'')))return;
+  const btn=e.target; btn.disabled=true; btn.textContent='지우는 중…';
+  let ok=0; const err=[];
+  for(const id of ids){
+    const r=await post({id,op:'delete',force}).catch(x=>({ok:false,error:String(x)}));
+    if(r&&r.ok)ok++; else err.push((names[ids.indexOf(id)]||id)+' — '+((r&&r.error)||'실패'));
+  }
+  btn.disabled=false; btn.textContent='선택한 접수 지우기';
+  CUR=null; await load();
+  alert(ok+'건을 지웠습니다.'+(err.length?'\n\n못 지운 건 '+err.length+'건:\n'+err.join('\n'):''));
+});
 $('#healthBtn').onclick=()=>health(false);
 $('#health').addEventListener('click',e=>{const b=e.target.closest('[data-h]');if(!b)return;if(b.dataset.h==='deep')health(true);else $('#health').hidden=true;});
 $('#tickBtn').onclick=async()=>{const b=$('#tickBtn');b.disabled=true;const x=await post({op:'tick'});b.disabled=false;const r=x.result||{};$('#tickInfo').textContent='점검 결과 · 발송 '+(r.sent||0)+' · 실패 '+(r.failed||0)+' · 재시도 '+(r.kicked||0)+' · 후속 '+(r.followup||0);load();};

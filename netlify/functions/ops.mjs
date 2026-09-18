@@ -60,6 +60,16 @@ async function fails(k) {
         return (o && Date.now() - o.t < LOCK_MS) ? o : { n: 0, t: 0 }; }
   catch { return { n: 0, t: 0 }; }
 }
+/** 잠금이 언제 풀리는지 — 「마지막으로 틀린 시각 + 15분」이다.
+ *  잠긴 동안 다시 눌러도 기록하지 않으므로 시간이 뒤로 밀리지 않는다.
+ *  예전에는 「15분 뒤 다시 해주세요」라고만 적어서, 누를 때마다 15분이
+ *  새로 시작되는 것처럼 보였다. 이제 남은 시간을 분·초로 알려 준다. (2026-09-18) */
+function lockMsg(f) {
+  const left = Math.max(0, f.t + LOCK_MS - Date.now());
+  const m = Math.floor(left / 60000), sec = Math.ceil((left % 60000) / 1000);
+  const when = new Date(f.t + LOCK_MS).toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit' });
+  return `로그인 시도가 많아 잠시 막았습니다. ${m > 0 ? m + '분 ' : ''}${sec}초 뒤(${when})에 다시 해주세요. 다시 눌러도 시간이 늘어나지는 않습니다.`;
+}
 
 /* ── UX 자동 진단 ───────────────────────────────────────────────
    Clarity 지표를 읽고 "무엇이 문제이고 무엇을 고쳐야 하는지"로 옮긴다.
@@ -385,14 +395,17 @@ export default async (req) => {
   if (sub === 'login') {
     if (req.method !== 'POST') return new Response(null, { status: 302, headers: { location: '/ops' } });
     const key = ipOf(req), f = await fails(key);
-    if (f.n >= MAX_FAIL) return page(LOGIN.replace('__ERR__', '시도가 많습니다. 15분 뒤 다시 해주세요'));
+    if (f.n >= MAX_FAIL) return page(LOGIN.replace('__ERR__', lockMsg(f)));
     const q = new URLSearchParams(await req.text());
     if (auth.check(q.get('u'), q.get('p'))) {
       await set('ops', 'fail_' + key, JSON.stringify({ n: 0, t: 0 }));
       return new Response(null, { status: 302, headers: { ...H, location: '/ops', 'set-cookie': auth.setCookie(auth.issue()) } });
     }
-    await set('ops', 'fail_' + key, JSON.stringify({ n: (f.n || 0) + 1, t: Date.now() }));
-    return page(LOGIN.replace('__ERR__', '아이디 또는 비밀번호가 맞지 않습니다'));
+    const n = (f.n || 0) + 1;
+    await set('ops', 'fail_' + key, JSON.stringify({ n, t: Date.now() }));
+    const left = MAX_FAIL - n;
+    return page(LOGIN.replace('__ERR__', '아이디 또는 비밀번호가 맞지 않습니다'
+      + (left > 0 && left <= 3 ? ` (${left}번 더 틀리면 15분 동안 막힙니다)` : '')));
   }
 
   if (!authed) {
