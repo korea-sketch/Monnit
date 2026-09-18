@@ -52,9 +52,17 @@ const normIp = s => String(s || '').trim().toLowerCase();
 const envList = k => String(process.env[k] || '').split(/[,\n]/).map(x => x.trim()).filter(Boolean);
 
 /** 요청 헤더(Request.headers 또는 event.headers)에서 접속 IP */
+/** 방문자 IP — 엣지 함수가 실어 준 x-mnk-ip 를 가장 먼저 본다. (2026-09-18)
+ *
+ *  엣지 함수(block-ip)를 거치면 뒤쪽 함수가 보는 x-nf-client-connection-ip 가
+ *  방문자가 아니라 엣지 노드(AWS) 주소가 된다. 한국에서 넣은 접수가
+ *  54.169.125.250 으로 기록되던 문제 — 리드 원장 IP·IP 차단·횟수 제한이 전부 헛돌았다.
+ *
+ *  위조 걱정: 엣지가 매번 덮어쓰므로(set) 엣지를 거치는 경로에서는 항상 진짜 값이다.
+ *  엣지를 거치지 않는 경로(/ops 등)는 이 헤더를 쓰지 않는다 — ops.mjs 는 제 것을 따로 쓴다. */
 function ipOf(h) {
   const g = k => (h && typeof h.get === 'function') ? h.get(k) : (h && (h[k] || h[k.toLowerCase()]));
-  return String(g('x-nf-client-connection-ip') || g('x-forwarded-for') || g('client-ip') || '')
+  return String(g('x-mnk-ip') || g('x-nf-client-connection-ip') || g('x-forwarded-for') || g('client-ip') || '')
     .split(',')[0].trim().slice(0, 45);
 }
 function uaOf(h) {

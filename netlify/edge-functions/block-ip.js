@@ -128,7 +128,23 @@ export default async (request, context) => {
     }
   }
   later(context, logVisit(request, context, ip, false));
-  return;   /* 통과 */
+
+  /* ── 진짜 방문자 IP 를 뒤쪽 함수에 넘긴다 (2026-09-18) ──────────────
+     엣지 함수를 거치면 뒤쪽 Netlify 함수가 보는 x-nf-client-connection-ip 가
+     방문자가 아니라 엣지 노드(AWS) 주소가 된다. 실제로 한국에서 넣은 접수가
+     54.169.125.250(AWS 싱가포르)로 기록되고 있었다.
+     그래서 리드 원장의 IP·IP 차단·접수 횟수 제한이 전부 헛돌았다.
+
+     엣지만 아는 context.ip 를 헤더에 실어 보낸다. 방문자가 같은 헤더를
+     위조해 보내도 여기서 매번 덮어쓰므로(set) 함수에는 항상 진짜 값이 간다.
+     (/ops 등 엣지를 거치지 않는 경로는 이 헤더를 믿지 않는다 — _guard.js 참고) */
+  try {
+    const h = new Headers(request.headers);
+    h.set('x-mnk-ip', ip);
+    return context.next(new Request(request, { headers: h }));
+  } catch (e) {
+    return;   /* 헤더를 못 붙여도 통과는 시킨다 */
+  }
 };
 
 export const config = {

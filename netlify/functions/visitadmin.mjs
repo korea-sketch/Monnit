@@ -85,7 +85,8 @@ const redirect = (to, extra) => new Response(null,
   { status: 303, headers: { ...H, location: to, ...(extra || {}) } });
 
 function ipOf(req) {
-  return String(req.headers.get('x-nf-client-connection-ip')
+  /* x-mnk-ip = 엣지 함수가 실어 준 진짜 방문자 IP (2026-09-18) */
+  return String(req.headers.get('x-mnk-ip') || req.headers.get('x-nf-client-connection-ip')
     || req.headers.get('x-forwarded-for') || '?').split(',')[0].trim().slice(0, 45)
     .replace(/[^\w.:-]/g, '_');
 }
