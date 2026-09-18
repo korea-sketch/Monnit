@@ -8,7 +8,7 @@
  *   ① 테스트로 판정되면 담당자 알림·발송 대장·먼데이·ops 원장 어디에도 남지 않는다
  *   ② 진짜 문의는 그 어떤 조건에도 걸리지 않는다 (오탐 0)
  */
-import { isTest, isTestLead, tag, TEST_EMAIL, TEST_NAME } from '../netlify/functions/_istest.mjs';
+import { isTest, isCertainTest, isTestLead, tag, TEST_EMAIL, TEST_NAME } from '../netlify/functions/_istest.mjs';
 
 let pass = 0, fail = 0;
 const ok = (m, c, got) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + '  받음=' + JSON.stringify(got)); } };
@@ -49,7 +49,22 @@ for (const [m, x] of [...T, ...F]) {
   ok('  같은 판정 — ' + m, a === b && b === c, { ops: a, monday: b, base: c });
 }
 
-console.log('\n[4] 표시');
+console.log('\n[4] 원장에서 아예 빼도 되는 건 — 접속 환경이 우리 것임이 분명할 때뿐');
+const CERTAIN = [
+  ['로컬에서 돌린 테스트',            { ip: '127.0.0.1' }, true],
+  ['개발 주소 유입',                  { ip: '203.0.113.9', landing: 'http://localhost:8888/x' }, true],
+  ['회사 메일',                       { ip: '203.0.113.9', email: '1004@monnit.com' }, true],
+  ['관제에서 찌른 점검',              { ip: '203.0.113.9', point: '/ops-probe' }, true],
+  ['명시 플래그',                     { ip: '203.0.113.9', flag: true }, true],
+  /* 아래가 핵심 — 센서 회사라 「테스트」가 들어간 진짜 문의가 흔하다. 지우면 안 된다. */
+  ['「센서 테스트 해보고 싶습니다」',  { ip: '203.0.113.9', landing: 'https://monnit.co.kr/contact', email: 'kim@hanbit-dc.co.kr', company: '(주)한빛', memo: '센서 테스트 해보고 싶습니다' }, false],
+  ['회사명에 테스트가 들어간 진짜 회사', { ip: '203.0.113.9', landing: 'https://monnit.co.kr/', company: '테스트엔지니어링', email: 'a@te-eng.co.kr' }, false]
+];
+for (const [m, x, want] of CERTAIN) ok(m, isCertainTest(x) === want, { got: isCertainTest(x), want });
+ok('  「테스트」 글자 건은 원장에 남되 집계에서는 빠진다',
+   isCertainTest({ ip: '203.0.113.9', memo: '센서 테스트' }) === false && isTest({ ip: '203.0.113.9', memo: '센서 테스트' }) === true, '');
+
+console.log('\n[5] 표시');
 ok('회사명 앞에 [테스트]', tag('호스트정밀') === '[테스트] 호스트정밀', tag('호스트정밀'));
 ok('두 번 붙지 않는다', tag(tag('호스트정밀')) === '[테스트] 호스트정밀', tag(tag('호스트정밀')));
 ok('대표 계정·성함', TEST_EMAIL === '1004@monnit.com' && TEST_NAME === '조한준', { TEST_EMAIL, TEST_NAME });

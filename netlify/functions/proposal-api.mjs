@@ -190,7 +190,8 @@ async function create(req, url) {
   const job = createJob(lead, meta, Date.now(), intake);
   job.meta.grade = grade(lead, meta, job.intake, job.match);
   /* 테스트 접수 표시 (2026-09-18) — 담당자 알림·발송 대장·먼데이에 올리지 않는다.
-     제안서 생성·PDF·고객 메일은 그대로 돌아가므로 자동 테스트는 계속 유효하다. */
+     제안서 자체는 저장하고 PDF·고객 메일도 그대로 나가므로 자동 테스트는 계속 유효하다.
+     (제안서는 원장과 달리 건을 지우지 않고 표시만 한다 — /ops/proposals?test=1 로 볼 수 있다.) */
   job.test = _test.isTest({ ip: meta.ip, landing: meta.landing, email: lead.email,
     company: lead.company, name: lead.name, memo: lead.memo, flag: typeof b.test === 'boolean' ? b.test : undefined, point: intake && intake.entry ? '/' + intake.entry : '' });
   if (job.test) job.lead.company = _test.tag(job.lead.company);

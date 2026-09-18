@@ -106,17 +106,23 @@ export default async (req) => {
 
     /* ── 테스트 접수 분리 (2026-09-18) ────────────────────────────────
        자동 테스트가 만든 가짜 접수는 실제 문의와 섞이면 안 된다.
-         · 리드 원장(leads)·먼데이·담당자 알림에 올리지 않는다
-         · 대신 'leads-test' 로 따로 남겨 테스트가 제대로 돌았는지는 확인할 수 있다
-       판정은 _istest.mjs — 루프백 IP · localhost 유입 · 테스트 계정 · [테스트] 표시. */
-    const _isTest = _test.isTest({ ip: lead.ip, landing: lead.landing, email: lead.email,
-      company: lead.company, name: lead.name, memo: lead.memo, flag: typeof body.test === 'boolean' ? body.test : undefined, point: lead.point });
-    if (_isTest) {
+       다만 「원장에서 아예 빼는 것」과 「집계·보드에서 빼는 것」을 구분한다.
+
+         · isCertainTest — 접속 환경이 우리 것임이 분명할 때(로컬·개발 주소·
+           회사 메일·관제 점검·명시 플래그). 원장에 남기지 않고 leads-test 로 옮긴다.
+         · 그 밖의 「테스트」 글자만 걸린 건 — 원장에는 그대로 남긴다.
+           우리는 센서 회사라 「센서 테스트 해보고 싶습니다」 같은 진짜 문의가 흔하다.
+           예전처럼 집계·먼데이에서만 빠진다(ops.mjs · _monday.mjs 의 isTestLead). */
+    const _env = { ip: lead.ip, landing: lead.landing, email: lead.email, point: lead.point,
+      company: lead.company, name: lead.name, memo: lead.memo,
+      flag: typeof body.test === 'boolean' ? body.test : undefined };
+    if (_test.isCertainTest(_env)) {
       lead.test = true;
       lead.company = _test.tag(lead.company);
       await append('leads-test', monthKey(body.ts), lead).catch(() => {});
       return new Response(null, { status: 204, headers: cors });
     }
+    if (_test.isTest(_env)) lead.test = true;   /* 원장에는 남기되 표시만 해 둔다 */
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
     await append('leads', monthKey(body.ts), lead);

@@ -56,13 +56,33 @@ export function isTestLead(r) {
   return false;
 }
 
-/** 접수 경로에서 쓰는 판정 — 위 규칙 + 접속 환경 */
+/** 접수 경로에서 쓰는 판정 — 위 규칙 + 접속 환경.
+ *  알림·먼데이·발송 대장·집계에서 빼는 데 쓴다. */
 export function isTest(x = {}) {
   if (x.flag === true) return true;
   if (x.flag === false) return false;          /* 「실제처럼 다뤄 달라」 — 자동 테스트 전용 */
   if (isLoopback(x.ip)) return true;
   if (isDevUrl(x.landing)) return true;
   return isTestLead(x);
+}
+
+/** 원장 기록 자체를 건너뛰어도 되는가 — 「틀림없이 우리가 만든 것」일 때만 참.
+ *
+ *  글자만 보고 지우면 안 된다. 우리는 센서 회사라
+ *    「센서 테스트 해보고 싶습니다」 · 「테스트 도입 검토 중입니다」
+ *  같은 진짜 문의가 흔하다. 그런 건은 예전처럼 원장에 남기고(잃지 않게),
+ *  집계·보드에서만 빠진다(isTestLead 가 걸러 준다).
+ *
+ *  원장에서 아예 빼는 것은 접속 환경이 우리 것임이 분명할 때뿐이다 —
+ *  로컬에서 돌린 테스트, 개발 주소 유입, 우리 회사 메일, 관제에서 찌른 점검, 명시 플래그. */
+export function isCertainTest(x = {}) {
+  if (x.flag === true) return true;
+  if (x.flag === false) return false;
+  if (isLoopback(x.ip)) return true;
+  if (isDevUrl(x.landing)) return true;
+  if (/@monnit\.com$/.test(String(x.email || '').trim().toLowerCase())) return true;
+  if (/^\/ops/.test(String(x.point || ''))) return true;
+  return false;
 }
 
 /** 담당자 눈에 바로 테스트로 보이도록 회사명 앞에 표시를 붙인다 */
