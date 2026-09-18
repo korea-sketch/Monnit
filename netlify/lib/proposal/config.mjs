@@ -1,5 +1,7 @@
 /** 맞춤 제안서 — 설정 (환경변수 한 곳에서 읽기)
  *  값이 없으면 안전한 기본값으로 동작한다. 목록은 「맞춤제안서-적용안내.md」 참고. */
+import { createHmac } from 'node:crypto';
+
 const env = (k, d = '') => {
   try { const v = (globalThis.Netlify && globalThis.Netlify.env && globalThis.Netlify.env.get(k)); if (v != null && v !== '') return v; } catch (e) { /* 무시 */ }
   const v = process.env[k];
@@ -49,7 +51,13 @@ export const CFG = {
   get attachMaxBytes() { return num('PROPOSAL_ATTACH_MAX', 3500000); },
 
   /* 비밀값 */
-  get secret() { return env('PROPOSAL_SECRET', env('DL_SECRET', 'mk-proposal-dev-secret-change-me')); },
+  /* 기본값을 코드에 두지 않는다 (2026-09-18) — 없으면 공개되지 않은 SITE_ID 에서 만든다.
+     SITE_ID 는 배포마다 바뀌지 않으므로 이미 나간 진행 화면·PDF 링크가 살아 있다.
+     그래도 운영에서는 PROPOSAL_SECRET 을 설정해야 한다(아래 secretIsDefault 가 경고). */
+  get secret() {
+    return env('PROPOSAL_SECRET', env('DL_SECRET', '')) ||
+      createHmac('sha256', env('SITE_ID', 'monnit-local')).update('monnit-proposal-sign').digest('hex');
+  },
   get secretIsDefault() { return !env('PROPOSAL_SECRET', '') && !env('DL_SECRET', ''); },
   get adminKey() { return env('PROPOSAL_ADMIN_KEY', ''); },
 

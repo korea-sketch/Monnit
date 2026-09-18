@@ -29,7 +29,7 @@
     ['air', '공기질·가스', 'Air quality'], ['security', '보안·출입', 'Security'], ['control', '통합관제·연동', 'Integration'],
     ['comply', '규정·기록', 'Compliance']];
 
-  var S = { messages: [], fields: {}, ask: 'company', busy: false, T0: Date.now(), sent: false };
+  var S = { messages: [], fields: {}, ask: 'company', busy: false, T0: Date.now(), sent: false, retry: 0 };
 
   function save() { ss.set(KEY, JSON.stringify({ messages: S.messages.slice(-24), fields: S.fields, ask: S.ask })); }
   function load() {
@@ -131,7 +131,10 @@
     push('proposal_chat_msg', { proposal_chat_turn: S.messages.filter(function (m) { return m.role === 'user'; }).length });
     post('/api/proposal/chat', {
       messages: S.messages.slice(-24), fields: S.fields, lang: en() ? 'en' : 'ko',
-      elapsed: Date.now() - S.T0, website: $('pcWeb') ? $('pcWeb').value : ''
+      elapsed: Date.now() - S.T0, website: $('pcWeb') ? $('pcWeb').value : '',
+      /* 같은 항목을 몇 번 되물었는지 — 서버가 세어 돌려준다.
+         규칙으로 알아들으면 서버가 이 값을 빼고 답하므로 여기서 0 으로 돌아간다. */
+      retry: S.retry || 0
     }).then(function (x) {
       typing(false); S.busy = false; $('pcSend').disabled = false;
       if (!x || !x.ok) {
@@ -142,6 +145,7 @@
       }
       S.fields = x.fields || S.fields;
       S.ask = x.ask || S.ask;
+      S.retry = Number(x.retry) || 0;
       if (x.reply) { bubble('bot', x.reply); S.messages.push({ role: 'assistant', text: x.reply }); }
       note(x.notice || (x.tooLong ? L('대화가 길어졌습니다. 단계별 신청이 더 빠릅니다.', 'This chat is long — the step form is quicker.') : ''), !!(x.notice || x.tooLong));
       if (x.ask === 'fac') chips(FAC);

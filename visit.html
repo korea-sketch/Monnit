@@ -577,6 +577,27 @@
     return viaStatic().then(function(ok){return ok?true:viaWeb3();});
   }
 
+  /* 유입 출처 — 예전에는 location.search 원문을 그대로 넣었습니다 (2026-09-18).
+     그러면 값이 퍼센트 인코딩(utm_content=01_%EC%86%8C%EB%B0%A9...)된 채로 저장돼,
+     광고 쪽에서 내려오는 한글 소재명과 글자가 달라 끝까지 안 붙었습니다.
+     이제 값을 풀어서 담고, 예약 화면에 광고 값이 없으면 세션에 보관된
+     최초 유입(다른 페이지로 들어온 광고)을 씁니다. */
+  function visitSource(){
+    try{
+      var p=new URLSearchParams(location.search),parts=[];
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term',
+       'gclid','gbraid','wbraid','fbclid','naver_ad','kakao_ad','promo'].forEach(function(k){
+        var v=p.get(k); if(v)parts.push(k+'='+v);
+      });
+      if(parts.length)return parts.join(' · ');
+      var saved='';
+      try{ saved=sessionStorage.getItem('mk_src_v1')||''; }catch(e){}
+      if(saved)return saved;
+      if(document.referrer&&document.referrer.indexOf(location.hostname)===-1)return 'ref='+document.referrer;
+      return 'direct';
+    }catch(e){ return 'direct'; }
+  }
+
   /* 리드 원장(/ops 관제 화면)에도 남깁니다.
      app.js 의 다른 폼들과 같은 경로라 접수 내역이 한곳에서 보입니다.
      실패해도 메일은 이미 나갔으므로 조용히 넘깁니다. */
@@ -614,7 +635,7 @@
             "연락 예정":"영업일 3~4일 이내",
             "관심분야":"예지보전 현장 진단 · "+b.dateLabel+" "+b.timeLabel+" · "+b.code,
             "문의 사항":memo,
-            "출처":(location.search||"").replace(/^\?/,"")||"direct",
+            "출처":visitSource(),
             "유입 페이지":location.pathname
           }
         })

@@ -10,10 +10,14 @@ import { utmAudit, actions as buildActions } from './_insights.mjs';
 import { notify, configured as notifyConfigured } from './_notify.mjs';
 import { configured as alarmMailConfigured } from './_alarmmail.mjs';
 import { pushLead, ping as mondayPing } from './_monday.mjs';
+/* /ops/editor 가 번들에 들어온 editor.html 을 읽는다.
+   아래 핸들러 안에 path 라는 지역 변수(요청 경로)가 이미 있어 이름을 달리 둔다. */
+import { promises as fsp } from 'node:fs';
+import { join as path_join } from 'node:path';
 
 /* 이 목록은 화이트리스트다. 여기에 없는 경로는 함수까지 오지 못하고 404 가 된다.
    아래 라우팅(sub)에 분기를 추가하면 이 배열에도 반드시 같이 넣어야 한다. */
-export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult', '/ops/testmail', '/ops/automail', '/ops/resend', '/ops/delete', '/ops/restore'] };
+export const config = { path: ['/ops', '/ops/login', '/ops/logout', '/ops/data', '/ops/diag', '/ops/mark', '/ops/deal', '/ops/export', '/ops/lead', '/ops/consult', '/ops/testmail', '/ops/automail', '/ops/resend', '/ops/delete', '/ops/restore', '/ops/editor'] };
 
 /* 수기 접수에서 고를 수 있는 유입 채널 — 리드 원장의 channel 어휘와 같게 맞춘다 */
 const MANUAL_CHANNELS = ['메타', '구글', '네이버', '카카오', '직접', '소개', '전화문자', '우편DM', '기타'];
@@ -35,11 +39,31 @@ function manualSource(channel, utm) {
 const TZ = 'Asia/Seoul';
 const MAX_FAIL = 8, LOCK_MS = 15 * 60 * 1000;
 
+/* 관제 화면은 리드 원장 전체를 띄운다. 접수 폼으로 들어온 글자가 화면에
+   스크립트로 실행되는 사고가 나더라도, 그 스크립트가 데이터를 바깥으로
+   보내지는 못하게 막는다 — connect-src 'self' 가 그 역할이다. (2026-09-18)
+   화면 안에 inline 스크립트·onclick 이 많아 script-src 는 'unsafe-inline' 이
+   필요하고, 외부 스크립트는 Chart.js(cdnjs) 하나뿐이라 그것만 허용한다. */
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "base-uri 'none'",
+  "object-src 'none'"
+].join('; ');
+
 const H = {
   'cache-control': 'no-store, no-cache, must-revalidate',
   'x-robots-tag': 'noindex, nofollow, noarchive',
   'referrer-policy': 'no-referrer',
-  'x-frame-options': 'DENY'
+  'x-frame-options': 'DENY',
+  'x-content-type-options': 'nosniff',
+  'content-security-policy': CSP
 };
 const page = (body, extra) => new Response(body,
   { status: 200, headers: { ...H, 'content-type': 'text/html; charset=utf-8', ...(extra || {}) } });
@@ -384,6 +408,7 @@ export default async (req) => {
             : path.endsWith('/automail') ? 'automail'
             : path.endsWith('/resend') ? 'resend'
             : path.endsWith('/delete') ? 'delete'
+            : path.endsWith('/editor') ? 'editor'
             : path.endsWith('/restore') ? 'restore' : '';
   const authed = auth.valid(auth.cookieFrom({ cookie: req.headers.get('cookie') || '' }));
 
@@ -412,6 +437,29 @@ export default async (req) => {
     if (['data','diag','mark','lead','consult','deal','testmail','automail','resend','delete','restore'].includes(sub)) return j({ error: 'unauthorized' }, 401);
     if (sub === 'export') return new Response(null, { status: 302, headers: { ...H, location: '/ops' } });
     return page(LOGIN.replace('__ERR__', ''));
+  }
+
+  /* ── CMS 편집기 (2026-09-18) ────────────────────────────────────────
+     예전에는 /editor 로 누구나 열 수 있었고, 비밀번호 검사가 브라우저 안에서만
+     돌아 개발자도구로 그냥 통과됐다(비밀번호는 소스 주석에도 적혀 있었다).
+     이제 관제 로그인을 통과해야만 /ops/editor 로 열린다.
+     편집기는 구글 시트·Apps Script·imgbb 를 직접 부르므로 관제용 CSP 를 씌우지 않는다. */
+  if (sub === 'editor') {
+    const roots = [process.env.LAMBDA_TASK_ROOT, process.cwd(), path_join(process.cwd(), '..', '..')].filter(Boolean);
+    for (const r of roots) {
+      try {
+        const html = await fsp.readFile(path_join(r, 'editor.html'), 'utf8');
+        return new Response(html, { status: 200, headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'no-store, no-cache, must-revalidate',
+          'x-robots-tag': 'noindex, nofollow, noarchive',
+          'referrer-policy': 'no-referrer',
+          'x-frame-options': 'DENY',
+          'x-content-type-options': 'nosniff'
+        } });
+      } catch (e) { /* 다음 경로로 */ }
+    }
+    return page('<p style="font-family:sans-serif;padding:24px">편집기 파일을 찾지 못했습니다. netlify.toml 의 [functions."ops"] included_files 에 editor.html 이 들어 있는지 확인해 주세요.</p>');
   }
 
   if (sub === 'diag') return j({

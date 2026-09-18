@@ -13,7 +13,7 @@
  */
 const { lookup, SECRET, TTL_MS, norm, siteBase } = require('./_docmap');
 const VALID = require('../../valid.js').MonnitValid;
-const { guard } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
+const { guard, ipOf } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
 
 /* ── 현장 진단 컨설팅 제안 ────────────────────────────────────
    /promo/proposal 로 「예지보전 제안 가이드」를 받아간 분에게는
@@ -116,27 +116,33 @@ function consultSubject(slots) {
 }
 const crypto = require('crypto');
 
-const TOKEN = 'mnt-pw-2026-7f3k9';
+const RELAY = require('./_relayguard');       /* 공개 발송 보호 (2026-09-18) */
+
+/* 이 토큰은 브라우저가 실어 보내므로 페이지 소스에 그대로 노출된다.
+   자물쇠가 아니라 오타·단순 봇을 거르는 표식일 뿐이다.
+   실제 방어는 _relayguard 의 출처 검사와 횟수 제한이 한다. */
+const TOKEN = process.env.RELAY_TOKEN || 'mnt-pw-2026-7f3k9';
 
 function sign(file, exp) {
   return crypto.createHmac('sha256', SECRET).update(file + '|' + exp).digest('hex').slice(0, 32);
 }
 
 exports.handler = async (event) => {
-  const H = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store'
-  };
+  /* 예전에는 '*' 라 어느 사이트에서든 이 함수를 부를 수 있었다 (2026-09-18) */
+  const H = RELAY.corsHeaders(event.headers);
   const reply = (code, obj) => ({ statusCode: code, headers: H, body: JSON.stringify(obj) });
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: H, body: '' };
   if (event.httpMethod !== 'POST') return reply(405, { ok: false });
 
   try {
+    if (String(event.body || '').length > 8192) return reply(413, { ok: false, error: 'too_large' });
     const d = JSON.parse(event.body || '{}');
     if (d.token !== TOKEN) return reply(401, { ok: false, error: 'unauthorized' });
+
+    /* 남의 사이트에서 부르는 호출은 여기서 끊는다 (2026-09-18) */
+    const kind = RELAY.originKind(event.headers);
+    if (kind === 'foreign') return reply(403, { ok: false, error: 'forbidden' });
 
     const email = String(d.email || '').trim();
     /* 형식·일회용 주소·장난 주소를 서버에서 막는다. 브라우저 검사만으로는 우회된다. */
@@ -157,8 +163,15 @@ exports.handler = async (event) => {
       .slice(0, 5);                              /* 한 번에 다섯 건까지 */
     if (!titles.length) return reply(400, { ok: false, error: 'no_title' });
 
-    const company = String(d.company || '').slice(0, 80).trim();
-    const person  = String(d.name || '').slice(0, 40).trim();
+    /* 같은 곳에서 계속 부르는 것을 막는다 — 우리 도메인 이름으로 나가는
+       스팸·피싱 발송과 Brevo 할당량 소진을 여기서 끊는다 (2026-09-18) */
+    if (await RELAY.tooMany({ ip: ipOf(event.headers), email, kind }))
+      return reply(429, { ok: false, error: 'too_many', message: '잠시 후 다시 시도해 주세요. 급하시면 02-2088-1454 로 연락 주세요.' });
+
+    /* clean() 은 줄바꿈·제어문자를 지운다. 예전에는 이름·회사명에 줄바꿈을 넣어
+       메일 본문에 문단을 통째로 끼워 넣을 수 있었다. */
+    const company = RELAY.clean(d.company, 80);
+    const person  = RELAY.clean(d.name, 40);
 
     /* ── 경쟁사 차단 (2026-09-16) ──────────────────────────────────────
        차단 대상이면 「자료 준비 중」과 똑같은 응답을 준다. 막혔다는 걸 알리지 않는다.

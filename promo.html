@@ -263,7 +263,22 @@ function parseCSV(text){var rows=[],row=[],field='',i=0,inQ=false;text=text.repl
 }
 
 /* ===== CTA / 리드 ===== */
-function adSource(){try{var p=new URLSearchParams(location.search);var parts=['promo='+PID];['utm_source','utm_medium','utm_campaign','fbclid'].forEach(function(k){var v=p.get(k);if(v)parts.push(k+'='+v);});return parts.join(' · ');}catch(e){return 'promo='+PID;}}
+/* 광고 성과를 「소재」까지 내려보려면 utm_content 가 반드시 실려야 한다.
+   예전에는 utm_source·utm_medium·utm_campaign·fbclid 네 개만 담아서,
+   지출은 소재별로 잡히는데 리드는 캠페인별로만 잡혀 둘이 영영 안 붙었다.
+   구글 자동태깅(gclid 만 붙는 경우)도 여기서 빠져 「광고 외 유입」으로 떨어졌다. (2026-09-18) */
+function adSource(){try{
+  var p=new URLSearchParams(location.search);
+  var parts=['promo='+PID];
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term',
+   'gclid','gbraid','wbraid','fbclid','naver_ad','kakao_ad'].forEach(function(k){var v=p.get(k);if(v)parts.push(k+'='+v);});
+  /* 광고로 다른 페이지에 들어와 여기서 신청하는 경우, 이 주소에는 광고 값이 없다.
+     그럴 때는 monnit-lead.js 가 세션에 보관해 둔 「최초 유입」을 쓴다. */
+  if(parts.length===1&&window.MonnitLead&&MonnitLead.source){
+    var s=MonnitLead.source(); if(s&&s!=='direct')parts.push(s);
+  }
+  return parts.join(' · ');
+}catch(e){return 'promo='+PID;}}
 function scrollForm(where){try{if(window.gtag)gtag('event','cta_click',{location:where,promo:PID});}catch(e){}
   var el=document.getElementById('apply');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(function(){var n=document.getElementById('lf-company')||document.getElementById('lf-name');if(n)n.focus({preventScroll:true});},450);}

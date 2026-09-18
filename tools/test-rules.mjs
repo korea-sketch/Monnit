@@ -6,6 +6,13 @@
 import fs from 'node:fs';
 const F = process.cwd() + '/netlify/functions/';
 
+/* 2026-09-18: 무료 발송 서비스 키의 「코드에 박힌 기본값」을 없앴다.
+   이 테스트는 키 보유 여부가 아니라 발송 순서를 확인하므로 값을 넣어 준다.
+   운영에서는 Netlify 환경변수 STATICFORMS_KEY · WEB3FORMS_KEY 를 쓴다. */
+process.env.STATICFORMS_KEY ||= 'test-sf-key';
+process.env.WEB3FORMS_KEY   ||= 'test-w3-key';
+process.env.NOTIFY_TO       ||= '0702yeom@gmail.com';
+
 let fail = 0;
 const ok = (n, c, got) => { console.log((c ? 'ok   ' : 'FAIL ') + n + (c ? '' : '  받음=' + JSON.stringify(got))); if (!c) fail++; };
 const H = t => console.log('\n' + t);

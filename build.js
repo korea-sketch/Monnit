@@ -1369,9 +1369,13 @@ const LEGACY_RULES = (function(){
 
   /* ③ 관리자 */
   const editorRules = `
-# --- 에디터(비공개)
-/editor               /editor.html         200
-/editor/              /editor.html         200`;
+# --- 에디터 — 공개 경로 폐쇄 (2026-09-18)
+#   예전에는 /editor 가 누구나 열렸고 비밀번호 검사도 브라우저 안에서만 돌아
+#   개발자도구로 그냥 통과됐습니다(비밀번호는 소스 주석에도 적혀 있었습니다).
+#   이제 관제 로그인 뒤 /ops/editor 로만 열립니다. 아래 editor.html 차단은
+#   PRIVATE_NAME 이 자동으로 만들어 줍니다.
+/editor               /404.html            404!
+/editor/              /404.html            404!`;
 
   /* ④ 마지막 안전망 — 미리 만들어 둔 파일이 없는 경로(준비 중 활용분야 등)는
         SPA 껍데기가 받아서 클라이언트에서 그립니다. 반드시 맨 아래에 둡니다.
@@ -1416,9 +1420,16 @@ const PRIVATE_RULES = (function () {
     'Claude outputs', 'claude-outputs', 'outputs'];
   const KEEP = new Set(['robots.txt', 'llms.txt', 'llms-full.txt', 'humans.txt', 'sitemap.xml', 'manifest.json']);
   const PRIVATE_EXT = /\.(md|sh|toml|csv|lock|log|env|patch|diff|zip|pem|key)$/i;
-  const PRIVATE_NAME = /^(package(-lock)?\.json|gitignore\.txt|build\.js|_headers|_redirects)$|미리보기\.html$/;
+  /* editor.html — CMS 편집기. 관제 로그인 뒤 /ops/editor 로만 열립니다(2026-09-18).
+     파일을 직접 주소로 열면 브라우저 안의 비밀번호 검사밖에 없어 무방비였습니다. */
+  const PRIVATE_NAME = /^(package(-lock)?\.json|gitignore\.txt|build\.js|_headers|_redirects|editor\.html)$|미리보기\.html$/;
   let names = [];
   try { names = fs.readdirSync(__dirname, { withFileTypes: true }).filter(d => d.isFile()).map(d => d.name); } catch (e) {}
+  /* macOS 는 한글 파일명을 자모가 분리된 형태(NFD)로 돌려주고, 저장소와 리눅스
+     (넷리파이 빌드)는 조합된 형태(NFC)로 들고 있습니다. 같은 파일인데 글자 비교가
+     어긋나서, 「…미리보기.html」 차단 규칙이 맥에서 빌드할 때만 통째로 빠졌습니다.
+     비교 전에 형태를 맞춥니다. (2026-09-18) */
+  names = names.map(n => (typeof n.normalize === 'function' ? n.normalize('NFC') : n));
   const files = names.filter(n => !KEEP.has(n) && (PRIVATE_EXT.test(n) || PRIVATE_NAME.test(n))).sort();
   const lines = [];
   const add = pth => {

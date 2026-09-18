@@ -331,9 +331,20 @@ const lead = (o = {}) => ({
   r = await call(ev({ ...good, email: 'buyer.lee@dekist.com' }));
   ok('자료 — 경쟁사 → not_ready(차단 사실 숨김)', r.s === 404 && r.b.error === 'not_ready', r);
 
-  const n = MAILS.length;
+  /* 2026-09-18 — 예전에는 남의 사이트 Origin 이어도 발급했다(토큰 기반).
+     토큰은 페이지 소스에 그대로 있으므로 아무 사이트에서나 이 함수를 불러
+     우리 도메인 이름으로 메일을 보낼 수 있었다. 이제 /api/proposal 과 같은
+     기준으로 막는다. 외부 랜딩에서 불러야 하면 RELAY_ORIGINS 에 도메인을 넣는다. */
   r = await call(ev(good, { origin: 'https://evil.example' }));
-  ok('자료 — 다른 사이트 Origin 이어도 발급(토큰 기반)', r.s === 200 && r.b.url, r);
+  ok('자료 — 다른 사이트 Origin → 403', r.s === 403 && r.b.error === 'forbidden', r);
+  r = await call(ev(good, { origin: 'https://monnit.co.kr.evil.example' }));
+  ok('자료 — monnit.co.kr 를 흉내 낸 도메인 → 403', r.s === 403, r);
+  r = await call(ev(good, { 'sec-fetch-site': 'cross-site' }));
+  ok('자료 — Sec-Fetch-Site: cross-site → 403', r.s === 403, r);
+
+  const n = MAILS.length;
+  r = await call(ev(good, { origin: 'https://monnit.co.kr' }));
+  ok('자료 — 우리 사이트 Origin → 200', r.s === 200 && !!r.b.url, r);
   const m = MAILS.slice(n).map(x => x.html).join('') + JSON.stringify(MAILS.slice(n));
   ok('  안내 메일 링크는 monnit.co.kr 로만', !/evil\.example/.test(m), m.match(/https?:\/\/[^\s"\\]+/g));
 

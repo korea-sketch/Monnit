@@ -15,15 +15,21 @@
  *  어느 경로로 나갔는지(via)를 항상 함께 돌려준다. ops 화면에서 확인할 수 있다.
  *
  *  환경변수
- *    NOTIFY_TO         Brevo 로 떨어질 때의 수신자 (기본 0702yeom@gmail.com)
+ *    NOTIFY_TO         Brevo 로 떨어질 때의 수신자 (미설정 시 korea@monnit.com)
  *    STATICFORMS_KEY   1순위 키
  *    WEB3FORMS_KEY     2순위 키
  *    BREVO_API_KEY     3순위. 없으면 건너뛴다.
  */
 
-const TO       = process.env.NOTIFY_TO || '0702yeom@gmail.com';
-const SF_KEY   = process.env.STATICFORMS_KEY || 'sf_e026c9ef91b8eaeba9d1d472';
-const W3_KEY   = process.env.WEB3FORMS_KEY   || 'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
+/* ── 키는 코드에 두지 않는다 (2026-09-18) ─────────────────────────────
+   예전에는 STATICFORMS_KEY · WEB3FORMS_KEY 의 실제 값이 이 파일에 적혀 있었다.
+   저장소를 본 사람은 누구나 우리 무료 한도(각 250건/월)를 태울 수 있었다.
+   이제 환경변수가 없으면 그 경로를 건너뛴다 — 알림은 Brevo 로 나간다.
+   어느 경로가 꺼져 있는지는 /ops → 연동 점검에서 바로 보인다.
+   ※ 저장소에 한 번 올라간 두 키는 이미 노출된 값이므로 재발급이 필요하다. */
+const TO       = process.env.NOTIFY_TO || 'korea@monnit.com';
+const SF_KEY   = process.env.STATICFORMS_KEY || '';
+const W3_KEY   = process.env.WEB3FORMS_KEY   || '';
 const FROM     = { name: 'Monnit Korea 접수알림', email: 'no-reply@monnit.co.kr' };
 const REPLY_TO = { name: 'Monnit Korea', email: 'korea@monnit.com' };
 

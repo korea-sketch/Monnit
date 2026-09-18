@@ -302,7 +302,9 @@
   included_files = ["email/template.html", "email/products.json"]
 
 [functions."ops"]
-  included_files = ["email/template.html", "email/products.json"]
+  # editor.html — /ops/editor 가 관제 로그인 뒤에서 내려준다 (2026-09-18).
+  # 공개 경로 /editor · /editor.html 은 _redirects 가 404 로 막는다.
+  included_files = ["email/template.html", "email/products.json", "editor.html"]
 
 # ── 관제 화면은 검색엔진에서 완전히 제외 (개인정보 포함) ──────────
 [[headers]]

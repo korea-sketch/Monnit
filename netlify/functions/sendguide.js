@@ -18,9 +18,14 @@
 const { lookup, SECRET, siteBase } = require('./_docmap');
 const VALID = require('../../valid.js').MonnitValid;
 const crypto = require('crypto');
-const { guard } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
+const { guard, ipOf } = require('./_guard');   /* 경쟁사 차단 (2026-09-16) */
+const RELAY = require('./_relayguard');       /* 공개 발송 보호 (2026-09-18) */
 
-const TOKEN = 'mnt-pw-2026-7f3k9';                 /* sendpw 와 동일 */
+/* 이 토큰은 브라우저가 실어 보내므로 페이지 소스에 그대로 노출된다.
+   자물쇠가 아니라 오타·단순 봇을 거르는 표식일 뿐이다.
+   실제 방어는 _relayguard 의 출처 검사와 횟수 제한이 한다.
+   RELAY_TOKEN 을 설정하면 그 값을 쓴다(미설정이면 기존 값 유지 — 배포 순서와 무관하게 안 깨진다). */
+const TOKEN = process.env.RELAY_TOKEN || 'mnt-pw-2026-7f3k9';   /* sendpw 와 동일 */
 /* 무경험자에게 보내는 자료 — _docmap 의 제목 키를 그대로 쓴다.
    지금은 1종이다. 늘리려면 항목만 추가하면 메일 본문이 알아서 맞춰진다. */
 const GUIDES = [
@@ -36,31 +41,39 @@ function sign(file, exp) {
 }
 
 exports.handler = async (event) => {
-  const H = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-store'
-  };
+  /* 예전에는 '*' 라 어느 사이트에서든 이 함수를 부를 수 있었다 (2026-09-18) */
+  const H = RELAY.corsHeaders(event.headers);
   const reply = (code, obj) => ({ statusCode: code, headers: H, body: JSON.stringify(obj) });
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: H, body: '' };
   if (event.httpMethod !== 'POST') return reply(405, { ok: false });
 
   try {
+    if (String(event.body || '').length > 8192) return reply(413, { ok: false, error: 'too_large' });
     const d = JSON.parse(event.body || '{}');
     if (d.token !== TOKEN) return reply(401, { ok: false, error: 'unauthorized' });
+
+    /* 남의 사이트에서 부르는 호출은 여기서 끊는다 (2026-09-18) */
+    const kind = RELAY.originKind(event.headers);
+    if (kind === 'foreign') return reply(403, { ok: false, error: 'forbidden' });
 
     const email = String(d.email || '').trim();
     /* 형식·일회용 주소·장난 주소를 서버에서 막는다. 브라우저 검사만으로는 우회된다. */
     const _ev = VALID.email(email);
     if (!_ev.ok) return reply(400, { ok: false, error: 'bad_email', reason: _ev.reason, message: _ev.message, suggest: _ev.suggest || '' });
 
-    const company = String(d.company || '').slice(0, 80).trim();
-    const name    = String(d.name || '').slice(0, 40).trim();
-    const line    = String(d.line || '').slice(0, 80).trim();
-    const spot    = String(d.spot || '').slice(0, 120).trim();
-    const asset   = String(d.asset || '').slice(0, 40).trim();
+    /* 같은 곳에서 계속 부르는 것을 막는다 — 우리 도메인 이름으로 나가는
+       스팸·피싱 발송과 Brevo 할당량 소진을 여기서 끊는다 (2026-09-18) */
+    if (await RELAY.tooMany({ ip: ipOf(event.headers), email, kind }))
+      return reply(429, { ok: false, error: 'too_many', message: '잠시 후 다시 시도해 주세요. 급하시면 02-2088-1454 로 연락 주세요.' });
+
+    /* clean() 은 줄바꿈·제어문자를 지운다. 예전에는 이름·회사명에 줄바꿈을 넣어
+       메일 본문에 문단을 통째로 끼워 넣을 수 있었다. */
+    const company = RELAY.clean(d.company, 80);
+    const name    = RELAY.clean(d.name, 40);
+    const line    = RELAY.clean(d.line, 80);
+    const spot    = RELAY.clean(d.spot, 120);
+    const asset   = RELAY.clean(d.asset, 40);
 
     /* 경쟁사 차단 (2026-09-16) — 막혔다는 걸 알리지 않고 「준비 중」으로 돌려준다 */
     if (await guard(event.headers, { email, company, name, phone: d.phone || '', title: '예지보전 가이드(sendguide)' }, 'sendguide'))

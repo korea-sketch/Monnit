@@ -53,7 +53,16 @@ Object.keys(MAP).forEach(k => { INDEX[norm(k)] = MAP[k]; });
 
 exports.norm = norm;
 exports.lookup = (title) => INDEX[norm(title)] || null;
-exports.SECRET = process.env.DL_SECRET || 'mnk-dl-2026-c4f81a97e2';
+/* ── 링크 서명 키 (2026-09-18) ────────────────────────────────────────
+   예전에는 여기에 실제 키 문자열이 적혀 있었다. 자료 파일명 21종도 바로 위에
+   목록으로 있으므로, 저장소를 본 사람은 누구나 유효한 다운로드 링크를 직접
+   만들 수 있었다 — 폼을 거치지 않고 백서를 전부 받아갈 수 있었다는 뜻이다.
+   이제 DL_SECRET 을 쓰고, 없으면 공개되지 않은 값(SITE_ID)에서 만들어 쓴다.
+   SITE_ID 는 배포마다 바뀌지 않으므로 이미 나간 링크도 그대로 살아 있다.
+   ※ 운영에서는 DL_SECRET 을 반드시 설정하십시오 — /ops 연동 점검에 표시됩니다. */
+exports.SECRET = process.env.DL_SECRET ||
+  require('crypto').createHmac('sha256', String(process.env.SITE_ID || 'monnit-local'))
+    .update('monnit-dl-link').digest('hex');
 exports.TTL_MS = 10 * 60 * 1000;   /* 링크 유효시간 10분 */
 
 /* 메일에 넣을 사이트 주소 — 요청 머리글(Origin·Referer)을 그대로 믿지 않는다 (2026-09-17)

@@ -135,7 +135,86 @@
 /pages/case-HDC랩스.html /case/hdc-labs 301!
 
 # >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>
-# --- 예전 /pages 주소 → 새 경로 (117개)
+# --- 비공개 파일 차단 (문서·스크립트·함수 소스 — 빌드 때 목록 자동 갱신)
+/netlify/*                                     /404.html    404!
+/tools/*                                       /404.html    404!
+/scripts/*                                     /404.html    404!
+/ui/*                                          /404.html    404!
+/source/*                                      /404.html    404!
+/functions/*                                   /404.html    404!
+/node_modules/*                                /404.html    404!
+/data/proposal/*                               /404.html    404!
+/Claude outputs/*                              /404.html    404!
+/Claude%20outputs/*                            /404.html    404!
+/claude-outputs/*                              /404.html    404!
+/outputs/*                                     /404.html    404!
+/2차작업-적용안내.md                                  /404.html    404!
+/2%EC%B0%A8%EC%9E%91%EC%97%85-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/ABOUT-히어로-적용안내.md                             /404.html    404!
+/ABOUT-%ED%9E%88%EC%96%B4%EB%A1%9C-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/CMS-적용안내.md                                   /404.html    404!
+/CMS-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md   /404.html    404!
+/COMMIT.md                                     /404.html    404!
+/COMMIT_NOTES-2026-08-25.md                    /404.html    404!
+/MODBUS-연동랜딩-적용안내.md                           /404.html    404!
+/MODBUS-%EC%97%B0%EB%8F%99%EB%9E%9C%EB%94%A9-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PATCH-flame직링크전용-적용안내.md                      /404.html    404!
+/PATCH-flame%EC%A7%81%EB%A7%81%ED%81%AC%EC%A0%84%EC%9A%A9-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PATCH-경쟁사차단-적용안내.md                           /404.html    404!
+/PATCH-%EA%B2%BD%EC%9F%81%EC%82%AC%EC%B0%A8%EB%8B%A8-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PATCH-설치사진-CTA-적용안내.md                        /404.html    404!
+/PATCH-%EC%84%A4%EC%B9%98%EC%82%AC%EC%A7%84-CTA-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PATCH-설치사진-히어로배너-적용안내.md                      /404.html    404!
+/PATCH-%EC%84%A4%EC%B9%98%EC%82%AC%EC%A7%84-%ED%9E%88%EC%96%B4%EB%A1%9C%EB%B0%B0%EB%84%88-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PATCH-적용안내.md                                 /404.html    404!
+/PATCH-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PROMO-CONSULTING-적용안내.md                      /404.html    404!
+/PROMO-CONSULTING-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/PROMO-PROPOSAL-리드수집-적용안내.md                   /404.html    404!
+/PROMO-PROPOSAL-%EB%A6%AC%EB%93%9C%EC%88%98%EC%A7%91-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/README-복구및적용.md                               /404.html    404!
+/README-%EB%B3%B5%EA%B5%AC%EB%B0%8F%EC%A0%81%EC%9A%A9.md /404.html    404!
+/README-적용안내.md                                /404.html    404!
+/README-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/SEO-적용안내.md                                   /404.html    404!
+/SEO-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md   /404.html    404!
+/_headers                                      /404.html    404!
+/_redirects                                    /404.html    404!
+/build.js                                      /404.html    404!
+/editor.html                                   /404.html    404!
+/gitignore.txt                                 /404.html    404!
+/hero-fx-미리보기.html                             /404.html    404!
+/hero-fx-%EB%AF%B8%EB%A6%AC%EB%B3%B4%EA%B8%B0.html /404.html    404!
+/netlify.toml                                  /404.html    404!
+/package-lock.json                             /404.html    404!
+/package.json                                  /404.html    404!
+/promo-consulting-sheet-template.csv           /404.html    404!
+/promo-consulting-미리보기.html                    /404.html    404!
+/promo-consulting-%EB%AF%B8%EB%A6%AC%EB%B3%B4%EA%B8%B0.html /404.html    404!
+/맞춤제안서-이전파일-삭제.sh                              /404.html    404!
+/%EB%A7%9E%EC%B6%A4%EC%A0%9C%EC%95%88%EC%84%9C-%EC%9D%B4%EC%A0%84%ED%8C%8C%EC%9D%BC-%EC%82%AD%EC%A0%9C.sh /404.html    404!
+/맞춤제안서-적용안내.md                                 /404.html    404!
+/%EB%A7%9E%EC%B6%A4%EC%A0%9C%EC%95%88%EC%84%9C-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/변경내역.md                                       /404.html    404!
+/%EB%B3%80%EA%B2%BD%EB%82%B4%EC%97%AD.md       /404.html    404!
+/삭제할-파일.sh                                     /404.html    404!
+/%EC%82%AD%EC%A0%9C%ED%95%A0-%ED%8C%8C%EC%9D%BC.sh /404.html    404!
+/알리미-자동응답메일-적용안내.md                            /404.html    404!
+/%EC%95%8C%EB%A6%AC%EB%AF%B8-%EC%9E%90%EB%8F%99%EC%9D%91%EB%8B%B5%EB%A9%94%EC%9D%BC-%EC%A0%81%EC%9A%A9%EC%95%88%EB%82%B4.md /404.html    404!
+/적용방법.md                                       /404.html    404!
+/%EC%A0%81%EC%9A%A9%EB%B0%A9%EB%B2%95.md       /404.html    404!
+/점검결과-연동-ops-SEO-AEO.md                        /404.html    404!
+/%EC%A0%90%EA%B2%80%EA%B2%B0%EA%B3%BC-%EC%97%B0%EB%8F%99-ops-SEO-AEO.md /404.html    404!
+/제안서-다운로드-설정.md                                /404.html    404!
+/%EC%A0%9C%EC%95%88%EC%84%9C-%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EC%84%A4%EC%A0%95.md /404.html    404!
+/크롤링수정-변경내역.md                                 /404.html    404!
+/%ED%81%AC%EB%A1%A4%EB%A7%81%EC%88%98%EC%A0%95-%EB%B3%80%EA%B2%BD%EB%82%B4%EC%97%AD.md /404.html    404!
+/폼전송-변경안내-2026-09-04.md                        /404.html    404!
+/%ED%8F%BC%EC%A0%84%EC%86%A1-%EB%B3%80%EA%B2%BD%EC%95%88%EB%82%B4-2026-09-04.md /404.html    404!
+/히어로FX-단독미리보기.html                             /404.html    404!
+/%ED%9E%88%EC%96%B4%EB%A1%9CFX-%EB%8B%A8%EB%8F%85%EB%AF%B8%EB%A6%AC%EB%B3%B4%EA%B8%B0.html /404.html    404!
+
+# --- 예전 /pages 주소 → 새 경로 (118개)
 /pages/company.html                    /who-we-are                  301!
 /pages/products.html                   /products                    301!
 /pages/solutions.html                  /applications                301!
@@ -251,6 +330,7 @@
 /pages/what-we-do.html                 /what-we-do                  301!
 /pages/faqs.html                       /faqs                        301!
 /pages/whitepaper.html                 /whitepaper                  301!
+/pages/proposal.html                   /proposal                    301!
 /pages/newsletter.html                 /newsletter                  301!
 /pages/contact.html                    /contact                     301!
 
@@ -287,9 +367,13 @@
 /manual               /guides              301
 /consultingpromotion  /promo/consulting    301
 
-# --- 에디터(비공개)
-/editor               /editor.html         200
-/editor/              /editor.html         200
+# --- 에디터 — 공개 경로 폐쇄 (2026-09-18)
+#   예전에는 /editor 가 누구나 열렸고 비밀번호 검사도 브라우저 안에서만 돌아
+#   개발자도구로 그냥 통과됐습니다(비밀번호는 소스 주석에도 적혀 있었습니다).
+#   이제 관제 로그인 뒤 /ops/editor 로만 열립니다. 아래 editor.html 차단은
+#   PRIVATE_NAME 이 자동으로 만들어 줍니다.
+/editor               /404.html            404!
+/editor/              /404.html            404!
 
 # --- 개인정보처리방침·설치사례 중복 URL 정리 (확장자 없는 주소 → 정본 1개)
 /privacy              /privacy.html                301

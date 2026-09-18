@@ -9,8 +9,9 @@ const SITE = 'https://monnit.co.kr';
 /* 사이트 장애 알림 수신자. 접수 알림과 같은 스위치를 쓴다.
    다만 Web3Forms 로 나가는 경로는 키에 등록된 주소로만 가므로,
    실제로 주소를 바꾸려면 Brevo 경로(_notify.mjs)를 타야 한다. */
-const ALERT_TO = process.env.NOTIFY_TO || '0702yeom@gmail.com';
-const WEB3FORMS_KEY = process.env.WEB3FORMS_KEY || 'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
+/* 키·개인 주소를 코드에 두지 않는다 (2026-09-18) — 없으면 그 경로를 건너뛴다 */
+const ALERT_TO = process.env.NOTIFY_TO || 'korea@monnit.com';
+const WEB3FORMS_KEY = process.env.WEB3FORMS_KEY || '';
 
 const PAGES = [
   { path: '/promo/consulting', name: '광고 랜딩(예지보전)', must: ['id="apply"', 'monnit-lead.js', 'GTM-T8H73VW'] },

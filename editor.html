@@ -300,7 +300,9 @@ const $=s=>document.querySelector(s);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1500);}
 
 /* ===== 비밀번호 게이트 ===== */
-// 기본 비밀번호: monnit2025 (아래 PASS_HASH 를 바꿔 변경. 새 해시는 콘솔에서: await sha256('새비번'))
+// 이 화면은 /ops/editor 로만 열립니다 — 관제 로그인(OPS_USER·OPS_PASS)을 먼저 통과해야 합니다.
+// 아래 검사는 브라우저 안에서만 도는 2차 확인일 뿐 보안 수단이 아닙니다(2026-09-18).
+// 비밀번호를 바꾸려면 PASS_HASH 를 교체하십시오 — 콘솔에서: await sha256('새비번')
 const PASS_HASH='2559e5a5e017d118a5168b257c6602b0d8c2e060d06ff2e9a38e5fbd097382c8';
 async function sha256(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 window.sha256=sha256;

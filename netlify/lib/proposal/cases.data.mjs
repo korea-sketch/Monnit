@@ -1,7 +1,6 @@
-/* 자동 생성 — scripts/proposal-sync.mjs (2026-09-17T04:00:31.961Z, 원본: 구글 시트 Cases 탭)
-   (산업 재분류 3건 반영)
+/* 자동 생성 — scripts/proposal-sync.mjs (2026-09-18T13:37:17.912Z, 원본: 구글 시트 Cases 탭)
    직접 고치지 말고 시트를 고치세요. 시트를 못 읽을 때는 이 스냅샷을 그대로 씁니다. */
-export const SYNCED_AT = "2026-09-17T04:00:31.961Z";
+export const SYNCED_AT = "2026-09-18T13:37:17.912Z";
 export default [
  {
   "key": "samsung-biologics",

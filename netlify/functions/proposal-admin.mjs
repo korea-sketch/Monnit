@@ -17,6 +17,7 @@
 import crypto from 'node:crypto';
 import * as S from '../lib/proposal/store.mjs';
 import { CFG } from '../lib/proposal/config.mjs';
+import { readMisses, clearAll as clearMisses } from '../lib/proposal/chatlog.mjs';
 import { addLog, addNotice, statusUrl, tokenKey } from '../lib/proposal/jobs.mjs';
 import { fmtKST } from '../lib/proposal/schedule.mjs';
 import { PROBLEMS, GOALS } from '../lib/proposal/kb.mjs';
@@ -28,7 +29,8 @@ import { opsAuthed } from '../lib/proposal/opsauth.mjs';
 import { runHealth } from '../lib/proposal/health.mjs';
 
 export const config = { path: ['/ops/proposals', '/ops/proposals/archive', '/ops/proposals/insights', '/ops/proposals/data', '/ops/proposals/job', '/ops/proposals/action', '/ops/proposals/pdf', '/ops/proposals/export.csv',
-  '/ops/proposals/archive/data', '/ops/proposals/archive.csv', '/ops/proposals/archive/pdf', '/ops/proposals/insights/data', '/ops/proposals/health', '/ops/proposals/login', '/ops/proposals/logout'] };
+  '/ops/proposals/archive/data', '/ops/proposals/archive.csv', '/ops/proposals/archive/pdf', '/ops/proposals/insights/data', '/ops/proposals/health', '/ops/proposals/login', '/ops/proposals/logout',
+  '/ops/proposals/misses', '/ops/proposals/misses/data'] };
 
 const H = { 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow, noarchive', 'referrer-policy': 'no-referrer', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff' };
 const j = (o, status = 200, extra = {}) => new Response(JSON.stringify(o), { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8', ...extra } });
@@ -103,7 +105,7 @@ export default async (req) => {
   if (p === '/ops/proposals/logout' && req.method === 'POST') return j({ ok: true }, 200, { 'set-cookie': `${COOKIE}=; Path=/ops/proposals; HttpOnly; Secure; SameSite=Strict; Max-Age=0` });
 
   const ok = await authed(req);
-  if (['/ops/proposals', '/ops/proposals/archive', '/ops/proposals/insights'].includes(p)) {
+  if (['/ops/proposals', '/ops/proposals/archive', '/ops/proposals/insights', '/ops/proposals/misses'].includes(p)) {
     const nonce = crypto.randomBytes(16).toString('base64');
     return new Response(page(ok, !!CFG.adminKey, nonce), { headers: pageHeaders(nonce) });
   }
@@ -118,6 +120,7 @@ export default async (req) => {
     if (p === '/ops/proposals/archive.csv') return await archiveCsv();
     if (p === '/ops/proposals/archive/pdf') return await archivePdf(url);
     if (p === '/ops/proposals/insights/data') return j(await insightData(url));
+    if (p === '/ops/proposals/misses/data') return j(await readMisses({ days: Math.max(1, Math.min(90, Number(url.searchParams.get('days')) || 30)) }));
     if (p === '/ops/proposals/health') return j(await runHealth({ deep: url.searchParams.get('deep') === '1', origin: url.origin }));
     if (p === '/ops/proposals/action' && req.method === 'POST') {
       if ((req.headers.get('x-requested-with') || '') !== 'mk') return j({ ok: false, error: 'csrf' }, 403);
@@ -290,6 +293,11 @@ async function action(b, url) {
        · 대기 중이면 발송 예약도 함께 지워 나가지 않게 한다
        · 「누가 언제 무엇을 지웠는지」는 남긴다 — 나중에 「그때 그 문의」를 찾기 위해서다
        · 이미 고객에게 발송된 건은 기본적으로 막는다(force 를 줘야 지워진다) */
+    case 'clear_misses': {
+      /* 규칙을 고치고 나서 새로 모을 때 — 놓친 말 기록을 통째로 비운다 */
+      const n = await clearMisses();
+      return { ok: true, cleared: n };
+    }
     case 'delete': {
       if (job.status === 'sent' && !b.force)
         return { ok: false, error: '이미 고객에게 발송된 건입니다. 정말 지우려면 「발송된 건도 지우기」를 켜 주세요' };
@@ -360,7 +368,7 @@ async function insightData(url) {
 /* ── 화면 ───────────────────────────────────────────────────────── */
 /* 통합 관제 탭 — /ops · /ops/block 화면에도 같은 줄이 있다 */
 const OPS_NAV = `<nav class="opsnav" aria-label="관제 메뉴">
-<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/block">차단 관리</a></nav>`;
+<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/block">차단 관리</a></nav>`;
 
 function page(ok, keyLogin, nonce = '') {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -371,6 +379,7 @@ function page(ok, keyLogin, nonce = '') {
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 'Pretendard Variable',Pretendard,system-ui,sans-serif}
 .opsnav{display:flex;gap:4px;padding:10px 20px 0;border-bottom:1px solid var(--line);background:#08101C;overflow-x:auto;position:sticky;top:0;z-index:6}
 .opsnav a{color:var(--mut);text-decoration:none;padding:9px 14px;border-radius:10px 10px 0 0;font-weight:600;white-space:nowrap;border:1px solid transparent;border-bottom:0}
+.ai-mark{color:var(--amber)}
 .opsnav a:hover{color:var(--ink)}.opsnav a.on{color:#fff;background:var(--bg);border-color:var(--line);box-shadow:0 1px 0 var(--bg)}
 header{position:sticky;top:43px;z-index:5;background:rgba(10,17,31,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 h1{font-size:16px;margin:0 8px 0 0}h3{margin:0 0 8px;font-size:14px}.wrap{padding:16px 20px;max-width:1400px;margin:0 auto}
@@ -427,7 +436,8 @@ ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
 <span id="hq" style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center"><select id="month"><option value="">전체 기간</option></select><button id="tickBtn">정기 점검 실행</button><button id="healthBtn">연동 점검</button><a href="/ops/proposals/export.csv"><button>CSV</button></a></span>
 <span id="ha" hidden><select id="amonth"><option value="">전체 기간</option></select><select id="akind"><option value="">모든 자료</option><option value="proposal">제안서</option><option value="resend">재발송</option><option value="followup">후속 안내</option></select><input id="aq" placeholder="회사·이메일·과제 검색" size="18"><a href="/ops/proposals/archive.csv"><button>대장 CSV</button></a></span>
 <span id="hi" hidden><select id="days"><option value="30">최근 30일</option><option value="90" selected>최근 90일</option><option value="365">최근 1년</option><option value="0">전체</option></select></span>
-<button id="refresh">새로고침</button><span id="tickInfo" class="mut small"></span><span style="flex:1"></span><span class="mut small hide-m">1·2·3 키로 탭 이동</span>${keyLogin ? '<button id="logout">로그아웃</button>' : ''}</header>
+<span id="hm" hidden><select id="mdays"><option value="7">최근 7일</option><option value="30" selected>최근 30일</option><option value="90">최근 90일</option></select><button id="mClear">기록 비우기</button></span>
+<button id="refresh">새로고침</button><span id="tickInfo" class="mut small"></span><span style="flex:1"></span><span class="mut small hide-m">1·2·3·4 키로 탭 이동</span>${keyLogin ? '<button id="logout">로그아웃</button>' : ''}</header>
 <div class="wrap">
 <section id="t-queue"><div id="health" class="card" style="margin-bottom:12px" hidden></div><div id="warns"></div><div class="kpis" id="kpis"></div>
 <div id="delbar" class="small" style="display:none;gap:10px;align-items:center;margin:0 0 10px"><span id="delcnt"></span><button id="delBtn">선택한 접수 지우기</button><label class="small mut"><input type="checkbox" id="delForce"> 발송된 건도 지우기</label><button id="delClear">선택 해제</button></div>
@@ -436,6 +446,13 @@ ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
 <div style="overflow-x:auto"><table><thead><tr><th>발송 시각</th><th>받는 분</th><th>나간 자료</th><th class="hide-m">기준 과제 · 산업</th><th>등급</th><th>반응</th><th></th></tr></thead><tbody id="arows"></tbody></table></div>
 <p class="mut small">발송할 때마다 한 줄씩 남고, PDF는 그때 보낸 파일 그대로 보관합니다. 보관 기간(${Math.round(CFG.retainDays / 30)}개월)이 지나면 받는 분 정보와 PDF 사본은 지우고 회사·업종·과제·반응만 남깁니다.</p></section>
 <section id="t-insights" hidden><div id="ins"></div></section>
+<section id="t-misses" hidden>
+<p class="mut small" style="margin:0 0 12px">대화로 신청에서 <b>규칙이 못 알아들은 말</b>을 모읍니다. AI 를 부른 건은 <b class="ai-mark">AI</b> 로 표시됩니다 —
+AI 를 한 번 불렀다는 건 규칙에 구멍이 하나 있다는 뜻이고, 그 구멍을 막으면 다음부터는 돈이 들지 않습니다.
+자주 나온 말부터 고치면 됩니다. 이메일·전화번호는 저장 전에 지워집니다.</p>
+<div class="kpis" id="mkpis"></div>
+<div style="overflow-x:auto"><table><thead><tr><th>묻던 항목</th><th>사람이 한 말</th><th>횟수</th><th>AI</th><th class="hide-m">AI 가 읽어 낸 값</th><th class="hide-m">마지막</th></tr></thead><tbody id="mrows"></tbody></table></div>
+</section>
 </div>
 <div id="drawer"></div>` : `<div class="login"><h2 style="margin:0">맞춤 제안서 관리</h2>
 <p class="mut small">통합 관제에 로그인하면 이 화면도 바로 열립니다.</p><a href="/ops"><button class="pri" style="width:100%">통합 관제 로그인으로</button></a>
@@ -444,8 +461,8 @@ ${keyLogin ? `<p class="mut small" style="margin-top:18px">또는 관리 키(PRO
 const $=s=>document.querySelector(s);const $$=s=>[].slice.call(document.querySelectorAll(s));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ST={received:'접수',drafting:'생성 중',drafted:'대기',sending:'발송 중',sent:'발송 완료',hold:'보류',failed:'실패',canceled:'취소'};
-const PATHS={queue:'/ops/proposals',archive:'/ops/proposals/archive',insights:'/ops/proposals/insights'};
-const tabOf=p=>({'/ops/proposals/archive':'archive','/ops/proposals/insights':'insights'})[p.replace(/\\/$/,'')]||'queue';
+const PATHS={queue:'/ops/proposals',archive:'/ops/proposals/archive',insights:'/ops/proposals/insights',misses:'/ops/proposals/misses'};
+const tabOf=p=>({'/ops/proposals/archive':'archive','/ops/proposals/insights':'insights','/ops/proposals/misses':'misses'})[p.replace(/\\/$/,'')]||'queue';
 ${ok ? `
 let D=null,A=null,I=null,CUR=null,TAB=tabOf(location.pathname),POLL=null;
 const post=(body)=>fetch('/ops/proposals/action',{method:'POST',headers:{'content-type':'application/json','x-requested-with':'mk'},body:JSON.stringify(body)}).then(r=>r.json());
@@ -454,9 +471,9 @@ const post=(body)=>fetch('/ops/proposals/action',{method:'POST',headers:{'conten
 function setTab(t,push){
   TAB=t;
   $$('.opsnav a[data-tab]').forEach(a=>a.classList.toggle('on',a.dataset.tab===t));
-  ['queue','archive','insights'].forEach(k=>{$('#t-'+k).hidden=k!==t;});
-  $('#hq').hidden=t!=='queue';$('#ha').hidden=t!=='archive';$('#hi').hidden=t!=='insights';
-  $('#ttl').textContent={queue:'맞춤 제안서',archive:'발송 대장',insights:'고객 인사이트'}[t];
+  ['queue','archive','insights','misses'].forEach(k=>{$('#t-'+k).hidden=k!==t;});
+  $('#hq').hidden=t!=='queue';$('#ha').hidden=t!=='archive';$('#hi').hidden=t!=='insights';$('#hm').hidden=t!=='misses';
+  $('#ttl').textContent={queue:'맞춤 제안서',archive:'발송 대장',insights:'고객 인사이트',misses:'규칙이 놓친 말'}[t];
   document.title=$('#ttl').textContent+' · 관제';
   if(push)history.pushState(null,'',PATHS[t]+(t==='queue'&&CUR?'#'+CUR.row.id:''));
   if(t!=='queue')closeD(true);
@@ -465,9 +482,15 @@ function setTab(t,push){
 $$('.opsnav a[data-tab]').forEach(a=>a.addEventListener('click',e=>{if(e.metaKey||e.ctrlKey)return;e.preventDefault();setTab(a.dataset.tab,true);}));
 window.addEventListener('popstate',()=>setTab(tabOf(location.pathname),false));
 document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.metaKey||e.ctrlKey||e.altKey)return;
-  const t={'1':'queue','2':'archive','3':'insights'}[e.key];if(t){setTab(t,true);}if(e.key==='Escape')closeD();});
-function loadTab(){return TAB==='queue'?load():TAB==='archive'?loadArchive():loadInsights();}
+  const t={'1':'queue','2':'archive','3':'insights','4':'misses'}[e.key];if(t){setTab(t,true);}if(e.key==='Escape')closeD();});
+function loadTab(){return TAB==='queue'?load():TAB==='archive'?loadArchive():TAB==='insights'?loadInsights():loadMisses();}
 $('#refresh').onclick=loadTab;
+if($('#mdays'))$('#mdays').onchange=loadMisses;
+if($('#mClear'))$('#mClear').onclick=async()=>{
+  if(!confirm('모아 둔 「규칙이 놓친 말」을 전부 지웁니다. 규칙을 고친 뒤 새로 모을 때 쓰세요. 계속할까요?'))return;
+  const r=await post({op:'clear_misses'});
+  if(r&&r.ok)loadMisses();else alert((r&&r.error)||'지우지 못했습니다');
+};
 
 /* ── 접수·발송 ── */
 async function load(){const m=$('#month').value;const r=await fetch('/ops/proposals/data'+(m?'?month='+m:''));if(r.status===401)return location.reload();D=await r.json();render();}
@@ -628,7 +651,7 @@ document.addEventListener('click',async e=>{
   const ids=selIds(); if(!ids.length)return;
   const force=$('#delForce').checked;
   const names=ids.map(id=>{const r=(D.rows||[]).find(x=>x.id===id);return r?r.company+' ('+r.no+')':id;});
-  if(!confirm('아래 '+ids.length+'건을 지웁니다. 되돌릴 수 없습니다.\n\n'+names.slice(0,10).join('\n')+(names.length>10?'\n… 외 '+(names.length-10)+'건':'')))return;
+  if(!confirm('아래 '+ids.length+'건을 지웁니다. 되돌릴 수 없습니다.\\n\\n'+names.slice(0,10).join('\\n')+(names.length>10?'\\n… 외 '+(names.length-10)+'건':'')))return;
   const btn=e.target; btn.disabled=true; btn.textContent='지우는 중…';
   let ok=0; const err=[];
   for(const id of ids){
@@ -637,7 +660,7 @@ document.addEventListener('click',async e=>{
   }
   btn.disabled=false; btn.textContent='선택한 접수 지우기';
   CUR=null; await load();
-  alert(ok+'건을 지웠습니다.'+(err.length?'\n\n못 지운 건 '+err.length+'건:\n'+err.join('\n'):''));
+  alert(ok+'건을 지웠습니다.'+(err.length?'\\n\\n못 지운 건 '+err.length+'건:\\n'+err.join('\\n'):''));
 });
 $('#healthBtn').onclick=()=>health(false);
 $('#health').addEventListener('click',e=>{const b=e.target.closest('[data-h]');if(!b)return;if(b.dataset.h==='deep')health(true);else $('#health').hidden=true;});
@@ -674,6 +697,37 @@ async function loadInsights(){
   $('#ins').innerHTML='<p class="mut"><span class="spin"></span> 집계 중…</p>';
   const r=await fetch('/ops/proposals/insights/data?days='+$('#days').value);if(r.status===401)return location.reload();
   I=await r.json();drawInsights();
+}
+
+/* ── 규칙이 놓친 말 ── AI 를 부른 이유를 눈으로 보고 규칙을 고치는 화면 */
+const kpi=(label,val,note)=>'<div class="kpi"><b>'+esc(val)+'</b><span>'+esc(label)+'</span>'+(note?'<span class="mut small" style="display:block;margin-top:3px;line-height:1.4">'+esc(note)+'</span>':'')+'</div>';
+const ASKNAME={company:'회사명',name:'성함',email:'이메일',fac:'현장 종류',con:'고민 주제',done:'확인'};
+const WHYNAME={unmatched:'사전에 없는 말',question:'질문을 했다',empty:'빈 답'};
+async function loadMisses(){
+  $('#mrows').innerHTML='<tr><td colspan="6" class="mut"><span class="spin"></span> 모으는 중…</td></tr>';
+  const r=await fetch('/ops/proposals/misses/data?days='+$('#mdays').value);if(r.status===401)return location.reload();
+  const m=await r.json();drawMisses(m);
+}
+function drawMisses(m){
+  const t=m.totals||{},g=m.grouped||[];
+  const saved=Math.max(0,(t.rows||0)-(t.ai||0));
+  $('#mkpis').innerHTML=
+    kpi('못 알아들은 말',(t.rows||0)+'건','규칙에 난 구멍의 수')+
+    kpi('AI 를 부른 것',(t.ai||0)+'건',(t.rows?Math.round((t.ai/t.rows)*100):0)+'% — 나머지는 되묻기로 해결')+
+    kpi('되묻기로 막은 것',saved+'건','AI 없이 끝난 실수')+
+    kpi('이 기간 AI 비용','$'+(t.usd||0).toFixed(4),'놓친 말을 규칙에 넣으면 0 에 가까워집니다');
+  if(!g.length){$('#mrows').innerHTML='<tr><td colspan="6" class="mut">아직 놓친 말이 없습니다. 규칙이 다 알아듣고 있습니다.</td></tr>';return;}
+  $('#mrows').innerHTML=g.map(x=>{
+    const got=x.got?Object.entries(x.got).map(([k,v])=>esc(ASKNAME[k]||k)+' → <b>'+esc(v)+'</b>').join('<br>'):'<span class="mut">—</span>';
+    return '<tr>'+
+      '<td>'+esc(ASKNAME[x.ask]||x.ask||'—')+'</td>'+
+      '<td style="max-width:360px;word-break:break-all">'+esc(x.say||'')+'<br><span class="mut small">'+esc(WHYNAME[x.why]||x.why||'')+'</span></td>'+
+      '<td>'+x.n+'</td>'+
+      '<td>'+(x.ai?'<b class="ai-mark">AI '+x.ai+'</b><br><span class="mut small">$'+(x.usd||0).toFixed(4)+'</span>':'<span class="mut">—</span>')+'</td>'+
+      '<td class="hide-m small">'+got+'</td>'+
+      '<td class="hide-m mut small">'+(x.last?new Date(x.last).toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'')+'</td>'+
+    '</tr>';
+  }).join('');
 }
 function tbl(title,g,note){
   const max=Math.max(1,...g.map(x=>x.n));

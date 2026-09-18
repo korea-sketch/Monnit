@@ -55,14 +55,16 @@ const js = async r => { try { return { s: r.status, j: await r.json() }; } catch
 
 /* 대화 한 건을 이어서 주고받는 도우미 */
 function session(opts = {}) {
-  const st = { fields: {}, messages: [] };
+  const st = { fields: {}, messages: [], retry: 0 };
   return {
     st,
     async say(text) {
       if (text !== null) st.messages.push({ role: 'user', text });
-      const { s, j } = await js(await call({ messages: st.messages, fields: st.fields, ...opts }, opts));
+      /* 화면(js/proposal-chat.js)과 똑같이 되묻기 횟수를 들고 다닌다 */
+      const { s, j } = await js(await call({ messages: st.messages, fields: st.fields, retry: st.retry, ...opts }, opts));
       if (j && j.fields) st.fields = j.fields;
       if (j && j.reply) st.messages.push({ role: 'assistant', text: j.reply });
+      st.retry = Number(j && j.retry) || 0;
       return { s, ...j };
     }
   };
@@ -91,14 +93,18 @@ function session(opts = {}) {
   ok('여기까지 AI 호출 0건(비용 0)', aiCalls === 0, aiCalls);
 }
 
-/* ── 2. 못 알아들을 때만 AI ── */
+/* ── 2. 두 번 되물어도 안 통할 때만 AI ── */
 {
   aiCalls = 0;
   aiReply = { reply: '말씀 감사합니다. 회사명만 한 줄로 알려주시겠어요?', fields: { company: '누리에프앤비' }, handoff: false };
   const c = session();
   await c.say(null);
-  const r = await c.say('저희가 여러 군데를 운영하는데 어디부터 말씀드려야 할지 모르겠네요');
-  ok('알아듣지 못한 문장 → AI 1회', aiCalls === 1 && r.mode === 'ai', { aiCalls, mode: r.mode });
+  const a1 = await c.say('음 그게 저기 그거 있잖아요');
+  ok('알아듣지 못해도 먼저 규칙이 쉽게 다시 묻는다(AI 0회)', aiCalls === 0 && a1.mode === 'rule', { aiCalls, mode: a1.mode });
+  const a2 = await c.say('아니 그니까 그거요');
+  ok('  두 번째도 규칙(AI 0회)', aiCalls === 0 && a2.mode === 'rule', { aiCalls, mode: a2.mode });
+  const r = await c.say('그거 있잖아요 저기');
+  ok('세 번 연속 못 알아들으면 → AI 1회', aiCalls === 1 && r.mode === 'ai', { aiCalls, mode: r.mode });
   ok('  AI 가 찾은 값도 검사 후 반영', r.fields.company === '누리에프앤비', r.fields);
   const before = aiCalls;
   const r2 = await c.say('김대표');
@@ -157,6 +163,29 @@ function session(opts = {}) {
   ok('너무 긴 대화 → 단계별 신청 안내', j.tooLong === true, j);
 }
 
+/* ── 6-2. 두 번 되물은 뒤에야 AI ── 오타·실수에 토큰을 쓰지 않는다 (2026-09-18) */
+{
+  aiCalls = 0;
+  aiReply = { reply: '조금 더 알려주세요.', fields: {}, handoff: false };
+  const say = (retry) => call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry }, { ip: '198.51.100.90' });
+  const r0 = (await js(await say(0))).j;
+  ok('못 알아들어도 첫 번째는 규칙이 되묻는다', r0.mode === 'rule' && r0.retry === 1 && aiCalls === 0, { r0, aiCalls });
+  const r1 = (await js(await say(1))).j;
+  ok('  두 번째도 규칙이 되묻는다', r1.mode === 'rule' && r1.retry === 2 && aiCalls === 0, { r1, aiCalls });
+  const r2 = (await js(await say(2))).j;
+  ok('  세 번째에 비로소 AI 를 부른다', aiCalls === 1, { r2, aiCalls });
+
+  /* 규칙이 알아들으면 되묻기 횟수는 따라붙지 않는다 → 화면이 0 으로 되돌린다 */
+  aiCalls = 0;
+  const okj = (await js(await call({ messages: [{ role: 'user', text: '대한정밀' }], retry: 1 }, { ip: '198.51.100.91' }))).j;
+  ok('  알아들은 답에는 retry 가 붙지 않는다(0 으로 초기화)', okj.mode === 'rule' && !okj.retry && aiCalls === 0, okj);
+
+  /* 화면이 큰 값을 보내도 AI 한도·요금은 그대로 (최대 손해 1회) */
+  aiCalls = 0;
+  await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 9999 }, { ip: '198.51.100.92' }));
+  ok('  retry 를 위조해도 AI 는 한 번뿐', aiCalls === 1, aiCalls);
+}
+
 /* ── 7. IP 당 하루 한도 ── */
 {
   aiCalls = 0;
@@ -164,7 +193,7 @@ function session(opts = {}) {
   const ip = '198.51.100.77';
   const codes = [];
   for (let i = 0; i < 8; i++) {
-    const { j } = await js(await call({ messages: [{ role: 'user', text: '어... 그러니까 뭐라고 해야 하나 잘 모르겠는데' }] }, { ip }));
+    const { j } = await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }, { ip }));
     codes.push(j.mode);
   }
   ok('IP 당 하루 6회까지만 AI, 그 뒤는 규칙 대화', aiCalls === 6 && codes.slice(6).every(m => m === 'rule'), { aiCalls, codes });
@@ -174,7 +203,7 @@ function session(opts = {}) {
 {
   aiCalls = 0;
   await S.setJSON('ai/usage-' + U.monthKey() + '.json', { calls: 100, in: 1e6, out: 1e5, usd: 19.5, byModel: {} });
-  const { j } = await js(await call({ messages: [{ role: 'user', text: '어디부터 말씀드려야 할지 모르겠네요' }] }));
+  const { j } = await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }));
   ok('한도 95% 도달 → AI 호출 없음', aiCalls === 0, aiCalls);
   ok('  점검 중 안내 + 단계별 신청 유도', j.paused === true && /점검 중/.test(j.notice || ''), j);
   ok('  그래도 대화는 이어짐(규칙)', !!j.reply && j.mode === 'rule', j);
@@ -187,7 +216,7 @@ function session(opts = {}) {
   ok('비용 계산 — Haiku 입력 100만 + 출력 10만 = $1.5', Math.abs(c.usd - 1.5) < 1e-6, c);
   aiReply = { reply: '조금 더 알려주세요.', fields: {}, handoff: false };
   const before = (await U.readUsage()).usd;
-  await js(await call({ messages: [{ role: 'user', text: '설명을 잘 못하겠는데 어떻게 하죠?' }] }));
+  await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }));
   const after = await U.readUsage();
   ok('AI 호출이 이번 달 사용량에 쌓임', after.usd > before && after.calls >= 1, after);
   ok('  모델별로도 기록', !!after.byModel['claude-haiku-4-5'], after.byModel);
@@ -196,7 +225,7 @@ function session(opts = {}) {
 /* ── 10. AI 가 죽어도 대화는 계속 ── */
 {
   aiFail = true;
-  const { j } = await js(await call({ messages: [{ role: 'user', text: '어떻게 진행되는 건가요?' }] }));
+  const { j } = await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }));
   ok('AI 오류 → 규칙 대화로 이어감', j.ok === true && j.mode === 'rule' && !!j.reply, j);
   aiFail = false;
 }

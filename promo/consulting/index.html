@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko" class="js"><head><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-49THHRYKR4&amp;cx=c&amp;gtm=4e67v1"></script><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=AW-664353920&amp;cx=c&amp;gtm=4e67v1"></script><script>window.__resources = {};</script>
+<html lang="ko" class="js"><head>
+
 <meta charset="UTF-8">
 <script>/* 광고 테스트 쿠키 자동 청소 — 가짜 클릭ID(_gcl_*=...TEST...)가 남아 있으면
    구글 수집 요청이 전부 503으로 거절되며 콘솔에 오류가 쌓입니다. 발견 즉시 제거. */
@@ -2088,8 +2089,8 @@ h2{margin-bottom:14px!important}
    ============================================================ */
 var CONTACT_EMAIL = "korea@monnit.com";
 var STATICFORMS_URL = "https://api.staticforms.dev/submit";
-var STATICFORMS_KEY = "sf_e026c9ef91b8eaeba9d1d472";        // 홈페이지와 동일 키
-var WEB3FORMS_KEY = "e4d5cb03-1b25-425c-a47d-f04e4a05e7e2"; // korea@monnit.com 수신 (폴백)
+var STATICFORMS_KEY = ((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':"sf_e026c9ef91b8eaeba9d1d472");        // 홈페이지와 동일 키
+var WEB3FORMS_KEY = ((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':"e4d5cb03-1b25-425c-a47d-f04e4a05e7e2"); // korea@monnit.com 수신 (폴백)
 
 // ===== 개인정보처리방침 팝업 =====
 function openPP(e){ if(e)e.preventDefault(); var m=document.getElementById('ppModal'); if(m){m.classList.add('show');document.body.style.overflow='hidden'} }
@@ -2249,7 +2250,12 @@ function submitForm(){
     window.open('mailto:'+CONTACT_EMAIL+'?subject='+subject+'&body='+body,'_blank');
     showOk();
   }
+  /* 개발·테스트 주소에서는 외부 알림 메일을 보내지 않는다 (2026-09-18) */
+  function _devHost(){ try{ var h=location.hostname;
+    return h==='localhost'||h==='127.0.0.1'||h==='::1'||h==='0.0.0.0'||/\.local$/.test(h)||/^192\.168\./.test(h)||/^10\./.test(h);
+  }catch(e){ return false; } }
   function tryWeb3(){
+    if(_devHost()){ unlock(); showOk(); return Promise.resolve(); }
     // 2순위: Web3Forms 폴백 (홈페이지 sendLead 3번 경로와 동일)
     var fd={access_key:WEB3FORMS_KEY,subject:payload._subject,from_name:'Monnit Korea 웹사이트',
       email:(email||'no-reply@monnit.co.kr'),replyto:(email||''),botcheck:false};
@@ -2263,6 +2269,7 @@ function submitForm(){
 
   lock();
   // 1순위: StaticForms — 홈페이지 현재 활성 백엔드와 동일 (규격: apiKey·subject·email·replyTo·honeypot)
+  if(_devHost()){ unlock(); showOk(); return; }
   fetch(STATICFORMS_URL,{method:'POST',
     headers:{'Content-Type':'application/json',Accept:'application/json'},
     body:JSON.stringify(Object.assign({apiKey:STATICFORMS_KEY,subject:payload._subject,

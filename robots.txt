@@ -1,5 +1,5 @@
 # Monnit Korea — 모든 검색·AI 크롤러 허용 (build.js 자동 생성)
-# 최종 생성: 2026-09-16
+# 최종 생성: 2026-09-18
 # 크롤러는 자기 이름 블록을 찾으면 "User-agent: *" 를 무시하므로
 # 공통 Disallow 를 각 블록마다 반복해 둡니다.
 
@@ -12,6 +12,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: GPTBot
 Allow: /
@@ -22,6 +24,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: OAI-SearchBot
 Allow: /
@@ -32,6 +36,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: ChatGPT-User
 Allow: /
@@ -42,6 +48,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: ClaudeBot
 Allow: /
@@ -52,6 +60,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Claude-SearchBot
 Allow: /
@@ -62,6 +72,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Claude-User
 Allow: /
@@ -72,6 +84,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: anthropic-ai
 Allow: /
@@ -82,6 +96,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: PerplexityBot
 Allow: /
@@ -92,6 +108,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Perplexity-User
 Allow: /
@@ -102,6 +120,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Google-Extended
 Allow: /
@@ -112,6 +132,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Google-CloudVertexBot
 Allow: /
@@ -122,6 +144,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Google-NotebookLM
 Allow: /
@@ -132,6 +156,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: meta-externalagent
 Allow: /
@@ -142,6 +168,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Meta-ExternalFetcher
 Allow: /
@@ -152,6 +180,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Applebot
 Allow: /
@@ -162,6 +192,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Applebot-Extended
 Allow: /
@@ -172,6 +204,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: DuckAssistBot
 Allow: /
@@ -182,6 +216,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: MistralAI-User
 Allow: /
@@ -192,6 +228,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Amazonbot
 Allow: /
@@ -202,6 +240,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: cohere-ai
 Allow: /
@@ -212,6 +252,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: CCBot
 Allow: /
@@ -222,6 +264,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Bytespider
 Allow: /
@@ -232,6 +276,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Yeti
 Allow: /
@@ -242,6 +288,8 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 User-agent: Daum
 Allow: /
@@ -252,5 +300,7 @@ Disallow: /church/
 Disallow: /ops
 Disallow: /ops/
 Disallow: /api/
+Disallow: /proposal/status
+Disallow: /proposal-status.html
 
 Sitemap: https://monnit.co.kr/sitemap.xml

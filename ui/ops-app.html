@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0A0B14">
 <title>관제</title>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--ink:#F2F5FA;--mut:#A6B3CC;--dim:#6E7C96;--up:#4FE39B;--dn:#FF7A7A;--acc:#7AA8FF;
@@ -344,13 +344,17 @@ footer{text-align:center;font-size:10.5px;color:var(--dim);padding-top:20px}
 <div id="leads" style="overflow-x:auto"></div></div>
 
 <div style="text-align:center;margin:4px 0 14px">
-<a class="btn" style="text-decoration:none;display:inline-block" href="/ops/export">리드 내려받기 (CSV)</a></div>
+<a class="btn" style="text-decoration:none;display:inline-block" href="/ops/export">리드 내려받기 (CSV)</a>
+<a class="btn" style="text-decoration:none;display:inline-block;margin-left:8px" href="/ops/editor">콘텐츠 편집기</a></div>
 <footer>Monnit Korea · 통합 관제<br><span id="foot"></span></footer>
 </div>
 </div>
 
 <script>
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+/* 작은따옴표까지 반드시 막는다. 리드 회사명·이메일로 만든 id 가
+   onclick="toggleEd('…')" 안에 들어가므로, ' 를 놓치면 접수 폼으로 넣은
+   문자열이 관제 화면에서 스크립트로 실행된다(저장형 XSS). 2026-09-18 */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function W(v){return v==null?'–':'₩'+Math.round(v).toLocaleString();}
 function N(v){return v==null?'–':Math.round(v).toLocaleString();}
 function D(s){return new Date(String(s)+'T00:00:00+09:00').getTime();}

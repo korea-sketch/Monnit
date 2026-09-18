@@ -14,8 +14,13 @@ import { readUsage, addUsage } from '../lib/proposal/aiusage.mjs';
 import { askAI, cleanFields, cleanReply, isReady, missing, needsHandoff, nextAsk, pausedNotice, ruleParse, ruleReply, LABELS } from '../lib/proposal/chat.mjs';
 import { kDay } from '../lib/proposal/schedule.mjs';
 import * as _guard from '../lib/proposal/guard.mjs';
+import { logMiss } from '../lib/proposal/chatlog.mjs';
+import { costOf } from '../lib/proposal/aiusage.mjs';
 
 export const config = { path: '/api/proposal/chat' };
+
+/* 같은 항목을 몇 번 되묻고 나서 AI 를 부를지 — 오타·실수에 토큰을 쓰지 않기 위한 값 */
+const RETRY_BEFORE_AI = Number(process.env.PROPOSAL_CHAT_RETRY || 2);
 
 const H = { 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow', 'x-content-type-options': 'nosniff' };
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });
@@ -31,6 +36,8 @@ function sameOrigin(req) {
   } catch (e) { return false; }
 }
 const out = (o) => json({ ok: true, ...o });
+/* 기록은 응답을 붙잡지 않는다 — 실패해도 대화는 그대로 이어진다 */
+const later = (p) => { try { p.catch(() => {}); } catch (e) {} };
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
@@ -83,13 +90,28 @@ export default async (req) => {
   const handoff = needsHandoff(lastText);
 
   if (!handoff && p.understood && !p.question) {
-    const ask = nextAsk(fields);
-    return out({ mode: 'rule', fields, ready: isReady(fields), ask, confirmed: !!p.confirmed, edit: !!p.edit,
-      reply: ruleReply(fields, lang, { got: p.got }),
+    /* 고민을 건너뛴 경우 — 그 항목은 더 묻지 않고 넘어간다 */
+    if (p.skipAsk === 'con') fields.con = fields.con || 'skip';
+    const ask = p.skipAsk === 'con' ? 'done' : nextAsk(fields);
+    return out({ mode: 'rule', fields: p.skipAsk === 'con' ? { ...fields, con: '' } : fields,
+      ready: isReady(fields), ask, confirmed: !!p.confirmed, edit: !!p.edit, skipped: p.skipAsk || '',
+      reply: ruleReply(fields, lang, { got: p.got, again: p.again || '', emailAsk: p.emailAsk || '', emailBad: p.emailBad || '', skipped: p.skipAsk || '' }),
       labels: ask === 'done' ? { fac: LABELS.fac[fields.fac] || '', con: LABELS.con[fields.con] || '' } : undefined });
   }
 
-  /* ② 규칙이 못 알아들었다 — 한도·설정을 보고 AI 를 부를지 정한다 */
+  /* ② 규칙이 못 알아들었다 — 바로 AI 를 부르지 않는다. (2026-09-18)
+     오타·짧은 답·실수는 「한 번 더 쉽게 묻기」로 대부분 풀린다. 같은 항목을 두 번
+     되물어도 안 되면 그때 AI 를 부른다 — 토큰은 「사람이 자유롭게 쓴 말」에만 쓴다.
+     되물은 횟수는 화면이 retry 로 돌려준다(위조되어도 최대 손해는 AI 1회). */
+  const retry = Math.max(0, Math.min(9, Number(b.retry) || 0));
+  if (!handoff && retry < RETRY_BEFORE_AI) {
+    /* 아직 돈은 안 썼지만 규칙에 구멍이 있다는 신호다 — 남겨 두고 다음에 막는다 */
+    later(logMiss({ ask: asking, say: lastText, why: p.miss || 'unmatched', retry, ai: false, lang }));
+    return out({ mode: 'rule', fields, ready: isReady(fields), ask: asking, retry: retry + 1,
+      reply: ruleReply(fields, lang, { again: asking }) });
+  }
+
+  /* ③ 두 번 되물어도 안 통했다 — 한도·설정을 보고 AI 를 부를지 정한다 */
   const usage = await readUsage().catch(() => ({ paused: false }));
   let allowAI = CFG.chatOn && !!CFG.aiKey && !usage.paused;
   if (allowAI) {
@@ -116,6 +138,15 @@ export default async (req) => {
       reply: ruleReply(fields, lang, { handoff, again: handoff ? '' : asking }) });
   }
   if (r.usage) await addUsage(r.model, r.usage);
+
+  /* 돈을 쓴 자리 — 무엇 때문에 썼고 AI 가 무엇을 읽어 냈는지 반드시 남긴다.
+     이 기록의 got 가 곧 「규칙이 이렇게 읽었어야 했다」는 정답지다. */
+  later(logMiss({
+    ask: asking, say: lastText, why: p.miss || (p.question ? 'question' : 'unmatched'),
+    retry, ai: true, lang, model: r.model,
+    usd: r.usage ? costOf(r.model, r.usage).usd : 0,
+    got: r.out.fields || {}
+  }));
 
   fields = cleanFields(r.out.fields || {}, fields);
   const hand = handoff || r.out.handoff === true;

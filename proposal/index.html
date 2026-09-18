@@ -56,7 +56,7 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=125">
+<link rel="stylesheet" href="/style.css?v=127">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -1941,7 +1941,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
           <div class="mkp-step" id="ppS2" hidden>
             <div class="mkp-step-h"><span class="mkp-no">02</span><h3><span id="ppIndShort">이 산업</span> 현장에서 가장 고민되는 문제</h3><small>하나만 골라 주세요</small></div>
             <p class="mkp-hint" id="ppIndHero"></p>
-            <div class="mkp-chronic" id="ppChronic" hidden></div>
+            <details class="mkp-chronic" id="ppChronic" hidden></details>
             <div class="mkp-plist is-one" id="ppPlist" role="radiogroup" aria-label="가장 고민되는 문제"></div>
             <p class="mkp-err" id="ppErrProblems" hidden>가장 고민되는 문제를 하나 골라 주세요</p>
             <p class="mkp-scope-note" data-i18n-html>무료 맞춤 제안서는 <b>과제 하나</b>를 깊게 다룹니다. 여러 과제나 현장 전체 구성·수량·견적이 필요하시면 <a href="/contact?quote=scope" data-nav-quote="1">견적 요청</a>으로 받아 보세요.</p>
@@ -2237,7 +2237,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=131"></script>
+  <script src="/app.js?v=132"></script>
   <script src="/js/why-rolling.js?v=3" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=2" defer></script>

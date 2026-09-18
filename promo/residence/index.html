@@ -1152,8 +1152,8 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
 
   var CONTACT_EMAIL='korea@monnit.com';
   var STATICFORMS_URL='https://api.staticforms.dev/submit';
-  var STATICFORMS_KEY='sf_e026c9ef91b8eaeba9d1d472';
-  var WEB3FORMS_KEY='e4d5cb03-1b25-425c-a47d-f04e4a05e7e2';
+  var STATICFORMS_KEY=((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':'sf_e026c9ef91b8eaeba9d1d472');
+  var WEB3FORMS_KEY=((typeof location!=='undefined'&&/^(localhost|127\.0\.0\.1|::1|0\.0\.0\.0|.*\.local)$/.test(location.hostname))?'':'e4d5cb03-1b25-425c-a47d-f04e4a05e7e2');
 
   form.addEventListener('submit', function(ev){
     ev.preventDefault();
