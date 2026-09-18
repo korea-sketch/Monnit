@@ -22,7 +22,7 @@ function T(asking, input, want) {
     : asking === 'fac' ? (p.fields.fac || (p.skipAsk ? 'skip' : ''))
     : asking === 'con' ? (p.fields.con || (p.skipAsk ? 'skip' : ''))
     : p.confirmed ? 'yes' : p.edit ? 'edit' : '';
-  const ok = want === '*' ? p.understood : want.startsWith('x') ? !p.understood || !!p.again : got === want;
+  const ok = want === '*' ? p.understood : want === '' ? !got : want.startsWith('x') ? !p.understood || !!p.again : got === want;
   if (ok) { pass++; if (V) console.log('  ok   [' + asking + '] ' + input + ' → ' + (got || '(되물음)') + (p.how ? ' · ' + p.how : '')); }
   else {
     fail++;
@@ -39,6 +39,7 @@ console.log('\n■ 회사명 — 말머리·말끝·조사·자판·오타');
  ['eogkswjdalf', '대한정밀'], ['우리는 삼성전자', '삼성전자'], ['상호는 누리에프앤비', '누리에프앤비'],
  ['SK하이닉스', 'SK하이닉스'], ['CJ대한통운 이천', 'CJ대한통운 이천'], ['농협하나로마트', '농협하나로마트'],
  ['대한', '대한'], ['한국가스공사', '한국가스공사'],
+ ['양계장 하는데요', '양계장'], ['물류창고 운영합니다', '물류창고'], ['식품공장 하고 있어요', '식품공장'],
  ['잘 모르겠어요', 'x'], ['아니 그니까 그거요', 'x'], ['음...', 'x'], ['ㅁㄴㅇㄹ', 'x'], ['비밀입니다', 'x']
 ].forEach(([i, w]) => T('company', i, w));
 
@@ -76,6 +77,8 @@ console.log('\n■ 현장 — 업종을 자기 말로');
  ['시청', 'public'], ['군부대', 'public'], ['대학교 실습동', 'public'], ['박물관', 'public'],
  ['정수장', 'energy'], ['태양광 발전소', 'energy'], ['열병합', 'energy'], ['하수처리장', 'energy'],
  ['터널 공사현장', 'construction'], ['교량 시공', 'construction'], ['리모델링 현장', 'construction'],
+ ['축사 하고 있습니다', 'agri'], ['한우 농가입니다', 'agri'], ['젖소 목장', 'agri'],
+ ['사무소', ''], ['보건소', ''], ['연구소', 'pharma'], ['발전소', 'energy'], ['제작소', 'factory'],
  ['ㄱㅈ', 'factory'], ['rhdwkd', 'factory'], ['3번이요', 'datacenter'], ['1', 'factory'],
  ['잘 모르겠어요', 'etc'], ['그 외', 'etc']
 ].forEach(([i, w]) => T('fac', i, w));
@@ -94,6 +97,7 @@ console.log('\n■ 고민 — 현상을 사람 말로');
  ['야간 무인', 'security'], ['문 열림', 'security'], ['주말에 사람이 없어서', 'security'],
  ['통합관제', 'control'], ['MODBUS 연동', 'control'], ['한눈에 보고 싶어요', 'control'], ['PLC 연동', 'control'],
  ['해썹', 'comply'], ['해쌉', 'comply'], ['HACCP 기록', 'comply'], ['수기 일지', 'comply'], ['식약처 감사', 'comply'],
+ ['여름에 닭이 폐사해서요', 'temp'], ['돼지가 폭염에 죽어서', 'temp'], ['한파에 얼어서', 'temp'],
  ['5번', 'equip'], ['잘 모르겠어요', 'skip'], ['다 걱정돼요', 'skip']
 ].forEach(([i, w]) => T('con', i, w));
 
