@@ -111,7 +111,7 @@ const HANDOFF_KW = /(가격|단가|견적|비용|얼마|할인|구매|발주|납
    저장되던 문제). 물음표만 있는 것(「대한정밀?」)은 STRONG_Q 가 아니라 되묻기를 거친다. */
 const QUESTION_KW = /[?？]|어떻게|어떤가요|어떤\s|무엇|뭐가|뭔가요|왜|얼마나|가능한가요|되나요|인가요|있나요|있을까|될까|할까요|일까요|나요\s*$|까요\s*$|알려주|추천|차이|설명|모르겠|헷갈/;
 /* 물음표 말고 「진짜 묻는 말」 — 이건 되묻지 않고 바로 AI 가 답할 자리다 */
-const STRONG_Q = /어떻게|어떤가요|어떤\s|무엇|뭐가|뭔가요|왜|얼마나|가능한가요|되나요|인가요|있나요|있을까|될까|할까요|일까요|나요\s*$|까요\s*$|알려주|추천|차이|설명/;
+const STRONG_Q = /어떻게|어떤가요|어떤\s|무엇|뭐가|뭔가요|왜|얼마나|몇\s*[대개명개월일년]|가능한가요|되나요|인가요|있나요|있을까|될까|할까요|일까요|나요\s*$|까요\s*$|[한은는인운]가요\s*$|알려주|추천|차이|설명/;
 export const isStrongQuestion = t => STRONG_Q.test(KO.normalize(t));
 
 const clip = (v, n) => String(typeof v === 'string' || typeof v === 'number' ? v : '')
@@ -529,14 +529,22 @@ async function rememberGeminiModel(model, gone = []) {
 export async function readGeminiModel() { return (await STORE.getJSON(MODEL_KEY).catch(() => null)) || null; }
 export function _resetGeminiModel() { _pickedModel = ''; }   /* 검사용 */
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const isPerMinute = (status, msg = '') => status === 429 && /per.?minute|requestsperminute|tokensperminute|rate.?limit/i.test(msg);
 async function callGeminiAuto(messages, known, lang, signal) {
+  const t0 = Date.now();
   const first = await pickGeminiModel();
   const order = [first, CFG.geminiModel, ...CFG.geminiFallbacks].filter((m, i, a) => m && a.indexOf(m) === i);
   const gone = [];
   let last = null;
   for (const model of order) {
-    const r = await callGemini(messages, known, lang, signal, model);
+    let r = await callGemini(messages, known, lang, signal, model);
     if (r && r.error && isModelGone(r.error.status, r.error.message)) { gone.push(model); last = r; continue; }
+    /* 분당 한도는 몇 초 뒤면 풀린다 — 예산(7초)이 남았으면 1.2초 쉬고 한 번만 더 */
+    if (r && r.error && isPerMinute(r.error.status, r.error.message) && Date.now() - t0 < 2500 && !(signal && signal.aborted)) {
+      await sleep(1200);
+      r = await callGemini(messages, known, lang, signal, model);
+    }
     if (r && !r.error && model !== first) await rememberGeminiModel(model, gone);
     return r;
   }

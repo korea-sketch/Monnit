@@ -8,10 +8,10 @@
  *  · 월 한도의 95% 에 닿으면 AI 를 부르지 않고 「점검 중」으로 알린 뒤 단계별 신청 화면으로 돌린다
  *  · 접수 자체는 기존 /api/proposal (entry: chat) 이 한다
  */
+import crypto from 'node:crypto';
 import { CFG } from '../lib/proposal/config.mjs';
 import * as S from '../lib/proposal/store.mjs';
 import { readUsage, addUsage, readHalt, setHalt, isBillingSignal, markHaltNotified, recordAiError, clearAiError } from '../lib/proposal/aiusage.mjs';
-import { notifyAiHalt } from '../lib/proposal/mail.mjs';
 import { askAI, cleanFields, cleanReply, isReady, isStrongQuestion, missing, needsHandoff, nextAsk, pausedNotice, ruleParse, ruleReply, LABELS } from '../lib/proposal/chat.mjs';
 import { kDay } from '../lib/proposal/schedule.mjs';
 import * as _guard from '../lib/proposal/guard.mjs';
@@ -40,9 +40,12 @@ function sameOrigin(req) {
 const later = (p) => { try { p.catch(() => {}); } catch (e) {} };
 /* 정지 알림 — 담당자 메일은 처음 한 번만. 팝업은 관제 화면이 halt 파일을 읽어 띄운다 */
 async function alertHalt(h) {
-  if (!h || h.notified) return;
+  /* 다른 인스턴스가 먼저 멈췄으면(existing) 그쪽이 메일을 보낸다 — 같은 정지로 두 통 나가지 않게 */
+  if (!h || h.notified || h.existing) return;
   /* 정지는 드물고 중요하다 — 응답을 4초까지 붙잡고 메일을 기다린다.
      (응답 뒤의 비동기 작업은 함수 실행이 얼어 붙으면 사라질 수 있다) */
+  /* mail.mjs 는 제안서 엔진(사례·플레이북 데이터)을 끌고 온다 — 정지 순간에만 불러온다(콜드 스타트 -14ms) */
+  const { notifyAiHalt } = await import('../lib/proposal/mail.mjs');
   const r = await Promise.race([notifyAiHalt(h).catch(() => null), new Promise(res => setTimeout(() => res(null), 4000))]);
   if (r && r.ok) await markHaltNotified(h.at);
 }
@@ -139,7 +142,7 @@ export default async (req) => {
   }
 
   /* ③ 두 번 되물어도 안 통했다 — 한도·설정을 보고 AI 를 부를지 정한다 */
-  const usage = await readUsage().catch(() => ({ paused: false }));
+  const usage = await readUsage(Date.now(), { halt }).catch(() => ({ paused: false }));
   /* 무료 모드 월 호출 상한에 닿았으면 — 조용히 과금되기 전에 정지 파일을 남기고 알린다 */
   if (CFG.aiFreeOnly && usage.freeCap && usage.calls >= usage.freeCap && !usage.halt) {
     const h = await setHalt('free-cap', { message: `이번 달 ${usage.calls}회 — 상한 ${usage.freeCap}회` });
@@ -150,9 +153,9 @@ export default async (req) => {
     const ip = _guard.ipOf(req.headers);
     if (ip) {
       try {
-        const k = 'chatrate/' + kDay(Date.now()) + '/' + ip.replace(/[^\w.:]/g, '');
-        if (await S.count(k) >= CFG.chatPerIpDay) allowAI = false;
-        else await S.bump(k);
+        /* 키에 IP 원문을 두지 않는다(접수 제한과 같은 방식) · 세고-올리기를 한 번에(저장소 왕복 3→2) */
+        const k = 'chatrate/' + kDay(Date.now()) + '/' + crypto.createHash('sha256').update('ip|' + ip + '|' + CFG.secret).digest('hex').slice(0, 16);
+        if (!(await S.bumpUnder(k, CFG.chatPerIpDay))) allowAI = false;
       } catch (e) { /* 제한 계산 실패로 대화를 막지 않는다 */ }
     }
   }

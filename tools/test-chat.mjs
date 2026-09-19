@@ -31,7 +31,7 @@ globalThis.fetch = async (url, opt = {}) => {
     gemCalls++; gemLastBody = String(opt.body || '');
     const mdl = decodeURIComponent((/models\/([^:]+):/.exec(url) || [])[1] || ''); gemModels.push(mdl);
     if (gemGone.includes(mdl)) return new Response(JSON.stringify({ error: { code: 404, message: 'This model models/' + mdl + ' is no longer available to new users. Please update your code to use a newer model.', status: 'NOT_FOUND' } }), { status: 404 });
-    if (gemFail) return new Response(gemFail.body, { status: gemFail.status });
+    if (gemFail) { const f = gemFail; if (f.once) gemFail = null; return new Response(f.body, { status: f.status }); }
     const body = JSON.stringify(aiReply || { reply: '어떤 현장인지 한 줄로 알려주시면 정리해 드리겠습니다.', fields: {}, handoff: false });
     return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: body }] } }], usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 80 } }), { status: 200 });
   }
@@ -311,6 +311,34 @@ function session(opts = {}) {
   gemCalls = 0; gemFail = { status: 429, body: JSON.stringify({ error: { code: 429, status: 'RESOURCE_EXHAUSTED', message: 'You exceeded your current quota, please check your plan and billing details. quotaId: GenerateRequestsPerMinutePerProjectPerModel-FreeTier' } }) };
   const g2 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
   ok('분당 한도 429 → 이번 턴만 규칙, 정지 아님', g2.mode === 'rule' && !g2.paused && !(await U.readHalt()), { g2, halt: await U.readHalt() });
+
+  /* 분당 한도 — 1.2초 뒤 한 번 더 시도해 그 턴을 살린다 */
+  gemCalls = 0; gemFail = { once: true, status: 429, body: JSON.stringify({ error: { status: 'RESOURCE_EXHAUSTED', message: 'quotaId: GenerateRequestsPerMinutePerProjectPerModel-FreeTier' } }) };
+  const t0 = Date.now();
+  const g2b = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  ok('  분당 429 뒤 1.2초 재시도로 그 턴을 살린다(호출 2회 · 정지 아님)', gemCalls === 2 && g2b.mode === 'ai' && Date.now() - t0 >= 1100 && !(await U.readHalt()), { gemCalls, mode: g2b.mode, ms: Date.now() - t0 });
+
+  /* 저장소 왕복 — 세고-올리기 한 번에 · 날짜 카운터 청소 */
+  {
+    const pre = 'chatrate/2026-01-01/abc';
+    let okN = 0; for (let i = 0; i < 4; i++) if (await S.bumpUnder(pre, 3)) okN++;
+    ok('bumpUnder — 상한 3 이면 3번만 true', okN === 3 && (await S.count(pre)) === 3, okN);
+    await S.bumpUnder('rate/2026-01-01T09/xyz', 9); await S.bumpUnder('day/2026-01-01', 9);
+    const swept = (await S.sweepDated('chatrate/', '2026-02-01')) + (await S.sweepDated('rate/', '2026-02-01')) + (await S.sweepDated('day/', '2026-02-01'));
+    ok('  이틀 지난 제한 카운터를 지운다(오늘 것은 남김)', swept === 5 && (await S.count(pre)) === 0, swept);
+  }
+
+  /* 정지 메모 — 같은 인스턴스는 60초 동안 저장소를 다시 읽지 않는다 */
+  {
+    await U.clearHalt();
+    const a = await U.readHalt();
+    await S.setJSON('ai/halt.json', { at: new Date().toISOString(), reason: 'quota-exceeded' });   /* 다른 인스턴스가 멈춘 것처럼 */
+    const b = await U.readHalt();
+    const c = await U.readHalt(Date.now(), { fresh: true });
+    ok('readHalt 메모 — 60초 안에는 저장소를 안 읽고, fresh 면 바로 본다', a === null && b === null && c && c.reason === 'quota-exceeded', { a, b, c });
+    await U.clearHalt();
+    ok('  clearHalt 는 메모도 함께 지운다', !(await U.readHalt()));
+  }
 
   /* 진짜 과금 신호 */
   const mailsBefore = MAILS.length;

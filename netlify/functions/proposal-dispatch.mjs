@@ -8,6 +8,7 @@ import { tick } from '../lib/proposal/pipeline.mjs';
 import * as S from '../lib/proposal/store.mjs';
 import { compactAll } from './_store.mjs';
 import { sweep as sweepMisses } from '../lib/proposal/chatlog.mjs';
+import { kDay } from '../lib/proposal/schedule.mjs';
 
 export const config = { schedule: '*/10 * * * *' };
 
@@ -32,6 +33,9 @@ export default async () => {
           r.compact.push(await compactAll(store, { keep: 50, budgetMs: 2500 }));
         /* 「규칙이 놓친 말」 90일 지난 것 정리 — 만들어 두고 아무 데서도 안 부르고 있었다 */
         r.sweptMisses = await sweepMisses();
+        /* 접수·대화 제한 카운터는 그날만 쓴다 — 이틀 지난 것은 지운다(안 지우면 키가 영원히 쌓인다) */
+        const cut = kDay(Date.now() - 2 * 86400000);
+        r.sweptRate = (await S.sweepDated('chatrate/', cut)) + (await S.sweepDated('rate/', cut)) + (await S.sweepDated('day/', cut));
       } finally { await release(); }
     }
   } catch (e) { r.compactError = e.message; }

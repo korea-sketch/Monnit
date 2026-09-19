@@ -48,27 +48,40 @@ const HALT = 'ai/halt.json';
 /* 다음 날 0시(KST) — 일일 무료 한도는 자정에 다시 채워지므로 그때 저절로 풀린다 */
 const nextKstMonth = (now = Date.now()) => { const d = new Date(now + 9 * 3600000); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1) - 9 * 3600000).toISOString(); };
 const nextKstMidnight = (now = Date.now()) => new Date(Math.floor((now + 9 * 3600000) / 86400000 + 1) * 86400000 - 9 * 3600000).toISOString();
-export async function readHalt(now = Date.now()) {
+/* 정지 파일은 매 대화마다 읽힌다(강한 일관성 GET 1회 ≈ 100~300ms). 정지는 드문 사건이라
+   같은 인스턴스 안에서 60초 동안 기억한다 — 다른 인스턴스가 멈춘 것을 최대 60초 늦게 알아도
+   손해는 AI 몇 회분이고, 이 인스턴스가 멈추거나 풀면 즉시 반영된다. (2026-09-19) */
+let _haltMemo = { at: 0, h: null };
+const HALT_MEMO_MS = 60000;
+export async function readHalt(now = Date.now(), { fresh = false } = {}) {
+  if (!fresh && now - _haltMemo.at < HALT_MEMO_MS && _haltMemo.at) {
+    const h = _haltMemo.h;
+    if (h && h.until && Date.parse(h.until) <= now) { _haltMemo = { at: now, h: null }; await S.del(HALT).catch(() => {}); return null; }
+    return h;
+  }
   const h = (await S.getJSON(HALT)) || null;
-  if (h && h.until && Date.parse(h.until) <= now) { await S.del(HALT).catch(() => {}); return null; }   /* 기한이 지난 정지는 스스로 풀린다 */
+  if (h && h.until && Date.parse(h.until) <= now) { _haltMemo = { at: now, h: null }; await S.del(HALT).catch(() => {}); return null; }   /* 기한이 지난 정지는 스스로 풀린다 */
+  _haltMemo = { at: now, h };
   return h;
 }
+export function _forgetHaltMemo() { _haltMemo = { at: 0, h: null }; }
 export async function setHalt(reason, detail = {}) {
-  const cur = await readHalt();
-  if (cur) return cur;                                  /* 이미 멈춰 있으면 처음 사유를 지킨다 */
+  const cur = await readHalt(Date.now(), { fresh: true });
+  if (cur) return { ...cur, existing: true };           /* 이미 멈춰 있으면 처음 사유를 지킨다 — 메일도 그쪽이 보낸다 */
   reason = String(reason || '').slice(0, 40);
   const h = { at: new Date().toISOString(), reason, provider: CFG.aiProvider,
     model: CFG.chatModel, status: Number(detail.status) || 0, message: String(detail.message || '').slice(0, 300), notified: false };
   if (reason === 'daily-quota') h.until = nextKstMidnight();
   if (reason === 'free-cap') h.until = nextKstMonth();          /* 월 상한은 다음 달 1일에 저절로 풀린다 */
   await S.setJSON(HALT, h).catch(() => {});
+  _haltMemo = { at: Date.now(), h };
   return h;
 }
-export async function clearHalt() { await S.del(HALT).catch(() => {}); }
+export async function clearHalt() { await S.del(HALT).catch(() => {}); _haltMemo = { at: Date.now(), h: null }; }
 export async function markHaltNotified(at = '') {
-  const h = await readHalt(); if (!h) return;
+  const h = await readHalt(Date.now(), { fresh: true }); if (!h) return;
   if (at && h.at !== at) return;                       /* 그새 풀리고 다른 정지가 걸렸으면 손대지 않는다 */
-  h.notified = true; await S.setJSON(HALT, h).catch(() => {});
+  h.notified = true; await S.setJSON(HALT, h).catch(() => {}); _haltMemo = { at: Date.now(), h };
 }
 
 /* 마지막 AI 오류 — 과금 신호가 아닌 실패(타임아웃·모델 없음·응답 깨짐)도 관제에서 보여야 한다.
@@ -101,13 +114,13 @@ export function isBillingSignal(status, bodyText = '') {
   return '';
 }
 
-export async function readUsage(now = Date.now()) {
+export async function readUsage(now = Date.now(), { halt: pre } = {}) {
   const m = monthKey(now);
   const o = (await S.getJSON(key(m))) || {};
   const usd = Number(o.usd || 0);
   const budget = CFG.chatBudgetUsd;
   const calls = Number(o.calls || 0);
-  const halt = await readHalt();
+  const halt = pre !== undefined ? pre : await readHalt(now);
   const freeCap = CFG.aiFreeOnly ? CFG.aiFreeCallsMonth : 0;
   return {
     month: m, calls, in: Number(o.in || 0), out: Number(o.out || 0), usd,

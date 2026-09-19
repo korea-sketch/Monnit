@@ -70,6 +70,24 @@ export async function bump(prefix) {
   return (await list(prefix + '/', 5000)).length;
 }
 export async function count(prefix) { return (await list(prefix + '/', 5000)).length; }
+/** 상한 아래면 하나 올리고 true — 세기(list)와 올리기(set)를 한 번에 (2026-09-19) */
+export async function bumpUnder(prefix, max) {
+  const n = (await list(prefix + '/', 5000)).length;
+  if (n >= max) return false;
+  await setJSON(prefix + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), 1);
+  return true;
+}
+/** 날짜 접두 키(rate/·chatrate/·day/) 가운데 cutDay 이전 것을 지운다 — 접수 제한 카운터는 하루만 의미가 있다 */
+export async function sweepDated(prefix, cutDay, budgetMs = 2000) {
+  const t0 = Date.now(); let n = 0;
+  const keys = await list(prefix, 5000).catch(() => []);
+  for (const k of keys) {
+    const day = k.slice(prefix.length, prefix.length + 10);
+    if (day && day < cutDay) { await del(k).catch(() => {}); n++; }
+    if (Date.now() - t0 > budgetMs) break;
+  }
+  return n;
+}
 
 /* 발송 잠금 — ttl 동안 유효. 성공하면 해제 함수를 돌려준다 */
 export async function lease(id, ttlMs = 120000) {
