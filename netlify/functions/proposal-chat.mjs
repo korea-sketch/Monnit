@@ -10,7 +10,8 @@
  */
 import { CFG } from '../lib/proposal/config.mjs';
 import * as S from '../lib/proposal/store.mjs';
-import { readUsage, addUsage } from '../lib/proposal/aiusage.mjs';
+import { readUsage, addUsage, readHalt, setHalt, isBillingSignal, markHaltNotified } from '../lib/proposal/aiusage.mjs';
+import { notifyAiHalt } from '../lib/proposal/mail.mjs';
 import { askAI, cleanFields, cleanReply, isReady, isStrongQuestion, missing, needsHandoff, nextAsk, pausedNotice, ruleParse, ruleReply, LABELS } from '../lib/proposal/chat.mjs';
 import { kDay } from '../lib/proposal/schedule.mjs';
 import * as _guard from '../lib/proposal/guard.mjs';
@@ -35,9 +36,14 @@ function sameOrigin(req) {
     return [self, 'localhost', '127.0.0.1', envHost('URL'), envHost('DEPLOY_URL'), envHost('DEPLOY_PRIME_URL')].filter(Boolean).includes(h) || /(^|\.)monnit\.co\.kr$/.test(h);
   } catch (e) { return false; }
 }
-const out = (o) => json({ ok: true, ...o });
 /* 기록은 응답을 붙잡지 않는다 — 실패해도 대화는 그대로 이어진다 */
 const later = (p) => { try { p.catch(() => {}); } catch (e) {} };
+/* 정지 알림 — 담당자 메일은 처음 한 번만. 팝업은 관제 화면이 halt 파일을 읽어 띄운다 */
+async function alertHalt(h) {
+  if (!h || h.notified) return;
+  const r = await notifyAiHalt(h).catch(() => null);
+  if (r && r.ok) await markHaltNotified(h.at);
+}
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
@@ -53,6 +59,10 @@ export default async (req) => {
   if (!b || typeof b !== 'object' || Array.isArray(b)) return json({ ok: false, error: 'bad_request' }, 400);
 
   const lang = b.lang === 'en' ? 'en' : 'ko';
+  /* 정지 파일이 있으면 모든 답에 paused 를 실어 보낸다 — 첫 인사부터 화면이 「점검 중」으로 바뀌어야
+     담당자가 사이트만 열어도 알 수 있다. 규칙 대화는 그대로 되고 AI 경로만 닫힌다. (2026-09-19) */
+  const halt = await readHalt().catch(() => null);
+  const out = (o) => json({ ok: true, ...(halt ? { paused: true, notice: pausedNotice(lang) } : {}), ...o });
   const rawMsgs = Array.isArray(b.messages) ? b.messages : [];
   const messages = rawMsgs
     .filter(m => m && typeof m.text === 'string' && m.text.trim())
@@ -128,7 +138,12 @@ export default async (req) => {
 
   /* ③ 두 번 되물어도 안 통했다 — 한도·설정을 보고 AI 를 부를지 정한다 */
   const usage = await readUsage().catch(() => ({ paused: false }));
-  let allowAI = CFG.chatOn && !!CFG.aiKey && !usage.paused;
+  /* 무료 모드 월 호출 상한에 닿았으면 — 조용히 과금되기 전에 정지 파일을 남기고 알린다 */
+  if (CFG.aiFreeOnly && usage.freeCap && usage.calls >= usage.freeCap && !usage.halt) {
+    const h = await setHalt('free-cap', { message: `이번 달 ${usage.calls}회 — 상한 ${usage.freeCap}회` });
+    later(alertHalt(h));
+  }
+  let allowAI = CFG.chatOn && !!CFG.chatAiKey && !usage.paused;
   if (allowAI) {
     const ip = _guard.ipOf(req.headers);
     if (ip) {
@@ -148,6 +163,17 @@ export default async (req) => {
   }
 
   const r = await askAI(messages, fields, lang);
+  /* 공급자가 「돈 내라」고 답했다 — 무료 모드라면 그 즉시 멈추고 알린다. (2026-09-19)
+     이 한 줄이 「무료로 쓰다가 모르는 새 과금」을 막는다. 고객에게는 점검 중 문구로 답한다. */
+  if (r && r.error) {
+    const sig = isBillingSignal(r.error.status, r.error.message);
+    if (sig && CFG.aiFreeOnly) {
+      const h = await setHalt(sig, r.error);
+      later(alertHalt(h));
+      return out({ mode: 'rule', paused: true, notice: pausedNotice(lang), fields, ready: isReady(fields), ask: nextAsk(fields), handoff,
+        reply: ruleReply(fields, lang, { handoff, again: handoff ? '' : asking }) });
+    }
+  }
   if (!r || !r.out) {
     return out({ mode: 'rule', fields, ready: isReady(fields), ask: nextAsk(fields), handoff,
       reply: ruleReply(fields, lang, { handoff, again: handoff ? '' : asking }) });

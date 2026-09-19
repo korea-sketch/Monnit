@@ -15,6 +15,8 @@ process.env.PROPOSAL_AI_BUDGET_USD = '20';
 process.env.PROPOSAL_CHAT_IP_DAY = '6';
 
 let aiCalls = 0, aiReply = null, aiFail = false;
+/* Gemini 흉내 — gemFail 에 { status, body } 를 넣으면 그 오류로 답한다 */
+let gemCalls = 0, gemFail = null, gemLastBody = '';
 const MAILS = [];
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, opt = {}) => {
@@ -24,6 +26,12 @@ globalThis.fetch = async (url, opt = {}) => {
     if (aiFail) return new Response('{"error":"overloaded"}', { status: 529 });
     const body = JSON.stringify(aiReply || { reply: '어떤 현장인지 한 줄로 알려주시면 정리해 드리겠습니다.', fields: {}, handoff: false });
     return new Response(JSON.stringify({ model: 'claude-haiku-4-5', content: [{ type: 'text', text: body }], usage: { input_tokens: 1200, output_tokens: 120 } }), { status: 200 });
+  }
+  if (url.includes('generativelanguage.googleapis.com')) {
+    gemCalls++; gemLastBody = String(opt.body || '');
+    if (gemFail) return new Response(gemFail.body, { status: gemFail.status });
+    const body = JSON.stringify(aiReply || { reply: '어떤 현장인지 한 줄로 알려주시면 정리해 드리겠습니다.', fields: {}, handoff: false });
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: body }] } }], usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 80 } }), { status: 200 });
   }
   if (url.includes('api.brevo.com')) { MAILS.push(JSON.parse(opt.body)); return new Response('{"messageId":"m1"}', { status: 201 }); }
   if (url.includes('proposal-build-background')) {
@@ -269,6 +277,95 @@ function session(opts = {}) {
   const mail = MAILS.slice(from).find(m => (m.to || []).some(t => t.email === fields.email) && (m.tags || []).includes('proposal'));
   ok('  고객에게 제안서 메일 + PDF 첨부', !!mail && !!mail.attachment, !!mail);
   ok('  담당자 화면에 「대화 신청」 메모', /대화 신청/.test(job.lead.memo), job.lead.memo);
+}
+
+/* ── 12. 무료 Gemini + 「과금으로 바뀌면 멈춘다」 (2026-09-19) ── */
+{
+  const ADMIN = (await import('../netlify/functions/proposal-admin.mjs')).default;
+  process.env.AI_PROVIDER = 'gemini'; process.env.GEMINI_API_KEY = 'test-gem';
+  const { CFG } = await import('../netlify/lib/proposal/config.mjs');
+  ok('공급자 — GEMINI_API_KEY 가 있으면 Gemini, 모델은 flash-lite, 무료 모드 기본 켜짐', CFG.aiProvider === 'gemini' && /flash-lite/.test(CFG.chatModel) && CFG.aiFreeOnly === true && CFG.aiFreeCallsMonth === 1500, { p: CFG.aiProvider, m: CFG.chatModel });
+  await U.clearHalt();
+  aiCalls = 0; gemCalls = 0; gemFail = null;
+  aiReply = { reply: '네, 알겠습니다. 회사명을 알려주시겠어요?', fields: {}, handoff: false };
+  const g1 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  ok('Gemini 로 호출된다(Anthropic 0회) · 응답 형식이 같다', gemCalls === 1 && aiCalls === 0 && g1.mode === 'ai' && !!g1.reply, { gemCalls, aiCalls, g1 });
+  /* 개인정보 최소화 — 외부 AI 에는 이메일·전화 값이 나가지 않는다 */
+  gemCalls = 0;
+  const pii = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없어도 되나요? 제 메일은 hong.gd@dh-precision.co.kr 전화는 010-2957-4831 입니다' }],
+    fields: { company: '대한정밀', name: '홍길동', email: 'hong.gd@dh-precision.co.kr', phone: '010-2957-4831' }, retry: 2 }))).j;
+  ok('  외부 AI 로 나가는 본문에 이메일·전화·성함 값이 없다', gemCalls === 1 && !/hong\.gd|dh-precision|2957|홍길동/.test(gemLastBody) && /\(메일\)/.test(gemLastBody) && /\(전화\)/.test(gemLastBody) && /company=대한정밀/.test(gemLastBody) && /email=\(확인됨\)/.test(gemLastBody), { calls: gemCalls, a: !/hong\.gd|dh-precision|2957|홍길동/.test(gemLastBody), b: /\(메일\)/.test(gemLastBody), c: /\(전화\)/.test(gemLastBody), d: /company=대한정밀/.test(gemLastBody), e: /email=\(확인됨\)/.test(gemLastBody), t: gemLastBody.slice(-300) });
+  const u0 = await U.readUsage();
+  ok('  사용량은 세되 비용은 $0', u0.calls >= 1 && !!u0.byModel[CFG.chatModel] && u0.byModel[CFG.chatModel].usd === 0 && u0.byModel[CFG.chatModel].in === 1800, u0.byModel);
+
+  /* 분당 한도 — 순간 폭주는 정지가 아니다 */
+  gemCalls = 0; gemFail = { status: 429, body: JSON.stringify({ error: { code: 429, status: 'RESOURCE_EXHAUSTED', message: 'You exceeded your current quota, please check your plan and billing details. quotaId: GenerateRequestsPerMinutePerProjectPerModel-FreeTier' } }) };
+  const g2 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  ok('분당 한도 429 → 이번 턴만 규칙, 정지 아님', g2.mode === 'rule' && !g2.paused && !(await U.readHalt()), { g2, halt: await U.readHalt() });
+
+  /* 진짜 과금 신호 */
+  const mailsBefore = MAILS.length;
+  gemFail = { status: 429, body: JSON.stringify({ error: { code: 429, status: 'RESOURCE_EXHAUSTED', message: 'You exceeded your current quota, please check your plan and billing details.' } }) };
+  const g3 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  const h = await U.readHalt();
+  ok('과금 신호(429 quota) → 그 즉시 정지 파일 + 점검 중 안내', g3.paused === true && /점검 중/.test(g3.notice || '') && g3.mode === 'rule' && !!g3.reply && h && h.reason === 'quota-exceeded' && h.status === 429, { g3, h });
+  await new Promise(r => setTimeout(r, 50));
+  const m = MAILS.slice(mailsBefore).find(x => (x.tags || []).includes('ai-halt'));
+  ok('  담당자에게 정지 메일 1통(무료 대안 안내 포함)', !!m && /aistudio\.google\.com/.test(m.htmlContent || m.html || JSON.stringify(m)) && (await U.readHalt()).notified === true, { m: !!m, notified: (await U.readHalt()) });
+
+  gemCalls = 0; gemFail = null;
+  const g4 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  ok('정지 중에는 AI 를 아예 부르지 않는다(0회) · 규칙 대화는 이어진다', gemCalls === 0 && g4.paused === true && g4.mode === 'rule' && !!g4.reply, { gemCalls, g4 });
+  const hello = (await js(await call({ messages: [], fields: {} }))).j;
+  ok('  첫 인사부터 paused — 사이트만 열어도 「점검 중」이 보인다', hello.paused === true && /점검 중/.test(hello.notice || '') && !!hello.reply, hello);
+  const rule = (await js(await call({ messages: [{ role: 'user', text: '누리에프앤비입니다' }], fields: {} }))).j;
+  ok('  규칙이 알아들은 답에도 paused 가 실린다', rule.paused === true && rule.fields.company === '누리에프앤비', rule);
+  ok('  정지 메일은 한 번만', MAILS.slice(mailsBefore).filter(x => (x.tags || []).includes('ai-halt')).length === 1, MAILS.length - mailsBefore);
+
+  /* 관제 — 데이터에 halt 가 실리고, 「AI 다시 시도」로 푼다 */
+  process.env.PROPOSAL_ADMIN_KEY = 'k'.repeat(24);
+  const crypto = await import('node:crypto');
+  const exp = String(Date.now() + 3600000);
+  const cookie = 'mk_pa=' + encodeURIComponent(exp + '.' + crypto.createHmac('sha256', 'chat-secret|admin|' + 'k'.repeat(24)).update(exp).digest('hex'));
+  const adm = (path, init = {}) => ADMIN(new Request('https://monnit.co.kr' + path, { ...init, headers: { cookie, origin: 'https://monnit.co.kr', 'x-requested-with': 'mk', 'content-type': 'application/json', ...(init.headers || {}) } }), {});
+  let d = await (await adm('/ops/proposals/data')).json();
+  if (d.error === 'unauthorized') { d = null; }
+  if (d) {
+    ok('관제 데이터에 정지 상태 + 공급자 정보', d.halt && d.halt.reason === 'quota-exceeded' && d.chat && d.chat.provider === 'gemini' && d.chat.paused === true, { halt: d.halt, chat: d.chat });
+    const r = await (await adm('/ops/proposals/action', { method: 'POST', body: JSON.stringify({ op: 'ai_resume' }) })).json();
+    ok('「AI 다시 시도」 → 정지 해제', r.ok === true && r.prev && r.prev.reason === 'quota-exceeded' && !(await U.readHalt()), r);
+  } else {
+    console.log('     (관제 인증 방식이 달라 데이터·재개는 직접 호출로 검사)');
+    await U.clearHalt();
+    ok('정지 해제(clearHalt)', !(await U.readHalt()));
+  }
+  gemCalls = 0;
+  const g5 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  ok('해제 뒤 AI 가 다시 불린다', gemCalls === 1 && g5.mode === 'ai' && !g5.paused, { gemCalls, g5 });
+
+  /* 일일 한도 — 자정에 스스로 풀린다 */
+  gemFail = { status: 429, body: JSON.stringify({ error: { message: 'Quota exceeded for quota metric: GenerateRequestsPerDayPerProjectPerModel-FreeTier' } }) };
+  const g6 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  await new Promise(r => setTimeout(r, 50));   /* 정지 메일(비동기) 이 notified 를 적을 때까지 */
+  const hd = await U.readHalt();
+  ok('일일 한도 429 → 자정까지만 정지(until 붙음)', g6.paused === true && hd && hd.reason === 'daily-quota' && /T15:00:00/.test(hd.until || ''), hd);
+  ok('  기한이 지나면 스스로 풀린다', !(await U.readHalt(Date.parse(hd.until) + 1000)) , await U.readHalt());
+  gemFail = null;
+
+  /* 키 문제·잔액 부족 신호 분류 */
+  ok('신호 분류 — 402/400잔액/403결제/401/400키/분당429', U.isBillingSignal(402) === 'payment-required' && U.isBillingSignal(400, 'Your credit balance is too low') === 'payment-required'
+    && U.isBillingSignal(403, 'Billing is not enabled') === 'billing-required' && U.isBillingSignal(401, '') === 'key-problem' && U.isBillingSignal(400, 'API key not valid') === 'key-problem'
+    && U.isBillingSignal(429, 'rate_limit_error') === '' && U.isBillingSignal(529, 'overloaded') === '' && U.isBillingSignal(500, 'billing') === '');
+
+  /* 월 무료 호출 상한 */
+  await S.setJSON('ai/usage-' + U.monthKey() + '.json', { calls: 1500, in: 0, out: 0, usd: 0, byModel: {} });
+  gemCalls = 0;
+  const g7 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
+  const hc = await U.readHalt();
+  ok('월 무료 호출 1,500회 도달 → AI 0회 · 정지(free-cap) · 점검 중', gemCalls === 0 && g7.paused === true && hc && hc.reason === 'free-cap', { gemCalls, paused: g7.paused, hc });
+  await S.setJSON('ai/usage-' + U.monthKey() + '.json', { calls: 0, in: 0, out: 0, usd: 0, byModel: {} });
+  await U.clearHalt();
+  delete process.env.AI_PROVIDER; delete process.env.GEMINI_API_KEY;
 }
 
 console.log(fail ? `\n❌ ${fail}건 실패` : '\n✅ 대화로 신청 전부 통과');

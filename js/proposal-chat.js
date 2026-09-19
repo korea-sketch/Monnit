@@ -31,11 +31,11 @@
 
   var S = { messages: [], fields: {}, ask: 'company', busy: false, T0: Date.now(), sent: false, retry: 0 };
 
-  function save() { ss.set(KEY, JSON.stringify({ messages: S.messages.slice(-24), fields: S.fields, ask: S.ask })); }
+  function save() { ss.set(KEY, JSON.stringify({ messages: S.messages.slice(-24), fields: S.fields, ask: S.ask, paused: !!S.paused })); }
   function load() {
     try {
       var o = JSON.parse(ss.get(KEY) || 'null');
-      if (o && Array.isArray(o.messages)) { S.messages = o.messages; S.fields = o.fields || {}; S.ask = o.ask || 'company'; return true; }
+      if (o && Array.isArray(o.messages)) { S.messages = o.messages; S.fields = o.fields || {}; S.ask = o.ask || 'company'; S.paused = !!o.paused; return true; }
     } catch (e) {}
     return false;
   }
@@ -63,6 +63,18 @@
     n.innerHTML = '<span>' + esc(text) + '</span>' + (action ? ' <button type="button" class="pc-link" id="pcToForm">' + L('단계별 신청으로 →', 'Use the step form →') + '</button>' : '');
     var b = $('pcToForm');
     if (b) b.addEventListener('click', function () { mode('form'); });
+  }
+  /* 「점검 중」 상태 — 서버가 paused 를 보내면 대화 창 위에 띠를 띄우고 탭 표시를 바꾼다.
+     규칙 대화는 그대로 되므로 입력은 막지 않는다. 담당자가 사이트만 열어도 알 수 있게 보이는 것이 목적. (2026-09-19) */
+  function paused(on) {
+    on = !!on;
+    if (S.paused === on) return;
+    S.paused = on;
+    var box = $('ppChat'), st = $('pcState'), tab = $('ppModeChat');
+    if (box) box.classList.toggle('is-paused', on);
+    if (!st && box) { st = d.createElement('p'); st.id = 'pcState'; st.className = 'pc-state'; st.setAttribute('role', 'status'); box.insertBefore(st, box.firstChild); }
+    if (st) { st.hidden = !on; st.textContent = on ? L('AI 상담 점검 중 — 기본 안내만 드립니다. 단계별 신청은 평소대로 됩니다.', 'AI chat under maintenance — basic guidance only. The step form works as usual.') : ''; }
+    if (tab) { var em = tab.querySelector('em'); if (em) em.textContent = on ? L('점검 중', 'Maintenance') : 'AI'; }
   }
 
   function chips(list) {
@@ -146,6 +158,7 @@
       S.fields = x.fields || S.fields;
       S.ask = x.ask || S.ask;
       S.retry = Number(x.retry) || 0;
+      paused(x.paused);
       if (x.reply) { bubble('bot', x.reply); S.messages.push({ role: 'assistant', text: x.reply }); }
       note(x.notice || (x.tooLong ? L('대화가 길어졌습니다. 단계별 신청이 더 빠릅니다.', 'This chat is long — the step form is quicker.') : ''), !!(x.notice || x.tooLong));
       if (x.ask === 'fac') chips(FAC);
@@ -237,6 +250,7 @@
       S.messages.forEach(function (m) { bubble(m.role, m.text); });
       if (S.ask === 'fac') chips(FAC); else if (S.ask === 'con') chips(CON);
       if (S.ask === 'done') card(true);
+      if (S.paused) { var pv = S.paused; S.paused = false; paused(pv); note(L('AI 상담은 잠시 점검 중입니다. 아래 단계별 신청으로 진행해 주시면 제안서는 평소대로 보내드립니다.', 'AI chat is under maintenance. Please use the step form below — proposals are sent as usual.'), true); }
       return;
     }
     typing(true);
@@ -245,6 +259,7 @@
       var hello = (x && x.reply) || L('안녕하세요. 어느 회사(또는 시설) 현장이신가요?', 'Hello — which company or site is this for?');
       bubble('bot', hello);
       S.messages.push({ role: 'assistant', text: hello });
+      if (x) paused(x.paused);
       if (x && x.notice) note(x.notice, true);
       save();
     });

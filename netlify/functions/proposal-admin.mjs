@@ -18,6 +18,7 @@ import crypto from 'node:crypto';
 import * as S from '../lib/proposal/store.mjs';
 import { CFG } from '../lib/proposal/config.mjs';
 import { readMisses, clearAll as clearMisses } from '../lib/proposal/chatlog.mjs';
+import { readHalt, clearHalt, readUsage } from '../lib/proposal/aiusage.mjs';
 import { addLog, addNotice, statusUrl, tokenKey } from '../lib/proposal/jobs.mjs';
 import { fmtKST } from '../lib/proposal/schedule.mjs';
 import { PROBLEMS, GOALS } from '../lib/proposal/kb.mjs';
@@ -188,6 +189,9 @@ async function data(url) {
     ok: true, now: Date.now(),
     config: { mode: CFG.mode, instantSeconds: CFG.instantSeconds, review: CFG.review, delayHours: CFG.delayHours, businessOnly: CFG.businessOnly, ai: !!CFG.aiKey, aiModel: CFG.aiModel, mail: !!CFG.brevoKey, staffTo: CFG.staffTo, secretDefault: CFG.secretIsDefault, followupDays: CFG.followupDays },
     lastTick: await S.getJSON('meta/last-tick.json').catch(() => null),
+    /* 대화 AI 정지 상태 — 있으면 첫 화면에 팝업이 뜬다 (「과금으로 바뀌면 멈추고 알린다」 2026-09-19) */
+    halt: await readHalt().catch(() => null),
+    chat: await readUsage().then(u => ({ provider: CFG.aiProvider, model: CFG.chatModel, key: !!CFG.chatAiKey, freeOnly: CFG.aiFreeOnly, freeCap: u.freeCap, calls: u.calls, usd: u.usd, month: u.month, paused: u.paused })).catch(() => null),
     months: [...new Set(jobs.map(x => fmtMonth(x.createdAt)))],
     stats: {
       total: list.length, sent: sent.length,
@@ -231,6 +235,13 @@ async function action(b, url) {
   const op = String(b.op || '');
   if (op === 'tick') return { ok: true, result: await tick({ origin: url.origin }) };
   if (op === 'insight_ai') return await aiInsight(await buildInsights(Number(b.days) || 90));
+  if (op === 'ai_resume') {
+    /* 담당자가 무료 키를 바꾸거나 한도가 풀린 뒤 누른다 — 정지 파일만 지운다.
+       같은 신호가 또 오면 다음 호출에서 다시 멈추고 알리므로 위험은 AI 1회 분이다. */
+    const h = await readHalt().catch(() => null);
+    await clearHalt();
+    return { ok: true, prev: h };
+  }
   const id = String(b.id || '');
   const job = await S.getJob(id);
   if (!job) return { ok: false, error: '없는 건입니다' };
@@ -394,6 +405,7 @@ select,input,textarea{background:var(--card2);border:1px solid var(--line);borde
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
 .kpi b{display:block;font-size:22px}.kpi span{color:var(--mut);font-size:12px}
 .warnbar{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);color:#ffd9a0;border-radius:10px;padding:9px 12px;margin-bottom:10px}
+.hpop{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px}.hpop[hidden]{display:none}.hpop .box{background:var(--card);border:1px solid rgba(245,158,11,.5);border-radius:14px;max-width:560px;width:100%;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5)}.hpop h2{margin:0 0 8px;font-size:18px;color:#ffd9a0}.hpop dl{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;margin:10px 0;font-size:13px}.hpop dt{color:var(--mut)}.hpop dd{margin:0;word-break:break-all}.hpop ol{margin:8px 0 0;padding-left:20px;font-size:13px;line-height:1.7}.hpop .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.hpop a{color:#8fc1ff}
 .infobar{background:rgba(43,132,245,.1);border:1px solid rgba(43,132,245,.35);color:#cfe0ff;border-radius:10px;padding:9px 12px;margin-bottom:10px}
 table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border:1px solid var(--line);border-radius:12px}a button{color:var(--ink)}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{color:var(--mut);font-weight:600;font-size:12px;background:var(--card)}tr.r{cursor:pointer}tr.r:hover{background:#15223a}
@@ -442,6 +454,9 @@ ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
 <span id="hi" hidden><select id="days"><option value="30">최근 30일</option><option value="90" selected>최근 90일</option><option value="365">최근 1년</option><option value="0">전체</option></select></span>
 <span id="hm" hidden><select id="mdays"><option value="7">최근 7일</option><option value="30" selected>최근 30일</option><option value="90">최근 90일</option></select><button id="mClear">기록 비우기</button></span>
 <button id="refresh">새로고침</button><span id="tickInfo" class="mut small"></span><span style="flex:1"></span><span class="mut small hide-m">1·2·3·4 키로 탭 이동</span>${keyLogin ? '<button id="logout">로그아웃</button>' : ''}</header>
+<div id="haltPop" class="hpop" hidden role="dialog" aria-modal="true" aria-labelledby="haltTtl"><div class="box"><h2 id="haltTtl">대화 AI 정지 — 과금 신호</h2><div id="haltBody"></div>
+<p class="small mut" style="margin:10px 0 0">고객 화면의 「대화로 신청」은 <b>점검 중</b>으로 바뀌었고 규칙 대화·단계별 신청은 평소대로 됩니다. 담당자 메일도 한 번 나갔습니다.</p>
+<div class="acts"><button id="haltResume">AI 다시 시도</button><button id="haltLater">나중에</button></div></div></div>
 <div class="wrap">
 <section id="t-queue"><div id="health" class="card" style="margin-bottom:12px" hidden></div><div id="warns"></div><div class="kpis" id="kpis"></div>
 <div id="delbar" class="small" style="display:none;gap:10px;align-items:center;margin:0 0 10px"><span id="delcnt"></span><button id="delBtn">선택한 접수 지우기</button><label class="small mut"><input type="checkbox" id="delForce"> 발송된 건도 지우기</label><button id="delClear">선택 해제</button></div>
@@ -496,15 +511,41 @@ if($('#mClear'))$('#mClear').onclick=async()=>{
   if(r&&r.ok)loadMisses();else alert((r&&r.error)||'지우지 못했습니다');
 };
 
+/* ── 대화 AI 정지 팝업 — 「과금으로 바뀌면 멈추고, 무료 대안을 팝업으로」 (2026-09-19) ── */
+function haltWhy(r){return {'payment-required':'결제 요구(402)','quota-exceeded':'무료 한도 초과(429)','billing-required':'결제 활성화 요구(403)','key-problem':'키 문제(401/400)','free-cap':'월 무료 호출 상한 도달','daily-quota':'무료 일일 한도 소진(자정에 자동 복귀)'}[r]||(r||'알 수 없음');}
+function haltPopup(h){
+  const pop=$('#haltPop');if(!h){pop.hidden=true;return;}
+  const seen=sessionStorage.getItem('mk_halt_seen');
+  const prov=h.provider==='gemini'?'Gemini(Google AI Studio)':'Claude(Anthropic)';
+  $('#haltBody').innerHTML='<dl><dt>언제</dt><dd>'+esc(new Date(h.at).toLocaleString('ko-KR'))+'</dd><dt>왜</dt><dd>'+esc(haltWhy(h.reason))+'</dd><dt>공급자·모델</dt><dd>'+esc(prov+' · '+(h.model||''))+'</dd>'+(h.status?'<dt>응답</dt><dd>HTTP '+esc(h.status)+' '+esc(h.message||'')+'</dd>':'')+'</dl>'
+    +'<b class="small">무료로 계속 쓰는 방법</b><ol>'
+    +'<li>Gemini 무료 키를 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">AI Studio</a>에서 새 프로젝트로 다시 발급 → Netlify <code>GEMINI_API_KEY</code> 교체(무료 등급은 결제수단 없이 유지) → 「AI 다시 시도」</li>'
+    +'<li>월 무료 호출 상한(<code>AI_FREE_CALLS_MONTH</code>)에 닿은 것이면 다음 달 1일 자동 복귀 — 지금 풀려면 「AI 다시 시도」</li>'
+    +'<li>다른 무료 엔진: <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> · <a href="https://dash.cloudflare.com/?to=/:account/ai/workers-ai" target="_blank" rel="noopener">Cloudflare Workers AI</a> · <a href="https://openrouter.ai/models?q=free" target="_blank" rel="noopener">OpenRouter 무료 모델</a> — 연결 코드가 필요하니 Claude 에게 「○○로 바꿔 줘」라고 요청</li></ol>';
+  pop.hidden=seen===h.at;
+}
+async function haltResume(){
+  if(!confirm('정지를 풀고 AI 대화를 다시 켭니다. 같은 과금 신호가 또 오면 즉시 다시 멈춥니다(최대 손해 AI 1회). 계속할까요?'))return;
+  const r=await post({op:'ai_resume'});
+  if(r&&r.ok){sessionStorage.removeItem('mk_halt_seen');$('#haltPop').hidden=true;load();}else alert((r&&r.error)||'풀지 못했습니다');
+}
+$('#haltResume').onclick=haltResume;
+$('#haltLater').onclick=()=>{if(D&&D.halt)sessionStorage.setItem('mk_halt_seen',D.halt.at);$('#haltPop').hidden=true;};
+$('#warns').addEventListener('click',e=>{if(e.target.id==='haltShow'){sessionStorage.removeItem('mk_halt_seen');haltPopup(D.halt);}if(e.target.id==='haltResume2')haltResume();});
+
 /* ── 접수·발송 ── */
 async function load(){const m=$('#month').value;const r=await fetch('/ops/proposals/data'+(m?'?month='+m:''));if(r.status===401)return location.reload();D=await r.json();render();}
 function render(){
   const c=D.config,s=D.stats,w=[];
   if(!c.mail)w.push('BREVO_API_KEY 가 없어 고객 메일이 나가지 않습니다.');
   if(c.secretDefault)w.push('PROPOSAL_SECRET(또는 DL_SECRET) 이 기본값입니다. 운영 전에 설정하세요.');
-  if(!c.ai)w.push('ANTHROPIC_API_KEY 가 없어 템플릿 문안으로 만들고, 재생성 검토는 규칙 점검만 합니다.');
+  if(!c.ai)w.push('ANTHROPIC_API_KEY 가 없어 제안서 문안은 템플릿으로 만들고, 재생성 검토는 규칙 점검만 합니다(대화 AI 와는 별개 — 대화는 GEMINI_API_KEY 무료).');
   const lt=D.lastTick;if(!lt||D.now-Date.parse(lt.at)>40*60000)w.push('정기 점검 기록이 40분 넘게 없습니다 — 게시된 배포인지, 스케줄 함수가 켜져 있는지 확인하세요. 급하면 「점검 실행」.');
+  if(D.halt)w.push('대화 AI 정지 중('+haltWhy(D.halt.reason)+', '+new Date(D.halt.at).toLocaleString('ko-KR')+') — 고객 화면은 「점검 중」. 원인을 풀고 「AI 다시 시도」를 누르세요.');
+  else if(D.chat&&!D.chat.key)w.push('대화 AI 키가 없습니다('+(D.chat.provider==='gemini'?'GEMINI_API_KEY':'ANTHROPIC_API_KEY')+') — 규칙 대화만 동작합니다. 무료: https://aistudio.google.com/apikey');
   $('#warns').innerHTML=w.map(x=>'<div class="warnbar">'+esc(x)+'</div>').join('');
+  if(D.halt)$('#warns').insertAdjacentHTML('beforeend','<div class="infobar"><button id="haltShow">정지 안내 다시 보기</button> <button id="haltResume2">AI 다시 시도</button></div>');
+  haltPopup(D.halt);
   $('#tickInfo').textContent=lt?'마지막 점검 '+new Date(lt.at).toLocaleString('ko-KR')+' · 발송 '+(lt.sent||0):'';
   const ms=$('#month');if(ms.options.length<2)D.months.forEach(m=>ms.add(new Option(m,m)));
   const openRate=s.sent?Math.round(s.opened/s.sent*100)+'%':'-';

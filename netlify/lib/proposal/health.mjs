@@ -29,12 +29,16 @@ export async function runHealth({ deep = false, origin = CFG.site } = {}) {
   try {
     const U = await import('./aiusage.mjs');
     const u = await U.readUsage();
-    const on = CFG.chatOn && !!CFG.aiKey;
-    add('chat', '대화로 신청(제안서 챗봇)', on, on ? `켜짐 · ${CFG.chatModel} · 규칙으로 못 알아들을 때만 호출` : (CFG.chatOn ? 'Claude 키 없음 — 규칙 대화만 동작' : 'PROPOSAL_CHAT=off — 단계별 신청만 노출'), true);
+    const on = CFG.chatOn && !!CFG.chatAiKey;
+    const prov = CFG.aiProvider === 'gemini' ? 'Gemini 무료 등급(GEMINI_API_KEY)' : 'Claude(ANTHROPIC_API_KEY)';
+    add('chat', '대화로 신청(제안서 챗봇)', on, on ? `켜짐 · ${prov} · ${CFG.chatModel} · 규칙으로 못 알아들을 때만 호출` : (CFG.chatOn ? `${prov} 없음 — 규칙 대화만 동작` : 'PROPOSAL_CHAT=off — 단계별 신청만 노출'), true);
+    /* 정지 파일 — 과금 신호로 멈춘 상태. 관제 첫 화면 팝업과 같은 정보 */
+    if (u.halt) add('chathalt', '대화 AI 정지(과금 신호)', false, `${u.halt.reason} · ${u.halt.at} · HTTP ${u.halt.status || '-'} — 관제 「AI 다시 시도」로 해제`);
     const pct = Math.round((u.pct || 0) * 100);
-    add('chatbudget', '대화 AI 이번 달 사용액', !u.paused,
-      u.budget ? `$${u.usd.toFixed(2)} / $${u.budget} (${pct}%) · ${u.calls}회 · ${u.month}` + (u.paused ? ' — 한도 ' + Math.round(CFG.chatPauseAt * 100) + '% 도달로 점검 중 안내 표시' : '')
-               : `$${u.usd.toFixed(2)} · ${u.calls}회 · ${u.month} · 한도 없음(PROPOSAL_AI_BUDGET_USD 미설정)`,
+    const capTxt = u.freeCap ? ` · 무료 상한 ${u.calls}/${u.freeCap}회` : '';
+    add('chatbudget', '대화 AI 이번 달 사용', !u.paused,
+      u.budget ? `$${u.usd.toFixed(2)} / $${u.budget} (${pct}%) · ${u.calls}회 · ${u.month}${capTxt}` + (u.paused && !u.halt ? ' — 한도 도달로 점검 중 안내 표시' : '')
+               : `$${u.usd.toFixed(2)} · ${u.calls}회 · ${u.month}${capTxt}` + (u.budget ? '' : ' · 달러 한도 없음(무료 모드는 호출 상한으로 지킴)'),
       true);
   } catch (e) { add('chat', '대화로 신청(제안서 챗봇)', false, e.message, true); }
 

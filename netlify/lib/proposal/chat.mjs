@@ -467,30 +467,79 @@ con 는 다음 중 하나: ${CON_KEYS.join(', ')}
 - fields 에는 이번 대화에서 새로 알게 된 값만 넣습니다. 모르면 빈 문자열.`;
 
 /** Claude 호출 — 실패하면 null (호출한 쪽에서 규칙 대화로 이어간다) */
+/* 답변에서 JSON 한 덩어리만 꺼낸다 — 모델이 앞뒤에 말을 붙여도 견딘다 */
+function pickJson(raw) {
+  const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+  if (s < 0 || e <= s) return null;
+  try { return JSON.parse(raw.slice(s, e + 1)); } catch (e2) { return null; }
+}
+/* 외부 AI 로 나가는 글에서 이메일·전화·주민번호 모양은 지운다 (2026-09-19)
+   무료 등급(Gemini)은 보낸 내용이 서비스 개선에 쓰일 수 있다. 이메일·전화는 어차피 규칙이
+   받아내므로 AI 가 볼 이유가 없고, 지워도 대화 품질은 그대로다. */
+const PII = [
+  [/[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '(메일)'],
+  [/0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}/g, '(전화)'],
+  [/\d{6}[-\s]?\d{7}/g, '(주민)']
+];
+export const scrubPII = s => PII.reduce((t, [re, to]) => t.replace(re, to), String(s == null ? '' : s));
+const turns = (messages, known, lang) => [
+  { role: 'user', text: `지금까지 확인된 값: ${known}\n화면 언어: ${lang}\n아래부터 고객 대화입니다.` },
+  { role: 'assistant', text: '네, 이어서 대화하겠습니다.' },
+  ...messages.slice(-8).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', text: scrubPII(m.text) }))
+];
+
+/* ── 공급자별 호출 (2026-09-19) ──────────────────────────────────────────
+   둘 다 같은 SYSTEM 지시와 같은 대화를 주고, 같은 모양 { out, usage, model } 을 돌려준다.
+   실패는 { error: { status, message } } 로 돌려준다 — 「이제 돈 내라」는 신호를
+   위에서 구분해 멈춰야 하기 때문에 조용히 null 로 삼키지 않는다. */
+async function callAnthropic(messages, known, lang, signal) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST', signal,
+    headers: { 'x-api-key': CFG.aiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: CFG.chatModel, max_tokens: 350, temperature: 0.4,
+      system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+      messages: turns(messages, known, lang).map(m => ({ role: m.role, content: m.text }))
+    })
+  });
+  if (!r.ok) return { error: { status: r.status, message: (await r.text().catch(() => '')).slice(0, 300) } };
+  const j = await r.json();
+  const raw = (j.content || []).map(c => c.text || '').join('');
+  const out = pickJson(raw);
+  return out ? { out, usage: j.usage || null, model: j.model || CFG.chatModel } : null;
+}
+
+async function callGemini(messages, known, lang, signal) {
+  const model = CFG.geminiModel;
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
+  const r = await fetch(url, {
+    method: 'POST', signal,
+    headers: { 'x-goog-api-key': CFG.geminiKey, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: turns(messages, known, lang).map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.text }] })),
+      generationConfig: { temperature: 0.4, maxOutputTokens: 350, responseMimeType: 'application/json' }
+    })
+  });
+  if (!r.ok) return { error: { status: r.status, message: (await r.text().catch(() => '')).slice(0, 300) } };
+  const j = await r.json();
+  const raw = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map(p => p.text || '').join('');
+  const out = pickJson(raw);
+  const u = j.usageMetadata || {};
+  const usage = { input_tokens: Number(u.promptTokenCount || 0), output_tokens: Number(u.candidatesTokenCount || 0) };
+  return out ? { out, usage, model } : null;
+}
+
 export async function askAI(messages, fields, lang) {
-  if (!CFG.aiKey) return null;
-  const known = Object.entries(fields || {}).filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join(' · ') || '(없음)';
+  if (!CFG.chatAiKey) return null;
+  /* 성함·이메일·전화는 값 대신 「확인됨」만 알린다 — AI 는 무엇이 남았는지만 알면 된다 */
+  const known = Object.entries(fields || {}).filter(([, v]) => v)
+    .map(([k, v]) => `${k}=${['name', 'email', 'phone'].includes(k) ? '(확인됨)' : scrubPII(v)}`).join(' · ') || '(없음)';
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), CFG.chatTimeoutMs);
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST', signal: ac.signal,
-      headers: { 'x-api-key': CFG.aiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model: CFG.chatModel, max_tokens: 350, temperature: 0.4,
-        system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-        messages: [
-          { role: 'user', content: `지금까지 확인된 값: ${known}\n화면 언어: ${lang}\n아래부터 고객 대화입니다.` },
-          { role: 'assistant', content: '네, 이어서 대화하겠습니다.' },
-          ...messages.slice(-8).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text }))
-        ]
-      })
-    });
-    if (!r.ok) return null;
-    const j = await r.json();
-    const raw = (j.content || []).map(c => c.text || '').join('');
-    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
-    if (s < 0 || e <= s) return null;
-    return { out: JSON.parse(raw.slice(s, e + 1)), usage: j.usage || null, model: j.model || CFG.chatModel };
+    return CFG.aiProvider === 'gemini'
+      ? await callGemini(messages, known, lang, ac.signal)
+      : await callAnthropic(messages, known, lang, ac.signal);
   } catch (e) { return null; }
   finally { clearTimeout(t); }
 }

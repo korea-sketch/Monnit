@@ -75,7 +75,26 @@ export const CFG = {
   /* 대화로 신청 — 가장 싼 모델만 쓴다. 월 한도(달러)를 넘기 전(95%)에 대화를 멈추고 단계별 신청 화면으로 돌린다.
      ※ claude.ai 구독(Pro·Max)과는 별개로 Console API 키에 과금된다. */
   get chatOn() { return on('PROPOSAL_CHAT', true); },
-  get chatModel() { return env('PROPOSAL_CHAT_MODEL', 'claude-haiku-4-5'); },
+  /* ── AI 공급자 (2026-09-19) ─────────────────────────────────────────
+     대화에서 AI 가 하는 일은 「한 문장 알아듣고 항목 뽑기」뿐이라 최고 모델이 필요 없다.
+       AI_PROVIDER=gemini     Google Gemini 무료 등급 (GEMINI_API_KEY)   ← 기본
+       AI_PROVIDER=anthropic  Claude Haiku 종량 과금 (ANTHROPIC_API_KEY)
+     키가 하나도 없으면 AI 경로는 닫히고 규칙만 돈다.
+     AI_FREE_ONLY=true(기본) 이면 과금 신호(한도 초과·결제 요구)가 오는 즉시 AI 를 멈추고
+     관제에 알린다 — 「무료로 쓰다가 모르는 새 과금」을 막는 장치다. */
+  get aiProvider() {
+    const p = env('AI_PROVIDER', '').toLowerCase();
+    if (p === 'gemini' || p === 'anthropic') return p;
+    if (env('GEMINI_API_KEY', '')) return 'gemini';
+    if (env('ANTHROPIC_API_KEY', '')) return 'anthropic';
+    return 'gemini';
+  },
+  get geminiKey() { return env('GEMINI_API_KEY', ''); },
+  get geminiModel() { return env('GEMINI_MODEL', 'gemini-2.5-flash-lite'); },
+  get chatAiKey() { return this.aiProvider === 'gemini' ? this.geminiKey : this.aiKey; },
+  get aiFreeOnly() { return on('AI_FREE_ONLY', true); },
+  get aiFreeCallsMonth() { return num('AI_FREE_CALLS_MONTH', 1500); },   /* 무료 모드 월 호출 상한 — 조용히 과금돼도 노출을 푼돈으로 묶는다 */
+  get chatModel() { return this.aiProvider === 'gemini' ? this.geminiModel : env('PROPOSAL_CHAT_MODEL', 'claude-haiku-4-5'); },
   get chatTimeoutMs() { return num('PROPOSAL_CHAT_TIMEOUT_MS', 20000); },
   get chatBudgetUsd() { return Math.max(0, num('PROPOSAL_AI_BUDGET_USD', 20)); },   /* 월 한도(0 이면 무제한) */
   get chatPauseAt() { return Math.min(1, Math.max(0.5, num('PROPOSAL_AI_PAUSE_PCT', 95) / 100)); },

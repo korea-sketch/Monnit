@@ -234,4 +234,37 @@ export async function notifyStaff(kind, job, extra = {}) {
   return { ...r, tried };
 }
 
+/** AI 가 멈췄다 — 담당자에게 한 번만. (2026-09-19)
+ *  무료 등급이 끝났거나(과금 신호) 키에 문제가 생겼을 때. 관제 팝업과 같은 내용을 메일로도 남긴다. */
+export async function notifyAiHalt(h = {}) {
+  const admin = CFG.site + '/ops/proposals';
+  const why = {
+    'quota-exceeded': '무료 등급 한도를 넘었습니다(429). 곧 과금으로 바뀌거나 이미 바뀐 신호입니다.',
+    'payment-required': '공급자가 결제를 요구합니다(402). 무료 등급이 끝났습니다.',
+    'billing-required': '공급자가 결제 설정을 요구합니다(403).',
+    'key-problem': 'API 키가 거부됐습니다(401/400). 만료·삭제·오타 중 하나입니다.',
+    'free-cap': '이번 달 무료 모드 호출 상한에 닿았습니다. 조용히 과금되는 일을 막으려고 멈췄습니다.',
+    'daily-quota': '무료 등급의 오늘 치 호출이 소진됐습니다(429). 과금은 아니며 자정(KST)에 저절로 다시 켜집니다.'
+  }[h.reason] || ('사유: ' + (h.reason || '알 수 없음'));
+  const subject = `[대화로 신청] AI 가 멈췄습니다 — ${h.provider || ''} ${h.reason || ''}`;
+  const html = `<div style="font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:14px;line-height:1.7;color:#111">
+<p><b>「대화로 신청」의 AI 경로가 자동으로 멈췄습니다.</b> 고객 화면에는 「AI 상담은 잠시 점검 중」이 뜨고 단계별 신청으로 안내됩니다. 접수 자체는 계속 됩니다.</p>
+<table style="border-collapse:collapse">
+<tr><td style="padding:4px 12px 4px 0;color:#666">시각</td><td>${esc(h.at || '')}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#666">공급자·모델</td><td>${esc(h.provider || '')} · ${esc(h.model || '')}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#666">사유</td><td>${esc(why)}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#666">응답</td><td>HTTP ${esc(String(h.status || ''))} ${esc(h.message || '')}</td></tr>
+</table>
+<p><b>무료로 계속 쓰려면</b> — 다른 무료 공급자로 바꾸거나 새 키를 발급받아 Netlify 환경변수를 갱신하세요.</p>
+<ul>
+<li>Google Gemini 무료 등급 — <a href="https://aistudio.google.com/apikey">aistudio.google.com/apikey</a> (AI_PROVIDER=gemini · GEMINI_API_KEY)</li>
+<li>Groq 무료 등급 — <a href="https://console.groq.com/keys">console.groq.com/keys</a> (연동 필요 시 요청)</li>
+<li>Cloudflare Workers AI 무료 할당 — <a href="https://dash.cloudflare.com">dash.cloudflare.com</a> (연동 필요 시 요청)</li>
+</ul>
+<p>키를 바꾼 뒤 관제 화면에서 <b>「AI 다시 시도」</b>를 누르면 재개됩니다 → <a href="${esc(admin)}">${esc(admin)}</a></p>
+</div>`;
+  const text = `「대화로 신청」 AI 가 멈췄습니다.\n시각 ${h.at || ''}\n공급자 ${h.provider || ''} · ${h.model || ''}\n사유 ${why}\nHTTP ${h.status || ''} ${h.message || ''}\n\n관제: ${admin}`;
+  return brevo({ to: CFG.staffTo.map(email => ({ email })), subject, html, text, tags: ['ai-halt'] });
+}
+
 export { esc, maskEmail };
