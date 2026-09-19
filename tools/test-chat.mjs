@@ -208,6 +208,9 @@ function session(opts = {}) {
   /* 진짜 질문 — 되묻기 없이 첫 번째에 AI */
   const q = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없는 데서도 되나요?' }], fields: {}, retry: 0 }, { ip: '198.51.100.94' }))).j;
   ok('진짜 질문은 되묻지 않고 바로 AI 가 답한다', aiCalls === 1 && q.mode === 'ai', { aiCalls, mode: q.mode });
+  aiCalls = 0;
+  const q2 = (await js(await call({ messages: [{ role: 'user', text: '설치가 어려운가요?' }], fields: {}, retry: 0 }, { ip: '198.51.100.95' }))).j;
+  ok('  「…ㄴ가요?」처럼 물음표가 붙은 끝맺음도 질문이다(라이브에서 되묻기로 떨어졌던 것)', aiCalls === 1 && q2.mode === 'ai', { aiCalls, mode: q2.mode });
   /* 물음표만 붙은 것은 질문이 아니다 — 되묻기 관문을 그대로 탄다 */
   aiCalls = 0;
   const m = (await js(await call({ messages: [{ role: 'user', text: '대한정밀?' }], fields: {}, retry: 0 }, { ip: '198.51.100.95' }))).j;
