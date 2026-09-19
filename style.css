@@ -8557,7 +8557,9 @@ dt:has(> .nh-hs-u) { white-space: nowrap; }
 .pc-notice { margin:10px 0 0; font-size:13px; color:var(--ink-soft); display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
 
 .pc-in { display:flex; gap:8px; margin-top:12px; }
-.pc-in input#pcText { flex:1 1 auto; min-width:0; min-height:48px; padding:12px 14px; border:1px solid var(--line); border-radius:11px; background:var(--bg); color:var(--ink); font:inherit; font-size:15px; }
+.pc-in input#pcText { flex:1 1 auto; min-width:0; min-height:48px; padding:12px 14px; border:1px solid var(--line); border-radius:11px; background:var(--bg); color:var(--ink); font:inherit; font-size:16px; }
+/* 대화 탭에서는 단계별 신청용 하단 고정 버튼을 숨긴다 — 입력창을 덮고 있었다(모바일 실측 2026-09-19) */
+.mkp-bar.is-chat { display:none; }
 .pc-in input#pcText:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft,rgba(51,143,255,.14)); }
 .pc-in button { font:inherit; font-size:15px; font-weight:700; color:#fff; background:var(--accent); border:0; border-radius:11px; min-height:48px; padding:0 18px; cursor:pointer; }
 .pc-in button:disabled { opacity:.55; cursor:default; }

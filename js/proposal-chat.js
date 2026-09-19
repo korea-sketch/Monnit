@@ -232,6 +232,7 @@
     var box = $('ppChat'), grid = d.querySelector('#ppRoot .mkp-grid');
     if (!box || !grid) return;
     box.hidden = !chat; grid.hidden = chat;
+    var bar = $('ppBar'); if (bar) bar.classList.toggle('is-chat', chat);
     var bf = $('ppModeForm'), bc = $('ppModeChat');
     if (bf) { bf.classList.toggle('on', !chat); bf.setAttribute('aria-selected', String(!chat)); }
     if (bc) { bc.classList.toggle('on', chat); bc.setAttribute('aria-selected', String(chat)); }
