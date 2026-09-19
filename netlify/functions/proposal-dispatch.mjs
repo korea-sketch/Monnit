@@ -35,7 +35,7 @@ export default async () => {
         r.sweptMisses = await sweepMisses();
         /* 접수·대화 제한 카운터는 그날만 쓴다 — 이틀 지난 것은 지운다(안 지우면 키가 영원히 쌓인다) */
         const cut = kDay(Date.now() - 2 * 86400000);
-        r.sweptRate = (await S.sweepDated('chatrate/', cut)) + (await S.sweepDated('rate/', cut)) + (await S.sweepDated('day/', cut));
+        r.sweptRate = (await S.sweepDated('chatrate/', cut, 1200)) + (await S.sweepDated('rate/', cut, 1200)) + (await S.sweepDated('day/', cut, 1200));
       } finally { await release(); }
     }
   } catch (e) { r.compactError = e.message; }

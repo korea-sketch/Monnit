@@ -523,7 +523,9 @@ function haltPopup(h){
     +'<li>월 무료 호출 상한(<code>AI_FREE_CALLS_MONTH</code>)에 닿은 것이면 다음 달 1일 자동 복귀 — 지금 풀려면 「AI 다시 시도」</li>'
     +'<li>다른 무료 엔진: <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> · <a href="https://dash.cloudflare.com/?to=/:account/ai/workers-ai" target="_blank" rel="noopener">Cloudflare Workers AI</a> · <a href="https://openrouter.ai/models?q=free" target="_blank" rel="noopener">OpenRouter 무료 모델</a> — 연결 코드가 필요하니 Claude 에게 「○○로 바꿔 줘」라고 요청</li></ol>';
   pop.hidden=seen===h.at;
+  if(!pop.hidden)setTimeout(()=>{const b=$('#haltResume');if(b)b.focus();},50);
 }
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#haltPop').hidden){$('#haltLater').click();}});
 async function haltResume(){
   if(!confirm('정지를 풀고 AI 대화를 다시 켭니다. 같은 과금 신호가 또 오면 즉시 다시 멈춥니다(최대 손해 AI 1회). 계속할까요?'))return;
   const r=await post({op:'ai_resume'});

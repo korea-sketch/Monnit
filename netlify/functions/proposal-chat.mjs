@@ -186,7 +186,8 @@ export default async (req) => {
     return out({ mode: 'rule', fields, ready: isReady(fields), ask: nextAsk(fields), handoff,
       reply: ruleReply(fields, lang, { handoff, again: handoff ? '' : asking }) });
   }
-  if (r.usage) await addUsage(r.model, r.usage);
+  /* 원장 기록은 응답을 붙잡지 않는다(저장소 왕복 2회 ≈ 200ms). 실패해도 대화에 영향 없음 */
+  if (r.usage) later(addUsage(r.model, r.usage));
   later(clearAiError());
 
   /* 돈을 쓴 자리 — 무엇 때문에 썼고 AI 가 무엇을 읽어 냈는지 반드시 남긴다.

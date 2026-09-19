@@ -88,12 +88,15 @@ export async function markHaltNotified(at = '') {
    조용히 규칙으로 떨어지면 「AI 가 한 번도 안 불린다」를 아무도 모른다. (2026-09-19) */
 const LASTERR = 'ai/last-error.json';
 export async function recordAiError(err = {}) {
+  _errDirty = true;
   const cur = (await S.getJSON(LASTERR).catch(() => null)) || { n: 0 };
   await S.setJSON(LASTERR, { at: new Date().toISOString(), n: (Number(cur.n) || 0) + 1, provider: CFG.aiProvider, model: CFG.chatModel,
     status: Number(err.status) || 0, message: String(err.message || '').slice(0, 300) }).catch(() => {});
 }
 export async function readAiError() { return (await S.getJSON(LASTERR).catch(() => null)) || null; }
-export async function clearAiError() { await S.del(LASTERR).catch(() => {}); }
+/* 성공마다 지우되, 이 인스턴스가 실패를 본 적이 없고 이미 한 번 지웠으면 다시 지우지 않는다(왕복 절약) */
+let _errDirty = true;
+export async function clearAiError() { if (!_errDirty) return; await S.del(LASTERR).catch(() => {}); _errDirty = false; }
 
 /** 응답이 「이제 돈 내라」는 신호인가 — 공급자마다 모양이 다르다 */
 export function isBillingSignal(status, bodyText = '') {
