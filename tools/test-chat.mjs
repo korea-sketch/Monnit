@@ -186,6 +186,24 @@ function session(opts = {}) {
   ok('  retry 를 위조해도 AI 는 한 번뿐', aiCalls === 1, aiCalls);
 }
 
+/* ── 6-3. 담당자 연결 말은 신청 값을 오염시키지 않는다 · 진짜 질문은 되묻지 않고 AI 로 (2026-09-19) ── */
+{
+  aiCalls = 0;
+  aiReply = { reply: '네, 인터넷이 없어도 게이트웨이의 이동통신으로 됩니다. 회사명을 알려주시겠어요?', fields: {}, handoff: false };
+  /* 가격 질문 — 담당자 연결 + 회사명 자리에 그 문장이 들어가면 안 된다 */
+  const h = (await js(await call({ messages: [{ role: 'user', text: '배터리는 얼마나 가나요' }], fields: {}, retry: 0 }, { ip: '198.51.100.93' }))).j;
+  ok('가격·수명 질문은 담당자 연결로', h.handoff === true, h);
+  ok('  그 문장이 회사명으로 저장되지 않는다', !h.fields.company, h.fields);
+  ok('  담당자 연결 문구는 정해져 있다 — AI 를 부르지 않는다', aiCalls === 0 && h.mode === 'rule', { aiCalls, mode: h.mode });
+  /* 진짜 질문 — 되묻기 없이 첫 번째에 AI */
+  const q = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없는 데서도 되나요?' }], fields: {}, retry: 0 }, { ip: '198.51.100.94' }))).j;
+  ok('진짜 질문은 되묻지 않고 바로 AI 가 답한다', aiCalls === 1 && q.mode === 'ai', { aiCalls, mode: q.mode });
+  /* 물음표만 붙은 것은 질문이 아니다 — 되묻기 관문을 그대로 탄다 */
+  aiCalls = 0;
+  const m = (await js(await call({ messages: [{ role: 'user', text: '대한정밀?' }], fields: {}, retry: 0 }, { ip: '198.51.100.95' }))).j;
+  ok('물음표만 붙은 답은 되묻기(AI 0회)', aiCalls === 0 && m.mode === 'rule', { aiCalls, mode: m.mode });
+}
+
 /* ── 7. IP 당 하루 한도 ── */
 {
   aiCalls = 0;

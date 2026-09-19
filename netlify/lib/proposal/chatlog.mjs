@@ -49,25 +49,35 @@ export async function logMiss(input) {
     for (const k of ['company', 'name', 'title', 'fac', 'con']) if (g[k]) rec.got[k] = String(g[k]).slice(0, 40);
     if (g.email) rec.got.email = '(메일)';
     if (g.phone) rec.got.phone = '(전화)';
+  } else if (x.got && (x.got.fac || x.got.con)) {
+    /* 규칙이 추정으로 살린 경우 — 분류값만 (개인정보 없음) */
+    rec.got = {};
+    if (x.got.fac) rec.got.fac = String(x.got.fac).slice(0, 20);
+    if (x.got.con) rec.got.con = String(x.got.con).slice(0, 20);
   }
   await safe(S.setJSON(STORE + '/' + key(ts, rec.ai ? 'ai' : 'miss'), rec));
   return rec;
 }
 
+/** 규칙이 「추정」으로 살린 말 — 오타·자판·초성·이메일 교정. (2026-09-19)
+ *  AI 는 안 썼지만 확신이 100% 는 아니다. 추정이 틀리면 여기서 드러난다.
+ *  회사명·성함은 남기지 않고 현장·고민 분류와 어떤 계층이 살렸는지만 남긴다. */
+export async function logRescue(x = {}) {
+  const how = String(x.how || '');
+  if (!/^(typo|keyboard|chosung|email-ask|email-fix)$/.test(how)) return null;
+  return logMiss({ ask: x.ask, say: x.say, why: 'rescue-' + how, retry: x.retry, ai: false, lang: x.lang,
+    got: { fac: x.fac, con: x.con } });
+}
+
 /** 모아 보기 — 같은 말끼리 묶어 잦은 것부터 */
 export async function readMisses({ days = 30, limit = 400 } = {}) {
-  const now = Date.now();
-  const rows = [];
-  for (let d = 0; d < days; d++) {
-    const day = kDay(now - d * 86400000);
-    const list = await safe(S.list(STORE + '/' + day + '/')) || [];
-    for (const k of list) {
-      const v = await safe(S.getJSON(k));
-      if (v) rows.push(v);
-      if (rows.length >= limit) break;
-    }
-    if (rows.length >= limit) break;
-  }
+  /* 하루씩 30번 목록을 부르던 것을 한 번으로 — 키에 날짜가 앞에 있어 잘라 쓰면 된다. (2026-09-19)
+     최신 것부터 limit 개만 읽는다. */
+  const cut = kDay(Date.now() - (days - 1) * 86400000);
+  const keys = (await safe(S.list(STORE + '/', 5000)) || [])
+    .filter(k => k.slice(STORE.length + 1, STORE.length + 11) >= cut)
+    .sort().reverse().slice(0, limit);
+  const rows = (await Promise.all(keys.map(k => safe(S.getJSON(k))))).filter(Boolean);
   rows.sort((a, b) => b.ts - a.ts);
 
   /* 같은 말끼리 묶는다 — 「세 번 나왔다」가 「한 번 나왔다」보다 먼저 고칠 것이다 */

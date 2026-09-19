@@ -21,7 +21,11 @@ const H = {
   'cache-control': 'no-store, no-cache, must-revalidate',
   'x-robots-tag': 'noindex, nofollow, noarchive',
   'referrer-policy': 'no-referrer',
-  'x-frame-options': 'DENY'
+  'x-frame-options': 'DENY',
+  'x-content-type-options': 'nosniff',
+  /* _headers 의 CSP 는 정적 파일에만 붙는다. 함수가 내는 화면은 직접 달아야 한다. (2026-09-19)
+     차단 목록에는 방문자가 보낸 값(UA·경로)이 그대로 표시되므로 여기가 XSS 가 닿기 쉬운 곳이다. */
+  'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data: https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'"
 };
 const j = (o, status = 200) => new Response(JSON.stringify(o),
   { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });

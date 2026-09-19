@@ -36,10 +36,13 @@ export const LABELS = { fac: FAC_LABEL, con: CON_LABEL };
    사람들은 자기 업종을 우리 분류로 번역해서 말하지 않는다. 「양계장」 「도금」 「방앗간」처럼
    자기 현장을 부르는 말 그대로 쓴다. 그 말을 여기서 받는다 — 이게 AI 호출을 가장 많이 줄인다. */
 const FAC_KW = {
-  factory: ['공장', '제조', '생산라인', '생산', '라인', '플랜트', '사업장', '작업장', '제작소', '공작소',
-    '반도체', '이차전지', '배터리', '자동차', '조선', '철강', '제철', '주물', '도금', '열처리', '사출', '프레스',
-    '섬유', '방직', '염색', '제지', '화학', '석유화학', '정유', '시멘트', '레미콘', '유리', '고무', '플라스틱',
-    '전자부품', '금형', '기계가공', '조립', '도장', '용접', 'factory', 'plant', 'manufactur', 'fab'],
+  /* 한 낱말이 다른 뜻으로도 흔히 쓰이면 넣지 않는다 — 유리(有利)·조립식·도장 찍다·전화 라인·고무적.
+     그런 말은 복합어로만 받는다. (2026-09-19 재검사에서 오검출 확인) */
+  factory: ['공장', '제조', '생산라인', '생산 라인', '생산 현장', '플랜트', '사업장', '작업장', '제작소', '공작소',
+    '반도체', '이차전지', '배터리', '자동차', '조선소', '철강', '제철', '주물', '도금', '열처리', '사출', '프레스',
+    '섬유', '방직', '염색', '제지', '화학', '석유화학', '정유', '시멘트', '레미콘', '유리공장', '유리 공장', '고무공장', '고무 공장', '플라스틱',
+    '전자부품', '금형', '기계가공', '조립라인', '조립 라인', '조립공장', '도장라인', '도장 라인', '도장공장', '용접',
+    'factory', 'plant', 'manufactur', 'fab'],
   logistics: ['물류', '창고', '냉동창고', '냉장창고', '저온창고', '보관', '집하', '택배', '배송센터', '적재',
     '풀필먼트', '보세창고', '야적', '하역', 'logistic', 'warehouse', '3pl', 'fulfillment', 'dc센터'],
   food: ['식품', '외식', '주방', '매장', '카페', '레스토랑', '급식', '도시락', '반찬', '제과', '제빵', '베이커리',
@@ -71,21 +74,21 @@ const CON_KW = {
   leak: ['누수', '침수', '동파', '물샘', '물 샘', '물이 새', '물새', '배수', '집수정', '결빙', '역류', '범람',
     '빗물', '지하수', '결로수', '드레인', '배관터짐', '배관터질', '터질까', '터져서', '파열', '샐까',
     'leak', 'flood', 'freeze', 'water damage'],
-  temp: ['온도', '습도', '결로', '항온', '항온항습', '양생', '수온', '실온', '온습도', '더워', '추워', '덥',
+  temp: ['온도', '습도', '결로', '항온', '항온항습', '양생', '수온', '실온', '온습도', '더워', '더위', '덥고', '덥다', '추워', '추위',
     '얼어', '곰팡이', '폭염', '한파', '폐사', '열사병', '고온', '저온', 'temperature', 'humid'],
   cold: ['냉장', '냉동', '콜드체인', '쇼케이스', '초저온', '보냉', '딥프리저', '냉동기', '급속냉동', '해동',
     '신선', '폐기율', 'cold', 'freezer', 'chiller', 'cold chain'],
   equip: ['설비', '진동', '고장', '베어링', '모터', '펌프', '컴프레서', '예지보전', '정지', '멈춰', '멈춤',
-    '서버려', '돌다가', '이상소음', '소음', '가동률', '비가동', '라인정지', '돌발', '수명', '마모', '축정렬',
+    '서버려', '돌다가', '이상소음', '소음', '가동률', '비가동', '라인정지', '라인 정지', '돌발', '설비수명', '마모', '축정렬',
     'equipment', 'vibration', 'motor', 'pump', 'predictive'],
   power: ['전력', '전기요금', '정전', '차단기', '검침', '피크', '역률', '수전', '발전기', '누진',
     '전력량', '에너지절감', 'ups', 'power', 'outage', 'demand'],
   air: ['공기질', '가스', 'co2', '이산화탄소', '일산화탄소', '미세먼지', '환기', '유해가스', '암모니아',
     '악취', '냄새', '산소', '질식', '분진', 'voc', 'air quality', 'gas'],
-  security: ['보안', '출입', '문 열림', '도어', '무인', '야간', '침입', '방범', '순찰', '당직', '사람없',
-    '주말', '휴일', 'security', 'door', 'unmanned', 'intrusion'],
-  control: ['통합관제', '연동', 'scada', 'modbus', 'bas', 'bems', 'plc', 'mes', 'erp', '관제', '대시보드',
-    '한눈에', '통합', 'api', 'integration'],
+  security: ['보안', '출입', '문 열림', '도어', '무인', '야간', '침입', '방범', '순찰', '당직', '사람없', '사람이 없',
+    '아무도 없', '비어 있', '비어있', '주말에 사람', '휴일에 사람', '퇴근 후', 'security', 'door', 'unmanned', 'intrusion'],
+  control: ['통합관제', '통합 관제', '연동', 'scada', 'modbus', 'bas', 'bems', 'plc', 'mes', 'erp', '관제', '대시보드',
+    '한눈에', '통합 모니터링', '통합모니터링', 'api', 'integration'],
   comply: ['규정', '기록', 'haccp', '해썹', 'gmp', 'gdp', '인증', '감사', '일지', '보고서', '점검표',
     '자동기록', '수기', '증빙', '이력', '식약처', 'iso', 'compliance', 'record', 'audit']
 };
@@ -102,7 +105,13 @@ const CON_SHORT = { '불': 'fire', '화재': 'fire', '전기': 'fire', '누전':
 /* 제안서 밖 요청 — 담당자에게 넘길 말들 */
 const HANDOFF_KW = /(가격|단가|견적|비용|얼마|할인|구매|발주|납기|재고|반품|a\/s|as\s*접수|고장\s*접수|계약|세금계산서|채용|입사|대리점|총판|협력사|파트너|전화\s*(주세요|부탁)|통화|상담원|사람\s*바꿔|담당자\s*(연결|통화))/i;
 /* 질문처럼 보이는 문장 — 규칙으로 답할 수 없으니 AI 로 넘긴다 */
-const QUESTION_KW = /[?？]|어떻게|어떤가요|어떤\s|무엇|뭐가|뭔가요|왜|가능한가요|되나요|인가요|있나요|알려주|추천|차이|설명|모르겠|헷갈/;
+/* 질문처럼 보이는 문장 — 규칙으로 답할 수 없으니 AI 로 넘긴다.
+   「…나요」「…까요」로 끝나면 물음표가 없어도 질문이다(「배터리는 얼마나 가나요」가 회사명으로
+   저장되던 문제). 물음표만 있는 것(「대한정밀?」)은 STRONG_Q 가 아니라 되묻기를 거친다. */
+const QUESTION_KW = /[?？]|어떻게|어떤가요|어떤\s|무엇|뭐가|뭔가요|왜|얼마나|가능한가요|되나요|인가요|있나요|있을까|될까|할까요|일까요|나요\s*$|까요\s*$|알려주|추천|차이|설명|모르겠|헷갈/;
+/* 물음표 말고 「진짜 묻는 말」 — 이건 되묻지 않고 바로 AI 가 답할 자리다 */
+const STRONG_Q = /어떻게|어떤가요|어떤\s|무엇|뭐가|뭔가요|왜|얼마나|가능한가요|되나요|인가요|있나요|있을까|될까|할까요|일까요|나요\s*$|까요\s*$|알려주|추천|차이|설명/;
+export const isStrongQuestion = t => STRONG_Q.test(KO.normalize(t));
 
 const clip = (v, n) => String(typeof v === 'string' || typeof v === 'number' ? v : '')
   .replace(/[\u0000-\u001f\u007f<>\u200b-\u200f\u202a-\u202e]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
@@ -130,7 +139,7 @@ const looksLikeName = s => {
 
 /** 글에서 바로 알아볼 수 있는 것 — AI 없이 잡아낸다.
  *  회사명·성함을 묻는 차례에는 현장·고민 키워드를 읽지 않는다 (「김현장 팀장」이 건설 현장으로 잡히던 문제) */
-export function scanText(text, { topics = true } = {}) {
+export function scanText(text, { topics = true, guess = '' } = {}) {
   const t = String(text || '');
   const out = {};
   const em = (t.match(/[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/) || [])[0];
@@ -141,8 +150,14 @@ export function scanText(text, { topics = true } = {}) {
     /* 긴 문장에는 오타 추정을 쓰지 않는다 — 엉뚱한 낱말에 걸린다.
        짧은 답(「냉동창고여」 「데이타센타」)일 때만 오타까지 본다. */
     const short = KO.squash(t).length <= 12;
-    const fac = hitHow(t, FAC_KW, { fuzzy: short }); if (fac) { out.fac = fac.key; out.facHow = fac.how; }
-    const con = hitHow(t, CON_KW, { fuzzy: short }); if (con) { out.con = con.key; out.conHow = con.how; }
+    /* 오타·초성·자판 「추정」은 지금 묻고 있는 항목(guess)에만 쓴다. (2026-09-19)
+       「ㄱㅈ」는 공장(현장)이기도 하고 고장(고민)이기도 하다 — 둘 다 잡으면 엉뚱한 값이 들어간다.
+       묻지 않은 항목은 정확히 적혀 있을 때만 받는다. */
+    const fac = hitHow(t, FAC_KW, { fuzzy: short && guess === 'fac' });
+    const con = hitHow(t, CON_KW, { fuzzy: short && guess === 'con' });
+    const sure = r => r && (r.how === 'exact' || r.how === 'keyboard');
+    if (fac && (guess === 'fac' || sure(fac))) { out.fac = fac.key; out.facHow = fac.how; }
+    if (con && (guess === 'con' || sure(con))) { out.con = con.key; out.conHow = con.how; }
   }
   return out;
 }
@@ -344,7 +359,7 @@ export function ruleParse(text, asking, fields = {}) {
   }
 
   const topics = asking !== 'company' && asking !== 'name';
-  const scanned = scanText(raw, { topics });
+  const scanned = scanText(raw, { topics, guess: asking });
   const { facHow, conHow, ...found } = scanned;
   Object.assign(out.fields, found);
   if (facHow || conHow) out.how = facHow || conHow;

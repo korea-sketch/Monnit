@@ -30,7 +30,11 @@ export default async (req) => {
 
   const H = {
     'X-Robots-Tag': 'noindex, nofollow',
-    'Cache-Control': 'no-store'
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    /* 메일 본문을 그대로 화면에 띄우는 곳 — 스크립트는 아예 못 돌게 한다. (2026-09-19) */
+    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' https: data:; font-src 'self' https: data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
   };
   const json = (code, obj) =>
     new Response(JSON.stringify(obj, null, 2), { status: code, headers: { ...H, 'Content-Type': 'application/json; charset=utf-8' } });

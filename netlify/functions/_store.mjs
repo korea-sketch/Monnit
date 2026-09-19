@@ -65,8 +65,14 @@ export async function del(store, key) {
    접수가 같은 초에 두 건 오면 나중 것이 먼저 것을 지워, 리드가 조용히 사라졌다.
    이제 append 는 읽지 않고 새 파일만 만든다. 덮어쓸 대상이 없으니 유실도 없다.
    읽을 때(readLines) 옛 파일과 새 조각을 합쳐서 돌려주므로 기존 기록도 그대로 보인다. */
-const SHARD = '#';
-const shardKey = key => key + SHARD + String(Date.now()).padStart(13, '0') + '-' + Math.random().toString(36).slice(2, 8);
+/* 조각 구분자 — 반드시 URL 경로에 그대로 살아남는 글자여야 한다. (2026-09-19)
+   Blobs SDK 는 키를 URL 경로에 그대로 붙여 요청한다. 처음에 '#' 을 썼는데
+   '#' 은 URL 에서 fragment 라 그 뒤가 잘려 나가, 조각이 아니라 원본 파일을
+   덮어쓸 뻔했다(그달 원장이 한 줄로). '~' 는 RFC 3986 unreserved 라 안전하다.
+   아래 shardKey 는 tools/test-race.mjs 가 new URL 로 왕복 검사한다. */
+const SHARD = '~';
+export const shardKey = key => key + SHARD + String(Date.now()).padStart(13, '0') + '-' + Math.random().toString(36).slice(2, 8);
+export const SHARD_SEP = SHARD;
 
 /** JSON Lines 한 건 — 조각 파일 하나로 남긴다(읽고-덮어쓰기 없음) */
 export async function append(store, key, obj) {
@@ -104,6 +110,27 @@ export async function compact(store, key, { keep = 200 } = {}) {
   if (!ok) return { merged: 0, left: keys.length, error: '합치기 실패' };
   for (const k of take) await del(store, k);
   return { merged: take.length, left: keys.length - take.length };
+}
+
+/** 저장소 하나의 조각 원장을 전부 훑어 많이 쌓인 것만 합친다. (2026-09-19)
+ *  정기 점검(proposal-dispatch, 10분마다)이 잠금을 쥔 채 부른다.
+ *  한 번에 오래 붙들지 않도록 시간 예산 안에서만 일하고 나머지는 다음 회차로 넘긴다. */
+export async function compactAll(store, { keep = 50, budgetMs = 6000 } = {}) {
+  const t0 = Date.now();
+  const out = { store, ledgers: 0, merged: 0, skipped: 0 };
+  const keys = await list(store, '');
+  const groups = new Map();
+  for (const k of keys) {
+    const i = k.indexOf(SHARD);
+    if (i > 0) { const base = k.slice(0, i); groups.set(base, (groups.get(base) || 0) + 1); }
+  }
+  for (const [base, n] of groups) {
+    if (n <= keep) continue;
+    if (Date.now() - t0 > budgetMs) { out.skipped++; continue; }
+    const r = await compact(store, base, { keep });
+    out.ledgers++; out.merged += r.merged || 0;
+  }
+  return out;
 }
 
 /** 연결 상태 점검 — 실제로 쓰고 읽어본다 */

@@ -706,7 +706,7 @@ async function loadInsights(){
 /* ── 규칙이 놓친 말 ── AI 를 부른 이유를 눈으로 보고 규칙을 고치는 화면 */
 const kpi=(label,val,note)=>'<div class="kpi"><b>'+esc(val)+'</b><span>'+esc(label)+'</span>'+(note?'<span class="mut small" style="display:block;margin-top:3px;line-height:1.4">'+esc(note)+'</span>':'')+'</div>';
 const ASKNAME={company:'회사명',name:'성함',email:'이메일',fac:'현장 종류',con:'고민 주제',done:'확인'};
-const WHYNAME={unmatched:'사전에 없는 말',question:'질문을 했다',empty:'빈 답'};
+const WHYNAME={unmatched:'사전에 없는 말',question:'질문을 했다',empty:'빈 답','rescue-typo':'오타로 추정해 살림','rescue-keyboard':'영문 자판으로 추정해 살림','rescue-chosung':'초성으로 추정해 살림','rescue-email-ask':'이메일 오타 되물음','rescue-email-fix':'이메일 모양 교정'};
 async function loadMisses(){
   $('#mrows').innerHTML='<tr><td colspan="6" class="mut"><span class="spin"></span> 모으는 중…</td></tr>';
   const r=await fetch('/ops/proposals/misses/data?days='+$('#mdays').value);if(r.status===401)return location.reload();

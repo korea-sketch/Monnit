@@ -11,10 +11,10 @@
 import { CFG } from '../lib/proposal/config.mjs';
 import * as S from '../lib/proposal/store.mjs';
 import { readUsage, addUsage } from '../lib/proposal/aiusage.mjs';
-import { askAI, cleanFields, cleanReply, isReady, missing, needsHandoff, nextAsk, pausedNotice, ruleParse, ruleReply, LABELS } from '../lib/proposal/chat.mjs';
+import { askAI, cleanFields, cleanReply, isReady, isStrongQuestion, missing, needsHandoff, nextAsk, pausedNotice, ruleParse, ruleReply, LABELS } from '../lib/proposal/chat.mjs';
 import { kDay } from '../lib/proposal/schedule.mjs';
 import * as _guard from '../lib/proposal/guard.mjs';
-import { logMiss } from '../lib/proposal/chatlog.mjs';
+import { logMiss, logRescue } from '../lib/proposal/chatlog.mjs';
 import { costOf } from '../lib/proposal/aiusage.mjs';
 
 export const config = { path: '/api/proposal/chat' };
@@ -86,10 +86,22 @@ export default async (req) => {
 
   /* ① 규칙으로 먼저 알아듣는다 — 여기서 끝나면 AI 비용이 들지 않는다 */
   const p = ruleParse(lastText, asking, fields);
-  fields = cleanFields(p.fields, fields);
   const handoff = needsHandoff(lastText);
+  const retry = Math.max(0, Math.min(9, Number(b.retry) || 0));
+  /* 담당자에게 넘기는 말(가격·납기…)은 신청 값으로 읽지 않는다 —
+     「배터리는 얼마나 가나요」가 회사명으로 저장되던 문제. (2026-09-19) */
+  if (!handoff) fields = cleanFields(p.fields, fields);
 
-  if (!handoff && p.understood && !p.question) {
+  /* 가격·납기·A/S 같은 제안서 밖 요청 — 답은 정해져 있다(담당자가 연락드립니다).
+     정해진 문장을 내는 데 AI 를 부를 이유가 없다. 예전에는 여기서도 토큰을 썼다. (2026-09-19) */
+  if (handoff) {
+    return out({ mode: 'rule', fields, ready: isReady(fields), ask: nextAsk(fields), handoff: true,
+      reply: ruleReply(fields, lang, { handoff: true }) });
+  }
+
+  if (p.understood && !p.question) {
+    /* 오타·자판·초성 추정으로 살린 값은 남겨 둔다 — 추정이 틀리면 여기서 보인다 (AI 아님, 비용 0) */
+    if (p.how && p.how !== 'exact') later(logRescue({ ask: asking, say: lastText, how: p.how, retry, lang, fac: fields.fac, con: fields.con }));
     /* 고민을 건너뛴 경우 — 그 항목은 더 묻지 않고 넘어간다 */
     if (p.skipAsk === 'con') fields.con = fields.con || 'skip';
     const ask = p.skipAsk === 'con' ? 'done' : nextAsk(fields);
@@ -103,8 +115,11 @@ export default async (req) => {
      오타·짧은 답·실수는 「한 번 더 쉽게 묻기」로 대부분 풀린다. 같은 항목을 두 번
      되물어도 안 되면 그때 AI 를 부른다 — 토큰은 「사람이 자유롭게 쓴 말」에만 쓴다.
      되물은 횟수는 화면이 retry 로 돌려준다(위조되어도 최대 손해는 AI 1회). */
-  const retry = Math.max(0, Math.min(9, Number(b.retry) || 0));
-  if (!handoff && retry < RETRY_BEFORE_AI) {
+  /* 진짜 묻는 말(「인터넷 없어도 되나요」)에 「회사명을 적어 주세요」를 두 번 되묻는 건 잘못이다.
+     질문은 AI 가 답할 자리다 — 오타·실수와 달리 여기서는 토큰을 쓰는 게 맞다. (2026-09-19)
+     키가 없으면 어차피 아래에서 규칙 되묻기로 떨어진다. */
+  const strongQ = isStrongQuestion(lastText);
+  if (!strongQ && retry < RETRY_BEFORE_AI) {
     /* 아직 돈은 안 썼지만 규칙에 구멍이 있다는 신호다 — 남겨 두고 다음에 막는다 */
     later(logMiss({ ask: asking, say: lastText, why: p.miss || 'unmatched', retry, ai: false, lang }));
     return out({ mode: 'rule', fields, ready: isReady(fields), ask: asking, retry: retry + 1,

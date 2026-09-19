@@ -78,7 +78,11 @@ const H = {
   'cache-control': 'no-store, no-cache, must-revalidate',
   'x-robots-tag': 'noindex, nofollow, noarchive',
   'referrer-policy': 'no-referrer',
-  'x-frame-options': 'DENY'
+  'x-frame-options': 'DENY',
+  'x-content-type-options': 'nosniff',
+  /* _headers 의 CSP 는 정적 파일에만 붙는다 — 함수 화면은 직접 단다. (2026-09-19)
+     예약 목록에는 고객이 적은 회사명·메모가 그대로 보이므로 XSS 가 닿기 쉬운 곳이다. */
+  'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'"
 };
 const page = (body, extra) => new Response(body,
   { status: 200, headers: { ...H, 'content-type': 'text/html; charset=utf-8', ...(extra || {}) } });

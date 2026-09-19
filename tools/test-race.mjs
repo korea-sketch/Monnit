@@ -17,9 +17,18 @@ const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'mnk-race-'));
 const enc = k => Buffer.from(String(k)).toString('base64url');
 const fileOf = (store, key) => path.join(ROOT, store + '__' + enc(key));
 
+/* 실제 SDK 는 키를 URL 경로에 그대로 붙인다 — 그래서 '#'(fragment) '?'(query) 가 들어가면
+   그 뒤가 잘려 엉뚱한 키에 쓴다. 가짜 저장소도 똑같이 잘라서, 그런 키는 여기서 걸리게 한다. */
+function asSdkWould(key) {
+  const u = new URL('/site/store/' + key, 'https://blobs.example');
+  return decodeURIComponent(u.pathname).replace('/site/store/', '');
+}
+let urlMangled = 0;
+const sdkKey = k => { const r = asSdkWould(k); if (r !== k) urlMangled++; return r; };
+
 globalThis.__MNK_FAKE_BLOBS = {
-  async get(store, key) { try { return fs.readFileSync(fileOf(store, key), 'utf8'); } catch { return null; } },
-  async set(store, key, text) { fs.writeFileSync(fileOf(store, key), String(text)); return true; },
+  async get(store, key) { try { return fs.readFileSync(fileOf(store, sdkKey(key)), 'utf8'); } catch { return null; } },
+  async set(store, key, text) { fs.writeFileSync(fileOf(store, sdkKey(key)), String(text)); return true; },
   async del(store, key) { try { fs.unlinkSync(fileOf(store, key)); } catch {} return true; },
   async list(store, prefix) {
     const pre = store + '__';
@@ -34,6 +43,14 @@ const LOCK = await import('../netlify/functions/_loginlock.mjs');
 
 let pass = 0, fail = 0;
 const ok = (name, cond, got) => { if (cond) { pass++; console.log('ok   ' + name); } else { fail++; console.log('FAIL ' + name + '  받음=' + JSON.stringify(got)); } };
+
+/* ── ⓪ 조각 키가 URL 경로에서 살아남는가 — '#' 을 썼다가 원장을 덮어쓸 뻔했다 ── */
+{
+  const k = S.shardKey('leads/2026-09.jsonl');
+  ok('조각 키가 URL 에서 잘리지 않는다', asSdkWould(k) === k, { key: k, sdk: asSdkWould(k) });
+  ok('  조각 키가 원본 키와 다르다', k !== 'leads/2026-09.jsonl' && k.startsWith('leads/2026-09.jsonl' + S.SHARD_SEP), k);
+  ok('  구분자에 # ? 가 없다', !/[#?]/.test(S.SHARD_SEP), S.SHARD_SEP);
+}
 
 /* ── ① 같은 순간의 접수 20건 ── */
 {
@@ -93,6 +110,37 @@ const ok = (name, cond, got) => { if (cond) { pass++; console.log('ok   ' + name
   const a = await LOCK.recent('ops', ip), b = await LOCK.recent('visit', ip);
   ok('관제에서 잠겨도 방문 기록 화면은 따로', a.locked === true && b.locked === false, { ops: a.n, visit: b.n });
 }
+
+/* ── ⑦ 부하 — 조각 1,000개에서도 하나도 안 빠지고, 합친 뒤에도 같은가 ── */
+{
+  const N = 1000;
+  const t0 = Date.now();
+  await Promise.all(Array.from({ length: N }, (_, i) => S.append('leads', 'big.jsonl', { i })));
+  const rows = await S.readLines('leads', 'big.jsonl');
+  const tRead = Date.now() - t0;
+  ok('조각 ' + N + '개를 전부 읽는다', rows.length === N, { 읽은수: rows.length, ms: tRead });
+  const all = await S.compactAll('leads', { keep: 50, budgetMs: 30000 });
+  const after = await S.readLines('leads', 'big.jsonl');
+  const seen = new Set(after.map(r => r.i));
+  ok('  compactAll 이 합쳐도 ' + N + '건 그대로', after.length === N && seen.size === N, { 후: after.length, 서로다른: seen.size, all });
+  const left = (await S.list('leads', 'big.jsonl' + S.SHARD_SEP)).length;
+  ok('  최근 50개만 조각으로 남는다', left === 50, { 남은조각: left });
+  ok('  다른 원장(2026-09)은 건드리지 않았다', (await S.readLines('leads', '2026-09.jsonl')).length === 20);
+}
+
+/* ── ⑧ 압축 중에 들어온 접수는 살아남는가 ── */
+{
+  for (let i = 0; i < 120; i++) await S.append('ops', 'live.jsonl', { i });
+  /* 압축과 새 접수를 동시에 */
+  const [r] = await Promise.all([
+    S.compact('ops', 'live.jsonl', { keep: 20 }),
+    ...Array.from({ length: 15 }, (_, j) => S.append('ops', 'live.jsonl', { i: 1000 + j }))
+  ]);
+  const rows = await S.readLines('ops', 'live.jsonl');
+  ok('압축 중 들어온 15건 포함 135건 전부 있다', rows.length === 135, { 건수: rows.length, r });
+}
+
+ok('검사 내내 URL 에서 잘린 키가 한 번도 없었다', urlMangled === 0, { 잘린횟수: urlMangled });
 
 fs.rmSync(ROOT, { recursive: true, force: true });
 console.log('\n합계  통과 ' + pass + ' · 실패 ' + fail);

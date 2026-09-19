@@ -223,22 +223,39 @@ export function unifyVariants(s) {
 /** 사전에서 찾기 — 띄어쓰기·표기 흔들림·조사·자판 오타·초성까지 견딘다.
  *  table: { key: [말, 말, …] }
  *  돌려주는 값: { key, word, how } — how 는 어떻게 찾았는지(기록용) */
+/* 사전은 바뀌지 않으므로 한 번만 펴 둔다 — 매 호출마다 350낱말을 다시 정규화하던 것을 없앴다. (2026-09-19)
+   표 객체를 키로 삼아 기억하므로, 표가 바뀌면(다른 객체) 자연히 다시 편다. */
+const PREPARED = new WeakMap();
+function prepare(table) {
+  let p = PREPARED.get(table);
+  if (p) return p;
+  p = [];
+  for (const [key, words] of Object.entries(table)) {
+    for (const w of words) {
+      const sw = squash(w);
+      if (!sw) continue;
+      p.push({ key, word: w, sw, cho: chosung(sw), jamo: jamo(sw) });
+    }
+  }
+  PREPARED.set(table, p);
+  return p;
+}
+function levArr(a, b) { return lev(a, b); }
+
 export function lookup(text, table, { fuzzy = true, min = 0.82 } = {}) {
   const uni = unifyVariants(text);
   const flat = squash(uni);
   if (!flat) return null;
+  const dict = prepare(table);
 
   /* ① 있는 그대로 (공백·기호를 지운 상태에서) — 가장 흔하고 가장 싸다.
      먼저 나온 낱말이 이기되, 같은 자리에서는 긴 낱말이 이긴다.
      「오피스텔」이 「오피스」(빌딩)로 잡히던 문제. */
   let best = null, at = Infinity, len = 0;
-  for (const [key, words] of Object.entries(table)) {
-    for (const w of words) {
-      const sw = squash(w);
-      const i = flat.indexOf(sw);
-      if (i < 0) continue;
-      if (i < at || (i === at && sw.length > len)) { best = { key, word: w, how: 'exact' }; at = i; len = sw.length; }
-    }
+  for (const d of dict) {
+    const i = flat.indexOf(d.sw);
+    if (i < 0) continue;
+    if (i < at || (i === at && d.sw.length > len)) { best = { key: d.key, word: d.word, how: 'exact' }; at = i; len = d.sw.length; }
   }
   if (best) return best;
 
@@ -246,28 +263,24 @@ export function lookup(text, table, { fuzzy = true, min = 0.82 } = {}) {
   const back = fromEnKeys(uni);
   if (back) {
     const f2 = squash(back);
-    for (const [key, words] of Object.entries(table)) {
-      for (const w of words) if (f2.includes(squash(w))) return { key, word: w, how: 'keyboard' };
-    }
+    for (const d of dict) if (f2.includes(d.sw)) return { key: d.key, word: d.word, how: 'keyboard' };
   }
 
   /* ③ 초성만 친 경우 (ㄱㅈ → 공장) */
   if (isChosungOnly(flat)) {
-    for (const [key, words] of Object.entries(table)) {
-      for (const w of words) if (chosung(squash(w)).startsWith(flat)) return { key, word: w, how: 'chosung' };
-    }
+    for (const d of dict) if (d.cho.startsWith(flat)) return { key: d.key, word: d.word, how: 'chosung' };
   }
 
   /* ④ 오타 — 짧은 답일 때만. 긴 문장에 함부로 쓰면 엉뚱한 곳에 걸린다 */
   if (fuzzy && flat.length <= 12) {
+    const fj = jamo(flat);
     let bk = null, bs = 0, bw = '';
-    for (const [key, words] of Object.entries(table)) {
-      for (const w of words) {
-        const sw = squash(w);
-        if (sw.length < 2) continue;
-        const s = similar(flat, sw);
-        if (s > bs) { bs = s; bk = key; bw = w; }
-      }
+    for (const d of dict) {
+      if (d.sw.length < 2) continue;
+      /* 길이가 너무 다르면 닮았을 수 없다 — 거리 계산을 건너뛴다 */
+      if (Math.abs(d.jamo.length - fj.length) > Math.max(fj.length, d.jamo.length) * (1 - min)) continue;
+      const s = 1 - levArr(fj, d.jamo) / Math.max(fj.length, d.jamo.length);
+      if (s > bs) { bs = s; bk = d.key; bw = d.word; }
     }
     if (bs >= min) return { key: bk, word: bw, how: 'typo', score: Math.round(bs * 100) / 100 };
   }
