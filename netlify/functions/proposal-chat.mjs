@@ -10,7 +10,7 @@
  */
 import { CFG } from '../lib/proposal/config.mjs';
 import * as S from '../lib/proposal/store.mjs';
-import { readUsage, addUsage, readHalt, setHalt, isBillingSignal, markHaltNotified } from '../lib/proposal/aiusage.mjs';
+import { readUsage, addUsage, readHalt, setHalt, isBillingSignal, markHaltNotified, recordAiError, clearAiError } from '../lib/proposal/aiusage.mjs';
 import { notifyAiHalt } from '../lib/proposal/mail.mjs';
 import { askAI, cleanFields, cleanReply, isReady, isStrongQuestion, missing, needsHandoff, nextAsk, pausedNotice, ruleParse, ruleReply, LABELS } from '../lib/proposal/chat.mjs';
 import { kDay } from '../lib/proposal/schedule.mjs';
@@ -175,10 +175,14 @@ export default async (req) => {
     }
   }
   if (!r || !r.out) {
+    /* 과금 신호가 아닌 실패 — 조용히 규칙으로 가되, 무엇이 실패했는지는 남긴다(관제 연동 점검·놓친 말) */
+    later(recordAiError((r && r.error) || { status: 0, message: 'empty' }));
+    later(logMiss({ ask: asking, say: lastText, why: 'ai-error', retry, ai: false, lang }));
     return out({ mode: 'rule', fields, ready: isReady(fields), ask: nextAsk(fields), handoff,
       reply: ruleReply(fields, lang, { handoff, again: handoff ? '' : asking }) });
   }
   if (r.usage) await addUsage(r.model, r.usage);
+  later(clearAiError());
 
   /* 돈을 쓴 자리 — 무엇 때문에 썼고 AI 가 무엇을 읽어 냈는지 반드시 남긴다.
      이 기록의 got 가 곧 「규칙이 이렇게 읽었어야 했다」는 정답지다. */

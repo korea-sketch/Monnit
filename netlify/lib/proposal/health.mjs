@@ -33,6 +33,9 @@ export async function runHealth({ deep = false, origin = CFG.site } = {}) {
     const prov = CFG.aiProvider === 'gemini' ? 'Gemini 무료 등급(GEMINI_API_KEY)' : 'Claude(ANTHROPIC_API_KEY)';
     add('chat', '대화로 신청(제안서 챗봇)', on, on ? `켜짐 · ${prov} · ${CFG.chatModel} · 규칙으로 못 알아들을 때만 호출` : (CFG.chatOn ? `${prov} 없음 — 규칙 대화만 동작` : 'PROPOSAL_CHAT=off — 단계별 신청만 노출'), true);
     /* 정지 파일 — 과금 신호로 멈춘 상태. 관제 첫 화면 팝업과 같은 정보 */
+    const le = await U.readAiError();
+    if (le && Date.now() - Date.parse(le.at) < 7 * 86400000)
+      add('chaterror', '대화 AI 마지막 실패', false, `${le.at} · ${le.n}회 연속 · HTTP ${le.status} ${le.message} — 성공하면 저절로 지워짐`, true);
     if (u.halt) add('chathalt', '대화 AI 정지(과금 신호)', false, `${u.halt.reason} · ${u.halt.at} · HTTP ${u.halt.status || '-'} — 관제 「AI 다시 시도」로 해제`);
     const pct = Math.round((u.pct || 0) * 100);
     const capTxt = u.freeCap ? ` · 무료 상한 ${u.calls}/${u.freeCap}회` : '';

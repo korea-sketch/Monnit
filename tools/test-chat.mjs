@@ -253,7 +253,14 @@ function session(opts = {}) {
   aiFail = true;
   const { j } = await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }));
   ok('AI 오류 → 규칙 대화로 이어감', j.ok === true && j.mode === 'rule' && !!j.reply, j);
+  await new Promise(r => setTimeout(r, 30));
+  const le = await U.readAiError();
+  ok('  실패가 관제용 기록에 남는다(HTTP 529)', le && le.status === 529 && le.n >= 1, le);
   aiFail = false;
+  aiReply = { reply: '조금 더 알려주세요.', fields: {}, handoff: false };
+  await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }));
+  await new Promise(r => setTimeout(r, 30));
+  ok('  다음 성공에서 기록이 지워진다', !(await U.readAiError()));
 }
 
 /* ── 11. 대화로 모은 값 → 실제 접수·발송 ── */

@@ -66,6 +66,17 @@ export async function markHaltNotified(at = '') {
   h.notified = true; await S.setJSON(HALT, h).catch(() => {});
 }
 
+/* 마지막 AI 오류 — 과금 신호가 아닌 실패(타임아웃·모델 없음·응답 깨짐)도 관제에서 보여야 한다.
+   조용히 규칙으로 떨어지면 「AI 가 한 번도 안 불린다」를 아무도 모른다. (2026-09-19) */
+const LASTERR = 'ai/last-error.json';
+export async function recordAiError(err = {}) {
+  const cur = (await S.getJSON(LASTERR).catch(() => null)) || { n: 0 };
+  await S.setJSON(LASTERR, { at: new Date().toISOString(), n: (Number(cur.n) || 0) + 1, provider: CFG.aiProvider, model: CFG.chatModel,
+    status: Number(err.status) || 0, message: String(err.message || '').slice(0, 300) }).catch(() => {});
+}
+export async function readAiError() { return (await S.getJSON(LASTERR).catch(() => null)) || null; }
+export async function clearAiError() { await S.del(LASTERR).catch(() => {}); }
+
 /** 응답이 「이제 돈 내라」는 신호인가 — 공급자마다 모양이 다르다 */
 export function isBillingSignal(status, bodyText = '') {
   const t = String(bodyText || '').toLowerCase();

@@ -527,7 +527,8 @@ async function callGemini(messages, known, lang, signal) {
   const out = pickJson(raw);
   const u = j.usageMetadata || {};
   const usage = { input_tokens: Number(u.promptTokenCount || 0), output_tokens: Number(u.candidatesTokenCount || 0) };
-  return out ? { out, usage, model } : null;
+  if (!out) return { error: { status: 200, message: ('no-json: ' + (((j.promptFeedback || {}).blockReason) || (((j.candidates || [])[0] || {}).finishReason) || '') + ' ' + raw).slice(0, 300) } };
+  return { out, usage, model };
 }
 
 export async function askAI(messages, fields, lang) {
@@ -540,7 +541,7 @@ export async function askAI(messages, fields, lang) {
     return CFG.aiProvider === 'gemini'
       ? await callGemini(messages, known, lang, ac.signal)
       : await callAnthropic(messages, known, lang, ac.signal);
-  } catch (e) { return null; }
+  } catch (e) { return { error: { status: 0, message: (e && e.name === 'AbortError' ? 'timeout ' + CFG.chatTimeoutMs + 'ms' : String(e && e.message || e)).slice(0, 300) } }; }
   finally { clearTimeout(t); }
 }
 
