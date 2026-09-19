@@ -59,6 +59,21 @@ async function checkBackend() {
   return r;
 }
 
+/* 대화 AI(무료 Gemini) 상태 — 정지 파일이 있으면 통합 관제 「사이트 상태」에 빨간 점으로 뜬다.
+   맞춤 제안서 관제(/ops/proposals)에만 팝업이 있으면 /ops 만 보는 날은 모른다. (2026-09-19) */
+export async function checkChatAI() {
+  const r = { name: '대화 AI(무료 Gemini)', ok: true };
+  try {
+    const halt = JSON.parse(await get('proposals', 'ai/halt.json') || 'null');
+    if (halt) { r.ok = false; r.error = 'AI 정지 — ' + (halt.reason || '') + ' · /ops/proposals 에서 「AI 다시 시도」'; r.name += ' — 정지(' + (halt.reason || '') + ')'; return r; }
+    const le = JSON.parse(await get('proposals', 'ai/last-error.json') || 'null');
+    if (le && (Number(le.n) || 0) >= 3 && Date.now() - Date.parse(le.at) < 3600000) { r.ok = false; r.error = 'AI 호출 ' + le.n + '회 연속 실패 HTTP ' + le.status; r.name += ' — 연속 실패 ' + le.n + '회'; return r; }
+    const m = JSON.parse(await get('proposals', 'ai/gemini-model.json') || 'null');
+    if (m && m.model) r.name += ' · ' + m.model;
+  } catch (e) { /* 저장소 문제는 다른 항목이 잡는다 */ }
+  return r;
+}
+
 async function alertMail(fails) {
   const lines = fails.map(f =>
     `· ${f.name} (${f.path || '-'}) — ${f.error ? '응답 없음: ' + f.error
@@ -88,6 +103,7 @@ export default async () => {
   const results = [];
   for (const p of PAGES) results.push(await checkPage(p));
   results.push(await checkBackend());
+  results.push(await checkChatAI());
 
   const fails = results.filter(r => !r.ok);
   const snap = { ts: new Date().toISOString(), ok: fails.length === 0, fail_count: fails.length, results };

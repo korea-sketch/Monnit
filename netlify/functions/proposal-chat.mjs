@@ -41,7 +41,9 @@ const later = (p) => { try { p.catch(() => {}); } catch (e) {} };
 /* 정지 알림 — 담당자 메일은 처음 한 번만. 팝업은 관제 화면이 halt 파일을 읽어 띄운다 */
 async function alertHalt(h) {
   if (!h || h.notified) return;
-  const r = await notifyAiHalt(h).catch(() => null);
+  /* 정지는 드물고 중요하다 — 응답을 4초까지 붙잡고 메일을 기다린다.
+     (응답 뒤의 비동기 작업은 함수 실행이 얼어 붙으면 사라질 수 있다) */
+  const r = await Promise.race([notifyAiHalt(h).catch(() => null), new Promise(res => setTimeout(() => res(null), 4000))]);
   if (r && r.ok) await markHaltNotified(h.at);
 }
 
@@ -141,7 +143,7 @@ export default async (req) => {
   /* 무료 모드 월 호출 상한에 닿았으면 — 조용히 과금되기 전에 정지 파일을 남기고 알린다 */
   if (CFG.aiFreeOnly && usage.freeCap && usage.calls >= usage.freeCap && !usage.halt) {
     const h = await setHalt('free-cap', { message: `이번 달 ${usage.calls}회 — 상한 ${usage.freeCap}회` });
-    later(alertHalt(h));
+    await alertHalt(h);
   }
   let allowAI = CFG.chatOn && !!CFG.chatAiKey && !usage.paused;
   if (allowAI) {
@@ -169,7 +171,7 @@ export default async (req) => {
     const sig = isBillingSignal(r.error.status, r.error.message);
     if (sig && CFG.aiFreeOnly) {
       const h = await setHalt(sig, r.error);
-      later(alertHalt(h));
+      await alertHalt(h);
       return out({ mode: 'rule', paused: true, notice: pausedNotice(lang), fields, ready: isReady(fields), ask: nextAsk(fields), handoff,
         reply: ruleReply(fields, lang, { handoff, again: handoff ? '' : asking }) });
     }

@@ -98,7 +98,8 @@ export const CFG = {
   get aiFreeOnly() { return on('AI_FREE_ONLY', true); },
   get aiFreeCallsMonth() { return num('AI_FREE_CALLS_MONTH', 1500); },   /* 무료 모드 월 호출 상한 — 조용히 과금돼도 노출을 푼돈으로 묶는다 */
   get chatModel() { return this.aiProvider === 'gemini' ? this.geminiModel : env('PROPOSAL_CHAT_MODEL', 'claude-haiku-4-5'); },
-  get chatTimeoutMs() { return num('PROPOSAL_CHAT_TIMEOUT_MS', 20000); },
+  /* Netlify 동기 함수 한도(10초) 안에서 규칙 답으로 돌아와야 한다 — 20초면 함수가 먼저 죽어 502 가 난다 */
+  get chatTimeoutMs() { return num('PROPOSAL_CHAT_TIMEOUT_MS', 7000); },
   get chatBudgetUsd() { return Math.max(0, num('PROPOSAL_AI_BUDGET_USD', 20)); },   /* 월 한도(0 이면 무제한) */
   get chatPauseAt() { return Math.min(1, Math.max(0.5, num('PROPOSAL_AI_PAUSE_PCT', 95) / 100)); },
   get chatMaxTurns() { return num('PROPOSAL_CHAT_MAX_TURNS', 24); },               /* 대화 한 건의 최대 메시지 수 */

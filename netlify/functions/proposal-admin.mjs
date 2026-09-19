@@ -512,7 +512,7 @@ if($('#mClear'))$('#mClear').onclick=async()=>{
 };
 
 /* ── 대화 AI 정지 팝업 — 「과금으로 바뀌면 멈추고, 무료 대안을 팝업으로」 (2026-09-19) ── */
-function haltWhy(r){return {'payment-required':'결제 요구(402)','quota-exceeded':'무료 한도 초과(429)','billing-required':'결제 활성화 요구(403)','key-problem':'키 문제(401/400)','free-cap':'월 무료 호출 상한 도달','daily-quota':'무료 일일 한도 소진(자정에 자동 복귀)'}[r]||(r||'알 수 없음');}
+function haltWhy(r){return {'payment-required':'결제 요구(402)','quota-exceeded':'무료 한도 초과(429)','billing-required':'결제 활성화 요구(403)','key-problem':'키 문제(401/400)','free-cap':'월 무료 호출 상한 도달(다음 달 1일 자동 복귀)','daily-quota':'무료 일일 한도 소진(자정에 자동 복귀)'}[r]||(r||'알 수 없음');}
 function haltPopup(h){
   const pop=$('#haltPop');if(!h){pop.hidden=true;return;}
   const seen=sessionStorage.getItem('mk_halt_seen');

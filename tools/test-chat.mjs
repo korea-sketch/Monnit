@@ -398,6 +398,7 @@ function session(opts = {}) {
   const g7 = (await js(await call({ messages: [{ role: 'user', text: '음 그게 저기 그거 있잖아요' }], retry: 2 }))).j;
   const hc = await U.readHalt();
   ok('월 무료 호출 1,500회 도달 → AI 0회 · 정지(free-cap) · 점검 중', gemCalls === 0 && g7.paused === true && hc && hc.reason === 'free-cap', { gemCalls, paused: g7.paused, hc });
+  ok('  월 상한 정지는 다음 달 1일 0시(KST)에 스스로 풀린다', hc && /-(30|31|28|29)T15:00:00/.test(hc.until || '') && !(await U.readHalt(Date.parse(hc.until) + 1)), hc && hc.until);
   await S.setJSON('ai/usage-' + U.monthKey() + '.json', { calls: 0, in: 0, out: 0, usd: 0, byModel: {} });
   await U.clearHalt();
   delete process.env.AI_PROVIDER; delete process.env.GEMINI_API_KEY;

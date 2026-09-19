@@ -46,6 +46,7 @@ export function costOf(model, usage = {}) {
    「점검 중」이 뜨며, 관제 첫 화면에 팝업이 뜬다. 담당자가 「다시 시도」를 눌러야 풀린다. */
 const HALT = 'ai/halt.json';
 /* 다음 날 0시(KST) — 일일 무료 한도는 자정에 다시 채워지므로 그때 저절로 풀린다 */
+const nextKstMonth = (now = Date.now()) => { const d = new Date(now + 9 * 3600000); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1) - 9 * 3600000).toISOString(); };
 const nextKstMidnight = (now = Date.now()) => new Date(Math.floor((now + 9 * 3600000) / 86400000 + 1) * 86400000 - 9 * 3600000).toISOString();
 export async function readHalt(now = Date.now()) {
   const h = (await S.getJSON(HALT)) || null;
@@ -59,6 +60,7 @@ export async function setHalt(reason, detail = {}) {
   const h = { at: new Date().toISOString(), reason, provider: CFG.aiProvider,
     model: CFG.chatModel, status: Number(detail.status) || 0, message: String(detail.message || '').slice(0, 300), notified: false };
   if (reason === 'daily-quota') h.until = nextKstMidnight();
+  if (reason === 'free-cap') h.until = nextKstMonth();          /* 월 상한은 다음 달 1일에 저절로 풀린다 */
   await S.setJSON(HALT, h).catch(() => {});
   return h;
 }
