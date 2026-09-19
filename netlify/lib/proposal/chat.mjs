@@ -13,6 +13,7 @@
  *    · 대화 내용은 저장하지 않는다(접수될 때만 메모로 남는다)
  */
 import { CFG } from './config.mjs';
+import * as STORE from './store.mjs';
 import { FINDER_FAC, FINDER_CON } from './kb.mjs';
 import KO from './ko.mjs';
 import _valid from '../../../valid.js';
@@ -509,8 +510,40 @@ async function callAnthropic(messages, known, lang, signal) {
   return out ? { out, usage: j.usage || null, model: j.model || CFG.chatModel } : null;
 }
 
-async function callGemini(messages, known, lang, signal) {
-  const model = CFG.geminiModel;
+/* 모델 자동 승계 (2026-09-19) — Google 이 모델을 접으면 404 「no longer available / not found」가 온다.
+   그때마다 사람이 환경변수를 고치게 두지 않고, 후보 목록에서 다음 모델을 찾아 쓴다.
+   찾은 모델은 ai/gemini-model.json 에 남겨 콜드 스타트 뒤에도 404 를 반복하지 않는다. */
+const MODEL_KEY = 'ai/gemini-model.json';
+let _pickedModel = '';
+export const isModelGone = (status, msg = '') => status === 404 || (status === 400 && /not found|no longer available|not supported|unsupported model/i.test(msg));
+async function pickGeminiModel() {
+  if (_pickedModel) return _pickedModel;
+  const m = await STORE.getJSON(MODEL_KEY).catch(() => null);
+  _pickedModel = (m && m.model) || CFG.geminiModel;
+  return _pickedModel;
+}
+async function rememberGeminiModel(model, gone = []) {
+  _pickedModel = model;
+  await STORE.setJSON(MODEL_KEY, { model, at: new Date().toISOString(), gone }).catch(() => {});
+}
+export async function readGeminiModel() { return (await STORE.getJSON(MODEL_KEY).catch(() => null)) || null; }
+export function _resetGeminiModel() { _pickedModel = ''; }   /* 검사용 */
+
+async function callGeminiAuto(messages, known, lang, signal) {
+  const first = await pickGeminiModel();
+  const order = [first, CFG.geminiModel, ...CFG.geminiFallbacks].filter((m, i, a) => m && a.indexOf(m) === i);
+  const gone = [];
+  let last = null;
+  for (const model of order) {
+    const r = await callGemini(messages, known, lang, signal, model);
+    if (r && r.error && isModelGone(r.error.status, r.error.message)) { gone.push(model); last = r; continue; }
+    if (r && !r.error && model !== first) await rememberGeminiModel(model, gone);
+    return r;
+  }
+  return last;   /* 전부 없음 — 마지막 404 를 그대로 올려 관제에 보이게 */
+}
+
+async function callGemini(messages, known, lang, signal, model = CFG.geminiModel) {
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
   const r = await fetch(url, {
     method: 'POST', signal,
@@ -539,7 +572,7 @@ export async function askAI(messages, fields, lang) {
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), CFG.chatTimeoutMs);
   try {
     return CFG.aiProvider === 'gemini'
-      ? await callGemini(messages, known, lang, ac.signal)
+      ? await callGeminiAuto(messages, known, lang, ac.signal)
       : await callAnthropic(messages, known, lang, ac.signal);
   } catch (e) { return { error: { status: 0, message: (e && e.name === 'AbortError' ? 'timeout ' + CFG.chatTimeoutMs + 'ms' : String(e && e.message || e)).slice(0, 300) } }; }
   finally { clearTimeout(t); }

@@ -10,6 +10,9 @@ import { CFG } from './config.mjs';
 const PRICE = {
   /* Gemini 무료 등급 — $0. 무료가 끝나면(과금 신호) halt 가 걸려 어차피 안 부른다.
      참고로 유료 전환 시 Flash-Lite 는 [0.1, 0.4] 수준이라 1,500회여도 몇십 원이다. */
+  'gemini-3.5-flash-lite': [0, 0],
+  'gemini-3.1-flash-lite': [0, 0],
+  'gemini-3.5-flash': [0, 0],
   'gemini-2.5-flash-lite': [0, 0],
   'gemini-2.5-flash': [0, 0],
   'gemini-2.0-flash': [0, 0],

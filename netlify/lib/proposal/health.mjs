@@ -31,7 +31,9 @@ export async function runHealth({ deep = false, origin = CFG.site } = {}) {
     const u = await U.readUsage();
     const on = CFG.chatOn && !!CFG.chatAiKey;
     const prov = CFG.aiProvider === 'gemini' ? 'Gemini 무료 등급(GEMINI_API_KEY)' : 'Claude(ANTHROPIC_API_KEY)';
-    add('chat', '대화로 신청(제안서 챗봇)', on, on ? `켜짐 · ${prov} · ${CFG.chatModel} · 규칙으로 못 알아들을 때만 호출` : (CFG.chatOn ? `${prov} 없음 — 규칙 대화만 동작` : 'PROPOSAL_CHAT=off — 단계별 신청만 노출'), true);
+    const picked = CFG.aiProvider === 'gemini' ? await (await import('./chat.mjs')).readGeminiModel() : null;
+    const modelTxt = picked && picked.model && picked.model !== CFG.chatModel ? `${picked.model}(자동 승계 — ${CFG.chatModel} 은 없음)` : CFG.chatModel;
+    add('chat', '대화로 신청(제안서 챗봇)', on, on ? `켜짐 · ${prov} · ${modelTxt} · 규칙으로 못 알아들을 때만 호출` : (CFG.chatOn ? `${prov} 없음 — 규칙 대화만 동작` : 'PROPOSAL_CHAT=off — 단계별 신청만 노출'), true);
     /* 정지 파일 — 과금 신호로 멈춘 상태. 관제 첫 화면 팝업과 같은 정보 */
     const le = await U.readAiError();
     if (le && Date.now() - Date.parse(le.at) < 7 * 86400000)

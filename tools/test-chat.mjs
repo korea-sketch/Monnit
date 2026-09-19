@@ -16,7 +16,7 @@ process.env.PROPOSAL_CHAT_IP_DAY = '6';
 
 let aiCalls = 0, aiReply = null, aiFail = false;
 /* Gemini 흉내 — gemFail 에 { status, body } 를 넣으면 그 오류로 답한다 */
-let gemCalls = 0, gemFail = null, gemLastBody = '';
+let gemCalls = 0, gemFail = null, gemLastBody = '', gemGone = [], gemModels = [];
 const MAILS = [];
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, opt = {}) => {
@@ -29,6 +29,8 @@ globalThis.fetch = async (url, opt = {}) => {
   }
   if (url.includes('generativelanguage.googleapis.com')) {
     gemCalls++; gemLastBody = String(opt.body || '');
+    const mdl = decodeURIComponent((/models\/([^:]+):/.exec(url) || [])[1] || ''); gemModels.push(mdl);
+    if (gemGone.includes(mdl)) return new Response(JSON.stringify({ error: { code: 404, message: 'This model models/' + mdl + ' is no longer available to new users. Please update your code to use a newer model.', status: 'NOT_FOUND' } }), { status: 404 });
     if (gemFail) return new Response(gemFail.body, { status: gemFail.status });
     const body = JSON.stringify(aiReply || { reply: '어떤 현장인지 한 줄로 알려주시면 정리해 드리겠습니다.', fields: {}, handoff: false });
     return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: body }] } }], usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 80 } }), { status: 200 });
@@ -291,7 +293,7 @@ function session(opts = {}) {
   const ADMIN = (await import('../netlify/functions/proposal-admin.mjs')).default;
   process.env.AI_PROVIDER = 'gemini'; process.env.GEMINI_API_KEY = 'test-gem';
   const { CFG } = await import('../netlify/lib/proposal/config.mjs');
-  ok('공급자 — GEMINI_API_KEY 가 있으면 Gemini, 모델은 flash-lite, 무료 모드 기본 켜짐', CFG.aiProvider === 'gemini' && /flash-lite/.test(CFG.chatModel) && CFG.aiFreeOnly === true && CFG.aiFreeCallsMonth === 1500, { p: CFG.aiProvider, m: CFG.chatModel });
+  ok('공급자 — GEMINI_API_KEY 가 있으면 Gemini, 모델은 3.5-flash-lite, 무료 모드 기본 켜짐', CFG.aiProvider === 'gemini' && CFG.chatModel === 'gemini-3.5-flash-lite' && CFG.aiFreeOnly === true && CFG.aiFreeCallsMonth === 1500, { p: CFG.aiProvider, m: CFG.chatModel });
   await U.clearHalt();
   aiCalls = 0; gemCalls = 0; gemFail = null;
   aiReply = { reply: '네, 알겠습니다. 회사명을 알려주시겠어요?', fields: {}, handoff: false };
@@ -363,6 +365,32 @@ function session(opts = {}) {
   ok('신호 분류 — 402/400잔액/403결제/401/400키/분당429', U.isBillingSignal(402) === 'payment-required' && U.isBillingSignal(400, 'Your credit balance is too low') === 'payment-required'
     && U.isBillingSignal(403, 'Billing is not enabled') === 'billing-required' && U.isBillingSignal(401, '') === 'key-problem' && U.isBillingSignal(400, 'API key not valid') === 'key-problem'
     && U.isBillingSignal(429, 'rate_limit_error') === '' && U.isBillingSignal(529, 'overloaded') === '' && U.isBillingSignal(500, 'billing') === '');
+
+  /* 모델 자동 승계 — 라이브에서 실제로 난 404 (2.5-flash-lite 는 신규 사용자 불가) */
+  {
+    const C = await import('../netlify/lib/proposal/chat.mjs');
+    await S.del('ai/gemini-model.json').catch(() => {}); C._resetGeminiModel();
+    gemGone = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite']; gemModels = []; gemCalls = 0; gemFail = null;
+    aiReply = { reply: '네, 알겠습니다.', fields: {}, handoff: false };
+    const m1 = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없어도 되나요?' }], fields: { company: '승계검사' } }))).j;
+    const rec = await C.readGeminiModel();
+    ok('모델 404 → 다음 후보로 자동 승계(3.5-lite→3.1-lite→3.5-flash) · 답은 정상', m1.mode === 'ai' && gemModels.join('>') === 'gemini-3.5-flash-lite>gemini-3.1-flash-lite>gemini-3.5-flash' && rec && rec.model === 'gemini-3.5-flash' && rec.gone.length === 2, { mode: m1.mode, gemModels, rec });
+    gemModels = [];
+    const m2 = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없어도 되나요?' }], fields: { company: '승계검사' } }))).j;
+    ok('  다음 호출은 찾은 모델로 바로(1회)', m2.mode === 'ai' && gemModels.length === 1 && gemModels[0] === 'gemini-3.5-flash', gemModels);
+    C._resetGeminiModel(); gemModels = [];
+    const m3 = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없어도 되나요?' }], fields: { company: '승계검사' } }))).j;
+    ok('  콜드 스타트 뒤에도 저장된 모델부터(404 반복 없음)', m3.mode === 'ai' && gemModels.length === 1 && gemModels[0] === 'gemini-3.5-flash', gemModels);
+    const u1 = await U.readUsage();
+    ok('  사용량은 실제로 쓴 모델 이름으로 기록', !!u1.byModel['gemini-3.5-flash'] && u1.byModel['gemini-3.5-flash'].usd === 0, Object.keys(u1.byModel));
+    gemGone = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-flash']; gemModels = [];
+    await S.del('ai/gemini-model.json').catch(() => {}); C._resetGeminiModel();
+    const m4 = (await js(await call({ messages: [{ role: 'user', text: '인터넷 없어도 되나요?' }], fields: { company: '승계검사' } }))).j;
+    await new Promise(r => setTimeout(r, 30));
+    const le = await U.readAiError();
+    ok('  후보가 전부 없으면 규칙으로 + 마지막 404 가 관제에 남는다(정지 아님)', m4.mode === 'rule' && !m4.paused && le && le.status === 404 && !(await U.readHalt()), { m4mode: m4.mode, le });
+    gemGone = []; await S.del('ai/gemini-model.json').catch(() => {}); C._resetGeminiModel();
+  }
 
   /* 월 무료 호출 상한 */
   await S.setJSON('ai/usage-' + U.monthKey() + '.json', { calls: 1500, in: 0, out: 0, usd: 0, byModel: {} });
