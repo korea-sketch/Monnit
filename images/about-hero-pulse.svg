@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760" preserveAspectRatio="xMidYMid slice" role="img" aria-label="센서 노드가 허브로 신호를 보내는 무선 모니터링 네트워크">
+<defs>
+ <radialGradient id="bgrad" cx="72%" cy="44%" r="82%"><stop offset="0%" stop-color="#0E1A2E"/><stop offset="42%" stop-color="#0A1220"/><stop offset="100%" stop-color="#05080F"/></radialGradient>
+ <radialGradient id="hubglow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1E3E6E" stop-opacity="0.55"/><stop offset="60%" stop-color="#1E3E6E" stop-opacity="0.16"/><stop offset="100%" stop-color="#1E3E6E" stop-opacity="0"/></radialGradient>
+</defs>
+<style>
+.ring{fill:none;stroke:#78A8E0;stroke-width:1.4;animation:ring 5.8s cubic-bezier(.25,.55,.4,1) infinite}
+@keyframes ring{0%{r:5px;opacity:.5}72%{opacity:.1}100%{r:52px;opacity:0}}
+.d1{animation-delay:0s}.d2{animation-delay:1.45s}.d3{animation-delay:2.9s}.d4{animation-delay:4.35s}
+.glowb{animation:breathe 6.4s ease-in-out infinite alternate}
+@keyframes breathe{from{opacity:.55}to{opacity:.9}}
+.dot{fill:#C9DEF6;opacity:0}
+.p1{animation:p1 8s linear infinite}
+@keyframes p1{0%{transform:translate(0,0);opacity:0}4%{opacity:.9}30%{transform:translate(270px,130px);opacity:.9}34%{transform:translate(270px,130px);opacity:0}100%{transform:translate(270px,130px);opacity:0}}
+.p2{animation:p2 8s linear infinite;animation-delay:4s}
+@keyframes p2{0%{transform:translate(0,0);opacity:0}4%{opacity:.9}30%{transform:translate(-180px,-180px);opacity:.9}34%{transform:translate(-180px,-180px);opacity:0}100%{transform:translate(-180px,-180px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.ring,.glowb,.p1,.p2{animation:none}.ring{opacity:.14}.dot{opacity:0}}
+</style>
+<rect width="1600" height="760" fill="url(#bgrad)"/>
+<!-- 정밀 그리드 (아주 옅게) -->
+<g stroke="#78A8E0" stroke-width="1" opacity="0.05">
+ <path d="M200 0V760M400 0V760M600 0V760M800 0V760M1000 0V760M1200 0V760M1400 0V760"/>
+ <path d="M0 190H1600M0 380H1600M0 570H1600"/>
+</g>
+<!-- 허브 글로우 -->
+<circle class="glowb" cx="1150" cy="300" r="150" fill="url(#hubglow)"/>
+<!-- 연결선 (헤어라인) -->
+<g stroke="#78A8E0" stroke-width="1" opacity="0.18">
+ <line x1="880" y1="170" x2="1150" y2="300"/>
+ <line x1="1420" y1="150" x2="1150" y2="300"/>
+ <line x1="1330" y1="480" x2="1150" y2="300"/>
+ <line x1="960" y1="460" x2="1150" y2="300"/>
+</g>
+<!-- 원경 노드 (정적, 미세) -->
+<g fill="#9CC2EE" opacity="0.13">
+ <circle cx="700" cy="320" r="2"/><circle cx="1050" cy="105" r="2"/><circle cx="1520" cy="330" r="2"/>
+ <circle cx="1230" cy="585" r="2"/><circle cx="810" cy="560" r="2"/><circle cx="1560" cy="90" r="2"/>
+</g>
+<!-- 센서 노드 + 펄스 링 -->
+<g>
+ <circle class="ring d1" cx="880" cy="170" r="5"/><circle cx="880" cy="170" r="4" fill="#9CC2EE" opacity="0.85"/>
+ <circle class="ring d2" cx="1420" cy="150" r="5"/><circle cx="1420" cy="150" r="4" fill="#9CC2EE" opacity="0.85"/>
+ <circle class="ring d3" cx="1330" cy="480" r="5"/><circle cx="1330" cy="480" r="4" fill="#9CC2EE" opacity="0.85"/>
+ <circle class="ring d4" cx="960" cy="460" r="5"/><circle cx="960" cy="460" r="4" fill="#9CC2EE" opacity="0.85"/>
+</g>
+<!-- 허브 -->
+<circle cx="1150" cy="300" r="6" fill="#C9DEF6"/>
+<circle cx="1150" cy="300" r="11" fill="none" stroke="#C9DEF6" stroke-width="1" opacity="0.35"/>
+<!-- 데이터 이동 점 (센서→허브) -->
+<circle class="dot p1" cx="880" cy="170" r="2.6"/>
+<circle class="dot p2" cx="1330" cy="480" r="2.6"/>
+</svg>
