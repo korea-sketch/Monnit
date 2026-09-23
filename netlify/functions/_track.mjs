@@ -1,6 +1,6 @@
 /** 유입·경로 기록 공통 — track.mjs(기록) · flowadmin.mjs(관제)가 같이 쓴다 (2026-09-23) */
 export const POPUP_KEY = 'popup.json';
-export const POPUP_DEFAULT = { on: true };
+export const POPUP_DEFAULT = { on: true, pet: true };
 
 /* monnit-lead.js 출처 문자열 → 채널 (lead.mjs 와 같은 규칙) */
 export function channel(src) {

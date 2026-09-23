@@ -79,6 +79,7 @@ async function data(days, withInternal) {
   const pagePv = new Map(), pageSess = new Map(), pageEntry = new Map(), pageExit = new Map(), pageTitle = new Map();
   const chS = new Map(), chPv = new Map(), landing = new Map(), extRef = new Map(), flows = new Map(), clicks = new Map();
   const popup = { view: 0, click: 0, close: 0, today: 0 }, popupPage = new Map();
+  const pet = { open: 0, cta: 0, contact: 0, tel: 0, bubble: 0, hide: 0, restore: 0 };
   let pv = 0, clk = 0, mob = 0;
 
   for (const s of sess.values()) {
@@ -104,6 +105,8 @@ async function data(days, withInternal) {
       if (isInternalPath(r.f) && r.f !== r.p) inc(flows, r.f + '\u0001' + r.p);
     } else if (r.t === 'click') {
       clk++; inc(clicks, [r.p, r.l || '(문구 없음)', r.to || '', r.z || ''].join('\u0001'));
+    } else if (r.t === 'ev' && /^pet_/.test(r.n || '')) {
+      const k = r.n.slice(4); if (k in pet) pet[k]++;
     } else if (r.t === 'ev' && /^popup_/.test(r.n || '')) {
       const k = { popup_view: 'view', popup_click: 'click', popup_close: 'close', popup_hide_today: 'today' }[r.n];
       if (k) {
@@ -137,6 +140,7 @@ async function data(days, withInternal) {
     },
     popup: { ...popup, ctr: popup.view ? Math.round(popup.click / popup.view * 1000) / 10 : 0,
              pages: [...popupPage.values()].sort((a, b) => b.view - a.view).slice(0, 20) },
+    pet,
     daily: [...daily.entries()].map(([d, n]) => ({ d, pv: n, s: dailyS.get(d).size })),
     channels: top(chS, 20, ([ch, s]) => ({ ch, s, pv: chPv.get(ch) || 0 })),
     landings: top(landing, 60, ([k, n]) => { const [p, ch] = k.split('\u0001'); return { p, ch, n }; }),
@@ -165,7 +169,10 @@ export default async (req) => {
     if (req.method !== 'POST') return j({ ok: false }, 405);
     if (!/application\/json/.test(req.headers.get('content-type') || '')) return j({ ok: false }, 415);
     let b; try { b = await req.json(); } catch (e) { return j({ ok: false, error: '요청 형식 오류' }, 400); }
-    const cfg = { ...(await readPopup()), on: !!(b && b.on), at: new Date().toISOString() };
+    const cur = await readPopup();
+    const cfg = { ...cur, at: new Date().toISOString() };
+    if (b && typeof b.on === 'boolean') cfg.on = b.on;
+    if (b && typeof b.pet === 'boolean') cfg.pet = b.pet;
     const ok = await set('ops', POPUP_KEY, JSON.stringify(cfg));
     return j({ ok, cfg });
   }
@@ -251,12 +258,20 @@ label.chk{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:
 </header>
 
 <section class="sec pop">
- <div class="sw" id="sw" role="switch" aria-checked="false" tabindex="0" aria-label="사이트 팝업 켜기/끄기"><i></i></div>
+ <div class="sw" id="sw" data-k="on" role="switch" aria-checked="false" tabindex="0" aria-label="사이트 팝업 켜기/끄기"><i></i></div>
  <span class="swl" id="swl">—</span>
  <div class="t"><b>사이트 팝업 · 맞춤형 제안서 무료 제작 EVENT</b>
   <p>누르면 → /proposal (공공·교육·문화 · 공기질·환경 맞춤 제안). 탭당 1회 · 「오늘 하루 보지 않기」 지원 · 켜고 끄면 1분 안에 전 페이지 반영</p>
   <div class="msg" id="swm"></div></div>
  <div class="pstats" id="pst"></div>
+</section>
+<section class="sec pop">
+ <div class="sw" id="swp" data-k="pet" role="switch" aria-checked="false" tabindex="0" aria-label="상시 도우미 켜기/끄기"><i></i></div>
+ <span class="swl" id="swpl">—</span>
+ <div class="t"><b>상시 도우미 로봇 (화면 오른쪽 아래)</b>
+  <p>모든 페이지에 늘 떠 있는 안내 로봇 — 누르면 맞춤 제안서 · 상담 문의 · 전화 안내. 제안서·접수 화면과 광고 랜딩(/promo)에는 안 나옵니다.</p>
+  <div class="msg" id="swpm"></div></div>
+ <div class="pstats" id="ppst"></div>
 </section>
 
 <div class="kpis" id="kpis"></div>
@@ -316,10 +331,14 @@ function load(){
    .catch(function(){ $('#kpis').innerHTML='<div class="empty">불러오지 못했습니다. 새로고침을 눌러 주세요.</div>' })
    .finally(function(){ $('#rf').disabled=false });
 }
+function setPet(on){ var s=$('#swp'); s.classList.toggle('on',!!on); s.setAttribute('aria-checked',on?'true':'false'); $('#swpl').textContent=on?'켜짐':'꺼짐'; $('#swpl').style.color=on?'var(--gold)':'var(--dim)'; }
 function setSw(on){ var s=$('#sw'); s.classList.toggle('on',!!on); s.setAttribute('aria-checked',on?'true':'false'); $('#swl').textContent=on?'켜짐':'꺼짐'; $('#swl').style.color=on?'var(--gold)':'var(--dim)'; }
 function render(){
   var k=D.kpi, P=D.popup;
   setSw(D.popupCfg && D.popupCfg.on);
+  setPet(!D.popupCfg || D.popupCfg.pet!==false);
+  var Q=D.pet||{};
+  $('#ppst').innerHTML='<span>도우미 열기 <b>'+nf(Q.open)+'</b></span><span>제안서 클릭 <b>'+nf(Q.cta)+'</b></span><span>상담 문의 <b>'+nf(Q.contact)+'</b></span><span>전화 <b>'+nf(Q.tel)+'</b></span><span>말풍선 클릭 <b>'+nf(Q.bubble)+'</b></span><span>숨김 <b>'+nf(Q.hide)+'</b></span>';
   $('#pst').innerHTML='<span>노출 <b>'+nf(P.view)+'</b></span><span>클릭 <b>'+nf(P.click)+'</b></span><span>클릭률 <b>'+P.ctr+'%</b></span><span>닫기 <b>'+nf(P.close)+'</b></span><span>오늘 그만 <b>'+nf(P.today)+'</b></span>';
   $('#kpis').innerHTML=[['방문(세션)',k.sessions],['페이지 보기',k.pv],['클릭',k.clicks],['세션당 페이지',k.pps],['한 페이지만 보고 이탈',k.bounce+'%'],['모바일 비중',k.mobile+'%']]
     .map(function(x){return '<div class="kpi"><b>'+(typeof x[1]==='number'?nf(x[1]):x[1])+'</b><span>'+x[0]+'</span></div>'}).join('')
@@ -345,7 +364,7 @@ function render(){
      +s.steps.map(function(x,i){ var a=i?'<span class="ar">›</span>':'';
         if(x.k==='pv') return a+'<span class="st">'+esc(x.p)+'</span>';
         if(x.k==='c') return a+'<span class="st c">클릭 · '+esc(x.l||'클릭')+(x.to&&x.to.charAt(0)!=='#'?' → '+esc(x.to.replace(/^ext:/,'외부 ')):'')+'</span>';
-        return a+'<span class="st e">'+esc({popup_view:'팝업 노출',popup_click:'팝업 클릭',popup_close:'팝업 닫기',popup_hide_today:'오늘 그만 보기'}[x.n]||x.n)+'</span>'; }).join('')
+        return a+'<span class="st e">'+esc({popup_view:'팝업 노출',popup_click:'팝업 클릭',popup_close:'팝업 닫기',popup_hide_today:'오늘 그만 보기',pet_open:'도우미 열기',pet_cta:'도우미→제안서',pet_contact:'도우미→상담',pet_tel:'도우미→전화',pet_bubble:'말풍선 클릭',pet_hide:'도우미 숨김',pet_restore:'도우미 다시 열기'}[x.n]||x.n)+'</span>'; }).join('')
      +'</div></div>' }).join(''):'<div class="empty">기록 없음</div>';
 }
 function detail(){
@@ -370,14 +389,17 @@ document.addEventListener('click',function(e){
 $('#pgSel').addEventListener('change',function(){sel=this.value;detail()});
 $('#rf').addEventListener('click',load);
 $('#inc').addEventListener('change',load);
-function toggle(){
-  var on=!$('#sw').classList.contains('on'); setSw(on); $('#swm').textContent='저장 중…';
-  fetch('/ops/flow/popup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({on:on})})
-   .then(function(r){return r.json()}).then(function(j){ if(!j.ok) throw 0; setSw(j.cfg.on); $('#swm').textContent=(j.cfg.on?'켰습니다':'껐습니다')+' — 1분 안에 모든 페이지에 반영됩니다'; })
-   .catch(function(){ setSw(!on); $('#swm').textContent='저장하지 못했습니다. 다시 눌러 주세요.'; $('#swm').style.color='var(--dn)'; });
+function toggle(el){
+  var k=el.getAttribute('data-k'), id=el.id, m=$('#'+id+'m'), set=k==='pet'?setPet:setSw;
+  var on=!el.classList.contains('on'); set(on); m.style.color=''; m.textContent='저장 중…';
+  var body={}; body[k]=on;
+  fetch('/ops/flow/popup',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+   .then(function(r){return r.json()}).then(function(j){ if(!j.ok) throw 0; var v=k==='pet'?j.cfg.pet!==false:!!j.cfg.on; set(v); m.textContent=(v?'켰습니다':'껐습니다')+' — 1분 안에 모든 페이지에 반영됩니다'; })
+   .catch(function(){ set(!on); m.textContent='저장하지 못했습니다. 다시 눌러 주세요.'; m.style.color='var(--dn)'; });
 }
-$('#sw').addEventListener('click',toggle);
-$('#sw').addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggle(); } });
+['#sw','#swp'].forEach(function(s){ var el=$(s);
+  el.addEventListener('click',function(){toggle(el)});
+  el.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggle(el); } }); });
 load();
 })();
 </script></body></html>`;

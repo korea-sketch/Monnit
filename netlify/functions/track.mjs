@@ -37,7 +37,7 @@ export default async (req) => {
   if (path === '/api/popup') {
     let cfg = POPUP_DEFAULT;
     try { const t = await get('ops', POPUP_KEY); if (t) cfg = { ...POPUP_DEFAULT, ...JSON.parse(t) }; } catch (e) {}
-    return new Response(JSON.stringify({ on: !!cfg.on }), {
+    return new Response(JSON.stringify({ on: !!cfg.on, pet: cfg.pet !== false }), {
       status: 200,
       headers: {
         'content-type': 'application/json; charset=utf-8',

@@ -403,19 +403,71 @@ body{overflow-x:hidden}
 @media(max-width:380px){.sitebar .bcase{display:none}}
 @media(prefers-reduced-motion:reduce){.fab,.mbar,.frbtn,.sbcta{transition:none}}
 @media print{.fab,.mbar,.mhcta,.gcta,.endcta,.sbcta{display:none!important}}
+
+/* ===== 사이트 메뉴 · 홈 버튼 (2026-09-23) — 「홈으로 가는 길이 안 보인다」 의견 반영 ===== */
+.sitebar-in{gap:20px}
+.snav{display:flex;align-items:center;gap:4px;margin-left:28px;margin-right:auto}
+.snav a{font-size:14px;font-weight:500;color:var(--mut);padding:8px 11px;border-radius:8px;transition:color .2s,background .2s;white-space:nowrap}
+.snav a:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.snav a.on{color:var(--ink);font-weight:600}
+.shome{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 13px;border-radius:8px;border:1px solid var(--line2,rgba(255,255,255,.18));background:rgba(255,255,255,.04);color:var(--ink);font-size:13.5px;font-weight:600;white-space:nowrap;transition:background .2s,border-color .2s}
+.shome:hover{background:rgba(255,255,255,.1);border-color:var(--btn)}
+.shome svg{width:17px;height:17px;flex:none}
+.smenu{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;border:1px solid var(--line2,rgba(255,255,255,.18));background:rgba(255,255,255,.04);color:var(--ink);cursor:pointer;padding:0}
+.smenu svg{width:20px;height:20px}
+.smenu-sheet{border-top:1px solid var(--line);background:rgba(8,12,22,.98);padding:8px max(16px,env(safe-area-inset-left)) 14px;display:grid;gap:2px}
+.smenu-sheet[hidden]{display:none}
+.smenu-sheet a{display:flex;align-items:center;gap:8px;min-height:46px;padding:0 12px;border-radius:10px;color:var(--ink);font-size:15px;font-weight:500}
+.smenu-sheet a:hover,.smenu-sheet a.on{background:rgba(255,255,255,.06)}
+.smenu-sheet a svg{width:18px;height:18px}
+.smenu-sheet a.hl{color:var(--btn);font-weight:700}
+.crumb{border-bottom:1px solid var(--line)}
+.crumb-in{max-width:1320px;margin:0 auto;padding:9px max(48px,env(safe-area-inset-left));display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}
+.crumb a{color:var(--mut)}.crumb a:hover{color:var(--ink)}
+.crumb b{color:var(--ink);font-weight:500}
+.shome:focus-visible,.smenu:focus-visible,.snav a:focus-visible{outline:2px solid var(--btn);outline-offset:2px}
+@media(max-width:1100px){.snav a:nth-child(1),.snav a:nth-child(6){display:none}}
+@media(max-width:900px){.snav{display:none}.smenu{display:inline-flex}}
+@media(max-width:760px){
+  .crumb-in{padding:8px max(22px,env(safe-area-inset-left))}
+  .sitebar-links{gap:8px}
+  .shome{height:38px;padding:0 11px;font-size:13px}
+  .sbcta{height:38px}
+}
+@media(max-width:380px){.shome span{display:none}.shome{width:38px;padding:0;justify-content:center}.sitebar .bhome{font-size:16px}}
 </style>
 </head>
 <body class="dark">
 
 <div class="sitebar"><div class="sitebar-in">
-  <a class="bhome" href="index.html">MONNIT<span>KOREA</span></a>
+  <a class="bhome" href="/" aria-label="모넷코리아 홈">MONNIT<span>KOREA</span></a>
+  <nav class="snav" aria-label="사이트 메뉴">
+    <a href="/who-we-are">회사 소개</a>
+    <a href="/products">제품</a>
+    <a href="/applications">활용 분야</a>
+    <a href="/stories" class="on" aria-current="page">도입 사례</a>
+    <a href="/promotions" data-cta="sitebar_promo">프로모션</a>
+    <a href="/proposal">맞춤 제안서</a>
+  </nav>
   <div class="sitebar-links">
-    <a class="bback bcase" href="index.html#stories">도입 사례 &rarr;</a>
-    <a class="bback bpromo" href="/promotions" data-cta="sitebar_promo">프로모션</a>
-    <a class="bback bhomeback" href="index.html">&larr; 홈으로</a>
+    <a class="shome" href="/" data-cta="sitebar_home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg><span>홈</span></a>
     <a class="sbcta" href="/contact?from=field-review" data-cta="sitebar_contact">상담 문의</a>
+    <button type="button" class="smenu" id="smenuBtn" aria-expanded="false" aria-controls="smenu" aria-label="전체 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
+</div>
+<div class="smenu-sheet" id="smenu" hidden>
+  <a href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg> 홈으로</a>
+  <a href="/who-we-are">회사 소개</a>
+  <a href="/products">제품</a>
+  <a href="/applications">활용 분야</a>
+  <a href="/stories">도입 사례</a>
+  <a href="/installation-photos" class="on" aria-current="page">설치 사례 갤러리</a>
+  <a href="/promotions">프로모션</a>
+  <a href="/proposal" class="hl">맞춤 제안서 무료로 받기 →</a>
+  <a href="/contact?from=field-review">상담 문의</a>
+  <a href="tel:0220881454">전화 02-2088-1454</a>
 </div></div>
+<nav class="crumb" aria-label="현재 위치"><div class="crumb-in"><a href="/">홈</a><span aria-hidden="true">›</span><a href="/stories">도입 사례</a><span aria-hidden="true">›</span><b>설치 사례 갤러리</b></div></nav>
 
 <div class="top"><div class="wrap">
 <div class="topbar"><span>Monnit Korea · Industrial IoT</span><span>The Field Review</span><span><a class="tgl" id="tgl" onclick="toggleTheme()">◐ Dark</a>&nbsp;&nbsp;·&nbsp;&nbsp;Issue 01 — MMXXVI</span></div>
@@ -655,54 +707,19 @@ function showClientBanner(){ if(!fClient) return; var cb=document.getElementById
 })();
 </script>
 <style>
-/* ===== image protection (deterrents) ===== */
+/* ===== 이미지 보호 (2026-09-23 완화) =====
+   화면을 가리던 캡처 방지 가림막(PROTECTED CONTENT)과 단축키 차단은 뺐다 —
+   다른 창으로 전환하거나 탭을 옮길 때마다 화면이 가려져 보는 데 방해가 됐다.
+   사진 끌어다 저장·길게 눌러 저장·우클릭 저장만 막는다. */
 img, .gi, .ph, .dimg img, #lbimg, .dcell{
-  -webkit-user-drag:none; -khtml-user-drag:none; -moz-user-drag:none; user-drag:none;
-  -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
-  -webkit-touch-callout:none;
+  -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
 }
-/* anti-screenshot veil: covers content when the window loses focus / on PrtScn */
-#capGuard{ position:fixed; inset:0; z-index:99999; background:rgba(8,12,22,.985);
-  backdrop-filter:blur(26px); -webkit-backdrop-filter:blur(26px);
-  display:none; align-items:center; justify-content:center; text-align:center; padding:24px; }
-#capGuard.on{ display:flex; }
-#capGuard .cg{ font-family:var(--mono,ui-monospace,monospace); color:var(--teal,#5BA1FF);
-  letter-spacing:.16em; font-size:12px; text-transform:uppercase; }
-#capGuard .cg small{ display:block; margin-top:12px; color:var(--mut,#9aa0a8);
-  letter-spacing:.01em; text-transform:none; font-size:13px; line-height:1.6; }
 </style>
-<div id="capGuard"><div class="cg">Protected Content<small>이 페이지의 이미지는 저장·캡처가 제한됩니다.<br>모넷코리아 설치 레퍼런스</small></div></div>
 <script>
 (function(){
-  function veil(on){ var g=document.getElementById('capGuard'); if(g) g.classList.toggle('on', !!on); }
-  // 1) 우클릭(이미지 저장/컨텍스트 메뉴) 차단
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); return false; }, true);
-  // 2) 드래그하여 저장 차단
-  document.addEventListener('dragstart', function(e){ e.preventDefault(); return false; }, true);
-  // 3) 캡처 단축키 감지 → 즉시 가림 + 클립보드 무력화 (PrtScn · Win+Shift+S · Mac Cmd+Shift+3/4/5)
-  function clobber(){ try{ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(' '); }catch(_){}}
-  function flash(){ veil(true); clobber(); setTimeout(function(){ veil(false); }, 1200); }
-  function isShot(e){
-    var k=(e.key||'').toLowerCase();
-    if(e.key==='PrintScreen') return true;                                   // PrtScn / Alt+PrtScn
-    if((e.metaKey||e.ctrlKey) && e.shiftKey && k==='s') return true;         // Win+Shift+S (캡처도구)
-    if(e.metaKey && e.shiftKey && (k==='3'||k==='4'||k==='5')) return true;  // macOS 캡처
-    return false;
-  }
-  document.addEventListener('keydown', function(e){
-    if(isShot(e)){ flash(); }
-    var k=(e.key||'').toLowerCase();
-    // 저장/소스보기/인쇄/개발자도구 단축키 차단(억제)
-    if((e.ctrlKey||e.metaKey) && (k==='s'||k==='u'||k==='p')){ e.preventDefault(); return false; }
-    if(e.key==='F12'){ e.preventDefault(); return false; }
-    if((e.ctrlKey||e.metaKey) && e.shiftKey && (k==='i'||k==='j'||k==='c')){ e.preventDefault(); return false; }
-  }, true);
-  // PrtScn은 브라우저에서 keyup에서만 발생하는 경우가 많음 → 여기서 한 번 더 무력화
-  document.addEventListener('keyup', function(e){ if(e.key==='PrintScreen'){ flash(); } }, true);
-  // 4) 캡처 억제: 창이 포커스를 잃거나(캡처 도구 실행) 탭이 숨겨지면 가림
-  window.addEventListener('blur', function(){ veil(true); });
-  window.addEventListener('focus', function(){ veil(false); });
-  document.addEventListener('visibilitychange', function(){ veil(document.hidden); });
+  function isImg(t){ return t && t.closest && t.closest('img,.gi,.ph,.dimg,#lbimg,.dcell'); }
+  document.addEventListener('contextmenu', function(e){ if(isImg(e.target)) e.preventDefault(); }, true);
+  document.addEventListener('dragstart', function(e){ if(isImg(e.target)) e.preventDefault(); }, true);
 })();
 </script>
 <script>
@@ -776,5 +793,14 @@ if(i.complete&&i.naturalWidth)on();else{i.addEventListener('load',on);i.addEvent
 })();
 </script>
 <script src="/js/monnit-track.js?v=1" defer></script>
-<script src="/js/monnit-popup.js?v=1" defer></script>
+<script src="/js/monnit-popup.js?v=2" defer></script>
+<script src="/js/monnit-pet.js?v=1" defer></script>
+<script>
+(function(){var b=document.getElementById('smenuBtn'),m=document.getElementById('smenu');if(!b||!m)return;
+function set(o){m.hidden=!o;b.setAttribute('aria-expanded',o?'true':'false');}
+b.addEventListener('click',function(){set(m.hidden);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!m.hidden){set(false);b.focus();}});
+document.addEventListener('click',function(e){if(!m.hidden&&!m.contains(e.target)&&!b.contains(e.target))set(false);});
+window.addEventListener('resize',function(){if(window.innerWidth>900)set(false);},{passive:true});})();
+</script>
 </body></html>
