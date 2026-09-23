@@ -155,6 +155,8 @@ export const config = {
     /* 맞춤 제안서 진행 화면이 몇 초마다 부르는 읽기 전용 API — 방문 기록이 부풀지 않게 (2026-09-17).
        접수(POST /api/proposal)는 그대로 검사한다. 함수 안의 _guard 도 한 번 더 막는다. */
     "/api/proposal/status", "/api/proposal/preview", "/api/proposal/detect",
+    /* 유입·경로 기록과 팝업 설정 — 페이지마다 불리므로 엣지를 거치지 않게 (2026-09-23) */
+    "/api/track", "/api/popup",
     "/*.css", "/*.js", "/*.mjs", "/*.webp", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.svg",
     "/*.ico", "/*.woff", "/*.woff2", "/*.map", "/*.txt", "/*.xml"
   ],

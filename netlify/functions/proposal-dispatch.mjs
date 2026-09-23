@@ -29,7 +29,7 @@ export default async () => {
     if (release) {
       try {
         r.compact = [];
-        for (const store of ['leads', 'leads-test', 'ops', 'health'])
+        for (const store of ['leads', 'leads-test', 'ops', 'health', 'track'])
           r.compact.push(await compactAll(store, { keep: 50, budgetMs: 2500 }));
         /* 「규칙이 놓친 말」 90일 지난 것 정리 — 만들어 두고 아무 데서도 안 부르고 있었다 */
         r.sweptMisses = await sweepMisses();

@@ -383,7 +383,7 @@ async function insightData(url) {
 /* ── 화면 ───────────────────────────────────────────────────────── */
 /* 통합 관제 탭 — /ops · /ops/block 화면에도 같은 줄이 있다 */
 const OPS_NAV = `<nav class="opsnav" aria-label="관제 메뉴">
-<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/block">차단 관리</a></nav>`;
+<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>`;
 
 function page(ok, keyLogin, nonce = '') {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
