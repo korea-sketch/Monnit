@@ -1,14 +1,18 @@
-/*! Monnit Korea — 사이트 공통 팝업 v1 (2026-09-23)
+/*! Monnit Korea — 사이트 공통 팝업 v2 · 맞춤형 제안서 무료 제작 EVENT (2026-09-23)
  *
  *  켜기/끄기  →  /ops/flow 화면 상단 「사이트 팝업」 스위치 (저장 즉시, 1분 안에 전 페이지 반영)
  *             비상시엔 아래 HARD_OFF 를 true 로 바꿔 배포해도 꺼진다.
  *  노출 규칙
  *    · 탭(세션)당 한 번만 — 페이지를 옮길 때마다 다시 뜨지 않는다
  *    · 「오늘 하루 보지 않기」 → 한국 시간 자정까지 숨김 (localStorage)
- *    · 팝업이 보내는 곳(/proposal)과 접수·관리 화면에서는 띄우지 않는다
- *    · 페이지가 뜨고 1.2초 뒤, 사용자가 이미 스크롤·입력 중이어도 방해하지 않게 부드럽게 등장
+ *    · 팝업이 보내는 곳(/proposal)·접수 화면·광고 랜딩·관리 화면에서는 띄우지 않는다
  *  닫기: X · 배경 클릭 · ESC · 「닫기」
  *  기록: MonnitTrack.event('popup_view' | 'popup_click' | 'popup_close' | 'popup_hide_today')
+ *
+ *  화면 구성 — 이미지 한 장이 아니라 층으로 나눠 움직인다
+ *    로봇: 몸통 · 왼날개 · 오른날개 (images/popup/robot-*.webp) — 둥실 떠다님 · 날갯짓 · 안테나 빛 · 눈 깜빡임
+ *    카드: 문구는 전부 HTML 텍스트 — 어떤 화면에서도 선명, 반짝이 별 · 버튼 광택 · 배경 원 움직임
+ *    움직임 줄이기(reduced-motion) 설정이면 모든 효과를 멈춘다.
  */
 (function (w, d) {
   'use strict';
@@ -17,12 +21,8 @@
 
   var DEFAULTS = {
     on: true,
-    id: 'hanok-2026-09',   /* 새 팝업으로 바꾸면 id 도 바꾼다 — 「오늘 그만 보기」가 새 팝업에는 적용되지 않게 */
-    href: '/proposal?from=finder&fac=public&con=air&fl=%EA%B3%B5%EA%B3%B5%C2%B7%EA%B5%90%EC%9C%A1%C2%B7%EB%AC%B8%ED%99%94&cl=%EA%B3%B5%EA%B8%B0%EC%A7%88%C2%B7%ED%99%98%EA%B2%BD',
-    kicker: 'MONNIT KOREA',
-    line1: '모든 선택에는,',
-    line2: '분명한 이유가 있다.',
-    cta: '맞춤 제안서 받아보기'
+    id: 'proposal-event-2026-09',   /* 새 팝업으로 바꾸면 id 도 바꾼다 — 「오늘 그만 보기」가 새 팝업에는 적용되지 않게 */
+    href: '/proposal?from=finder&fac=public&con=air&fl=%EA%B3%B5%EA%B3%B5%C2%B7%EA%B5%90%EC%9C%A1%C2%B7%EB%AC%B8%ED%99%94&cl=%EA%B3%B5%EA%B8%B0%EC%A7%88%C2%B7%ED%99%98%EA%B2%BD'
   };
   /* 띄우지 않을 경로
      · /proposal — 팝업이 보내는 곳 · /visit · /contact — 접수 중인 화면
@@ -42,50 +42,107 @@
   function hiddenToday(id) { try { return ls && ls.getItem('mk_pop_hide_' + id) === kst(); } catch (e) { return false; } }
   function seenThisTab(id) { try { return ss && ss.getItem('mk_pop_seen_' + id) === '1'; } catch (e) { return false; } }
 
+  var IMG = '/images/popup/';
+  var STAR = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 0C21.6 11 29 18.4 40 20 29 21.6 21.6 29 20 40 18.4 29 11 21.6 0 20 11 18.4 18.4 11 20 0Z"/></svg>';
+
+  /* 로봇 좌표는 원본(400×248) 기준 % — 카드 폭에 맞춰 같이 커지고 작아진다 */
   function css() {
     var s = d.createElement('style');
     s.id = 'mkpop-css';
-    s.textContent =
-      '.mkpop{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));' +
-      'background:rgba(5,9,18,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .35s ease;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}' +
-      '.mkpop.in{opacity:1}' +
-      '.mkpop-card{position:relative;width:min(880px,100%);max-height:calc(100vh - 32px);background:#0C1220;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;' +
-      'box-shadow:0 30px 80px rgba(0,0,0,.55);transform:translateY(14px) scale(.985);transition:transform .45s cubic-bezier(.16,1,.3,1)}' +
-      '.mkpop.in .mkpop-card{transform:none}' +
-      '.mkpop-link{display:block;position:relative;color:#fff;text-decoration:none;-webkit-tap-highlight-color:transparent}' +
-      '.mkpop-img{position:relative;aspect-ratio:4103/1255;background:#0C1220;overflow:hidden}' +
-      '.mkpop-img img{display:block;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.16,1,.3,1)}' +
-      '.mkpop-link:hover .mkpop-img img{transform:scale(1.02)}' +
-      '.mkpop-img::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(12,18,32,0) 70%,rgba(12,18,32,.55) 90%,#0C1220 100%)}' +
-      '.mkpop-k,.mkpop-t{position:absolute;z-index:1;top:30%;transform:translateY(-50%);color:#fff;text-shadow:0 1px 10px rgba(8,12,22,.6);letter-spacing:-.01em}' +
-      '.mkpop-k{left:11%;font-weight:600;font-size:clamp(13px,2.1vw,19px)}' +
-      '.mkpop-t{right:9%;text-align:center;font-weight:500;line-height:1.35;font-size:clamp(13px,2vw,18px)}' +
-      '.mkpop-cta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 22px 18px;background:#0C1220}' +
-      '.mkpop-cta span{font-size:14px;color:#A6B3CC}' +
-      '.mkpop-cta b{display:inline-flex;align-items:center;gap:8px;background:#D4A93C;color:#0B1220;font-size:14.5px;font-weight:700;padding:11px 18px;border-radius:999px;white-space:nowrap;transition:background .2s ease}' +
-      '.mkpop-link:hover .mkpop-cta b{background:#E6BD55}' +
-      '.mkpop-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.09);background:#0A0F1B}' +
-      '.mkpop-foot button{appearance:none;background:none;border:0;color:#A6B3CC;font:inherit;font-size:13.5px;padding:13px 22px;cursor:pointer;min-height:44px}' +
-      '.mkpop-foot button:hover{color:#fff}' +
-      '.mkpop-x{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(8,12,22,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0}' +
-      '.mkpop-x:hover{background:rgba(8,12,22,.85)}' +
-      '.mkpop-x svg{width:16px;height:16px}' +
-      '.mkpop :focus-visible{outline:2px solid #D4A93C;outline-offset:2px}' +
-      '.mkpop-m{display:none}' +
-      /* 모바일: 봉황 중심 4:3 사진 + 문구는 아래 패널로 (작은 화면에서 글자가 사진에 묻히지 않게) */
-      '@media(max-width:640px){' +
-      '.mkpop-card{width:min(400px,100%);border-radius:14px}' +
-      '.mkpop-img{aspect-ratio:4/3}' +
-      '.mkpop-k,.mkpop-t{display:none}' +
-      '.mkpop-m{display:block;padding:4px 20px 0;text-align:left}' +
-      '.mkpop-m i{display:block;font-style:normal;font-size:11.5px;font-weight:600;letter-spacing:.14em;color:#D4A93C;margin-bottom:8px}' +
-      '.mkpop-m strong{display:block;font-size:20px;font-weight:600;line-height:1.4;color:#fff;letter-spacing:-.02em}' +
-      '.mkpop-cta{padding:16px 20px 18px}.mkpop-cta span{display:none}.mkpop-cta b{width:100%;justify-content:center;padding:13px 18px;font-size:15px}' +
-      '.mkpop-foot button{padding:12px 18px;font-size:13px}' +
-      '}' +
-      '@media(max-height:520px) and (min-width:641px){.mkpop-cta{padding:10px 18px}.mkpop-foot button{padding:8px 18px;min-height:36px}}' +
-      '@media(prefers-reduced-motion:reduce){.mkpop,.mkpop-card,.mkpop-img img{transition:none}}' +
-      'html.mkpop-lock,html.mkpop-lock body{overflow:hidden}';
+    s.textContent = [
+      '.mkpop{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 16px max(12px,env(safe-area-inset-bottom));',
+      'background:rgba(4,10,24,.66);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .35s ease;',
+      'font-family:Pretendard,"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased}',
+      '.mkpop.in{opacity:1}',
+      /* 폭: 400px 한도 · 좌우 16px 여백 · 화면 높이가 낮으면 높이에 맞춰 줄인다 (전체 비율 400:740) */
+      '.mkpe{position:relative;width:min(400px,calc(100vw - 32px),calc((100vh - 40px) * .54));width:min(400px,calc(100vw - 32px),calc((100dvh - 40px) * .54));container-type:inline-size;',
+      'transform:translateY(24px) scale(.96);opacity:0;transition:transform .6s cubic-bezier(.2,1.2,.3,1),opacity .4s ease}',
+      '.mkpop.in .mkpe{transform:none;opacity:1}',
+
+      /* ── 로봇 ── */
+      '.mkpe-stage{position:relative;aspect-ratio:400/248;margin-bottom:-2px;pointer-events:none;z-index:1}',
+      '.mkpe-rb{position:absolute;inset:0;transform:translateY(-18%);opacity:0}',
+      '.mkpop.in .mkpe-rb{animation:mkpeDrop .9s cubic-bezier(.3,1.5,.5,1) .15s forwards}',
+      '.mkpe-fl{position:absolute;inset:0;animation:mkpeFloat 3.4s ease-in-out 1.1s infinite}',
+      '.mkpe-fl img{position:absolute;display:block;height:auto;max-width:none;user-select:none;-webkit-user-drag:none}',
+      '.mkpe-body{left:21.5%;top:6.45%;width:57%;z-index:2}',
+      '.mkpe-wl{left:1.25%;top:22.98%;width:22.25%;z-index:1;transform-origin:96% 45%;animation:mkpeWingL .42s ease-in-out infinite alternate}',
+      '.mkpe-wr{left:76.5%;top:21.37%;width:22%;z-index:1;transform-origin:4% 45%;animation:mkpeWingR .42s ease-in-out infinite alternate}',
+      /* 안테나 빛 */
+      '.mkpe-glow{position:absolute;z-index:3;left:50%;top:12.9%;width:17%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;',
+      'background:radial-gradient(circle,rgba(90,180,255,.75) 0%,rgba(40,140,255,.28) 38%,rgba(40,140,255,0) 70%);animation:mkpeGlow 1.9s ease-in-out infinite;mix-blend-mode:screen}',
+      /* 눈 깜빡임 — 얼굴색 눈꺼풀이 위에서 내려온다 */
+      '.mkpe-lid{position:absolute;z-index:3;top:69.4%;width:7.4%;aspect-ratio:1;border-radius:50%;overflow:hidden;transform:translate(-50%,-50%)}',
+      '.mkpe-lid::before{content:"";position:absolute;inset:-10%;background:#13294f;transform:scaleY(0);transform-origin:50% 0;animation:mkpeBlink 4.6s ease-in-out 1.6s infinite}',
+      '.mkpe-lid.l{left:38.75%}.mkpe-lid.r{left:61%}',
+
+      /* ── 카드 ── */
+      '.mkpe-card{position:relative;z-index:2;display:block;text-decoration:none;color:#fff;text-align:center;overflow:hidden;',
+      'background:linear-gradient(180deg,#183662 0%,#16325B 55%,#132c52 100%);border-radius:6cqw;padding:10cqw 7cqw 8cqw;',
+      'box-shadow:0 30px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);-webkit-tap-highlight-color:transparent}',
+      '.mkpe-card:focus-visible{outline:3px solid #7cc0ff;outline-offset:3px}',
+      /* 배경 원 · 빛 */
+      '.mkpe-orb{position:absolute;right:-26cqw;bottom:-30cqw;width:74cqw;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a5885,#2c4670 60%,#284068);opacity:.95;animation:mkpeOrb 9s ease-in-out infinite alternate}',
+      '.mkpe-orb2{position:absolute;left:-18cqw;top:-22cqw;width:60cqw;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(92,164,255,.18),rgba(92,164,255,0) 65%);animation:mkpeOrb 11s ease-in-out infinite alternate-reverse}',
+      '.mkpe-dot{position:absolute;bottom:-6px;width:4px;height:4px;border-radius:50%;background:rgba(170,215,255,.55);animation:mkpeRise 7s linear infinite;opacity:0}',
+      '.mkpe-in{position:relative;z-index:1}',
+      /* 반짝이 별 */
+      '.mkpe-star{position:absolute;z-index:1;fill:#FFE52D;filter:drop-shadow(0 0 6px rgba(255,229,45,.55));animation:mkpeTwinkle 2.4s ease-in-out infinite}',
+      '.mkpe-star svg{display:block;width:100%;height:100%}',
+      '.mkpe-star.a{left:5.5cqw;top:5cqw;width:10.5cqw;height:12cqw}',
+      '.mkpe-star.b{right:9cqw;top:43cqw;width:7cqw;height:8.5cqw;animation-delay:.9s}',
+      '.mkpe-star.c{left:6cqw;top:98cqw;width:3cqw;height:3cqw;animation-delay:1.5s;opacity:.7}',
+      '.mkpe-star.d{right:5cqw;top:30cqw;width:2.6cqw;height:2.6cqw;animation-delay:.4s;opacity:.6;fill:#bfe3ff}',
+      /* 뱃지 */
+      '.mkpe-badge{display:inline-block;position:relative;overflow:hidden;background:#ECF6FD;color:#16325B;font-weight:700;font-size:max(12px,3.7cqw);letter-spacing:-.01em;padding:1.9cqw 4.4cqw;border-radius:99px;',
+      'box-shadow:0 0 0 0 rgba(236,246,253,.5);animation:mkpeBadge 2.6s ease-out 1.4s infinite}',
+      '.mkpe-badge::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.95),transparent);animation:mkpeShine 3.6s ease-in-out 1.8s infinite}',
+      /* 제목 · 본문 */
+      '.mkpe-t{margin:5.5cqw 0 0;font-size:9cqw;line-height:1.3;font-weight:800;letter-spacing:-.03em;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25)}',
+      '.mkpe-t span{display:block}',
+      '.mkpe-p{margin:6cqw 0 0;font-size:max(13px,4.1cqw);line-height:1.6;color:#E4ECF7;font-weight:500;letter-spacing:-.02em}',
+      '.mkpe-p + .mkpe-p{margin-top:3.6cqw}',
+      '.mkpe-p em{font-style:normal;color:#9EE0EC;font-weight:600;background:linear-gradient(90deg,#9EE0EC,#c9f3ff,#9EE0EC);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:mkpeFlow 4s linear infinite}',
+      /* 버튼 */
+      '.mkpe-cta{position:relative;display:block;margin:7cqw auto 0;width:max-content;max-width:100%;padding:3.6cqw 7cqw;border-radius:99px;background:linear-gradient(180deg,#4fa3ff,#3a8cf5);color:#fff;font-weight:700;font-size:max(14px,4.6cqw);letter-spacing:-.02em;',
+      'box-shadow:0 8px 22px rgba(58,140,245,.45),inset 0 1px 0 rgba(255,255,255,.35);overflow:hidden;transition:translate .2s ease,box-shadow .2s ease}',
+      '.mkpe-cta::after{content:"";position:absolute;top:0;bottom:0;left:-45%;width:35%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:mkpeShine 2.8s ease-in-out 1.2s infinite}',
+      '.mkpe-ring{position:absolute;inset:0;border-radius:99px;box-shadow:0 0 0 0 rgba(79,163,255,.55);animation:mkpeRing 2.2s ease-out 1s infinite;pointer-events:none}',
+      '.mkpe-card:hover .mkpe-cta{translate:0 -2px;box-shadow:0 12px 28px rgba(58,140,245,.6),inset 0 1px 0 rgba(255,255,255,.35)}',
+      '.mkpe-cta i{font-style:normal;display:inline-block;margin-left:1.6cqw;transition:transform .2s ease}',
+      '.mkpe-card:hover .mkpe-cta i{transform:translateX(3px)}',
+      /* 순서대로 등장 */
+      '.mkpe-up{opacity:0;transform:translateY(12px)}',
+      '.mkpop.in .mkpe-up{animation:mkpeUp .6s cubic-bezier(.2,.9,.3,1) forwards}',
+      '.mkpop.in .mkpe-badge.mkpe-up{animation:mkpeUp .6s cubic-bezier(.2,.9,.3,1) .35s forwards,mkpeBadge 2.6s ease-out 1.6s infinite}.mkpop.in .mkpe-up.s1{animation-delay:.35s}.mkpop.in .mkpe-up.s2{animation-delay:.47s}.mkpop.in .mkpe-up.s3{animation-delay:.59s}',
+      '.mkpop.in .mkpe-up.s4{animation-delay:.71s}.mkpop.in .mkpe-up.s5{animation-delay:.83s}.mkpop.in .mkpe-up.s6{animation-delay:.95s}',
+      /* 닫기 X (카드 오른쪽 위) */
+      '.mkpe-x{position:absolute;z-index:4;right:calc(11.25cqw - 20px);top:calc(75cqw - 20px);width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:#DDE7F5;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s ease,transform .25s ease}',
+      '.mkpe-x:hover{background:rgba(255,255,255,.1);transform:rotate(90deg)}',
+      '.mkpe-x svg{width:20px;height:20px}',
+      /* 아래 줄 */
+      '.mkpe-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:0 4px}',
+      '.mkpe-foot button{appearance:none;background:none;border:0;color:rgba(235,242,252,.85);font:inherit;font-size:13.5px;padding:10px 6px;cursor:pointer;min-height:44px}',
+      '.mkpe-foot button:hover{color:#fff;text-decoration:underline;text-underline-offset:3px}',
+      '.mkpop :focus-visible{outline:2px solid #7cc0ff;outline-offset:2px;border-radius:8px}.mkpop .mkpe:focus,.mkpop .mkpe:focus-visible{outline:none}',
+
+      '@keyframes mkpeDrop{0%{transform:translateY(-18%);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}',
+      '@keyframes mkpeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3.2%)}}',
+      '@keyframes mkpeWingL{from{transform:rotate(4deg)}to{transform:rotate(-13deg)}}',
+      '@keyframes mkpeWingR{from{transform:rotate(-4deg)}to{transform:rotate(13deg)}}',
+      '@keyframes mkpeGlow{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}}',
+      '@keyframes mkpeBlink{0%,90%,100%{transform:scaleY(0)}93%,95%{transform:scaleY(1)}}',
+      '@keyframes mkpeTwinkle{0%,100%{transform:scale(.82) rotate(0);opacity:.75}50%{transform:scale(1.12) rotate(20deg);opacity:1}}',
+      '@keyframes mkpeShine{0%{left:-60%}55%,100%{left:130%}}',
+      '@keyframes mkpeRing{0%{box-shadow:0 0 0 0 rgba(79,163,255,.55)}100%{box-shadow:0 0 0 14px rgba(79,163,255,0)}}',
+      '@keyframes mkpeBadge{0%{box-shadow:0 0 0 0 rgba(236,246,253,.45)}100%{box-shadow:0 0 0 10px rgba(236,246,253,0)}}',
+      '@keyframes mkpeOrb{from{transform:translate(0,0)}to{transform:translate(-5cqw,-4cqw)}}',
+      '@keyframes mkpeRise{0%{transform:translateY(0);opacity:0}15%{opacity:.8}100%{transform:translateY(-120cqw);opacity:0}}',
+      '@keyframes mkpeFlow{to{background-position:-200% 0}}',
+      '@keyframes mkpeUp{to{opacity:1;transform:none}}',
+      '@media(prefers-reduced-motion:reduce){.mkpop *,.mkpop *::before,.mkpop *::after{animation:none!important;transition:none!important}.mkpe-rb,.mkpe-up,.mkpe{opacity:1!important;transform:none!important}}',
+      'html.mkpop-lock,html.mkpop-lock body{overflow:hidden}'
+    ].join('');
     d.head.appendChild(s);
   }
 
@@ -96,25 +153,33 @@
     if (d.getElementById('mkpop')) return;
     css();
     var href = safeHref(c.href);
+    var dots = '';
+    for (var i = 0; i < 7; i++) dots += '<i class="mkpe-dot" style="left:' + (8 + i * 13) + '%;animation-delay:' + (i * 1.05).toFixed(2) + 's;animation-duration:' + (6 + (i % 3) * 1.6) + 's"></i>';
     var root = d.createElement('div');
     root.className = 'mkpop'; root.id = 'mkpop';
-    root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', c.line1 + ' ' + c.line2);
+    root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-labelledby', 'mkpe-title');
     root.innerHTML =
-      '<div class="mkpop-card">' +
-        '<button type="button" class="mkpop-x" data-a="close" data-track-off aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
-        '<a class="mkpop-link" href="' + esc(href) + '" data-a="go" data-track-off>' +
-          '<div class="mkpop-img"><picture>' +
-            '<source type="image/webp" media="(max-width:640px)" srcset="/images/field-review/popup-m-640.webp 640w, /images/field-review/popup-m-960.webp 960w" sizes="min(400px,calc(100vw - 32px))">' +
-            '<source media="(max-width:640px)" srcset="/images/field-review/popup-m-960.jpg">' +
-            '<source type="image/webp" srcset="/images/field-review/hero-v3-1200.webp 1200w, /images/field-review/hero-v3-1600.webp 1600w, /images/field-review/hero-v3-2400.webp 2400w" sizes="min(880px,calc(100vw - 32px))">' +
-            '<img src="/images/field-review/hero-v3-1600.jpg" alt="" width="1600" height="489" decoding="async">' +
-          '</picture>' +
-          '<div class="mkpop-k">' + esc(c.kicker) + '</div>' +
-          '<div class="mkpop-t">' + esc(c.line1) + '<br>' + esc(c.line2) + '</div></div>' +
-          '<div class="mkpop-m"><i>' + esc(c.kicker) + '</i><strong>' + esc(c.line1) + '<br>' + esc(c.line2) + '</strong></div>' +
-          '<div class="mkpop-cta"><span>공공·교육·문화 시설 공기질·환경 모니터링 맞춤 제안</span><b>' + esc(c.cta) + ' <span aria-hidden="true" style="display:inline;color:inherit;font-size:inherit">→</span></b></div>' +
+      '<div class="mkpe" tabindex="-1">' +
+        '<div class="mkpe-stage" aria-hidden="true"><div class="mkpe-rb"><div class="mkpe-fl">' +
+          '<img class="mkpe-wl" src="' + IMG + 'robot-wing-l.webp" alt="" width="178" height="382" decoding="async">' +
+          '<img class="mkpe-wr" src="' + IMG + 'robot-wing-r.webp" alt="" width="176" height="390" decoding="async">' +
+          '<img class="mkpe-body" src="' + IMG + 'robot-body.webp" alt="" width="456" height="464" decoding="async">' +
+          '<i class="mkpe-glow"></i><i class="mkpe-lid l"></i><i class="mkpe-lid r"></i>' +
+        '</div></div></div>' +
+        '<a class="mkpe-card" href="' + esc(href) + '" data-a="go" data-track-off>' +
+          '<i class="mkpe-orb2" aria-hidden="true"></i><i class="mkpe-orb" aria-hidden="true"></i>' + dots +
+          '<i class="mkpe-star a" aria-hidden="true">' + STAR + '</i><i class="mkpe-star b" aria-hidden="true">' + STAR + '</i>' +
+          '<i class="mkpe-star c" aria-hidden="true">' + STAR + '</i><i class="mkpe-star d" aria-hidden="true">' + STAR + '</i>' +
+          '<div class="mkpe-in">' +
+            '<span class="mkpe-badge mkpe-up s1">맞춤형 제안서 무료 제작 EVENT!</span>' +
+            '<strong class="mkpe-t" id="mkpe-title"><span class="mkpe-up s2">전 세계의 노하우를</span><span class="mkpe-up s3">우리 현장으로</span></strong>' +
+            '<p class="mkpe-p mkpe-up s4">글로벌 대형 현장의 <em>실제 적용 사례가</em><br><em>축적된 DB</em>를 기반으로</p>' +
+            '<p class="mkpe-p mkpe-up s5">당신의 현장에 최적화된<br><em>맞춤형 솔루션</em>을 제안합니다.</p>' +
+            '<span class="mkpe-cta mkpe-up s6"><i class="mkpe-ring" aria-hidden="true"></i>단 1분 만에 제안서 받아보기<i aria-hidden="true">→</i></span>' +
+          '</div>' +
         '</a>' +
-        '<div class="mkpop-foot"><button type="button" data-a="today" data-track-off>오늘 하루 보지 않기</button><button type="button" data-a="close" data-track-off>닫기</button></div>' +
+        '<button type="button" class="mkpe-x" data-a="close" data-track-off aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>' +
+        '<div class="mkpe-foot"><button type="button" data-a="today" data-track-off>오늘 하루 보지 않기</button><button type="button" data-a="close" data-track-off>닫기</button></div>' +
       '</div>';
 
     var prevFocus = d.activeElement;
@@ -122,7 +187,7 @@
       d.removeEventListener('keydown', onKey, true);
       root.classList.remove('in');
       d.documentElement.classList.remove('mkpop-lock');
-      setTimeout(function () { if (root.parentNode) root.parentNode.removeChild(root); }, 350);
+      setTimeout(function () { if (root.parentNode) root.parentNode.removeChild(root); }, 380);
       try { prevFocus && prevFocus.focus && prevFocus.focus({ preventScroll: true }); } catch (e) {}
       if (how) track(how);
     }
@@ -156,8 +221,15 @@
     d.body.appendChild(root);
     d.documentElement.classList.add('mkpop-lock');
     try { ss && ss.setItem('mk_pop_seen_' + c.id, '1'); } catch (e) {}
-    requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.add('in'); }); });
-    setTimeout(function () { var x = root.querySelector('.mkpop-x'); try { x.focus({ preventScroll: true }); } catch (e) {} }, 60);
+    /* 로봇 이미지가 준비된 뒤에 등장 — 반쯤 그려진 채로 튀어나오지 않게 (최대 1.2초 대기) */
+    var imgs = root.querySelectorAll('.mkpe-stage img'), left = imgs.length, go = false;
+    function reveal() { if (go) return; go = true; requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.add('in'); }); }); }
+    for (var k = 0; k < imgs.length; k++) {
+      if (imgs[k].complete) { if (--left === 0) reveal(); }
+      else imgs[k].addEventListener('load', function () { if (--left === 0) reveal(); }), imgs[k].addEventListener('error', reveal);
+    }
+    setTimeout(reveal, 1200);
+    setTimeout(function () { var x = root.querySelector('.mkpe'); try { x.focus({ preventScroll: true }); } catch (e) {} }, 80);
     track('popup_view');
     try { w.dataLayer && w.dataLayer.push({ event: 'popup_view', popup_id: c.id }); } catch (x) {}
   }
@@ -172,7 +244,7 @@
     var tries = 0;
     (function wait() {
       var busy = d.querySelector('[aria-modal="true"]:not(#mkpop)');
-      if (busy && busy.offsetParent !== null && tries++ < 20) { setTimeout(wait, 1500); return; }
+      if (busy && busy.getClientRects().length && tries++ < 20) { setTimeout(wait, 1500); return; }
       show(c);
     })();
   }
@@ -181,6 +253,8 @@
     /* 설정은 서버에서(ops 스위치). 응답이 늦거나 실패하면 띄우지 않는다 — 안전한 쪽으로 */
     var done = false;
     var t = setTimeout(function () { done = true; }, 4000);
+    /* 로봇 이미지를 미리 받아 둔다 (팝업은 1.2초 뒤에 뜬다) */
+    ['robot-body', 'robot-wing-l', 'robot-wing-r'].forEach(function (n) { var i = new Image(); i.src = IMG + n + '.webp'; });
     try {
       w.fetch('/api/popup', { credentials: 'same-origin' })
         .then(function (r) { return r.ok ? r.json() : null; })

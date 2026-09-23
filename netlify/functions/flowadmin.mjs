@@ -253,7 +253,7 @@ label.chk{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:
 <section class="sec pop">
  <div class="sw" id="sw" role="switch" aria-checked="false" tabindex="0" aria-label="사이트 팝업 켜기/끄기"><i></i></div>
  <span class="swl" id="swl">—</span>
- <div class="t"><b>사이트 팝업 · 한옥 배너</b>
+ <div class="t"><b>사이트 팝업 · 맞춤형 제안서 무료 제작 EVENT</b>
   <p>누르면 → /proposal (공공·교육·문화 · 공기질·환경 맞춤 제안). 탭당 1회 · 「오늘 하루 보지 않기」 지원 · 켜고 끄면 1분 안에 전 페이지 반영</p>
   <div class="msg" id="swm"></div></div>
  <div class="pstats" id="pst"></div>
