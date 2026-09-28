@@ -17,9 +17,9 @@
   var KEY = 'mk_src_v1';
 
   var TYPES = {
-    contact:     { label: '접수', event: 'lead_contact',     ga: 'generate_lead' },
-    doc_request: { label: '자료', event: 'lead_doc_request', ga: 'generate_lead' },
-    subscribe:   { label: '구독', event: 'lead_subscribe',   ga: 'sign_up' }
+    contact:     { label: '접수', event: 'lead_contact',     ga: 'generate_lead', meta: 'Lead' },
+    doc_request: { label: '자료', event: 'lead_doc_request', ga: 'generate_lead', meta: 'Lead' },
+    subscribe:   { label: '구독', event: 'lead_subscribe',   ga: 'sign_up',       meta: 'CompleteRegistration' }
   };
 
   var PARAMS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term',
@@ -123,6 +123,137 @@
     }).catch(function () { return false; });
   }
 
+  /* ══ 메타(페이스북) 전환 ═══════════════════════════════════════
+     2026-09-28 추가. 두 가지가 동시에 빠져 있었다.
+
+     ① 주 사이트에 픽셀이 아예 없었다.
+        홈 · /whitepaper · /guides · /contact · 사례 페이지에서 콘솔에 fbq 를
+        치면 undefined 가 나왔다. 픽셀은 /promo/* 랜딩에만 인라인으로 박혀
+        있었다. 메타는 사이트 접수를 한 건도 못 봤고 리타게팅 모수도 못 모았다.
+
+     ② 접수해도 Lead 를 안 쐈다.
+        이 파일의 track() 이 dataLayer · gtag · clarity 까지만 보내고 메타에는
+        아무것도 안 보냈다. 유일한 예외가 /promo/proposal 인데, 그 랜딩만 자체
+        fbq 호출을 갖고 있어서 혼자 실적이 잡혔다. 그래서 광고관리자 「결과」
+        열이 그 소재만 숫자가 있고 나머지는 전부 0 이었고, 메타가 그 0 을 보고
+        예산을 엉뚱한 쪽으로 몰았다.
+
+     이 파일에 넣는 이유: 이미 모든 페이지에 로드된다. HTML 100여 개를
+     건드리지 않아도 된다. 동의 처리는 monnit-consent.js 의 상태를 따른다. */
+
+  var META_PIXEL_ID = w.MONNIT_META_PIXEL_ID || '1375041798098647';
+  var META_GAP      = 20000;   /* 이 시간 안에 이미 Lead 가 나갔으면 건너뛴다 */
+  var _metaFiredTs  = 0;
+  var _metaBooted   = false;
+
+  /* 마케팅 동의 — monnit-consent.js 가 없으면 「동의 안 함」으로 본다(보수적) */
+  function marketingOk() {
+    try { return !!(w.MonnitConsent && w.MonnitConsent.state && w.MonnitConsent.state.marketing); }
+    catch (e) { return false; }
+  }
+
+  /* 메타 표준 스니펫 — n 이 자기 자신을 참조하고 큐를 든다. 이 모양을 바꾸면
+     fbevents.js 가 큐를 못 비워서 픽셀이 통째로 죽는다. 손대지 말 것. */
+  function bootMeta() {
+    if (_metaBooted || !META_PIXEL_ID) return;
+    if (w.fbq) { _metaBooted = true; hookMeta(); return; }   /* /promo/* — 페이지가 직접 올림 */
+    if (!marketingOk()) return;                              /* 동의 전에는 올리지 않는다 */
+    _metaBooted = true;
+    try {
+      var n = w.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      if (!w._fbq) w._fbq = n;
+      n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+      var sc = d.createElement('script');
+      sc.async = true; sc.src = 'https://connect.facebook.net/en_US/fbevents.js';
+      (d.head || d.getElementsByTagName('script')[0].parentNode).appendChild(sc);
+      w.fbq('init', META_PIXEL_ID);
+      w.fbq('track', 'PageView');
+      hookMeta();
+    } catch (e) {}
+  }
+
+  /* ── 중복 방지 ──
+     /promo/proposal 은 제출 시점에 스스로 fbq Lead 를 쏜다. 거기서 우리가 또
+     쏘면 한 건이 두 건으로 잡혀 그 소재가 실제보다 좋아 보이고 예산이 쏠린다.
+
+     fbq 함수 자체를 바꿔치기하면 메타 스크립트가 내부적으로 쥔 원본과 어긋나
+     큐가 안 비워진다. 그래서 fbq.callMethod 만 한 겹 감싼다 — 메타 동작은
+     그대로 두고 「Lead 가 이미 나갔는지」만 알 수 있다. */
+  function hookMeta() {
+    try {
+      var f = w.fbq;
+      if (!f || typeof f.callMethod !== 'function') return false;   /* fbevents.js 로드 전 */
+      if (f.callMethod.__mk) return true;
+      var orig = f.callMethod;
+      var wrap = function () {
+        try {
+          if (arguments[0] === 'track' && /^(Lead|CompleteRegistration)$/.test(arguments[1])) _metaFiredTs = Date.now();
+        } catch (e) {}
+        return orig.apply(this, arguments);
+      };
+      wrap.__mk = true;
+      f.callMethod = wrap;
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* 서버 전송(CAPI)을 나중에 붙일 때 같은 건으로 합치기 위한 식별자 */
+  function eventId() {
+    try { if (w.crypto && w.crypto.randomUUID) return w.crypto.randomUUID(); } catch (e) {}
+    return 'mk-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  var _lastEventId = '';
+
+  /* fbevents.js 가 뜨기 전에 페이지가 쏜 Lead 는 큐에 남아 있다 — 그것도 센다 */
+  function queueHasLead() {
+    try {
+      var q = w.fbq && w.fbq.queue;
+      if (!q || !q.length) return false;
+      for (var i = 0; i < q.length; i++) {
+        if (q[i][0] === 'track' && /^(Lead|CompleteRegistration)$/.test(q[i][1])) return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function meta(type, detail) {
+    var t = TYPES[type] || TYPES.contact;
+    if (!t.meta) return '';
+    bootMeta();                                                    /* 아직이면 지금 올린다 */
+    hookMeta();                                                    /* 아직 못 걸었으면 지금 건다 */
+    if (!w.fbq || w.MK_META_SELF === true) return '';
+    if (_metaFiredTs && (Date.now() - _metaFiredTs) < META_GAP) return '';   /* 페이지가 이미 쐈다 */
+    if (queueHasLead()) return '';                                 /* 로드 전에 이미 쐈다 */
+    var eid = eventId();
+    try {
+      w.fbq('track', t.meta, {
+        content_name    : (detail && detail.interest) || '',
+        content_category: (detail && detail.page) || '',
+        currency        : 'KRW',
+        value           : 1
+      }, { eventID: eid });
+      _lastEventId = eid;
+      return eid;
+    } catch (e) { return ''; }
+  }
+
+  /* 진입 시 한 번, 그리고 방문자가 배너에서 동의를 누른 뒤에 한 번 더 */
+  try { bootMeta(); } catch (e) {}
+  try { w.addEventListener('monnit:consent', function () { try { bootMeta(); } catch (e) {} }); } catch (e) {}
+  /* fbevents.js 가 아직이면 잠깐 기다렸다 건다.
+     타이머가 없는 환경(테스트 스텁 등)에서도 터지지 않게 감싼다. */
+  try {
+    if (!hookMeta()) {
+      var _si = w.setInterval, _ci = w.clearInterval;
+      if (typeof _si === 'function') {
+        var _hn = 0, _ht = _si(function () {
+          if (hookMeta() || ++_hn > 40) { if (typeof _ci === 'function') _ci(_ht); }
+        }, 200);
+      }
+    }
+  } catch (e) {}
+
   function track(type, detail) {
     var t = TYPES[type] || TYPES.contact;
     detail = detail || {};
@@ -142,6 +273,9 @@
       });
     } catch (e) {}
     try { if (w.clarity) w.clarity('event', t.event); } catch (e) {}
+    /* 메타는 맨 뒤에 — 여기서 막혀도 위쪽 신호는 이미 나갔다 */
+    var _eid = meta(type, detail);
+    try { if (_eid && _last) _last['메타 이벤트ID'] = _eid; } catch (e) {}
     /* 원장 기록.
        app.js 의 sendLead 는 submit() 으로 이미 기록했으므로 건너뛴다.
        하지만 /promo/alarm · /promo/proposal 처럼 자체 sendLead 를 가진 랜딩은
@@ -160,6 +294,6 @@
 
   function setNotified(v) { _notified = !!v; }
 
-  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, submit: submit, track: track, record: record, recordPending: recordPending, setNotified: setNotified };
+  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, submit: submit, track: track, record: record, recordPending: recordPending, setNotified: setNotified, meta: meta, bootMeta: bootMeta, lastEventId: function () { return _lastEventId; } };
   if (!w.MK_SOURCE) w.MK_SOURCE = source;
 })(window, document);
