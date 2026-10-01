@@ -2,6 +2,7 @@
  *  · 기록이 실패해도 항상 성공(204)으로 응답한다. 메일 경로가 안전망이다. */
 import { append } from './_store.mjs';
 import { notify } from './_notify.mjs';
+import * as _note from './_staffnote.mjs';   /* 메일 보낼 것 / 알림함에만 남길 것 (2026-09-30) */
 import { pushLead } from './_monday.mjs';
 import * as _test from './_istest.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
@@ -157,8 +158,18 @@ export default async (req) => {
        고객 응대 메일(sendAlarmReply)은 서버만 보내므로 이 조건과 무관하게 항상 나간다. */
     const _browserSent = body.notified === true;
 
+    /* ── 결정적 행위만 메일 (2026-09-30 대표님 지시) ───────────────────
+       상담 문의·프로모션 신청(contact)은 예전처럼 한 통.
+       자료 신청(doc_request)·구독(subscribe)은 메일 없이 알림함(/ops/notices)과 먼데이에만 남긴다.
+       맞춤 제안서가 함께 접수된 자료 신청은 제안서 신규 접수 메일에 「함께 받은 자료」로 한 줄 들어간다.
+       목록은 STAFF_MAIL_KINDS 환경변수로 바꿀 수 있다. */
+    const _wantMail = _note.shouldMail(type);
+    const _byProposal = /proposal/i.test(lead.point || '') && /맞춤 제안서/.test(lead.interest || '');
+
     const [_notified, , _reply] = await Promise.allSettled([
-      _browserSent ? Promise.resolve({ ok: true, via: 'browser' }) : notify(lead, p),
+      _browserSent ? Promise.resolve({ ok: true, via: _byProposal ? 'proposal' : 'browser' })
+        : !_wantMail ? Promise.resolve({ ok: true, via: 'ops', held: true })
+        : notify(lead, p),
       pushLead(id, lead),
       sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin })
     ]);
@@ -183,6 +194,23 @@ export default async (req) => {
         point: lead.point || '', company: lead.company || ''
       });
     } catch (e) { /* 관측용 기록이 접수를 막으면 안 된다 */ }
+
+    /* 알림함 — 메일을 보냈든 안 보냈든 한 줄 */
+    {
+      const nv = (_notified && _notified.status === 'fulfilled') ? _notified.value : null;
+      const why = _browserSent ? (_byProposal ? '맞춤제안 알림 메일로 대신' : '브라우저가 이미 알림 메일을 보냄')
+        : !_wantMail ? '결정적 행위 아님 — 알림함에만 기록'
+        : (nv && nv.ok) ? '' : '메일 발송 실패: ' + String((nv && nv.tried) || '');
+      await _note.note({
+        ts: lead.ts, src: 'lead', kind: _byProposal && _browserSent ? 'dup' : type,
+        mailed: !!(nv && nv.ok && !nv.held && nv.via !== 'proposal'), via: (nv && nv.via) || '', why,
+        subject: `[모넷·${lead.label || '접수'}] ${lead.interest || '문의'} — ${lead.company || lead.name || lead.email || ''}`, company: lead.company, name: lead.name, phone: lead.phone, email: lead.email,
+        channel: lead.channel, campaign: _note.campaignOf(lead.source), landing: lead.landing, test: !!lead.test,
+        ref: lead.point || '',
+        summary: { '유형': lead.label, '관심분야': lead.interest, '설비·대상': lead.asset, '지역': lead.region,
+          '문의내용': lead.memo, '마케팅 수신': lead.consent_mkt, '출처(원문)': lead.source, '유입 페이지': lead.landing, '접속 IP': lead.ip }
+      });
+    }
 
     if (_reply && _reply.status === 'fulfilled' && _reply.value) {
       const r = _reply.value;

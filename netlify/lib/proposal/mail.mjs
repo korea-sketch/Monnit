@@ -8,6 +8,7 @@ import { PROBLEMS, GOALS } from './kb.mjs';
 import { statusUrl, pdfUrl, quoteUrl } from './jobs.mjs';
 import { scopeOf } from './match.mjs';
 import { fmtKST, maskEmail, modeOf } from './schedule.mjs';
+import * as S from './store.mjs';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const utm = (url, content) => url + (url.includes('?') ? '&' : '?') + 'utm_source=email&utm_medium=proposal&utm_campaign=custom_proposal&utm_content=' + content;
@@ -32,6 +33,39 @@ async function brevo({ to, subject, html, text, attachment, tags }) {
     return { ok: true, via: 'brevo', messageId: j.messageId || '' };
   } catch (e) { return { ok: false, error: 'brevo ' + (e.name === 'AbortError' ? 'timeout' : e.message) }; }
   finally { clearTimeout(t); }
+}
+
+/* ── 보낸 메일 사본 (2026-09-29) ─────────────────────────────────────
+   고객·담당자에게 나간 메일을 받은 사람만 볼 수 있던 문제 — 발송할 때마다 제목·본문·받는 사람·결과를
+   mail/<id>/<시각>-<종류>.json 에 남기고 관리 화면(/ops/proposals)에서 누구나 열어 본다.
+   첨부 PDF 는 여기 넣지 않는다(발송 대장 archive/ 에 사본이 있다). 저장 실패는 발송에 영향이 없다. */
+const MAIL_KIND = { receipt: '접수 확인', link: '진행 화면 링크 재안내', progress: '분석 완료 안내', proposal: '제안서 발송', resend: '제안서 재발송', followup: '후속 안내' };
+export const mailLabel = k => MAIL_KIND[k] || (String(k).startsWith('staff:') ? '담당자 알림 · ' + (KIND[String(k).slice(6)] || String(k).slice(6)) : String(k));
+export const MAIL_KEY_RE = /^mail\/[a-z0-9]{8,40}\/\d{13}-[a-z0-9_:]{1,30}\.json$/;
+export const mailPrefix = id => 'mail/' + id + '/';
+async function keep(job, kind, p, r) {
+  if (!job || !job.id) return '';
+  try {
+    const at = Date.now();
+    const key = mailPrefix(job.id) + String(at).padStart(13, '0') + '-' + kind + '.json';
+    const staff = String(kind).startsWith('staff:');
+    await S.setJSON(key, {
+      v: 1, key, id: job.id, no: job.no || '', kind, label: mailLabel(kind), audience: staff ? 'staff' : 'customer',
+      at: new Date(at).toISOString(), from: CFG.from && CFG.from.email ? CFG.from.email : '',
+      to: (p.to || []).map(e => (typeof e === 'string' ? { email: e } : { email: e.email, name: e.name || '' })),
+      bcc: !staff && CFG.bcc.length ? CFG.bcc.slice() : [],
+      subject: p.subject || '', html: p.html || '', text: p.text || '',
+      attachment: p.attachment ? { name: p.attachment.name, bytes: Math.round(String(p.attachment.content || '').length * 3 / 4) } : null,
+      ok: !!(r && r.ok), via: (r && r.via) || '', messageId: (r && r.messageId) || '', error: (r && (r.error || r.skipped)) || ''
+    });
+    return key;
+  } catch (e) { return ''; }
+}
+/* 고객 메일 — 보내고 사본을 남긴다 */
+async function sendKept(job, kind, p) {
+  const r = await brevo(p);
+  r.mailKey = await keep(job, kind, p, r);
+  return r;
 }
 
 /* ── 공통 레이아웃 (메일 클라이언트 호환: 표 + 인라인 스타일) ─────────────── */
@@ -76,7 +110,7 @@ ${top ? `<p style="margin:0 0 6px;font-size:14px;color:#56637a">지금까지 가
     foot: `급하신 건은 ${CFG.company.tel} 로 전화 주시면 먼저 안내드리겠습니다.<br><br>`
   });
   const text = `${job.lead.company} ${job.lead.name}님, 맞춤 제안서를 준비하고 있습니다.\n발송 예정: ${fmtKST(job.dueAt)}까지\n제안 번호: ${job.no}\n진행 상황: ${url}\n\n모넷코리아 ${CFG.company.tel}`;
-  return brevo({ to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} ${job.lead.name}님 맞춤 제안서를 준비하고 있습니다`, html, text, tags: ['custom-proposal', 'customer', 'receipt'] });
+  return sendKept(job, 'receipt', { to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} ${job.lead.name}님 맞춤 제안서를 준비하고 있습니다`, html, text, tags: ['custom-proposal', 'customer', 'receipt'] });
 }
 
 /* ── 고객: 진행 화면 링크 다시 보내기 (같은 회사·이메일로 다시 신청했을 때) ── */
@@ -92,7 +126,7 @@ export async function sendStatusLink(job) {
 <p style="margin:0;font-size:13px;color:#8a94a6">본인이 신청하지 않으셨다면 이 메일은 무시하셔도 됩니다.</p>`,
     cta: '내 맞춤 제안서 보기', ctaUrl: url
   });
-  return brevo({ to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 진행 화면 링크`, html, text: `진행 화면: ${url}\n견적 요청: ${quote}`, tags: ['custom-proposal', 'customer', 'relink'] });
+  return sendKept(job, 'link', { to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 진행 화면 링크`, html, text: `진행 화면: ${url}\n견적 요청: ${quote}`, tags: ['custom-proposal', 'customer', 'relink'] });
 }
 
 /* ── 고객: 분석 완료(선택) ───────────────────────────────────────── */
@@ -103,11 +137,11 @@ export async function sendProgress(job) {
     body: `<p style="margin:0 0 12px">${who(job)}, Monnit 글로벌 레퍼런스와 국내 현장 데이터를 대조한 결과가 나왔습니다. 지금은 담당 엔지니어가 구성안을 확인하고 있고, ${esc(fmtKST(job.dueAt))}에 제안서를 보내드립니다.</p>`,
     cta: '분석 결과 미리 보기', ctaUrl: url
   });
-  return brevo({ to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 — 데이터 분석 완료`, html, text: `분석 완료. ${url}`, tags: ['custom-proposal', 'customer', 'progress'] });
+  return sendKept(job, 'progress', { to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 — 데이터 분석 완료`, html, text: `분석 완료. ${url}`, tags: ['custom-proposal', 'customer', 'progress'] });
 }
 
 /* ── 고객: 제안서 발송 ───────────────────────────────────────────── */
-export async function sendProposal(job, pdfBytes) {
+export async function sendProposal(job, pdfBytes, { kind = 'proposal' } = {}) {
   const m = job.match;
   const dl = utm(pdfUrl(job), 'pdf');
   const visit = utm(CFG.site + '/visit', 'visit');
@@ -134,13 +168,18 @@ ${modeOf(job) === 'instant' ? `<p style="margin:12px 0 0;font-size:14px;color:#5
     foot: `현장 전체 구성·견적: <a href="${esc(quote)}" style="color:#2B84F5">견적 요청</a> · 실제 설비 배치를 보고 수량과 위치를 확정하려면 <a href="${esc(visit)}" style="color:#2B84F5">현장 진단 예약</a><br><br>`
   });
   const text = `${job.lead.company} ${job.lead.name}님, 맞춤 제안서를 보내드립니다.\n이 제안서는 「${sc.problems.join(', ')}」 기준입니다. 다른 과제나 현장 전체 견적: ${quote}\nPDF: ${dl}\n현장 진단 예약: ${visit}\n\n모넷코리아 ${CFG.company.tel}`;
-  const r = await brevo({ to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 — ${m.industry.label} 유사 사례 기반`, html, text, attachment: attach, tags: ['custom-proposal', 'customer', 'proposal'] });
+  const mk = kind === 'resend' ? 'resend' : 'proposal';
+  const to = [{ email: job.lead.email, name: job.lead.name }];
+  const subject = `[모넷코리아] ${job.lead.company} 맞춤 제안서 — ${m.industry.label} 유사 사례 기반`;
+  const r = await brevo({ to, subject, html, text, attachment: attach, tags: ['custom-proposal', 'customer', 'proposal'] });
   /* 첨부 때문에 거절되면 링크만으로 한 번 더 */
   if (!r.ok && attach && /40\d/.test(r.error || '')) {
-    const r2 = await brevo({ to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 — ${m.industry.label} 유사 사례 기반`, html, text, tags: ['custom-proposal', 'customer', 'proposal'] });
-    return { ...r2, attached: false, firstError: r.error };
+    const r2 = await brevo({ to, subject, html, text, tags: ['custom-proposal', 'customer', 'proposal'] });
+    const mailKey = await keep(job, mk, { to, subject, html, text }, r2);
+    return { ...r2, attached: false, firstError: r.error, mailKey };
   }
-  return { ...r, attached: !!attach };
+  const mailKey = await keep(job, mk, { to, subject, html, text, attachment: attach }, r);
+  return { ...r, attached: !!attach, mailKey };
 }
 
 /* ── 고객: 후속 안내 (열람하지 않은 경우) ─────────────────────────── */
@@ -152,12 +191,12 @@ export async function sendFollowup(job) {
 <p style="margin:0 0 12px">내용 중 현장과 다른 부분이 있으면 이 메일에 회신만 주셔도 됩니다. 다른 과제나 현장 전체의 수량·견적이 필요하시면 <a href="${esc(quoteUrl(job, 'proposal_mail'))}" style="color:#2B84F5">견적 요청</a>을 남겨 주세요.</p>`,
     cta: '제안서 다시 받기', ctaUrl: dl
   });
-  return brevo({ to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 다시 보내드립니다`, html, text: `제안서: ${dl}`, tags: ['custom-proposal', 'customer', 'followup'] });
+  return sendKept(job, 'followup', { to: [{ email: job.lead.email, name: job.lead.name }], subject: `[모넷코리아] ${job.lead.company} 맞춤 제안서 다시 보내드립니다`, html, text: `제안서: ${dl}`, tags: ['custom-proposal', 'customer', 'followup'] });
 }
 
 /* ── 담당자 알림 ─────────────────────────────────────────────────── */
 const KIND = {
-  new: '신규 접수', review: '엔지니어 확인 필요', preview: '발송 전 검수', sent: '발송 완료', failed: '발송 실패', opened: '제안서 열람', build_failed: '제안서 생성 실패', hot: '재방문', more: '추가 제안 요청 · 견적 연결'
+  new: '신규 접수', review: '엔지니어 확인 필요', preview: '발송 전 검수', sent: '발송 완료', failed: '발송 실패', opened: '제안서 열람', build_failed: '제안서 생성 실패', hot: '재방문', more: '추가 제안 요청 · 견적 연결', auto_fix: 'AI 문안 자동 교체'
 };
 const ENTRY = { proposal: '제안서 신청', finder: '홈 솔루션 파인더', contact: '상담 신청 폼', widget: '빠른 상담', whitepaper: '백서 다운로드' };
 const AUTO = { explicit: '고객 선택', finder: '파인더 선택', detect: '회사 인식', concerns: '관심 칩', memo: '문의 글 추정', default: '산업 기본값' };
@@ -184,47 +223,105 @@ export function intakeLines(job) {
   if (asks.length) out['추가 요청 이력'] = asks.slice(-3).map(x => `${fmtKST(Date.parse(x.at), false)} ${x.problem || '-'}`).join(' / ');
   return out;
 }
+/* ── 담당자 알림 — 결정적 행위만 요약 메일, 나머지는 알림함 (2026-09-30) ──────────
+   대표님 지시: 「모든 단계마다 노티 메일 보낼 필요 없고, 결정적인 행위 시에만 요약 메일로.
+   경로나 긴 주소는 링크 표시로」. 어떤 종류를 메일로 보낼지는 functions/_staffnote.mjs 에 모아 두었다.
+   · 메일로 안 보내는 종류(발송 완료 · 재방문 · 자동 검수 예고 · AI 문안 자동 교체)는
+     /ops/notices 알림함에만 남는다. 먼데이 반응 기록은 예전처럼 그대로 한다.
+   · 메일 본문은 요약만 — 전체 판단 내역(회사 인식 · 1위 사례 · 등급 의미 …)은 관리 화면과 알림함에 있다.
+   · 호출하는 쪽은 바뀐 게 없다. 알림함에만 남긴 건도 { ok: true, via: 'ops', held: true } 를 돌려준다. */
+function modeLine(job) {
+  const plan = job.plan || {};
+  if (plan.mode === 'instant') return `즉시 자동 발송 → 발송 뒤 ${CFG.callbackText} 확인 연락`;
+  if (plan.mode === 'review') return `엔지니어 확인 후 발송 (${fmtKST(job.dueAt)}까지)${plan.reasons && plan.reasons.length ? ' — ' + plan.reasons.join(', ') : ''}`;
+  return `예약 발송 (${fmtKST(job.dueAt)})`;
+}
+const clip = (v, n) => { const s = String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+
 export async function notifyStaff(kind, job, extra = {}) {
   /* 테스트 접수는 담당자 메일함으로 보내지 않는다 (2026-09-18) */
   if (job && job.test === true) return { ok: true, skipped: 'test', via: 'test' };
+  const N = await import('../../functions/_staffnote.mjs');
   const L = job.lead, g = (job.meta && job.meta.grade) || {};
   const admin = CFG.site + '/ops/proposals#' + job.id;
-  const flag = kind === 'more' ? '·연락 필요' : kind === 'new' ? (modeOf(job) === 'instant' ? '·즉시 발송' : modeOf(job) === 'review' ? '·확인 필요' : '') : kind === 'sent' && modeOf(job) === 'instant' ? '·연락 필요' : '';
-  const subject = `[맞춤제안·${KIND[kind] || kind}${flag}] ${g.grade ? g.grade + '등급 ' : ''}${L.company} ${L.name}`;
-  const rows = {
+  const inbox = CFG.site + '/ops/notices';
+  const src = (job.meta && job.meta.source) || '', landing = (job.meta && job.meta.landing) || '';
+  const chan = N.channelOf(src), camp = N.campaignOf(src);
+  const probs = job.match.input.problems.map(k => (PROBLEMS[k] || {}).label || k).join(', ');
+  const it = intakeLines(job);
+
+  /* 알림함에 남길 전체 내역 — 예전 메일 본문 그대로 */
+  const full = {
     '제안 번호': job.no, '상태': job.status, '발송 예정': fmtKST(job.dueAt),
     '회사': L.company, '담당자': `${L.name} ${L.title || ''}`.trim(), '이메일': L.email, '전화': L.phone || '-',
     '산업': job.match.industry.label, '시설': L.facility || '-', '규모': L.scale || '-', '도입 시점': L.timeline || '-',
-    '제안서 과제': job.match.input.problems.map(k => (PROBLEMS[k] || {}).label || k).join(', '), '목표': job.match.input.goals.map(k => (GOALS[k] || {}).label || k).join(', '),
-    ...intakeLines(job), ...(L.inquiry ? { '문의 항목': L.inquiry } : {}),
+    '제안서 과제': probs, '목표': job.match.input.goals.map(k => (GOALS[k] || {}).label || k).join(', '),
+    ...it, ...(L.inquiry ? { '문의 항목': L.inquiry } : {}),
     '1위 사례': job.match.top[0] ? `${job.match.top[0].name} (${job.match.top[0].pct}%)` : '-',
-    '메모': L.memo || '-', '유입': (job.meta && job.meta.source) || '-',
+    '메모': L.memo || '-', '유입': src || '-',
     '등급': g.grade ? `${g.grade} (${g.score}점)${g.why ? ' — ' + g.why.replace(/^\d+점 — /, '') : ''}` : '-',
     ...(g.meaning ? { '등급 의미': g.meaning } : {}), ...(g.next ? { '올리려면': g.next } : {}), ...extra
   };
-  const text = Object.entries(rows).map(([k, v]) => `${k.padEnd(8)} ${v}`).join('\n') + `\n\n관리 화면: ${admin}`;
-  const html = layout({
-    pre: subject, title: esc(KIND[kind] || kind) + '<br><span style="font-size:15px;font-weight:600;color:#9fb0c8">' + esc(L.company) + ' · ' + esc(L.name) + '</span>',
-    body: `<table style="width:100%;border-collapse:collapse;font-size:13px">${Object.entries(rows).map(([k, v]) => `<tr><td style="padding:5px 8px;color:#6b778a;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:5px 8px">${esc(v)}</td></tr>`).join('')}</table>`,
-    cta: '관리 화면에서 보기', ctaUrl: admin
-  });
+  const base = {
+    src: 'proposal', kind, company: L.company, name: L.name, phone: L.phone || '', email: L.email,
+    grade: g.grade || '', channel: chan, campaign: camp, landing, link: admin, ref: job.no || job.id, summary: full
+  };
 
+  const mail = N.shouldMail(kind, { manualPreview: CFG.review === 'manual' });
+  /* 먼데이 발송 대장 항목에 반응 기록(항목이 있는 건만) — 메일 여부와 무관 */
   const tried = [];
-  let r = await brevo({ to: CFG.staffTo, subject, html, text, tags: ['custom-proposal', 'staff', kind] });
-  if (!r.ok) {
-    tried.push(r.error || r.skipped);
-    try {
-      const N = await import('../../functions/_notify.mjs');
-      const lead = { ts: new Date().toISOString(), label: '맞춤제안', interest: '맞춤 제안서 · ' + (KIND[kind] || kind), company: L.company, name: L.name, phone: L.phone, email: L.email, memo: text, channel: '' };
-      r = await N.notify(lead, {});
-      if (!r.ok) tried.push(String(r.tried || 'notify 실패'));
-    } catch (e) { tried.push('notify ' + e.message); }
-  }
-  /* 먼데이 발송 대장 항목에 반응 기록(항목이 있는 건만) */
   if (['opened', 'hot', 'more', 'failed', 'review'].includes(kind) && job.crm && job.crm.monday) {
     try { const C = await import('./crm.mjs'); await C.pushEvent(job, `[${KIND[kind] || kind}] ${fmtKST(Date.now())}\n` + Object.entries(extra).map(([k, v]) => `${k}: ${v}`).join('\n')); } catch (e) { tried.push('crm ' + e.message); }
   }
-  /* 웹훅은 메일 성공과 관계없이 보낸다 (슬랙·팀즈·알림톡 중계 서버 등) */
+  if (!mail) {
+    await N.note({ ...base, mailed: false, via: 'ops', why: '결정적 행위 아님 — 알림함에만 기록', subject: `[맞춤제안·${KIND[kind] || kind}] ${L.company} ${L.name}` });
+    return { ok: true, via: 'ops', held: true, tried };
+  }
+
+  const flag = kind === 'more' ? '·연락 필요' : kind === 'opened' ? '·연락 적기' : kind === 'new' ? (modeOf(job) === 'instant' ? '·즉시 발송' : modeOf(job) === 'review' ? '·확인 필요' : '') : '';
+  const subject = `[맞춤제안·${KIND[kind] || kind}${flag}] ${g.grade ? g.grade + '등급 ' : ''}${L.company} ${L.name}`;
+
+  /* 메일 본문 = 요약. 긴 값은 줄이고, 주소는 링크로 */
+  const rows = {
+    '담당자': `${L.name} ${L.title || ''}`.trim(),
+    '연락처': [L.phone, L.email].filter(Boolean).join(' · '),
+    '등급': g.grade ? `${g.grade} (${g.score}점)` : '',
+    '업종 판단': it['업종 판단'] || job.match.industry.label,
+    '과제': probs,
+    ...(kind === 'new' ? { '발송 방식': modeLine(job), '입구': it['입구'] } : {}),
+    ...(job.meta && job.meta.doc ? { '함께 받은 자료': job.meta.doc } : {}),
+    ...(it['기존 고객'] ? { '기존 고객': it['기존 고객'] } : it['기존 고객?'] ? { '기존 고객?': it['기존 고객?'] } : {}),
+    ...(it['확인 필요'] ? { '확인 필요': it['확인 필요'] } : {}),
+    ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, clip(v, 160)])),
+    ...(L.memo ? { '메모': clip(L.memo, 120) } : {}),
+    '유입': chan + (camp ? ' · ' + camp : '')
+  };
+  for (const k of Object.keys(rows)) if (!String(rows[k] || '').trim()) delete rows[k];
+
+  const links = [['관리 화면', admin], ...(landing ? [['유입 페이지 (' + N.shortUrl(landing) + ')', landing]] : []), ['알림함 · 전체 이력', inbox]];
+  const text = Object.entries(rows).map(([k, v]) => `${k.padEnd(8)} ${v}`).join('\n') + '\n\n' + links.map(([t, u]) => `${t}: ${u.length > 120 ? N.shortUrl(u) : u}`).join('\n');
+  const html = layout({
+    pre: subject, title: esc(KIND[kind] || kind) + '<br><span style="font-size:15px;font-weight:600;color:#9fb0c8">' + esc(L.company) + ' · ' + esc(L.name) + '</span>',
+    body: `<table style="width:100%;border-collapse:collapse;font-size:13px">${Object.entries(rows).map(([k, v]) => `<tr><td style="padding:5px 8px;color:#6b778a;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:5px 8px">${esc(v)}</td></tr>`).join('')}</table>`
+      + `<p style="margin:14px 0 0;font-size:12.5px;color:#6b778a">${links.slice(1).map(([t, u]) => `<a href="${esc(u)}" style="color:#2B84F5">${esc(t)}</a>`).join(' · ')}</p>`,
+    cta: '관리 화면에서 보기', ctaUrl: admin
+  });
+
+  /* 제안서 열람은 영업 담당 주소(PROPOSAL_OPENED_TO, 기본 1015@monnit.com)로만 보낸다 (2026-09-30) */
+  const to = kind === 'opened' ? CFG.openedTo : CFG.staffTo;
+  let r = await brevo({ to, subject, html, text, tags: ['custom-proposal', 'staff', kind] });
+  if (!r.ok) {
+    tried.push(r.error || r.skipped);
+    try {
+      const F = await import('../../functions/_notify.mjs');
+      const lead = { ts: new Date().toISOString(), label: '맞춤제안', interest: '맞춤 제안서 · ' + (KIND[kind] || kind), company: L.company, name: L.name, phone: L.phone, email: L.email, memo: text, channel: chan };
+      r = await F.notify(lead, {}, { to: to[0] });
+      if (!r.ok) tried.push(String(r.tried || 'notify 실패'));
+    } catch (e) { tried.push('notify ' + e.message); }
+  }
+  r = { ...r, mailKey: await keep(job, 'staff:' + kind, { to, subject, html, text }, r) };
+  await N.note({ ...base, mailed: !!r.ok, via: r.via || '', why: r.ok ? '' : '메일 발송 실패: ' + tried.join(' / '), subject });
+  /* 웹훅은 메일 성공과 관계없이 보낸다 (슬랙·팀즈·알림톡 중계 서버 등) — 메일 대상인 종류만 */
   if (CFG.webhook) {
     try {
       await fetch(CFG.webhook, { method: 'POST', headers: { 'content-type': 'application/json' },

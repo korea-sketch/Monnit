@@ -23,7 +23,7 @@
   var FAC = [['factory', '공장·제조', 'Factory'], ['logistics', '물류·창고', 'Warehouse'], ['datacenter', '데이터센터', 'Data center'],
     ['commercial', '빌딩·상업시설', 'Building'], ['pharma', '병원·제약', 'Hospital / pharma'], ['food', '식품·외식', 'Food service'],
     ['agri', '농업·스마트팜', 'Farm'], ['energy', '에너지·발전', 'Energy'], ['construction', '건설 현장', 'Construction'],
-    ['resident', '주거·숙박', 'Residential'], ['public', '공공·교육', 'Public'], ['etc', '그 외', 'Other']];
+    ['resident', '주거·숙박', 'Residential'], ['public', '공공기관', 'Public'], ['edu', '학교·교육', 'School'], ['smallbiz', '소상공인 매장', 'Small shop'], ['etc', '그 외', 'Other']];
   var CON = [['fire', '화재·과열', 'Fire'], ['leak', '누수·침수·동파', 'Leaks'], ['temp', '온도·습도', 'Temperature'],
     ['cold', '냉장·콜드체인', 'Cold chain'], ['equip', '설비 고장·진동', 'Equipment'], ['power', '전력·에너지', 'Power'],
     ['air', '공기질·가스', 'Air quality'], ['security', '보안·출입', 'Security'], ['control', '통합관제·연동', 'Integration'],

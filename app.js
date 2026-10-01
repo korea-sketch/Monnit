@@ -90,7 +90,7 @@ function ensureProposal(cb){
     (window.__propCbs || []).forEach(function(f){ try { f && f(window.MKProposal); } catch(e){ console.warn('[proposal]', e); } });
     window.__propCbs = [];
   };
-  add('/js/proposal-data.js?v=5', function(){ add('/js/proposal-view.js?v=7', function(){ add('/js/proposal-chat.js?v=1', done); }); });
+  add('/js/proposal-data.js?v=7', function(){ add('/js/proposal-view.js?v=7', function(){ add('/js/proposal-chat.js?v=3', done); }); });
 }
 function ensureSolutionTwin(){
   if (window.__twinLoaded || window.__twinLoading) return;
@@ -3205,7 +3205,7 @@ async function subscribeMsg(id) {
 /* 백서 폼의 「우리 현장 맞춤 제안서도 받기」 — js/proposal-addon.js 를 처음 열 때만 불러온다 */
 const WP_FAC = [[/데이터센터|IDC|전산/, 'datacenter'], [/공장|예지보전|진동|제조|Modbus/i, 'factory'], [/건설|토목/, 'construction'],
   [/UPS|ESS|전력|에너지|발전/, 'energy'], [/콜드체인|물류|창고/, 'logistics'], [/제약|바이오|의약|초저온|병원/, 'pharma'],
-  [/호텔|리조트|FM|시설관리|빌딩|HVAC/, 'commercial'], [/공공|국방|학교|교회|요양|시니어/, 'public'], [/리테일|매장|외식|식품/, 'food'],
+  [/호텔|리조트|FM|시설관리|빌딩|HVAC/, 'commercial'], [/학교|교육|대학|캠퍼스|급식/, 'edu'], [/소상공인|자영업|점포|무인/, 'smallbiz'], [/공공|국방|교회|요양|시니어/, 'public'], [/리테일|매장|외식|식품/, 'food'],
   [/농업|골프|토양/, 'agri']];
 const WP_CON = [[/화재|소방/, 'fire'], [/누수|동파/, 'leak'], [/콜드체인|냉장|냉동|초저온/, 'cold'], [/예지보전|진동/, 'equip'],
   [/UPS|ESS|전력/, 'power'], [/Modbus|연동|통합/i, 'control'], [/온도|습도/, 'temp']];
@@ -3221,7 +3221,7 @@ function wpPropMount(){
       doc: wpPickedTitle, fac: function(){ return wpHint(WP_FAC); }, con: function(){ return wpHint(WP_CON); } });
   };
   if (window.MKPropAddon) return go();
-  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=3'; s.async = true; s.onload = go;
+  const s = document.createElement('script'); s.src = '/js/proposal-addon.js?v=5'; s.async = true; s.onload = go;
   s.onerror = function(){ slot.dataset.on = ''; };
   document.head.appendChild(s);
 }

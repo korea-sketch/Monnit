@@ -7,6 +7,7 @@
  *    GET  /ops/proposals/archive/data?month=   발송 대장
  *    GET  /ops/proposals/archive.csv  발송 대장 CSV
  *    GET  /ops/proposals/archive/pdf?key=      발송 당시 PDF 사본
+ *    GET  /ops/proposals/mail?key=             보낸 메일 사본(제목·받는 사람·본문 그대로) — 2026-09-29
  *    GET  /ops/proposals/insights/data?days=   고객 인사이트
  *    GET  /ops/proposals/data         목록 · 요약 · 점검 상태
  *    POST /ops/proposals/action       { id, op, ... }  보류·해제·승인·지금발송·재생성·취소·일정변경·메모·요약수정·점검실행
@@ -22,7 +23,7 @@ import { readHalt, clearHalt, readUsage } from '../lib/proposal/aiusage.mjs';
 import { addLog, addNotice, statusUrl, tokenKey } from '../lib/proposal/jobs.mjs';
 import { fmtKST } from '../lib/proposal/schedule.mjs';
 import { PROBLEMS, GOALS } from '../lib/proposal/kb.mjs';
-import { intakeLines } from '../lib/proposal/mail.mjs';
+import { intakeLines, MAIL_KEY_RE, mailPrefix, mailLabel } from '../lib/proposal/mail.mjs';
 import { buildJob, sendJob, tick, requestCandidate, decideCandidate } from '../lib/proposal/pipeline.mjs';
 import { listArchive, insights, aiInsight, channelOf } from '../lib/proposal/archive.mjs';
 import { configured as mondayOn } from '../lib/proposal/crm.mjs';
@@ -30,7 +31,7 @@ import { opsAuthed } from '../lib/proposal/opsauth.mjs';
 import { runHealth } from '../lib/proposal/health.mjs';
 
 export const config = { path: ['/ops/proposals', '/ops/proposals/archive', '/ops/proposals/insights', '/ops/proposals/data', '/ops/proposals/job', '/ops/proposals/action', '/ops/proposals/pdf', '/ops/proposals/export.csv',
-  '/ops/proposals/archive/data', '/ops/proposals/archive.csv', '/ops/proposals/archive/pdf', '/ops/proposals/insights/data', '/ops/proposals/health', '/ops/proposals/login', '/ops/proposals/logout',
+  '/ops/proposals/archive/data', '/ops/proposals/archive.csv', '/ops/proposals/archive/pdf', '/ops/proposals/mail', '/ops/proposals/insights/data', '/ops/proposals/health', '/ops/proposals/login', '/ops/proposals/logout',
   '/ops/proposals/misses', '/ops/proposals/misses/data'] };
 
 const H = { 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow, noarchive', 'referrer-policy': 'no-referrer', 'x-frame-options': 'DENY', 'x-content-type-options': 'nosniff' };
@@ -120,6 +121,7 @@ export default async (req) => {
     if (p === '/ops/proposals/archive/data') return j(await archiveData(url));
     if (p === '/ops/proposals/archive.csv') return await archiveCsv();
     if (p === '/ops/proposals/archive/pdf') return await archivePdf(url);
+    if (p === '/ops/proposals/mail') return await mailView(url);
     if (p === '/ops/proposals/insights/data') return j(await insightData(url));
     if (p === '/ops/proposals/misses/data') return j(await readMisses({ days: Math.max(1, Math.min(90, Number(url.searchParams.get('days')) || 30)) }));
     if (p === '/ops/proposals/health') return j(await runHealth({ deep: url.searchParams.get('deep') === '1', origin: url.origin }));
@@ -175,8 +177,8 @@ async function one(id) {
   const x = await S.getJob(id);
   if (!x) return { ok: false, error: '없는 건입니다' };
   const recs = (await Promise.all((x.archive || []).map(k => S.getJSON(k).catch(() => null)))).filter(Boolean)
-    .map(r => ({ key: r.key, at: fmtKST(Date.parse(r.at)), kind: r.kind, doc: r.doc, to: r.to, by: r.by, ai: r.ai, version: r.version, pdf: !!r.pdf, via: r.via, attached: r.attached }));
-  return { ok: true, row: row(x), sends: recs.reverse() };
+    .map(r => ({ key: r.key, at: fmtKST(Date.parse(r.at)), kind: r.kind, doc: r.doc, to: r.to, by: r.by, ai: r.ai, version: r.version, pdf: !!r.pdf, via: r.via, attached: r.attached, mail: r.mail || '' }));
+  return { ok: true, row: row(x), sends: recs.reverse(), mails: await mailList(id) };
 }
 
 async function data(url) {
@@ -320,6 +322,7 @@ async function action(b, url) {
       if (job.token) await S.del(tokenKey(job.token)).catch(() => {});
       await S.del('pdf/' + id + '.pdf').catch(() => {});
       for (const v of job.versions || []) if (v.pdfKey) await S.del(v.pdfKey).catch(() => {});
+      for (const k of await S.list(mailPrefix(id), 500).catch(() => [])) await S.del(k).catch(() => {});   /* 보낸 메일 사본 */
       await S.del(S.jobKey(id)).catch(() => {});
       await S.setJSON('deleted/' + id + '.json', {
         id, no: job.no, at: new Date().toISOString(), by: who,
@@ -331,6 +334,48 @@ async function action(b, url) {
     default:
       return { ok: false, error: '알 수 없는 작업' };
   }
+}
+
+/* ── 보낸 메일 사본 (2026-09-29) ─────────────────────────────────
+   메일을 받은 한 사람만 내용을 알던 문제 — 관리 화면에서 누구나 같은 내용을 확인한다. */
+async function mailList(id) {
+  const keys = await S.list(mailPrefix(id), 200).catch(() => []);
+  const recs = (await Promise.all(keys.map(k => S.getJSON(k).catch(() => null)))).filter(Boolean);
+  return recs.map(m => ({ key: m.key, at: fmtKST(Date.parse(m.at)), kind: m.kind, label: m.label || mailLabel(m.kind), audience: m.audience,
+    to: (m.to || []).map(t => t.email).join(', '), subject: m.subject, ok: m.ok, error: m.error || '', attachment: m.attachment ? m.attachment.name : '' })).reverse();
+}
+async function mailView(url) {
+  const key = String(url.searchParams.get('key') || '');
+  const m = MAIL_KEY_RE.test(key) ? await S.getJSON(key).catch(() => null) : null;
+  if (!m) return new Response('메일 사본이 없습니다 (이 기능 이전에 나간 메일이거나 보관 기간이 지나 지워졌습니다)', { status: 404, headers: { ...H, 'content-type': 'text/plain; charset=utf-8' } });
+  const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const who = list => (list || []).map(t => (typeof t === 'string' ? t : (t.name ? t.name + ' <' + t.email + '>' : t.email))).join(', ') || '-';
+  const job = await S.getJob(m.id).catch(() => null);
+  const arch = job && m.kind !== 'followup' ? (job.archive || []).slice().reverse() : [];
+  let pdfLink = '';
+  for (const k of arch) { const r = await S.getJSON(k).catch(() => null); if (r && r.mail === m.key && r.pdf) { pdfLink = '/ops/proposals/archive/pdf?key=' + encodeURIComponent(r.key); break; } }
+  const rows = [
+    ['종류', (m.audience === 'staff' ? '담당자 알림' : '고객 메일') + ' · ' + (m.label || m.kind)],
+    ['보낸 시각', fmtKST(Date.parse(m.at))],
+    ['결과', m.ok ? '발송 완료' + (m.via ? ' (' + m.via + ')' : '') : '발송 안 됨 — ' + (m.error || '사유 미상')],
+    ['보낸 사람', m.from || '-'], ['받는 사람', who(m.to)], ...(m.bcc && m.bcc.length ? [['숨은 참조', who(m.bcc)]] : []),
+    ['제목', m.subject || '-'],
+    ['첨부', m.attachment ? m.attachment.name + ' (' + Math.round((m.attachment.bytes || 0) / 1024) + 'KB)' : '없음']
+  ];
+  const page = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>보낸 메일 · ${e(m.no)} · ${e(m.label || m.kind)}</title>
+<style>:root{color-scheme:dark}body{margin:0;background:#0b1220;color:#e6edf7;font-family:Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+.top{padding:16px 20px;border-bottom:1px solid #1f2b40;background:#0f1a2e}.top h1{margin:0 0 10px;font-size:16px}.top a{color:#9fc3ff}
+table{border-collapse:collapse;font-size:13px}td{padding:4px 14px 4px 0;vertical-align:top}td:first-child{color:#8fa2bd;white-space:nowrap}
+.bad{color:#ff9b9b}.acts{margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+iframe{display:block;width:100%;height:calc(100vh - 260px);min-height:520px;border:0;background:#eef1f6}pre{white-space:pre-wrap;margin:0;padding:18px 20px;font-size:13px;line-height:1.7;color:#cfd8e6}</style></head><body>
+<div class="top"><h1>보낸 메일 사본 <span style="color:#8fa2bd;font-weight:400">· ${e(m.no)}</span></h1>
+<table>${rows.map(([k, v]) => `<tr><td>${e(k)}</td><td${k === '결과' && !m.ok ? ' class="bad"' : ''}>${e(v)}</td></tr>`).join('')}</table>
+<div class="acts"><a href="/ops/proposals#${e(m.id)}">이 건 관리 화면</a>${pdfLink ? `<a target="_blank" href="${e(pdfLink)}">첨부했던 PDF 보기</a>` : ''}<a href="#text" onclick="document.getElementById('text').hidden=!document.getElementById('text').hidden;return false">텍스트 본문 보기</a></div></div>
+<pre id="text" hidden>${e(m.text || '(텍스트 본문 없음)')}</pre>
+<iframe title="메일 본문" sandbox="allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" srcdoc="${e(String(m.html || '<p style=\"font-family:sans-serif;padding:20px\">HTML 본문 없음</p>').replace('<head>', '<head><base target="_blank">'))}"></iframe>
+</body></html>`;
+  return new Response(page, { headers: { ...H, 'content-type': 'text/html; charset=utf-8',
+    'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; img-src https: data:; frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" } });
 }
 
 /* ── 발송 대장 · 인사이트 ──────────────────────────────────────── */
@@ -383,7 +428,7 @@ async function insightData(url) {
 /* ── 화면 ───────────────────────────────────────────────────────── */
 /* 통합 관제 탭 — /ops · /ops/block 화면에도 같은 줄이 있다 */
 const OPS_NAV = `<nav class="opsnav" aria-label="관제 메뉴">
-<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>`;
+<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/notices">알림함</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>`;
 
 function page(ok, keyLogin, nonce = '') {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -569,7 +614,12 @@ function render(){
   $$('tr.r').forEach(tr=>tr.onclick=e=>{ if(e.target.closest('.nosel'))return; openJob(tr.dataset.id); });
   $$('#rows .chk').forEach(c=>c.onchange=syncDel);
   syncDel();
-  if(location.hash.length>2&&!CUR)openJob(location.hash.slice(1));
+  if(location.hash.length>2&&!CUR){
+    const h=decodeURIComponent(location.hash.slice(1));
+    /* 통합 관제 리드 원장에서 「제안서·메일」로 넘어올 때 — #find:이메일 (2026-09-29) */
+    if(h.indexOf('find:')===0){ const em=h.slice(5).toLowerCase(); const hit=D.rows.find(r=>String(r.email||'').toLowerCase()===em); if(hit)openJob(hit.id); }
+    else openJob(h);
+  }
 }
 
 /* ── 한 건 ── */
@@ -630,7 +680,8 @@ function drawJob(){
   +(r.status!=='sent'&&r.status!=='canceled'?'<button class="warn" data-act="cancel">취소</button>':'')+'</div>'
   +(bad.length?'<div class="warnbar">발송본 규칙 점검: '+bad.map(k=>esc(k.label)+' — '+esc(k.note)).join(' / ')+'</div>':'')
   +aiPanel(r)
-  +'<div class="sec"><b>발송 이력</b> <span class="small mut">누구에게 무슨 자료가 나갔는지</span>'+(CUR.sends.length?CUR.sends.map(s=>'<div class="small">'+esc(s.at)+' · '+({proposal:'제안서',resend:'재발송',followup:'후속 안내'}[s.kind]||s.kind)+' · '+esc(s.doc)+(s.version?' v'+s.version:'')+(s.ai?' (AI)':'')+' → '+esc(s.to.name)+' '+esc(s.to.email)+' <span class="mut">'+esc(s.by==='auto'?'자동':s.by)+' · '+esc(s.via)+(s.attached?' 첨부':'')+'</span>'+(s.pdf?' <a style="color:#9fc3ff" target="_blank" href="/ops/proposals/archive/pdf?key='+encodeURIComponent(s.key)+'">보낸 PDF</a>':'')+'</div>').join(''):'<div class="small mut">아직 발송 전</div>')+'</div>'
+  +'<div class="sec"><b>발송 이력</b> <span class="small mut">누구에게 무슨 자료가 나갔는지</span>'+(CUR.sends.length?CUR.sends.map(s=>'<div class="small">'+esc(s.at)+' · '+({proposal:'제안서',resend:'재발송',followup:'후속 안내'}[s.kind]||s.kind)+' · '+esc(s.doc)+(s.version?' v'+s.version:'')+(s.ai?' (AI)':'')+' → '+esc(s.to.name)+' '+esc(s.to.email)+' <span class="mut">'+esc(s.by==='auto'?'자동':s.by)+' · '+esc(s.via)+(s.attached?' 첨부':'')+'</span>'+(s.pdf?' <a style="color:#9fc3ff" target="_blank" href="/ops/proposals/archive/pdf?key='+encodeURIComponent(s.key)+'">보낸 PDF</a>':'')+(s.mail?' <a style="color:#9fc3ff" target="_blank" href="/ops/proposals/mail?key='+encodeURIComponent(s.mail)+'">보낸 메일</a>':'')+'</div>').join(''):'<div class="small mut">아직 발송 전</div>')+'</div>'
+  +'<div class="sec"><b>보낸 메일</b> <span class="small mut">고객·담당자에게 나간 메일 내용 그대로 — 클릭하면 새 창</span>'+((CUR.mails||[]).length?CUR.mails.map(m=>'<div class="small"><a style="color:#9fc3ff" target="_blank" href="/ops/proposals/mail?key='+encodeURIComponent(m.key)+'">'+esc(m.at)+' · '+(m.audience==='staff'?'<span class="mut">[담당자]</span> ':'<b>[고객]</b> ')+esc(m.label)+'</a> <span class="mut">→ '+esc(m.to)+(m.attachment?' · 첨부':'')+'</span>'+(m.ok?'':' <span style="color:#ff9b9b">발송 안 됨'+(m.error?' — '+esc(m.error).slice(0,60):'')+'</span>')+'<div class="mut" style="margin-left:8px">'+esc(m.subject)+'</div></div>').join(''):'<div class="small mut">기록된 메일이 없습니다 (2026-09-29 이전에 나간 메일은 사본이 없습니다)</div>')+'</div>'
   +'<div class="sec"><div class="kv"><div>담당</div><div>'+esc(r.name)+' '+esc(r.title)+'</div><div>연락</div><div>'+[r.phone?'<a style="color:#9fc3ff" href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>':'','<a style="color:#9fc3ff" href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>'].filter(Boolean).join(' · ')+'</div><div>산업·시설</div><div>'+[r.industry,r.segment,r.facility,r.region].filter(Boolean).map(esc).join(' · ')+'</div><div>규모·시점</div><div>'+([r.scale,r.timeline].filter(Boolean).map(esc).join(' · ')||'-')+'</div><div>기준 과제</div><div>'+r.problems.map(esc).join(', ')+'</div>'+(r.also.length?'<div>추가 관심</div><div style="color:#e9b3ff">'+r.also.map(esc).join(', ')+'</div>':'')+'<div>목표</div><div>'+r.goals.map(esc).join(', ')+'</div><div>메모</div><div>'+(esc(r.memo)||'-')+'</div><div>유입</div><div class="small">'+esc(r.source)+' · '+esc(r.device)+' · '+esc(r.ip)+'</div><div>마케팅</div><div>'+(r.consentMkt?'수신 동의':'미동의')+'</div></div></div>'
   +(r.gradeItems.length?'<div class="sec"><b>등급 근거</b> <span class="tag g-'+r.grade+'">'+esc(r.grade)+' '+r.score+'점</span><div class="small" style="margin:4px 0 6px">'+esc(r.gradeMeaning)+'</div>'
     +'<table style="width:100%;font-size:12.5px">'+r.gradeItems.map(it=>'<tr><td class="mut">'+esc(it.label)+'</td><td>'+esc(it.note)+'</td><td style="text-align:right;white-space:nowrap;color:'+(it.pts?'#5eead4':'#8fa2bd')+'">'+it.pts+' / '+it.max+'</td></tr>').join('')+'</table>'
@@ -734,7 +785,7 @@ function drawArchive(){
     +'<td class="hide-m small">'+esc(r.problems.join(', '))+(r.also.length?' <span class="mut">+'+esc(r.also.join(', '))+'</span>':'')+'<div class="mut">'+esc(r.industry.label)+(r.segment?' › '+esc(r.segment):'')+' · '+esc(r.channel)+'</div></td>'
     +'<td><span class="tag g-'+esc(r.grade)+'">'+esc(r.grade)+' '+esc(r.score)+'</span></td>'
     +'<td class="small">'+(r.kind==='followup'?'<span class="mut">-</span>':(r.opens?'열람 '+r.opens+(r.firstOpenAt?'<div class="mut">'+esc(r.firstOpenAt)+'</div>':''):'<span class="mut">미열람</span>'))+(r.contacted?'<div style="color:#8ff0df">연락 완료</div>':'')+(r.asks?'<div style="color:#e9b3ff">추가 요청 '+r.asks+'</div>':'')+'</td>'
-    +'<td class="small">'+(r.pdf?'<a style="color:#9fc3ff" target="_blank" href="/ops/proposals/archive/pdf?key='+encodeURIComponent(r.key)+'">PDF</a> ':'')+'<a style="color:#9fc3ff" href="'+PATHS.queue+'#'+r.id+'" data-open="'+r.id+'">건 보기</a></td></tr>').join('')||'<tr><td colspan="7" class="mut">아직 나간 자료가 없습니다.</td></tr>';
+    +'<td class="small">'+(r.pdf?'<a style="color:#9fc3ff" target="_blank" href="/ops/proposals/archive/pdf?key='+encodeURIComponent(r.key)+'">PDF</a> ':'')+(r.mail?'<a style="color:#9fc3ff" target="_blank" href="/ops/proposals/mail?key='+encodeURIComponent(r.mail)+'">메일</a> ':'')+'<a style="color:#9fc3ff" href="'+PATHS.queue+'#'+r.id+'" data-open="'+r.id+'">건 보기</a></td></tr>').join('')||'<tr><td colspan="7" class="mut">아직 나간 자료가 없습니다.</td></tr>';
 }
 $('#amonth').onchange=loadArchive;$('#akind').onchange=()=>A&&drawArchive();$('#aq').oninput=()=>A&&drawArchive();
 document.addEventListener('click',e=>{const o=e.target.closest('[data-open]');if(!o||e.metaKey||e.ctrlKey)return;e.preventDefault();setTab('queue',true);openJob(o.dataset.open);});

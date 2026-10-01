@@ -1287,7 +1287,9 @@ const FD_DEF_FAC=[
  {id:'resident',ko:'주거·아파트',eg:'세대·기계실·주차장·저수조',sensor:'온습도',app:'facility',cons:['leak','fire','temp','air','security','control','power','comply']},
  {id:'hotel',ko:'호텔·리조트',eg:'객실·주방·수영장·기계실',sensor:'온습도',app:'facility',cons:['temp','fire','air','leak','power','security','control','comply']},
  {id:'retail',ko:'리테일·매장·외식',eg:'냉장 쇼케이스·주방·백룸 창고',sensor:'저온',app:'retail',cons:['cold','temp','power','fire','air','comply','control','equip']},
- {id:'public',ko:'학교·공공기관',eg:'교실·강당·기계실·급식실',sensor:'도어',app:'facility',cons:['fire','air','temp','security','power','leak','control','comply']},
+ {id:'public',ko:'공공기관·문화시설',eg:'청사·전시실·공연장·지하시설·기계실',sensor:'온습도',app:'facility',cons:['leak','power','security','air','temp','fire','control','comply']},
+ {id:'edu',ko:'학교·교육기관',eg:'교실·급식실·체육관·연구실·기숙사',sensor:'온습도',app:'uc-schools-churches',cons:['temp','leak','air','cold','power','security','fire','comply']},
+ {id:'smallbiz',ko:'소상공인·매장',eg:'카페·음식점·무인매장·편의점·미용실',sensor:'저온',app:'uc-retail',cons:['cold','leak','fire','security','power','temp','comply','control']},
  {id:'agri',ko:'농축수산',eg:'양식장·축사·저장고·온실',sensor:'온습도',app:'greenhouse',cons:['temp','cold','air','equip','power','control','comply','leak']},
  {id:'energy',ko:'에너지·발전·인프라',eg:'수처리·펌프장·변전·발전 설비',sensor:'전류',app:'energy',cons:['equip','power','control','leak','fire','temp','security','comply']},
  {id:'construction',ko:'건설·현장',eg:'가설 전기·양중 장비·환경·안전',sensor:'진동',app:'construct',cons:['security','equip','fire','power','control','temp','air','comply']},
@@ -1434,7 +1436,7 @@ if($('#fdReload')) $('#fdReload').onclick=()=>fdLoad();
 if($('#fdSave')) $('#fdSave').onclick=()=>fdSave();
 
 /* ===== 🎯 솔루션 파인더 매칭 그리드 (시설 × 고민 → 활용분야 링크) ===== */
-let MF_FAC=[['factory','공장·제조'],['logistics','물류·창고·콜드체인'],['pharma','병원·제약·바이오'],['datacenter','데이터센터·통신'],['office','빌딩·오피스'],['resident','주거·아파트'],['hotel','호텔·리조트'],['retail','리테일·매장·외식'],['public','학교·공공기관'],['agri','농축수산'],['energy','에너지·발전·인프라'],['construction','건설·현장'],['etc','그 외 시설']];
+let MF_FAC=[['factory','공장·제조'],['logistics','물류·창고·콜드체인'],['pharma','병원·제약·바이오'],['datacenter','데이터센터·통신'],['office','빌딩·오피스'],['resident','주거·아파트'],['hotel','호텔·리조트'],['retail','리테일·매장·외식'],['public','공공기관·문화시설'],['edu','학교·교육기관'],['smallbiz','소상공인·매장'],['agri','농축수산'],['energy','에너지·발전·인프라'],['construction','건설·현장'],['etc','그 외 시설']];
 let MF_CON=[['fire','화재·과열'],['leak','누수·침수·동파'],['temp','온도·습도 관리'],['cold','냉장·콜드체인'],['equip','설비 고장·예지보전'],['power','전력·에너지 절감'],['air','공기질·환경'],['security','보안·출입'],['control','통합관제·원격감시'],['comply','규정·온도기록']];
 let MF_ALLCON=MF_CON.map(x=>x[0]);
 /* 파인더 항목(finder.config)이 저장돼 있으면 그 목록을 따릅니다 */

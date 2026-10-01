@@ -86,11 +86,12 @@ export const DIRECTORY = [
   { n: ['국립중앙박물관', '국립현대미술관', '예술의전당', '세종문화회관'], i: 'public', s: 'culture' },
   { n: ['서울교통공사', '한국철도공사', '코레일', '국가철도공단', '부산교통공사', '인천교통공사'], i: 'public', s: 'underground' },
   { n: ['한국도로공사', '인천국제공항공사', '한국공항공사'], i: 'public' },
-  /* 병원·교육 */
+  /* 병원·복지 */
   { n: ['한양대학교구리병원', '한양대구리병원'], i: 'edu_med', s: 'hospital', c: 'hyu-guri-hospital' },
   { n: ['서울대학교병원', '삼성서울병원', '서울아산병원', '세브란스', '가톨릭중앙의료원', '분당서울대병원'], i: 'edu_med', s: 'hospital' },
-  { n: ['신한대학교', '신한대'], d: ['shinhan.ac.kr'], i: 'edu_med', s: 'university', c: 'shinhan-univ' },
-  { n: ['송현초등학교'], i: 'edu_med', s: 'school', c: 'songhyun-elem' },
+  /* 학교·교육기관 */
+  { n: ['신한대학교', '신한대'], d: ['shinhan.ac.kr'], i: 'education', s: 'university', c: 'shinhan-univ' },
+  { n: ['송현초등학교'], i: 'education', s: 'school', c: 'songhyun-elem' },
   /* 건설 */
   { n: ['현대건설', 'hyundai e&c'], d: ['hdec.co.kr'], i: 'construction', s: 'site', c: 'hyundai-enc' },
   { n: ['현대엔지니어링', 'hyundai engineering'], d: ['hec.co.kr'], i: 'construction', s: 'plant_epc', c: 'hyundai-engineering' },
@@ -107,10 +108,10 @@ const FREE_MAIL = /^(gmail|naver|daum|hanmail|kakao|nate|outlook|hotmail|live|ic
 const DOMAIN_RULES = [
   [/\.mil\.kr$/, 'public', 'military', 0.8, '국방 도메인(.mil.kr)'],
   [/\.go\.kr$/, 'public', 'government', 0.6, '정부 도메인(.go.kr)'],
-  [/\.(es|ms|hs|sc)\.kr$/, 'edu_med', 'school', 0.8, '학교 도메인'],
-  [/\.ac\.kr$/, 'edu_med', 'university', 0.6, '대학 도메인(.ac.kr)'],
+  [/\.(es|ms|hs|sc|kg)\.kr$/, 'education', 'school', 0.8, '학교 도메인'],
+  [/\.ac\.kr$/, 'education', 'university', 0.6, '대학 도메인(.ac.kr)'],
   [/(hospital|hosp|medical|clinic|cmc)\b/, 'edu_med', 'hospital', 0.6, '병원 도메인'],
-  [/\.re\.kr$/, 'edu_med', 'university', 0.4, '연구기관 도메인(.re.kr)'],
+  [/\.re\.kr$/, 'education', 'university', 0.4, '연구기관 도메인(.re.kr)'],
   [/\.or\.kr$/, 'public', '', 0.25, '기관 도메인(.or.kr)']
 ];
 
@@ -118,7 +119,8 @@ const DOMAIN_RULES = [
 const IND_KW = [
   ['bio_pharma', ['바이오로직스', '바이오의약', '바이오팜', '제약', '약품', '파마', 'pharm', 'biologics', 'cdmo', '백신', '의약품', '신약']],
   ['construction', ['건설', '종합건설', '토목', '시공', '건축현장', '공사현장', '현장사무소', 'e&c', 'construction', '플랜트', 'epc']],
-  ['edu_med', ['병원', '의료원', '의원', '메디컬', 'hospital', '대학교', '대학원', '초등학교', '중학교', '고등학교', '유치원', '교육청', 'university', 'college', '요양원', '요양병원', '복지관', '복지센터', '어린이집']],
+  ['edu_med', ['병원', '대학교병원', '대학병원', '의료원', '의원', '메디컬', 'hospital', '요양원', '요양병원', '복지관', '복지센터', '어린이집']],
+  ['education', ['대학교', '대학원', '초등학교', '중학교', '고등학교', '유치원', '교육청', '교육지원청', '학교', '캠퍼스', '산학협력단', '학원', '교육원', '연수원', 'university', 'college', 'school', 'academy']],
   ['datacenter', ['데이터센터', 'idc', 'datacenter', '전산실', '서버실', '전산센터', '클라우드', '텔레콤', 'telecom', '기지국', '통신국사']],
   ['energy', ['발전', '발전소', '전력', '에너지', 'energy', 'power', '수자원', '상수도', '하수처리', '정수장', '수처리', '물재생', '변전소', 'ess', '정유', '석유', '도시가스', '가스공사', '태양광', '풍력', 'solar']],
   ['manufacturing', ['반도체', '디스플레이', '이차전지', '배터리', '자동차', '모비스', '화학', '케미칼', '케미컬', '제조', '공장', '공업', '산업', '정밀', '금속', '제철', '중공업', '기계', '전자', 'semiconductor', 'chemical', 'industrial', 'manufacturing', 'factory']],
@@ -127,7 +129,8 @@ const IND_KW = [
   ['residential', ['호텔', 'hotel', '리조트', 'resort', '콘도', '펜션', '아파트', '공동주택', '관리사무소', '주택관리', '기숙사', '임대주택', '레지던스']],
   ['public', ['시청', '구청', '군청', '도청', '청사', '주민센터', '행정복지센터', '공단', '공사', '국방', '부대', '사단', '육군', '해군', '공군', '박물관', '미술관', '문화회관', '공연장', '도서관', '지하철', '교통공사', '터널', '공동구', '지자체']],
   ['building_fm', ['빌딩', '타워', '오피스', '자산운용', '리츠', 'reit', '시설관리', '건물관리', 'fm', '쇼핑몰', '백화점', '아울렛', '복합시설', '주상복합', '부동산', 'building', 'tower', 'office']],
-  ['general', ['교회', '성당', '사찰', '교구', '성전', '수도원', 'church', '셀프스토리지', '창고', '매장', '카페', '식당', '학원', '사무실']]
+  ['small_biz', ['소상공인', '자영업', '매장', '카페', '커피', '식당', '음식점', '베이커리', '빵집', '무인매장', '무인점포', '스터디카페', '빨래방', '약국', '꽃집', '미용실', '헤어샵', '네일', '세탁소', 'pc방', '피시방', '헬스장', '필라테스', '상회', '상점', '가게']],
+  ['general', ['교회', '성당', '사찰', '교구', '성전', '수도원', 'church', '셀프스토리지', '창고', '사무실']]
 ];
 
 /* 문의 폼 「산업군」 선택값 → 산업 (약한 근거) */
@@ -135,7 +138,9 @@ export const CONTACT_INDUSTRY = {
   '부동산': 'building_fm', '공장': 'manufacturing', '건설': 'construction', '물류': 'cold_chain',
   '인프라': 'energy', '농축산': 'food_agri',
   /* 홈 상단 빠른 상담 폼 */
-  '공장·제조': 'manufacturing', '병원·제약': 'bio_pharma', '교회·학교·시설': 'edu_med', '물류·콜드체인': 'cold_chain',
+  '공장·제조': 'manufacturing', '병원·제약': 'bio_pharma', '교회·학교·시설': 'education', '학교·교육기관': 'education', '학교·교육': 'education', '학교': 'education', '교육': 'education',
+  '병원·복지': 'edu_med', '공공기관': 'public', '공공': 'public', '교회·공공시설': 'public', '학교·공공': 'education',
+  '교회·종교시설': 'general', '소상공인·매장': 'small_biz', '소상공인·자영업': 'small_biz', '소상공인': 'small_biz', '자영업': 'small_biz', '물류·콜드체인': 'cold_chain',
   '데이터센터': 'datacenter', '빌딩·부동산': 'building_fm'
 };
 Object.setPrototypeOf(CONTACT_INDUSTRY, null);   /* 'constructor' 같은 입력이 산업으로 잡히지 않게 */

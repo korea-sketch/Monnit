@@ -139,12 +139,18 @@ export const INDUSTRIES = [
     hero: '순찰 대신 상시 감시로',
     problems: ['unmanned', 'rounds', 'flood', 'power_out', 'door_open', 'downtime', 'tank_level', 'elec_fire', 'iaq', 'toxic_gas'],
     goals: ['labor', 'response', 'safety', 'integration'],
-    adj: ['building_fm', 'energy'], doc: 'public-defense-facility' },
-  { key: 'edu_med', label: '병원·학교·복지시설', icon: '🏥', short: '병원·학교',
+    adj: ['building_fm', 'energy', 'education'], doc: 'public-defense-facility' },
+  { key: 'education', label: '학교·교육기관', icon: '🏫', short: '학교·교육',
+    hero: '학생이 없는 시간에도 학교 시설은 먼저 알려줍니다',
+    problems: ['cold_storage', 'record', 'iaq', 'freeze', 'leak', 'unmanned', 'elec_fire', 'power_out', 'ultracold', 'toxic_gas', 'multi_site', 'energy'],
+    goals: ['safety', 'loss', 'labor', 'compliance'],
+    adj: ['public', 'edu_med', 'building_fm'], doc: 'school-church-public' },
+  /* key 는 기존 접수 기록 호환을 위해 edu_med 유지 — 학교는 2026-09-29 부터 education 으로 분리 */
+  { key: 'edu_med', label: '병원·요양·복지시설', icon: '🏥', short: '병원·복지',
     hero: '사람을 돌보는 공간의 보이지 않는 안전망',
     problems: ['cold_storage', 'unmanned', 'leak', 'elec_fire', 'iaq', 'freeze', 'record', 'power_out', 'emergency', 'cleanroom'],
     goals: ['safety', 'loss', 'labor', 'compliance'],
-    adj: ['bio_pharma', 'building_fm', 'public'], doc: 'school-church-public' },
+    adj: ['bio_pharma', 'building_fm', 'education'], doc: 'school-church-public' },
   { key: 'food_agri', label: '식품·외식·농수산', icon: '🌾', short: '식품·농수산',
     hero: '온도 한 번의 이탈이 한 해 농사를 좌우합니다',
     problems: ['cold_storage', 'record', 'water_temp', 'power_out', 'env_quality', 'multi_site', 'downtime', 'door_open', 'toxic_gas', 'meter'],
@@ -155,6 +161,12 @@ export const INDUSTRIES = [
     problems: ['curing', 'elec_fire', 'structure', 'flood', 'door_open', 'toxic_gas', 'rounds', 'power_out'],
     goals: ['safety', 'labor', 'response', 'compliance'],
     adj: ['building_fm', 'energy'], doc: 'construction-shm' },
+  /* 2026-09-29 소상공인 분리 — 카페·음식점·무인매장·편의점·미용실 등 점주 운영 매장 */
+  { key: 'small_biz', label: '소상공인·자영업 매장', icon: '🏪', short: '소상공인',
+    hero: '영업이 끝난 뒤에도 매장은 쉬지 않고 지켜봅니다',
+    problems: ['cold_storage', 'leak', 'elec_fire', 'unmanned', 'power_out', 'door_open', 'freeze', 'record', 'energy', 'multi_site', 'iaq'],
+    goals: ['loss', 'response', 'safety', 'energy'],
+    adj: ['food_agri', 'building_fm', 'general'], doc: 'retail-store-foodservice' },
   { key: 'general', label: '그 외 시설', icon: '🧩', short: '시설',
     hero: '사람이 없는 시간에도 시설이 먼저 알려줍니다',
     problems: ['leak', 'elec_fire', 'unmanned', 'freeze', 'cold_storage', 'power_out', 'legacy_alarm', 'energy'],
@@ -194,8 +206,8 @@ export const CASE_INDUSTRY = {
   'aquafarm': ['food_agri'],
   'gangnam': ['public'],
   'keco': ['public', 'energy'],
-  'shinhan-univ': ['edu_med'],
-  'songhyun-elem': ['edu_med']
+  'shinhan-univ': ['education'],
+  'songhyun-elem': ['education']
 };
 
 /* 모넷 글로벌 본사 레퍼런스 — 제안서에 「Monnit 글로벌 사례」로 구분해 적는다 */
@@ -204,7 +216,7 @@ export const GLOBAL_CASES = ['microsoft', 'walmart', 'us-army', 'exxonmobil', 'c
 const INDUSTRY_TEXT = [
   [/바이오|제약|의약/, 'bio_pharma'], [/데이터|IT/, 'datacenter'], [/건설|부동산|빌딩/, 'building_fm'],
   [/에너지|발전|전력|수처리/, 'energy'], [/유통|리테일|물류|콜드/, 'cold_chain'], [/국방|공공|방위/, 'public'],
-  [/의료|병원|교육|학교/, 'edu_med'], [/외식|식품|농|양식/, 'food_agri'], [/호텔|숙박|주거/, 'residential'],
+  [/학교|교육|대학|유치원|학원/, 'education'], [/소상공인|자영업|무인매장|카페|음식점|편의점/, 'small_biz'], [/의료|병원|요양|복지/, 'edu_med'], [/외식|식품|농|양식/, 'food_agri'], [/호텔|숙박|주거/, 'residential'],
   [/제조|반도체|자동차/, 'manufacturing']
 ];
 export function industriesOfCase(key, industryText) {
@@ -222,7 +234,7 @@ export const industryByKey = k => INDUSTRIES.find(i => i.key === k) || null;
    index.html 의 finder.config (fac·con·scale) id 를 그대로 받는다. */
 export const FINDER_FAC = {
   factory: 'manufacturing', logistics: 'cold_chain', food: 'food_agri', pharma: 'bio_pharma',
-  datacenter: 'datacenter', commercial: 'building_fm', resident: 'residential', public: 'public',
+  datacenter: 'datacenter', commercial: 'building_fm', resident: 'residential', public: 'public', edu: 'education', smallbiz: 'small_biz',
   agri: 'food_agri', energy: 'energy', construction: 'construction', etc: 'general'
 };
 /* 파인더 시설이 곧 세부 업종 힌트가 되는 경우 */

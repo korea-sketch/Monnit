@@ -22,8 +22,8 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/js/monnit-lead.js?v=5"></script>
 <script src="/js/monnit-track.js?v=1" defer></script>
-<script src="/js/monnit-popup.js?v=2" defer></script>
-<script src="/js/monnit-pet.js?v=1" defer></script>
+<script src="/js/monnit-popup.js?v=3" defer></script>
+<script src="/js/monnit-pet.js?v=2" defer></script>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -490,7 +490,9 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
             <button class="opt" data-v="datacenter" data-sc="finder.fac.datacenter" data-sc-label="파인더 · 시설 · 데이터센터·통신">데이터센터·통신</button>
             <button class="opt" data-v="commercial" data-sc="finder.fac.commercial" data-sc-label="파인더 · 시설 · 오피스·상업용 건물">오피스·상업용 건물</button>
             <button class="opt" data-v="resident" data-sc="finder.fac.resident" data-sc-label="파인더 · 시설 · 주거·아파트">주거·아파트</button>
-            <button class="opt" data-v="public" data-sc="finder.fac.public" data-sc-label="파인더 · 시설 · 공공·교육·문화">공공·교육·문화</button>
+            <button class="opt" data-v="public" data-sc="finder.fac.public" data-sc-label="파인더 · 시설 · 공공기관·문화시설">공공기관·문화시설</button>
+            <button class="opt" data-v="edu" data-sc="finder.fac.edu" data-sc-label="파인더 · 시설 · 학교·교육기관">학교·교육기관</button>
+            <button class="opt" data-v="smallbiz" data-sc="finder.fac.smallbiz" data-sc-label="파인더 · 시설 · 소상공인·매장">소상공인·매장</button>
             <button class="opt" data-v="agri" data-sc="finder.fac.agri" data-sc-label="파인더 · 시설 · 농축수산">농축수산</button>
             <button class="opt" data-v="energy" data-sc="finder.fac.energy" data-sc-label="파인더 · 시설 · 에너지·발전·인프라">에너지·발전·인프라</button>
             <button class="opt" data-v="construction" data-sc="finder.fac.construction" data-sc-label="파인더 · 시설 · 건설·현장">건설·현장</button>
@@ -546,8 +548,8 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
             <span data-sc="finder.link.con.comply" data-sc-label="파인더 · 링크 · 고민 · 규정·온도기록"></span>
             
             
-            <span data-sc="finder.config" data-sc-label="파인더 · 항목 목록(JSON)">{"fac":[{"id":"factory","ko":"공장·제조","en":"Factory & manufacturing","eg":"모터·펌프·공조기·전력 설비","sensor":"진동","app":"manufact","cons":["equip","fire","power","temp","leak"]},{"id":"logistics","ko":"물류·창고·콜드체인","en":"Logistics & cold chain","eg":"냉동·냉장 창고·수송 차량","sensor":"저온","app":"logistics","cons":["cold","comply","temp","fire","control"]},{"id":"food","ko":"식품·외식·리테일","en":"Food, restaurant & retail","eg":"냉장 쇼케이스·주방·백룸 창고","sensor":"저온","app":"food","cons":["cold","comply","temp","leak","power"]},{"id":"pharma","ko":"병원·제약·바이오","en":"Healthcare & pharma","eg":"백신·검체 보관고·클린룸","sensor":"저온","app":"vaccine","cons":["cold","comply","temp","air","security"]},{"id":"datacenter","ko":"데이터센터·통신","en":"Data center & telecom","eg":"서버 랙·HVAC·전력·누수 구간","sensor":"차압","app":"datacenter","cons":["temp","leak","power","fire","security","control"]},{"id":"commercial","ko":"오피스·상업용 건물","en":"Office & commercial buildings","eg":"오피스·매장·기계실·전기실·주차장","sensor":"전류","app":"uc-commercial-building","cons":["leak","power","air","temp","fire"]},{"id":"resident","ko":"주거·아파트","en":"Residential & apartments","eg":"세대·기계실·저수조·주차장·승강기","sensor":"온습도","app":"uc-apartment","cons":["leak","fire","temp","security","air"]},{"id":"public","ko":"공공·교육·문화","en":"Public, education & culture","eg":"교실·강당·급식실·전시실·기계실","sensor":"온습도","app":"uc-schools-churches","cons":["air","temp","power","leak","security"]},{"id":"agri","ko":"농축수산","en":"Agriculture & aquaculture","eg":"양식장·축사·저장고·온실","sensor":"온습도","app":"greenhouse","cons":["temp","power","air","leak","equip"]},{"id":"energy","ko":"에너지·발전·인프라","en":"Energy & infrastructure","eg":"수처리·펌프장·변전·발전 설비","sensor":"전류","app":"energy","cons":["equip","fire","power","control"]},{"id":"construction","ko":"건설·현장","en":"Construction sites","eg":"가설 전기·양중 장비·환경·안전","sensor":"진동","app":"construct","cons":["security","leak","fire","power","temp"]},{"id":"etc","ko":"그 외 시설","en":"Other facilities","eg":"현장 설비","sensor":"","app":"applications","cons":["fire","leak","temp","cold","equip","power","air","security","control","comply"]}],"con":[{"id":"fire","ko":"화재·과열","en":"Fire & overheating"},{"id":"leak","ko":"누수·침수·동파","en":"Leak, flood & freeze"},{"id":"temp","ko":"온도·습도 관리","en":"Temperature & humidity"},{"id":"cold","ko":"냉장·콜드체인","en":"Refrigeration & cold chain"},{"id":"equip","ko":"설비 고장·예지보전(진동)","en":"Equipment failure & predictive maintenance"},{"id":"power","ko":"전력·에너지 절감","en":"Power & energy savings"},{"id":"air","ko":"공기질·환경","en":"Air quality & environment"},{"id":"security","ko":"보안·출입","en":"Security & access"},{"id":"control","ko":"통합관제·원격감시","en":"Remote monitoring"},{"id":"comply","ko":"규정·온도기록(컴플라이언스)","en":"Compliance & temperature logging"}],"soon":{"facility-energy":"시설 에너지 탐사"},"scale":[{"id":"s","ko":"소형","en":"Small","sub":"단일 건물·단일 구역","subEn":"Single building","rec":"소형 · 단일 건물·단일 구역 — 게이트웨이 1대 · 센서 10개 이내"},{"id":"m","ko":"중형","en":"Medium","sub":"다층·다구역","subEn":"Multi-floor / multi-zone","rec":"중형 · 다층·다구역 — 게이트웨이 1~2대 · 센서 10~50개"},{"id":"l","ko":"대형","en":"Large","sub":"다지점·캠퍼스","subEn":"Multi-site / campus","rec":"대형 · 다지점·캠퍼스 — 게이트웨이 2대 이상 · 센서 50개+ · 통합관제"}]}</span>
-            <span data-sc="finder.matrix" data-sc-label="파인더 · 조합별 매칭(JSON)">{"factory":{"equip":"app/manufact","power":"app/energy","fire":"app/temp","temp":"app/temp","control":"app/facility","comply":"app/temp","air":"app/air","security":"app/facility"},"logistics":{"cold":"app/cold-chain","temp":"app/logistics","comply":"app/cold-chain","equip":"app/manufact","power":"app/energy","fire":"app/temp","control":"app/logistics","security":"app/facility"},"food":{"cold":"app/refrig","comply":"app/food","temp":"app/food","leak":"app/leak","power":"app/energy","fire":"app/temp","air":"app/air","control":"app/uc-restaurant"},"pharma":{"cold":"app/pharma-cold","comply":"app/lab","temp":"app/vaccine","air":"app/hospital","security":"app/facility","control":"app/hospital","equip":"app/manufact","fire":"app/temp","power":"app/energy"},"datacenter":{"temp":"app/datacenter","leak":"app/leak","power":"app/energy","fire":"app/temp","control":"app/datacenter","security":"app/facility","equip":"app/manufact","comply":"app/datacenter"},"commercial":{"leak":"app/leak","power":"app/energy","temp":"app/uc-commercial-building","air":"app/air","fire":"app/temp","equip":"app/hvac","security":"app/facility","control":"app/uc-commercial-building","cold":"app/refrig","comply":"app/temp"},"resident":{"leak":"app/leak","fire":"app/temp","temp":"app/uc-apartment","security":"app/facility","air":"app/air","power":"app/energy","control":"app/uc-apartment","comply":"app/temp"},"public":{"air":"app/air","temp":"app/uc-schools-churches","power":"app/energy","leak":"app/leak","security":"app/facility","fire":"app/temp","control":"app/facility","comply":"app/uc-school-cafeteria"},"agri":{"temp":"app/greenhouse","cold":"app/cold-chain","air":"app/greenhouse","equip":"app/manufact","power":"app/energy","control":"app/livestock","leak":"app/leak","comply":"app/temp"},"energy":{"equip":"app/manufact","power":"app/energy","control":"app/facility","fire":"app/temp","leak":"app/leak","temp":"app/temp","security":"app/facility","comply":"app/temp"},"construction":{"security":"app/construct","equip":"app/manufact","fire":"app/temp","power":"app/energy","temp":"app/construct","control":"app/construct","air":"app/air","comply":"app/construct"}}</span>
+            <span data-sc="finder.config" data-sc-label="파인더 · 항목 목록(JSON)">{"fac":[{"id":"factory","ko":"공장·제조","en":"Factory & manufacturing","eg":"모터·펌프·공조기·전력 설비","sensor":"진동","app":"manufact","cons":["equip","fire","power","temp","leak"]},{"id":"logistics","ko":"물류·창고·콜드체인","en":"Logistics & cold chain","eg":"냉동·냉장 창고·수송 차량","sensor":"저온","app":"logistics","cons":["cold","comply","temp","fire","control"]},{"id":"food","ko":"식품·외식·리테일","en":"Food, restaurant & retail","eg":"냉장 쇼케이스·주방·백룸 창고","sensor":"저온","app":"food","cons":["cold","comply","temp","leak","power"]},{"id":"pharma","ko":"병원·제약·바이오","en":"Healthcare & pharma","eg":"백신·검체 보관고·클린룸","sensor":"저온","app":"vaccine","cons":["cold","comply","temp","air","security"]},{"id":"datacenter","ko":"데이터센터·통신","en":"Data center & telecom","eg":"서버 랙·HVAC·전력·누수 구간","sensor":"차압","app":"datacenter","cons":["temp","leak","power","fire","security","control"]},{"id":"commercial","ko":"오피스·상업용 건물","en":"Office & commercial buildings","eg":"오피스·매장·기계실·전기실·주차장","sensor":"전류","app":"uc-commercial-building","cons":["leak","power","air","temp","fire"]},{"id":"resident","ko":"주거·아파트","en":"Residential & apartments","eg":"세대·기계실·저수조·주차장·승강기","sensor":"온습도","app":"uc-apartment","cons":["leak","fire","temp","security","air"]},{"id":"public","ko":"공공기관·문화시설","en":"Public & cultural facilities","eg":"청사·전시실·공연장·지하시설·기계실","sensor":"온습도","app":"uc-schools-churches","cons":["leak","power","security","air","temp"]},{"id":"edu","ko":"학교·교육기관","en":"Schools & education","eg":"교실·급식실·체육관·연구실·기숙사","sensor":"온습도","app":"uc-schools-churches","cons":["temp","leak","air","cold","power","security"]},{"id":"smallbiz","ko":"소상공인·매장","en":"Small businesses & shops","eg":"카페·음식점·무인매장·편의점·미용실","sensor":"저온","app":"uc-retail","cons":["cold","leak","fire","security","power"]},{"id":"agri","ko":"농축수산","en":"Agriculture & aquaculture","eg":"양식장·축사·저장고·온실","sensor":"온습도","app":"greenhouse","cons":["temp","power","air","leak","equip"]},{"id":"energy","ko":"에너지·발전·인프라","en":"Energy & infrastructure","eg":"수처리·펌프장·변전·발전 설비","sensor":"전류","app":"energy","cons":["equip","fire","power","control"]},{"id":"construction","ko":"건설·현장","en":"Construction sites","eg":"가설 전기·양중 장비·환경·안전","sensor":"진동","app":"construct","cons":["security","leak","fire","power","temp"]},{"id":"etc","ko":"그 외 시설","en":"Other facilities","eg":"현장 설비","sensor":"","app":"applications","cons":["fire","leak","temp","cold","equip","power","air","security","control","comply"]}],"con":[{"id":"fire","ko":"화재·과열","en":"Fire & overheating"},{"id":"leak","ko":"누수·침수·동파","en":"Leak, flood & freeze"},{"id":"temp","ko":"온도·습도 관리","en":"Temperature & humidity"},{"id":"cold","ko":"냉장·콜드체인","en":"Refrigeration & cold chain"},{"id":"equip","ko":"설비 고장·예지보전(진동)","en":"Equipment failure & predictive maintenance"},{"id":"power","ko":"전력·에너지 절감","en":"Power & energy savings"},{"id":"air","ko":"공기질·환경","en":"Air quality & environment"},{"id":"security","ko":"보안·출입","en":"Security & access"},{"id":"control","ko":"통합관제·원격감시","en":"Remote monitoring"},{"id":"comply","ko":"규정·온도기록(컴플라이언스)","en":"Compliance & temperature logging"}],"soon":{"facility-energy":"시설 에너지 탐사"},"scale":[{"id":"s","ko":"소형","en":"Small","sub":"단일 건물·단일 구역","subEn":"Single building","rec":"소형 · 단일 건물·단일 구역 — 게이트웨이 1대 · 센서 10개 이내"},{"id":"m","ko":"중형","en":"Medium","sub":"다층·다구역","subEn":"Multi-floor / multi-zone","rec":"중형 · 다층·다구역 — 게이트웨이 1~2대 · 센서 10~50개"},{"id":"l","ko":"대형","en":"Large","sub":"다지점·캠퍼스","subEn":"Multi-site / campus","rec":"대형 · 다지점·캠퍼스 — 게이트웨이 2대 이상 · 센서 50개+ · 통합관제"}]}</span>
+            <span data-sc="finder.matrix" data-sc-label="파인더 · 조합별 매칭(JSON)">{"factory":{"equip":"app/manufact","power":"app/energy","fire":"app/temp","temp":"app/temp","control":"app/facility","comply":"app/temp","air":"app/air","security":"app/facility"},"logistics":{"cold":"app/cold-chain","temp":"app/logistics","comply":"app/cold-chain","equip":"app/manufact","power":"app/energy","fire":"app/temp","control":"app/logistics","security":"app/facility"},"food":{"cold":"app/refrig","comply":"app/food","temp":"app/food","leak":"app/leak","power":"app/energy","fire":"app/temp","air":"app/air","control":"app/uc-restaurant"},"pharma":{"cold":"app/pharma-cold","comply":"app/lab","temp":"app/vaccine","air":"app/hospital","security":"app/facility","control":"app/hospital","equip":"app/manufact","fire":"app/temp","power":"app/energy"},"datacenter":{"temp":"app/datacenter","leak":"app/leak","power":"app/energy","fire":"app/temp","control":"app/datacenter","security":"app/facility","equip":"app/manufact","comply":"app/datacenter"},"commercial":{"leak":"app/leak","power":"app/energy","temp":"app/uc-commercial-building","air":"app/air","fire":"app/temp","equip":"app/hvac","security":"app/facility","control":"app/uc-commercial-building","cold":"app/refrig","comply":"app/temp"},"resident":{"leak":"app/leak","fire":"app/temp","temp":"app/uc-apartment","security":"app/facility","air":"app/air","power":"app/energy","control":"app/uc-apartment","comply":"app/temp"},"public":{"air":"app/air","temp":"app/uc-schools-churches","power":"app/energy","leak":"app/leak","security":"app/facility","fire":"app/temp","control":"app/facility","comply":"app/uc-school-cafeteria"},"edu":{"temp":"app/uc-schools-churches","leak":"app/leak","air":"app/air","cold":"app/uc-school-cafeteria","power":"app/energy","security":"app/facility","fire":"app/temp","control":"app/facility","comply":"app/uc-school-cafeteria"},"smallbiz":{"cold":"app/uc-restaurant","leak":"app/leak","fire":"app/temp","power":"app/energy","security":"app/facility","temp":"app/uc-retail","comply":"app/refrig","air":"app/air","control":"app/facility","equip":"app/refrig"},"agri":{"temp":"app/greenhouse","cold":"app/cold-chain","air":"app/greenhouse","equip":"app/manufact","power":"app/energy","control":"app/livestock","leak":"app/leak","comply":"app/temp"},"energy":{"equip":"app/manufact","power":"app/energy","control":"app/facility","fire":"app/temp","leak":"app/leak","temp":"app/temp","security":"app/facility","comply":"app/temp"},"construction":{"security":"app/construct","equip":"app/manufact","fire":"app/temp","power":"app/energy","temp":"app/construct","control":"app/construct","air":"app/air","comply":"app/construct"}}</span>
           </div>
         </div>
         <div class="wiz-result" id="wizOut" aria-live="polite">
@@ -833,7 +835,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
               <div><label for="f-tel" data-sc="home2.cta.lbltel" data-sc-label="상담 · 입력2 라벨">연락처</label><input id="f-tel" required placeholder="010-0000-0000"></div>
             </div>
             <div><label for="f-type" data-sc="home2.cta.lbltype" data-sc-label="상담 · 입력3 라벨">시설 유형</label>
-              <select id="f-type"><option>공장·제조</option><option>병원·제약</option><option>교회·학교·시설</option><option>물류·콜드체인</option><option>데이터센터</option><option>빌딩·부동산</option><option>기타</option></select></div>
+              <select id="f-type"><option>공장·제조</option><option>병원·제약</option><option>학교·교육기관</option><option>교회·공공시설</option><option>소상공인·매장</option><option>물류·콜드체인</option><option>데이터센터</option><option>빌딩·부동산</option><option>기타</option></select></div>
             <button class="mkbtn mkbtn-primary" type="submit" data-sc="home2.cta.btn" data-sc-label="상담 · 버튼">무료 현장 진단 신청</button>
             <p class="fine" data-sc="home2.cta.fine" data-sc-label="상담 · 하단 안내">제출 정보는 상담 목적 외에 사용하지 않습니다.</p>
             <p class="fine" id="mkLeadStatus" style="min-height:1em"></p>
@@ -2065,6 +2067,9 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
             <option value="" disabled selected>선택해 주세요</option>
             <option>부동산</option>
             <option>공장</option>
+            <option>학교·교육기관</option>
+            <option>공공기관</option>
+            <option>소상공인·자영업</option>
             <option>건설</option>
             <option>물류</option>
             <option>인프라</option>
@@ -2458,7 +2463,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     comply:{tag:'규정·온도기록',title:'규정·온도기록 자동화',desc:'온도·습도·가동 데이터를 자동 기록·보관해 HACCP·GMP·산업안전 규정 증빙을 간소화하고 감사 대응을 자동화합니다.',sensors:'온도 · 습도 · 자동 기록',fx:'기록 자동화·감사 대응'}
   };
   var ALL_CONS=['fire','leak','temp','cold','equip','power','air','security','control','comply'];
-  var FAC={factory:"공장·제조",logistics:"물류·창고·콜드체인",food:"식품·외식·리테일",pharma:"병원·제약·바이오",datacenter:"데이터센터·통신",commercial:"오피스·상업용 건물",resident:"주거·아파트",public:"공공·교육·문화",agri:"농축수산",energy:"에너지·발전·인프라",construction:"건설·현장",etc:"그 외 시설"};
+  var FAC={factory:"공장·제조",logistics:"물류·창고·콜드체인",food:"식품·외식·리테일",pharma:"병원·제약·바이오",datacenter:"데이터센터·통신",commercial:"오피스·상업용 건물",resident:"주거·아파트",public:"공공기관·문화시설",edu:"학교·교육기관",smallbiz:"소상공인·매장",agri:"농축수산",energy:"에너지·발전·인프라",construction:"건설·현장",etc:"그 외 시설"};
   var FCTX={
     factory:{eg:"모터·펌프·공조기·전력 설비",sensor:"진동",app:"manufact"},
     logistics:{eg:"냉동·냉장 창고·수송 차량",sensor:"저온",app:"logistics"},
@@ -2467,7 +2472,9 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     datacenter:{eg:"서버 랙·HVAC·전력·누수 구간",sensor:"차압",app:"datacenter"},
     commercial:{eg:"오피스·매장·기계실·전기실·주차장",sensor:"전류",app:"uc-commercial-building"},
     resident:{eg:"세대·기계실·저수조·주차장·승강기",sensor:"온습도",app:"uc-apartment"},
-    public:{eg:"교실·강당·급식실·전시실·기계실",sensor:"온습도",app:"uc-schools-churches"},
+    public:{eg:"청사·전시실·공연장·지하시설·기계실",sensor:"온습도",app:"facility"},
+    edu:{eg:"교실·급식실·체육관·연구실·기숙사",sensor:"온습도",app:"uc-schools-churches"},
+    smallbiz:{eg:"카페·음식점·무인매장·편의점·미용실",sensor:"저온",app:"uc-retail"},
     agri:{eg:"양식장·축사·저장고·온실",sensor:"온습도",app:"greenhouse"},
     energy:{eg:"수처리·펌프장·변전·발전 설비",sensor:"전류",app:"energy"},
     construction:{eg:"가설 전기·양중 장비·환경·안전",sensor:"진동",app:"construct"},
@@ -2482,7 +2489,9 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     datacenter:['temp','leak','power','fire','security','control'],
     commercial:['leak','power','air','temp','fire'],
     resident:['leak','fire','temp','security','air'],
-    public:['air','temp','power','leak','security'],
+    public:['leak','power','security','air','temp'],
+    edu:['temp','leak','air','cold','power','security'],
+    smallbiz:['cold','leak','fire','security','power'],
     agri:['temp','power','air','leak','equip'],
     energy:['equip','fire','power','control'],
     construction:['security','leak','fire','power','temp'],
@@ -2514,6 +2523,16 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       var raw=(el.textContent||'').trim(); if(!raw) return null;
       var o=JSON.parse(raw);
       if(!o || (!Array.isArray(o.fac) && !Array.isArray(o.con))) return null;
+      /* 2026-09-29 학교·교육기관(edu) 분리 — 시트에 예전 목록이 저장돼 있어도 학교 항목이 빠지지 않게 */
+      if(Array.isArray(o.fac) && o.fac.length && !o.fac.some(function(f){ return f && f.id==='edu'; })){
+        var pi=-1; o.fac.forEach(function(f,i){ if(f && f.id==='public'){ pi=i; if(/교육|학교/.test(f.ko||'')){ f.ko='공공기관·문화시설'; f.en='Public & cultural facilities'; f.eg='청사·전시실·공연장·지하시설·기계실'; } } });
+        o.fac.splice(pi>=0?pi+1:Math.max(0,o.fac.length-1),0,{id:'edu',ko:'학교·교육기관',en:'Schools & education',eg:'교실·급식실·체육관·연구실·기숙사',sensor:'온습도',app:'uc-schools-churches',cons:['temp','leak','air','cold','power','security']});
+      }
+      /* 2026-09-29 소상공인·매장(smallbiz) 추가 — 학교 항목 바로 뒤에 */
+      if(Array.isArray(o.fac) && o.fac.length && !o.fac.some(function(f){ return f && f.id==='smallbiz'; })){
+        var ei=-1; o.fac.forEach(function(f,i){ if(f && f.id==='edu') ei=i; });
+        o.fac.splice(ei>=0?ei+1:Math.max(0,o.fac.length-1),0,{id:'smallbiz',ko:'소상공인·매장',en:'Small businesses & shops',eg:'카페·음식점·무인매장·편의점·미용실',sensor:'저온',app:'uc-retail',cons:['cold','leak','fire','security','power']});
+      }
       return o;
     }catch(e){ return null; }
   }
@@ -2676,7 +2695,9 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
     var sb=document.getElementById('rScaleBox'), sc=(scale&&SCALE[scale])?SCALE[scale]:null;
     if(sb){ if(sc){ set('rScale', sc.rec); sb.hidden=false; } else { sb.hidden=true; } }
     var out=document.getElementById('wizOut');if(out){out.classList.add('show');out.scrollIntoView({behavior:'smooth',block:'nearest'});}
-    var sel=document.getElementById('f-type');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===facLabel){sel.selectedIndex=i;break;}}}
+    /* 파인더 시설 → 무료 현장 진단 폼 「시설 유형」 — 이름이 달라도 같은 분류로 맞춘다 (2026-09-29) */
+    var FTYPE={factory:'공장·제조',pharma:'병원·제약',edu:'학교·교육기관',public:'교회·공공시설',smallbiz:'소상공인·매장',food:'소상공인·매장',logistics:'물류·콜드체인',datacenter:'데이터센터',commercial:'빌딩·부동산',resident:'빌딩·부동산'};
+    var sel=document.getElementById('f-type');if(sel){var want=[facLabel,FTYPE[fac]||'기타'],hit=-1;for(var w=0;w<want.length&&hit<0;w++){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===want[w]){hit=i;break;}}}if(hit>=0)sel.selectedIndex=hit;}
   }
   function pickFac(){var g=document.getElementById('wizFac');if(!g)return;g.addEventListener('click',function(e){var b=e.target.closest('.opt');if(!b)return;g.querySelectorAll('.opt').forEach(function(o){o.classList.remove('on')});b.classList.add('on');onFac(b);});}
   function pickCon(){var g=document.getElementById('wizCon');if(!g)return;g.addEventListener('click',function(e){if(!fac)return;var b=e.target.closest('.opt');if(!b||b.style.display==='none')return;g.querySelectorAll('.opt').forEach(function(o){o.classList.remove('on')});b.classList.add('on');con=b.dataset.v;syncScale();render();});}

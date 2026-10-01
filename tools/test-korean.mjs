@@ -74,7 +74,7 @@ console.log('\n■ 현장 — 업종을 자기 말로');
  ['전산실', 'datacenter'], ['서버실', 'datacenter'], ['IDC', 'datacenter'], ['데이타센터', 'datacenter'],
  ['오피스 빌딩', 'commercial'], ['백화점', 'commercial'], ['헬스장', 'commercial'], ['주차장', 'commercial'],
  ['아파트 관리사무소', 'resident'], ['오피스텔', 'resident'], ['고시원', 'resident'], ['펜션', 'resident'],
- ['시청', 'public'], ['군부대', 'public'], ['대학교 실습동', 'public'], ['박물관', 'public'],
+ ['시청', 'public'], ['군부대', 'public'], ['대학교 실습동', 'edu'], ['초등학교 급식실', 'edu'], ['교육청', 'edu'], ['동네 카페 운영해요', 'smallbiz'], ['무인매장', 'smallbiz'], ['미용실', 'smallbiz'], ['박물관', 'public'],
  ['정수장', 'energy'], ['태양광 발전소', 'energy'], ['열병합', 'energy'], ['하수처리장', 'energy'],
  ['터널 공사현장', 'construction'], ['교량 시공', 'construction'], ['리모델링 현장', 'construction'],
  ['축사 하고 있습니다', 'agri'], ['한우 농가입니다', 'agri'], ['젖소 목장', 'agri'],

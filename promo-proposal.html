@@ -25,9 +25,9 @@
 <script src="/js/monnit-consent.js?v=111"></script>
 <script src="/js/monnit-lead.js?v=5"></script>
 <script src="/js/monnit-track.js?v=1" defer></script>
-<script src="/js/monnit-popup.js?v=2" defer></script>
-<script src="/js/monnit-pet.js?v=1" defer></script>
-<script src="/js/proposal-addon.js?v=3" defer></script>
+<script src="/js/monnit-popup.js?v=3" defer></script>
+<script src="/js/monnit-pet.js?v=2" defer></script>
+<script src="/js/proposal-addon.js?v=5" defer></script>
 
 
 <link rel="preload" as="image" type="image/avif" href="/images/proposal-guide/cover-800.avif"
@@ -1609,8 +1609,8 @@ function asText(d){
 /* ══════════════════════════════════════════════════════════════
    전송 — 사이트 공통 리드 규격 (js/monnit-lead.js · /api/lead)
    ① 서명 링크 발급 → 자료 즉시 전달
-   ② StaticForms(실패 시 Web3Forms) 로 담당자 알림 메일
-   ③ MonnitLead.track() 이 /api/lead 에 원장 한 건 기록 → 관제(ops) 화면
+   ② MonnitLead.submit() 으로 /api/lead 에 접수 — 알림 메일은 서버가 정책대로 (2026-09-30)
+   ③ 서버가 죽었을 때만 StaticForms(실패 시 Web3Forms) 로 담당자 알림 메일
    어느 하나가 실패해도 나머지는 진행됩니다.
    ══════════════════════════════════════════════════════════════ */
 
@@ -1723,15 +1723,28 @@ fmForm.addEventListener('submit', function(e){
         .catch(function(){ deliverPdf(); })
     : Promise.resolve();
 
-  /* ② 담당자 알림 메일 → 실패 시 ③ 원장에 직접 기록 */
-  var notify = notifyStaff(payload)
-    .then(function(){
-      try { window.MonnitLead && window.MonnitLead.track(leadType,
-              {page: CONFIG.PAGE, interest: '예지보전 제안 가이드'}); } catch(err){}
-    })
-    .catch(function(){
-      try { window.MonnitLead && window.MonnitLead.record(leadType, payload); } catch(err){}
-    });
+  /* ② 접수 — 서버 우선 (2026-09-30)
+     예전에는 브라우저가 StaticForms/Web3Forms 로 raw 폼 메일을 먼저 보내고,
+     이어서 track() 이 notified 표시 없이 원장에 기록해 서버가 [모넷·접수] 를 한 통 더 보냈다.
+     맞춤 제안서까지 고르면 담당자 메일함에 같은 사람으로 5통이 쌓였다(2026-09-29 사세 건).
+     이제 사이트 공통 sendLead() 와 같이 서버(/api/lead)에 먼저 보낸다.
+       · 서버가 받으면 메일 여부는 서버가 정한다 — 자료 신청은 알림함(/ops/notices)에만 남고,
+         맞춤 제안서를 함께 고른 건은 제안서 신규 접수 메일에 「함께 받은 자료」로 들어간다.
+       · 서버가 죽었을 때만 예전 브라우저 메일(StaticForms → Web3Forms)로 보낸다. */
+  var ML = window.MonnitLead;
+  var trackIt = function(){
+    try { ML && ML.track(leadType, {page: CONFIG.PAGE, interest: '예지보전 제안 가이드'}); } catch(err){}
+  };
+  var toServer = (ML && ML.submit)
+    ? Promise.resolve().then(function(){ try { ML.setNotified(false); } catch(err){} return ML.submit(payload); })
+        .catch(function(){ return false; })
+    : Promise.resolve(false);
+  var notify = toServer.then(function(served){
+    if (served) { trackIt(); return; }
+    return notifyStaff(payload)
+      .then(function(){ try { ML && ML.setNotified(true); } catch(err){} trackIt(); })
+      .catch(function(){ try { ML && ML.record(leadType, payload); } catch(err){} });
+  });
 
   track(isDoc ? 'download' : 'form_submit', {
     content_name: '예지보전 제안 가이드',

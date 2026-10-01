@@ -36,7 +36,7 @@
   var FAC = [
     ['factory', '공장·제조', 'Factory'], ['datacenter', '데이터센터·전산실', 'Data center'], ['commercial', '빌딩·상업시설', 'Commercial building'],
     ['logistics', '물류·창고', 'Logistics'], ['pharma', '병원·제약·바이오', 'Hospital / pharma'], ['food', '식품·외식', 'Food service'],
-    ['energy', '에너지·발전', 'Energy'], ['public', '공공·교육', 'Public / education'], ['resident', '주거·아파트', 'Residential'],
+    ['energy', '에너지·발전', 'Energy'], ['public', '공공기관', 'Public sector'], ['edu', '학교·교육기관', 'Schools & education'], ['smallbiz', '소상공인·매장', 'Small business'], ['resident', '주거·아파트', 'Residential'],
     ['construction', '건설 현장', 'Construction'], ['agri', '농업·스마트팜', 'Agriculture'], ['etc', '그 외', 'Other']
   ];
   var CON = [

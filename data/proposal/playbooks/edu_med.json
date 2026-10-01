@@ -1,6 +1,6 @@
 {
   "key": "edu_med",
-  "context": "병원·학교·요양시설은 환자·학생·어르신이 머무는 공간이라 설비 이상이 곧 안전 문제로 이어집니다. 약품·백신 냉장 보관, 야간·방학 무인 시간, 누수·정전 대응을 적은 시설 인력으로 챙겨야 합니다.",
+  "context": "병원·요양·복지시설은 환자·어르신이 머무는 공간이라 설비 이상이 곧 안전 문제로 이어집니다. 약품·백신 냉장 보관, 야간·휴일 인력 공백, 누수·정전 대응을 적은 시설 인력으로 챙겨야 합니다.",
   "chronic": [
     { "title": "약품·백신 냉장고 이탈", "detail": "병동·약제부·보건실 냉장고가 여러 곳에 흩어져 있고 온도를 수기로 기록합니다. 야간·주말 냉장고 고장은 다음 근무 때에야 발견됩니다.", "impact": "약품·백신 폐기와 투약·접종 일정 차질", "problems": ["cold_storage", "record", "unmanned"] },
     { "title": "운영 중 공간의 배관 누수", "detail": "병실·교실 천장 속 배관은 운영 중이라 점검이 어렵습니다. 누수는 천장 얼룩이나 물방울로 드러난 뒤에야 알게 됩니다.", "impact": "병실·교실 폐쇄와 의료·전산 장비 피해", "problems": ["leak", "freeze"] },
@@ -66,33 +66,6 @@
         { "zone": "음압격리실·수술실", "risk": "차압·온습도 기준 이탈과 문 열림 방치를 실시간으로 확인해야 합니다.", "sensors": ["dp", "hum", "door"], "nice": "전실·병실 차압 이력을 감염관리 보고서로 자동 정리", "problems": ["cleanroom", "door_open"] },
         { "zone": "약제부·진단검사실", "risk": "냉장고·딥프리저 온도 이탈이 약품·검체 폐기로 이어집니다.", "sensors": ["temp", "cold", "door"], "nice": "장비별 이탈 이력으로 노후 냉장고 교체 근거 확보", "problems": ["cold_storage", "ultracold", "record"] },
         { "zone": "의료가스·발전기실", "risk": "기존 경보반 신호를 현장에서만 들을 수 있어 야간 대응이 늦어집니다.", "sensors": ["dry", "volt", "temp"], "nice": "기존 경보 접점을 무선으로 받아 당직자에게 전달", "problems": ["legacy_alarm", "power_out"] }
-      ]
-    },
-    "school": {
-      "label": "초중고",
-      "match": ["초등학교", "중학교", "고등학교", "유치원", "교육청", "교육지원청", "school", "elementary"],
-      "context": "교실·급식실·체육관을 행정실 소수 인원이 관리하고, 방학에는 인원이 더 줄어듭니다. 학생 건강과 연결된 공기질·급식 위생 관리가 중요합니다.",
-      "chronic": [
-        { "title": "급식실 냉장 보관 기록", "detail": "급식실 냉장·냉동고 온도를 매일 수기로 기록하고, 휴일에 생긴 고장은 다음 조리일에야 발견합니다.", "impact": "식재료 폐기와 급식 운영 차질", "problems": ["cold_storage", "record"] }
-      ],
-      "zones": [
-        { "zone": "급식실·식재료 창고", "risk": "냉장·냉동고 온도 이탈과 문 열림, 바닥 배수 이상을 함께 관리해야 합니다.", "sensors": ["temp", "door", "leak"], "nice": "HACCP 중요관리점 온도 기록을 자동 보고서로 정리", "problems": ["cold_storage", "record", "door_open"] },
-        { "zone": "교실·특별실", "risk": "학생이 밀집해 CO2와 미세먼지 관련 민원이 잦습니다.", "sensors": ["co2", "aq"], "nice": "교실별 공기질 추이를 환기 운영 기준 점검에 활용", "problems": ["iaq"] },
-        { "zone": "보일러실·급수시설", "risk": "방학 중 보일러·배관 이상과 동파를 늦게 발견합니다.", "sensors": ["temp", "vib", "leak"], "nice": "방학 기간 알림 수신자를 당번 일정에 맞춰 지정", "problems": ["freeze", "unmanned", "leak"] }
-      ]
-    },
-    "university": {
-      "label": "대학·연구실",
-      "match": ["대학교", "대학원", "캠퍼스", "산학협력단", "university", "college", "kaist", "postech"],
-      "context": "넓은 캠퍼스에 강의동·연구동·기숙사가 흩어져 있고, 연구실마다 딥프리저·인큐베이터·실험 장비를 따로 관리합니다.",
-      "chronic": [
-        { "title": "연구실 딥프리저 이탈", "detail": "연구실별로 딥프리저를 관리하지만 야간·방학 중 고장을 알릴 체계가 없어 시료 손실이 반복됩니다.", "impact": "연구 시료 손실과 연구 일정 차질", "problems": ["ultracold", "unmanned"] },
-        { "title": "실험실 안전 환경 확인", "detail": "흄후드 배기 상태, 가스검지기 경보, 누수를 연구실 안전 점검 때만 확인하는 경우가 많습니다.", "impact": "연구자 노출 위험과 점검 부담", "problems": ["toxic_gas", "leak", "rounds"] }
-      ],
-      "zones": [
-        { "zone": "연구실·공용 장비실", "risk": "딥프리저·인큐베이터 온도 이탈과 정전이 시료 손실로 이어집니다.", "sensors": ["cold", "temp", "volt"], "nice": "연구실별 알림 수신자를 따로 지정해 책임 관리", "problems": ["ultracold", "power_out"] },
-        { "zone": "흄후드·가스 사용 구역", "risk": "배기 불량과 가스 누설을 상시로 확인하기 어렵습니다.", "sensors": ["airflow", "analog", "dp"], "nice": "기존 가스검지기 출력을 모아 캠퍼스 단위로 확인", "problems": ["toxic_gas", "cleanroom"] },
-        { "zone": "기숙사·강의동 기계실", "risk": "급탕 펌프·보일러 고장과 배관 누수가 생활 민원으로 이어집니다.", "sensors": ["vib", "leak", "temp"], "nice": "건물별 설비 상태를 시설팀 대시보드로 통합", "problems": ["downtime", "leak", "multi_site"] }
       ]
     },
     "welfare": {

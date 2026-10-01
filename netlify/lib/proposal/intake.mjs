@@ -103,6 +103,10 @@ export function resolveIntake(b = {}) {
   else { industry = 'general'; from = 'default'; }
   /* 파인더에서 「그 외」를 골랐는데 회사가 뚜렷하면 회사 쪽을 따른다 */
   if (from === 'finder' && industry === 'general' && company.industry && company.confidence >= 0.6) { industry = company.industry; from = 'detect'; }
+  /* 학교가 「공공」을 고른 경우(2026-09-29 학교·교육기관 분리 이전 화면·습관) — 학교로 뚜렷이 인식되면 학교로 */
+  if (from === 'finder' && industry === 'public' && company.industry === 'education' && company.confidence >= 0.6) { industry = 'education'; from = 'detect'; }
+  /* 매장 점주가 「식품·외식」을 골랐어도 소상공인 매장으로 뚜렷하면 소상공인으로 (식품 공장·농수산과 구분) */
+  if (from === 'finder' && industry === 'food_agri' && company.industry === 'small_biz' && company.confidence >= 0.6) { industry = 'small_biz'; from = 'detect'; }
   if (company.industry && company.industry !== industry && company.confidence >= 0.8)
     notes.push(`회사 인식은 「${industryByKey(company.industry).label}」 — 고른 산업(${industryByKey(industry).label})과 다름`);
 

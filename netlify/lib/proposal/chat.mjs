@@ -24,7 +24,7 @@ export const CON_KEYS = Object.keys(FINDER_CON);
 
 const FAC_LABEL = {
   factory: '공장·제조', logistics: '물류·창고', food: '식품·외식', pharma: '병원·제약·바이오',
-  datacenter: '데이터센터·전산실', commercial: '빌딩·상업시설', resident: '주거·아파트', public: '공공·교육',
+  datacenter: '데이터센터·전산실', commercial: '빌딩·상업시설', resident: '주거·아파트', public: '공공기관·문화시설', edu: '학교·교육기관', smallbiz: '소상공인·매장',
   agri: '농업·스마트팜', energy: '에너지·발전', construction: '건설 현장', etc: '그 외'
 };
 const CON_LABEL = {
@@ -56,8 +56,14 @@ const FAC_KW = {
     '임대', '관리사무소', '헬스장', '사우나', '목욕탕', '주차장', 'building', 'office', 'mall', 'retail'],
   resident: ['아파트', '주거', '오피스텔', '빌라', '주택', '숙박', '호텔', '리조트', '펜션', '모텔', '고시원',
     '기숙사', '입주민', '세대', 'apartment', 'resident', 'hotel', 'dormitory'],
-  public: ['공공', '관공서', '학교', '교육', '지자체', '시청', '군청', '구청', '대학', '박물관', '미술관',
-    '체육관', '복지관', '소방서', '경찰서', '군부대', '공사', '공단', 'public', 'school', 'campus', 'museum'],
+  public: ['공공', '관공서', '지자체', '시청', '군청', '구청', '박물관', '미술관',
+    '체육관', '복지관', '소방서', '경찰서', '군부대', '공사', '공단', 'public', 'museum'],
+  /* 소상공인 — 2026-09-29 점주 운영 매장 */
+  smallbiz: ['소상공인', '자영업', '가게', '동네 카페', '개인 카페', '동네 식당', '작은 가게', '동네 가게', '1인 매장', '점포', '무인매장', '무인점포', '무인 매장', '스터디카페', '코인빨래방', '빨래방', '편의점', '약국', '꽃집',
+    '미용실', '헤어샵', '네일샵', '세탁소', 'pc방', '피시방', '헬스장', '필라테스', '우리 매장', '내 매장', 'small business', 'shop owner'],
+  /* 학교·교육기관 — 2026-09-29 공공에서 분리 (학교 문의가 공공·국방으로 분류되던 문제) */
+  edu: ['학교', '초등학교', '중학교', '고등학교', '유치원', '교육청', '교육지원청', '대학', '대학교', '캠퍼스', '교실', '강의실',
+    '급식실', '학원', '교육기관', '교육시설', '연수원', '행정실', 'school', 'campus', 'university', 'college', 'academy'],
   agri: ['농장', '스마트팜', '비닐하우스', '하우스', '온실', '축사', '우사', '돈사', '계사', '양계장', '양돈',
     '양식장', '수조', '버섯', '육묘', '종묘', '과수원', '저장고', '농협', '농업', '원예',
     '닭', '돼지', '가축', '축산', '폐사', '사료', '부화', '육계', '산란', '젖소', '한우', '육우',
@@ -205,13 +211,13 @@ const T = {
     company: '어느 회사(또는 시설) 현장이신가요? 회사명을 알려주시면 업종을 맞춰 정리해 드립니다.',
     name: '제안서를 받으실 분 성함과 직함을 알려주세요.',
     email: '제안서를 보내드릴 이메일 주소를 알려주세요.',
-    fac: '어떤 현장인가요? 공장·제조 / 물류·창고 / 데이터센터 / 빌딩 / 병원·제약 / 식품·외식 / 농업 / 에너지 / 건설 / 주거·숙박 / 공공·교육 중에서 알려주세요.',
+    fac: '어떤 현장인가요? 공장·제조 / 물류·창고 / 데이터센터 / 빌딩 / 병원·제약 / 식품·외식 / 농업 / 에너지 / 건설 / 주거·숙박 / 공공기관 / 학교·교육 / 소상공인 매장 중에서 알려주세요.',
     con: '가장 고민되는 주제 하나만 골라 주세요. 화재·과열 / 누수·침수 / 온도·습도 / 냉장·콜드체인 / 설비 고장·진동 / 전력·에너지 / 공기질·가스 / 보안·출입 / 통합관제·연동 / 규정·기록',
     done: '확인했습니다. 아래 내용으로 맞춤 제안서를 만들어 메일로 보내드릴까요?',
     reCompany: '회사명 또는 시설 이름을 한 줄로 적어 주세요. (예: 대한정밀, 평택 2공장)',
     reName: '성함을 적어 주세요. 직함이 있으면 함께 적어 주셔도 됩니다. (예: 김현장 팀장)',
     reEmail: '제안서를 받으실 이메일 주소를 정확히 적어 주세요. (예: name@company.co.kr)',
-    reFac: '아래 중에서 골라 주세요. 공장·제조 / 물류·창고 / 데이터센터 / 빌딩 / 병원·제약 / 식품·외식 / 농업 / 에너지 / 건설 / 주거·숙박 / 공공·교육 / 그 외',
+    reFac: '아래 중에서 골라 주세요. 공장·제조 / 물류·창고 / 데이터센터 / 빌딩 / 병원·제약 / 식품·외식 / 농업 / 에너지 / 건설 / 주거·숙박 / 공공기관 / 학교·교육 / 소상공인 매장 / 그 외',
     reCon: '아래 중에서 하나만 골라 주세요. 화재·과열 / 누수·침수 / 온도·습도 / 냉장·콜드체인 / 설비 고장·진동 / 전력·에너지 / 공기질·가스 / 보안·출입 / 통합관제·연동 / 규정·기록',
     got: v => `${v} 확인했습니다. `,
     handoff: '그 부분은 담당 엔지니어가 확인해서 알려드리는 게 정확합니다. 연락처를 남겨 주시면 담당자가 연락드리겠습니다. 제안서는 그대로 만들어 드릴 수 있습니다.',
@@ -225,13 +231,13 @@ const T = {
     company: 'Which company or site is this for?',
     name: 'Who should receive the proposal? Please share your name and title.',
     email: 'What email address should we send the proposal to?',
-    fac: 'What kind of site is it? factory / warehouse / data center / building / hospital-pharma / food service / farm / energy / construction / residential / public',
+    fac: 'What kind of site is it? factory / warehouse / data center / building / hospital-pharma / food service / farm / energy / construction / residential / public / school / small shop',
     con: 'Which single concern matters most? fire / leaks / temperature / cold chain / equipment failure / power / air quality / security / integration / compliance records',
     done: 'Thank you. Shall we build your proposal with the details below?',
     reCompany: 'Please write the company or site name in one line.',
     reName: 'Please write your name (and title if you like).',
     reEmail: 'Please write the email address for the proposal (e.g. name@company.co.kr).',
-    reFac: 'Please pick one: factory / warehouse / data center / building / hospital-pharma / food service / farm / energy / construction / residential / public / other',
+    reFac: 'Please pick one: factory / warehouse / data center / building / hospital-pharma / food service / farm / energy / construction / residential / public / school / small shop / other',
     reCon: 'Please pick one: fire / leaks / temperature / cold chain / equipment failure / power / air quality / security / integration / compliance records',
     got: v => `Got it — ${v}. `,
     handoff: 'An engineer should answer that directly. Leave your contact and we will get back to you. We can still prepare the proposal.',
@@ -435,7 +441,7 @@ export function ruleParse(text, asking, fields = {}) {
 }
 
 /* 보기 순서 — 「3번이요」처럼 번호로 고르는 사람을 위해 */
-const FAC_ORDER = ['factory', 'logistics', 'datacenter', 'commercial', 'pharma', 'food', 'agri', 'energy', 'construction', 'resident', 'public', 'etc'];
+const FAC_ORDER = ['factory', 'logistics', 'datacenter', 'commercial', 'pharma', 'food', 'agri', 'energy', 'construction', 'resident', 'public', 'edu', 'smallbiz', 'etc'];
 const CON_ORDER = ['fire', 'leak', 'temp', 'cold', 'equip', 'power', 'air', 'security', 'control', 'comply'];
 function pickByNumber(raw, order) {
   const m = KO.normalize(raw).match(/^\s*(\d{1,2})\s*(번|번째|번요|\.|\)|$)/);

@@ -35,7 +35,7 @@ export function channelOf(src) {
 }
 
 /** 발송 한 건 기록 — kind: proposal · resend · followup */
-export async function recordSend(job, { kind = 'proposal', bytes = null, via = '', attached = false, messageId = '', by = 'auto' } = {}) {
+export async function recordSend(job, { kind = 'proposal', bytes = null, via = '', attached = false, messageId = '', by = 'auto', mail = '' } = {}) {
   /* 테스트 접수는 발송 대장·고객 인사이트에 섞지 않는다 (2026-09-18) */
   if (job && job.test === true) return { skipped: 'test' };
   try {
@@ -67,7 +67,7 @@ export async function recordSend(job, { kind = 'proposal', bytes = null, via = '
       ai: !!(job.draft && job.draft.ai), model: (job.draft && job.draft.model) || '',
       version: cur ? cur.n : 0, instruction: cur ? cur.instruction || '' : '',
       review: job.draft && job.draft.review ? { verdict: job.draft.review.verdict, score: job.draft.review.score } : null,
-      pages, bytes: bytes ? bytes.length : 0, sha, pdf, attached, via, messageId,
+      pages, bytes: bytes ? bytes.length : 0, sha, pdf, attached, via, messageId, mail,   /* mail — 보낸 메일 사본 키(mail/…) */
       top: m.top.slice(0, 3).map(t => ({ name: t.name, pct: t.pct })),
       ownCase: m.ownCase ? m.ownCase.name : '',
       companyConfidence: (job.intake && job.intake.company && job.intake.company.confidence) || 0
@@ -101,9 +101,11 @@ export async function anonymize(id) {
     const r = await S.getJSON(key); if (!r) continue;
     if (r.pdf) await S.del(r.pdf).catch(() => {});
     r.to = { email: '', name: '(파기)', title: '', phone: '' };
-    r.pdf = ''; r.domain = ''; r.facility = ''; r.purged = true;
+    r.pdf = ''; r.domain = ''; r.facility = ''; r.mail = ''; r.purged = true;
     await S.setJSON(key, r); n++;
   }
+  /* 보낸 메일 사본에도 받는 사람 정보가 있으므로 함께 지운다 */
+  for (const key of await S.list('mail/' + id + '/', 500).catch(() => [])) { await S.del(key).catch(() => {}); n++; }
   return n;
 }
 

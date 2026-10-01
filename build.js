@@ -1189,7 +1189,7 @@ ${WP_LIST.map(([t, d]) => `<h3>${esc(t)}</h3><p>${esc(d)}</p>`).join('\n')}
    진행 현황(/proposal/status)은 개인 화면이라 만들지 않습니다(_redirects SPA 폴백 · robots 차단). */
 {
   const PB_DIR = path.join(__dirname, 'data', 'proposal', 'playbooks');
-  const IND_LABEL = { manufacturing: '제조·생산 공장', bio_pharma: '제약·바이오·연구소', datacenter: '데이터센터·전산실', building_fm: '빌딩·복합시설 FM', energy: '에너지·발전·수처리', cold_chain: '유통·콜드체인·물류', public: '공공·국방·인프라', edu_med: '병원·학교·복지시설', food_agri: '식품·외식·농수산', construction: '건설·현장', general: '그 외 시설', residential: '주거·호텔·숙박' };
+  const IND_LABEL = { manufacturing: '제조·생산 공장', bio_pharma: '제약·바이오·연구소', datacenter: '데이터센터·전산실', building_fm: '빌딩·복합시설 FM', energy: '에너지·발전·수처리', cold_chain: '유통·콜드체인·물류', public: '공공·국방·인프라', education: '학교·교육기관', edu_med: '병원·요양·복지시설', food_agri: '식품·외식·농수산', construction: '건설·현장', small_biz: '소상공인·자영업 매장', general: '그 외 시설', residential: '주거·호텔·숙박' };
   let pbs = [];
   try { pbs = fs.readdirSync(PB_DIR).filter(f => f.endsWith('.json')).map(f => JSON.parse(fs.readFileSync(path.join(PB_DIR, f), 'utf8'))); }
   catch (e) { console.warn('[build] 플레이북을 읽지 못했습니다 — 맞춤 제안서 본문을 간단히 만듭니다:', e.message); }

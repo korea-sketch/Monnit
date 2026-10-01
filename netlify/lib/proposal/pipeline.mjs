@@ -88,7 +88,7 @@ export async function buildJob(id, { ai = true, autoSend = false } = {}) {
     const t = await buildOnce(id, { ai: false, note: 'AI 문안 규칙 점검 실패(' + labels + ') → 템플릿 문안으로 교체' });
     job = await S.getJob(id);
     bad = t.ok ? hardFails(job) : bad;
-    if (t.ok && !bad.length) await Mail.notifyStaff('review', job, { '알림': 'AI 문안이 규칙 점검(' + labels + ')에 걸려 템플릿 문안으로 바꿔 자동 발송합니다. 필요하면 관리 화면에서 재생성하세요.' }).catch(() => {});
+    if (t.ok && !bad.length) await Mail.notifyStaff('auto_fix', job, { '알림': 'AI 문안이 규칙 점검(' + labels + ')에 걸려 템플릿 문안으로 바꿔 자동 발송합니다. 필요하면 관리 화면에서 재생성하세요.' }).catch(() => {});
   }
   if (bad.length) { await switchToReview(id, '규칙 점검 — ' + bad.map(c => c.label).join(', ')); return { ...r, sent: false, checks: bad.length }; }
   const wait = job.dueAt - Date.now();
@@ -288,17 +288,17 @@ export async function sendJob(id, { force = false, now = Date.now(), kind = 'pro
     job.attempts = (job.attempts || 0) + 1;
     await S.saveJob(job);
 
-    const r = await Mail.sendProposal(job, bytes);
+    const r = await Mail.sendProposal(job, bytes, { kind });
     if (r.ok) {
       job.status = 'sent';
       job.sentAt = new Date().toISOString();
       job.retryAt = 0; job.lastError = '';
-      addNotice(job, 'sent', true, { via: r.via, attached: r.attached, messageId: r.messageId || '' });
+      addNotice(job, 'sent', true, { via: r.via, attached: r.attached, messageId: r.messageId || '', mail: r.mailKey || '' });
       addLog(job, `제안서 발송 (${r.attached ? '첨부+링크' : '링크'})${force ? ' · 수동' : ''}`);
       await S.saveJob(job);
       await S.del(S.queueKey(job.dueAt, id)).catch(() => {});
       /* 발송 대장 — 누구에게 무슨 자료가 나갔는지(PDF 사본 포함) */
-      await recordSend(job, { kind, bytes, via: r.via, attached: r.attached, messageId: r.messageId || '', by });
+      await recordSend(job, { kind, bytes, via: r.via, attached: r.attached, messageId: r.messageId || '', by, mail: r.mailKey || '' });
       job = await S.getJob(id) || job;
       if (CFG.followupDays > 0) await S.setJSON('follow/' + String(now + CFG.followupDays * DAY).padStart(13, '0') + '-' + id, 1).catch(() => {});
       const n = await Mail.notifyStaff('sent', job);
@@ -390,7 +390,7 @@ export async function tick({ now = Date.now(), origin, budgetMs = 22000 } = {}) 
       if (job.meta && job.meta.noFollowup) continue;
       const r = await Mail.sendFollowup(job);
       await S.patchJob(id, j => { addNotice(j, 'followup', r.ok, { error: r.error || r.skipped || '' }); });
-      if (r.ok) await recordSend(await S.getJob(id) || job, { kind: 'followup', via: r.via, messageId: r.messageId || '' });
+      if (r.ok) await recordSend(await S.getJob(id) || job, { kind: 'followup', via: r.via, messageId: r.messageId || '', mail: r.mailKey || '' });
       out.followup++;
     }
   }

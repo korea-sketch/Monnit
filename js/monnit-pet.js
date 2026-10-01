@@ -3,7 +3,8 @@
  *  화면 오른쪽 아래에 늘 떠 있는 작은 로봇. 광고로 처음 들어온 방문자가
  *  「여기서 맞춤 제안서를 무료로 만들어 주는구나」를 바로 알 수 있게 한다.
  *
- *    · 로봇을 누르면 → 안내 카드 (1분 만에 제안서 받기 / 상담 문의 / 전화)
+ *    · 로봇을 누르면 → 안내 카드 (맞춤형 제안서 신청 / 상담 문의 / 전화)
+ *    · 2026-10-01 안내 카드 문구를 사이트 팝업과 같게 — 「12,000개 고객사가 검증한 해답」
  *    · 말풍선이 가끔 나와 한 줄 안내 (닫으면 이 탭에서는 다시 안 나옴)
  *    · 「도우미 숨기기」 → 화면 가장자리의 작은 손잡이로 접힘 (이 탭 동안 유지, 누르면 다시 펼침)
  *    · 하단 고정 바·상담 버튼·쿠키 안내와 겹치지 않게 자동으로 그 위로 올라간다
@@ -90,7 +91,8 @@
       '.mkpet-badge{display:inline-block;padding:4px 10px;border-radius:99px;background:#ECF6FD;color:#16325B;font-size:11.5px;font-weight:700;letter-spacing:-.01em}',
       '.mkpet-h{margin:10px 0 0;font-size:20px;line-height:1.32;font-weight:800;letter-spacing:-.03em}',
       '.mkpet-d{margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#DCE6F4;letter-spacing:-.02em}',
-      '.mkpet-d em{font-style:normal;color:#9EE0EC;font-weight:600}',
+      '.mkpet-d em{font-style:normal;color:#9EE0EC;font-weight:600}.mkpet-d b{color:#fff;font-weight:800}',
+      '.mkpet-hl{background:linear-gradient(90deg,#5CD6FF,#8BE8FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}',
       '.mkpet-ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:5px;font-size:12.5px;color:#C8D6EA}',
       '.mkpet-ul li{display:flex;gap:7px;align-items:flex-start}.mkpet-ul li::before{content:"";flex:none;width:14px;height:14px;margin-top:1px;border-radius:50%;background:#4fa3ff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%273.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M5 12.5l4.5 4.5L19 7.5%27/%3E%3C/svg%3E") center/9px no-repeat}',
       '.mkpet-go{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;min-height:48px;border-radius:99px;background:linear-gradient(180deg,#4fa3ff,#3a8cf5);color:#fff!important;text-decoration:none!important;font-size:15px;font-weight:700;letter-spacing:-.02em;overflow:hidden;',
@@ -146,11 +148,11 @@
       '<div class="mkpet-panel" id="mkpet-panel" role="dialog" aria-label="맞춤형 제안서 무료 제작 안내">' +
         '<button type="button" class="mkpet-px" data-p="close" data-track-off aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
         '<div class="mkpet-pin">' +
-          '<span class="mkpet-badge">맞춤형 제안서 무료 제작 EVENT</span>' +
-          '<p class="mkpet-h">전 세계의 노하우를<br>우리 현장으로</p>' +
-          '<p class="mkpet-d">글로벌 현장의 <em>실제 적용 사례 DB</em>로<br>우리 현장에 맞는 구성을 제안해 드려요.</p>' +
+          '<span class="mkpet-badge">업종·규모별 맞춤 분석 · 무료 제공</span>' +
+          '<p class="mkpet-h"><span class="mkpet-hl">12,000개 고객사</span>가<br>검증한 해답</p>' +
+          '<p class="mkpet-d">글로벌 IoT 모니터링 기업 <b>Monnit</b>의<br><em>실제 구축 사례</em>와 <em>ROI 데이터베이스</em>로<br><em>도입 전략과 기대 효과</em>를 제안드립니다.</p>' +
           '<ul class="mkpet-ul"><li>시설·고민만 고르면 1분이면 끝</li><li>구성·예상 비용까지 담아 무료 발송</li><li>상담 강요 없이 자료만 받아보셔도 돼요</li></ul>' +
-          '<a class="mkpet-go" href="' + HREF + '" data-p="go" data-track-off>단 1분 만에 제안서 받아보기 <span aria-hidden="true">→</span></a>' +
+          '<a class="mkpet-go" href="' + HREF + '" data-p="go" data-track-off>맞춤형 제안서 신청하기 <span aria-hidden="true">→</span></a>' +
           '<div class="mkpet-row">' +
             '<a class="mkpet-sub" href="' + CONTACT + '" data-p="contact" data-track-off>' + ICON_CHAT + '상담 문의</a>' +
             '<a class="mkpet-sub" href="tel:' + TEL.replace(/-/g, '') + '" data-p="tel" data-track-off>' + ICON_PHONE + TEL + '</a>' +

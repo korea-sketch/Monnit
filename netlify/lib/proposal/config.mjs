@@ -66,6 +66,9 @@ export const CFG = {
   get from() { return { name: env('PROPOSAL_FROM_NAME', '모넷코리아'), email: env('PROPOSAL_FROM_EMAIL', 'no-reply@monnit.co.kr') }; },
   get replyTo() { return { name: '모넷코리아', email: env('PROPOSAL_REPLY_TO', 'korea@monnit.com') }; },
   get staffTo() { return env('PROPOSAL_STAFF_TO', env('NOTIFY_TO', 'korea@monnit.com')).split(/[,\s]+/).filter(Boolean); },
+  /* 제안서 열람 알림만 받는 주소 (2026-09-30) — 열람은 「지금 연락할 때」 신호라 영업 담당에게 바로 간다.
+     나머지 담당자 알림은 위 staffTo 그대로. 쉼표로 여러 명 가능. */
+  get openedTo() { return env('PROPOSAL_OPENED_TO', '1015@monnit.com').split(/[,\s]+/).filter(Boolean); },
   get bcc() { return env('PROPOSAL_BCC', '').split(/[,\s]+/).filter(Boolean); },
   get webhook() { return env('PROPOSAL_WEBHOOK_URL', ''); },      /* 슬랙·팀즈·자체 알림톡 서버 등 */
 

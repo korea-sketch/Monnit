@@ -33,8 +33,12 @@ const W3_KEY   = process.env.WEB3FORMS_KEY   || '';
 const FROM     = { name: 'Monnit Korea 접수알림', email: 'no-reply@monnit.co.kr' };
 const REPLY_TO = { name: 'Monnit Korea', email: 'korea@monnit.com' };
 
+import { shortUrl, campaignOf } from './_staffnote.mjs';
+
 const JSON_HEAD = { 'Content-Type': 'application/json', Accept: 'application/json' };
-const SKIP = ['_subject', '_url', '_captcha', '_template'];
+/* 폼이 보낸 값 중 메일에 싣지 않는 것 — 긴 추적값은 알림함(/ops/notices)에 원문이 남는다 (2026-09-30) */
+const SKIP = ['_subject', '_url', '_captcha', '_template', '출처', '유입 페이지', '접수 유형', '접점', '메타 이벤트ID'];
+const SITE = String(process.env.URL || 'https://monnit.co.kr').replace(/\/$/, '');
 
 const when = ts => new Date(ts).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
@@ -49,15 +53,16 @@ export function fieldsOf(lead, payload) {
   const f = {
     '접수 시각': when(lead.ts),
     '유형': lead.label || '',
-    '유입 채널': lead.channel || '',
     '회사': lead.company || '',
     '담당자': lead.name || '',
     '전화': lead.phone || '',
     '이메일': lead.email || '',
     '관심분야': lead.interest || '',
     '문의내용': lead.memo || '',
-    '출처': lead.source || '',
-    '유입 페이지': lead.landing || '',
+    /* 대표님 지시 (2026-09-30) — 「경로나 긴 주소는 링크 표시로」.
+       fbclid·utm 이 붙은 400자 주소 대신 「메타 · proposal_promo / proposal_ad_03」 과 경로만 싣는다. */
+    '유입': [lead.channel, campaignOf(lead.source)].filter(Boolean).join(' · '),
+    '유입 페이지': lead.landing ? shortUrl(lead.landing) : '',
     /* 경쟁사로 의심되면 이 IP 를 /ops/block 에 넣어 바로 막는다 (2026-09-16) */
     '접속 IP': lead.ip || ''
   };
@@ -65,8 +70,11 @@ export function fieldsOf(lead, payload) {
   for (const k of Object.keys(payload || {})) {
     if (SKIP.indexOf(k) >= 0 || f[k] != null) continue;
     if (String(payload[k] ?? '').trim() === '') continue;
-    f[k] = String(payload[k]);
+    let v = String(payload[k]);
+    if (/^https?:\/\//.test(v) && v.length > 100) v = shortUrl(v);
+    f[k] = v.length > 300 ? v.slice(0, 299) + '…' : v;
   }
+  f['전체 이력'] = SITE + '/ops/notices';
   for (const k of Object.keys(f)) if (!String(f[k]).trim()) delete f[k];
   return f;
 }

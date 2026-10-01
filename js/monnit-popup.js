@@ -1,5 +1,6 @@
 /*! Monnit Korea — 사이트 공통 팝업 v2 · 맞춤형 제안서 무료 제작 EVENT (2026-09-23)
  *
+ *  2026-09-30 문구 교체: 「전 세계의 노하우를 우리 현장으로」 → 「12,000개 고객사가 검증한 해답」
  *  켜기/끄기  →  /ops/flow 화면 상단 「사이트 팝업」 스위치 (저장 즉시, 1분 안에 전 페이지 반영)
  *             비상시엔 아래 HARD_OFF 를 true 로 바꿔 배포해도 꺼진다.
  *  노출 규칙
@@ -21,7 +22,7 @@
 
   var DEFAULTS = {
     on: true,
-    id: 'proposal-event-2026-09',   /* 새 팝업으로 바꾸면 id 도 바꾼다 — 「오늘 그만 보기」가 새 팝업에는 적용되지 않게 */
+    id: 'proposal-event-2026-09-30',   /* 새 팝업으로 바꾸면 id 도 바꾼다 — 「오늘 그만 보기」가 새 팝업에는 적용되지 않게 */
     href: '/proposal?from=finder&fac=public&con=air&fl=%EA%B3%B5%EA%B3%B5%C2%B7%EA%B5%90%EC%9C%A1%C2%B7%EB%AC%B8%ED%99%94&cl=%EA%B3%B5%EA%B8%B0%EC%A7%88%C2%B7%ED%99%98%EA%B2%BD'
   };
   /* 띄우지 않을 경로
@@ -89,8 +90,8 @@
       /* 반짝이 별 */
       '.mkpe-star{position:absolute;z-index:1;fill:#FFE52D;filter:drop-shadow(0 0 6px rgba(255,229,45,.55));animation:mkpeTwinkle 2.4s ease-in-out infinite}',
       '.mkpe-star svg{display:block;width:100%;height:100%}',
-      '.mkpe-star.a{left:5.5cqw;top:5cqw;width:10.5cqw;height:12cqw}',
-      '.mkpe-star.b{right:9cqw;top:43cqw;width:7cqw;height:8.5cqw;animation-delay:.9s}',
+      '.mkpe-star.a{left:3cqw;top:3cqw;width:7.5cqw;height:8.5cqw}',
+      '.mkpe-star.b{right:3.5cqw;top:31cqw;width:5cqw;height:6cqw;animation-delay:.9s}',
       '.mkpe-star.c{left:6cqw;top:98cqw;width:3cqw;height:3cqw;animation-delay:1.5s;opacity:.7}',
       '.mkpe-star.d{right:5cqw;top:30cqw;width:2.6cqw;height:2.6cqw;animation-delay:.4s;opacity:.6;fill:#bfe3ff}',
       /* 뱃지 */
@@ -100,6 +101,11 @@
       /* 제목 · 본문 */
       '.mkpe-t{margin:5.5cqw 0 0;font-size:9cqw;line-height:1.3;font-weight:800;letter-spacing:-.03em;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25)}',
       '.mkpe-t span{display:block}',
+      /* 2026-09-30 새 문구 — 「12,000개 고객사가 검증한 해답」 */
+      '.mkpe-t{display:block;margin-top:7cqw;padding:0 7cqw;font-size:8.6cqw}.mkpe-hl{font-weight:800;background:linear-gradient(90deg,#5CD6FF,#8BE8FF,#5CD6FF);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:mkpeFlow 4s linear infinite}',
+      '.mkpe-p b{font-weight:800;color:#fff}',
+      '.mkpe-chip{display:flex;width:max-content;max-width:100%;align-items:center;gap:2.6cqw;margin:6cqw auto 0;padding:2.4cqw 5.4cqw 2.4cqw 3.4cqw;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(160,200,255,.22);color:#EAF2FF;font-weight:700;font-size:max(12.5px,3.8cqw);letter-spacing:-.02em;white-space:nowrap}',
+      '.mkpe-chip svg{width:max(20px,6.4cqw);height:max(20px,6.4cqw);flex:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}',
       '.mkpe-p{margin:6cqw 0 0;font-size:max(13px,4.1cqw);line-height:1.6;color:#E4ECF7;font-weight:500;letter-spacing:-.02em}',
       '.mkpe-p + .mkpe-p{margin-top:3.6cqw}',
       '.mkpe-p em{font-style:normal;color:#9EE0EC;font-weight:600;background:linear-gradient(90deg,#9EE0EC,#c9f3ff,#9EE0EC);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:mkpeFlow 4s linear infinite}',
@@ -171,11 +177,11 @@
           '<i class="mkpe-star a" aria-hidden="true">' + STAR + '</i><i class="mkpe-star b" aria-hidden="true">' + STAR + '</i>' +
           '<i class="mkpe-star c" aria-hidden="true">' + STAR + '</i><i class="mkpe-star d" aria-hidden="true">' + STAR + '</i>' +
           '<div class="mkpe-in">' +
-            '<span class="mkpe-badge mkpe-up s1">맞춤형 제안서 무료 제작 EVENT!</span>' +
-            '<strong class="mkpe-t" id="mkpe-title"><span class="mkpe-up s2">전 세계의 노하우를</span><span class="mkpe-up s3">우리 현장으로</span></strong>' +
-            '<p class="mkpe-p mkpe-up s4">글로벌 대형 현장의 <em>실제 적용 사례가</em><br><em>축적된 DB</em>를 기반으로</p>' +
-            '<p class="mkpe-p mkpe-up s5">당신의 현장에 최적화된<br><em>맞춤형 솔루션</em>을 제안합니다.</p>' +
-            '<span class="mkpe-cta mkpe-up s6"><i class="mkpe-ring" aria-hidden="true"></i>단 1분 만에 제안서 받아보기<i aria-hidden="true">→</i></span>' +
+            '<strong class="mkpe-t" id="mkpe-title"><span class="mkpe-up s1"><b class="mkpe-hl">12,000개 고객사</b>가</span><span class="mkpe-up s2">검증한 해답</span></strong>' +
+            '<p class="mkpe-p mkpe-up s3">글로벌 IoT 모니터링 기업 <b>Monnit</b>의<br><em>실제 구축 사례</em>와 <em>ROI 데이터베이스</em>를 분석하여</p>' +
+            '<p class="mkpe-p mkpe-up s4">귀사 현장에 최적화된<br><em>도입 전략과 기대 효과</em>를 제안드립니다.</p>' +
+            '<span class="mkpe-chip mkpe-up s5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.5h8.5L19 7v13.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20.5V4A1.5 1.5 0 0 1 6.5 2.5z" fill="#EAF4FF"/><path d="M14.5 2.5V7H19" fill="#BFDDFB"/><path d="M8 7.5h4M8 10.5h7" stroke="#6FB3F5" stroke-width="1.4" stroke-linecap="round"/><rect x="8" y="15" width="2" height="4" rx=".5" fill="#2F86EE"/><rect x="11" y="13" width="2" height="6" rx=".5" fill="#2F86EE"/><rect x="14" y="11" width="2" height="8" rx=".5" fill="#2F86EE"/></svg>업종·규모별 맞춤 분석 · 무료 제공</span>' +
+            '<span class="mkpe-cta mkpe-up s6"><i class="mkpe-ring" aria-hidden="true"></i>맞춤형 제안서 신청하기<i aria-hidden="true">→</i></span>' +
           '</div>' +
         '</a>' +
         '<button type="button" class="mkpe-x" data-a="close" data-track-off aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>' +

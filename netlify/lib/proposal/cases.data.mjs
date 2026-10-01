@@ -1,6 +1,7 @@
-/* 자동 생성 — scripts/proposal-sync.mjs (2026-09-18T13:37:17.912Z, 원본: 구글 시트 Cases 탭)
+/* 자동 생성 — scripts/proposal-sync.mjs (2026-09-29T07:06:58.236Z, 원본: 구글 시트 Cases 탭)
+   (산업 재분류 2건 반영)
    직접 고치지 말고 시트를 고치세요. 시트를 못 읽을 때는 이 스냅샷을 그대로 씁니다. */
-export const SYNCED_AT = "2026-09-18T13:37:17.912Z";
+export const SYNCED_AT = "2026-09-29T07:06:58.236Z";
 export default [
  {
   "key": "samsung-biologics",
@@ -1029,7 +1030,7 @@ export default [
   "name": "신한대학교",
   "industryText": "교육",
   "industries": [
-   "edu_med"
+   "education"
   ],
   "global": false,
   "title": "스마트캠퍼스 환경·누수 관리",
@@ -1050,7 +1051,7 @@ export default [
   "name": "송현초등학교",
   "industryText": "교육",
   "industries": [
-   "edu_med"
+   "education"
   ],
   "global": false,
   "title": "학교 기계실 설비 모니터링",

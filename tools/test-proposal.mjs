@@ -129,7 +129,8 @@ brevoFail = 2;   /* 첨부 발송 실패 + 첨부 없는 재시도도 실패 */
 const due = job.dueAt + 1000;
 MAILS.length = 0;
 t = await P.tick({ now: due - 3600000 });
-ok('발송 전 검수 알림', MAILS.some(m => /발송 전 검수/.test(m.subject)), MAILS.map(m => m.subject));
+/* 2026-09-30 — 자동 검수 방식의 「발송 전 검수」는 결정적 행위가 아니라 메일 없이 알림함에만 남는다 */
+ok('발송 전 검수 — 메일 없음(알림함에만)', !MAILS.some(m => /발송 전 검수/.test(m.subject)) && (await S.getJob(id)).notices.some(n => n.type === 'preview'), MAILS.map(m => m.subject));
 brevoFail = 1;   /* 이 건 하나만 직접 발송해서 실패시킨다 (다른 건이 실패를 가져가지 않게) */
 await P.sendJob(id, { now: due });
 job = await S.getJob(id);
@@ -229,7 +230,27 @@ dt = C.detect({ company: '모름', email: 'x@seoul.go.kr' });
 ok('도메인 규칙 — .go.kr', dt.industry === 'public', dt);
 ok('무료 메일 도메인은 무시', C.detect({ company: '가나다', email: 'x@naver.com' }).industry === '', 1);
 let it = IN.resolveIntake({ entry: 'finder', fac: 'etc', con: 'leak', company: '송현초등학교' });
-ok('파인더 「그 외」 + 회사 인식 → 학교', it.industry === 'edu_med' && it.segment === 'school' && it.problems.includes('leak'), it);
+ok('파인더 「그 외」 + 회사 인식 → 학교', it.industry === 'education' && it.segment === 'school' && it.problems.includes('leak'), it);
+/* 2026-09-29 학교·교육기관 분리 */
+it = IN.resolveIntake({ entry: 'finder', fac: 'edu', con: 'leak', company: '행복고등학교' });
+ok('파인더 「학교·교육기관」 → education', it.industry === 'education' && it.segment === 'school', it);
+it = IN.resolveIntake({ entry: 'finder', fac: 'public', con: 'leak', company: '한빛대학교', email: 'fm@hanbit.ac.kr' });
+ok('학교가 「공공」을 골라도 학교로', it.industry === 'education', it);
+it = IN.resolveIntake({ entry: 'finder', fac: 'public', con: 'leak', company: '서초구청' });
+ok('공공기관은 그대로 공공', it.industry === 'public', it);
+it = IN.resolveIntake({ entry: 'contact', company: '가나다', industryText: '학교·교육기관' });
+ok('상담 폼 산업군 「학교·교육기관」 → education', it.industry === 'education', it);
+it = IN.resolveIntake({ entry: 'contact', company: '한국대학교병원' });
+ok('대학교병원은 병원으로', it.industry === 'edu_med', it);
+/* 2026-09-29 소상공인 분리 */
+it = IN.resolveIntake({ entry: 'finder', fac: 'smallbiz', con: 'cold', company: '달빛커피' });
+ok('파인더 「소상공인·매장」 → small_biz', it.industry === 'small_biz' && it.problems.includes('cold_storage'), it);
+it = IN.resolveIntake({ entry: 'contact', company: '가나다', industryText: '소상공인·자영업' });
+ok('상담 폼 「소상공인·자영업」 → small_biz', it.industry === 'small_biz', it);
+it = IN.resolveIntake({ entry: 'contact', company: '행복한 무인매장 역삼점' });
+ok('무인매장 이름 → small_biz · 무인매장 세부', it.industry === 'small_biz' && it.segment === 'unmanned_store', it);
+it = IN.resolveIntake({ entry: 'finder', fac: 'food', con: 'cold', company: '소담 베이커리 카페' });
+ok('매장 점주가 「식품·외식」을 골라도 소상공인으로', it.industry === 'small_biz', it);
 it = IN.resolveIntake({ entry: 'contact', company: '가나냉장', industryText: '물류', memo: '주말에 냉동창고 온도가 올라 재고를 버렸고 HACCP 기록도 수기입니다' });
 ok('상담 폼 → 문의 글에서 과제 추정(먼저 말한 1개 + 나머지는 상담용)', it.industry === 'cold_chain' && it.problems.join() === 'cold_storage' && it.also.includes('record') && it.auto.problems === 'memo', it);
 it = IN.resolveIntake({ entry: 'proposal', industry: 'datacenter', problems: ['hotspot'], goals: ['response'], company: 'SK하이닉스' });
@@ -297,7 +318,8 @@ await Promise.all(BG_RUNS.splice(0));
 let ij = await S.getJob(iid);
 ok('즉시 방식 — 예정 시각까지 기다렸다가 발송', ij.status === 'sent' && Date.parse(ij.sentAt) >= ij.dueAt - 50 && Date.now() - t0 < 60000, { st: ij.status, wait: Date.now() - t0 });
 ok('고객 메일 — 「방금 정리한」 + 확인 연락 안내', MAILS.some(m => m.to === 'hn.lee@hanbit-dc.co.kr' && /방금 정리한/.test(m.html) && /확인하고 연락드리겠습니다/.test(m.html) && m.attach), MAILS.map(m => m.subject));
-ok('담당자 — 「발송 완료·연락 필요」', MAILS.some(m => /발송 완료·연락 필요/.test(m.subject)), MAILS.map(m => m.subject));
+/* 2026-09-30 — 발송 완료는 신규 접수 메일에서 이미 예고했으므로 메일을 보내지 않는다(알림함에만) */
+ok('담당자 — 발송 완료 메일 없음(신규 접수 한 통으로 끝)', !MAILS.some(m => /발송 완료/.test(m.subject)) && MAILS.filter(m => /^\[맞춤제안·/.test(m.subject)).length <= 1, MAILS.map(m => m.subject));
 r = await API(new Request('https://monnit.co.kr/api/proposal/status?t=' + b.token), {}); sv = await r.json();
 ok('발송 후 화면 — 확인 연락 예정 표시', sv.progress.sent && /연락드립니다/.test(sv.progress.note) && sv.notices.find(n => n.key === 'callback').state === 'plan', sv.notices);
 r = await ADMIN(new Request('https://monnit.co.kr/ops/proposals/action', { method: 'POST', headers: { cookie, 'content-type': 'application/json', 'x-requested-with': 'mk' }, body: JSON.stringify({ id: iid, op: 'contacted', text: '통화 완료' }) }));
