@@ -145,6 +145,8 @@
   var META_GAP      = 20000;   /* 이 시간 안에 이미 Lead 가 나갔으면 건너뛴다 */
   var _metaFiredTs  = 0;
   var _metaBooted   = false;
+  var _metaWaited   = false;
+  var _metaWaitDone = false;
 
   /* 마케팅 동의 — monnit-consent.js 가 없으면 「동의 안 함」으로 본다(보수적) */
   function marketingOk() {
@@ -154,10 +156,21 @@
 
   /* 메타 표준 스니펫 — n 이 자기 자신을 참조하고 큐를 든다. 이 모양을 바꾸면
      fbevents.js 가 큐를 못 비워서 픽셀이 통째로 죽는다. 손대지 말 것. */
-  function bootMeta() {
+  function bootMeta(force) {
     if (_metaBooted || !META_PIXEL_ID) return;
     if (w.fbq) { _metaBooted = true; hookMeta(); return; }   /* /promo/* — 페이지가 직접 올림 */
     if (!marketingOk()) return;                              /* 동의 전에는 올리지 않는다 */
+    /* 2026-10-02 — GTM 안의 메타 픽셀 태그와 겹쳐 「Duplicate Pixel ID」·PageView 두 번이 나던 것.
+       GTM 이 뜨는 페이지에서는 로드 후 잠깐 기다려 GTM 이 픽셀을 올렸으면 그걸 쓰고(hook 만), 없을 때만 직접 올린다.
+       접수(Lead) 순간에 불리면 기다리지 않고 바로 올린다(_metaWaited 가 이미 true). */
+    if (!force && !_metaWaitDone) {
+      if (!_metaWaited && ((w.MONNIT_CONSENT_CONFIG && w.MONNIT_CONSENT_CONFIG.gtmId) || (w.dataLayer && [].some.call(w.dataLayer, function (e) { return e && e.event === 'gtm.js'; })))) {
+        _metaWaited = true;
+        var later = function () { setTimeout(function () { _metaWaitDone = true; try { bootMeta(); } catch (e) {} }, 2500); };
+        if (d.readyState === 'complete') later(); else w.addEventListener('load', later);
+      }
+      if (_metaWaited) return;                                 /* 기다리는 중 — 동의 이벤트 등으로 다시 불려도 먼저 올리지 않는다 */
+    }
     _metaBooted = true;
     try {
       var n = w.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
@@ -220,7 +233,7 @@
   function meta(type, detail) {
     var t = TYPES[type] || TYPES.contact;
     if (!t.meta) return '';
-    bootMeta();                                                    /* 아직이면 지금 올린다 */
+    bootMeta(true);                                                /* 아직이면 지금 올린다(접수 순간은 기다리지 않음) */
     hookMeta();                                                    /* 아직 못 걸었으면 지금 건다 */
     if (!w.fbq || w.MK_META_SELF === true) return '';
     if (_metaFiredTs && (Date.now() - _metaFiredTs) < META_GAP) return '';   /* 페이지가 이미 쐈다 */
