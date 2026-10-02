@@ -25,6 +25,7 @@ import { PROBLEMS } from '../lib/proposal/kb.mjs';
 import { langOf } from '../lib/proposal/i18n.mjs';
 import { kickBuild, sendJob } from '../lib/proposal/pipeline.mjs';
 import * as Mail from '../lib/proposal/mail.mjs';
+import { recordFactoryConsult } from './_factoryconsult.mjs';   /* 공장 설비 진단 EVENT — 별도 메일 대신 리드 원장 (2026-10-02) */
 import * as _guard from '../lib/proposal/guard.mjs';   /* 경쟁사 차단 — 느슨한 연결 */
 
 export const config = { path: ['/api/proposal', '/api/proposal/status', '/api/proposal/pdf', '/api/proposal/preview', '/api/proposal/detect'] };
@@ -205,7 +206,11 @@ async function create(req, url) {
     await S.setJSON('purge/' + String(Date.now() + CFG.retainDays * 86400000).padStart(13, '0') + '-' + job.id, 1);
   } catch (e) {
     console.error('[proposal-api] 저장 실패', e);
-    const r = await Mail.notifyStaff('new', job, { '주의': '저장소 오류로 자동 제안서가 만들어지지 않습니다. 직접 연락해 주세요.' });
+    const [mainNotice, consultNotice] = await Promise.allSettled([
+      Mail.notifyStaff('new', job, { '주의': '저장소 오류로 자동 제안서가 만들어지지 않습니다. 직접 연락해 주세요.' }),
+      recordFactoryConsult(job)
+    ]);
+    const r = mainNotice.status === 'fulfilled' ? mainNotice.value : { ok: false };
     return json({ ok: r.ok, token: null, degraded: true, due: fmtKST(job.dueAt), name: lead.name, company: lead.company });
   }
 
@@ -214,11 +219,17 @@ async function create(req, url) {
   /* 즉시 방식은 몇 분 안에 제안서 메일이 가므로 접수 메일을 따로 보내지 않는다(메일 2통 방지).
      엔지니어 확인 방식이면 접수 메일로 예정 시각과 진행 화면 주소를 알린다. */
   const instant = job.plan.mode === 'instant';
-  const [rc, st] = await Promise.allSettled([instant ? Promise.resolve(null) : Mail.sendReceipt(job), Mail.notifyStaff('new', job)]);
+  const [rc, st, fc] = await Promise.allSettled([
+    instant ? Promise.resolve(null) : Mail.sendReceipt(job),
+    Mail.notifyStaff('new', job),
+    /* 공장 설비 진단 EVENT — 메일은 위 notifyStaff('new') 한 통에 합치고, 여기서는 원장·먼데이·알림함에만 남긴다 */
+    recordFactoryConsult(job)
+  ]);
   const v = x => (x.status === 'fulfilled' ? x.value : { ok: false, error: String(x.reason) });
   await S.patchJob(job.id, j => {
     if (v(rc)) addNotice(j, 'receipt', v(rc).ok, { via: v(rc).via || '', error: v(rc).error || v(rc).skipped || '' });
     addNotice(j, 'staff', v(st).ok, { via: v(st).via || '' });
+    if (j.lead.factoryConsult) addNotice(j, 'factory-consult', v(fc).ok, { via: v(fc).via || 'ledger', error: v(fc).error || v(fc).skipped || '' });
     if (j.plan.mode === 'review') addNotice(j, 'preview', v(st).ok, { via: v(st).via || '' });
   });
   const kb = await kickBuild(url.origin, job.id);

@@ -23,7 +23,7 @@ export const FAC_KEYS = Object.keys(FINDER_FAC);
 export const CON_KEYS = Object.keys(FINDER_CON);
 
 const FAC_LABEL = {
-  factory: '공장·제조', logistics: '물류·창고', food: '식품·외식', pharma: '병원·제약·바이오',
+  factory: '공장·제조', logistics: '물류·창고', food: '식품·외식', pharma: '제약·바이오·연구소', medical: '병원·요양·복지시설',
   datacenter: '데이터센터·전산실', commercial: '빌딩·상업시설', resident: '주거·아파트', public: '공공기관·문화시설', edu: '학교·교육기관', smallbiz: '소상공인·매장',
   agri: '농업·스마트팜', energy: '에너지·발전', construction: '건설 현장', etc: '그 외'
 };
@@ -49,8 +49,11 @@ const FAC_KW = {
   food: ['식품', '외식', '주방', '매장', '카페', '레스토랑', '급식', '도시락', '반찬', '제과', '제빵', '베이커리',
     '정육', '수산', '횟집', '김치', '장류', '방앗간', '떡집', '양조', '주류', '음료', '유제품', '도축',
     'food', 'restaurant', 'kitchen', 'bakery'],
-  pharma: ['병원', '의원', '요양원', '요양병원', '제약', '바이오', '연구소', '연구원', '실험실', '클린룸',
-    '백신', '검체', '혈액', '의료기기', '치과', '약국', '동물병원', 'pharma', 'lab', 'hospital', 'bio', 'clinic'],
+  pharma: ['제약', '바이오', '연구소', '연구원', '실험실', '클린룸',
+    '백신', '검체', '혈액', '의료기기', '약국', '동물병원', 'pharma', 'lab', 'bio'],
+  /* 병원·요양·복지시설 — 2026-10-02 제약·바이오에서 분리 (제안서 산업 edu_med 와 같은 분류) */
+  medical: ['병원', '의원', '요양원', '요양병원', '요양시설', '치과', '한의원', '복지시설', '노인복지', '장애인복지', '어린이집',
+    'hospital', 'clinic', 'nursing home'],
   datacenter: ['데이터센터', '전산실', '서버실', '통신실', '기계실', '랙', '전산', 'idc', 'data center', 'datacenter', 'server room', 'ups실'],
   commercial: ['빌딩', '사무실', '오피스', '상가', '쇼핑몰', '백화점', '마트', '전시장', '극장', '도서관',
     '임대', '관리사무소', '헬스장', '사우나', '목욕탕', '주차장', 'building', 'office', 'mall', 'retail'],
@@ -231,13 +234,13 @@ const T = {
     company: 'Which company or site is this for?',
     name: 'Who should receive the proposal? Please share your name and title.',
     email: 'What email address should we send the proposal to?',
-    fac: 'What kind of site is it? factory / warehouse / data center / building / hospital-pharma / food service / farm / energy / construction / residential / public / school / small shop',
+    fac: 'What kind of site is it? factory / warehouse / data center / building / hospital / pharma-lab / food service / farm / energy / construction / residential / public / school / small shop',
     con: 'Which single concern matters most? fire / leaks / temperature / cold chain / equipment failure / power / air quality / security / integration / compliance records',
     done: 'Thank you. Shall we build your proposal with the details below?',
     reCompany: 'Please write the company or site name in one line.',
     reName: 'Please write your name (and title if you like).',
     reEmail: 'Please write the email address for the proposal (e.g. name@company.co.kr).',
-    reFac: 'Please pick one: factory / warehouse / data center / building / hospital-pharma / food service / farm / energy / construction / residential / public / school / small shop / other',
+    reFac: 'Please pick one: factory / warehouse / data center / building / hospital / pharma-lab / food service / farm / energy / construction / residential / public / school / small shop / other',
     reCon: 'Please pick one: fire / leaks / temperature / cold chain / equipment failure / power / air quality / security / integration / compliance records',
     got: v => `Got it — ${v}. `,
     handoff: 'An engineer should answer that directly. Leave your contact and we will get back to you. We can still prepare the proposal.',
@@ -441,7 +444,7 @@ export function ruleParse(text, asking, fields = {}) {
 }
 
 /* 보기 순서 — 「3번이요」처럼 번호로 고르는 사람을 위해 */
-const FAC_ORDER = ['factory', 'logistics', 'datacenter', 'commercial', 'pharma', 'food', 'agri', 'energy', 'construction', 'resident', 'public', 'edu', 'smallbiz', 'etc'];
+const FAC_ORDER = ['factory', 'logistics', 'datacenter', 'commercial', 'pharma', 'food', 'agri', 'energy', 'construction', 'resident', 'public', 'edu', 'smallbiz', 'etc', 'medical'];
 const CON_ORDER = ['fire', 'leak', 'temp', 'cold', 'equip', 'power', 'air', 'security', 'control', 'comply'];
 function pickByNumber(raw, order) {
   const m = KO.normalize(raw).match(/^\s*(\d{1,2})\s*(번|번째|번요|\.|\)|$)/);

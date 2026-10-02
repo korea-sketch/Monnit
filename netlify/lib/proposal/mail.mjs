@@ -238,6 +238,9 @@ function modeLine(job) {
 }
 const clip = (v, n) => { const s = String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
 
+/* 맞춤 제안서에서 「공장 설비 진단 EVENT」를 함께 신청했을 때 담당자 메일·알림함에 들어가는 한 줄 */
+export const FACTORY_EVENT_LINE = '신청함 — 회전설비 AI 예지보전 1개월 무료 체험 (리드 원장에 별도 접수)';
+
 export async function notifyStaff(kind, job, extra = {}) {
   /* 테스트 접수는 담당자 메일함으로 보내지 않는다 (2026-09-18) */
   if (job && job.test === true) return { ok: true, skipped: 'test', via: 'test' };
@@ -256,6 +259,7 @@ export async function notifyStaff(kind, job, extra = {}) {
     '회사': L.company, '담당자': `${L.name} ${L.title || ''}`.trim(), '이메일': L.email, '전화': L.phone || '-',
     '산업': job.match.industry.label, '시설': L.facility || '-', '규모': L.scale || '-', '도입 시점': L.timeline || '-',
     '제안서 과제': probs, '목표': job.match.input.goals.map(k => (GOALS[k] || {}).label || k).join(', '),
+    ...(L.factoryConsult ? { '공장 설비 진단 EVENT': FACTORY_EVENT_LINE } : {}),
     ...it, ...(L.inquiry ? { '문의 항목': L.inquiry } : {}),
     '1위 사례': job.match.top[0] ? `${job.match.top[0].name} (${job.match.top[0].pct}%)` : '-',
     '메모': L.memo || '-', '유입': src || '-',
@@ -279,7 +283,8 @@ export async function notifyStaff(kind, job, extra = {}) {
   }
 
   const flag = kind === 'more' ? '·연락 필요' : kind === 'opened' ? '·연락 적기' : kind === 'new' ? (modeOf(job) === 'instant' ? '·즉시 발송' : modeOf(job) === 'review' ? '·확인 필요' : '') : '';
-  const subject = `[맞춤제안·${KIND[kind] || kind}${flag}] ${g.grade ? g.grade + '등급 ' : ''}${L.company} ${L.name}`;
+  const fc = kind === 'new' && L.factoryConsult ? '·공장진단EVENT' : '';
+  const subject = `[맞춤제안·${KIND[kind] || kind}${flag}${fc}] ${g.grade ? g.grade + '등급 ' : ''}${L.company} ${L.name}`;
 
   /* 메일 본문 = 요약. 긴 값은 줄이고, 주소는 링크로 */
   const rows = {
@@ -290,6 +295,8 @@ export async function notifyStaff(kind, job, extra = {}) {
     '과제': probs,
     ...(kind === 'new' ? { '발송 방식': modeLine(job), '입구': it['입구'] } : {}),
     ...(job.meta && job.meta.doc ? { '함께 받은 자료': job.meta.doc } : {}),
+    /* 공장 설비 진단 EVENT 를 함께 고르면 별도 메일 없이 이 한 줄로 알린다 — 컨설팅 접수는 리드 원장(/ops)에 따로 남는다 (2026-10-02) */
+    ...(L.factoryConsult ? { '공장 진단 EVENT': FACTORY_EVENT_LINE } : {}),
     ...(it['기존 고객'] ? { '기존 고객': it['기존 고객'] } : it['기존 고객?'] ? { '기존 고객?': it['기존 고객?'] } : {}),
     ...(it['확인 필요'] ? { '확인 필요': it['확인 필요'] } : {}),
     ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, clip(v, 160)])),

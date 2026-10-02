@@ -51,7 +51,8 @@ export function cleanInput(b) {
     industryText: safe.industryText,
     inquiry: clip(b.inquiry, 40),
     consent: b.consent === true,
-    consentMkt: b.consentMkt === true
+    consentMkt: b.consentMkt === true,
+    factoryConsult: b.factoryConsult === true
   };
   if (lead.company.length < 2) errors.company = '회사명을 입력해 주세요';
   if (lead.name.length < 2) errors.name = '성함을 입력해 주세요';

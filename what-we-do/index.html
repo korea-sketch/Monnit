@@ -59,7 +59,7 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=127">
+<link rel="stylesheet" href="/style.css?v=233">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -275,6 +275,14 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 
 
 
+<div class="mkp-event-modal" id="ppEventModal" hidden role="dialog" aria-modal="true" aria-labelledby="ppEventTitle">
+  <div class="mkp-event-dialog">
+    <img src="/assets/proposal/factory-event-prompt.png" alt="" aria-hidden="true">
+    <h2 class="sr-only" id="ppEventTitle">맞춤형 설비 진단 EVENT도 필요하실 것 같아요!</h2>
+    <button type="button" class="mkp-event-cancel" id="ppEventCancel" aria-label="이벤트 신청하지 않고 제안서 제작 계속하기">Cancel</button>
+    <button type="button" class="mkp-event-apply" id="ppEventApply" aria-label="맞춤형 설비 진단 이벤트 신청하기">신청하기</button>
+  </div>
+</div>
 </main>
 
 <script type="text/html" id="mk-shell-views"><section class="view active" id="view-home">
@@ -1895,7 +1903,6 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 <section class="view" id="view-proposal">
   <div class="cpage mkp" id="ppRoot">
     <div class="wrap-mid">
-      <div class="crumb">Resources / Custom Proposal</div>
       <div class="mkp-hero" id="ppHero">
         <h2 class="seo-h1" data-sc="proposal.head" data-sc-label="맞춤 제안서 · 제목">우리 현장만을 위한 <em>맞춤 제안서</em></h2>
         <p class="lead" data-sc="proposal.lead" data-sc-label="맞춤 제안서 · 설명">누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 산업과 가장 고민되는 문제 하나를 알려주시면 130여 개국 Monnit 글로벌 운영 데이터와 공공기관·대기업을 포함한 국내 도입 현장 데이터를 조회하고, 산업별 플레이북과 함께 분석해 귀사 현장에 맞는 구성을 산출합니다. 그 결과를 PDF로 정리해 접수 순서대로 메일로 보내드립니다.</p>
@@ -1912,7 +1919,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
         <h2 class="seo-h1 mkp-quick-h">선택하신 조건으로<br><em>바로 만듭니다</em></h2>
         <p class="lead">회사와 담당자 정보만 입력해 주세요. 고르신 시설·고민으로 Monnit 글로벌 운영 데이터를 조회하고 산업 플레이북과 함께 분석해 맞춤 제안서를 만들어, 접수 순서대로 보내드립니다.</p>
         <div class="mkp-chips" id="ppQChips"></div>
-        <ol class="mkp-flow" aria-hidden="true"><li class="done">조건 선택</li><li class="on">담당자 정보</li><li>제안서 작성</li><li>순차 발송</li></ol>
+        <ol class="mkp-flow" aria-hidden="true"><li class="on"><strong>01</strong> 담당자 정보 입력</li><li><strong>02</strong> 조건 선택</li><li>제안서 작성</li><li>순차 발송</li></ol>
         <button type="button" class="mkp-link" id="ppQEdit">조건 바꾸기</button>
       </div>
 
@@ -1938,12 +1945,12 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       <div class="mkp-grid">
         <div class="mkp-main">
           <div class="mkp-step" id="ppS1">
-            <div class="mkp-step-h"><span class="mkp-no">01</span><h3>어떤 현장인가요?</h3><small>하나만 골라 주세요</small></div>
+            <div class="mkp-step-h"><span class="mkp-no">01</span><h3>고객님께 딱 맞는 제안서를<br>제작해 드릴게요.</h3></div>
             <div class="mkp-inds" id="ppInds" role="group" aria-label="산업 선택"></div>
           </div>
 
           <div class="mkp-step" id="ppS2" hidden>
-            <div class="mkp-step-h"><span class="mkp-no">02</span><h3><span id="ppIndShort">이 산업</span> 현장에서 가장 고민되는 문제</h3><small>하나만 골라 주세요</small></div>
+            <div class="mkp-step-h"><span class="mkp-no">02</span><h3><span id="ppIndShort">이 산업</span> 현장에서 가장 고민되는 문제</h3></div>
             <p class="mkp-hint" id="ppIndHero"></p>
             <details class="mkp-chronic" id="ppChronic" hidden></details>
             <div class="mkp-plist is-one" id="ppPlist" role="radiogroup" aria-label="가장 고민되는 문제"></div>
@@ -1952,12 +1959,17 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
           </div>
 
           <div class="mkp-step" id="ppS3" hidden>
-            <div class="mkp-step-h"><span class="mkp-no">03</span><h3>도입하면 무엇이 달라지길 원하세요?</h3><small>최대 4개</small></div>
+            <div class="mkp-step-h"><span class="mkp-no">03</span><h3>대비하고 싶은<br>위험을 선택해 주세요.</h3></div>
+            <small class="mkp-goal-limit">최대 4개</small>
             <div class="mkp-chips" id="ppGoals" role="group" aria-label="원하는 효과"></div>
-            <div class="mkp-row2">
-              <div class="mkp-fld"><label for="ppScale">감시 규모</label><select id="ppScale"><option value="">선택 안 함</option></select></div>
-              <div class="mkp-fld"><label for="ppTimeline">도입 검토 시점</label><select id="ppTimeline"><option value="">선택 안 함</option></select></div>
+            <div class="mkp-row2 mkp-choice-triggers">
+              <div class="mkp-fld"><label for="ppScaleTrigger">감시 규모</label><button type="button" class="mkp-select-trigger" id="ppScaleTrigger" data-option-type="scale">선택 안 함</button><select id="ppScale" hidden><option value="">선택 안 함</option></select></div>
+              <div class="mkp-fld"><label for="ppTimelineTrigger">도입 검토 시점</label><button type="button" class="mkp-select-trigger" id="ppTimelineTrigger" data-option-type="timeline">선택 안 함</button><select id="ppTimeline" hidden><option value="">선택 안 함</option></select></div>
             </div>
+            <label class="mkp-event-opt" for="ppFactoryConsult">
+              <input type="checkbox" id="ppFactoryConsult">
+              <span>맞춤형 공장 설비 진단 EVENT 신청하기</span>
+            </label>
           </div>
 
           <div class="mkp-step form-card" id="ppS4" hidden>
@@ -1981,7 +1993,6 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
               <label class="mkp-agree"><input type="checkbox" id="ppConsent"><span><b>[필수]</b> 개인정보 수집·이용 동의 — 회사명·성함·이메일·연락처를 맞춤 제안서 발송과 상담에 쓰고, 1년 뒤 파기합니다. <a href="/privacy.html" target="_blank" rel="noopener">개인정보처리방침 보기</a></span></label>
               <p class="mkp-ferr" id="ppErrConsent"></p>
               <label class="mkp-agree"><input type="checkbox" id="ppConsentMkt"><span>[선택] 신규 사례·세미나 소식 받기</span></label>
-              <p class="form-note">영업 전화로 괴롭히지 않습니다. 제안서는 접수 순서대로 보내드리고, 담당 엔지니어가 내용이 현장에 맞는지만 확인드립니다.</p>
               <p class="mkp-msg" id="ppMsg" role="alert" hidden></p>
             </form>
           </div>
@@ -2016,15 +2027,14 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
       </div>
     </div>
     <div class="mkp-bar" id="ppBar"><div class="mkp-bar-in">
-      <a class="mkp-call" href="tel:02-2088-1454" aria-label="전화 상담">☎</a>
-      <button type="button" class="mkp-cta" id="ppCta">산업부터 골라 주세요 →</button>
+      <button type="button" class="mkp-call mkp-back" id="ppBack">이전</button>
+      <button type="button" class="mkp-cta" id="ppCta">맞춤 제안서 제작하기</button>
     </div></div>
   </div>
 </section>
 <section class="view" id="view-proposal-status">
   <div class="cpage mkp mkps" id="ppsRoot">
     <div class="wrap-mid">
-      <div class="crumb">Custom Proposal / 진행 현황</div>
       <div id="ppsApp" aria-live="polite">
         <div class="mkp-skel" style="height:34px;width:60%"></div>
         <div class="mkp-skel" style="height:34px;width:40%;margin-top:10px"></div>
@@ -2244,7 +2254,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 </footer>
 
   
-  <script src="/app.js?v=132"></script>
+  <script src="/app.js?v=210"></script>
   <script src="/js/why-rolling.js?v=3" defer></script>
   <script src="/js/hero-aurora.js?v=4" defer></script>
   <script src="/js/galaxy-hero.js?v=2" defer></script>

@@ -234,7 +234,7 @@ export const industryByKey = k => INDUSTRIES.find(i => i.key === k) || null;
    index.html 의 finder.config (fac·con·scale) id 를 그대로 받는다. */
 export const FINDER_FAC = {
   factory: 'manufacturing', logistics: 'cold_chain', food: 'food_agri', pharma: 'bio_pharma',
-  datacenter: 'datacenter', commercial: 'building_fm', resident: 'residential', public: 'public', edu: 'education', smallbiz: 'small_biz',
+  datacenter: 'datacenter', commercial: 'building_fm', resident: 'residential', public: 'public', edu: 'education', smallbiz: 'small_biz', medical: 'edu_med',
   agri: 'food_agri', energy: 'energy', construction: 'construction', etc: 'general'
 };
 /* 파인더 시설이 곧 세부 업종 힌트가 되는 경우 */

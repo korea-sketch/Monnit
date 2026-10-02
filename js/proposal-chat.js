@@ -1,281 +1,92 @@
-/* 맞춤 제안서 — 「대화로 신청」 탭 (2026-09-18)
- *
- * 화면은 대화만 맡고, 접수는 단계별 신청과 똑같이 /api/proposal 로 보냅니다.
- * 서버(/api/proposal/chat)가 기본 질문·답을 규칙으로 처리하고, 못 알아들을 때만 AI 를 씁니다.
- * 이 탭이 막혀도(점검 중·오류) 옆의 단계별 신청으로 바로 넘어갈 수 있습니다.
- */
-(function (w, d) {
-  'use strict';
-  if (w.MKPropChat) return;
-
-  var $ = function (id) { return d.getElementById(id); };
-  var en = function () { try { return d.documentElement.getAttribute('lang') === 'en' || w.localStorage.getItem('mlang') === 'en'; } catch (e) { return d.documentElement.getAttribute('lang') === 'en'; } };
-  var L = function (ko, e) { return en() ? e : ko; };
-  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  var ss = {
-    get: function (k) { try { return w.sessionStorage.getItem(k); } catch (e) { return null; } },
-    set: function (k, v) { try { w.sessionStorage.setItem(k, v); } catch (e) {} },
-    del: function (k) { try { w.sessionStorage.removeItem(k); } catch (e) {} }
-  };
-  var push = function (ev, o) { try { (w.dataLayer = w.dataLayer || []).push(Object.assign({ event: ev }, o || {})); } catch (e) {} };
-
-  var KEY = 'mk_prop_chat_v1';
-  var FAC = [['factory', '공장·제조', 'Factory'], ['logistics', '물류·창고', 'Warehouse'], ['datacenter', '데이터센터', 'Data center'],
-    ['commercial', '빌딩·상업시설', 'Building'], ['pharma', '병원·제약', 'Hospital / pharma'], ['food', '식품·외식', 'Food service'],
-    ['agri', '농업·스마트팜', 'Farm'], ['energy', '에너지·발전', 'Energy'], ['construction', '건설 현장', 'Construction'],
-    ['resident', '주거·숙박', 'Residential'], ['public', '공공기관', 'Public'], ['edu', '학교·교육', 'School'], ['smallbiz', '소상공인 매장', 'Small shop'], ['etc', '그 외', 'Other']];
-  var CON = [['fire', '화재·과열', 'Fire'], ['leak', '누수·침수·동파', 'Leaks'], ['temp', '온도·습도', 'Temperature'],
-    ['cold', '냉장·콜드체인', 'Cold chain'], ['equip', '설비 고장·진동', 'Equipment'], ['power', '전력·에너지', 'Power'],
-    ['air', '공기질·가스', 'Air quality'], ['security', '보안·출입', 'Security'], ['control', '통합관제·연동', 'Integration'],
-    ['comply', '규정·기록', 'Compliance']];
-
-  var S = { messages: [], fields: {}, ask: 'company', busy: false, T0: Date.now(), sent: false, retry: 0 };
-
-  function save() { ss.set(KEY, JSON.stringify({ messages: S.messages.slice(-24), fields: S.fields, ask: S.ask, paused: !!S.paused })); }
-  function load() {
-    try {
-      var o = JSON.parse(ss.get(KEY) || 'null');
-      if (o && Array.isArray(o.messages)) { S.messages = o.messages; S.fields = o.fields || {}; S.ask = o.ask || 'company'; S.paused = !!o.paused; return true; }
-    } catch (e) {}
-    return false;
-  }
-
-  function bubble(role, text) {
-    var el = d.createElement('div');
-    el.className = 'pc-msg ' + (role === 'user' ? 'me' : 'bot');
-    el.innerHTML = '<span>' + esc(text).replace(/\n/g, '<br>') + '</span>';
-    $('pcLog').appendChild(el);
-    $('pcLog').scrollTop = $('pcLog').scrollHeight;
-    return el;
-  }
-  function typing(on) {
-    var t = $('pcTyping');
-    if (on && !t) {
-      t = d.createElement('div'); t.id = 'pcTyping'; t.className = 'pc-msg bot pc-typing';
-      t.innerHTML = '<span><i></i><i></i><i></i></span>';
-      $('pcLog').appendChild(t); $('pcLog').scrollTop = $('pcLog').scrollHeight;
-    } else if (!on && t) t.remove();
-  }
-  function note(text, action) {
-    var n = $('pcNotice');
-    n.hidden = !text;
-    if (!text) { n.innerHTML = ''; return; }
-    n.innerHTML = '<span>' + esc(text) + '</span>' + (action ? ' <button type="button" class="pc-link" id="pcToForm">' + L('단계별 신청으로 →', 'Use the step form →') + '</button>' : '');
-    var b = $('pcToForm');
-    if (b) b.addEventListener('click', function () { mode('form'); });
-  }
-  /* 「점검 중」 상태 — 서버가 paused 를 보내면 대화 창 위에 띠를 띄우고 탭 표시를 바꾼다.
-     규칙 대화는 그대로 되므로 입력은 막지 않는다. 담당자가 사이트만 열어도 알 수 있게 보이는 것이 목적. (2026-09-19) */
-  function paused(on) {
-    on = !!on;
-    if (S.paused === on) return;
-    S.paused = on;
-    var box = $('ppChat'), st = $('pcState'), tab = $('ppModeChat');
-    if (box) box.classList.toggle('is-paused', on);
-    if (!st && box) { st = d.createElement('p'); st.id = 'pcState'; st.className = 'pc-state'; st.setAttribute('role', 'status'); box.insertBefore(st, box.firstChild); }
-    if (st) { st.hidden = !on; st.textContent = on ? L('AI 상담 점검 중 — 기본 안내만 드립니다. 단계별 신청은 평소대로 됩니다.', 'AI chat under maintenance — basic guidance only. The step form works as usual.') : ''; }
-    if (tab) { var em = tab.querySelector('em'); if (em) em.textContent = on ? L('점검 중', 'Maintenance') : 'AI'; }
-  }
-
-  function chips(list) {
-    var box = $('pcChips');
-    box.innerHTML = '';
-    if (!list || !list.length) { box.hidden = true; return; }
-    box.hidden = false;
-    list.forEach(function (c) {
-      var b = d.createElement('button');
-      b.type = 'button'; b.className = 'pc-chip'; b.textContent = L(c[1], c[2]);
-      b.addEventListener('click', function () { send(L(c[1], c[2])); });
-      box.appendChild(b);
-    });
-  }
-
-  /* 확인 카드 — 접수 직전에 무엇이 들어가는지 그대로 보여 준다 */
-  function card(show) {
-    var box = $('pcCard');
-    if (!show) { box.hidden = true; box.innerHTML = ''; return; }
-    var f = S.fields;
-    var lab = function (list, key) { for (var i = 0; i < list.length; i++) if (list[i][0] === key) return L(list[i][1], list[i][2]); return ''; };
-    var row = function (k, v) { return v ? '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>' : ''; };
-    box.hidden = false;
-    box.innerHTML =
-      '<p class="pc-card-h">' + L('이 내용으로 보내드릴까요?', 'Shall we send it with these details?') + '</p>' +
-      '<dl class="pc-card-l">' +
-        row(L('회사·시설', 'Company'), f.company) + row(L('받으실 분', 'Contact'), (f.name || '') + (f.title ? ' ' + f.title : '')) +
-        row(L('이메일', 'Email'), f.email) + row(L('연락처', 'Phone'), f.phone) +
-        row(L('현장', 'Site'), lab(FAC, f.fac)) + row(L('가장 고민되는 주제', 'Top concern'), lab(CON, f.con)) +
-        row(L('시설 메모', 'Site note'), f.facility) +
-      '</dl>' +
-      '<label class="pc-agree"><input type="checkbox" id="pcAgree"><span><b>' + L('[필수]', '[Required]') + '</b> ' +
-        L('맞춤 제안서 발송을 위해 회사명·성함·이메일·연락처를 이용하고 1년 뒤 파기하는 데 동의합니다.',
-          'I agree to the use of my company, name, email and phone to send the proposal; deleted after one year.') +
-        ' <a href="/privacy.html" target="_blank" rel="noopener">' + L('개인정보처리방침 보기', 'Privacy policy') + '</a></span></label>' +
-      '<div class="pc-card-a"><button type="button" class="pc-go" id="pcSubmit">' + L('맞춤 제안서 받기 →', 'Get my proposal →') + '</button>' +
-      '<button type="button" class="pc-link" id="pcEdit">' + L('고칠 게 있어요', 'I want to change something') + '</button></div>' +
-      '<p class="pc-card-f" id="pcCardMsg" hidden></p>';
-    $('pcSubmit').addEventListener('click', submit);
-    $('pcEdit').addEventListener('click', function () {
-      card(false);
-      bubble('bot', L('어느 항목을 고칠까요? 바꾸실 내용을 적어 주세요.', 'Which detail should we change? Just type it.'));
-      $('pcText').focus();
-    });
-  }
-
-  function cardMsg(t) { var e = $('pcCardMsg'); if (!e) return; e.hidden = !t; e.textContent = t || ''; }
-
-  function post(url, body, ms) {
-    var ctrl = w.AbortController ? new AbortController() : null;
-    var tm = setTimeout(function () { if (ctrl) ctrl.abort(); }, ms || 20000);
-    return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: ctrl ? ctrl.signal : undefined })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (x) { x.status = r.status; return x; }); })
-      .then(function (x) { clearTimeout(tm); return x; }, function (e) { clearTimeout(tm); return { ok: false, status: 0 }; });
-  }
-
-  function send(text) {
-    if (S.busy) return;
-    text = String(text == null ? $('pcText').value : text).trim();
-    if (!text) return;
-    $('pcText').value = '';
-    S.busy = true; $('pcSend').disabled = true;
-    bubble('user', text);
-    S.messages.push({ role: 'user', text: text.slice(0, 600) });
-    chips(null); card(false); typing(true);
-    push('proposal_chat_msg', { proposal_chat_turn: S.messages.filter(function (m) { return m.role === 'user'; }).length });
-    post('/api/proposal/chat', {
-      messages: S.messages.slice(-24), fields: S.fields, lang: en() ? 'en' : 'ko',
-      elapsed: Date.now() - S.T0, website: $('pcWeb') ? $('pcWeb').value : '',
-      /* 같은 항목을 몇 번 되물었는지 — 서버가 세어 돌려준다.
-         규칙으로 알아들으면 서버가 이 값을 빼고 답하므로 여기서 0 으로 돌아간다. */
-      retry: S.retry || 0
-    }).then(function (x) {
-      typing(false); S.busy = false; $('pcSend').disabled = false;
-      if (!x || !x.ok) {
-        bubble('bot', L('연결이 잠시 불안정합니다. 다시 한 번 보내 주시거나 옆의 단계별 신청으로 진행해 주세요.',
-          'The connection is unstable. Please try again or use the step form.'));
-        note(L('대화가 이어지지 않으면 단계별 신청으로 바꿔 주세요.', 'If the chat stalls, switch to the step form.'), true);
-        return;
-      }
-      S.fields = x.fields || S.fields;
-      S.ask = x.ask || S.ask;
-      S.retry = Number(x.retry) || 0;
-      paused(x.paused);
-      if (x.reply) { bubble('bot', x.reply); S.messages.push({ role: 'assistant', text: x.reply }); }
-      note(x.notice || (x.tooLong ? L('대화가 길어졌습니다. 단계별 신청이 더 빠릅니다.', 'This chat is long — the step form is quicker.') : ''), !!(x.notice || x.tooLong));
-      if (x.ask === 'fac') chips(FAC);
-      else if (x.ask === 'con') chips(CON);
-      else chips(null);
-      if (x.handoff) handoff();
-      if (x.ask === 'done') card(true);
-      if (x.confirmed && x.ask === 'done') { var a = $('pcAgree'); if (a) a.focus(); }
-      save();
-    });
-  }
-
-  /* 제안서 밖 요청 — 담당자에게 남긴다(원장·알림 메일은 사이트 공통 경로) */
-  function handoff() {
-    var f = S.fields;
-    if (!f.email || S.handoffSent) return;
-    S.handoffSent = true;
-    try {
-      if (!w.MonnitLead) return;
-      w.MonnitLead.build('contact', 'proposal_chat', '대화 상담 요청 — ' + (f.company || ''), {
-        '회사명': f.company || '', '담당자명': (f.name || '') + (f.title ? ' ' + f.title : ''), '이메일': f.email, '전화번호': f.phone || '',
-        '관심분야': '맞춤 제안서 대화 상담', '접점': '대화로 신청',
-        '문의 사항': S.messages.filter(function (m) { return m.role === 'user'; }).slice(-4).map(function (m) { return m.text; }).join(' / ').slice(0, 500)
-      });
-      w.MonnitLead.track('contact', { page: 'proposal_chat', interest: '맞춤 제안서 대화 상담' });
-      push('proposal_chat_handoff');
-    } catch (e) {}
-  }
-
-  function submit() {
-    var a = $('pcAgree');
-    if (!a || !a.checked) { cardMsg(L('개인정보 수집·이용에 동의해 주세요.', 'Please agree to the use of your information.')); if (a) a.focus(); return; }
-    if (S.busy) return;
-    S.busy = true;
-    var btn = $('pcSubmit'); btn.disabled = true; btn.textContent = L('접수하는 중…', 'Submitting…');
-    var f = S.fields;
-    var body = {
-      entry: 'chat', auto: true, company: f.company || '', name: f.name || '', title: f.title || '',
-      email: f.email || '', phone: f.phone || '', fac: f.fac || '', con: f.con || '',
-      facility: f.facility || '', industryText: f.industryText || '',
-      memo: '[대화 신청] ' + S.messages.filter(function (m) { return m.role === 'user'; }).slice(-4).map(function (m) { return m.text; }).join(' / ').slice(0, 500),
-      consent: true, consentMkt: false, elapsed: Date.now() - S.T0,
-      source: w.MonnitLead ? w.MonnitLead.source() : '', landing: String(w.location.href).split('#')[0], referrer: d.referrer || ''
-    };
-    post('/api/proposal', body, 25000).then(function (x) {
-      S.busy = false; btn.disabled = false; btn.textContent = L('맞춤 제안서 받기 →', 'Get my proposal →');
-      if (x.status === 400 && x.fields) {
-        var why = Object.keys(x.fields).map(function (k) { return x.fields[k]; }).join(' · ');
-        cardMsg(why);
-        card(false);
-        bubble('bot', why + ' ' + L('다시 알려주시면 이어서 접수하겠습니다.', 'Please tell us again and we will continue.'));
-        return;
-      }
-      if (!x.ok) { cardMsg(x.message || L('접수하지 못했습니다. 잠시 후 다시 시도해 주세요.', 'We could not submit. Please try again shortly.')); return; }
-      push('proposal_submit', { lead_type: 'custom_proposal', proposal_entry: 'chat', proposal_mode: x.mode || '', proposal_dup: x.dup ? 1 : 0 });
-      S.sent = true; ss.del(KEY);
-      card(false);
-      bubble('bot', x.dup
-        ? L('이미 신청하신 제안서가 있어 진행 화면 링크를 메일로 다시 보내드렸습니다.', 'You already have a proposal — we re-sent the status link by email.')
-        : L('접수했습니다. 진행 화면으로 옮겨 드릴게요.', 'Received — taking you to the progress screen.'));
-      setTimeout(function () {
-        if (w.MKProposal && (x.token || x.dup)) w.MKProposal.goStatus(x);
-        else bubble('bot', L('메일로 보내드리겠습니다. 감사합니다.', 'We will email it to you. Thank you.'));
-      }, 700);
-    });
-  }
-
-  /* 탭 전환 */
-  function mode(which) {
-    var chat = which === 'chat';
-    var box = $('ppChat'), grid = d.querySelector('#ppRoot .mkp-grid');
-    if (!box || !grid) return;
-    box.hidden = !chat; grid.hidden = chat;
-    var bar = $('ppBar'); if (bar) bar.classList.toggle('is-chat', chat);
-    var bf = $('ppModeForm'), bc = $('ppModeChat');
-    if (bf) { bf.classList.toggle('on', !chat); bf.setAttribute('aria-selected', String(!chat)); }
-    if (bc) { bc.classList.toggle('on', chat); bc.setAttribute('aria-selected', String(chat)); }
-    ss.set('mk_prop_mode', which);
-    if (chat) { start(); setTimeout(function () { var t = $('pcText'); if (t) t.focus({ preventScroll: true }); }, 120); }
-    push('proposal_mode', { mode: which });
-  }
-
-  var started = false;
-  function start() {
-    if (started) return;
-    started = true;
-    $('pcForm').addEventListener('submit', function (e) { e.preventDefault(); send(); });
-    var had = load();
-    if (had && S.messages.length) {
-      S.messages.forEach(function (m) { bubble(m.role, m.text); });
-      if (S.ask === 'fac') chips(FAC); else if (S.ask === 'con') chips(CON);
-      if (S.ask === 'done') card(true);
-      if (S.paused) { var pv = S.paused; S.paused = false; paused(pv); note(L('AI 상담은 잠시 점검 중입니다. 아래 단계별 신청으로 진행해 주시면 제안서는 평소대로 보내드립니다.', 'AI chat is under maintenance. Please use the step form below — proposals are sent as usual.'), true); }
-      return;
-    }
-    typing(true);
-    post('/api/proposal/chat', { messages: [], fields: {}, lang: en() ? 'en' : 'ko', elapsed: Date.now() - S.T0 }).then(function (x) {
-      typing(false);
-      var hello = (x && x.reply) || L('안녕하세요. 어느 회사(또는 시설) 현장이신가요?', 'Hello — which company or site is this for?');
-      bubble('bot', hello);
-      S.messages.push({ role: 'assistant', text: hello });
-      if (x) paused(x.paused);
-      if (x && x.notice) note(x.notice, true);
-      save();
-    });
-  }
-
-  function bind() {
-    var bf = $('ppModeForm'), bc = $('ppModeChat');
-    if (!bf || !bc || bf.dataset.bound) return;
-    bf.dataset.bound = '1';
-    bf.addEventListener('click', function () { mode('form'); });
-    bc.addEventListener('click', function () { mode('chat'); });
-    if (ss.get('mk_prop_mode') === 'chat') mode('chat');
-  }
-
-  w.MKPropChat = { bind: bind, mode: mode };
-  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', bind); else bind();
-  w.addEventListener('monnit:view', bind);
-})(window, document);
+/* Monnit AI proposal assistant. Existing APIs remain the source of truth. */
+(function(w,d){
+'use strict';if(w.MKPropChat)return;
+var $=function(id){return d.getElementById(id);},en=function(){try{return d.documentElement.lang==='en'||w.localStorage.getItem('mlang')==='en';}catch(_){return false;}},L=function(k,e){return en()?e:k;},esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+var ss={get:function(k){try{return w.sessionStorage.getItem(k);}catch(_){return null;}},set:function(k,v){try{w.sessionStorage.setItem(k,v);}catch(_){}},del:function(k){try{w.sessionStorage.removeItem(k);}catch(_){}}};
+var track=function(event,o){try{(w.dataLayer=w.dataLayer||[]).push(Object.assign({event:event},o||{}));}catch(_){}};
+var KEY='mk_prop_chat_v3';
+var FAC=[['factory','제조·생산 공장','Manufacturing'],['pharma','제약·바이오·연구소','Pharma / labs'],['food','식품·외식·농수산','Food / agriculture'],['commercial','빌딩·복합시설 FM','Building / FM'],['resident','주거·호텔·숙박','Residential / hotel'],['medical','병원·요양·복지시설','Hospital / care'],['edu','학교·교육기관','School / education'],['public','공공·국방·인프라','Public sector'],['smallbiz','소상공인·자영업 매장','Small business'],['energy','에너지·발전·수처리','Energy / utilities'],['construction','건설·현장','Construction'],['logistics','유통·콜드체인·물류','Logistics / cold chain'],['datacenter','데이터센터·전산실','Data center'],['etc','그 외 시설','Other']];
+var CON=[['equip','설비 고장·비계획 정지','Equipment failure'],['temp','온도·습도 이상','Temperature / humidity'],['leak','누수·침수·동파','Leak / flooding'],['fire','화재·과열·가스','Fire / overheating'],['power','전력·에너지 낭비','Power / energy'],['cold','콜드체인 품질','Cold-chain quality'],['air','공기질·환경 안전','Air quality'],['security','보안·출입 관리','Security / access'],['control','통합 관제·원격 알림','Integrated monitoring'],['comply','점검·감사 기록','Compliance records']];
+var ISSUE={factory:['equip','power','fire','control','comply'],pharma:['temp','comply','air','equip','security'],food:['cold','temp','comply','leak','equip'],commercial:['leak','power','air','fire','control'],resident:['leak','fire','air','security','power'],medical:['temp','air','leak','fire','security'],edu:['fire','air','leak','security','temp'],public:['fire','leak','security','power','control'],smallbiz:['cold','fire','leak','security','power'],energy:['equip','power','fire','leak','control'],construction:['fire','security','air','equip','control'],logistics:['cold','temp','security','equip','control'],datacenter:['temp','leak','power','fire','security'],etc:['equip','temp','leak','fire','control']};
+var FAC_GROUPS=[['industry','🏭','산업·생산',['factory','pharma','food']],['building','🏢','건물·생활시설',['commercial','resident','medical']],['publicedu','🏫','학교·공공기관',['edu','public']],['shop','🏪','소상공인·매장',['smallbiz']],['infra','⚡','에너지·인프라',['energy','construction']],['special','📦','물류·특수시설',['logistics','datacenter']],['other','🧩','기타',['etc']]];
+var ISSUE_GROUPS=[['safety','🚨','사고·안전 관리',['fire','leak','security','air']],['efficiency','⚙️','설비 운영 효율화',['equip','control','temp']],['cost','💰','비용 절감',['power','cold']],['automation','📊','데이터·관리 자동화',['control','comply']]];
+var S={messages:[],aboutMessages:[],fields:{},ask:'fac',phase:'welcome',proposalFlow:false,proposalStep:'fac-group',busy:false,open:false,paused:false,retry:0,T0:Date.now()},started=false;
+function label(a,k){for(var i=0;i<a.length;i++)if(a[i][0]===k)return L(a[i][1],a[i][2]);return'';}
+function save(){ss.set(KEY,JSON.stringify({messages:S.messages.slice(-24),aboutMessages:(S.aboutMessages||[]).slice(-20),fields:S.fields,ask:S.ask,phase:S.phase,proposalFlow:!!S.proposalFlow,proposalStep:S.proposalStep,open:S.open,paused:S.paused,retry:S.retry}));}
+function load(){try{var o=JSON.parse(ss.get(KEY)||'null');if(!o)return false;Object.assign(S,o);S.messages=S.messages||[];S.aboutMessages=S.aboutMessages||[];S.busy=false;return true;}catch(_){return false;}}
+function shell(){
+ var old=$('ppChat');if(old)old.remove();
+ var p=d.createElement('section');p.id='ppChat';p.className='mkp-chat pc-panel';p.hidden=true;p.setAttribute('role','dialog');p.setAttribute('aria-labelledby','pcTitle');
+ p.innerHTML='<header class="pc-head pc-moni-head"><button id="pcBack" class="pc-back" type="button" aria-label="'+L('처음으로','Back')+'" hidden>‹</button><div class="pc-brand"><strong id="pcTitle">모니</strong></div><div class="pc-head-a"><button id="pcReset" class="pc-icon-btn" type="button" aria-label="'+L('새 상담','Start over')+'" hidden>↻</button><button id="pcClose" class="pc-icon-btn" type="button" aria-label="'+L('닫기','Close')+'">×</button></div></header><p class="pc-state" id="pcState" hidden></p><div class="pc-body"><section class="pc-screen pc-welcome" id="pcWelcome"><h2>'+L('반가워요, 모니예요!<br>무엇을 도와 드릴까요?','Hello, I’m Moni!<br>How can I help?')+'</h2><div class="pc-home-actions"><button type="button" id="pcAbout"><span aria-hidden="true">🤔</span>'+L('모넷코리아에 대해 알려 드릴까요?','Would you like to learn about Monnit Korea?')+'</button><button type="button" id="pcProposal"><span aria-hidden="true">📄</span>'+L('맞춤형 제안서를 받아 보시겠어요?','Would you like a tailored proposal?')+'</button><button type="button" id="pcPromos"><span aria-hidden="true">📢</span>'+L('최근 진행 중인 프로모션이에요!','See our current promotions!')+'</button></div></section><section class="pc-screen pc-info-page" id="pcAboutPage" hidden></section><section class="pc-screen pc-info-page" id="pcPromoPage" hidden></section><section class="pc-screen pc-conversation" id="pcConversation" hidden><div class="pc-log" id="pcLog" role="log" aria-live="polite"></div><div class="pc-chips" id="pcChips" hidden></div><div class="pc-insight" id="pcInsight" hidden></div><p class="pc-notice" id="pcNotice" hidden></p></section><section class="pc-screen pc-review" id="pcReview" hidden><span class="pc-spark">✦</span><p class="pc-kicker">'+L('AI가 분석을 완료했어요','AI analysis complete')+'</p><h2>'+L('추천 구성과 함께<br>요청 내용을 정리했어요','We organized your request<br>with a recommended setup')+'</h2><p class="pc-review-sub">'+L('입력하신 내용을 확인한 뒤 맞춤 제안서를 받아보세요.','Review the details, then request your tailored proposal.')+'</p><div class="pc-card" id="pcCard"></div></section><section class="pc-screen pc-recipient" id="pcRecipient" hidden></section></div><form class="pc-composer" id="pcForm" hidden><label class="pc-sr" for="pcText">'+L('메시지','Message')+'</label><textarea id="pcText" rows="1" maxlength="600" placeholder="'+L('궁금한 내용을 입력해 주세요.','Type your message.')+'"></textarea><input id="pcWeb" class="pc-hp" tabindex="-1" autocomplete="off"><button id="pcSend" type="submit" aria-label="'+L('보내기','Send')+'">➤</button></form><footer class="pc-foot">'+L('AI 답변은 실제 현장 조건에 따라 달라질 수 있습니다.','AI answers may vary by site conditions.')+'</footer><div class="pc-confirm" id="pcConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="pcConfirmTitle"><div class="pc-confirm-card"><span class="pc-confirm-icon">↻</span><h3 id="pcConfirmTitle">새로 시작할까요?</h3><p>현재 대화와 선택한 내용을 모두 지우고 처음 화면으로 돌아갑니다.</p><div><button type="button" id="pcConfirmCancel">취소</button><button type="button" id="pcConfirmOk">새로 시작</button></div></div></div>';
+ d.body.appendChild(p);var b=d.createElement('button');b.id='pcLauncher';b.className='pc-launcher';b.type='button';b.setAttribute('aria-label',L('모니 상담 열기','Open Moni'));b.innerHTML='<span class="pc-launcher-tip">'+L('현장 고민, 모니한테 물어보세요!','Ask Moni about your site')+'</span><img class="pc-launcher-moni" src="/assets/moni/moni.png" alt="" aria-hidden="true">';d.body.appendChild(b);
+ d.querySelectorAll('.mkp-modes').forEach(function(x){x.hidden=true;});bindUI();
+}
+function bindUI(){$('pcLauncher').addEventListener('click',open);$('pcClose').addEventListener('click',close);$('pcBack').addEventListener('click',home);$('pcAbout').addEventListener('click',showAbout);$('pcPromos').addEventListener('click',showPromos);$('pcProposal').addEventListener('click',startProposal);$('pcReset').addEventListener('click',showResetConfirm);$('pcConfirmCancel').addEventListener('click',hideResetConfirm);$('pcConfirmOk').addEventListener('click',function(){hideResetConfirm();reset();});$('pcForm').addEventListener('submit',function(e){e.preventDefault();sendCurrent();});$('pcText').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCurrent();}});d.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.open){if(!$('pcConfirm').hidden)hideResetConfirm();else close();}});}
+function showResetConfirm(){$('pcConfirm').hidden=false;$('pcConfirmCancel').focus();}
+function hideResetConfirm(){$('pcConfirm').hidden=true;$('pcReset').focus();}
+function renderFacets(){var box=$('pcFacets');box.innerHTML='';FAC.forEach(function(f){var b=d.createElement('button');b.type='button';b.className='pc-facet';b.textContent=L(f[1],f[2]);b.addEventListener('click',function(){chooseFac(f[0]);});box.appendChild(b);});}
+function open(){S.open=true;$('ppChat').hidden=false;$('pcLauncher').classList.add('is-open');d.documentElement.classList.add('pc-chat-open');render();save();track('proposal_chat_open');}
+function close(){S.open=false;$('ppChat').hidden=true;$('pcLauncher').classList.remove('is-open');d.documentElement.classList.remove('pc-chat-open');save();}
+function reset(){ss.del(KEY);S={messages:[],aboutMessages:[],fields:{},ask:'fac',phase:'welcome',proposalFlow:false,proposalStep:'fac-group',busy:false,open:true,paused:false,retry:0,T0:Date.now()};$('pcLog').innerHTML='';$('pcInsight').hidden=true;render();save();}
+function render(){var welcome=S.phase==='welcome',canType=S.phase==='chat'||S.phase==='about';$('pcWelcome').hidden=!welcome;$('pcAboutPage').hidden=S.phase!=='about';$('pcPromoPage').hidden=S.phase!=='promotions';$('pcConversation').hidden=S.phase!=='chat';$('pcReview').hidden=S.phase!=='review';$('pcRecipient').hidden=S.phase!=='recipient';$('pcForm').hidden=!canType;$('pcBack').hidden=welcome;$('pcReset').hidden=S.phase!=='chat';$('ppChat').classList.toggle('is-home',welcome);$('ppChat').classList.toggle('is-about',S.phase==='about');$('ppChat').classList.toggle('is-promotions',S.phase==='promotions');$('ppChat').classList.toggle('is-proposal',!!S.proposalFlow);$('ppChat').classList.toggle('is-review',S.phase==='review'&&!!S.proposalFlow);$('ppChat').classList.toggle('is-recipient',S.phase==='recipient');$('pcText').placeholder=S.phase==='about'?L('궁금한 내용을 물어보세요.','Ask anything about Monnit Korea.'):(S.proposalFlow?L('선택하거나 직접 입력해 주세요.','Choose or type your answer.'):L('궁금한 내용을 입력해 주세요.','Type your message.'));if(S.phase==='chat'){renderHistory();if(S.proposalFlow)renderProposalStep();else if(S.ask==='con'||!S.fields.con)issueChips();}if(S.phase==='review')card();if(S.phase==='recipient')renderRecipient();if(S.phase==='about')renderAbout();if(S.phase==='promotions')renderPromos();if(canType)setTimeout(function(){$('pcText').focus({preventScroll:true});},80);}
+function home(){S.phase='welcome';render();save();}
+function showAbout(){S.phase='about';render();save();track('proposal_chat_home_choice',{choice:'about'});}
+function showPromos(){S.phase='promotions';render();save();track('proposal_chat_home_choice',{choice:'promotions'});}
+function startProposal(){S.phase='chat';S.proposalFlow=true;S.proposalStep='fac-group';S.fields={};S.messages=[{role:'bot',text:'맞춤 제안서 시작',kind:'proposal-hero'}];render();save();track('proposal_chat_home_choice',{choice:'proposal'});}
+function findGroup(list,key){for(var i=0;i<list.length;i++)if(list[i][0]===key)return list[i];return null;}
+function setProposalChips(items,handler,extra){var box=$('pcChips');box.innerHTML='';box.hidden=false;items.forEach(function(it){var b=d.createElement('button');b.type='button';b.className='pc-chip pc-choice';b.innerHTML=(it.icon?'<span aria-hidden="true">'+it.icon+'</span>':'')+esc(it.label);b.addEventListener('click',function(){handler(it.key,it.label);});box.appendChild(b);});if(extra){var x=d.createElement('button');x.type='button';x.className='pc-chip pc-choice pc-choice-free';x.innerHTML='<span aria-hidden="true">✍️</span>'+esc(extra);x.addEventListener('click',function(){$('pcText').focus();});box.appendChild(x);}}
+function proposalPrompt(text){bubble('bot',text,true);save();render();}
+function renderProposalStep(){var step=S.proposalStep,items=[],chips=$('pcChips');chips.hidden=false;chips.classList.toggle('is-examples',step==='fac-group');if(step==='fac-group'){items=FAC_GROUPS.map(function(g){return{key:g[0],label:g[2]};});setProposalChips(items,chooseFacGroup,null);var t=d.createElement('div');t.className='pc-choice-title';t.innerHTML='<span>✦</span> 관련 산업군을 클릭하시거나, 직접 입력해 주세요!';chips.insertBefore(t,chips.firstChild);var examples=d.createElement('div');examples.className='pc-example-cards';['부산에서 물류 센터를 운영하고 있습니다. 냉장 창고와 냉동 창고가 있습니다.','공장. 식품 제조업, 펌프, 모터 다수.'].forEach(function(text){var b=d.createElement('button');b.type='button';b.className='pc-example-card';b.textContent=text;b.addEventListener('click',function(){$('pcText').value=text;$('pcText').focus();});examples.appendChild(b);});chips.appendChild(examples);var guide=d.createElement('p');guide.className='pc-request-guide';guide.textContent='AI가 잘 이해할 수 있도록 현장 상황을 구체적으로 적어 주세요.';chips.appendChild(guide);}
+ else if(step==='fac'){var g=findGroup(FAC_GROUPS,S.fields.facGroup)||FAC_GROUPS[0];items=g[3].map(function(k){return{key:k,label:label(FAC,k)};});setProposalChips(items,chooseProposalFac,null);}
+ else if(step==='issue-group'){items=ISSUE_GROUPS.map(function(g){return{key:g[0],icon:g[1],label:g[2]};});setProposalChips(items,chooseIssueGroup,null);}
+ else if(step==='con'){var q=findGroup(ISSUE_GROUPS,S.fields.issueGroup)||ISSUE_GROUPS[0],allowed=ISSUE[S.fields.fac]||ISSUE.etc,keys=q[3].filter(function(k){return allowed.indexOf(k)>-1;});if(!keys.length)keys=q[3].slice(0,3);items=keys.slice(0,3).map(function(k){return{key:k,label:label(CON,k)};});setProposalChips(items,chooseProposalIssue,null);}
+ else if(step==='scale'){setProposalChips([{key:'small',label:'소규모 · 1~20개 지점'},{key:'medium',label:'중간 규모 · 21~100개 지점'},{key:'large',label:'대규모 · 100개 이상'},{key:'unknown',label:'아직 잘 모르겠어요'}],chooseScale,null);}
+ else if(step==='timing'){setProposalChips([{key:'now',label:'가능한 빨리'},{key:'3m',label:'3개월 이내'},{key:'6m',label:'6개월 이후'},{key:'unknown',label:'아직 정해지지 않았어요'}],chooseTiming,null);}
+ else if(step==='note'){setProposalChips([{key:'none',label:'추가 내용 없이 분석하기'}],function(){finishProposal();},null);}}
+function chooseFacGroup(key,name){S.fields.facGroup=key;var g=findGroup(FAC_GROUPS,key);if(g&&g[3].length===1){chooseProposalFac(g[3][0],label(FAC,g[3][0]));return;}bubble('user',name,true);S.proposalStep='fac';proposalPrompt('조금 더 구체적으로 어떤 현장인가요?');}
+function chooseProposalFac(key,name){S.fields.fac=key;bubble('user',name,true);S.proposalStep='issue-group';proposalPrompt('현장에서 가장 먼저 해결하고 싶은 문제는 무엇인가요?');}
+function chooseIssueGroup(key,name){S.fields.issueGroup=key;bubble('user',name,true);S.proposalStep='con';proposalPrompt(name+' 중에서 가장 가까운 고민을 골라 주세요.');}
+function chooseProposalIssue(key,name){S.fields.con=key;bubble('user',name,true);S.proposalStep='scale';proposalPrompt('좋아요. 어느 정도 규모를 모니터링하고 싶으신가요?');}
+function chooseScale(key,name){S.fields.scale=key;bubble('user',name,true);S.proposalStep='timing';proposalPrompt('도입을 검토하고 계신 시점도 알려 주세요.');}
+function chooseTiming(key,name){S.fields.timing=key;bubble('user',name,true);S.proposalStep='note';proposalPrompt('마지막이에요! 모니가 꼭 알아야 할 현장 상황이 있나요?\n없으면 바로 분석해도 돼요.');}
+function finishProposal(){S.phase='review';render();save();track('proposal_chat_review',{fac:S.fields.fac||'',con:S.fields.con||''});}
+function proposalFree(text){var step=S.proposalStep;if(step==='fac-group'||step==='fac'){S.fields.fac='etc';S.fields.industryText=text;S.fields.facGroup='custom';bubble('user',text,true);S.proposalStep='issue-group';proposalPrompt('알려주셔서 감사해요. 현장에서 가장 먼저 해결하고 싶은 문제는 무엇인가요?');return;}if(step==='issue-group'||step==='con'){S.fields.con='control';S.fields.issueText=text;bubble('user',text,true);S.proposalStep='scale';proposalPrompt('그 고민을 기준으로 살펴볼게요. 어느 정도 규모를 모니터링하고 싶으신가요?');return;}if(step==='scale'){S.fields.scale='unknown';S.fields.scaleText=text;bubble('user',text,true);S.proposalStep='timing';proposalPrompt('도입을 검토하고 계신 시점도 알려 주세요.');return;}if(step==='timing'){S.fields.timing='unknown';S.fields.timingText=text;bubble('user',text,true);S.proposalStep='note';proposalPrompt('마지막으로 모니가 꼭 알아야 할 현장 상황이 있나요?');return;}if(step==='note'){S.fields.facility=text;bubble('user',text,true);finishProposal();}}
+function renderAbout(){var box=$('pcAboutPage');box.innerHTML='<div class="pc-moni-orb" aria-hidden="true"><img src="/assets/moni/moni.png" alt=""></div><div class="pc-about-copy"><p>모넷코리아는 <strong>무선 IoT 센서로 현장의 데이터를 실시간으로 확인하고 관리할 수 있도록 돕는 글로벌 솔루션 기업</strong>이에요!</p><ul class="pc-about-benefits"><li><b>✓</b><span>80종 이상의 무선 센서 라인업</span></li><li><b>✓</b><span>저전력 기술로 최대 10년 이상의 배터리 수명</span></li><li><b>✓</b><span>자체 RF 프로토콜 기반의 안정적인 데이터 통신</span></li><li><b>✓</b><span>국가 주요 시설에도 적용되는 높은 수준의 보안성</span></li><li><b>✓</b><span>전 세계 75개국에서 검증된 글로벌 신뢰성</span></li><li><b>✓</b><span>기존 PLC·BMS·SCADA 등 다양한 시스템과 연동 가능</span></li></ul><p>현장에서 어떤 데이터를 측정해야 하는지부터 설치 위치와 시스템 구성까지 <strong>현장에 맞는 솔루션을 제안</strong>해 드리고 있어요.</p></div><div class="pc-suggest-title"><span>✨ '+L('이런 질문 어때요?','How about these questions?')+'</span></div><div class="pc-suggestions"><button type="button"><span aria-hidden="true">🙋‍♂️</span>우리 현장에 적용할 수 있나요?</button><button type="button"><span aria-hidden="true">⚙️</span>어떤 센서가 있나요?</button><button type="button"><span aria-hidden="true">🧐</span>실제 적용 사례가 궁금해요</button><button type="button"><span aria-hidden="true">💙</span>제품 및 솔루션 상담을 받고 싶어요</button></div><div class="pc-about-log" id="pcAboutLog" role="log" aria-live="polite"></div>';box.querySelectorAll('.pc-suggestions button').forEach(function(b){b.addEventListener('click',function(){sendAbout(b.textContent);});});renderAboutHistory();}
+function renderAboutHistory(){var log=$('pcAboutLog');if(!log)return;log.innerHTML='';(S.aboutMessages||[]).forEach(function(m){if(m.kind==='site-fit'&&m.role!=='user')aboutSiteFit(false);else if(m.kind==='sensor-info'&&m.role!=='user')aboutSensorInfo(false);else if(m.kind==='case-info'&&m.role!=='user')aboutCaseInfo(false);else if(m.kind==='consult-info'&&m.role!=='user')aboutConsultInfo(false);else aboutBubble(m.role,m.text,false);});log.scrollTop=log.scrollHeight;}
+function aboutScroll(){var body=$('ppChat')&&$('ppChat').querySelector('.pc-body');if(body)w.requestAnimationFrame(function(){body.scrollTop=body.scrollHeight;});}
+function aboutBubble(role,text,record){var log=$('pcAboutLog');if(!log)return;var e=d.createElement('div');e.className='pc-msg '+(role==='user'?'me':'bot');e.innerHTML='<span>'+esc(text).replace(/\n/g,'<br>')+'</span>';log.appendChild(e);aboutScroll();if(record!==false)(S.aboutMessages=S.aboutMessages||[]).push({role:role,text:String(text).slice(0,600)});}
+function aboutSiteFit(record){var log=$('pcAboutLog');if(!log)return;var e=d.createElement('div');e.className='pc-msg bot pc-site-fit';e.innerHTML='<span><b>당연합니다!</b><br><br>모넷코리아는 <strong>국내외 다양한 산업 현장에 적용된 대형 레퍼런스와 실제 구축 사례</strong>를 보유하고 있어요.<br><br>축적된 현장 데이터와 적용 사례를 바탕으로 고객님의 현장과 가장 유사한 사례를 분석해 <strong>맞춤형 솔루션</strong>을 제안해 드릴 준비가 되어 있답니다. 👍<br><br>고객님의 현장에는 어떤 솔루션이 적합할지 확인해 볼까요?<button type="button" class="pc-about-cta">내 현장 맞춤형 제안서 받아보기</button></span>';log.appendChild(e);e.querySelector('.pc-about-cta').addEventListener('click',function(){w.location.href='/proposal';});aboutScroll();if(record!==false)(S.aboutMessages=S.aboutMessages||[]).push({role:'bot',text:'현장 적용 가능 안내',kind:'site-fit'});}
+function aboutSensorInfo(record){var log=$('pcAboutLog');if(!log)return;var e=d.createElement('div');e.className='pc-msg bot pc-sensor-fit';e.innerHTML='<div class="pc-answer-stack"><div class="pc-sensor-bubble">모넷코리아는 <strong>80종 이상의 산업용 무선 IoT 센서</strong>를 제공하고 있어요.<br><br>설비 상태 모니터링부터 환경 관리, 에너지 관리, 안전 관리까지 <strong>현장에서 필요한 다양한 데이터를 무선으로 계측하고 모니터링</strong>할 수 있도록 폭넓은 센서 라인업을 보유하고 있어요.<br><br>어떤 센서가 필요한지 잘 모르셔도 괜찮아요!<br><br><strong>측정하고 싶은 대상이나 해결하고 싶은 문제를 알려 주시면 알맞은 센서를 찾아드릴게요.</strong></div><div class="pc-answer-actions"><a href="https://drive.google.com/file/d/1OHnkLK6de1toj9e27oCKCA4N95c6L9g6/view?usp=sharing" target="_blank" rel="noopener">📘 카탈로그를 다운받고 싶어요</a><a href="https://blog.naver.com/monnitkorea" target="_blank" rel="noopener">📝 공식 블로그가 궁금해요!</a></div></div>';log.appendChild(e);aboutScroll();if(record!==false)(S.aboutMessages=S.aboutMessages||[]).push({role:'bot',text:'센서 라인업 안내',kind:'sensor-info'});}
+function aboutCaseInfo(record){var log=$('pcAboutLog');if(!log)return;var e=d.createElement('div');e.className='pc-msg bot pc-sensor-fit pc-case-fit';e.innerHTML='<div class="pc-answer-stack"><div class="pc-sensor-bubble">모넷코리아의 솔루션은 <strong>국내외 다양한 산업 현장에서 운영되고 있어요!</strong><br><br>국가 1호 건물부터 국내외 대형 사업장까지, 공장 설비·빌딩·데이터센터·바이오·제약·물류 등 다양한 환경에서 솔루션의 신뢰성을 입증해 왔어요.<br><br>아래 버튼을 눌러 실제 현장에서 어떻게 모넷코리아의 솔루션을 사용하고 있는지 확인해 보세요.<br><br>고객님의 현장과 비슷한 사례도 찾으실 수 있을 거예요!</div><div class="pc-answer-actions"><a href="https://monnit.co.kr/installation-photos" target="_blank" rel="noopener">🏢 실제 적용 사례 보러가기</a></div></div>';log.appendChild(e);aboutScroll();if(record!==false)(S.aboutMessages=S.aboutMessages||[]).push({role:'bot',text:'실제 적용 사례 안내',kind:'case-info'});}
+function aboutConsultInfo(record){var log=$('pcAboutLog');if(!log)return;var e=d.createElement('div');e.className='pc-msg bot pc-sensor-fit pc-consult-fit';e.innerHTML='<div class="pc-answer-stack"><div class="pc-sensor-bubble">어떤 제품이나 솔루션이 적합한지 고민되신다면, <strong>담당자가 직접 상담해 드려요!</strong><br><br>현장의 환경과 관리 목적을 확인한 후, <strong>적합한 센서부터 시스템 구성, 도입 방법까지 고객님의 현장에 맞춰 안내해 드릴게요.</strong></div><div class="pc-answer-actions"><a href="https://monnit.co.kr/contact" target="_blank" rel="noopener">💙 1분 안에 문의하기</a></div></div>';log.appendChild(e);aboutScroll();if(record!==false)(S.aboutMessages=S.aboutMessages||[]).push({role:'bot',text:'제품 및 솔루션 상담 안내',kind:'consult-info'});}
+function isSiteFitQuestion(text){return /(우리\s*현장|현장).*(적용|도입|가능|맞춤)|적용.*(가능|할\s*수)|도입.*가능/.test(String(text).replace(/[?!.]/g,''));}
+function isSensorQuestion(text){return /(어떤|무슨|종류|추천|필요).*(센서)|센서.*(있|종류|추천|알려|궁금)/.test(String(text).replace(/[?!.]/g,''));}
+function isCaseQuestion(text){return /(실제|적용|설치|구축|도입).*(사례|레퍼런스|현장)|사례.*(궁금|보여|있|알려)/.test(String(text).replace(/[?!.]/g,''));}
+function isConsultQuestion(text){return /(제품|솔루션|센서).*(상담|문의|추천|도움)|상담.*(받|원|하고|싶)|문의.*(하고|싶|할)/.test(String(text).replace(/[?!.]/g,''));}
+function sendCurrent(){if(S.phase==='about')sendAbout();else if(S.proposalFlow&&S.phase==='chat'){var t=String($('pcText').value||'').trim();if(!t)return;$('pcText').value='';proposalFree(t);save();}else send();}
+function sendAbout(text){if(S.busy)return;text=String(text==null?$('pcText').value:text).trim();if(!text)return;$('pcText').value='';aboutBubble('user',text,true);if(isSiteFitQuestion(text)){aboutSiteFit(true);save();return;}if(isSensorQuestion(text)){aboutSensorInfo(true);save();return;}if(isCaseQuestion(text)){aboutCaseInfo(true);save();return;}if(isConsultQuestion(text)){aboutConsultInfo(true);save();return;}S.busy=true;$('pcSend').disabled=true;var log=$('pcAboutLog'),t=d.createElement('div');t.id='pcAboutTyping';t.className='pc-msg bot pc-typing';t.innerHTML='<span><i></i><i></i><i></i></span>';log.appendChild(t);aboutScroll();post('/api/proposal/chat',{messages:(S.aboutMessages||[]).slice(-20),fields:{},lang:en()?'en':'ko',elapsed:Date.now()-S.T0,website:$('pcWeb').value,retry:2}).then(function(x){var wait=$('pcAboutTyping');if(wait)wait.remove();S.busy=false;$('pcSend').disabled=false;var reply=x&&x.ok&&x.reply?x.reply:L('질문을 확인했어요. 현재 연결이 원활하지 않아 잠시 후 다시 물어봐 주세요.','I received your question. Please try again shortly.');aboutBubble('bot',reply,true);save();});}
+function renderPromos(){var box=$('pcPromoPage'),items=[];try{if(typeof w.activePromos==='function')items=w.activePromos()||[];}catch(_){}box.innerHTML='<div class="pc-promo-intro"><div class="pc-moni-orb" aria-hidden="true"><img src="/assets/moni/moni.png" alt=""></div><h2>'+L('지금 진행 중인 프로모션이에요!','Current promotions')+'</h2></div><div class="pc-promo-list">'+(items.length?items.map(function(p){var href=p.link||('/promotions/'+encodeURIComponent(p.id||''));return '<a class="pc-promo-card" href="'+esc(href)+'"><span>'+esc(p.badge||L('진행 중','Active'))+'</span><h3>'+esc(p.title||'')+'</h3><p>'+esc(p.desc||p.period||'')+'</p><b aria-hidden="true">›</b></a>';}).join(''):'<p class="pc-empty">'+L('현재 진행 중인 프로모션이 없습니다. 새 소식이 열리면 이곳에서 가장 먼저 알려 드릴게요.','There are no active promotions right now.')+'</p>')+'</div>';}
+function renderHistory(){var log=$('pcLog');log.innerHTML='';S.messages.forEach(function(m){if(m.kind==='proposal-hero')proposalHero();else bubble(m.role,m.text,false);});log.scrollTop=log.scrollHeight;}
+function proposalHero(){var e=d.createElement('div');e.className='pc-proposal-hero';e.innerHTML='<p>어떤 현장이신가요?</p><h2>AI가 요청 내용을 정리해<br><strong>맞춤형 제안서를 만들어 드려요</strong></h2><small>선택지를 따라가면 1분 안에 요청 내용을 정리할 수 있어요.</small>';$('pcLog').appendChild(e);}
+function bubble(role,text,record){var e=d.createElement('div');e.className='pc-msg '+(role==='user'?'me':'bot');e.innerHTML='<span>'+esc(text).replace(/\n/g,'<br>')+'</span>';$('pcLog').appendChild(e);$('pcLog').scrollTop=$('pcLog').scrollHeight;if(record!==false)S.messages.push({role:role,text:String(text).slice(0,600)});}
+function typing(on){var t=$('pcTyping');if(on&&!t){t=d.createElement('div');t.id='pcTyping';t.className='pc-msg bot pc-typing';t.innerHTML='<span><i></i><i></i><i></i></span>';$('pcLog').appendChild(t);}else if(!on&&t)t.remove();}
+function chooseFac(key){S.fields.fac=key;S.ask='con';S.phase='chat';S.messages=[];var name=label(FAC,key);bubble('bot',L(name+' 현장이시군요.\n지금 가장 고민되는 문제를 선택해 주세요.','Got it — '+name+'. What is your biggest concern?'),true);render();save();track('proposal_chat_industry',{proposal_fac:key});}
+function issueChips(){var keys=ISSUE[S.fields.fac]||ISSUE.etc,box=$('pcChips');box.innerHTML='';box.hidden=false;keys.forEach(function(key){var b=d.createElement('button');b.type='button';b.className='pc-chip';b.dataset.key=key;b.setAttribute('aria-pressed',String(S.fields.con===key));b.textContent=label(CON,key);b.addEventListener('click',function(){chooseIssue(key);});box.appendChild(b);});}
+function chooseIssue(key){S.fields.con=key;S.ask='company';$('pcChips').querySelectorAll('.pc-chip').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.key===key));});bubble('user',label(CON,key),true);var site=label(FAC,S.fields.fac),issue=label(CON,key);bubble('bot',L(site+'에서 자주 상담하는 주제예요. 센서 알림과 원격 기록을 기준으로 현재 대응 방식과 개선 지점을 함께 정리할 수 있습니다.','This is a common concern for '+site+'. We can review alerts, records and response workflows together.'),true);var x=$('pcInsight');x.hidden=false;x.innerHTML='<b>Monnit Insight</b><strong>'+esc(issue)+'</strong><span>'+L('현장 조건을 더 알려주시면 적용 범위와 추천 구성을 제안서에 정리해 드립니다.','Tell us more and we will tailor the recommendations.')+'</span><button type="button" id="pcInsightGo">'+L('맞춤 제안서 받기','Get a tailored proposal')+'</button>';$('pcInsightGo').addEventListener('click',function(){x.hidden=true;send(label(CON,key),true);});save();track('proposal_chat_issue',{proposal_con:key});}
+function note(t){var n=$('pcNotice');n.hidden=!t;n.textContent=t||'';}
+function paused(on){S.paused=!!on;var e=$('pcState');e.hidden=!on;e.textContent=on?L('AI 상담 점검 중 — 기본 안내와 제안서 신청은 정상 이용할 수 있습니다.','AI maintenance — proposal requests still work.'):'';}
+function post(url,body,ms){var c=w.AbortController?new AbortController():null,t=setTimeout(function(){if(c)c.abort();},ms||20000);return fetch(url,{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal:c?c.signal:undefined}).then(function(r){return r.json().catch(function(){return{};}).then(function(x){x.status=r.status;return x;});}).then(function(x){clearTimeout(t);return x;},function(){clearTimeout(t);return{ok:false,status:0};});}
+function send(text,silent){if(S.busy)return;text=String(text==null?$('pcText').value:text).trim();if(!text)return;$('pcText').value='';S.busy=true;$('pcSend').disabled=true;if(!silent)bubble('user',text,true);$('pcChips').hidden=true;typing(true);note('');track('proposal_chat_msg');post('/api/proposal/chat',{messages:S.messages.slice(-24),fields:S.fields,lang:en()?'en':'ko',elapsed:Date.now()-S.T0,website:$('pcWeb').value,retry:S.retry||0}).then(function(x){typing(false);S.busy=false;$('pcSend').disabled=false;if(!x||!x.ok){bubble('bot',L('연결이 잠시 불안정합니다. 잠시 후 다시 보내 주세요.','The connection is unstable. Please try again.'),true);note(L('입력하신 내용은 이 브라우저에 유지됩니다.','Your progress is saved in this browser.'));save();return;}S.fields=x.fields||S.fields;S.ask=x.ask||S.ask;S.retry=Number(x.retry)||0;paused(x.paused);if(x.reply)bubble('bot',x.reply,true);note(x.notice||'');if(x.ask==='fac')S.ask='con';if(x.ask==='con')issueChips();if(x.ask==='done'){S.phase='review';render();}save();});}
+function card(){var f=S.fields,box=$('pcCard'),row=function(k,v){return v?'<div><dt>'+esc(k)+'</dt><dd><mark>'+esc(v)+'</mark></dd></div>':'';};if(S.proposalFlow){var scales={small:'소규모 · 1~20개 지점',medium:'중간 규모 · 21~100개 지점',large:'대규모 · 100개 이상',unknown:f.scaleText||'협의 필요'},times={now:'가능한 빨리','3m':'3개월 이내','6m':'6개월 이후',unknown:f.timingText||'미정'},site=f.industryText||label(FAC,f.fac),issue=f.issueText||label(CON,f.con);box.innerHTML='<div class="pc-summary pc-ai-summary"><h3><span>✦</span> 모니가 정리한 맞춤 제안서</h3><dl>'+row('어떤 현장인가요?',site)+row('가장 고민되는 문제는?',issue)+row('감시 규모',scales[f.scale]||'협의 필요')+row('도입 검토 시점',times[f.timing]||'미정')+row('추가로 알려주신 내용',f.facility)+'</dl></div><button type="button" class="pc-go pc-proposal-next" id="pcContinue">이 내용으로 맞춤 제안서 만들기</button><button type="button" class="pc-edit" id="pcEdit">대화로 돌아가 수정하기</button>';$('pcContinue').addEventListener('click',continueProposal);$('pcEdit').addEventListener('click',function(){S.phase='chat';S.proposalStep='note';render();save();});return;}box.innerHTML='<div class="pc-summary"><h3>✦ '+L('맞춤 제안서 요청','Tailored proposal request')+'</h3><dl>'+row(L('회사·시설','Company'),f.company)+row(L('받으실 분','Contact'),(f.name||'')+(f.title?' '+f.title:''))+row(L('이메일','Email'),f.email)+row(L('연락처','Phone'),f.phone)+row(L('현장','Site'),label(FAC,f.fac))+row(L('고민되는 문제','Concern'),label(CON,f.con))+row(L('현장 메모','Site note'),f.facility)+'</dl></div><label class="pc-agree"><input type="checkbox" id="pcAgree"><span><b>'+L('[필수]','[Required]')+'</b> '+L('맞춤 제안서 발송을 위한 개인정보 수집·이용에 동의합니다. 수집 정보는 1년 뒤 파기합니다.','I agree to the use of my information to deliver the proposal; deleted after one year.')+' <a href="/privacy.html" target="_blank" rel="noopener">'+L('자세히 보기','Details')+'</a></span></label><p class="pc-card-f" id="pcCardMsg" hidden></p><button type="button" class="pc-go" id="pcSubmit">'+L('이 요청으로 무료 제안서 받기','Request my free proposal')+'</button><button type="button" class="pc-edit" id="pcEdit">'+L('대화로 돌아가 수정하기','Back to chat')+'</button>';$('pcSubmit').addEventListener('click',submit);$('pcEdit').addEventListener('click',function(){S.phase='chat';render();save();});}
+function continueProposal(){S.phase='recipient';render();save();track('proposal_chat_recipient',{fac:S.fields.fac||'',con:S.fields.con||''});}
+function renderRecipient(){var f=S.fields,box=$('pcRecipient');box.innerHTML='<p class="pc-recipient-k">마지막 단계예요</p><h2>제안서를<br>받으실 분을 알려 주세요.</h2><p class="pc-recipient-sub">입력하신 이메일로 맞춤 제안서를 보내드릴게요.</p><form class="pc-recipient-form" id="pcRecipientForm" novalidate><div class="pc-rgrid"><label><span>회사명 <em>*</em></span><input id="pcRCompany" autocomplete="organization" maxlength="60" value="'+esc(f.company||'')+'" placeholder="(주)모넷물류"></label><label><span>시설 이름·유형</span><input id="pcRFacility" maxlength="60" value="'+esc(f.facilityName||'')+'" placeholder="평택 2공장"></label><label><span>성함 <em>*</em></span><input id="pcRName" autocomplete="name" maxlength="30" value="'+esc(f.name||'')+'"></label><label><span>직함</span><input id="pcRTitle" autocomplete="organization-title" maxlength="30" value="'+esc(f.title||'')+'" placeholder="시설팀장"></label><label class="wide"><span>회사 이메일 <em>*</em></span><input id="pcREmail" type="email" inputmode="email" autocomplete="email" maxlength="120" value="'+esc(f.email||'')+'" placeholder="제안서를 받으실 주소"></label><label><span>연락처</span><input id="pcRPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" value="'+esc(f.phone||'')+'" placeholder="010-0000-0000"></label><label><span>지역</span><input id="pcRRegion" maxlength="30" value="'+esc(f.region||'')+'" placeholder="경기 평택"></label></div><label class="pc-ragree"><input type="checkbox" id="pcRAgree"><span><b>[필수]</b> 개인정보 수집·이용 동의 — 제안서 발송과 상담에만 사용하고 1년 뒤 파기합니다. <a href="/privacy.html" target="_blank" rel="noopener">자세히 보기</a></span></label><label class="pc-ragree optional"><input type="checkbox" id="pcRMkt"><span>[선택] 신규 사례·세미나 소식 받기</span></label><p class="pc-rerror" id="pcRError" hidden></p><button type="submit" class="pc-recipient-submit" id="pcRSubmit">맞춤 제안서 신청하기</button></form><button type="button" class="pc-edit" id="pcRecipientBack">요청 내용 다시 확인하기</button>';
+ var form=$('pcRecipientForm');form.addEventListener('submit',submitRecipient);$('pcRecipientBack').addEventListener('click',function(){storeRecipient();S.phase='review';render();save();});}
+function storeRecipient(){var get=function(id){var e=$(id);return e?e.value.trim():'';};Object.assign(S.fields,{company:get('pcRCompany'),facilityName:get('pcRFacility'),name:get('pcRName'),title:get('pcRTitle'),email:get('pcREmail'),phone:get('pcRPhone'),region:get('pcRRegion')});save();}
+function recipientError(t){var e=$('pcRError');if(e){e.hidden=!t;e.textContent=t||'';}}
+function submitRecipient(e){e.preventDefault();storeRecipient();var f=S.fields;if(!f.company||!f.name||!f.email){recipientError('회사명·성함·회사 이메일을 입력해 주세요.');return;}if(!/^\S+@\S+\.\S+$/.test(f.email)){recipientError('이메일 주소를 확인해 주세요.');return;}if(!$('pcRAgree').checked){recipientError('개인정보 수집·이용에 동의해 주세요.');return;}if(S.busy)return;S.busy=true;var btn=$('pcRSubmit');btn.disabled=true;btn.textContent='접수하는 중…';var body={entry:'chat',auto:true,company:f.company,name:f.name,title:f.title||'',email:f.email,phone:f.phone||'',region:f.region||'',fac:f.fac||'etc',con:f.con||'control',facility:f.facilityName||f.facility||'',industryText:f.industryText||'',memo:['[챗봇 맞춤 제안서]',f.issueText||'',f.facility||'',f.scale?'감시 규모: '+f.scale:'',f.timing?'도입 시점: '+f.timing:''].filter(Boolean).join(' / ').slice(0,600),consent:true,consentMkt:$('pcRMkt').checked,elapsed:Date.now()-S.T0,source:w.MonnitLead?w.MonnitLead.source():'',landing:String(w.location.href).split('#')[0],referrer:d.referrer||''};post('/api/proposal',body,25000).then(function(x){S.busy=false;btn.disabled=false;btn.textContent='맞춤 제안서 신청하기';if(x.status===400&&x.fields){recipientError(Object.keys(x.fields).map(function(k){return x.fields[k];}).join(' · '));return;}if(!x.ok){recipientError(x.message||'접수하지 못했습니다. 잠시 후 다시 시도해 주세요.');return;}track('proposal_submit',{lead_type:'custom_proposal',proposal_entry:'chat',proposal_mode:x.mode||'',proposal_dup:x.dup?1:0});ss.del(KEY);if(w.MKProposal&&(x.token||x.dup))w.MKProposal.goStatus(x);else{S.phase='chat';S.proposalFlow=false;S.messages=[{role:'bot',text:'신청이 완료됐어요. 입력하신 이메일로 진행 안내를 보내드릴게요.'}];render();save();}});}
+function cardMsg(t){var e=$('pcCardMsg');if(e){e.hidden=!t;e.textContent=t||'';}}
+function submit(){var a=$('pcAgree');if(!a||!a.checked){cardMsg(L('개인정보 수집·이용에 동의해 주세요.','Please agree to the privacy terms.'));if(a)a.focus();return;}if(S.busy)return;S.busy=true;var btn=$('pcSubmit');btn.disabled=true;btn.textContent=L('접수하는 중…','Submitting…');var f=S.fields,body={entry:'chat',auto:true,company:f.company||'',name:f.name||'',title:f.title||'',email:f.email||'',phone:f.phone||'',fac:f.fac||'',con:f.con||'',facility:f.facility||'',industryText:f.industryText||'',memo:'[대화 신청] '+S.messages.filter(function(m){return m.role==='user';}).slice(-4).map(function(m){return m.text;}).join(' / ').slice(0,500),consent:true,consentMkt:false,elapsed:Date.now()-S.T0,source:w.MonnitLead?w.MonnitLead.source():'',landing:String(w.location.href).split('#')[0],referrer:d.referrer||''};post('/api/proposal',body,25000).then(function(x){S.busy=false;btn.disabled=false;btn.textContent=L('이 요청으로 무료 제안서 받기','Request my free proposal');if(x.status===400&&x.fields){cardMsg(Object.keys(x.fields).map(function(k){return x.fields[k];}).join(' · '));return;}if(!x.ok){cardMsg(x.message||L('접수하지 못했습니다. 잠시 후 다시 시도해 주세요.','Submission failed. Please try again.'));return;}track('proposal_submit',{lead_type:'custom_proposal',proposal_entry:'chat',proposal_mode:x.mode||'',proposal_dup:x.dup?1:0});ss.del(KEY);if(w.MKProposal&&(x.token||x.dup))w.MKProposal.goStatus(x);else{S.phase='chat';bubble('bot',L('접수했습니다. 진행 링크를 이메일로 보내드릴게요.','Received. We will email your status link.'),true);render();}});}
+function mode(which){if(which==='chat')open();else close();}
+function bind(){if(started)return;started=true;shell();var had=load();render();if(had&&S.open)open();else save();}
+w.MKPropChat={bind:bind,mode:mode,open:open,close:close,reset:reset};if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',bind);else bind();
+})(window,document);

@@ -90,8 +90,20 @@ function ensureProposal(cb){
     (window.__propCbs || []).forEach(function(f){ try { f && f(window.MKProposal); } catch(e){ console.warn('[proposal]', e); } });
     window.__propCbs = [];
   };
-  add('/js/proposal-data.js?v=7', function(){ add('/js/proposal-view.js?v=7', function(){ add('/js/proposal-chat.js?v=3', done); }); });
+  add('/js/proposal-data.js?v=7', function(){ add('/js/proposal-insight-map.js?v=2', function(){ add('/js/region-data.js?v=1', function(){ add('/js/proposal-view.js?v=54', done); }); }); });
 }
+/* Monnit AI is available site-wide, independently of the proposal view. */
+function ensureProposalChat(){
+  if (window.MKPropChat || window.__propChatLoading) return;
+  window.__propChatLoading = true;
+  var s = document.createElement('script');
+  s.src = '/js/proposal-chat.js?v=30'; s.async = true;
+  s.onload = function(){ window.__propChatLoading = false; if (window.MKPropChat) window.MKPropChat.bind(); };
+  s.onerror = function(){ window.__propChatLoading = false; console.warn('[proposal-chat] load failed'); };
+  document.head.appendChild(s);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureProposalChat);
+else ensureProposalChat();
 function ensureSolutionTwin(){
   if (window.__twinLoaded || window.__twinLoading) return;
   var mount = document.getElementById('mhTwin');

@@ -70,7 +70,7 @@ console.log('\n■ 현장 — 업종을 자기 말로');
  ['3PL 창고', 'logistics'], ['풀필먼트 센터', 'logistics'], ['택배 허브', 'logistics'],
  ['양계장', 'agri'], ['양돈장', 'agri'], ['비닐하우스', 'agri'], ['버섯 재배사', 'agri'], ['스마트팜', 'agri'],
  ['횟집', 'food'], ['급식소', 'food'], ['제빵 공장', 'food'], ['방앗간', 'food'], ['도시락 업체', 'food'],
- ['요양병원', 'pharma'], ['동물병원', 'pharma'], ['클린룸', 'pharma'], ['검체 보관', 'pharma'],
+ ['요양병원', 'medical'], ['동물병원', 'pharma'], ['클린룸', 'pharma'], ['검체 보관', 'pharma'],
  ['전산실', 'datacenter'], ['서버실', 'datacenter'], ['IDC', 'datacenter'], ['데이타센터', 'datacenter'],
  ['오피스 빌딩', 'commercial'], ['백화점', 'commercial'], ['헬스장', 'commercial'], ['주차장', 'commercial'],
  ['아파트 관리사무소', 'resident'], ['오피스텔', 'resident'], ['고시원', 'resident'], ['펜션', 'resident'],

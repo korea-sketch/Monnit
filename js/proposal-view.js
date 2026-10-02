@@ -82,7 +82,8 @@
   var A = {
     ready: false, sig: null, T0: Date.now(),
     st: { industry: '', problems: [], goals: [], caseViews: 0, started: false, sending: false, edited: false, detect: null },
-    Q: null, QF: null, quick: false, demo: false
+    Q: null, QF: null, quick: false, demo: false, detailsOpen: false, goalsOpen: false,
+    analyzing: false, analysisTimer: null, analysisSubmitTimer: null
   };
   var DRAFT = 'mk_prop_draft_v2';
   var val = function (id) { return String(($('#' + id) || {}).value || '').trim(); };
@@ -91,6 +92,8 @@
     if (A.ready) return;
     A.ready = true;
     relabelApply();
+    prepareRecipientLayout();
+    prepareStepHeadings();
 
     $('#ppInds').addEventListener('click', function (e) {
       var b = e.target.closest('.mkp-ind'); if (!b) return;
@@ -119,6 +122,10 @@
     $('#ppTopCase').addEventListener('click', function (e) { if (e.target.closest('[data-case]')) { A.st.caseViews++; push('proposal_case_click'); } });
     $('#ppScale').addEventListener('change', saveDraft);
     $('#ppTimeline').addEventListener('change', saveDraft);
+    $('#ppFactoryConsult').addEventListener('change', saveDraft);
+    $$('.mkp-select-trigger').forEach(function (b) {
+      b.addEventListener('click', function () { openOptionPanel(b.dataset.optionType); });
+    });
 
     /* 폼 */
     $('#ppForm').addEventListener('input', function (e) {
@@ -149,13 +156,68 @@
       $('#ppS1').hidden = false; $('#ppS3').hidden = false; this.hidden = true;
       $('#ppS1').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+    $('#ppRegion').readOnly = true;
+    $('#ppRegion').setAttribute('aria-haspopup', 'dialog');
+    $('#ppRegion').addEventListener('click', openRegionPanel);
+    $('#ppRegion').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRegionPanel(); }
+    });
+    $('#ppBack').addEventListener('click', onBack);
     $('#ppCta').addEventListener('click', onCta);
+    $('#ppEventCancel').addEventListener('click', function () { closeEventPrompt(); continueProposal(); });
+    $('#ppEventApply').addEventListener('click', function () {
+      if (!w.confirm('이벤트에 참여하시겠습니까?')) return;
+      $('#ppFactoryConsult').checked = true;
+      saveDraft();
+      closeEventPrompt();
+      continueProposal();
+    });
+    $('#ppEventModal').addEventListener('click', function (e) {
+      if (e.target === this) { closeEventPrompt(); continueProposal(); }
+    });
+  }
+
+  function prepareRecipientLayout() {
+    var form = $('#ppForm');
+    if (!form || form.querySelector('.mkp-form-panel')) return;
+    var panel = d.createElement('div');
+    panel.className = 'mkp-form-panel';
+    [].slice.call(form.children).filter(function (el) {
+      return el.classList && (el.classList.contains('mkp-row2') || el.classList.contains('mkp-fld'));
+    }).forEach(function (el) { panel.appendChild(el); });
+    var hp = $('#ppWebsite');
+    if (hp && hp.nextSibling) form.insertBefore(panel, hp.nextSibling); else form.insertBefore(panel, form.firstChild);
+  }
+
+  function prepareStepHeadings() {
+    var main = $('.mkp-main'); if (!main) return;
+    ['ppS1', 'ppS3'].forEach(function (id) {
+      var step = $('#' + id), head = step && step.querySelector('.mkp-step-h');
+      if (!step || !head || head.classList.contains('mkp-outside-heading')) return;
+      head.classList.add('mkp-outside-heading', 'is-for-' + id.toLowerCase());
+      main.insertBefore(head, step);
+    });
   }
 
   /* 언어가 바뀌거나 처음 들어올 때 — 산업 버튼·선택 목록 글자 */
   function relabelApply() {
-    $('#ppInds').innerHTML = KB.industries.map(function (i) {
-      return '<button type="button" class="mkp-ind" aria-pressed="' + (A.st.industry === i.key) + '" data-k="' + i.key + '"><span class="mkp-ic" aria-hidden="true">' + i.icon + '</span><span>' + esc(indL(i)) + '</span></button>';
+    var groups = [
+      { title:L('산업·생산','Industry & production'), keys:['manufacturing','bio_pharma','food_agri'] },
+      { title:L('건물·생활시설','Buildings & living facilities'), keys:['building_fm','residential','edu_med'] },
+      { title:L('학교·공공기관','Schools & public sector'), keys:['education','public'] },
+      { title:L('소상공인·매장','Small business'), keys:['small_biz'] },
+      { title:L('에너지·인프라','Energy & infrastructure'), keys:['energy','construction'] },
+      { title:L('물류·특수시설','Logistics & special facilities'), keys:['cold_chain','datacenter'] },
+      { title:L('기타','Other'), keys:['general'] }
+    ];
+    /* 데이터에 새 산업이 생겨도 화면에서 빠지지 않게 — 묶음에 없는 산업은 「기타」 앞에 붙인다 */
+    var listed = {}; groups.forEach(function (g) { g.keys.forEach(function (k) { listed[k] = 1; }); });
+    (KB.industries || []).forEach(function (i) { if (!listed[i.key]) groups[groups.length - 1].keys.unshift(i.key); });
+    $('#ppInds').innerHTML = groups.map(function (group) {
+      var buttons = group.keys.map(ind).filter(Boolean).map(function (i) {
+        return '<button type="button" class="mkp-ind" aria-pressed="' + (A.st.industry === i.key) + '" data-k="' + i.key + '">' + esc(indL(i)) + '</button>';
+      }).join('');
+      return '<section class="mkp-ind-group"><h4>' + esc(group.title) + '</h4><div class="mkp-ind-options">' + buttons + '</div></section>';
     }).join('');
     [['#ppScale', KB.scales, 'scales'], ['#ppTimeline', KB.timelines, 'timelines']].forEach(function (x) {
       var sel = $(x[0]), cur = sel.value;
@@ -187,7 +249,14 @@
       var on = A.st.problems.indexOf(k) >= 0;
       return '<button type="button" role="radio" class="mkp-pitem' + (on ? ' on' : '') + '" data-k="' + k + '" aria-checked="' + on + '" aria-pressed="' + on + '"><span class="mkp-ck" aria-hidden="true"></span><span><b>' + esc(probL(k)) + '</b><small>' + esc(probD(k)) + '</small></span></button>';
     }).join('');
-    renderChronic(); renderGoals(); renderTopCase(localTop());
+    renderChronic(); renderGoals();
+    var fallbackTop = localTop();
+    renderTopCase(fallbackTop);
+    if (A.quick && fallbackTop) {
+      $('#ppLmPct').textContent = fallbackTop.pct + '%';
+      $('#ppLmBar').style.width = fallbackTop.pct + '%';
+      $('#ppLmText').innerHTML = L('지금 가장 닮은 Monnit 레퍼런스 · ', 'Closest Monnit reference now · ') + '<b>' + esc(caseL(fallbackTop).name) + '</b>';
+    }
   }
   function renderChronic() {
     var P = (KB.playbooks || {})[A.st.industry], box = $('#ppChronic');
@@ -205,21 +274,38 @@
   function renderGoals() {
     var I = ind(A.st.industry); if (!I) return;
     var rec = I.goals || [];
-    var order = rec.concat(Object.keys(KB.goals).filter(function (g) { return rec.indexOf(g) < 0; }));
-    $('#ppGoals').innerHTML = order.filter(function (g) { return goalL(g); }).map(function (g) {
-      var on = A.st.goals.indexOf(g) >= 0;
-      return '<button type="button" class="mkp-chip" aria-pressed="' + on + '" data-k="' + g + '">' + esc(goalL(g)) + (rec.indexOf(g) >= 0 && !on ? '<small>' + L('많이 선택', 'Popular') + '</small>' : '') + '</button>';
+    var groups = [
+      { title:L('사고·안전 관리','Incident & safety'), keys:['response','loss','safety'] },
+      { title:L('설비 운영 효율화','Operational efficiency'), keys:['downtime','labor'] },
+      { title:L('비용 절감','Cost reduction'), keys:['energy','capex'] },
+      { title:L('데이터·관리 자동화','Data & management automation'), keys:['integration','compliance'] }
+    ];
+    $('#ppGoals').innerHTML = groups.map(function (group) {
+      var buttons = group.keys.filter(function (g) { return goalL(g); }).map(function (g) {
+        var on = A.st.goals.indexOf(g) >= 0;
+        return '<button type="button" class="mkp-chip" aria-pressed="' + on + '" data-k="' + g + '">' + esc(goalL(g)) + '</button>';
+      }).join('');
+      return '<section class="mkp-goal-group"><h4>' + esc(group.title) + '</h4><div class="mkp-goal-options">' + buttons + '</div></section>';
     }).join('');
   }
 
   function localTop() {
     var list = DATA.cases.filter(function (c) { return c.detailed && c.results.length; });
-    list.sort(function (a, b) {
-      var sa = a.industries.indexOf(A.st.industry) >= 0 ? 1 : 0, sb = b.industries.indexOf(A.st.industry) >= 0 ? 1 : 0;
-      return (sb - sa) || (a.global - b.global);
-    });
-    var c = list[0];
-    return c ? { key: c.key, name: c.name, tagline: c.tagline, results: c.results, global: c.global, image: c.image, url: c.url, pct: null, why: [] } : null;
+    var I = ind(A.st.industry) || {};
+    var problem = A.st.problems[0] || (I.problems || [])[0] || '';
+    var goalSig = A.st.goals.length ? A.st.goals.slice().sort().join(',') : '_default';
+    var map = w.MK_INSIGHT_MAP || {};
+    var hit = map[A.st.industry + '|' + problem + '|' + goalSig] || map[A.st.industry + '|' + problem + '|_default'];
+    var c = hit && list.find(function (x) { return x.key === hit.key; });
+    if (!c) {
+      list.sort(function (a, b) {
+        var sa = a.industries.indexOf(A.st.industry) >= 0 ? 1 : 0, sb = b.industries.indexOf(A.st.industry) >= 0 ? 1 : 0;
+        return (sb - sa) || (a.global - b.global);
+      });
+      c = list[0];
+    }
+    return c ? { key: c.key, name: c.name, tagline: c.tagline, results: c.results, global: c.global, image: c.image, url: c.url,
+      pct: hit ? hit.pct : 0, why: hit ? hit.why : [] } : null;
   }
   function renderTopCase(t) {
     var box = $('#ppTopCase');
@@ -232,8 +318,7 @@
       '<span class="mkp-case-in"><b>' + esc(t.name) + '<i>' + (t.global ? L('Monnit 글로벌', 'Monnit global') : L('국내', 'Korea')) + '</i></b>' +
       (t.tagline ? '<span class="mkp-case-tg">' + esc(t.tagline) + '</span>' : '') +
       (t.why && t.why.length ? '<span class="mkp-case-why">' + esc(t.why.join(' · ')) + '</span>' : '') +
-      '<span class="mkp-nums">' + (t.results || []).slice(0, 3).map(function (r) { return '<span><b>' + esc(r.n) + '</b><small>' + esc(r.l) + '</small></span>'; }).join('') + '</span>' +
-      '<span class="mkp-case-note">' + L('공개된 사례 결과이며 현장마다 달라질 수 있습니다 · 사례 보기', 'Published results; outcomes vary by site · View case') + (isInternal(url) ? ' →' : ' ↗') + '</span></span></a>';
+      '<span class="mkp-nums">' + (t.results || []).slice(0, 3).map(function (r) { return '<span><b>' + esc(r.n) + '</b><small>' + esc(r.l) + '</small></span>'; }).join('') + '</span></span></a>';
   }
   function renderPeek(pb) {
     var box = $('#ppPeek');
@@ -325,12 +410,225 @@
     if (!A.st.problems.length && !(A.quick && FINDER.con[A.QF.con])) return 2;
     return Object.keys(validate(false)).length ? 4 : 5;
   }
+  function ensureAssistPanel() {
+    var side = $('#ppSide'), event = $('#ppAssistEvent');
+    if (!side) return;
+    if (!event) {
+      event = d.createElement('div');
+      event.id = 'ppAssistEvent';
+      event.className = 'mkp-assist-event';
+      event.innerHTML = '<img src="/assets/proposal/banner2.png" alt="맞춤형 공장 설비 진단 이벤트 — 진동 센서 솔루션 1개월 무료 체험권 증정">';
+      side.insertBefore(event, side.firstChild);
+    }
+    event.hidden = false;
+    side.classList.remove('is-choice');
+  }
+  function ensureRegionPanel() {
+    var side = $('#ppSide'), panel = $('#ppRegionPanel'), data = w.MK_REGIONS || {};
+    if (!side) return null;
+    if (!panel) {
+      panel = d.createElement('section');
+      panel.id = 'ppRegionPanel';
+      panel.className = 'mkp-region-panel';
+      panel.hidden = true;
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'false');
+      panel.setAttribute('aria-labelledby', 'ppRegionTitle');
+      panel.innerHTML = '<button type="button" class="mkp-region-close" aria-label="지역 선택창 닫기">&times;</button>' +
+        '<p class="mkp-region-eyebrow">지역 찾기</p><h3 id="ppRegionTitle">현장 지역을 알려주세요</h3>' +
+        '<p class="mkp-region-desc">검색하거나 시·도와 시·군·구를 차례로 선택해 주세요.</p>' +
+        '<div class="mkp-region-tabs" role="tablist"><button type="button" class="on" data-region-mode="search">검색으로 찾기</button><button type="button" data-region-mode="classify">시·도 분류로 찾기</button></div>' +
+        '<div class="mkp-region-search" data-region-view="search"><label><span aria-hidden="true">⌕</span><input id="ppRegionSearch" autocomplete="off" placeholder="지역명"></label><div class="mkp-region-results" id="ppRegionResults"></div></div>' +
+        '<div class="mkp-region-classify" data-region-view="classify" hidden><h4>시·도</h4><div class="mkp-region-chips" id="ppProvinceList"></div><div class="mkp-district-section" id="ppDistrictSection" hidden><h4>시·군·구</h4><div class="mkp-region-chips" id="ppDistrictList"></div></div></div>';
+      side.appendChild(panel);
+      $('#ppProvinceList').innerHTML = Object.keys(data).map(function (p) { return '<button type="button" data-province="' + esc(p) + '">' + esc(p) + '</button>'; }).join('');
+      panel.addEventListener('click', function (e) {
+        if (e.target.closest('.mkp-region-close')) return closeRegionPanel();
+        var tab = e.target.closest('[data-region-mode]');
+        if (tab) return setRegionMode(tab.dataset.regionMode);
+        var district = e.target.closest('[data-district]');
+        if (district) return chooseRegion(district.dataset.province, district.dataset.district);
+        var province = e.target.closest('[data-province]');
+        if (province) return chooseProvince(province.dataset.province);
+      });
+      $('#ppRegionSearch').addEventListener('input', renderRegionSearch);
+    }
+    return panel;
+  }
+  function openRegionPanel() {
+    var panel = ensureRegionPanel(), side = $('#ppSide');
+    if (!panel || !side) return;
+    var event = $('#ppAssistEvent'); if (event) event.hidden = false;
+    panel.hidden = false; side.classList.add('is-region');
+    setRegionMode('search');
+    setTimeout(function () { try { $('#ppRegionSearch').focus(); } catch (e) {} }, 40);
+  }
+  function closeRegionPanel() {
+    var panel = $('#ppRegionPanel'), side = $('#ppSide');
+    if (panel) panel.hidden = true;
+    if (side) side.classList.remove('is-region');
+  }
+  function openOptionPanel(type) {
+    var side = $('#ppSide'), event = $('#ppAssistEvent'), old = $('#ppOptionPanel');
+    if (!side) return;
+    if (old) old.remove();
+    if (event) event.hidden = false;
+    var isScale = type === 'scale', select = $(isScale ? '#ppScale' : '#ppTimeline');
+    var panel = d.createElement('section');
+    panel.id = 'ppOptionPanel'; panel.className = 'mkp-option-panel';
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'false');
+    panel.innerHTML = '<button type="button" class="mkp-option-close" aria-label="선택창 닫기">&times;</button>' +
+      '<h3>' + (isScale ? '감시 규모' : '도입 검토 시점') + '</h3><div class="mkp-option-list">' +
+      [].map.call(select.options, function (o) {
+        return '<button type="button" data-option-value="' + esc(o.value) + '"' + (o.value === select.value ? ' class="on"' : '') + '><span>' + esc(o.textContent) + '</span>' + (o.value === select.value ? '<b>✓</b>' : '') + '</button>';
+      }).join('') + '</div>';
+    side.appendChild(panel); side.classList.add('is-option');
+    panel.addEventListener('click', function (e) {
+      if (e.target.closest('.mkp-option-close')) return closeOptionPanel();
+      var choice = e.target.closest('[data-option-value]'); if (!choice) return;
+      select.value = choice.dataset.optionValue;
+      select.dispatchEvent(new Event('change', { bubbles:true }));
+      $(isScale ? '#ppScaleTrigger' : '#ppTimelineTrigger').textContent = choice.textContent.replace('✓','').trim();
+      closeOptionPanel();
+    });
+  }
+  function closeOptionPanel() {
+    var panel = $('#ppOptionPanel'), side = $('#ppSide');
+    if (panel) panel.remove();
+    if (side) side.classList.remove('is-option');
+  }
+  function setRegionMode(mode) {
+    var panel = $('#ppRegionPanel'); if (!panel) return;
+    $$('[data-region-mode]', panel).forEach(function (b) { b.classList.toggle('on', b.dataset.regionMode === mode); });
+    $$('[data-region-view]', panel).forEach(function (v) { v.hidden = v.dataset.regionView !== mode; });
+    if (mode === 'classify') {
+      $$('#ppProvinceList button').forEach(function (b) { b.hidden = false; b.classList.remove('on'); });
+      $('#ppDistrictList').innerHTML = '';
+      $('#ppDistrictSection').hidden = true;
+    }
+    if (mode === 'search') setTimeout(function () { try { $('#ppRegionSearch').focus(); } catch (e) {} }, 20);
+  }
+  function renderRegionSearch() {
+    var q = val('ppRegionSearch').replace(/\s+/g, '').toLowerCase(), data = w.MK_REGIONS || {}, out = [];
+    if (q) Object.keys(data).forEach(function (p) { data[p].forEach(function (x) { if ((p + x).replace(/\s+/g, '').toLowerCase().indexOf(q) >= 0) out.push([p, x]); }); });
+    $('#ppRegionResults').innerHTML = q ? (out.slice(0, 80).map(function (x) { return '<button type="button" data-province="' + esc(x[0]) + '" data-district="' + esc(x[1]) + '"><b>' + esc(x[1]) + '</b><small>' + esc(x[0]) + '</small></button>'; }).join('') || '<p>검색 결과가 없습니다.</p>') : '';
+  }
+  function chooseProvince(name) {
+    var data = w.MK_REGIONS || {}, section = $('#ppDistrictSection');
+    $$('#ppProvinceList button').forEach(function (b) {
+      var chosen = b.dataset.province === name;
+      b.classList.toggle('on', chosen);
+      b.hidden = !chosen;
+    });
+    $('#ppDistrictList').innerHTML = (data[name] || []).map(function (x) { return '<button type="button" data-province="' + esc(name) + '" data-district="' + esc(x) + '">' + esc(x) + '</button>'; }).join('');
+    section.hidden = false;
+    setTimeout(function () { var panel = $('#ppRegionPanel'); if (panel) panel.scrollTo({ top: section.offsetTop - 24, behavior: 'smooth' }); }, 30);
+  }
+  function chooseRegion(province, district) {
+    $('#ppRegion').value = province + ' ' + district;
+    $('#ppRegion').dispatchEvent(new Event('input', { bubbles: true }));
+    closeRegionPanel();
+  }
+  function onBack() {
+    closeRegionPanel();
+    closeOptionPanel();
+    if (A.quick && A.detailsOpen && A.goalsOpen) {
+      A.goalsOpen = false;
+      $('#ppRoot').classList.remove('is-goals-open');
+      $('#ppS3').hidden = true;
+      openAssistChoices();
+      updateCta();
+      setTimeout(function () { $('#ppS1').scrollIntoView({ behavior:'smooth', block:'start' }); }, 40);
+      return;
+    }
+    if (A.quick && A.detailsOpen) {
+      A.detailsOpen = false;
+      $('#ppRoot').classList.remove('is-details-open');
+      restoreAssistChoices();
+      $('#ppS1').hidden = true; $('#ppS2').hidden = true; $('#ppS4').hidden = false;
+      ensureAssistPanel(); updateCta();
+      setTimeout(function () { $('#ppS4').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40);
+      return;
+    }
+    w.history.back();
+  }
+  function openAssistChoices() {
+    var side = $('#ppSide'), event = $('#ppAssistEvent'), step = $('#ppS2'), industry = $('#ppS1'), recipient = $('#ppS4'), live = $('#ppLive'), quick = $('.mkp-quick'), grid = $('.mkp-grid'), scope = step.querySelector('.mkp-scope-note');
+    if (!side || !step || !industry || !recipient) return;
+    recipient.hidden = true;
+    industry.hidden = false;
+    industry.classList.add('mkp-reveal');
+    if (event) event.hidden = false;
+    side.classList.add('is-choice');
+    side.insertBefore(step, live);
+    if (live && quick && live.parentNode !== quick) quick.appendChild(live);
+    if (quick && grid && grid.parentNode) grid.parentNode.insertBefore(quick, grid.nextSibling);
+    if (scope && quick && quick.parentNode) {
+      scope.classList.add('is-promoted');
+      quick.parentNode.insertBefore(scope, quick.nextSibling);
+    }
+    if (!step.querySelector('.mkp-choice-close')) {
+      var close = d.createElement('button');
+      close.type = 'button';
+      close.className = 'mkp-choice-close';
+      close.setAttribute('aria-label', '선택창 닫기');
+      close.innerHTML = '&times;';
+      close.addEventListener('click', function () { step.hidden = true; });
+      step.insertBefore(close, step.firstChild);
+    }
+    step.hidden = false;
+    step.classList.add('mkp-reveal');
+  }
+  function restoreAssistChoices() {
+    var main = $('.mkp-main'), step = $('#ppS2'), s3 = $('#ppS3'), side = $('#ppSide'), live = $('#ppLive'), quick = $('.mkp-quick'), grid = $('.mkp-grid'), scope = $('.mkp-scope-note.is-promoted');
+    if (main && step && step.parentNode === side) main.insertBefore(step, s3 || $('#ppS4'));
+    if (step && scope) { scope.classList.remove('is-promoted'); step.appendChild(scope); }
+    if (side && live && live.parentNode !== side) side.appendChild(live);
+    if (quick && grid && grid.parentNode && quick.parentNode === grid.parentNode) grid.parentNode.insertBefore(quick, grid);
+    if (side) side.classList.remove('is-choice');
+  }
   function updateCta() {
     if (A.st.sending) return;
+    if (A.quick && !A.detailsOpen && w.matchMedia && w.matchMedia('(min-width: 901px)').matches) {
+      $('#ppCta').textContent = L('맞춤 제안서 제작하기', 'Create custom proposal');
+      return;
+    }
+    if (A.quick && A.detailsOpen) {
+      $('#ppCta').textContent = A.goalsOpen
+        ? L('선택한 옵션으로 제안서 제작하기', 'Create proposal with selected options')
+        : L('다음', 'Next');
+      return;
+    }
     var s = stage();
-    $('#ppCta').textContent = s === 1 ? L('산업부터 골라 주세요 →', 'Choose your industry →') : s === 2 ? L('가장 고민되는 문제 고르기 →', 'Pick your top concern →') : s === 4 ? L('받으실 분 정보 입력하기 →', 'Enter your details →') : L('내 맞춤 제안서 받기 →', 'Get my proposal →');
+    $('#ppCta').textContent = s === 1 ? L('현장을 골라 주세요', 'Choose a facility') : s === 2 ? L('가장 고민되는 문제 고르기', 'Pick your top concern') : s === 4 ? L('맞춤 제안서 제작하기', 'Create custom proposal') : L('선택 완료하고 제안서 받기', 'Complete choices');
   }
   function onCta() {
+    if (A.quick && !A.detailsOpen && w.matchMedia && w.matchMedia('(min-width: 901px)').matches) {
+      var introErr = validate(true), introFirst = Object.keys(introErr)[0];
+      if (introFirst) {
+        var introEl = introFirst === 'consent' ? $('#ppConsent') : $('#pp' + introFirst.charAt(0).toUpperCase() + introFirst.slice(1));
+        if (introEl) { introEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(function () { try { introEl.focus({ preventScroll: true }); } catch (x) {} }, 350); }
+        return;
+      }
+      A.detailsOpen = true;
+      $('#ppRoot').classList.add('is-details-open');
+      openAssistChoices();
+      updateCta();
+      push('proposal_details_open', { proposal_entry: 'finder' });
+      setTimeout(function () { $('#ppS1').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+      return;
+    }
+    if (A.quick && A.detailsOpen && !A.goalsOpen && w.matchMedia && w.matchMedia('(min-width: 901px)').matches) {
+      if (!A.st.industry) return $('#ppS1').scrollIntoView({ behavior:'smooth', block:'start' });
+      if (!A.st.problems.length) { $('#ppErrProblems').hidden = false; return $('#ppPlist').scrollIntoView({ behavior:'smooth', block:'center' }); }
+      A.goalsOpen = true;
+      $('#ppRoot').classList.add('is-goals-open');
+      restoreAssistChoices();
+      $('#ppS1').hidden = true; $('#ppS2').hidden = true; $('#ppS3').hidden = false;
+      ensureAssistPanel(); updateCta();
+      setTimeout(function () { $('#ppS3').scrollIntoView({ behavior:'smooth', block:'start' }); }, 50);
+      return;
+    }
     var s = stage();
     if (s === 1) return $('#ppS1').scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (s === 2) { $('#ppErrProblems').hidden = false; return $('#ppPlist').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
@@ -340,7 +638,80 @@
       if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(function () { try { el.focus({ preventScroll: true }); } catch (x) {} }, 350); }
       return;
     }
+    if (A.quick && A.detailsOpen && A.goalsOpen && w.matchMedia && w.matchMedia('(min-width: 901px)').matches) {
+      if (!$('#ppFactoryConsult').checked) return openEventPrompt();
+      return continueProposal();
+    }
+    if (!$('#ppFactoryConsult').checked) return openEventPrompt();
+    continueProposal();
+  }
+
+  function openEventPrompt() {
+    var modal = $('#ppEventModal');
+    if (!modal) return continueProposal();
+    modal.hidden = false;
+    d.body.classList.add('mkp-event-open');
+    setTimeout(function () { try { $('#ppEventApply').focus(); } catch (e) {} }, 20);
+  }
+  function closeEventPrompt() {
+    var modal = $('#ppEventModal');
+    if (modal) modal.hidden = true;
+    d.body.classList.remove('mkp-event-open');
+  }
+  function continueProposal() {
+    if (A.quick && A.detailsOpen && A.goalsOpen && w.matchMedia && w.matchMedia('(min-width: 901px)').matches) return startAnalysis();
     submit();
+  }
+
+  function startAnalysis(previewOnly) {
+    if (A.analyzing || A.st.sending) return;
+    A.analyzing = true;
+    var root = $('#ppRoot');
+    var panel = $('#ppAnalysis');
+    if (!panel) {
+      panel = d.createElement('section');
+      panel.id = 'ppAnalysis';
+      panel.className = 'mkp-analysis-screen';
+      panel.setAttribute('aria-live', 'polite');
+      panel.innerHTML = '<div class="mkp-analysis-main">' +
+        '<div class="mkp-analysis-orb" aria-hidden="true"><img src="/assets/moni/moni.png" alt=""></div>' +
+        '<div class="mkp-analysis-copy">' +
+          '<p>' + L('글로벌 레퍼런스 수집 중', 'Collecting global references') + '</p>' +
+          '<p>' + L('실제 현장 제안서 분석 중', 'Analyzing real-site proposals') + '</p>' +
+          '<p>' + L('맞춤형 인사이트 도출 중', 'Building tailored insights') + '</p>' +
+        '</div></div>' +
+        '<aside class="mkp-analysis-banner"><img src="/assets/proposal/banner2.png" alt="맞춤형 공장 설비 진단 이벤트"></aside>';
+      root.insertBefore(panel, $('.mkp-bar', root));
+    }
+    root.classList.add('is-analyzing');
+    panel.hidden = false;
+    var lines = $$('.mkp-analysis-copy p', panel), idx = 0;
+    function paint() {
+      lines.forEach(function (line, i) {
+        line.classList.toggle('is-active', i === idx);
+        line.classList.toggle('is-done', i < idx);
+      });
+    }
+    paint();
+    clearInterval(A.analysisTimer);
+    clearTimeout(A.analysisSubmitTimer);
+    A.analysisTimer = setInterval(function () { idx = (idx + 1) % lines.length; paint(); }, 1150);
+    if (previewOnly) {
+      push('proposal_analysis_preview');
+      w.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    A.analysisSubmitTimer = setTimeout(function () { submit(); }, 3450);
+    push('proposal_analysis_start');
+    w.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function stopAnalysis() {
+    clearInterval(A.analysisTimer); clearTimeout(A.analysisSubmitTimer);
+    A.analysisTimer = null; A.analysisSubmitTimer = null; A.analyzing = false;
+    var root = $('#ppRoot'), panel = $('#ppAnalysis');
+    if (root) root.classList.remove('is-analyzing');
+    if (panel) panel.hidden = true;
   }
 
   function payload() {
@@ -350,6 +721,7 @@
       email: val('ppEmail'), phone: val('ppPhone'), region: val('ppRegion'), memo: val('ppMemo'),
       industry: A.st.industry, problems: A.st.problems.slice(), goals: A.st.goals.slice(),
       scale: $('#ppScale').value, timeline: $('#ppTimeline').value,
+      factoryConsult: $('#ppFactoryConsult').checked,
       consent: $('#ppConsent').checked, consentMkt: $('#ppConsentMkt').checked,
       website: $('#ppWebsite').value, elapsed: Date.now() - A.T0, caseViews: A.st.caseViews,
       source: src, landing: String(w.location.href).split('#')[0], referrer: d.referrer || ''
@@ -403,6 +775,7 @@
     }
     post(p).then(function (res) {
       var x = res.x;
+      if (!x.ok && isLocalPreview()) return goLocalPreview(p);
       if (res.s === 400 && x.fields) {
         Object.keys(x.fields).forEach(function (f) { setErr(f, x.fields[f]); });
         if (x.fields.problems) $('#ppErrProblems').hidden = false;
@@ -417,11 +790,29 @@
       if (x.token || x.dup) return goStatus(x);
       done(p, x);
     }).catch(function () {
+      if (isLocalPreview()) return goLocalPreview(p);
       ledger(p, 'NET');
       fail(L('연결이 불안정해 접수를 확인하지 못했습니다. 입력하신 내용은 담당자에게 전달했으며, 확인이 필요하시면 ' + TEL + ' 로 연락 주세요.', 'The connection was unstable and we could not confirm your request. Your details were passed to our team — call +82-2-2088-1454 if you need to confirm.'));
     });
   }
+
+  function isLocalPreview() {
+    return /^(localhost|127\.0\.0\.1)$/i.test(w.location.hostname);
+  }
+
+  /* Vite/정적 미리보기에는 서버리스 /api/proposal 이 없다. 이때만 실제
+     진행 화면의 데모 데이터로 연결하고, 운영 도메인에서는 반드시 API
+     접수 결과의 토큰으로 이동한다. */
+  function goLocalPreview(p) {
+    A.st.sending = false;
+    var q = new URLSearchParams({
+      demo: '1', co: p.company, nm: p.name, ti: p.title,
+      ind: A.st.industry, pr: A.st.problems.join(','), gl: A.st.goals.join(',')
+    });
+    go('proposal/status', '?' + q.toString());
+  }
   function fail(msg) {
+    stopAnalysis();
     A.st.sending = false; $('#ppCta').disabled = false; $('#ppCta').classList.remove('is-loading'); updateCta();
     showMsg(msg);
     $('#ppMsg').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -429,6 +820,7 @@
   function showMsg(m) { var el = $('#ppMsg'); el.hidden = !m; el.textContent = m; }
   function done(p, x) {
     /* 토큰 없이 끝난 경우(저장소 장애·봇 판정) — 담당자가 직접 보내드린다 */
+    stopAnalysis();
     $('#ppS4').innerHTML = '<div class="mkp-done"><span class="nh-eyebrow">' + L('접수 완료', 'Request received') + '</span><h3>' + L(esc(p.company) + ' ' + esc(p.name) + '님, 신청이 접수되었습니다', 'Thank you, ' + esc(p.name) + ' — your request is in') + '</h3>' +
       '<p>' + L('담당 엔지니어가 맞춤 제안서를 정리해 ' + esc(p.email) + ' 으로 접수 순서대로 보내드립니다. 급하시면 ' + TEL + ' 로 연락 주세요.', 'An engineer will prepare your proposal and email it to ' + esc(p.email) + ' in the order received. For urgent needs, call +82-2-2088-1454.') + '</p></div>';
   }
@@ -470,7 +862,7 @@
   /* 임시 저장 (새로고침 대비, 이 탭에만) */
   var F = ['ppCompany', 'ppFacility', 'ppName', 'ppTitle', 'ppEmail', 'ppPhone', 'ppRegion', 'ppMemo'];
   function saveDraft() {
-    var o = { industry: A.st.industry, problems: A.st.problems, goals: A.st.goals, scale: $('#ppScale').value, timeline: $('#ppTimeline').value, quick: A.quick, edited: A.st.edited };
+    var o = { industry: A.st.industry, problems: A.st.problems, goals: A.st.goals, scale: $('#ppScale').value, timeline: $('#ppTimeline').value, factoryConsult: $('#ppFactoryConsult').checked, quick: A.quick, edited: A.st.edited };
     F.forEach(function (f) { o[f] = val(f); });
     ss.set(DRAFT, JSON.stringify(o));
   }
@@ -500,17 +892,23 @@
     A.demo = Q.get('demo') === '1';
     A.QF = { from: Q.get('from') || '', fac: Q.get('fac') || '', con: Q.get('con') || '', scale: Q.get('scale') || '' };
     A.quick = !!(A.QF.fac && FINDER.fac[A.QF.fac]);
+    A.detailsOpen = false;
     resetApply();
     var root = $('#ppRoot');
     root.classList.toggle('is-quick', A.quick);
+    root.classList.toggle('is-recipient-first', A.quick);
+    root.classList.remove('is-details-open');
+    restoreAssistChoices();
     $('#ppHero').hidden = A.quick;
     $('#ppQuick').hidden = !A.quick;
     $('#ppQEdit').hidden = false;
 
     var o = readDraft();
     if (o) F.forEach(function (f) { if (o[f] && $('#' + f) && !$('#' + f).value) $('#' + f).value = o[f]; });
+    if (o && o.factoryConsult) $('#ppFactoryConsult').checked = true;
 
     if (A.quick) {
+      ensureAssistPanel();
       var fac = FINDER.fac[A.QF.fac], c = FINDER.con[A.QF.con] || { problems: [], goals: [] }, I = ind(fac);
       /* 조건 칩 — 주소의 fl·cl(파인더 표시 글자)은 화면에 그대로 쓰지 않는다(길이 제한 · 한국어 화면에서만) */
       var clip = function (v) { return String(v || '').slice(0, 40); };
@@ -523,10 +921,14 @@
       A.st.problems = inList.slice(0, 1);
       renderIndustry();
       $('#ppS3').hidden = true;
+      if (w.matchMedia && w.matchMedia('(min-width: 901px)').matches) $('#ppS2').hidden = true;
+      var quickNo = $('#ppS4 .mkp-no'); if (quickNo) quickNo.textContent = '01';
       if (FINDER.scale[A.QF.scale]) $('#ppScale').value = FINDER.scale[A.QF.scale];
       push('proposal_quick_view', { proposal_fac: A.QF.fac, proposal_con: A.QF.con });
       if (val('ppCompany')) detectCompany();
     } else {
+      var assistEvent = $('#ppAssistEvent'); if (assistEvent) assistEvent.hidden = true;
+      var regularNo = $('#ppS4 .mkp-no'); if (regularNo) regularNo.textContent = '04';
       var qi = Q.get('industry'), qp = (Q.get('problems') || '').split(',').filter(Boolean), qg = (Q.get('goals') || '').split(',').filter(Boolean);
       var src = qi ? { industry: qi, problems: qp, goals: qg } : (o && !o.quick ? o : null);
       if (src && ind(src.industry)) {
@@ -539,6 +941,7 @@
       }
     }
     updateCta(); preview();
+    if (Q.get('preview') === 'analysis') setTimeout(function () { startAnalysis(true); }, 0);
     push('proposal_view', { proposal_quick: A.quick ? 1 : 0 });
   }
 
@@ -636,7 +1039,7 @@
   function setBar(v, quote) {
     var cta = $('#ppsCta'); if (!cta) return;
     if (quote) { cta.textContent = L('현장 전체 견적 요청 →', 'Request a full-site quote →'); cta.setAttribute('href', quoteHref(v)); cta.setAttribute('data-quote', '1'); }
-    else { cta.textContent = L('기다리는 동안 현장 진단 예약 →', 'Book a site survey while you wait →'); cta.setAttribute('href', '/visit?utm_source=proposal_status&utm_medium=web&utm_campaign=custom_proposal'); cta.removeAttribute('data-quote'); }
+    else { cta.textContent = L('기다리는 동안 현장 진단 예약 →', 'Book a site survey while you wait →'); cta.setAttribute('href', 'https://monnit.co.kr/contact'); cta.removeAttribute('data-quote'); }
   }
 
   function render(x, demo) {
@@ -659,78 +1062,55 @@
     var sc = v.scope || { problems: v.problems, others: [], openZones: [], lockedZones: [], openLevels: [], lockedLevels: [], also: [], quote: '/contact' };
     var eta = p.eta || (p.sent ? p.sentAt : p.due);
     var segName = v.segment || I.label;
+    var miniStage = p.sent ? 3 : (p.pct > 1 ? 2 : 1);
+    var assignedAt = (p.stages[0] || {}).atShort || (p.stages[0] || {}).at || '';
 
     var head = p.sent
       ? '<h2 class="seo-h1 mkps-h">' + L(who + '의 맞춤 제안서를<br><em>메일로 보내드렸습니다</em>', who + ', your custom proposal<br><em>has been emailed</em>') + '</h2>'
-      : '<h2 class="seo-h1 mkps-h">' + L(who + '만을 위한 제안서를<br><em>Monnit 글로벌 데이터로</em> 준비하고 있습니다', 'We’re preparing a proposal for ' + (who ? who + ',' : 'you,') + '<br><em>built on Monnit’s global data</em>') + '</h2>';
+      : '<h2 class="seo-h1 mkps-h">' + L('<span class="mkps-title-person">' + who + '만을 위한 제안서를</span><em>Monnit 글로벌 데이터로</em><span class="mkps-title-last">준비하고 있습니다</span>', 'We’re preparing a proposal for ' + (who ? who + ',' : 'you,') + '<br><em>built on Monnit’s global data</em>') + '</h2>';
 
     var html =
     '<div class="mkps-top">' +
-      '<span class="nh-eyebrow">' + (p.sent ? 'Delivered' : instant ? L('접수 순서대로 처리 중', 'Processing in order received') : 'Engineer review') + ' · ' + esc(v.no) + (demo ? L(' · 시연 화면', ' · Demo') : '') + '</span>' +
       head +
       (v.recognized ? '<p class="mkps-rec">' + esc(v.recognized) + (v.ownCase && (!en || v.ownCase.name) ? ' · <b>' + L('모넷 도입 고객 확장 제안', 'Expansion proposal for an existing Monnit customer') + '</b>' : '') + '</p>' : '') +
       (en ? '<p class="mkps-rec is-note">The proposal PDF and emails are written in Korean. For an English proposal, <a href="' + esc(quoteHref(v)) + '" data-quote="1">contact our team</a>.</p>' : '') +
     '</div>' +
 
-    '<div class="mkps-grid">' +
-      /* A. 배달형 진행 */
-      '<div class="mkps-track">' +
-        '<div class="mkps-eta"><div><small>' + (p.sent ? L('발송 시각', 'Sent') : L('도착 안내', 'Arrival')) + '</small><b>' + esc(eta) + '</b></div>' +
-          (p.sent ? '<span class="mkps-left is-done">' + L('메일함을 확인해 주세요', 'Check your inbox') + '</span>'
-            : instant ? '<span class="mkps-left is-live"><i aria-hidden="true"></i>' + L('순차 처리 중', 'In progress') + '</span>'
-            : '<span class="mkps-left" id="ppsLeft">--:--</span>') + '</div>' +
-        '<div class="mkps-bar" aria-hidden="true"><div class="mkps-fill" id="ppsFill"></div>' +
-          p.stages.map(function (st, i) { return '<span class="mkps-dot' + (st.state === 'done' ? ' done' : '') + '" style="left:' + (i / (p.stages.length - 1) * 100) + '%"></span>'; }).join('') +
-          '<span class="mkps-rider" id="ppsRider">' + ICON.doc + '</span></div>' +
-        '<div class="mkps-labels">' + shortLabels(instant).map(function (t, i) { return '<span class="' + (p.stages[i].state === 'now' ? 'on' : '') + '">' + t + '</span>'; }).join('') + '</div>' +
-        '<p class="mkps-sr" role="progressbar" aria-valuenow="' + p.pct + '" aria-valuemin="0" aria-valuemax="100">' + L('진행률 ', 'Progress ') + p.pct + '%</p>' +
-        '<ol class="mkps-steps">' + p.stages.map(function (st, i) {
-          return '<li class="' + st.state + '"><span class="mkps-ic">' + (st.state === 'done' ? '✓' : st.state === 'stop' ? '×' : (i + 1)) + '</span>' +
-            '<div><b>' + esc(st.label) + '</b><small>' + esc(st.sub) + '</small>' + (st.state === 'now' ? '<div class="mkps-live" id="ppsLive"></div>' : '') + '</div>' +
-            '<time>' + esc(st.state === 'now' ? L('진행 중', 'In progress') : st.at) + '</time></li>';
-        }).join('') + '</ol>' +
-        (p.note ? '<p class="mkps-note">' + esc(p.note) + '</p>' : '') +
-        (p.sent ? '<div class="mkps-mailbox">' + ICON.mail + '<div><b>' + L(esc(mailTo) + ' 으로 PDF를 보냈습니다', 'We sent the PDF to ' + esc(mailTo)) + '</b><small>' + L('메일이 보이지 않으면 스팸함을 확인해 주세요. 그래도 없으면 ' + TEL + ' 또는 korea@monnit.com 으로 알려 주시면 바로 다시 보내드립니다.', 'If you can’t find it, check your spam folder or let us know at korea@monnit.com / +82-2-2088-1454 and we’ll resend it.') + '</small></div></div>' : '') +
+    '<aside class="mkps-sticky-progress" aria-label="' + L('제안서 진행 상태', 'Proposal progress') + '">' +
+      '<h3>' + L('알림 발송 과정', 'Delivery progress') + '</h3>' +
+      '<div class="mkps-mini-steps stage-' + miniStage + '">' +
+        '<i class="mkps-mini-line"><em></em></i>' +
+        '<div class="done"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><b>' + L('담당자<br>배정', 'Engineer<br>assigned') + '</b><small>' + (assignedAt ? esc(assignedAt) + ' ' + L('완료', 'done') : L('완료', 'Done')) + '</small></div>' +
+        '<div class="' + (miniStage === 2 ? 'now' : miniStage > 2 ? 'done' : '') + '"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15v-4M12 17V7M18 15V9"/></svg></span><b>' + L('데이터<br>분석', 'Data<br>analysis') + '</b><small>' + (miniStage === 2 ? L('현재 진행중', 'In progress') : miniStage > 2 ? L('완료', 'Done') : L('대기', 'Pending')) + '</small></div>' +
+        '<div class="' + (miniStage === 3 ? 'done' : '') + '"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L20 4l-6.2 16-3.1-6.1-7.2-2.7zM10.7 13.9L20 4"/></svg></span><b>' + L('제안서<br>발송', 'Proposal<br>delivery') + '</b><small>' + (p.sent ? L('발송 완료', 'Sent') : L('순차 발송 예정', 'Scheduled')) + '</small></div>' +
       '</div>' +
+      '<div class="mkps-mini-note"><strong>ⓘ</strong><p><b>' + (p.sent ? L('제안서 발송이 완료되었습니다.', 'Your proposal has been sent.') : L('현재 데이터를 분석 중이며,<br>완료 후 제안서가 순차 발송됩니다.', 'We are analyzing your data.<br>The proposal will be sent when complete.')) + '</b><small>' + L('필요 시 담당자가 별도로 연락드립니다.', 'Our team will contact you if needed.') + '</small></p></div>' +
+    '</aside>' +
+    (p.sent ? '<div class="mkps-mailbox mkps-mailbox-top">' + ICON.mail + '<div><b>' + L(esc(mailTo) + ' 으로 PDF를 보냈습니다', 'We sent the PDF to ' + esc(mailTo)) + '</b><small>' + L('메일이 보이지 않으면 스팸함을 확인해 주세요. 그래도 없으면 ' + TEL + ' 또는 korea@monnit.com 으로 알려 주시면 바로 다시 보내드립니다.', 'If you can’t find it, check your spam folder or let us know at korea@monnit.com / +82-2-2088-1454 and we’ll resend it.') + '</small></div></div>' : '') +
 
-      '<div class="mkps-side">' +
-        /* B. 결과 카드 */
-        '<div class="mkps-result">' +
-          '<p class="mkps-strike"><s>' + L('누구에게나 같은 제품 카탈로그', 'The same catalog for everyone') + '</s></p>' +
-          '<p class="mkps-k">' + L('Monnit 글로벌 데이터가 찾은 가장 닮은 현장', 'The closest site in Monnit’s global data') + '</p>' +
-          '<div class="mkps-tiles">' + (tiles.length ? tiles.map(function (r, i) {
-            return '<div class="' + (first ? 'pop' : '') + '" style="animation-delay:' + (0.1 + i * 0.12) + 's"><b>' + esc(r.n) + '</b><small>' + esc(r.l) + '</small></div>';
-          }).join('') : '<div><b>—</b><small>' + L('분석 중', 'Analyzing') + '</small></div>') + '</div>' +
-          (t1 ? '<p class="mkps-rank">' + L('1위 ', 'No.1 ') + '<b>' + esc(t1.name) + ' ' + t1.pct + '%</b>' + (t2 ? L(' · 2위 ', ' · No.2 ') + esc(t2.name) + ' ' + t2.pct + '%' : '') + '</p>' : '') +
-          '<p class="mkps-verdict">' + verdict + '</p>' +
-          '<p class="mkps-foot">' + L(esc(brand.countries) + '개국 Monnit 글로벌 레퍼런스 · ' + esc(brand.publicRef) + ' 국내 현장 · ' + esc(segName) + ' 플레이북 대조',
-            'Matched against Monnit references across ' + esc(brand.countries) + ' countries, Korean sites incl. ' + esc(brand.publicRef) + ', and the ' + esc(segName) + ' playbook') + '</p>' +
-        '</div>' +
-        /* D. 알림 */
-        '<div class="mkps-noti"><p class="mkps-sh">' + L('알림 발송 과정', 'Notifications') + '</p>' + x.notices.map(function (n) {
-          var lab = n.state === 'done' ? L('완료', 'Done') : n.state === 'retry' ? L('재시도 중', 'Retrying') : n.state === 'skip' ? L('취소', 'Canceled') : L('예정', 'Planned');
-          return '<div class="mkps-n ' + n.state + '"><span>' + ICON[NICON[n.key] || 'mail'] + '</span><div><b>' + esc(n.label) + '<em>' + lab + '</em></b><small>' + esc(n.ch) + (n.at ? ' · ' + esc(n.at) : '') + '</small></div></div>';
-        }).join('') + '</div>' +
+    '<section class="mkps-summary-card mkps-summary-contents">' +
+      '<div class="mkps-summary-head"><div><h3>' + L('제안서에서 확인할 수 있는 내용', 'What your proposal includes') + '</h3><p>' + L('선택하신 현장과 과제를 기준으로 핵심 내용만 정리합니다.', 'Key findings based on your site and selected concern.') + '</p></div></div>' +
+      '<div class="mkps-summary-grid">' +
+        '<article><b>' + L('현장 문제 진단', 'Site diagnosis') + '</b><span>' + esc((picked[0] || {}).label || v.problems[0] || L('선택 과제 분석', 'Selected concern analysis')) + '</span></article>' +
+        '<article><b>' + L('권장 센서', 'Recommended sensors') + '</b><span>' + esc(v.sensors.slice(0, 3).map(function (s2) { return s2.name; }).join(' · ') || L('현장 데이터 기반 구성', 'Configuration based on site data')) + '</span></article>' +
+        '<article><b>' + L('유사 사례', 'Similar references') + '</b><span>' + esc(top.slice(0, 2).map(function (t) { return t.name; }).join(' · ') || L('글로벌 레퍼런스 대조', 'Global reference matching')) + '</span></article>' +
+        '<article><b>' + L('알림·대응 및 운영 방향', 'Alerts and operations') + '</b><span>' + esc((v.playbook && v.playbook.automation || []).slice(0, 2).join(' · ') || L('알림과 대응 체계 제안', 'Alert and response recommendations')) + '</span></article>' +
       '</div>' +
-    '</div>' +
+    '</section>' +
 
-    scopeCard(v, p) +
+    '<section class="mkps-summary-card mkps-summary-results">' +
+      '<div class="mkps-summary-head"><div><h3>' + L('우리 현장에 맞는 제안은 어떻게 준비하나요?', 'How do we tailor the proposal to your site?') + '</h3><p>' + L('입력하신 조건과 Monnit 레퍼런스를 비교해, 현장에 맞는 적용 방향을 검토합니다.', 'We compare your conditions with Monnit references to review the right implementation approach for your site.') + '</p></div></div>' +
+      '<div class="mkps-result-strip">' + (tiles.length ? tiles.map(function (r, i) {
+        return '<div class="' + (first ? 'pop' : '') + '" style="animation-delay:' + (0.1 + i * 0.12) + 's"><b>' + esc(r.n) + '</b><small>' + esc(r.l) + '</small></div>';
+      }).join('') : '<div><b>—</b><small>' + L('분석 중', 'Analyzing') + '</small></div>') + '</div>' +
+      '<p class="mkps-summary-source">' + L(esc(brand.countries) + '개국 Monnit 글로벌 레퍼런스와 ' + esc(segName) + ' 산업 플레이북을 대조합니다.', 'Matched against Monnit references across ' + esc(brand.countries) + ' countries and the ' + esc(segName) + ' playbook.') + '</p>' +
+    '</section>' +
 
-    /* C. 산업 플레이북 */
-    (v.playbook && v.playbook.chronic.length ? '<div class="mkps-block">' +
-      '<span class="nh-eyebrow">' + esc(segName) + ' Playbook</span>' +
-      '<h3>' + L('이 현장의 고질적인 문제부터 스마트 관리까지 담았습니다', 'From recurring site problems to smart operations') + '</h3>' +
-      '<div class="mkp-chronic is-grid">' + v.playbook.chronic.map(function (c) {
-        return '<div class="mkp-ch' + (c.focus ? ' on' : '') + '"><b>' + esc(c.title) + '</b><span>' + esc(c.detail) + '</span></div>';
-      }).join('') + '</div>' +
-      '<div class="mkps-pb">' +
-        (v.playbook.personas.length ? '<div><p class="mkp-peek-h">' + L('담당자별 어려움', 'Pain points by role') + '</p><div class="mkp-zones">' + v.playbook.personas.map(function (r) { return '<span>' + esc(r) + '</span>'; }).join('') + '</div></div>' : '') +
-        '<div><p class="mkp-peek-h">' + L('공정·구역별 모니터링 맵', 'Zone monitoring map') + ' <small>' + L('(파란색: 말씀하신 과제와 연결 · 점선: 견적 요청 시 정리)', '(blue: linked to your concern · dashed: covered in a full-site quote)') + '</small></p><div class="mkp-zones">' + v.playbook.zones.map(function (z) {
-          var lk = (sc.lockedZonesKo || sc.lockedZones).indexOf(z.ko || z.zone) >= 0;
-          return '<span class="' + (z.focus ? 'on' : lk ? 'lock' : '') + '"' + (lk ? ' title="' + L('전체 현장 견적 요청 시 정리', 'Covered in a full-site quote') + '"' : '') + '>' + esc(z.zone) + '</span>';
-        }).join('') + '</div></div>' +
-        '<div><p class="mkp-peek-h">' + L('센서 이후 — 스마트 관리 로드맵', 'Beyond sensors — smart operations roadmap') + '</p><div class="mkp-road">' + v.playbook.automation.map(function (a, i) { return '<i class="' + (i >= 2 ? 'lock' : '') + '" style="height:' + (34 + i * 10) + 'px"><em>L' + (i + 1) + '</em>' + esc(a) + '</i>'; }).join('') + '</div></div>' +
-      '</div></div>' : '') +
+    '<section class="mkps-summary-card mkps-summary-cta" id="mkpsQuoteCard">' +
+      '<div class="mkps-summary-head"><div><h3>' + L('제안서로 방향을 확인했다면,<br>견적에서 실제 적용 범위를 확인해보세요.', 'Ready for the next step?<br>Confirm the implementation scope with a quote.') + '</h3></div></div>' +
+      '<p class="mkps-quote-note">' + L('센서 수량 · 설치 위치 · 적용 범위 · 예상 비용까지 함께 확인할 수 있습니다.', 'Confirm sensor quantities, locations, scope, and expected cost together.') + '</p>' +
+      '<a class="mkp-btn" href="' + esc(quoteHref(v)) + '" data-quote="1">' + L('현장 맞춤 견적 받아보기 →', 'Request a site-specific quote →') + '</a>' +
+    '</section>' +
 
     /* E. 산업 × 과제 */
     '<details class="mkps-acc"><summary>' + L(esc(I.short || I.label) + ' 현장 공통 과제와 우리 현장 과제', 'Common challenges in ' + esc(I.label) + ' vs. yours') + ' <span>' + L('기준 과제 ' + picked.length + '건', picked.length + ' selected') + '</span></summary><div class="mkp-plist is-static">' +
@@ -745,17 +1125,15 @@
       '<p class="mkps-small">' + L('사례 페이지를 봐도 상단 「내 맞춤 제안서」 버튼으로 이 화면에 바로 돌아올 수 있습니다. 사례 수치는 해당 현장의 공개 결과이며, 현장마다 달라질 수 있습니다.', 'After viewing a case, use the “My proposal” button to return here. Figures are published results and vary by site.') + '</p></div></details>' : '') +
     '<details class="mkps-acc"><summary>' + L('제안서에 들어갈 권장 센서', 'Recommended sensors') + ' <span>' + L(v.sensors.length + '종', v.sensors.length + ' types') + '</span></summary><div class="mkp-plist is-static">' +
       v.sensors.map(function (s2) { return '<div class="mkp-pitem on"><span class="mkp-ck"></span><span><b>' + esc(s2.name) + '</b><small>' + esc(s2.for.join(', ')) + '</small></span></div>'; }).join('') +
-      '</div><p class="mkps-small">' + L('국내 940MHz 무선 게이트웨이와 iMonnit 관제로 구성합니다. 수량·위치는 현장 확인 후 정해집니다.', 'Configured with 940MHz wireless gateways (Korea) and iMonnit monitoring. Quantities and locations are confirmed on site.') + '</p></details>' +
+      '</div></details>' +
     '<details class="mkps-acc"><summary>' + L('입력하신 내용', 'Your request') + '</summary><div><div class="mkp-chips">' +
       v.problems.map(function (t) { return '<span class="mkp-chip is-static" aria-pressed="true">' + esc(t) + '</span>'; }).join('') +
       v.goals.map(function (t) { return '<span class="mkp-chip is-static">' + esc(t) + '</span>'; }).join('') +
       '</div>' + (v.facility ? '<p class="mkps-small">' + L('시설 · ', 'Site · ') + esc(v.facility) + '</p>' : '') +
       '<p class="mkps-small">' + L('바꾸실 내용이 있으면 메일에 회신해 주세요. 담당자가 반영해 드립니다.', 'To change anything, simply reply to our email.') + '</p></div></details>' +
 
-    '<div class="mkps-share"><div><b>' + L('다른 현장을 맡은 동료에게도 필요할까요?', 'Could a colleague use one for another site?') + '</b><small>' + L('신청 페이지 주소만 전달됩니다. 입력하신 정보는 공유되지 않습니다.', 'Only the request page link is shared — never your details.') + '</small></div>' +
-      '<button type="button" class="mkp-btn is-ghost" id="ppsShare">' + L('신청 페이지 링크 공유', 'Share request page') + '</button>' +
-      '<button type="button" class="mkp-btn is-ghost" data-pgo="proposal">' + L('다른 현장도 신청하기', 'Request for another site') + '</button></div>' +
-    '<p class="mkps-small">' + L('이 화면은 신청하신 분의 브라우저에서만 열립니다. 주식회사 모넷코리아 · ' + TEL + ' · korea@monnit.com', 'This page opens only in the browser used for the request. Monnit Korea · +82-2-2088-1454 · korea@monnit.com') + '</p>';
+    '<div class="mkps-share"><div><b>' + L('다른 현장을 맡은 동료에게도 필요할까요?', 'Could a colleague use one for another site?') + '</b><small>' + L('신청 페이지 주소만 전달되며 입력하신 정보는 공유되지 않습니다.', 'Only the request page link is shared — never your details.') + '</small></div>' +
+      '<button type="button" class="mkp-btn is-ghost" id="ppsShare">' + L('신청 페이지 링크 공유', 'Share request page') + '</button></div>';
 
     var y = w.scrollY;
     var opened = $$('#ppsApp details').map(function (el) { return el.open; });
@@ -768,8 +1146,15 @@
     S.lang = en;
 
     var fill = $('#ppsFill'), rider = $('#ppsRider');
-    var set = function () { fill.style.width = p.pct + '%'; rider.style.left = p.pct + '%'; };
-    if (first) { fill.style.width = '0%'; rider.style.left = '0%'; setTimeout(set, 350); } else set();
+    var set = function () {
+      if (fill) fill.style.width = p.pct + '%';
+      if (rider) rider.style.left = p.pct + '%';
+    };
+    if (first && fill) {
+      fill.style.width = '0%';
+      if (rider) rider.style.left = '0%';
+      setTimeout(set, 350);
+    } else set();
 
     live(v, p);
     tick();
@@ -912,7 +1297,7 @@
     var sc = v.scope; if (!sc || !sc.problems.length) return '';
     var li = function (a) { return a.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join(''); };
     return '<div class="mkps-scope' + (p.sent ? ' is-sent' : '') + '">' +
-      '<div class="mkps-scope-h"><span class="nh-eyebrow">What\'s included</span><h3>' + L('이 제안서는 <em>「' + esc(sc.problems.join(', ')) + '」</em> 기준입니다', 'This proposal focuses on <em>“' + esc(sc.problems.join(', ')) + '”</em>') + '</h3>' +
+      '<div class="mkps-scope-h"><h3>' + L('이 제안서는 <em>「' + esc(sc.problems.join(', ')) + '」</em> 기준입니다', 'This proposal focuses on <em>“' + esc(sc.problems.join(', ')) + '”</em>') + '</h3>' +
         '<p>' + L('무료 맞춤 제안서는 가장 고민되는 과제 하나를 깊게 다룹니다. 다른 과제와 현장 전체 구성·수량·견적은 견적 요청으로 담당 엔지니어가 함께 정리합니다.', 'The free proposal goes deep on your top concern. For other challenges and a full-site configuration, quantities and pricing, request a quote and an engineer will prepare it with you.') + '</p></div>' +
       '<div class="mkps-scope-cols">' +
         '<div class="in"><p>' + L('제안서에 담긴 것', 'Included') + '</p><ul>' +
@@ -952,7 +1337,7 @@
       return (b.industries.indexOf(ik) >= 0) - (a.industries.indexOf(ik) >= 0) || a.global - b.global;
     }).slice(0, 3);
     var pcts = [88, 61, 47];
-    var now = Date.now(), created = S.demoT0, span = 150000, due = created + span, tt = Math.min(1, (now - created) / span);
+    var now = Date.now(), span = 150000, created = Q.get('done') === '1' ? now - span - 1000 : S.demoT0, due = created + span, tt = Math.min(1, (now - created) / span);
     var AT = [0, 0.06, 0.18, 0.36, 0.56, 0.82, 1];
     var ST = isEn() ? [['Request received', 'We have your company, site and challenge details'], ['Industry & challenge analysis', 'We identify your industry and process'], ['Gathering Monnit data', 'Global references, industry playbooks and sensor data'], ['Monnit insight engine', 'Matching similar sites and reference figures'], ['Writing your proposal', 'Zone monitoring map and smart operations roadmap'], ['Quality check', 'Figures, wording and structure are checked automatically'], ['Proposal delivery', 'We email the PDF to you']]
       : [['고객 정보 수집', '입력하신 회사·시설·과제 정보를 받았습니다'], ['업종·과제 분석', '회사와 문의 내용으로 업종과 세부 공정을 정리합니다'], ['모넷 데이터 취합', 'Monnit 글로벌 레퍼런스·산업 플레이북·센서 적용 데이터를 모읍니다'], ['모넷 인사이트 알고리즘 가동', '유사 현장을 매칭하고 참고 수치를 추립니다'], ['맞춤 제안서 작성', '구역별 모니터링 맵과 스마트 관리 로드맵을 조판합니다'], ['품질 점검', '수치·표현·구성을 자동으로 점검합니다'], ['제안서 발송', '이메일로 PDF를 보내드립니다']];
@@ -962,6 +1347,10 @@
       var x = new Date(ms);
       if (isEn()) return 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[x.getMonth()] + ' ' + x.getDate() + ' ' + ((x.getHours() % 12) || 12) + ':' + ('0' + x.getMinutes()).slice(-2) + (x.getHours() < 12 ? ' AM' : ' PM');
       return (x.getMonth() + 1) + '월 ' + x.getDate() + '일(' + '일월화수목금토'[x.getDay()] + ') ' + (x.getHours() < 12 ? '오전 ' : '오후 ') + ((x.getHours() % 12) || 12) + ':' + ('0' + x.getMinutes()).slice(-2);
+    };
+    var fmtShort = function (ms) {
+      var x = new Date(ms);
+      return (x.getMonth() + 1) + '/' + x.getDate() + ' ' + ((x.getHours() % 12) || 12) + ':' + ('0' + x.getMinutes()).slice(-2);
     };
     var sensors = {};
     pr.forEach(function (k) { (KB.problems[k].sensors || []).forEach(function (sk) { (sensors[sk] = sensors[sk] || []).push(probL(k)); }); });
@@ -997,7 +1386,7 @@
         note: sent ? L('담당 엔지니어가 영업일 기준 1일 안에 내용을 확인하고 연락드립니다.', 'An engineer will review it and contact you within 1 business day.') : '',
         eta: sent ? fmt(due) : L('몇 시간 이내 · 접수 순서대로', 'Within a few hours · in the order received'),
         due: fmt(due), dueMs: due, remainMs: Math.max(0, due - now), sent: sent, sentAt: sent ? fmt(due) : '',
-        stages: ST.map(function (st, i) { return { key: i, label: st[0], sub: st[1], state: sent || i < idx ? 'done' : i === idx ? 'now' : 'wait', at: sent || i < idx ? fmt(created + AT[i] * span) : '' }; })
+        stages: ST.map(function (st, i) { return { key: i, label: st[0], sub: st[1], state: sent || i < idx ? 'done' : i === idx ? 'now' : 'wait', at: sent || i < idx ? fmt(created + AT[i] * span) : '', atShort: sent || i < idx ? fmtShort(created + AT[i] * span) : '' }; })
       },
       notices: [
         { key: 'staff', label: L('담당 엔지니어 배정', 'Engineer assigned'), ch: L('모넷코리아 기술영업팀', 'Monnit Korea technical sales'), state: 'done', at: fmt(created) },
