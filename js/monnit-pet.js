@@ -16,6 +16,8 @@
 (function (w, d) {
   'use strict';
   if (w.MonnitPet) return;
+  /* 2026-10-02 종료 — 사이트 도우미는 새 「모니」(js/proposal-chat.js) 하나로 통일. 예전 HTML 이 이 파일을 불러도 아무것도 띄우지 않는다 */
+  w.MonnitPet = { disabled: true }; return;
   /* 띄우지 않을 경로 — 제안서·접수 진행 화면, 광고 전용 랜딩, 관리 화면 */
   var EXCLUDE = /^\/(proposal|ops|editor|visit|contact|church|email|privacy|404|promo(?=\/|-|\.html|$))(\/|-|\.html|$)/;
   if (EXCLUDE.test(w.location.pathname)) return;

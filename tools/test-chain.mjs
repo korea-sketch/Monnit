@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 const F = process.cwd() + '/netlify/functions/';
 
+const MONTH_KEY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7) + '.jsonl'; /* 원장은 서버 시각(이번 달)으로 쌓인다 */
 globalThis.__MEM = { leads: {} }; globalThis.__NOTIFY = []; globalThis.__MON = [];
 
 fs.writeFileSync(F + '_store_c.mjs', `
@@ -43,7 +44,7 @@ let res = await post(M, {
   '출처': 'utm_source=meta · utm_content=alarm_a'
 });
 ok('응답 204', res.status === 204, res.status);
-const rows = (globalThis.__MEM.leads['2026-09.jsonl'] || '').split('\n').filter(Boolean).map(JSON.parse);
+const rows = (globalThis.__MEM.leads[MONTH_KEY] || '').split('\n').filter(Boolean).map(JSON.parse);
 ok('① 원장 1건', rows.length === 1, rows.length);
 ok('② 알림 메일 1통', globalThis.__NOTIFY.length === 1, globalThis.__NOTIFY.length);
 ok('③ 먼데이 1건', globalThis.__MON.length === 1, globalThis.__MON.length);
@@ -57,7 +58,7 @@ ok('회사명 전달', globalThis.__MON[0].l.company === '가나전자', globalT
 const before = [globalThis.__NOTIFY.length, globalThis.__MON.length];
 res = await post(M, { '문의 사항': '(미기재)' });
 ok('껍데기 접수는 204', res.status === 204, res.status);
-ok('껍데기는 원장 미기록', (globalThis.__MEM.leads['2026-09.jsonl'].split('\n').filter(Boolean).length) === 1);
+ok('껍데기는 원장 미기록', (globalThis.__MEM.leads[MONTH_KEY].split('\n').filter(Boolean).length) === 1);
 ok('껍데기는 메일·먼데이 없음',
    globalThis.__NOTIFY.length === before[0] && globalThis.__MON.length === before[1]);
 
@@ -66,7 +67,7 @@ globalThis.__MEM = { leads: {} }; globalThis.__NOTIFY = [];
 M = await mk('_monday_boom.mjs');
 res = await post(M, { '회사명': '다라산업', '이메일': 'b@x.com', '접점': 'promo_apply' });
 ok('먼데이 예외에도 204', res.status === 204, res.status);
-ok('먼데이 예외에도 원장 기록', (globalThis.__MEM.leads['2026-09.jsonl'] || '').includes('다라산업'));
+ok('먼데이 예외에도 원장 기록', (globalThis.__MEM.leads[MONTH_KEY] || '').includes('다라산업'));
 ok('먼데이 예외에도 알림 메일', globalThis.__NOTIFY.length === 1, globalThis.__NOTIFY.length);
 
 /* ── 접수 시각을 화면이 마음대로 정하지 못하게 (2026-09-18) ──────────────

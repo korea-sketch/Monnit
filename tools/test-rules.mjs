@@ -5,6 +5,7 @@
    3) 발송은 StaticForms 기본, 실패하면 Web3Forms */
 import fs from 'node:fs';
 const F = process.cwd() + '/netlify/functions/';
+const MONTH_KEY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7) + '.jsonl'; /* 원장은 서버 시각(이번 달)으로 쌓인다 */
 
 /* 2026-09-18: 무료 발송 서비스 키의 「코드에 박힌 기본값」을 없앴다.
    이 테스트는 키 보유 여부가 아니라 발송 순서를 확인하므로 값을 넣어 준다.
@@ -89,7 +90,7 @@ export async function append(s,k,o){ (globalThis.__MEM[s]=globalThis.__MEM[s]||{
   await S(new Request('https://x/api/lead', { method: 'POST', headers: { 'content-type': 'application/json', 'user-agent': 't' },
     body: JSON.stringify({ lead_type: 'contact', ts: '2026-09-07T05:00:00Z', page: '/promo/alarm',
       payload: { '회사명': '가나전자', '이름/직급': '홍길동', '이메일': 'a@x.com', '접점': 'promo_apply' } }) }));
-  ok('ops 원장 기록', /가나전자/.test(globalThis.__MEM.leads['2026-09.jsonl'] || ''), globalThis.__MEM.leads);
+  ok('ops 원장 기록', /가나전자/.test(globalThis.__MEM.leads[MONTH_KEY] || ''), globalThis.__MEM.leads);
   ok('먼데이 등록', globalThis.__MON.length === 1, globalThis.__MON.length);
   ok('알림 1통', globalThis.__NOTIFY.length === 1, globalThis.__NOTIFY.length);
   for (const f of ['_store_r.mjs', '_notify_r.mjs', '_monday_r.mjs', '_lead_r.mjs']) fs.unlinkSync(F + f);

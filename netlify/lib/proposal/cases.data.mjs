@@ -1,6 +1,6 @@
-/* 자동 생성 — scripts/proposal-sync.mjs (2026-10-02T07:20:02.823Z, 원본: 구글 시트 Cases 탭)
+/* 자동 생성 — scripts/proposal-sync.mjs (2026-10-02T11:06:13.294Z, 원본: 구글 시트 Cases 탭)
    직접 고치지 말고 시트를 고치세요. 시트를 못 읽을 때는 이 스냅샷을 그대로 씁니다. */
-export const SYNCED_AT = "2026-10-02T07:20:02.823Z";
+export const SYNCED_AT = "2026-10-02T11:06:13.294Z";
 export default [
  {
   "key": "samsung-biologics",

@@ -1406,6 +1406,7 @@ function setURL(target, replace){
 }
 
 function navigate(target) {
+  { const _k = document.querySelector('h1.ssg-h1'); if (_k && _k.dataset.route !== String(target || '').replace(/^\/+|\/+$/g, '')) _k.remove(); }
   // target: "stories", "applications", "awards", "partners", "case/{id}", or "app/{id}"
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -5279,7 +5280,16 @@ function renderAll() {
 }
 async function boot() {
   /* SSG 로 심어 둔 크롤러용 본문은 SPA 가 뜨면 치웁니다 (같은 내용을 두 번 보여주지 않도록) */
-  try { const _ssg = document.getElementById('ssg-content'); if (_ssg) _ssg.remove(); } catch(e){}
+  try { const _ssg = document.getElementById('ssg-content'); if (_ssg) {
+    /* 2026-10-02 검색 최적화 — 크롤러가 렌더링한 화면에 <h1>이 하나도 남지 않던 문제.
+       SSG 본문의 제목(h1)만 화면에 보이지 않는 h1 로 남겨 둔다(보이는 제목과 같은 문구). 다른 화면으로 이동하면 지운다. */
+    const _h = _ssg.querySelector('h1');
+    if (_h && ![...document.querySelectorAll('h1')].some(x => !_ssg.contains(x))) {
+      const k = document.createElement('h1'); k.className = 'sr-only ssg-h1';
+      k.dataset.route = _ssg.getAttribute('data-route') || ''; k.textContent = _h.textContent.trim();
+      document.body.insertBefore(k, document.body.firstChild);
+    }
+    _ssg.remove(); } } catch(e){}
   // 1) 기본 데이터로 즉시 렌더 + 초기 라우팅 (빠른 첫 화면 · 느린 망에서도 빈 화면/홈 고정 없음)
   renderAll();
   /* 주소에서 첫 화면을 정합니다.

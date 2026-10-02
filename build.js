@@ -1064,7 +1064,7 @@ const promoPages = [];   // sitemap 용
       +   '<a href="' + SITE + '/promotions">전체 프로모션</a></p>'
       + '</div>'
       /* 사람이 볼 때는 아래 실제 랜딩이 이 블록을 대체합니다 */
-      + '<script>(function(){var b=document.getElementById("promo-ssg");if(b&&b.parentNode)b.parentNode.removeChild(b);})();</script>';
+      + '<script>(function(){var b=document.getElementById("promo-ssg");if(!b||!b.parentNode)return;/* 2026-10-02 검색 최적화: 화면이 뜬 뒤에도 제목 h1 하나는 보이지 않게 남긴다 */var h=b.querySelector("h1");if(h){var k=document.createElement("h1");k.textContent=h.textContent;k.setAttribute("style","position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0");b.parentNode.insertBefore(k,b);}b.parentNode.removeChild(b);})();</script>';
 
     h = h.replace('<body>', '<body>\n' + seoBlock);
 
