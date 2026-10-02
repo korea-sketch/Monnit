@@ -66,7 +66,12 @@ const P = { '회사명': '1004test', '이름/직급': '1004test', '전화번호'
     let f = process.cwd() + '/' + p + '/index.html';
     if (!fs.existsSync(f)) f = process.cwd() + '/' + p.replace('/', '-') + '.html';
     if (!fs.existsSync(f)) { ok(p + ' — 파일 없음', false); continue; }
-    const src = fs.readFileSync(f, 'utf8');
+    let src = fs.readFileSync(f, 'utf8');
+    /* 2026-10-02 /promo/alarm 은 폼 코드가 외부 파일(js/promo-alarm.js)에 있다 — 페이지가 부르는 로컬 스크립트도 함께 본다 */
+    for (const m of src.matchAll(/<script[^>]+src=["']\/([^"'?#]+\.js)/g)) {
+      const js = process.cwd() + '/' + m[1];
+      if (fs.existsSync(js) && !/monnit-lead\.js$/.test(m[1])) src += '\n' + fs.readFileSync(js, 'utf8');
+    }
     const hasTrack = /MonnitLead\.track/.test(src) || /MonnitLead && window\.MonnitLead\.track/.test(src);
     const hasRecord = /MonnitLead\.record/.test(src);
     const hasSubmit = /MonnitLead\.submit/.test(src);

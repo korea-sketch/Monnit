@@ -48,7 +48,25 @@ const path = require('path');
     for (const m of html.matchAll(/<script[^>]+src=["'](\/[^"'?#]+\.js)/g)) {
       if (!exists(path.join(__dirname, m[1]))) missing.push(pg + ' → ' + m[1]);
     }
+    /* 2026-10-02 알리미 랜딩이 외부 CSS(/css/promo-alarm.css)를 쓰게 되어 스타일시트도 확인 */
+    for (const m of html.matchAll(/<link[^>]+rel=["']stylesheet["'][^>]+href=["'](\/[^"'?#]+\.css)/g)) {
+      if (!exists(path.join(__dirname, m[1]))) missing.push(pg + ' → ' + m[1]);
+    }
   }
+  /* 2026-10-02 폼 전송 설정 일치 — js/monnit-send.js 는 app.js 의 sendLead 사본입니다.
+     한쪽만 바꾸면 알리미 랜딩 접수가 다른 경로로 나가므로 배포를 멈춥니다. */
+  try {
+    const sendJs = path.join(__dirname, 'js', 'monnit-send.js');
+    if (exists(sendJs)) {
+      const a = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
+      const b = fs.readFileSync(sendJs, 'utf8');
+      for (const k of ['NOTIFY_VIA', 'NOTIFY_BOTH', 'STATICFORMS_KEY', 'WEB3FORMS_KEY']) {
+        const re = new RegExp('const ' + k + '\\s*=\\s*([^;]+);');
+        const va = (a.match(re) || [])[1], vb = (b.match(re) || [])[1];
+        if (!va || !vb || va.trim() !== vb.trim()) missing.push('폼 전송 설정 불일치 ' + k + ' — app.js 와 js/monnit-send.js 를 같은 값으로 맞춰 주세요');
+      }
+    }
+  } catch (e) { missing.push('폼 전송 설정 검사 실패: ' + e.message); }
   if (missing.length) {
     console.error('\n[build] ✖ 필수 파일이 빠져 있어 배포를 멈춥니다 (' + missing.length + '곳)');
     missing.slice(0, 40).forEach(x => console.error('   · ' + x));
