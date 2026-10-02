@@ -71,45 +71,8 @@
 @media(max-width:600px){.via-sequence{height:180svh}.via-sequence .via-hero{transform:translate3d(0,calc(var(--scroll) * -225%),0)}.via-video-stage__button{width:105px;right:18px;top:45%;font-size:12px}.via-video-stage__copy{left:20px;bottom:60px}.via-video-stage__copy h3{font-size:43px}.via-neon{width:155%;height:120%;left:-27%}}
 @media(prefers-reduced-motion:reduce){.via-video-stage__grid,.via-neon__rings,.via-neon__paths path,.via-signal-node circle,.via-video-stage__button{animation:none!important}}
 
-/* Neutral Vide Infra hero replica — content intentionally left as placeholders */
-body:has(.vi-replica) .topnav,
-#promoDetail:has(.vi-replica) .promo-detail-bar,
-#promoDetail:has(.vi-replica) .promo-detail-title,
-#promoDetail:has(.vi-replica) .promo-detail-cta { display:none!important; }
-#promoDetail:has(.vi-replica) .wrap.section-pad { width:100%; max-width:none; padding:0; }
-#promoDetail:has(.vi-replica) .promo-detail-body { overflow:visible; border-radius:0; margin-top:0!important; background:#191b1d; }
-.vi-replica { --mx:0; --my:0; --scroll:0; position:relative; height:200svh; color:#191b1d; background:#191b1d; font-family:Arial,'Noto Sans KR',sans-serif; }
-.vi-pin { position:sticky; top:0; height:100svh; overflow:hidden; background:#191b1d; }
-.vi-backbar { position:absolute; z-index:10; top:0; left:0; right:0; height:82px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(24px,6.25vw,96px); border:0; background:transparent; transition:opacity .28s ease,transform .34s cubic-bezier(.2,.7,.2,1); }
-.vi-replica.is-nav-hidden .vi-backbar { opacity:0; transform:translateY(-100%); pointer-events:none; }
-.vi-backbar__logo { display:inline-flex; align-items:center; height:100%; }
-.vi-backbar__logo img { display:block; width:auto; height:30px; filter:brightness(0) invert(1); }
-.vi-backbar__back { display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.78); font-family:var(--fb); font-size:14px; font-weight:650; text-decoration:none; transition:color .2s ease; }
-.vi-backbar__back:hover { color:#fff; }
-.vi-backbar__back span { font-size:16px; }
-.vi-showreel { position:absolute; z-index:1; inset:0; overflow:hidden; background:#000; }
-.vi-showreel__media { position:absolute; isolation:isolate; top:0; left:50%; width:min(100vw,177.7778svh); height:min(100svh,56.25vw); aspect-ratio:16/9; overflow:hidden; background:#000; transform:translate3d(-50%,calc((1 - var(--scroll)*2)*38vh),0); transform-origin:center bottom; will-change:transform; }
-.vi-showreel__video { position:absolute; z-index:1; inset:0; width:100%; height:100%; max-width:none; object-fit:fill; object-position:center; transform:translateZ(0); background:#000; }
-.vi-showreel__mask { position:absolute; z-index:5; inset:0; display:block; pointer-events:none; background:radial-gradient(ellipse 6.8% 9.8% at 93.55% 85.65%,#0d172c 0 64%,rgba(13,23,44,.99) 72%,rgba(13,23,44,.82) 82%,rgba(13,23,44,.38) 91%,rgba(13,23,44,0) 100%); }
-.vi-showreel__frame { position:absolute; width:72%; height:76%; left:22%; top:12%; display:grid; place-items:center; overflow:hidden; border:12px solid #0e0f10; border-radius:24px; color:rgba(255,255,255,.18); background:linear-gradient(135deg,#efe8df 0 48%,#cfc3b5 48% 52%,#f7f3ed 52%); font-size:clamp(46px,8vw,138px); font-weight:700; line-height:.8; letter-spacing:-.07em; transform:perspective(1200px) rotateX(7deg) rotateZ(-7deg); box-shadow:0 60px 100px rgba(0,0,0,.5); }
-.vi-showreel__frame:before { content:''; position:absolute; width:40%; height:180%; left:32%; top:-40%; background:rgba(237,111,53,.68); transform:rotate(18deg); filter:blur(15px); }
-.vi-showreel__frame span { position:relative; mix-blend-mode:multiply; opacity:.23; }
-.vi-beam { position:absolute; left:-10%; width:125%; height:3px; border-radius:50%; filter:blur(.3px); opacity:.7; transform:rotate(-7deg); animation:viBeam 4s linear infinite; }.vi-beam--1{top:66%;background:#fb7046;box-shadow:0 0 18px #fb7046}.vi-beam--2{top:72%;background:#60d8ff;box-shadow:0 0 18px #60d8ff;animation-delay:-1.3s}.vi-beam--3{top:79%;background:#f9ca4f;box-shadow:0 0 18px #f9ca4f;animation-delay:-2.6s}
-.vi-watch { position:absolute; z-index:3; right:7.5%; top:50%; width:clamp(130px,12vw,188px); aspect-ratio:1; display:grid; place-items:center; border:0; border-radius:50%; color:#191b1d; background:#fff; font-size:clamp(15px,1.35vw,22px); line-height:1.05; text-align:left; cursor:pointer; transform:translateY(-50%) scale(calc(.88 + var(--scroll)*.24)); transition:background .25s,color .25s; }.vi-watch:hover{color:#fff;background:#ff5a3c}
-.vi-intro { position:absolute; z-index:4; top:0; left:0; right:0; height:min(100svh,56.25vw); overflow:hidden; color:#fff; background:transparent; transform:translate3d(0,calc(var(--scroll)*-200%),0); will-change:transform; }
-.vi-intro__art { position:relative; z-index:1; display:block; width:100%; height:100%; object-fit:contain; object-position:center center; }
-.vi-intro__sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-.vi-title { position:absolute; left:clamp(24px,6.25vw,96px); top:clamp(106px,14vh,148px); margin:0; font-family:var(--fb); font-size:clamp(62px,7.45vw,143px); line-height:1; font-weight:800; letter-spacing:-.055em; }
-.vi-title-line { display:block; overflow:hidden; padding:.03em .08em .15em 0; }.vi-title-line i{display:block;padding-bottom:.03em;font-style:normal;opacity:0;transform:translateY(110%);transition:transform 1.05s cubic-bezier(.16,1,.3,1),opacity .2s}.vi-title-line--white{color:#fff}.vi-replica.is-ready .vi-title-line:first-child i{opacity:1;transform:translateY(0);transition-delay:.08s}.vi-replica.is-ready .vi-title-line:nth-child(2) i{opacity:1;transform:translateY(0);transition-delay:.2s}
-.vi-title-line--gradient i { width:max-content; color:#4cc4fc; background:linear-gradient(100deg,#4cc4fc 0%,#6f8cf7 50%,#8b54f1 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-.vi-intro__foot { position:absolute; left:clamp(24px,6.25vw,96px); right:clamp(24px,6.25vw,96px); bottom:clamp(38px,7vh,76px); display:grid; grid-template-columns:1fr 1fr; align-items:end; }.vi-circles{width:200px;overflow:visible}.vi-circles circle{fill:none;stroke:rgba(25,27,29,.3);stroke-width:1.2;stroke-dasharray:375;stroke-dashoffset:375}.vi-circles .is-white{stroke:#fff}.vi-replica.is-ready .vi-circles circle{animation:viCircle 1.4s cubic-bezier(.16,1,.3,1) forwards .75s}.vi-replica.is-ready .vi-circles .is-white{animation-delay:1.3s}.vi-intro__foot p{justify-self:end;margin:0;max-width:410px;font-size:clamp(17px,1.35vw,26px);line-height:1.14;letter-spacing:-.035em;opacity:0;transform:translateY(24px);transition:opacity .7s ease .85s,transform .9s cubic-bezier(.16,1,.3,1) .85s}.vi-replica.is-ready .vi-intro__foot p{opacity:1;transform:translateY(0)}
-.vi-intro .vi-circles circle { stroke:rgba(255,255,255,.32); }
-.vi-intro .vi-circles .is-white { stroke:#fff; }
-.vi-intro__foot p { color:rgba(255,255,255,.88); line-height:1.28; }
-.vi-expertise-bar { position:absolute; z-index:6; left:0; right:0; bottom:0; height:52px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(24px,6.25vw,96px); color:#191b1d; background:#fff; font-size:14px; }.vi-expertise-bar b{width:20px;height:20px;display:grid;place-items:center;border-radius:50%;color:#fff;background:#191b1d;font-size:11px}
-@keyframes viCircle{to{stroke-dashoffset:0}}@keyframes viBeam{from{transform:translateX(-8%) rotate(-7deg)}to{transform:translateX(8%) rotate(-7deg)}}
-@media(max-width:760px){.vi-replica{height:185svh}.vi-backbar{height:64px;padding:0 20px}.vi-backbar__logo img{height:24px}.vi-backbar__back{font-size:13px}.vi-title{left:20px;right:20px;top:92px;font-size:clamp(52px,14.5vw,82px);line-height:1}.vi-intro{height:56.25vw}.vi-intro__art{object-fit:contain;object-position:center center}.vi-intro__foot{left:20px;right:20px;bottom:30px;grid-template-columns:1fr;gap:24px}.vi-circles{width:120px}.vi-intro__foot p{justify-self:start;font-size:16px}.vi-showreel__frame{width:115%;height:70%;left:-10%;top:16%}.vi-watch{right:20px;width:112px}.vi-expertise-bar{padding:0 20px}}
-@media(prefers-reduced-motion:reduce){.vi-title-line i,.vi-intro__foot p{transition-duration:.01ms!important;transition-delay:0s!important}.vi-circles circle,.vi-beam{animation:none!important;stroke-dashoffset:0}}
+
+
 
 /* 토스증권 참고 — 중앙 비주얼 + 순차 페이드업 카드 섹션 */
 .ta-milestone-banner{width:100%;margin:0;overflow:hidden;background:#000;line-height:0}
@@ -660,30 +623,7 @@ html { scroll-behavior:smooth; }
   #promoDetailBody h2,
   #promoDetailBody h3,
   #promoDetailBody h4,
-  #promoDetailBody p { max-width:100%; box-sizing:border-box; }
-  #promoDetailBody .vi-replica { display:none!important; }
-  #promoDetailBody .vi-pin { position:relative; top:auto; height:auto; display:flex; flex-direction:column; overflow:visible; background:#000; }
-  #promoDetailBody .vi-intro { position:relative; inset:auto; order:1; width:100%; height:56.25vw; transform:none!important; will-change:auto; }
-  #promoDetailBody .vi-intro__art { object-fit:cover; }
-  #promoDetailBody .vi-showreel { position:relative; inset:auto; order:2; width:100%; height:56.25vw; }
-  #promoDetailBody .vi-showreel__media { position:absolute; inset:0; transform:none!important; will-change:auto; }
-  #promoDetailBody .vi-showreel__video { object-fit:cover; object-position:center; }
-  #promoDetailBody .vi-showreel__mask { display:none; }
-  #promoDetailBody .vi-backbar { position:absolute; }
-
-  #promoDetailBody .vi-intro *,
-  #promoDetailBody .ti-security *,
-  #promoDetailBody .ta-alerts *,
-  #promoDetailBody .ta-reasons *,
-  #promoDetailBody .ta-perks *,
-  #promoDetailBody .ta-builder * { animation:none!important; transition-duration:.01ms!important; transition-delay:0s!important; }
-
-  #promoDetailBody .vi-intro,
-  #promoDetailBody .ti-security,
-  #promoDetailBody .ta-alerts,
-  #promoDetailBody .ta-reasons,
-  #promoDetailBody .ta-perks,
-  #promoDetailBody .ta-builder { overflow-x:hidden; }
+  #promoDetailBody p { max-width:100%; box-sizing:border-box; } #promoDetailBody .ti-security *, #promoDetailBody .ta-alerts *, #promoDetailBody .ta-reasons *, #promoDetailBody .ta-perks *, #promoDetailBody .ta-builder * { animation:none!important; transition-duration:.01ms!important; transition-delay:0s!important; } #promoDetailBody .ti-security, #promoDetailBody .ta-alerts, #promoDetailBody .ta-reasons, #promoDetailBody .ta-perks, #promoDetailBody .ta-builder { overflow-x:hidden; }
 
   #promoDetailBody .ti-reveal,
   #promoDetailBody .ta-alerts__lead,
@@ -820,10 +760,6 @@ html { scroll-behavior:smooth; }
   #promoDetailBody .ti-security__card-visual img { padding:9px; }
   #promoDetailBody .ti-security__card-copy { min-height:96px; padding:16px 13px 18px; }
   #promoDetailBody .ti-security__card-copy h4 { font-size:14px; line-height:1.45; }
-
-  /* 2. 모바일에서는 데스크톱용 영상 섹션을 표시하지 않음 */
-  #promoDetailBody .vi-showreel { display:none!important; }
-  #promoDetailBody .vi-replica { height:0; }
 
   /* 3. 알리미 키워드 한 줄 + 카드 2×2 */
   #promoDetailBody .ta-alerts { padding:72px 14px 82px; }
