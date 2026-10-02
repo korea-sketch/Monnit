@@ -2,6 +2,10 @@
  *  공통 스타일은 /style.css 를 그대로 씁니다. 여기에는 알리미 화면에만 쓰는 규칙만 둡니다.
  *  (예전 promo-alarm.html 이 품고 있던 style.css 옛 사본에서 알리미 부분만 옮겼습니다)
  */
+/* 2026-10-02 공통 style.css 의 「html, body { overflow-x:hidden }」 이 body 를 스크롤 상자로 만들어
+   구독료 빌더 왼쪽 사진(position:sticky)이 따라 내려오지 않고 위에 멈춰 있던 문제.
+   clip 은 가로 넘침은 똑같이 자르지만 스크롤 상자를 만들지 않아 sticky 가 정상 동작합니다. */
+html, body { overflow-x: clip !important; overflow-y: visible !important; }
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 
