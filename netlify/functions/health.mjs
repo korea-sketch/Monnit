@@ -24,7 +24,10 @@ const PAGES = [
   /* Modbus 백서 랜딩 — 백서 신청 폼과 공통 스크립트가 살아 있는지 본다.
      이 페이지는 1MB 단일 HTML 이라 배포가 잘리면 폼만 조용히 사라진다. */
   { path: '/promo/modbus',     name: '광고 랜딩(Modbus백서)',
-    must: ['wpForm-hero', 'monnit-lead.js', 'GTM-T8H73VW', 'sendpw'] },
+    must: ['wpForm-main', 'monnit-lead.js', 'GTM-T8H73VW', 'sendpw'] },  /* 2026-10-02 폼 id 는 wpForm-main (wpForm-hero 는 없어 늘 「깨짐」으로 잡히던 것) */
+  /* 2026-10-02 추가 — 긴급 경보 알리미 광고 랜딩 · 맞춤 제안서 */
+  { path: '/promo/alarm/',     name: '광고 랜딩(긴급 경보 알리미)', must: ['taBuilderForm', 'monnit-send.js', 'GTM-T8H73VW'] },
+  { path: '/proposal/',        name: '맞춤 제안서',          must: ['id="ppRoot"', 'id="ppCta"', 'GTM-T8H73VW'] },
   { path: '/',                 name: '홈',                  must: ['mk-leadForm', 'monnit-lead.js', 'GTM-T8H73VW'] },
   { path: '/contact',          name: '문의 페이지',          must: ['GTM-T8H73VW'] }
 ];

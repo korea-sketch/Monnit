@@ -1578,6 +1578,13 @@ llms += `## 핵심 정보\n- 회사: Monnit Korea (대표이사 염정훈)\n- �
 const CORE_SLUGS = ['company', 'products', 'solutions', 'cases', 'customers', 'awards', 'partners', 'knowledgebase', 'guides', 'blog', 'contact'];
 llms += `## 핵심 페이지\n`;
 CORE_SLUGS.forEach(s => { const g = generated.find(x => x.slug === s); if (g) llms += `- [${g.title}](${g.loc})\n`; });
+/* 2026-10-02 — AI 검색이 신청 경로를 바로 안내할 수 있게 무료 서비스·신청 페이지를 함께 적는다 */
+llms += `\n## 무료 서비스·신청\n`
+  + `- [맞춤 제안서 (무료)](${SITE}/proposal): 산업과 가장 고민되는 문제를 고르면 Monnit 글로벌 운영 데이터와 산업별 플레이북으로 현장 맞춤 제안서(PDF)를 메일로 보냅니다. 산업: 제조·제약바이오·식품·빌딩FM·주거호텔·병원요양복지·학교교육·공공·소상공인·에너지·건설·물류콜드체인·데이터센터\n`
+  + `- [긴급 경보 알리미](${SITE}/promo/alarm): 화재·침수·정전·설비 이상을 담당자 휴대폰으로 즉시 알리는 월 구독형 서비스(배선 공사 없이 설치)\n`
+  + `- [회전설비 AI 예지보전 1개월 무료 체험](${SITE}/promo/consulting): 모터·펌프·팬·컴프레서에 무선 진동·온도 센서를 무상 설치해 한 달간 실제 데이터로 검증\n`
+  + `- [진행 중인 프로모션](${SITE}/promotions)\n`
+  + `- [설치 현장 사진](${SITE}/installation-photos.html)\n`;
 llms += `\n## 활용 분야 상세 (${APPS.length})\n`;
 APPS.forEach(a => { llms += `- [${strip(a.name)}](${SITE}/app/${a.id}): ${strip(a.desc).slice(0, 90)}\n`; });
 llms += `\n## 도입 사례 상세\n`;
@@ -1661,7 +1668,7 @@ fs.writeFileSync(path.join(__dirname, 'llms-full.txt'), full);
 
 console.log(`[build] 완료 — 정적 페이지 ${generated.length}개, robots.txt, sitemap.xml(${urls.length} URL), llms.txt, llms-full.txt`);
 console.log('[build] 데이터: APPS', APPS.length, '| PRODUCTS', PRODUCTS.length, '| CASES', Object.keys(CASE_DATA).length, '| PROMOS', PROMOS.length, '| 상세', Object.keys(APP_DETAILS).length);
-})().then(stripHtmlComments).then(verifyRoutes).catch(e => { console.error('[build] 실패:', e); process.exit(1); });
+})().then(stripHtmlComments).then(verifyRoutes).then(slashCanonical).catch(e => { console.error('[build] 실패:', e); process.exit(1); });
 
 /* ═══ HTML 주석 제거 — 방문자에게 내부 구조·작업 메모가 보이지 않게 ═══
    빌드가 페이지를 모두 생성한 "후" .then() 으로 실행됩니다.
@@ -1736,4 +1743,55 @@ function verifyRoutes(){
     process.exit(1);
   }
   console.log('[build] 라우터 정합성 OK — 생성 경로 ' + new Set(made).size + '개 모두 라우팅 가능');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   대표 주소(canonical)·사이트맵을 실제로 200 이 나오는 주소로 (2026-10-02)
+   Netlify 는 폴더(…/index.html)로 된 페이지를 /who-we-are → /who-we-are/ 로 301 시킨다.
+   그런데 canonical·og:url·sitemap 은 슬래시 없는 주소를 적고 있어서
+   사이트맵 131개 중 128개가 리다이렉트 주소였다(검색엔진이 대표 주소를 확정하지 못함).
+   → 폴더형 페이지는 끝에 / 를 붙여 실제 응답 주소와 맞춘다. 내부 링크·SPA 주소는 그대로(301 로 정상 이동).
+   ════════════════════════════════════════════════════════════════ */
+function slashCanonical(){
+  const ROOT = __dirname;
+  const fix = (u) => {
+    const m = String(u).match(/^(https:\/\/monnit\.co\.kr)(\/[^?#"]*)$/);
+    if (!m) return u;
+    const p = m[2];
+    if (p === '/' || p.endsWith('/') || /\.[a-z0-9]+$/i.test(p)) return u;
+    try { if (fs.statSync(path.join(ROOT, p, 'index.html')).isFile()) return u + '/'; } catch (e) {}
+    return u;
+  };
+  const SKIP = new Set(['node_modules', '.git', 'netlify', 'source', 'ui', 'email', 'scripts', 'tools', 'data', 'pages']);
+  let files = 0, changed = 0;
+  (function walk(dir){
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) { if (!SKIP.has(e.name) && !e.name.startsWith('.')) walk(path.join(dir, e.name)); continue; }
+      if (!e.name.endsWith('.html')) continue;
+      const f = path.join(dir, e.name); let s = fs.readFileSync(f, 'utf8'); const o = s;
+      s = s.replace(/(<link rel="canonical" href=")([^"]+)(")/g, (a, b, u, c) => b + fix(u) + c)
+           .replace(/(<meta property="og:url" content=")([^"]+)(")/g, (a, b, u, c) => b + fix(u) + c);
+      files++; if (s !== o) { fs.writeFileSync(f, s); changed++; }
+    }
+  })(ROOT);
+  const SM = path.join(ROOT, 'sitemap.xml');
+  try {
+    const o = fs.readFileSync(SM, 'utf8');
+    const s = o.replace(/<loc>([^<]+)<\/loc>/g, (a, u) => '<loc>' + fix(u) + '</loc>');
+    if (s !== o) fs.writeFileSync(SM, s);
+  } catch (e) {}
+  /* _redirects 의 301 목적지도 같은 규칙 — /company → /who-we-are → /who-we-are/ 처럼 두 번 튕기던 것 */
+  let rd = 0;
+  try {
+    const RD = path.join(ROOT, '_redirects'); const o = fs.readFileSync(RD, 'utf8');
+    const s = o.split('\n').map(line => {
+      const m = line.match(/^(\s*\S+\s+)(\/[^\s?#:*]*)(\s+30[12]!?\s*)$/);
+      if (!m) return line;
+      const t = fix('https://monnit.co.kr' + m[2]).replace('https://monnit.co.kr', '');
+      if (t === m[2]) return line;
+      rd++; return m[1] + t + m[3];
+    }).join('\n');
+    if (s !== o) fs.writeFileSync(RD, s);
+  } catch (e) {}
+  console.log('[build] 대표 주소 슬래시 정리: HTML ' + changed + '/' + files + '개 · sitemap 갱신 · 리다이렉트 목적지 ' + rd + '개');
 }

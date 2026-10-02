@@ -20,6 +20,13 @@
 - [Monnit 블로그·백서](https://monnit.co.kr/blog)
 - [상담·문의](https://monnit.co.kr/contact)
 
+## 무료 서비스·신청
+- [맞춤 제안서 (무료)](https://monnit.co.kr/proposal): 산업과 가장 고민되는 문제를 고르면 Monnit 글로벌 운영 데이터와 산업별 플레이북으로 현장 맞춤 제안서(PDF)를 메일로 보냅니다. 산업: 제조·제약바이오·식품·빌딩FM·주거호텔·병원요양복지·학교교육·공공·소상공인·에너지·건설·물류콜드체인·데이터센터
+- [긴급 경보 알리미](https://monnit.co.kr/promo/alarm): 화재·침수·정전·설비 이상을 담당자 휴대폰으로 즉시 알리는 월 구독형 서비스(배선 공사 없이 설치)
+- [회전설비 AI 예지보전 1개월 무료 체험](https://monnit.co.kr/promo/consulting): 모터·펌프·팬·컴프레서에 무선 진동·온도 센서를 무상 설치해 한 달간 실제 데이터로 검증
+- [진행 중인 프로모션](https://monnit.co.kr/promotions)
+- [설치 현장 사진](https://monnit.co.kr/installation-photos.html)
+
 ## 활용 분야 상세 (60)
 - [온도 모니터링](https://monnit.co.kr/app/temp): 냉장·냉동, 서버룸, 실험실 등 다양한 현장의 온도를 실시간으로 모니터링해 품질 저하와 장비 이상을 예방합니다.
 - [누수 감지](https://monnit.co.kr/app/leak): 서버룸·기계실·지하 공간의 누수를 빠르게 감지해 설비 피해와 자산 손실을 예방합니다.
