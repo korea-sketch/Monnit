@@ -77,6 +77,36 @@ const path = require('path');
   if (process.env.PREFLIGHT_ONLY) process.exit(0);   /* 점검만 (적용-복구파일.sh) */
 })();
 
+/* ═══ 배포 불가 파일명 정리 (2026-10-02) ═══
+   Netlify 는 이름에 # 또는 ? 가 들어간 파일이 하나라도 있으면 배포 전체를 거부합니다.
+     "Invalid filename '…#Uc9c1….md'. Deployed filenames cannot contain # or ? characters"
+   맥에서 압축을 풀 때 한글 파일명이 「#Uc801#Uc6a9…」 처럼 깨진 사본이 생기고,
+   그게 저장소에 함께 올라가 10/1 오후부터 배포가 전부 실패했습니다.
+   폴더를 덮어써도 저장소의 옛 파일은 지워지지 않으므로, 빌드할 때마다 여기서 정리합니다.
+     · 한글 이름 원본이 있으면 깨진 사본을 지움
+     · 원본이 없으면 한글 이름으로 되돌림 */
+(function cleanBadFilenames() {
+  const dec = n => n.replace(/#U([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+  let removed = 0, renamed = 0, left = [];
+  const walk = d => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      if (e.name === 'node_modules' || e.name === '.git' || e.name === '.netlify') continue;
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (!/[#?]/.test(e.name)) continue;
+      const fixed = dec(e.name).replace(/[#?]/g, '_');
+      const q = path.join(d, fixed);
+      try {
+        if (fs.existsSync(q)) { fs.unlinkSync(p); removed++; }
+        else { fs.renameSync(p, q); renamed++; }
+      } catch (err) { left.push(path.relative(__dirname, p)); }
+    }
+  };
+  walk(__dirname);
+  if (removed || renamed) console.log('[build] 배포 불가 파일명 정리 — 깨진 사본 ' + removed + '개 삭제, ' + renamed + '개 이름 복원');
+  if (left.length) { console.error('[build] ✖ # · ? 가 들어간 파일을 정리하지 못했습니다: ' + left.join(', ')); process.exit(1); }
+})();
+
 const SITE = 'https://monnit.co.kr';           // 대표 도메인
 const TODAY = new Date().toISOString().slice(0, 10);
 const OUT_PAGES = path.join(__dirname, 'pages');
