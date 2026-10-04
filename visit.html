@@ -797,8 +797,15 @@
 
     holdSlot(b).then(function(h){
       if(!h.ok) return slotGone(h.why);
-      return sendBooking(b).then(function(mailed){
-        return logLead(b,mailed).then(function(logged){ finish(b, mailed||logged); });
+      /* 1순위: 우리 서버(/api/lead) — 원장·먼데이·담당자 알림(Brevo)·테스트 판별 (2026-10-04).
+         예전엔 브라우저 StaticForms 를 먼저 믿었다 — StaticForms 가 200 을 주고 메일을 안 보내면(2026-09-04 사고)
+         서버도 「이미 보냄」으로 알고 아무도 못 받았다. 브라우저 메일은 서버가 응답하지 않을 때만. */
+      return logLead(b,false).then(function(logged){
+        if(logged) return finish(b,true);
+        /* 서버가 안 받았을 때 — 브라우저 메일을 보내고 원장에 한 번 더 시도 */
+        return sendBooking(b).then(function(mailed){
+          return logLead(b,mailed).then(function(logged){ finish(b, mailed||logged); });
+        });
       });
     }).catch(function(){ finish(b,false); });
   });

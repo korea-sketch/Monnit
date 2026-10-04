@@ -121,6 +121,7 @@ try {
   const html = fs.readFileSync('visit.html', 'utf8');
   ok('예약 화면 — 시간 잡기 후 메일 전송', /holdSlot\(b\)\.then/.test(html) && /sendBooking\(b\)\.then\(function\(mailed\)/.test(html), '');
   ok('예약 화면 — 브라우저 메일이 나가면 서버 알림 생략(notified)', /notified:!!mailed/.test(html), '');
+  ok('예약 화면 — 서버(원장·알림) 먼저, 받으면 브라우저 메일 안 보냄', /logLead\(b,false\)\.then\(function\(logged\)\{\s*if\(logged\) return finish\(b,true\);/.test(html), '');
   ok('예약 화면 — 브라우저 메일이 실패해도 원장 기록·서버 알림', /logLead\(b,mailed\)\.then\(function\(logged\)\{ finish\(b, mailed\|\|logged\)/.test(html), '');
 } finally {
   for (const f of ['_store_mem_v.mjs', '_visitadmin_test.mjs']) try { fs.unlinkSync(F + f); } catch (e) {}

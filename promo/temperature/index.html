@@ -1578,7 +1578,16 @@ fmForm.addEventListener('submit', function(e){
   fmSubmit.disabled = true; fmSubTx.textContent = isDoc?'자료 준비 중...':'보내는 중...';
   LS.set('monnit_lead',{ts:Date.now(), 회사명:d.회사명, 이름:d.이름, 이메일:d.이메일});
   var deliver = isDoc ? deliverSet(d.이메일, d.자료||'all') : Promise.resolve();
-  var notify = notifyStaff(payload)
+  /* 1순위: 우리 서버(/api/lead) — 원장·먼데이·알림 정책(자료 신청은 알림함만, 상담 문의는 메일 1통)·테스트 판별 (2026-10-04).
+     예전엔 Web3Forms 로 담당자 메일을 먼저 보냈다 — 자료 신청마다 메일이 가고, 테스트 접수도 나갔다.
+     브라우저 메일은 서버가 응답하지 않을 때만 (/promo/proposal 과 같은 방식). */
+  var ML = window.MonnitLead;
+  var toServer = (ML && ML.submit)
+    ? Promise.resolve().then(function(){ try{ ML.setNotified(false); }catch(err){} return ML.submit(payload); }).catch(function(){ return false; })
+    : Promise.resolve(false);
+  var notify = toServer.then(function(served){
+    if (served) { try{ ML.track(leadType, {page:CONFIG.PAGE, interest:'온도 감시'}); }catch(err){} return; }
+    return notifyStaff(payload)
     .then(function(){
       /* 담당자 알림이 브라우저에서 이미 나갔다고 원장에 알려 준다.
          이 한 줄이 없으면 서버(lead.mjs)가 같은 접수로 한 통을 더 보낸다.
@@ -1590,6 +1599,7 @@ fmForm.addEventListener('submit', function(e){
       try{ window.MonnitLead && window.MonnitLead.track(leadType,
       {page:CONFIG.PAGE, interest:'온도 감시'}); }catch(err){} })
     .catch(function(){ try{ window.MonnitLead && window.MonnitLead.record(leadType,payload); }catch(err){} });
+  });
   track(isDoc?'download':'form_submit',{content_name:'온도 감시', lead_grade:d.리드등급, value:d.리드점수});
   var resBox=$('#wpPropRes'); if (resBox) resBox.innerHTML='';
   var prop = (isDoc && PA && PA.wanted())

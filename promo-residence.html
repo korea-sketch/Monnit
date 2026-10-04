@@ -21,13 +21,13 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
 
 <title>객실 물 넘침·배관 파열 알람 — 레지던스 호텔 전용 | Monnit Korea</title>
 <meta name="description" content="객실에 주방이 있는 레지던스 호텔 전용. 싱크·세탁기 범람, 피트(PS) 배관 파열을 물이 바닥에 닿는 순간 담당자 휴대폰으로 알립니다. 무선·무배선 설치. ※ 누수 위치를 찾아주는 누수탐지 서비스가 아닙니다.">
-<link rel="canonical" href="https://monnit.co.kr/promo/residence/">
+<link rel="canonical" href="https://monnit.co.kr/promo/residence">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Monnit Korea">
 <meta property="og:title" content="객실 물 넘침·배관 파열 알람 — 레지던스 호텔 전용 | Monnit Korea">
 <meta property="og:description" content="객실 안 싱크·식기세척기·세탁기, 피트(PS) 속 배관까지. 물이 닿는 순간 담당자 휴대폰으로 알람.">
-<meta property="og:url" content="https://monnit.co.kr/promo/residence/">
+<meta property="og:url" content="https://monnit.co.kr/promo/residence">
 <meta property="og:image" content="https://monnit.co.kr/images/promo-residence.jpg">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
@@ -1203,7 +1203,7 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
     function lock(){if(btn){btn.disabled=true;btn.querySelector('span').textContent='보내는 중…';btn.style.opacity='.65';}}
     function unlock(){if(btn){btn.disabled=false;btn.querySelector('span').textContent=prev;btn.style.opacity='';}}
     function showOk(){
-      try{if(window.MonnitLead)MonnitLead.record('contact',payload);}catch(e){}
+      try{if(window.MonnitLead&&_via!=='server'){MonnitLead.setNotified(_via==='browser');MonnitLead.record('contact',payload);}}catch(e){}
       try{sessionStorage.setItem('mk_lead_msg',hotel+' · '+name+' 님, 접수되었습니다. 1~2영업일 내 회신드리겠습니다.');}catch(e){}
       try{history.replaceState(null,'','/promo/residence?submitted=1#apply');}catch(e){}
       shell.classList.add('sent');shell.scrollIntoView({behavior:'smooth',block:'center'});
@@ -1219,15 +1219,29 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
       Object.keys(payload).forEach(function(k){if(k!=='_subject')fd[k]=payload[k];});
       return fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(fd)})
         .then(function(r){return r.json();})
-        .then(function(j){if(j&&(j.success===true||j.success==='true')){unlock();showOk();}else{mailFallback();}})
+        .then(function(j){if(j&&(j.success===true||j.success==='true')){_via='browser';unlock();showOk();}else{mailFallback();}})
         .catch(function(){mailFallback();});
     }
+    var _via='';   /* server · browser · ''(메일 앱) */
     lock();
+    /* 1순위: 우리 서버(/api/lead) — 원장·먼데이·담당자 알림·테스트 판별을 서버가 한 번에 (2026-10-04).
+       예전엔 StaticForms 를 먼저 보내고 원장에도 따로 남겨 담당자 메일이 두 통 갔다.
+       브라우저 메일은 서버가 응답하지 않을 때만. */
+    var _ML=window.MonnitLead;
+    (_ML&&_ML.submit
+      ? Promise.resolve().then(function(){ _ML.build('contact','promo_residence','레지던스 누수 고민 — '+hotel,payload); _ML.setNotified(false); return _ML.submit(payload); }).catch(function(){return false;})
+      : Promise.resolve(false)
+    ).then(function(served){
+      if(served){ _via='server'; unlock(); showOk(); return; }
+      viaBrowser();
+    });
+    function viaBrowser(){
     fetch(STATICFORMS_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
       body:JSON.stringify(Object.assign({apiKey:STATICFORMS_KEY,subject:payload._subject,email:(email||''),replyTo:'@',honeypot:''},payload))})
       .then(function(r){return r.json().then(function(j){return r.ok&&!!j.success;}).catch(function(){return r.ok;});})
-      .then(function(good){if(good){unlock();showOk();}else{return tryWeb3();}})
+      .then(function(good){if(good){_via='browser';unlock();showOk();}else{return tryWeb3();}})
       .catch(function(){return tryWeb3();});
+    }
   });
   form.querySelectorAll('input').forEach(function(el){
     el.addEventListener('input', function(){ el.classList.remove('err'); });

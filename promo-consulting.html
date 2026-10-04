@@ -26,7 +26,7 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
 
 
 <meta name="description" content="모터·펌프·팬·컴프레서 등 회전설비에 무선 진동·온도 센서를 무상 설치하고 한 달간 실제 데이터로 검증하세요. 무료 검증, 사전 구매 조건 없음, 조건 없는 반납. 문의 02-2088-1454.">
-<link rel="canonical" href="https://monnit.co.kr/promo/consulting/">
+<link rel="canonical" href="https://monnit.co.kr/promo/consulting">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <meta name="author" content="Monnit Korea">
 <meta name="theme-color" content="#0A111F">
@@ -34,7 +34,7 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="모넷코리아 Monnit Korea">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:url" content="https://monnit.co.kr/promo/consulting/">
+<meta property="og:url" content="https://monnit.co.kr/promo/consulting">
 <meta property="og:title" content="회전설비 AI 예지보전 1개월 무료 체험 | 모넷코리아">
 <meta property="og:description" content="모터·펌프·팬·컴프레서 등 회전설비에 무선 진동·온도 센서를 무상 설치하고 한 달간 실제 데이터로 검증하세요. 무료 검증, 사전 구매 조건 없음, 조건 없는 반납. 문의 02-2088-1454.">
 <meta property="og:image" content="https://monnit.co.kr/images/field-1-pump-1440.jpg">
@@ -2204,11 +2204,13 @@ function submitForm(){
   if(window.gtag){try{gtag('event','generate_lead',{form:'promo_consulting',promo:'consulting',currency:'KRW',value:1})}catch(e){}}
 
   var prev=btn?btn.textContent:'';
+  var _via='';   /* server · browser · ''(메일 앱) */
   function lock(){if(btn){btn.disabled=true;btn.textContent='전송 중…'}}
   function unlock(){if(btn){btn.disabled=false;btn.textContent=prev}}
   function showOk(){
     /* 원장 기록 — sendBeacon 이라 바로 이동해도 유실되지 않는다 */
-    try{ if(window.MonnitLead) window.MonnitLead.record('contact', payload); }catch(e){}
+    /* 서버가 이미 받았으면(_via='server') 원장·알림은 끝났다. 브라우저 메일 경로로 갔을 때만 기록 */
+    try{ if(window.MonnitLead && _via!=='server'){ window.MonnitLead.setNotified(_via==='browser'); window.MonnitLead.record('contact', payload); } }catch(e){}
 
     var msg, sub;
     if(grp==='무경험'){
@@ -2268,13 +2270,24 @@ function submitForm(){
     return fetch('https://api.web3forms.com/submit',{method:'POST',
       headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(fd)})
       .then(function(r){return r.json()})
-      .then(function(j){unlock();if(j&&(j.success===true||j.success==='true')){showOk()}else{mailFallback()}})
+      .then(function(j){unlock();if(j&&(j.success===true||j.success==='true')){_via='browser';showOk()}else{mailFallback()}})
       .catch(function(){unlock();mailFallback()});
   }
 
   lock();
-  // 1순위: StaticForms — 홈페이지 현재 활성 백엔드와 동일 (규격: apiKey·subject·email·replyTo·honeypot)
   if(_devHost()){ unlock(); showOk(); return; }
+  /* 1순위: 우리 서버(/api/lead) — 원장·먼데이·담당자 알림(Brevo)·테스트 판별을 서버가 한 번에 한다 (2026-10-04)
+     예전엔 StaticForms 를 먼저 보내고 원장에도 따로 남겨 담당자 메일이 두 통 가고, 테스트 접수도 메일이 나갔다.
+     브라우저 메일(StaticForms → Web3Forms)은 서버가 응답하지 않을 때만 쓴다. */
+  var _ML=window.MonnitLead;
+  (_ML&&_ML.submit
+    ? Promise.resolve().then(function(){ _ML.build('contact','promo_consulting',payload['신청 프로모션']+' — '+c,payload); _ML.setNotified(false); return _ML.submit(payload); }).catch(function(){return false})
+    : Promise.resolve(false)
+  ).then(function(served){
+    if(served){ _via='server'; unlock(); showOk(); return; }
+    viaBrowser();
+  });
+  function viaBrowser(){
   fetch(STATICFORMS_URL,{method:'POST',
     headers:{'Content-Type':'application/json',Accept:'application/json'},
     body:JSON.stringify(Object.assign({apiKey:STATICFORMS_KEY,subject:payload._subject,
@@ -2282,8 +2295,9 @@ function submitForm(){
     .then(function(r){
       return r.json().then(function(j){return r.ok&&!!j.success}).catch(function(){return r.ok});
     })
-    .then(function(ok){if(ok){unlock();showOk()}else{return tryWeb3()}})
+    .then(function(ok){if(ok){_via='browser';unlock();showOk()}else{return tryWeb3()}})
     .catch(function(){return tryWeb3()});
+  }
 }
 
 // ===== 감사화면(submitted=1): 접수 확인 표시 + 전환 확정 이벤트 =====
