@@ -581,7 +581,7 @@ $('#haltLater').onclick=()=>{if(D&&D.halt)sessionStorage.setItem('mk_halt_seen',
 $('#warns').addEventListener('click',e=>{if(e.target.id==='haltShow'){sessionStorage.removeItem('mk_halt_seen');haltPopup(D.halt);}if(e.target.id==='haltResume2')haltResume();});
 
 /* ── 접수·발송 ── */
-async function load(){const m=$('#month').value;const r=await fetch('/ops/proposals/data'+(m?'?month='+m:''));if(r.status===401)return location.reload();D=await r.json();render();}
+async function load(){const m=$('#month').value;const _q=new URLSearchParams();if(m)_q.set('month',m);if(new URLSearchParams(location.search).get('test')==='1')_q.set('test','1');const r=await fetch('/ops/proposals/data'+(_q.toString()?'?'+_q.toString():''));if(r.status===401)return location.reload();D=await r.json();render();}
 function render(){
   const c=D.config,s=D.stats,w=[];
   if(!c.mail)w.push('BREVO_API_KEY 가 없어 고객 메일이 나가지 않습니다.');
