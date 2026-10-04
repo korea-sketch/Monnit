@@ -107,6 +107,17 @@ const path = require('path');
   if (left.length) { console.error('[build] ✖ # · ? 가 들어간 파일을 정리하지 못했습니다: ' + left.join(', ')); process.exit(1); }
 })();
 
+/* ═══ 꼭 있어야 하는 파일 점검 (2026-10-04) ═══
+   제안서 PDF 글꼴 · 메일 로고/표지 · 알리미 메일 이미지가 저장소에서 빠진 채 배포되어
+   제안서 「생성 실패」·메일 이미지 깨짐이 났다. 빠지면 배포 로그 맨 위에 크게 남긴다. */
+(function checkRequiredAssets(){
+  const need = ['assets/fonts/Pretendard-Regular.ttf', 'assets/fonts/Pretendard-Bold.ttf', 'assets/fonts/Pretendard-ExtraBold.ttf',
+    'assets/brand/monnit-korea-white-480.png', 'assets/brand/proposal-cover-1200.jpg', 'email/images/case-fire.jpg'];
+  const miss = need.filter(f => !fs.existsSync(path.join(__dirname, f)));
+  if (miss.length) console.error('\n[build] ⚠ 필수 파일이 저장소에 없습니다 — ' + miss.join(', ') + '\n        제안서 PDF·메일 이미지가 깨집니다. 해당 폴더를 저장소에 올려 주세요.\n');
+  else console.log('[build] 필수 파일 확인 — 글꼴·메일 이미지 OK');
+})();
+
 const SITE = 'https://monnit.co.kr';           // 대표 도메인
 const TODAY = new Date().toISOString().slice(0, 10);
 const OUT_PAGES = path.join(__dirname, 'pages');

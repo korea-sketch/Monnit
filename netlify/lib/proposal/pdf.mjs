@@ -57,13 +57,38 @@ function fontDir() {
     '/var/task/assets/fonts'
   ].filter(Boolean);
   for (const d of cands) { try { if (fs.existsSync(path.join(d, 'Pretendard-Regular.ttf'))) return d; } catch (e) { /* 다음 */ } }
-  throw new Error('글꼴을 찾을 수 없습니다 (assets/fonts) — netlify.toml included_files 확인');
+  return '';
+}
+/* 2026-10-04 — 배포 묶음에 글꼴이 빠지면(저장소에 assets/fonts 누락 등) 제안서가 전부 「생성 실패」로 멈췄다.
+   이제는 같은 글꼴(Pretendard, OFL)을 jsDelivr 에서 받아 /tmp 에 캐시해 쓴다. 로컬 글꼴이 있으면 그것이 우선. */
+const FONT_CDN = 'https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/public/static/alternative/';
+const FONT_FILES = { R: 'Pretendard-Regular.ttf', B: 'Pretendard-Bold.ttf', X: 'Pretendard-ExtraBold.ttf' };
+async function fetchFont(name) {
+  const tmp = path.join('/tmp', 'mnk-fonts', name);
+  try { if (fs.existsSync(tmp)) return fs.readFileSync(tmp); } catch (e) { /* 다시 받는다 */ }
+  let lastErr = '';
+  for (let i = 0; i < 2; i++) {
+    try {
+      const r = await fetch(FONT_CDN + name, { signal: AbortSignal.timeout(20000) });
+      if (!r.ok) { lastErr = 'HTTP ' + r.status; continue; }
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length < 500000) { lastErr = '크기 이상 ' + buf.length; continue; }
+      try { fs.mkdirSync(path.dirname(tmp), { recursive: true }); fs.writeFileSync(tmp, buf); } catch (e) { /* 캐시는 선택 */ }
+      return buf;
+    } catch (e) { lastErr = e.message; }
+  }
+  throw new Error('글꼴을 찾을 수 없습니다 — 배포 묶음(assets/fonts)에도 없고 예비 경로(jsDelivr)도 실패: ' + lastErr);
 }
 let _fontBytes = null;
-function fontBytes() {
-  if (!_fontBytes) {
-    const d = fontDir();
-    _fontBytes = { R: fs.readFileSync(path.join(d, 'Pretendard-Regular.ttf')), B: fs.readFileSync(path.join(d, 'Pretendard-Bold.ttf')), X: fs.readFileSync(path.join(d, 'Pretendard-ExtraBold.ttf')) };
+async function fontBytes() {
+  if (_fontBytes) return _fontBytes;
+  const d = fontDir();
+  if (d) {
+    _fontBytes = { R: fs.readFileSync(path.join(d, FONT_FILES.R)), B: fs.readFileSync(path.join(d, FONT_FILES.B)), X: fs.readFileSync(path.join(d, FONT_FILES.X)) };
+  } else {
+    console.warn('[proposal-pdf] assets/fonts 없음 → jsDelivr 예비 글꼴 사용 (netlify.toml included_files · 저장소 assets/fonts 확인)');
+    const [R, B, X] = await Promise.all([fetchFont(FONT_FILES.R), fetchFont(FONT_FILES.B), fetchFont(FONT_FILES.X)]);
+    _fontBytes = { R, B, X };
   }
   return _fontBytes;
 }
@@ -790,7 +815,7 @@ function checklistBlock(D, job) {
 export async function renderPdf(job, copy) {
   const pdf = await PDFDocument.create();
   pdf.registerFontkit(fontkit);
-  const b = fontBytes();
+  const b = await fontBytes();
   const F = {
     R: await pdf.embedFont(b.R, { subset: true }),
     B: await pdf.embedFont(b.B, { subset: true }),
