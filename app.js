@@ -97,7 +97,7 @@ function ensureProposalChat(){
   if (window.MKPropChat || window.__propChatLoading) return;
   window.__propChatLoading = true;
   var s = document.createElement('script');
-  s.src = '/js/proposal-chat.js?v=30'; s.async = true;
+  s.src = '/js/proposal-chat.js?v=31'; s.async = true;
   s.onload = function(){ window.__propChatLoading = false; if (window.MKPropChat) window.MKPropChat.bind(); };
   s.onerror = function(){ window.__propChatLoading = false; console.warn('[proposal-chat] load failed'); };
   document.head.appendChild(s);
