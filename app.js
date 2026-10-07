@@ -90,7 +90,7 @@ function ensureProposal(cb){
     (window.__propCbs || []).forEach(function(f){ try { f && f(window.MKProposal); } catch(e){ console.warn('[proposal]', e); } });
     window.__propCbs = [];
   };
-  add('/js/proposal-data.js?v=7', function(){ add('/js/proposal-insight-map.js?v=2', function(){ add('/js/region-data.js?v=1', function(){ add('/js/proposal-view.js?v=54', done); }); }); });
+  add('/js/proposal-data.js?v=7', function(){ add('/js/proposal-insight-map.js?v=2', function(){ add('/js/region-data.js?v=1', function(){ add('/js/proposal-view.js?v=55', done); }); }); });
 }
 /* Monnit AI is available site-wide, independently of the proposal view. */
 function ensureProposalChat(){

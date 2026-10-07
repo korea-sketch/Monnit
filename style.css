@@ -11449,3 +11449,38 @@ body:has(#view-proposal.active), body:has(#view-proposal-status.active) { overfl
   #view-proposal #ppPlist.mkp-plist { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:10px !important; }
   #view-proposal #ppPlist .mkp-pitem { min-height:62px; }
 }
+
+/* ===== 2026-10-07 헤더 검색 — 1024~1680px 노트북 폭에서 검색창이 화면 오른쪽 밖으로 밀리던 문제 =====
+   이 구간에서는 돋보기 버튼만 두고, 누르면 버튼 아래로 검색창이 펼쳐집니다(모바일과 같은 열기 방식). */
+@media (min-width:921px) and (max-width:1680px){
+  .nav-search{position:relative}
+  .nav-search-btn{display:flex}
+  .nav-search-box{position:absolute;top:calc(100% + 12px);right:0;width:300px;display:none;padding:10px 14px;border-radius:14px;background:var(--surface,#0f1626);box-shadow:0 20px 44px rgba(0,0,0,.5);z-index:260}
+  .nav-search.m-open .nav-search-box{display:flex}
+}
+@media (min-width:921px) and (max-width:1100px){
+  .nav-search-btn{padding:6px}
+  .nav-link{padding:7px 6px}
+}
+/* 2026-10-07 맞춤 제안서 — 숨겨진 단계의 바깥 제목은 표시하지 않음 */
+#view-proposal .mkp-outside-heading[hidden],
+#view-proposal .mkp-outside-heading:has(+ .mkp-step[hidden]){display:none !important}
+/* 2026-10-07 맞춤 제안서 — 단계 이동 시 제목이 상단 메뉴 밑에 가려지지 않게 */
+#view-proposal .mkp-step,
+#view-proposal .mkp-outside-heading{scroll-margin-top:84px}
+@media (max-width:900px){
+  /* 하단 고정 버튼 뒤로 내용이 비쳐 겹쳐 보이던 것 — 아래쪽을 배경색으로 부드럽게 덮는다 */
+  #view-proposal .mkp-bar{bottom:0!important;padding:22px 0 calc(var(--cc-h,0px) + 10px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to bottom,rgba(8,12,22,0),rgba(8,12,22,.9) 40%,rgba(8,12,22,.96))}
+  /* 모니 런처 — 목록 오른쪽 글자를 덜 가리도록 작게 */
+  body:has(#view-proposal.active) .pc-launcher{right:6px!important;bottom:calc(var(--cc-h,0px) + 80px + env(safe-area-inset-bottom,0px))!important}
+  body:has(#view-proposal.active) .pc-launcher-moni{width:52px!important;height:52px!important}
+  /* 산업·문제를 고를 때 오른쪽 끝 글자가 런처에 가리지 않게 여백 */
+  #view-proposal #ppPlist .mkp-pitem{padding-right:20px}
+}
+/* 2026-10-07 맞춤 제안서 — 산업 버튼이 늦게 그려지며 아래 FAQ 가 밀리던 레이아웃 이동(모바일 CLS 0.25) 방지용 자리 확보 */
+#view-proposal #ppInds:empty{min-height:430px}
+@media (max-width:900px){#view-proposal #ppInds:empty{min-height:510px}}
+@media (max-width:500px){#view-proposal #ppInds:empty{min-height:680px}}
+@media (max-width:420px){#view-proposal #ppInds:empty{min-height:880px}}
+@media (max-width:380px){#view-proposal #ppInds:empty{min-height:1170px}}

@@ -196,6 +196,10 @@
       if (!step || !head || head.classList.contains('mkp-outside-heading')) return;
       head.classList.add('mkp-outside-heading', 'is-for-' + id.toLowerCase());
       main.insertBefore(head, step);
+      /* 2026-10-07 — 단계 밖으로 꺼낸 제목은 그 단계가 숨겨지면 같이 숨긴다 (산업을 고르기 전 「03」 제목만 떠 있던 문제) */
+      var sync = function () { head.hidden = step.hidden; };
+      sync();
+      if (w.MutationObserver) new MutationObserver(sync).observe(step, { attributes: true, attributeFilter: ['hidden'] });
     });
   }
 
@@ -369,7 +373,12 @@
         var lab = x.segmentLabel ? pbL(x.segmentLabel) : (x.industryLabel && I ? indL(I) : '');
         if (!lab || x.confidence < 0.6) { box.hidden = true; return; }
         var html = L('<b>' + esc(lab) + '</b> 현장 기준으로 제안서를 구성합니다', 'We’ll build your proposal for a <b>' + esc(lab) + '</b> site');
-        if (!A.quick && A.st.industry && x.industry !== A.st.industry) {
+        /* 아직 산업을 고르지 않았으면 자동으로 정하지 않고, 고객이 눌러서 고르도록 버튼만 보여 준다 */
+        if (!A.st.industry) {
+          if (!I) { box.hidden = true; return; }
+          html = L('<b>' + esc(lab) + '</b> 현장으로 보입니다', 'Looks like a <b>' + esc(lab) + '</b> site') + ' <button type="button" data-ind="' + x.industry + '">' + L('「' + esc(indL(I)) + '」 선택하기', 'Select “' + esc(indL(I)) + '”') + '</button>';
+        }
+        else if (!A.quick && x.industry !== A.st.industry) {
           if (x.confidence >= 0.8 && I) html += ' <button type="button" data-ind="' + x.industry + '">' + L('산업을 「' + esc(indL(I)) + '」로 바꾸기', 'Switch industry to “' + esc(indL(I)) + '”') + '</button>';
           else { box.hidden = true; return; }
         }
@@ -891,7 +900,9 @@
     A.sig = sig; A.Q = Q; A.T0 = Date.now();
     A.demo = Q.get('demo') === '1';
     A.QF = { from: Q.get('from') || '', fac: Q.get('fac') || '', con: Q.get('con') || '', scale: Q.get('scale') || '' };
-    A.quick = !!(A.QF.fac && FINDER.fac[A.QF.fac]);
+    /* 2026-10-07 자동 선택 없음 — 파인더·광고 주소·이전 입력값으로 산업·과제·규모를 미리 고르지 않는다.
+       고객이 직접 산업을 고른 뒤에만 세부 과제가 열리고, 과제도 직접 눌러야 선택된다. (A.QF 는 유입 기록용으로만 유지) */
+    A.quick = false;
     A.detailsOpen = false;
     resetApply();
     var root = $('#ppRoot');
@@ -929,8 +940,7 @@
     } else {
       var assistEvent = $('#ppAssistEvent'); if (assistEvent) assistEvent.hidden = true;
       var regularNo = $('#ppS4 .mkp-no'); if (regularNo) regularNo.textContent = '04';
-      var qi = Q.get('industry'), qp = (Q.get('problems') || '').split(',').filter(Boolean), qg = (Q.get('goals') || '').split(',').filter(Boolean);
-      var src = qi ? { industry: qi, problems: qp, goals: qg } : (o && !o.quick ? o : null);
+      var src = null;   /* 2026-10-07 — 주소(industry·problems)·임시저장 값으로 옵션을 미리 고르지 않음 */
       if (src && ind(src.industry)) {
         A.st.goals = (src.goals || []).filter(function (g) { return KB.goals[g]; }).slice(0, 4);
         pickIndustry(src.industry, !!qi);

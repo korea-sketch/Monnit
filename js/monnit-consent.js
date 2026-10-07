@@ -178,7 +178,19 @@
     'font-weight:700;cursor:pointer;background:#00c9c0;color:#00232b;transition:.15s}',
     '.mnk-cc-bar .acts button:hover{background:#2ee0d7}',
     '@media(max-width:640px){.mnk-cc-bar{padding:22px 18px 20px}.mnk-cc-bar h2{font-size:19px}',
-    '.mnk-cc-bar p{font-size:13.5px}.mnk-cc-bar .acts{grid-template-columns:1fr}}'
+    '.mnk-cc-bar p{font-size:13.5px}.mnk-cc-bar .acts{grid-template-columns:1fr}}',
+    /* 2026-10-07 배너가 PC 에서 화면 1/3(약 280px)을 덮어 첫 화면 제목을 가리던 문제 — 한 줄 배치로 축소.
+       「쿠키 거부」·「모든 쿠키 수락」 두 버튼은 같은 크기·같은 색으로 유지(동의 유도 금지 원칙) */
+    '@media(min-width:900px){.mnk-cc.bar .mnk-cc-bar{padding:16px 28px}',
+    '.mnk-cc-bar-in{display:grid;grid-template-columns:minmax(0,1fr) 380px;column-gap:32px;align-items:center}',
+    '.mnk-cc-bar h2{grid-column:1;font-size:16px;margin:0 0 4px}',
+    '.mnk-cc-bar p{grid-column:1;font-size:12.5px;line-height:1.6;margin:0 0 4px}',
+    '.mnk-cc-bar .lnks{grid-column:1;margin:0;gap:16px}.mnk-cc-bar .lnks a,.mnk-cc-bar .lnks button{font-size:12.5px}',
+    '.mnk-cc-bar .acts{grid-column:2;grid-row:1/span 3;gap:10px}.mnk-cc-bar .acts button{padding:12px 14px;font-size:14px}}',
+    /* 모바일 — 두 버튼을 나란히 두어 배너 높이를 줄임 */
+    '@media(max-width:640px){.mnk-cc-bar h2{font-size:16px;margin-bottom:6px}.mnk-cc-bar p{font-size:12.5px;line-height:1.6;margin-bottom:8px}',
+    '.mnk-cc-bar .lnks{margin-bottom:12px}.mnk-cc-bar .acts{grid-template-columns:1fr 1fr;gap:8px}.mnk-cc-bar .acts button{padding:12px 8px;font-size:14px}',
+    '.mnk-cc.bar .mnk-cc-bar{padding:16px 16px calc(14px + env(safe-area-inset-bottom,0px))}}'
   ].join('');
 
   function ensureCss() {

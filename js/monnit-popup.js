@@ -249,6 +249,13 @@
     /* 이미 다른 모달(상담 폼·라이트박스 등)이 열려 있으면 조금 뒤에 다시 본다 */
     var tries = 0;
     (function wait() {
+      /* 2026-10-07 쿠키 동의 배너가 떠 있으면 그 위를 덮지 않는다 — 팝업이 「모든 쿠키 수락」 버튼을 가려 누를 수 없던 문제.
+         동의/거부를 고를 때까지 기다리고, 1분 안에 고르지 않으면 이번 방문에는 띄우지 않는다. */
+      var cc = d.getElementById('mnk-cc');
+      if (cc && cc.getClientRects().length && w.getComputedStyle(cc).display !== 'none') {
+        if (tries++ < 40) setTimeout(wait, 1500);
+        return;
+      }
       var busy = d.querySelector('[aria-modal="true"]:not(#mkpop)');
       if (busy && busy.getClientRects().length && tries++ < 20) { setTimeout(wait, 1500); return; }
       show(c);
