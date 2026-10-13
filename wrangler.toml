@@ -51,7 +51,7 @@ enabled = true
 [vars]
 URL = "https://monnit.co.kr"
 PRIMARY_HOST = "monnit.co.kr"
-SELF_HOSTS = "monnit.co.kr,www.monnit.co.kr"
+SELF_HOSTS = "monnit.co.kr,www.monnit.co.kr,monnit.ai,www.monnit.ai"
 MIGRATE_SOURCE = "https://monnit26.netlify.app"
 PDF_BUILDER = "github"
 GITHUB_REPO = "korea-sketch/Monnit"

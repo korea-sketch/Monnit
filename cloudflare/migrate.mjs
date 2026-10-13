@@ -48,13 +48,10 @@ export async function migrateRoute(req, env, ctx, { opsAuth }) {
     if (b.op === 'env') return json({ ok: true, count: await refreshConfig({ ...env, MIGRATE_SOURCE: source }) });
     if (b.op === 'stores') return json({ ok: true, ...(await callSource(source, 'op=stores')) });
     if (b.op === 'keys') {
+      /* 무료 플랜 CPU 10ms — 여기(R2) 목록을 다시 훑지 않는다. 이어서 할 위치(from)는 화면이 기억해 보낸다 */
       const j = await callSource(source, 'op=keys&store=' + encodeURIComponent(b.store));
-      const here = await getStore(b.store).list();
-      /* 한 번 쓰고 바뀌지 않는 기록(방문·추적·점검 — 키마다 새 파일)은 이미 옮긴 키를 건너뛴다.
-         끊겨도 이어서 하고, 전환 직전 최종 복사도 빨라진다. 제안서·관제 설정처럼 바뀌는 저장소는 항상 전부 다시 복사 */
-      const have = new Set(here.blobs.map(x => x.key));
-      const keys = b.skip && /^(visits|track|health)$/.test(b.store) ? j.keys.filter(k => !have.has(k)) : j.keys;
-      return json({ ok: true, keys, total: j.keys.length, existing: here.blobs.length });
+      const from = Math.max(0, Math.min(j.keys.length, Number(b.from) || 0));
+      return json({ ok: true, keys: j.keys.slice(from), total: j.keys.length, from });
     }
     if (b.op === 'copy') {
       const j = await callSource(source, 'op=get', { store: b.store, keys: b.keys });
@@ -107,15 +104,18 @@ $('#go').onclick=async()=>{
     let total=0;
     for(const store of stores){
       const tr=document.createElement('tr'); tr.innerHTML='<td>'+store+'</td><td>…</td><td>0</td><td>진행 중</td>'; $('#rows').appendChild(tr);
-      const skip=$('#skip').checked;
-      let kr, kt=0; for(;;){ try{ kr=await api({op:'keys',source,store,skip}); break; }catch(e){ if(++kt>=5) throw e; log(store+' 목록 재시도: '+e.message); await new Promise(z=>setTimeout(z,2000*kt)); } }
-      const keys=kr.keys, all=kr.total||keys.length; tr.children[1].textContent=all+(skip&&keys.length<all?' (남은 '+keys.length+')':'');
-      let done=0, i=0, B=60;
+      const skip=$('#skip').checked && /^(visits|track|health)$/.test(store), mk='mig:'+source+':'+store;
+      let from=0; if(skip){ try{ from=Number(localStorage.getItem(mk))||0; }catch(e){} }
+      let kr, kt=0; for(;;){ try{ kr=await api({op:'keys',source,store,from}); break; }catch(e){ if(++kt>=5) throw e; log(store+' 목록 재시도: '+e.message); await new Promise(z=>setTimeout(z,2000*kt)); } }
+      const keys=kr.keys, all=kr.total||keys.length; tr.children[1].textContent=all+(from?' (이어서 '+keys.length+')':'');
+      let done=0, i=0, B=30, fails=0;
       while(i<keys.length){
-        const batch=keys.slice(i,i+B); let tries=0, r;
-        for(;;){ try{ r=await api({op:'copy',source,store,keys:batch}); break; }catch(e){ if(++tries>=8) throw e; log(store+' 재시도: '+e.message); await new Promise(z=>setTimeout(z,1500*tries)); } }
-        const took = r.next==null ? batch.length : r.next;
-        done+=r.copied; i+=Math.max(1,took); tr.children[2].textContent=done;
+        const batch=keys.slice(i,i+B); let r;
+        try{ r=await api({op:'copy',source,store,keys:batch}); fails=0; if(B<60) B+=2; }
+        catch(e){ if(++fails>=12) throw e; B=Math.max(1,Math.floor(B/2)); log(store+' 재시도(묶음 '+B+'): '+e.message); await new Promise(z=>setTimeout(z,1500)); continue; }
+        const took = r.next==null ? batch.length : Math.max(1,r.next);
+        done+=r.copied; i+=took; tr.children[2].textContent=done;
+        if(skip){ try{ localStorage.setItem(mk,String(from+i)); }catch(e){} }
       }
       total+=done; tr.children[3].innerHTML='<span class="ok">완료</span>';
     }
