@@ -51,6 +51,8 @@ async function upsertAds(rows) {
 }
 
 export default async () => {
+  /* Cloudflare 로 옮긴 뒤 Netlify 쪽 예약 작업은 멈춘다 — Netlify 환경변수 NETLIFY_CRON_OFF=1 (메일 이중 발송 방지, 2026-10) */
+  if (process.env.NETLIFY_CRON_OFF === '1') return new Response('off');
   const now = new Date();
   const hour = Number(new Intl.DateTimeFormat('en-GB',
     { timeZone: 'Asia/Seoul', hour: '2-digit', hour12: false }).format(now));

@@ -103,6 +103,8 @@ async function alertMail(fails) {
 }
 
 export default async () => {
+  /* Cloudflare 로 옮긴 뒤 Netlify 쪽 예약 작업은 멈춘다 — Netlify 환경변수 NETLIFY_CRON_OFF=1 (메일 이중 발송 방지, 2026-10) */
+  if (process.env.NETLIFY_CRON_OFF === '1') return new Response('off');
   /* 밀린 접수 1회 자동 발송 — 배포 직후 한 번만 돈다. 실패해도 감시는 계속한다. */
   try { await backfillOnce(); } catch (e) {}
 
