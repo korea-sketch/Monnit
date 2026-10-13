@@ -1,0 +1,58 @@
+# ============================================================
+# monnit.co.kr — Cloudflare Workers 설정 (Netlify 이관, 무료 플랜 운영)
+# 자세한 순서: cloudflare/README-Cloudflare.md
+# ============================================================
+name = "monnit"
+main = "cloudflare/worker.mjs"
+compatibility_date = "2025-09-15"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+# 대시보드에서 넣은 변수(CRON_ENABLED 등)를 배포 때 지우지 않음
+keep_vars = true
+
+# 빌드 — Cloudflare 가 GitHub 에서 받아 이 명령을 실행한 뒤 배포합니다
+[build]
+command = "node scripts/proposal-sync.mjs && node build.js && node cloudflare/prepare.mjs"
+
+# 정적 파일 (dist/)
+#  · 페이지·API 는 Worker 가 먼저 받아 Netlify 와 같은 규칙(리다이렉트·IP 차단·방문 기록)으로 처리
+#  · 이미지·스크립트·스타일·글꼴·영상·PDF 는 Worker 를 거치지 않고 바로 나감 (무료 · 요청 수에 안 잡힘)
+#    해당 파일의 헤더는 dist/_headers (prepare.mjs 가 생성)
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+html_handling = "none"
+not_found_handling = "none"
+run_worker_first = [
+  "/*",
+  "!/images/*", "!/assets/*", "!/js/*", "!/css/*", "!/email/images/*", "!/videos/*", "!/files/*",
+  "!/*.css", "!/*.js", "!/*.mjs", "!/*.webp", "!/*.png", "!/*.jpg", "!/*.jpeg", "!/*.gif", "!/*.svg",
+  "!/*.ico", "!/*.woff", "!/*.woff2", "!/*.mp4", "!/*.webm", "!/*.map"
+]
+
+# Netlify 코드를 그대로 쓰기 위한 바꿔 끼우기
+[alias]
+"@netlify/blobs" = "./cloudflare/netlify-compat/blobs.mjs"
+
+# 저장소 (Netlify Blobs 대신) — 무료 10GB
+[[r2_buckets]]
+binding = "BLOBS"
+bucket_name = "monnit-blobs"
+
+# 예약 함수 (UTC) — 무료 플랜 5개까지. 대시보드 변수 CRON_ENABLED=1 일 때만 실제로 실행 (도메인 전환 후 켬). netlify/functions 의 config.schedule 과 같아야 합니다
+#   adsync 17 * * * * · health */15 · proposal-dispatch */10
+[triggers]
+crons = ["17 * * * *", "*/15 * * * *", "*/10 * * * *"]
+
+[observability]
+enabled = true
+
+# 공개 설정값 — 비밀값(API 키·비밀번호·GITHUB_TOKEN)은 대시보드 「Variables and Secrets」에
+[vars]
+URL = "https://monnit.co.kr"
+PRIMARY_HOST = "monnit.co.kr"
+SELF_HOSTS = "monnit.co.kr,www.monnit.co.kr"
+MIGRATE_SOURCE = "https://monnit26.netlify.app"
+PDF_BUILDER = "github"
+GITHUB_REPO = "korea-sketch/Monnit"
+NODE_VERSION = "20"

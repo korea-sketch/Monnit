@@ -11484,3 +11484,20 @@ body:has(#view-proposal.active), body:has(#view-proposal-status.active) { overfl
 @media (max-width:500px){#view-proposal #ppInds:empty{min-height:680px}}
 @media (max-width:420px){#view-proposal #ppInds:empty{min-height:880px}}
 @media (max-width:380px){#view-proposal #ppInds:empty{min-height:1170px}}
+/* ===== 2026-10-09 맞춤 제안서 — 산업·목표 버튼 간격 정리 (버튼끼리 맞붙어 보이던 문제) ===== */
+#view-proposal #ppInds{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important;gap:28px 24px!important}
+#view-proposal #ppInds .mkp-ind-group{margin:0!important;min-width:0}
+#view-proposal #ppInds .mkp-ind-group h4{margin:0 0 12px!important}
+#view-proposal #ppInds .mkp-ind-options{display:flex!important;flex-direction:column!important;gap:10px!important}
+#view-proposal #ppInds .mkp-ind-options .mkp-ind{width:100%!important;margin:0!important;min-height:50px!important;justify-content:flex-start;text-align:left}
+#view-proposal #ppS3 > .mkp-goal-limit{display:block;margin-bottom:16px!important}
+#view-proposal #ppGoals{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:22px!important}
+#view-proposal #ppGoals .mkp-goal-group{margin:0!important;min-width:0}
+#view-proposal #ppGoals .mkp-goal-group h4{margin:0 0 12px!important}
+#view-proposal #ppGoals .mkp-goal-options{display:flex!important;flex-wrap:wrap!important;gap:10px!important}
+#view-proposal #ppGoals .mkp-chip{margin:0!important}
+@media (max-width:900px){
+  #view-proposal #ppInds{grid-template-columns:minmax(0,1fr)!important;gap:22px!important}
+  #view-proposal #ppInds .mkp-ind-options{display:grid!important;flex-direction:unset!important;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))!important;gap:8px!important}
+  #view-proposal #ppGoals .mkp-goal-options{gap:8px!important}
+}

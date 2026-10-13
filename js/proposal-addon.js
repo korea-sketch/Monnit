@@ -118,7 +118,7 @@
       '<span class="mkpa-h" id="' + id + 'h">' + L('받으실 내용', 'What you’ll receive') + '</span>' +
       '<div class="mkpa-seg" role="radiogroup" aria-labelledby="' + id + 'h">' +
         '<label class="mkpa-opt on"><input type="radio" form="mkpa-off" name="' + id + '" value="doc" checked><span><b>' + L('자료만 받기', 'Just the document') + '</b><small>' + L('바로 다운로드 · 메일로도 링크', 'Instant download · link by email') + '</small></span></label>' +
-        '<label class="mkpa-opt"><input type="radio" form="mkpa-off" name="' + id + '" value="prop"><span><b>' + L('우리 현장 맞춤 제안서도', 'Plus a proposal for my site') + '<em>' + L('무료', 'FREE') + '</em></b><small>' + L('몇 시간 이내 · 접수 순서대로 발송', 'Sent within hours, in order received') + '</small></span></label>' +
+        '<label class="mkpa-opt"><input type="radio" form="mkpa-off" name="' + id + '" value="prop"><span><b>' + L('우리 현장 맞춤 제안서도', 'Plus a proposal for my site') + '<em>' + L('무료', 'FREE') + '</em></b><small>' + L('담당자 확인 후 1시간 이내 발송', 'Sent within 1 hour, after review') + '</small></span></label>' +
       '</div>' +
       '<div class="mkpa-more" hidden>' +
         '<p>' + L('입력하신 회사·현장에 맞춰 <b>Monnit 글로벌 레퍼런스와 산업별 플레이북</b>으로 만든 PDF 제안서를 따로 보내드립니다. 제안서는 <b>가장 고민되는 주제 하나</b>를 기준으로 깊게 정리합니다.',
@@ -225,7 +225,7 @@
         el.className = 'mkpa mkpa-res';
         html = '<span class="k"><i aria-hidden="true"></i>' + L('맞춤 제안서 접수 · 순차 처리 중', 'CUSTOM PROPOSAL · IN PROGRESS') + '</span>' +
           '<b class="t">' + L(esc(x.company) + ' 현장 기준으로 제안서를 만들고 있습니다', 'We’re building a proposal for ' + esc(x.company)) + '</b>' +
-          '<p>' + L('몇 시간 이내, 접수 순서대로 입력하신 메일로 보내드립니다. 진행 단계는 아래에서 바로 보실 수 있습니다.', 'It will arrive by email within a few hours, in the order received. You can follow each step below.') + '</p>' +
+          '<p>' + L('담당자 확인 후 접수 1시간 이내에 입력하신 메일로 보내드립니다. 진행 단계는 아래에서 바로 보실 수 있습니다.', 'It will arrive by email within 1 hour, after our team reviews it. You can follow each step below.') + '</p>' +
           '<div class="acts"><a class="pri" href="' + status + '" data-mkpa-go="proposal/status">' + L('진행 현황 보기 →', 'View progress →') + '</a></div>';
       } else if (x.ok && x.dup) {
         el.className = 'mkpa mkpa-res is-warn';
@@ -240,7 +240,7 @@
           '<p>' + L('확인한 뒤 입력하신 메일로 보내드립니다.', 'We’ll email it after review.') + '</p>';
       } else if (x.cta) {
         el.className = 'mkpa mkpa-res';
-        html = '<span class="k"><i aria-hidden="true"></i>' + L('무료 · 몇 시간 이내 발송', 'FREE · WITHIN HOURS') + '</span>' +
+        html = '<span class="k"><i aria-hidden="true"></i>' + L('무료 · 담당자 확인 후 1시간 이내 발송', 'FREE · WITHIN HOURS') + '</span>' +
           '<b class="t">' + L('우리 현장에 맞춘 제안서도 받아 보세요', 'Get a proposal built for your site') + '</b>' +
           '<p>' + L('공통 자료 대신, 회사·현장과 가장 고민되는 주제 하나를 기준으로 Monnit 글로벌 레퍼런스와 산업별 플레이북을 대조해 PDF로 보내드립니다.', 'We match your site and top concern against Monnit global references and industry playbooks and email you a PDF.') + '</p>' +
           '<div class="acts"><a class="pri" href="/proposal" data-mkpa-go="proposal">' + L('맞춤 제안서 받기 →', 'Get my proposal →') + '</a></div>';

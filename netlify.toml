@@ -366,3 +366,20 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
+
+# ── Cloudflare 이관 파일은 공개하지 않음 (2026-10) ──
+[[redirects]]
+  from = "/cloudflare/*"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/wrangler.toml"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/dist/*"
+  to = "/404.html"
+  status = 404
+  force = true

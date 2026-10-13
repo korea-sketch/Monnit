@@ -3353,7 +3353,7 @@ async function wpRequestRun(){
 
   if (!dl) return;
   if (ok === true) {
-    alert('「' + wp.title + '」 신청이 접수되었습니다.\n다운로드가 새 창에서 시작됩니다.\nPDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.' + (_prop && _prop.ok && _prop.token ? '\n\n맞춤 제안서도 접수되었습니다. 몇 시간 이내, 접수 순서대로 보내드립니다.' : ''));
+    alert('「' + wp.title + '」 신청이 접수되었습니다.\n다운로드가 새 창에서 시작됩니다.\nPDF는 비밀번호 없이 바로 열람하실 수 있으며, 안내 메일을 ' + v + ' 로 보내드렸습니다.' + (_prop && _prop.ok && _prop.token ? '\n\n맞춤 제안서도 접수되었습니다. 담당자 확인 후 접수 1시간 이내에 보내드립니다.' : ''));
     wpClear(sel, co, nm, em, ph);
   } else if (ok === 'mailto') {
     alert('다운로드가 시작되었습니다.\n메일 앱이 열리면 [보내기]를 눌러 신청을 완료해 주세요.');

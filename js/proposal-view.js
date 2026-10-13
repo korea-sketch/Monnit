@@ -831,7 +831,7 @@
     /* 토큰 없이 끝난 경우(저장소 장애·봇 판정) — 담당자가 직접 보내드린다 */
     stopAnalysis();
     $('#ppS4').innerHTML = '<div class="mkp-done"><span class="nh-eyebrow">' + L('접수 완료', 'Request received') + '</span><h3>' + L(esc(p.company) + ' ' + esc(p.name) + '님, 신청이 접수되었습니다', 'Thank you, ' + esc(p.name) + ' — your request is in') + '</h3>' +
-      '<p>' + L('담당 엔지니어가 맞춤 제안서를 정리해 ' + esc(p.email) + ' 으로 접수 순서대로 보내드립니다. 급하시면 ' + TEL + ' 로 연락 주세요.', 'An engineer will prepare your proposal and email it to ' + esc(p.email) + ' in the order received. For urgent needs, call +82-2-2088-1454.') + '</p></div>';
+      '<p>' + L('담당 엔지니어가 맞춤 제안서를 정리해 ' + esc(p.email) + ' 으로 담당자 확인 후 접수 1시간 이내에 보내드립니다. 급하시면 ' + TEL + ' 로 연락 주세요.', 'An engineer will prepare your proposal and email it to ' + esc(p.email) + ' within 1 hour after review. For urgent needs, call +82-2-2088-1454.') + '</p></div>';
   }
 
   function goStatus(x) {
@@ -1092,9 +1092,9 @@
         '<i class="mkps-mini-line"><em></em></i>' +
         '<div class="done"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><b>' + L('담당자<br>배정', 'Engineer<br>assigned') + '</b><small>' + (assignedAt ? esc(assignedAt) + ' ' + L('완료', 'done') : L('완료', 'Done')) + '</small></div>' +
         '<div class="' + (miniStage === 2 ? 'now' : miniStage > 2 ? 'done' : '') + '"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15v-4M12 17V7M18 15V9"/></svg></span><b>' + L('데이터<br>분석', 'Data<br>analysis') + '</b><small>' + (miniStage === 2 ? L('현재 진행중', 'In progress') : miniStage > 2 ? L('완료', 'Done') : L('대기', 'Pending')) + '</small></div>' +
-        '<div class="' + (miniStage === 3 ? 'done' : '') + '"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L20 4l-6.2 16-3.1-6.1-7.2-2.7zM10.7 13.9L20 4"/></svg></span><b>' + L('제안서<br>발송', 'Proposal<br>delivery') + '</b><small>' + (p.sent ? L('발송 완료', 'Sent') : L('순차 발송 예정', 'Scheduled')) + '</small></div>' +
+        '<div class="' + (miniStage === 3 ? 'done' : '') + '"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2L20 4l-6.2 16-3.1-6.1-7.2-2.7zM10.7 13.9L20 4"/></svg></span><b>' + L('제안서<br>발송', 'Proposal<br>delivery') + '</b><small>' + (p.sent ? L('발송 완료', 'Sent') : L('담당자 확인 후 발송 예정', 'Scheduled')) + '</small></div>' +
       '</div>' +
-      '<div class="mkps-mini-note"><strong>ⓘ</strong><p><b>' + (p.sent ? L('제안서 발송이 완료되었습니다.', 'Your proposal has been sent.') : L('현재 데이터를 분석 중이며,<br>완료 후 제안서가 순차 발송됩니다.', 'We are analyzing your data.<br>The proposal will be sent when complete.')) + '</b><small>' + L('필요 시 담당자가 별도로 연락드립니다.', 'Our team will contact you if needed.') + '</small></p></div>' +
+      '<div class="mkps-mini-note"><strong>ⓘ</strong><p><b>' + (p.sent ? L('제안서 발송이 완료되었습니다.', 'Your proposal has been sent.') : L('현재 데이터를 분석 중이며,<br>완료 후 담당자 확인을 거쳐 접수 1시간 이내에 발송됩니다.', 'We are analyzing your data.<br>The proposal will be sent when complete.')) + '</b><small>' + L('필요 시 담당자가 별도로 연락드립니다.', 'Our team will contact you if needed.') + '</small></p></div>' +
     '</aside>' +
     (p.sent ? '<div class="mkps-mailbox mkps-mailbox-top">' + ICON.mail + '<div><b>' + L(esc(mailTo) + ' 으로 PDF를 보냈습니다', 'We sent the PDF to ' + esc(mailTo)) + '</b><small>' + L('메일이 보이지 않으면 스팸함을 확인해 주세요. 그래도 없으면 ' + TEL + ' 또는 korea@monnit.com 으로 알려 주시면 바로 다시 보내드립니다.', 'If you can’t find it, check your spam folder or let us know at korea@monnit.com / +82-2-2088-1454 and we’ll resend it.') + '</small></div></div>' : '') +
 
@@ -1394,14 +1394,14 @@
       progress: {
         mode: 'instant', pct: sent ? 100 : Math.max(3, Math.round(tt * 97)), current: sent ? 'deliver' : ['collect', 'analyze', 'gather', 'insight', 'compose', 'review', 'deliver'][idx],
         note: sent ? L('담당 엔지니어가 영업일 기준 1일 안에 내용을 확인하고 연락드립니다.', 'An engineer will review it and contact you within 1 business day.') : '',
-        eta: sent ? fmt(due) : L('몇 시간 이내 · 접수 순서대로', 'Within a few hours · in the order received'),
+        eta: sent ? fmt(due) : L('접수 1시간 이내 · 담당자 확인 후', 'Within 1 hour · after review'),
         due: fmt(due), dueMs: due, remainMs: Math.max(0, due - now), sent: sent, sentAt: sent ? fmt(due) : '',
         stages: ST.map(function (st, i) { return { key: i, label: st[0], sub: st[1], state: sent || i < idx ? 'done' : i === idx ? 'now' : 'wait', at: sent || i < idx ? fmt(created + AT[i] * span) : '', atShort: sent || i < idx ? fmtShort(created + AT[i] * span) : '' }; })
       },
       notices: [
         { key: 'staff', label: L('담당 엔지니어 배정', 'Engineer assigned'), ch: L('모넷코리아 기술영업팀', 'Monnit Korea technical sales'), state: 'done', at: fmt(created) },
         { key: 'analysis', label: L('데이터 분석 완료', 'Data analysis complete'), ch: L('이 화면에서 확인', 'Shown on this page'), state: tt >= AT[4] ? 'done' : 'plan', at: fmt(created + AT[4] * span) + (tt >= AT[4] ? '' : L(' 예정', ' scheduled')) },
-        { key: 'sent', label: L('맞춤 제안서 발송', 'Proposal sent'), ch: mail, state: sent ? 'done' : 'plan', at: sent ? fmt(due) : L('몇 시간 이내 순차 발송', 'Within a few hours') },
+        { key: 'sent', label: L('맞춤 제안서 발송', 'Proposal sent'), ch: mail, state: sent ? 'done' : 'plan', at: sent ? fmt(due) : L('담당자 확인 후 1시간 이내 발송', 'Within 1 hour') },
         { key: 'callback', label: L('엔지니어 확인 연락', 'Engineer follow-up'), ch: L('회신 메일 또는 전화', 'Reply email or phone call'), state: 'plan', at: L('영업일 기준 1일 안 예정', 'Within 1 business day') }
       ]
     };
