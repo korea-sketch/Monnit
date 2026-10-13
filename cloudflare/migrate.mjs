@@ -50,7 +50,11 @@ export async function migrateRoute(req, env, ctx, { opsAuth }) {
     if (b.op === 'keys') {
       const j = await callSource(source, 'op=keys&store=' + encodeURIComponent(b.store));
       const here = await getStore(b.store).list();
-      return json({ ok: true, keys: j.keys, existing: here.blobs.length });
+      /* 한 번 쓰고 바뀌지 않는 기록(방문·추적·점검 — 키마다 새 파일)은 이미 옮긴 키를 건너뛴다.
+         끊겨도 이어서 하고, 전환 직전 최종 복사도 빨라진다. 제안서·관제 설정처럼 바뀌는 저장소는 항상 전부 다시 복사 */
+      const have = new Set(here.blobs.map(x => x.key));
+      const keys = b.skip && /^(visits|track|health)$/.test(b.store) ? j.keys.filter(k => !have.has(k)) : j.keys;
+      return json({ ok: true, keys, total: j.keys.length, existing: here.blobs.length });
     }
     if (b.op === 'copy') {
       const j = await callSource(source, 'op=get', { store: b.store, keys: b.keys });
@@ -88,6 +92,7 @@ pre{background:#0E1626;border:1px solid #1F2A40;border-radius:10px;padding:12px;
 <p>설정값(환경변수)과 리드 원장·방문 기록·맞춤 제안서·관제 설정을 Netlify 저장소에서 이곳(R2)으로 복사합니다. 여러 번 실행해도 안전합니다. DNS 를 옮기기 직전에 한 번 더 실행하세요.</p>
 <label for="src">원본(Netlify) 주소</label>
 <input id="src" value="${src}">
+<label style="display:flex;gap:8px;align-items:center;margin-top:12px;color:#DCE3EE"><input type="checkbox" id="skip" checked style="width:auto"> 방문·추적 기록은 이미 옮긴 것 건너뛰기 (권장 — 제안서·리드·설정은 항상 새로 복사)</label>
 <button id="go">복사 시작</button>
 <table><thead><tr><th>저장소</th><th>원본</th><th>복사</th><th>상태</th></tr></thead><tbody id="rows"></tbody></table>
 <pre id="log"></pre>
@@ -102,11 +107,13 @@ $('#go').onclick=async()=>{
     let total=0;
     for(const store of stores){
       const tr=document.createElement('tr'); tr.innerHTML='<td>'+store+'</td><td>…</td><td>0</td><td>진행 중</td>'; $('#rows').appendChild(tr);
-      const {keys}=await api({op:'keys',source,store}); tr.children[1].textContent=keys.length;
+      const skip=$('#skip').checked;
+      let kr, kt=0; for(;;){ try{ kr=await api({op:'keys',source,store,skip}); break; }catch(e){ if(++kt>=5) throw e; log(store+' 목록 재시도: '+e.message); await new Promise(z=>setTimeout(z,2000*kt)); } }
+      const keys=kr.keys, all=kr.total||keys.length; tr.children[1].textContent=all+(skip&&keys.length<all?' (남은 '+keys.length+')':'');
       let done=0, i=0, B=60;
       while(i<keys.length){
         const batch=keys.slice(i,i+B); let tries=0, r;
-        for(;;){ try{ r=await api({op:'copy',source,store,keys:batch}); break; }catch(e){ if(++tries>=3) throw e; log(store+' 재시도: '+e.message); await new Promise(z=>setTimeout(z,1500)); } }
+        for(;;){ try{ r=await api({op:'copy',source,store,keys:batch}); break; }catch(e){ if(++tries>=8) throw e; log(store+' 재시도: '+e.message); await new Promise(z=>setTimeout(z,1500*tries)); } }
         const took = r.next==null ? batch.length : r.next;
         done+=r.copied; i+=Math.max(1,took); tr.children[2].textContent=done;
       }
