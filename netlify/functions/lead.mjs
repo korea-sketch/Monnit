@@ -6,6 +6,7 @@ import * as _note from './_staffnote.mjs';   /* 메일 보낼 것 / 알림함에
 import { pushLead } from './_monday.mjs';
 import * as _test from './_istest.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
+import { routeLead } from './_route.mjs';   /* 담당자별 배분 — 일반 1015@ · 예약 msk8206@ (2026-10-13) */
 import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
 import _docmap from './_docmap.js';   /* siteBase — 메일 링크 주소 검증 */
@@ -166,13 +167,26 @@ export default async (req) => {
     const _wantMail = _note.shouldMail(type);
     const _byProposal = /proposal/i.test(lead.point || '') && /맞춤 제안서/.test(lead.interest || '');
 
-    const [_notified, , _reply] = await Promise.allSettled([
+    /* ── 담당자별 배분 메일 (2026-10-13) ──────────────────────────────
+       위 알림(대표님 메일함)과 별개로 담당자에게 한 통 더 간다. 브라우저 발송 여부·결정적 행위 여부와 무관.
+         · 맞춤 제안서 외 모든 접수 → 1015@monnit.com (백서·프로모션·협업·컨설팅 등)
+         · 현장 진단 예약           → /visit/admin 「예약 알림 받는 사람」(기본 msk8206@monnit.com) + 1015@
+       규칙·주소는 _route.mjs 참고. */
+    const [_notified, , _reply, _routed] = await Promise.allSettled([
       _browserSent ? Promise.resolve({ ok: true, via: _byProposal ? 'proposal' : 'browser' })
         : !_wantMail ? Promise.resolve({ ok: true, via: 'ops', held: true })
         : notify(lead, p),
       pushLead(id, lead),
-      sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin })
+      sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin }),
+      routeLead(lead, p)
     ]);
+    try {
+      const rv = (_routed && _routed.status === 'fulfilled') ? _routed.value : null;
+      await append('ops', 'route-' + monthKey(safeTs(body.ts)), {
+        ts: lead.ts, ok: !!(rv && rv.ok), kind: (rv && rv.kind) || '', to: (rv && rv.to) ? rv.to.join(',') : '',
+        note: (rv && (rv.skipped || rv.error)) || '', point: lead.point || '', company: lead.company || ''
+      });
+    } catch (e) { /* 관측용 기록 실패는 무시 */ }
     /* 나갔는지 안 나갔는지는 따로 남긴다 — 2026-09-04 사고의 교훈.
        리드 원장(leads)은 이미 위에서 기록이 끝났으므로 건드리지 않는다.
        같은 파일을 두 번 쓰면 동시 접수 때 한 건이 덮여 사라진다. */

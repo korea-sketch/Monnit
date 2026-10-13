@@ -3,13 +3,16 @@
  *  아이디·비밀번호는 Netlify 환경변수 VISIT_USER / VISIT_PASS 로만 받는다.
  */
 import * as auth from './_visit_auth.mjs';
-import { get, set } from './_store.mjs';
+import { get, set, readLines } from './_store.mjs';
+import { readVisitRecipients, saveVisitRecipients, generalTo, sendBrevo } from './_route.mjs';
 import * as LOCK from './_loginlock.mjs';
 
 export const config = {
   path: ['/visit/admin', '/visit/admin/', '/visit/admin/login', '/visit/admin/logout',
          '/visit/admin/config',   /* 저장 — 로그인한 담당자만 */
          '/visit/admin/holds',    /* 자동으로 잡힌 예약 시간 보기·해제 — 로그인한 담당자만 */
+         '/visit/admin/bookings', /* 신청 리스트·예약 스케줄 — 로그인한 담당자만 (2026-10-13) */
+         '/visit/admin/notify',   /* 예약 알림 받는 사람 보기·저장·테스트 — 로그인한 담당자만 (2026-10-13) */
          '/visit/config',         /* 읽기 — 고객 화면이 열 때마다 가져갑니다 */
          '/visit/hold']           /* 고객이 예약하는 순간 그 시간을 잡습니다 (이중 예약 방지) */
 };
@@ -181,6 +184,74 @@ export default async (req) => {
       .map(h => ({ code: h.code, d: h.d, s: h.s, e: h.e, company: h.company || '' })) });
   }
 
+  /* ── 신청 리스트 · 예약 스케줄 (로그인 필요 · 2026-10-13) ─────────
+     접수 원장(leads)에서 「현장진단 예약」 만 골라, 자동으로 잡힌 시간(holds)과 맞춰 상태를 붙인다.
+     따로 저장하지 않으므로 이 기능 이전에 들어온 예약도 그대로 보인다. 최근 3개월. */
+  if (p === '/visit/admin/bookings') {
+    if (!auth.configured() || !auth.valid(auth.cookieFrom(req.headers))) return json({ ok: false, error: 'unauthorized' }, 401);
+    const now = Date.now();
+    const months = [];
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now + KST); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - i);
+      months.push(d.toISOString().slice(0, 7) + '.jsonl');
+    }
+    let rows = [];
+    for (const m of months) rows = rows.concat(await readLines('leads', m).catch(() => []));
+    const holds = await readHolds();
+    const byCode = new Map(holds.map(h => [h.code, h]));
+    const seen = new Set();
+    const list = [];
+    for (const r of rows) {
+      if (!/현장진단 예약|visit_booking/.test(String(r.point || ''))) continue;
+      const m = String(r.interest || '').match(/MV-(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})-[A-Z0-9]+/i);
+      const code = m ? m[0].toUpperCase() : '';
+      const key = code || (r.ts + '|' + (r.email || r.phone || ''));
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const tm = String(r.interest || '').match(/(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})/);
+      const d = m ? `${m[1]}-${m[2]}-${m[3]}` : '';
+      const s = m ? `${m[4]}:${m[5]}` : '';
+      const start = d ? Date.parse(d + 'T' + s + ':00+09:00') : 0;
+      const h = code ? byCode.get(code) : null;
+      const status = !d ? 'unknown' : start < now ? 'past' : h ? 'held' : 'released';
+      list.push({
+        code, d, s, e: (h && h.e) || (tm ? tm[2] : ''), start, ts: r.ts, status, test: !!r.test,
+        company: r.company || '', name: r.name || '', phone: r.phone || '', email: r.email || '',
+        place: r.region || '', asset: r.asset || '', exp: r.exp || '', memo: r.memo || '',
+        channel: r.channel || ''
+      });
+    }
+    list.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+    return json({ ok: true, now, list });
+  }
+
+  /* ── 예약 알림 받는 사람 (로그인 필요 · 2026-10-13) ────────────────
+     공개 설정(config.json)과 따로 저장한다 — 메일 주소가 /visit/config 로 새지 않게. */
+  if (p === '/visit/admin/notify') {
+    if (!auth.configured() || !auth.valid(auth.cookieFrom(req.headers))) return json({ ok: false, error: 'unauthorized' }, 401);
+    if (req.method === 'POST') {
+      let b = null;
+      try { b = await req.json(); } catch (e) {}
+      if (!b) return json({ ok: false, error: 'bad_body' }, 400);
+      if (b.test) {
+        const cur = await readVisitRecipients();
+        const to = cur.list.map(x => x.email);
+        const r = await sendBrevo({
+          to, subject: '[현장진단 예약] 알림 수신 테스트 메일',
+          fields: { '안내': '스케줄 관리(/visit/admin)에서 보낸 테스트 메일입니다. 이 메일이 보이면 예약 알림을 정상적으로 받습니다.',
+                    '보낸 시각': new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), '받는 사람': to.join(', ') }
+        });
+        return json({ ok: !!r.ok, to, error: r.error || r.skipped || '' }, r.ok ? 200 : 502);
+      }
+      if (!Array.isArray(b.list)) return json({ ok: false, error: 'bad_body' }, 400);
+      const r = await saveVisitRecipients(b.list);
+      if (!r.ok) return json({ ok: false, error: 'store' }, 500);
+      return json({ ok: true, list: r.list, savedAt: r.savedAt, general: generalTo() });
+    }
+    const cur = await readVisitRecipients();
+    return json({ ok: true, ...cur, general: generalTo() });
+  }
+
   /* ── 담당자가 저장하는 곳 (로그인 필요) ──────────────────── */
   if (p === '/visit/admin/config') {
     if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405);
@@ -297,6 +368,47 @@ function ADMIN() {
 <meta name="theme-color" content="#070C0A" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/visit.css">
+<style>
+/* 신청 리스트 · 예약 스케줄 · 알림 받는 사람 (2026-10-13) */
+.bk-card{margin-bottom:22px}
+.bk-tabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--hair);border-radius:10px;background:var(--glass-sunken);margin:2px 0 14px}
+.bk-tabs button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer}
+.bk-tabs button[aria-selected="true"]{background:var(--glass-strong);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.bk-tabs .n{font-family:var(--mono);font-size:11px;color:var(--accent);margin-left:5px}
+.bk-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.bk-tools input{flex:1 1 220px;min-width:0}
+.bk-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--hair);border-radius:var(--radius-sm)}
+table.bk{border-collapse:collapse;width:100%;font-size:13px;min-width:760px}
+table.bk th{position:sticky;top:0;text-align:left;font-weight:600;font-size:11.5px;color:var(--ink-3);font-family:var(--mono);letter-spacing:.04em;padding:9px 10px;border-bottom:1px solid var(--hair-strong);background:var(--glass-strong);white-space:nowrap}
+table.bk td{padding:10px;border-bottom:1px solid var(--hair);vertical-align:top;color:var(--ink-2)}
+table.bk tr:last-child td{border-bottom:0}
+table.bk td b{color:var(--ink);font-weight:600}
+table.bk td .mono{font-family:var(--mono);font-size:11.5px}
+table.bk td a{color:var(--accent)}
+table.bk tr.more td{background:var(--glass-quiet);font-size:12.5px;line-height:1.7}
+table.bk tr.row{cursor:pointer}
+table.bk tr.row:hover td{background:var(--glass-quiet)}
+.st{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;border:1px solid var(--hair-strong);color:var(--ink-3)}
+.st.held{color:var(--accent);background:var(--accent-soft);border-color:var(--accent-line)}
+.st.released{color:var(--danger);background:var(--danger-soft);border-color:var(--danger-line)}
+.st.test{color:var(--signal);background:var(--signal-soft);border-color:var(--signal-line);margin-left:4px}
+.sch-day{margin:0 0 14px}
+.sch-day h4{margin:0 0 6px;font-size:13px;color:var(--ink);font-weight:600}
+.sch-day h4 .mono{font-family:var(--mono);font-weight:500;color:var(--ink-3);font-size:11.5px;margin-left:6px}
+.sch-item{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:10px 12px;border:1px solid var(--hair);border-radius:var(--radius-xs);background:var(--glass-strong);margin-bottom:6px}
+.sch-item .t{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-weight:600}
+.sch-item .who{color:var(--ink);font-weight:600;font-size:13.5px}
+.sch-item .meta{color:var(--ink-3);font-size:12.5px;margin-top:2px;word-break:break-all}
+.sch-item a{color:var(--accent)}
+.bk-tools input{font:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--hair-strong);border-radius:var(--radius-xs);background:var(--glass-strong);color:var(--ink)}
+.rcp{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.rcp-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--hair);border-radius:var(--radius-xs);background:var(--glass-strong);font-size:13px}
+.rcp-row .em{font-family:var(--mono);font-size:12.5px;color:var(--ink);word-break:break-all;flex:1}
+.rcp-row .nm{color:var(--ink-3);font-size:12px}
+.rcp-row button{border:0;background:transparent;color:var(--ink-3);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px}
+.rcp-row button:hover{color:var(--danger)}
+@media (max-width:560px){.sch-item{grid-template-columns:1fr;gap:4px}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -315,6 +427,26 @@ function ADMIN() {
     <div class="stat"><span class="k">방문 가능일</span><span class="v" id="stDays">–</span></div>
     <div class="stat"><span class="k">첫 방문 가능일</span><span class="v" id="stFirst">–</span></div>
     <div class="stat"><span class="k">제외된 날</span><span class="v" id="stClosed">–</span></div>
+  </div>
+
+  <div class="card bk-card">
+    <h3>예약 현황
+      <span class="sub">고객이 /visit 에서 신청한 내역입니다(최근 3개월). 행을 누르면 상세 내용이 열립니다.
+        <b>예약 확정</b>은 시간이 잡혀 있는 건, <b>시간 해제</b>는 아래 「자동으로 잡힌 예약」에서 풀린 건입니다.</span>
+    </h3>
+    <div class="bk-tabs" role="tablist">
+      <button type="button" role="tab" id="tabSch" aria-selected="true">예약 스케줄<span class="n" id="nSch"></span></button>
+      <button type="button" role="tab" id="tabList" aria-selected="false">신청 리스트<span class="n" id="nList"></span></button>
+    </div>
+    <div id="paneSch"><p class="hint">불러오는 중…</p></div>
+    <div id="paneList" hidden>
+      <div class="bk-tools">
+        <input id="bkQ" type="search" placeholder="회사·담당자·연락처·예약코드 검색">
+        <button class="btn ghost sm" id="bkCsv" type="button">CSV 내려받기</button>
+        <button class="btn ghost sm" id="bkReload" type="button">새로고침</button>
+      </div>
+      <div id="bkTable"><p class="hint">불러오는 중…</p></div>
+    </div>
   </div>
 
   <div class="admin-grid">
@@ -435,6 +567,22 @@ function ADMIN() {
       <div class="card">
         <h3>미리보기</h3>
         <div class="preview" id="previewBox"></div>
+      </div>
+
+      <div class="card">
+        <h3>예약 알림 받는 사람
+          <span class="sub">고객이 예약하면 여기 있는 모든 주소로 접수 메일이 바로 갑니다. (추가·삭제는 저장 버튼 없이 바로 반영)</span>
+        </h3>
+        <div class="rcp" id="rcpList"><span class="hint">불러오는 중…</span></div>
+        <div class="row2">
+          <div class="field"><label for="r-email">이메일</label><input id="r-email" type="email" placeholder="name@monnit.com" autocomplete="off"></div>
+          <div class="field"><label for="r-name">이름 (선택)</label><input id="r-name" placeholder="예) 담당 엔지니어"></div>
+        </div>
+        <div class="actions">
+          <button class="btn sm" id="rcpAdd" type="button">받는 사람 추가</button>
+          <button class="btn ghost sm" id="rcpTest" type="button">테스트 메일 보내기</button>
+        </div>
+        <p class="hint" id="rcpHint"></p>
       </div>
 
       <div class="card">
@@ -710,9 +858,155 @@ function ADMIN() {
       .catch(function(){ document.getElementById("holdList").innerHTML='<span class="hint">불러오지 못했습니다.</span>'; });
   }
 
+  /* ── 예약 현황: 예약 스케줄 · 신청 리스트 (2026-10-13) ── */
+  var BK=[], DOWS=["일","월","화","수","목","금","토"];
+  var ST={held:"예약 확정",released:"시간 해제",past:"지난 일정",unknown:"일시 미상"};
+  function dayLabel(d){ try{ var x=new Date(d+"T00:00:00Z"); if(isNaN(x)) return d; return (x.getUTCMonth()+1)+"월 "+x.getUTCDate()+"일 ("+DOWS[x.getUTCDay()]+")"; }catch(e){ return d; } }
+  function tsLabel(iso){ return stamp(iso); }
+  function badge(x){ return '<span class="st '+x.status+'">'+ST[x.status]+'</span>'+(x.test?'<span class="st test">테스트?</span>':''); }
+  function tel(v){ return v?'<a href="tel:'+V.esc(String(v).replace(/[^0-9+]/g,""))+'">'+V.esc(v)+'</a>':""; }
+  function mailto(v){ return v?'<a href="mailto:'+V.esc(v)+'">'+V.esc(v)+'</a>':""; }
+
+  function renderSchedule(){
+    var box=document.getElementById("paneSch");
+    var up=BK.filter(function(x){return x.status==="held"||x.status==="released";})
+             .sort(function(a,b){return a.start-b.start;});
+    document.getElementById("nSch").textContent=up.filter(function(x){return x.status==="held";}).length||"";
+    if(!up.length){ box.innerHTML='<p class="hint">앞으로 잡힌 방문 일정이 없습니다.</p>'; return; }
+    var html="", cur="";
+    up.forEach(function(x){
+      if(x.d!==cur){ if(cur) html+="</div>"; cur=x.d; html+='<div class="sch-day"><h4>'+V.esc(dayLabel(x.d))+'<span class="mono">'+V.esc(x.d)+'</span></h4>'; }
+      html+='<div class="sch-item"><div><div class="t">'+V.esc(x.s)+(x.e?"–"+V.esc(x.e):"")+'</div>'+badge(x)+'</div>'+
+        '<div><div class="who">'+V.esc(x.company||"(회사 미기재)")+(x.name?' · '+V.esc(x.name):'')+'</div>'+
+        '<div class="meta">'+[tel(x.phone),mailto(x.email)].filter(Boolean).join(" · ")+'</div>'+
+        (x.place?'<div class="meta">방문지 '+V.esc(x.place)+'</div>':'')+
+        (x.asset?'<div class="meta">대상 설비 '+V.esc(x.asset)+'</div>':'')+
+        '<div class="meta mono">'+V.esc(x.code)+'</div></div></div>';
+    });
+    box.innerHTML=html+"</div>";
+  }
+
+  function renderList(){
+    var q=(document.getElementById("bkQ").value||"").trim().toLowerCase();
+    var rows=BK.filter(function(x){
+      if(!q) return true;
+      return [x.company,x.name,x.phone,x.email,x.code,x.place,x.asset].join(" ").toLowerCase().indexOf(q)!==-1;
+    });
+    document.getElementById("nList").textContent=BK.length||"";
+    var box=document.getElementById("bkTable");
+    if(!rows.length){ box.innerHTML='<p class="hint">'+(BK.length?"검색 결과가 없습니다.":"최근 3개월 동안 들어온 예약 신청이 없습니다.")+'</p>'; return; }
+    var h='<div class="bk-scroll"><table class="bk"><thead><tr><th>신청 시각</th><th>방문 희망</th><th>상태</th><th>회사 · 담당자</th><th>연락처</th><th>이메일</th><th>대상 설비</th></tr></thead><tbody>';
+    rows.forEach(function(x,i){
+      h+='<tr class="row" data-i="'+i+'"><td class="mono">'+V.esc(tsLabel(x.ts))+'</td>'+
+        '<td><b>'+V.esc(x.d?dayLabel(x.d):"-")+'</b><br><span class="mono">'+V.esc(x.s)+(x.e?"–"+V.esc(x.e):"")+'</span></td>'+
+        '<td>'+badge(x)+'</td>'+
+        '<td><b>'+V.esc(x.company)+'</b><br>'+V.esc(x.name)+'</td>'+
+        '<td>'+tel(x.phone)+'</td><td>'+mailto(x.email)+'</td><td>'+V.esc(x.asset)+'</td></tr>'+
+        '<tr class="more" data-m="'+i+'" hidden><td colspan="7">'+
+          '<b>예약코드</b> <span class="mono">'+V.esc(x.code||"-")+'</span>'+
+          (x.place?' · <b>방문지</b> '+V.esc(x.place):'')+
+          (x.exp?' · <b>진동센서 경험</b> '+V.esc(x.exp):'')+
+          (x.channel?' · <b>유입</b> '+V.esc(x.channel):'')+
+          (x.memo?'<br>'+V.esc(x.memo):'')+'</td></tr>';
+    });
+    box.innerHTML=h+'</tbody></table></div>';
+    box.querySelectorAll("tr.row").forEach(function(tr){
+      tr.addEventListener("click",function(e){
+        if(e.target.closest("a")) return;
+        var m=box.querySelector('tr.more[data-m="'+tr.getAttribute("data-i")+'"]'); if(m) m.hidden=!m.hidden;
+      });
+    });
+  }
+
+  function loadBookings(){
+    return fetch("/visit/admin/bookings",{cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(j){
+        if(!j||!j.ok) throw 0;
+        BK=j.list||[]; renderSchedule(); renderList();
+      })
+      .catch(function(){
+        document.getElementById("paneSch").innerHTML='<p class="hint">불러오지 못했습니다.</p>';
+        document.getElementById("bkTable").innerHTML='<p class="hint">불러오지 못했습니다.</p>';
+      });
+  }
+  function tab(which){
+    var sch=which==="sch";
+    document.getElementById("tabSch").setAttribute("aria-selected",String(sch));
+    document.getElementById("tabList").setAttribute("aria-selected",String(!sch));
+    document.getElementById("paneSch").hidden=!sch;
+    document.getElementById("paneList").hidden=sch;
+  }
+  document.getElementById("tabSch").addEventListener("click",function(){tab("sch");});
+  document.getElementById("tabList").addEventListener("click",function(){tab("list");});
+  document.getElementById("bkQ").addEventListener("input",renderList);
+  document.getElementById("bkReload").addEventListener("click",function(){ loadBookings().then(function(){ V.toast("새로 불러왔습니다","ok"); }); });
+  document.getElementById("bkCsv").addEventListener("click",function(){
+    var head=["신청시각","방문일","시작","종료","상태","회사","담당자","연락처","이메일","방문지","대상설비","진동센서경험","예약코드","메모"];
+    var q=function(v){ v=String(v==null?"":v); if(/^[=+\\-@]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"'; };
+    var lines=[head.map(q).join(",")].concat(BK.map(function(x){
+      return [tsLabel(x.ts),x.d,x.s,x.e,ST[x.status]+(x.test?" (테스트?)":""),x.company,x.name,x.phone,x.email,x.place,x.asset,x.exp,x.code,x.memo].map(q).join(",");
+    }));
+    var blob=new Blob(["\\ufeff"+lines.join("\\r\\n")],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="visit-bookings-"+new Date().toISOString().slice(0,10)+".csv";
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1000);
+  });
+
+  /* ── 예약 알림 받는 사람 (2026-10-13) ── */
+  var RCP=[], GEN=[];
+  function rcpHint(t,bad){ var h=document.getElementById("rcpHint"); h.textContent=t||""; h.style.color=bad?"var(--danger)":""; }
+  function renderRcp(info){
+    var box=document.getElementById("rcpList"); box.innerHTML="";
+    if(!RCP.length) box.innerHTML='<span class="hint" style="color:var(--danger)">받는 사람이 없습니다. 예약 메일은 일반 문의 담당에게만 갑니다.</span>';
+    RCP.forEach(function(x){
+      var row=document.createElement("div"); row.className="rcp-row";
+      row.innerHTML='<span class="em">'+V.esc(x.email)+'</span>'+(x.name?'<span class="nm">'+V.esc(x.name)+'</span>':'');
+      var del=document.createElement("button"); del.type="button"; del.textContent="×"; del.title="삭제";
+      del.addEventListener("click",function(){
+        if(!confirm(x.email+" 을(를) 예약 알림에서 뺄까요?")) return;
+        saveRcp(RCP.filter(function(y){return y.email!==x.email;}),"삭제했습니다");
+      });
+      row.appendChild(del); box.appendChild(row);
+    });
+    var g=GEN.length?"일반 문의 담당 "+GEN.join(", ")+" 에게도 함께 갑니다.":"";
+    rcpHint(info||g);
+  }
+  function loadRcp(){
+    return fetch("/visit/admin/notify",{cache:"no-store"}).then(function(r){return r.json();})
+      .then(function(j){ if(!j||!j.ok) throw 0; RCP=j.list||[]; GEN=j.general||[]; renderRcp(j.isDefault?"기본값입니다. 추가·삭제하면 저장됩니다.":""); })
+      .catch(function(){ document.getElementById("rcpList").innerHTML='<span class="hint">불러오지 못했습니다.</span>'; });
+  }
+  function saveRcp(list,msg){
+    return fetch("/visit/admin/notify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({list:list}),cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(j){ if(!j||!j.ok) throw 0; RCP=j.list||[]; GEN=j.general||GEN; renderRcp(); V.toast(msg||"저장했습니다","ok"); })
+      .catch(function(){ rcpHint("저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",true); });
+  }
+  document.getElementById("rcpAdd").addEventListener("click",function(){
+    var em=(document.getElementById("r-email").value||"").trim().toLowerCase();
+    var nm=(document.getElementById("r-name").value||"").trim();
+    if(!/^[^\\s@<>"',;]+@[^\\s@<>"',;]+\\.[a-z]{2,}$/.test(em)){ rcpHint("이메일 주소를 확인해 주세요.",true); return; }
+    if(RCP.some(function(x){return x.email===em;})){ rcpHint("이미 들어 있는 주소입니다.",true); return; }
+    saveRcp(RCP.concat([{email:em,name:nm}]),"추가했습니다").then(function(){
+      document.getElementById("r-email").value=""; document.getElementById("r-name").value="";
+    });
+  });
+  document.getElementById("rcpTest").addEventListener("click",function(){
+    if(!RCP.length){ rcpHint("받는 사람을 먼저 추가해 주세요.",true); return; }
+    var b=this; b.disabled=true; rcpHint("보내는 중…");
+    fetch("/visit/admin/notify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({test:true}),cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(j){ if(j&&j.ok){ rcpHint("테스트 메일을 보냈습니다: "+(j.to||[]).join(", ")); V.toast("테스트 메일 발송","ok"); } else rcpHint("발송 실패: "+((j&&j.error)||"알 수 없음"),true); })
+      .catch(function(){ rcpHint("발송 실패: 서버에 닿지 않았습니다.",true); })
+      .then(function(){ b.disabled=false; });
+  });
+
   renderHolidays();
   pullFromServer(true);
   loadHolds();
+  loadBookings();
+  loadRcp();
 })();
 </script>
 </body>
