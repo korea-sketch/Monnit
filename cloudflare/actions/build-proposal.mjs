@@ -8,7 +8,7 @@
 
    필요한 값(GitHub → Settings → Secrets and variables → Actions)
      SITE_URL          https://monnit.co.kr  (전환 전에는 workers.dev 주소)
-     PROPOSAL_SECRET   사이트와 같은 값 (없으면 DL_SECRET)
+     MIGRATE_SECRET    사이트(Cloudflare 대시보드)와 같은 값
      나머지(메일·AI 키·SITE_ID 등)는 사이트 저장소의 __config/env.json 에서 자동으로 읽습니다
    ============================================================ */
 import { bindBlobs } from '../netlify-compat/blobs.mjs';
@@ -17,7 +17,7 @@ import { blobsToken } from '../blob-api.mjs';
 const SITE = String(process.env.SITE_URL || process.env.URL || 'https://monnit.co.kr').replace(/\/$/, '');
 process.env.URL = process.env.URL || SITE;
 const TOKEN = blobsToken(null);
-if (!TOKEN) { console.error('PROPOSAL_SECRET(또는 DL_SECRET) 가 없습니다'); process.exit(1); }
+if (!TOKEN) { console.error('MIGRATE_SECRET 가 없습니다 (GitHub → Settings → Secrets)'); process.exit(1); }
 
 /* R2 바인딩과 같은 모양의 원격 버킷 */
 const api = (q, init = {}) => fetch(SITE + '/api/__blobs?' + new URLSearchParams(q), { ...init, headers: { 'x-mnk-blobs': TOKEN, ...(init.headers || {}) } });

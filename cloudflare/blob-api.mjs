@@ -3,12 +3,12 @@
    ------------------------------------------------------------
    무료 플랜의 Worker 는 요청당 CPU 10ms 라 PDF 조판을 하지 못합니다.
    그래서 PDF 는 GitHub Actions(무료)에서 만들고, 그 작업이 이 API 로 R2 를 읽고 씁니다.
-   인증: x-mnk-blobs = HMAC-SHA256(PROPOSAL_SECRET 또는 DL_SECRET, 'mnk-blobs-v1')
+   인증: x-mnk-blobs = HMAC-SHA256(MIGRATE_SECRET → 없으면 PROPOSAL_SECRET → DL_SECRET, 'mnk-blobs-v1')
    ============================================================ */
 import crypto from 'node:crypto';
 
 export function blobsToken(env) {
-  const s = (env && (env.PROPOSAL_SECRET || env.DL_SECRET)) || process.env.PROPOSAL_SECRET || process.env.DL_SECRET || '';
+  const s = (env && (env.MIGRATE_SECRET || env.PROPOSAL_SECRET || env.DL_SECRET)) || process.env.MIGRATE_SECRET || process.env.PROPOSAL_SECRET || process.env.DL_SECRET || '';
   return s ? crypto.createHmac('sha256', s).update('mnk-blobs-v1').digest('hex') : '';
 }
 const j = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });

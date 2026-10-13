@@ -141,11 +141,13 @@ netlify/functions/blob-export.mjs     Netlify 쪽 데이터 내보내기 (이관
 
 ## 추가 (2026-10-13) — 설정값 자동 이전 · 무중단 순서
 
-- **설정값 자동 이전**: Cloudflare 대시보드에는 `PROPOSAL_SECRET`(Netlify 와 같은 값)과 `GITHUB_TOKEN` 두 개만 직접 넣습니다.
+- **설정값 자동 이전**: Cloudflare 대시보드에는 `MIGRATE_SECRET`(Netlify 에도 같은 새 값을 넣음)과 `GITHUB_TOKEN` 두 개만 직접 넣습니다.
+  (Netlify 의 비밀값은 저장 후 다시 볼 수 없으므로 PROPOSAL_SECRET 을 복사하지 않고, 이관 전용 새 열쇠를 양쪽에 넣습니다.
+  대시보드에 PROPOSAL_SECRET 을 따로 넣으면 옮겨 온 진짜 값보다 우선하므로 넣지 마십시오.)
   나머지(OPS/VISIT 계정, 메일·AI·광고 키, SITE_ID 등)는 Worker 가 처음 뜰 때 Netlify 의 `/api/blob-export?op=env` 에서
   자동으로 받아 R2(`__config/env.json`)에 둡니다. 대시보드에 같은 이름을 넣으면 대시보드 값이 우선합니다.
   `/ops/migrate` 의 「복사 시작」을 누르면 설정값도 새로 받습니다.
-- **GitHub Actions 비밀값**: `SITE_URL`, `PROPOSAL_SECRET` 두 개면 됩니다(나머지는 위 설정값에서 읽음).
+- **GitHub Actions 비밀값**: `SITE_URL`, `MIGRATE_SECRET` 두 개면 됩니다(나머지는 위 설정값에서 읽음).
 - **예약 작업 잠금**: 대시보드 변수 `CRON_ENABLED=1` 을 넣기 전에는 cron 이 아무것도 하지 않습니다.
   시험 기간에 Netlify 와 메일이 겹치지 않게 하려는 것으로, 도메인 전환 직후에 켭니다.
 - **무중단 순서**: ① GitHub 반영(Netlify 는 원자 배포라 중단 없음) → ② Cloudflare 에 Worker·R2 준비(workers.dev 임시 주소)

@@ -33,3 +33,9 @@ Claude outputs/
 
 # Netlify CLI 로컬 캐시 (배포와 무관)
 .netlify/
+
+# Cloudflare 빌드 산출물·로컬 실행 파일 (2026-10)
+/dist/
+/cloudflare/generated/
+.wrangler/
+.dev.vars

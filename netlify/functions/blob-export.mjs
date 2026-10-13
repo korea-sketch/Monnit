@@ -3,7 +3,8 @@
  *  Netlify Blobs 에 쌓인 리드·방문 기록·제안서·관제 설정을 Cloudflare(R2)로 옮길 때
  *  Cloudflare 쪽 /ops/migrate 화면이 이 주소를 불러 데이터를 가져갑니다.
  *
- *  인증: x-mnk-migrate 헤더 = HMAC-SHA256(PROPOSAL_SECRET 또는 DL_SECRET, 'mnk-blob-migrate-v1')
+ *  인증: x-mnk-migrate 헤더 = HMAC-SHA256(MIGRATE_SECRET → 없으면 PROPOSAL_SECRET → DL_SECRET, 'mnk-blob-migrate-v1')
+ *        MIGRATE_SECRET 은 이관 전용 열쇠 — Netlify 의 비밀값은 다시 볼 수 없어서, 새 값을 양쪽에 넣어 맞춘다.
  *        두 사이트에 같은 비밀값이 들어 있어야 합니다(환경변수를 그대로 옮기면 같음).
  *        비밀값이 없으면 아예 닫혀 있습니다.
  *  이관이 끝나면 이 파일을 지워도 됩니다.
@@ -19,7 +20,7 @@ import { getStore, listStores } from '@netlify/blobs';
 
 const env = k => { try { const v = globalThis.Netlify && Netlify.env.get(k); if (v) return v; } catch (e) { /* 무시 */ } return process.env[k] || ''; };
 export function migrateToken() {
-  const s = env('PROPOSAL_SECRET') || env('DL_SECRET');
+  const s = env('MIGRATE_SECRET') || env('PROPOSAL_SECRET') || env('DL_SECRET');
   return s ? crypto.createHmac('sha256', s).update('mnk-blob-migrate-v1').digest('hex') : '';
 }
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });

@@ -1,0 +1,49 @@
+# 맞춤 제안서 PDF 생성 — Cloudflare 무료 운영용 (2026-10)
+# 사이트(Worker)가 접수 직후 이 작업을 깨웁니다. 1건에 약 1분, GitHub 무료 사용량 안에서 동작합니다.
+name: proposal-build
+
+on:
+  repository_dispatch:
+    types: [proposal-build]
+
+concurrency:
+  group: proposal-build-${{ github.event.client_payload.sig }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            cloudflare
+            netlify
+            assets/fonts
+            package.json
+            package-lock.json
+            valid.js
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --omit=dev --no-audit --no-fund
+      - name: 제안서 생성
+        run: node --import ./cloudflare/actions/register.mjs cloudflare/actions/build-proposal.mjs
+        env:
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+          MIGRATE_SECRET: ${{ secrets.MIGRATE_SECRET }}
+          PROPOSAL_SECRET: ${{ secrets.PROPOSAL_SECRET }}
+          DL_SECRET: ${{ secrets.DL_SECRET }}
+          SITE_ID: ${{ secrets.SITE_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          PROPOSAL_AI_MODEL: ${{ vars.PROPOSAL_AI_MODEL }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          PROPOSAL_MODE: ${{ vars.PROPOSAL_MODE }}
+          PROPOSAL_REVIEW: ${{ vars.PROPOSAL_REVIEW }}

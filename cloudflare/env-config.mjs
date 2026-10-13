@@ -3,8 +3,8 @@
    ------------------------------------------------------------
    Cloudflare 대시보드에 비밀값 20여 개를 하나하나 다시 넣지 않아도 되도록,
    Netlify 의 /api/blob-export?op=env 에서 한 번 받아 R2(__config/env.json)에 둡니다.
-   인증은 데이터 이관과 같은 HMAC(PROPOSAL_SECRET) — 그래서 대시보드에는
-   PROPOSAL_SECRET 과 GITHUB_TOKEN 만 직접 넣으면 됩니다.
+   인증은 데이터 이관과 같은 HMAC(MIGRATE_SECRET — Netlify 와 같은 새 값) — 그래서 대시보드에는
+   MIGRATE_SECRET 과 GITHUB_TOKEN 만 직접 넣으면 됩니다.
    · 대시보드에 같은 이름이 있으면 대시보드 값이 이깁니다(나중에 바꾸고 싶을 때).
    · 다시 받으려면 /ops/migrate 에서 「복사 시작」 (설정값도 함께 새로 받음).
    ============================================================ */
