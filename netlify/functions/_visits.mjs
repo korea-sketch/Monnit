@@ -9,8 +9,9 @@ async function store() {
   return _gs({ name: 'visits', consistency: 'strong' });
 }
 
-export const kday = d => new Intl.DateTimeFormat('en-CA',
-  { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+/* 한국 날짜 YYYY-MM-DD — 한국은 1989년 이후 서머타임이 없어 UTC+9 산술과 같다.
+   Intl 형식기를 매번 새로 만들면 건당 0.1ms — 집계에서 수천 번 불려 무료 플랜 CPU 10ms 를 넘겼다 (2026-10-14) */
+export const kday = d => { const t = d instanceof Date ? d.getTime() : new Date(d).getTime(); return t > 6e11 ? new Date(t + 324e5).toISOString().slice(0, 10) : new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d); }
 export const ipKey = ip => String(ip || '').toLowerCase().replace(/[^0-9a-f.]/g, '_');
 export function days(n, from = new Date()) {
   const out = [];

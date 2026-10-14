@@ -9,6 +9,8 @@
      · 백그라운드 함수                  → Cloudflare Queue (없으면 waitUntil)
      · Netlify Blobs                   → R2 (netlify-compat/blobs.mjs, wrangler.toml alias)
    ============================================================ */
+import { installIntlCache } from './intl-cache.mjs';
+installIntlCache();   /* 날짜 형식기 재사용 — 무료 플랜 CPU 10ms (다른 모듈보다 먼저) */
 import { AsyncLocalStorage } from 'node:async_hooks';
 import crypto from 'node:crypto';
 import { bindBlobs } from './netlify-compat/blobs.mjs';
@@ -16,6 +18,7 @@ import { resolveStatic, matchRedirect, applyHeaders, DEFAULT_HSTS } from './netl
 import { migrateRoute } from './migrate.mjs';
 import { blobApi } from './blob-api.mjs';
 import { withConfig } from './env-config.mjs';
+import { sheetsRoute } from './sheets-cache.mjs';
 
 /* ── Netlify 함수들 (v2: default + config) ───────────────────── */
 import * as fn_blockadmin from '../netlify/functions/blockadmin.mjs';
@@ -139,13 +142,27 @@ function cookieJar(req) {
   return { get: k => map.get(k), set: () => {}, delete: () => {} };
 }
 
-/* 방문자 IP — Cloudflare 가 준 값만 믿는다. 방문자가 보낸 같은 이름 헤더는 지운다. */
-function trustedRequest(request) {
+/* 방문자 IP — Cloudflare 가 준 값만 믿는다. 방문자가 보낸 같은 이름 헤더는 지운다.
+   예외: DNS 전파 기간에 Netlify 가 넘겨준 요청(netlify/edge-functions/a-relay-cf.js)은
+   MIGRATE_SECRET 서명이 맞을 때만 그 IP 를 믿고, 주소도 원래 도메인(monnit.co.kr)으로 되돌린다. */
+const RELAY_HDRS = ['x-mnk-relay-ip', 'x-mnk-relay-sig', 'x-mnk-relay-host'];
+function relaySecret(env) { return (env && (env.MIGRATE_SECRET || env.PROPOSAL_SECRET || env.DL_SECRET)) || ''; }
+function relayIp(request, env) {
+  const ip = request.headers.get('x-mnk-relay-ip') || '', sig = request.headers.get('x-mnk-relay-sig') || '', s = relaySecret(env);
+  if (!ip || !sig || !s) return '';
+  const want = crypto.createHmac('sha256', s).update('relay|' + ip).digest('hex');
+  try { return want.length === sig.length && crypto.timingSafeEqual(Buffer.from(want), Buffer.from(sig)) ? ip.slice(0, 45) : ''; } catch (e) { return ''; }
+}
+function trustedRequest(request, env) {
   const h = new Headers(request.headers);
   for (const k of ['x-mnk-ip', 'x-nf-client-connection-ip', 'x-forwarded-for', 'client-ip', 'x-real-ip']) h.delete(k);
-  const ip = request.headers.get('cf-connecting-ip') || '';
+  const ip = relayIp(request, env) || request.headers.get('cf-connecting-ip') || '';
   if (ip) { h.set('x-nf-client-connection-ip', ip); h.set('x-forwarded-for', ip); }
-  return new Request(request, { headers: h });
+  let url = request.url;
+  const host = (request.headers.get('x-mnk-relay-host') || '').toLowerCase();
+  if (host && selfHosts(env).has(host)) { const u = new URL(url); u.protocol = 'https:'; u.hostname = host; u.port = ''; url = u.toString(); }
+  for (const k of RELAY_HDRS) h.delete(k);
+  return new Request(url, new Request(request, { headers: h }));
 }
 
 /* ── 함수 실행 ───────────────────────────────────────────────── */
@@ -279,6 +296,7 @@ async function dispatch(request, env, ctx, opts = {}) {
   const path = url.pathname;
   if (path === '/__private' || path.startsWith('/__private/')) return notFound(request, env, path);
   if (path === '/api/__blobs') return (await blobApi(request, env)) || notFound(request, env, path);   /* 엣지(방문 기록) 거치지 않음 */
+  if (path === '/api/sheets') return (await sheetsRoute(request, env, ctx)) || notFound(request, env, path);   /* CMS 시트 묶음 캐시 — 방문 기록·차단 검사 불필요 */
 
   const inner = async req => {
     const p = new URL(req.url).pathname;
@@ -314,8 +332,14 @@ export default {
     bindBlobs(env.BLOBS);
     env = await withConfig(env);          /* Netlify 에서 옮겨 온 설정값 + 대시보드 값 */
     boot(env);
-    const req = trustedRequest(request);
+    const req = trustedRequest(request, env);
     const u = new URL(req.url);
+    /* http → https (Netlify 와 같은 동작) */
+    if (u.protocol === 'http:' && selfHosts(env).has(u.host)) {
+      u.protocol = 'https:';
+      if (env.PRIMARY_HOST && selfHosts(env).has(u.host)) u.host = env.PRIMARY_HOST;
+      return Response.redirect(u.toString(), 301);
+    }
     /* www → 기본 도메인 (Netlify 의 도메인 별칭과 같은 동작) */
     if (env.PRIMARY_HOST && u.host !== env.PRIMARY_HOST && selfHosts(env).has(u.host)) {
       u.host = env.PRIMARY_HOST;

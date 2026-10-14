@@ -54,15 +54,25 @@ export async function migrateRoute(req, env, ctx, { opsAuth }) {
       return json({ ok: true, keys: j.keys.slice(from), total: j.keys.length, from });
     }
     if (b.op === 'copy') {
-      const j = await callSource(source, 'op=get', { store: b.store, keys: b.keys });
       const s = getStore(b.store);
+      let keys = b.keys, have = 0;
+      /* 「새 항목만」 — 이미 여기 있는 키는 덮지 않는다(전환 뒤 이곳에서 바뀐 값을 지키기 위해) */
+      if (b.onlyMissing) {
+        const ex = await Promise.all(keys.map(k => s.getMetadata(k).then(m => !!m).catch(() => false)));
+        keys = keys.filter((k, i) => !ex[i]); have = b.keys.length - keys.length;
+        if (!keys.length) return json({ ok: true, copied: 0, missing: 0, skipped: have, next: null });
+      }
+      const j = await callSource(source, 'op=get', { store: b.store, keys });
       let copied = 0, missing = 0;
       await Promise.all(j.items.map(async it => {
         if (it.missing) { missing++; return; }
         await s.set(it.key, Buffer.from(it.b64, 'base64'), { metadata: it.meta && Object.keys(it.meta).length ? it.meta : undefined });
         copied++;
       }));
-      return json({ ok: true, copied, missing, next: j.next });
+      /* 원본이 일부만 돌려줬으면(next) 원래 묶음 기준 위치로 바꿔 알려 준다 */
+      let next = j.next;
+      if (next != null && b.onlyMissing) { const last = keys[next - 1]; next = last ? b.keys.indexOf(last) + 1 : null; }
+      return json({ ok: true, copied, missing, skipped: have, next });
     }
     return json({ ok: false, error: 'op' }, 400);
   } catch (e) {
@@ -90,6 +100,7 @@ pre{background:#0E1626;border:1px solid #1F2A40;border-radius:10px;padding:12px;
 <label for="src">원본(Netlify) 주소</label>
 <input id="src" value="${src}">
 <label style="display:flex;gap:8px;align-items:center;margin-top:12px;color:#DCE3EE"><input type="checkbox" id="skip" checked style="width:auto"> 방문·추적 기록은 이미 옮긴 것 건너뛰기 (권장 — 제안서·리드·설정은 항상 새로 복사)</label>
+<label style="display:flex;gap:8px;align-items:center;margin-top:8px;color:#DCE3EE"><input type="checkbox" id="only" style="width:auto"> 이미 여기 있는 항목은 덮어쓰지 않기 — 도메인 전환 <b>뒤</b>에 Netlify 로 들어온 새 문의·신청만 가져올 때 (설정값은 받지 않음)</label>
 <button id="go">복사 시작</button>
 <table><thead><tr><th>저장소</th><th>원본</th><th>복사</th><th>상태</th></tr></thead><tbody id="rows"></tbody></table>
 <pre id="log"></pre>
@@ -99,7 +110,8 @@ async function api(body){const r=await fetch('/ops/migrate/api',{method:'POST',h
 $('#go').onclick=async()=>{
   const source=$('#src').value.trim(); $('#go').disabled=true; $('#rows').innerHTML=''; $('#log').textContent='';
   try{
-    const ev=await api({op:'env',source}); log('설정값 '+ev.count+'개 받음');
+    const only=$('#only').checked;
+    if(!only){ const ev=await api({op:'env',source}); log('설정값 '+ev.count+'개 받음'); } else log('새 항목만 가져오기 — 이미 있는 항목·설정값은 그대로 둡니다');
     const {stores}=await api({op:'stores',source}); log('저장소 '+stores.length+'개: '+stores.join(', '));
     let total=0;
     for(const store of stores){
@@ -108,16 +120,16 @@ $('#go').onclick=async()=>{
       let from=0; if(skip){ try{ from=Number(localStorage.getItem(mk))||0; }catch(e){} }
       let kr, kt=0; for(;;){ try{ kr=await api({op:'keys',source,store,from}); break; }catch(e){ if(++kt>=5) throw e; log(store+' 목록 재시도: '+e.message); await new Promise(z=>setTimeout(z,2000*kt)); } }
       const keys=kr.keys, all=kr.total||keys.length; tr.children[1].textContent=all+(from?' (이어서 '+keys.length+')':'');
-      let done=0, i=0, B=30, fails=0;
+      let done=0, i=0, B=30, fails=0, kept=0;
       while(i<keys.length){
         const batch=keys.slice(i,i+B); let r;
-        try{ r=await api({op:'copy',source,store,keys:batch}); fails=0; if(B<60) B+=2; }
+        try{ r=await api({op:'copy',source,store,keys:batch,onlyMissing:only}); fails=0; if(B<60) B+=2; kept+=r.skipped||0; }
         catch(e){ if(++fails>=12) throw e; B=Math.max(1,Math.floor(B/2)); log(store+' 재시도(묶음 '+B+'): '+e.message); await new Promise(z=>setTimeout(z,1500)); continue; }
         const took = r.next==null ? batch.length : Math.max(1,r.next);
         done+=r.copied; i+=took; tr.children[2].textContent=done;
         if(skip){ try{ localStorage.setItem(mk,String(from+i)); }catch(e){} }
       }
-      total+=done; tr.children[3].innerHTML='<span class="ok">완료</span>';
+      total+=done; tr.children[3].innerHTML='<span class="ok">완료</span>'+(only?' <span style="color:#9AA7BD">(기존 '+kept+'건 유지)</span>':'');
     }
     log('끝 — 총 '+total+'건 복사');
   }catch(e){ log('오류: '+e.message); }

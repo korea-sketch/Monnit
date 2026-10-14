@@ -71,8 +71,9 @@ const page = (body, extra) => new Response(body,
 const j = (o, status = 200, extra) => new Response(JSON.stringify(o),
   { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8', ...(extra || {}) } });
 
-const kday = d => new Intl.DateTimeFormat('en-CA',
-  { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+/* 한국 날짜 YYYY-MM-DD — 한국은 1989년 이후 서머타임이 없어 UTC+9 산술과 같다.
+   Intl 형식기를 매번 새로 만들면 건당 0.1ms — 집계에서 수천 번 불려 무료 플랜 CPU 10ms 를 넘겼다 (2026-10-14) */
+const kday = d => { const t = d instanceof Date ? d.getTime() : new Date(d).getTime(); return t > 6e11 ? new Date(t + 324e5).toISOString().slice(0, 10) : new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d); }
 const monthKey = d => kday(d).slice(0, 7) + '.jsonl';
 
 function ipOf(req) {
@@ -245,7 +246,8 @@ async function build(pkey, custom) {
     ? kday(new Date(new Date(custom.from + 'T00:00:00Z').getTime() - 864e5))
     : ago(P.days);
   const dPrv = kday(new Date(new Date(dCur + 'T00:00:00Z').getTime() - spanDays * 864e5));
-  const dayOf = r => kday(new Date(r.ts));
+  const _dayC = new Map();   /* 같은 접수의 날짜를 여러 번 계산하지 않게 */
+  const dayOf = r => { let v = _dayC.get(r.ts); if (v === undefined) { v = kday(new Date(r.ts)); _dayC.set(r.ts, v); } return v; };
   const btw = (r, a, b) => { const d = dayOf(r); return d > a && d <= b; };
   const inCur = r => btw(r, dCur, dTo);
 

@@ -85,6 +85,7 @@ async function save(req) {
   return j({ ok: r.ok, error: r.error });
 }
 
+let _lastCleanup = 0;
 export default async (req) => {
   const path = new URL(req.url).pathname.replace(/\/+$/, '');
   const authed = auth.configured() && auth.valid(auth.cookieFrom({ cookie: req.headers.get('cookie') || '' }));
@@ -96,8 +97,9 @@ export default async (req) => {
   if (path === '/ops/block/data') return j(await data());
   if (path === '/ops/block/visits') {
     const day = new URL(req.url).searchParams.get('day') || V.kday(new Date());
-    V.cleanup(200).catch(() => {});                 /* 90일 지난 기록을 조금씩 정리 */
-    return j(await V.daySummary(day, 300));
+    /* 90일 지난 기록 정리 — 저장소 전체 목록을 훑는 일이라 한 시간에 한 번만 (2026-10-14, 무료 플랜 CPU 10ms) */
+    if (Date.now() - _lastCleanup > 3600e3) { _lastCleanup = Date.now(); V.cleanup(100).catch(() => {}); }
+    return j(await V.daySummary(day, 200));
   }
   if (path === '/ops/block/ip') {
     const ip = G.normIp(new URL(req.url).searchParams.get('ip'));

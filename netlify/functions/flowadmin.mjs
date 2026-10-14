@@ -12,10 +12,10 @@
  *    · 페이지별 — 들어온 곳 / 누른 것 / 나간 곳
  *    · 최근 방문 흐름 — 세션 하나가 밟은 순서 */
 import * as auth from './_ops_auth.mjs';
-import { get, set, readLines } from './_store.mjs';
+import { get, set, list, readLines, SHARD_SEP } from './_store.mjs';
 import { POPUP_KEY, POPUP_DEFAULT, channel } from './_track.mjs';
 
-export const config = { path: ['/ops/flow', '/ops/flow/data', '/ops/flow/popup'] };
+export const config = { path: ['/ops/flow', '/ops/flow/data', '/ops/flow/raw', '/ops/flow/popup'] };
 
 const H = {
   'cache-control': 'no-store, no-cache, must-revalidate',
@@ -30,7 +30,9 @@ const j = (o, status = 200) => new Response(JSON.stringify(o),
   { status, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });
 
 const TZ = 'Asia/Seoul';
-const kday = d => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+/* 한국 날짜 YYYY-MM-DD — 한국은 1989년 이후 서머타임이 없어 UTC+9 산술과 같다.
+   Intl 형식기를 매번 새로 만들면 건당 0.1ms — 집계에서 수천 번 불려 무료 플랜 CPU 10ms 를 넘겼다 (2026-10-14) */
+const kday = d => { const t = d instanceof Date ? d.getTime() : new Date(d).getTime(); return t > 6e11 ? new Date(t + 324e5).toISOString().slice(0, 10) : new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d); }
 const kmonth = d => kday(d).slice(0, 7);
 
 /* 지난달 파일은 다시 쓰이지 않으므로 인스턴스가 살아 있는 동안 재사용 */
@@ -52,16 +54,54 @@ const inc = (m, k, n = 1) => { m.set(k, (m.get(k) || 0) + n); };
 const top = (m, n, map) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(map);
 const isInternalPath = f => f && f.charAt(0) === '/';
 
-async function data(days, withInternal) {
-  const now = new Date();
-  const from = kday(new Date(now.getTime() - (days - 1) * 864e5));   /* 오늘 포함 days 일 */
+/* 기간에 걸친 달 목록 */
+function monthsOf(days, now) {
   const months = new Set();
   for (let i = 0; i < days; i++) months.add(kmonth(new Date(now.getTime() - i * 864e5)));
-  const curM = kmonth(now);
+  return months;
+}
+
+async function data(days, withInternal) {
+  const now = new Date();
   let rows = [];
-  for (const m of months) rows = rows.concat(await readMonth(m, m === curM));
+  const curM = kmonth(now);
+  for (const m of monthsOf(days, now)) rows = rows.concat(await readMonth(m, m === curM));
+  return compute(rows, days, withInternal, now.getTime(), await readPopup(), HELPERS);
+}
+
+/* 원장 원문 그대로 — 해석·집계는 브라우저(관제 화면)가 한다. (2026-10-14)
+   Cloudflare 무료 플랜은 요청당 CPU 10ms — 수천 줄을 JSON 으로 읽고 묶는 일은 서버에서 다 못 한다.
+   서버는 파일을 이어 붙여 보내기만 한다(해석 없음). */
+async function raw(days) {
+  const now = new Date();
+  const texts = [];
+  for (const m of monthsOf(days, now)) {
+    const key = m + '.jsonl';
+    const main = await get('track', key);
+    if (main) texts.push(main);
+    const ks = (await list('track', key + SHARD_SEP)).sort();
+    const parts = await Promise.all(ks.map(k => get('track', k).catch(() => null)));
+    for (const t of parts) if (t) texts.push(t);
+  }
+  return { now: now.getTime(), days, texts, popupCfg: await readPopup() };
+}
+
+const parseLines = texts => {
+  const out = [];
+  for (const t of texts) for (const l of String(t || '').split('\n')) { if (!l) continue; try { const o = JSON.parse(l); if (o) out.push(o); } catch (e) { /* 깨진 줄 건너뜀 */ } }
+  return out;
+};
+
+/* 집계 — 서버(/ops/flow/data)와 브라우저(관제 화면)가 같은 함수를 쓴다. 바깥 함수는 H(kday·channel·inc·top·isInternalPath)로 받는다 */
+const HELPERS = { kday: d => kday(d), channel: s => channel(s), inc: (m, k, n) => inc(m, k, n), top: (m, n, map) => top(m, n, map), isInternalPath: f => isInternalPath(f) };
+function compute(rows, days, withInternal, nowMs, popupCfg, H) {
+  /* 바깥 함수는 H 로만 받는다 — 번들러가 이름을 바꿔도 브라우저에서 그대로 돈다 */
+  const { kday, channel, inc, top, isInternalPath } = H;
+  const now = new Date(nowMs);
+  const from = kday(new Date(now.getTime() - (days - 1) * 864e5));   /* 오늘 포함 days 일 */
+  const _dc = new Map(); const dk = ts => { let v = _dc.get(ts); if (v === undefined) { v = kday(new Date(ts)); _dc.set(ts, v); } return v; };
   const internalCount = rows.filter(r => r.in).length;
-  rows = rows.filter(r => r && r.ts && r.sid && kday(new Date(r.ts)) >= from && (withInternal || !r.in));
+  rows = rows.filter(r => r && r.ts && r.sid && dk(r.ts) >= from && (withInternal || !r.in));
   rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
 
   const sess = new Map();
@@ -97,7 +137,7 @@ async function data(days, withInternal) {
     for (const r of s.pv) if (!seen.has(r.p)) { seen.add(r.p); inc(pageSess, r.p); }
   }
   for (const r of rows) {
-    const d = kday(new Date(r.ts));
+    const d = dk(r.ts);
     if (r.t === 'pv') {
       pv++; inc(pagePv, r.p);
       if (r.tt && !pageTitle.has(r.p)) pageTitle.set(r.p, r.tt);
@@ -131,7 +171,7 @@ async function data(days, withInternal) {
 
   return {
     generated: now.toISOString(), days, from, withInternal: !!withInternal, internalCount,
-    popupCfg: await readPopup(),
+    popupCfg,
     kpi: {
       pv, sessions: sessions.length, clicks: clk,
       pps: sessions.length ? Math.round(pv / sessions.length * 10) / 10 : 0,
@@ -161,6 +201,13 @@ export default async (req) => {
     if (path !== '/ops/flow') return j({ error: 'unauthorized' }, 401);
     return new Response(null, { status: 302, headers: { ...H, location: '/ops' } });
   }
+  if (path === '/ops/flow/raw') {
+    const days = [1, 7, 30, 90].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 7;
+    /* 첫 줄 = 설정(JSON), 그다음 = 원장 줄 그대로. JSON 으로 감싸면 3MB 를 다시 이스케이프하느라 CPU 를 쓴다 */
+    const R = await raw(days);
+    const body = JSON.stringify({ now: R.now, days: R.days, popupCfg: R.popupCfg }) + '\n' + R.texts.join('\n');
+    return new Response(body, { status: 200, headers: { ...H, 'content-type': 'text/plain; charset=utf-8' } });
+  }
   if (path === '/ops/flow/data') {
     const days = [1, 7, 30, 90].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 7;
     return j(await data(days, url.searchParams.get('inc') === '1'));
@@ -176,7 +223,7 @@ export default async (req) => {
     const ok = await set('ops', POPUP_KEY, JSON.stringify(cfg));
     return j({ ok, cfg });
   }
-  return new Response(PAGE, { status: 200, headers: { ...H, 'content-type': 'text/html; charset=utf-8' } });
+  return new Response(pageHtml(), { status: 200, headers: { ...H, 'content-type': 'text/html; charset=utf-8' } });
 };
 
 const PAGE = String.raw`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
@@ -325,8 +372,13 @@ function barW(n,max){return '<div class="bar" style="width:'+Math.max(2,Math.rou
 
 function load(){
   $('#rf').disabled=true;
-  fetch('/ops/flow/data?days='+days+($('#inc').checked?'&inc=1':''),{credentials:'same-origin'})
-   .then(function(r){ if(r.status===401){location.href='/ops';return null} return r.json() })
+  var inc=$('#inc').checked;
+  fetch('/ops/flow/raw?days='+days,{credentials:'same-origin'})
+   .then(function(r){ if(r.status===401){location.href='/ops';return null} if(!r.ok) throw new Error('raw '+r.status); return r.text() })
+   .then(function(t){ if(t==null) return null; var i=t.indexOf('\n'); var R=JSON.parse(i<0?t:t.slice(0,i));
+     return __flowCompute(__flowParse([i<0?'':t.slice(i+1)]), R.days, inc, R.now, R.popupCfg); })
+   .catch(function(){ /* 예전 방식(서버 집계)으로 한 번 더 */
+     return fetch('/ops/flow/data?days='+days+(inc?'&inc=1':''),{credentials:'same-origin'}).then(function(r){ if(r.status===401){location.href='/ops';return null} return r.json() }); })
    .then(function(j){ if(!j) return; D=j; render(); })
    .catch(function(){ $('#kpis').innerHTML='<div class="empty">불러오지 못했습니다. 새로고침을 눌러 주세요.</div>' })
    .finally(function(){ $('#rf').disabled=false });
@@ -403,3 +455,21 @@ function toggle(el){
 load();
 })();
 </script></body></html>`;
+
+/* 화면에 집계 함수를 그대로 실어 보낸다 — 서버와 브라우저가 같은 코드로 계산 (2026-10-14) */
+let _page = null;
+function pageHtml() {
+  if (_page) return _page;
+  const js = '<script>(function(){'
+    /* 번들러(esbuild keepNames)가 함수 안에 끼워 넣는 __name(…) 도우미 */
+    + 'var __name=function(t,v){try{Object.defineProperty(t,"name",{value:v,configurable:true})}catch(e){}return t};'
+    + 'var H={kday:' + kday.toString() + ',channel:' + channel.toString() + ',inc:' + inc.toString()
+    + ',top:' + top.toString() + ',isInternalPath:' + isInternalPath.toString() + '};'
+    + 'var compute=' + compute.toString() + ';'
+    + 'window.__flowParse=' + parseLines.toString() + ';'
+    + 'window.__flowCompute=function(rows,days,inc,now,cfg){return compute(rows,days,inc,now,cfg,H)};'
+    + '})();</script>';
+  const i = PAGE.indexOf('<script>');
+  _page = i < 0 ? PAGE.replace('</body>', js + '</body>') : PAGE.slice(0, i) + js + PAGE.slice(i);
+  return _page;
+}

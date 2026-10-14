@@ -865,7 +865,34 @@ function sheetURL(key){
   const id = CONTENT_SHEET.sheetId, tab = CONTENT_SHEET.tabs[key];
   return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}&${bust}`;
 }
+/* 시트 탭 묶음 — 사이트 서버(/api/sheets)가 18개 탭을 한 번에, 가장자리 캐시로 준다 (2026-10-14).
+   예전에는 페이지마다 구글 시트를 18번 「캐시 금지」로 따로 불렀다(느리고, 구글 속도 제한에 걸림).
+   · 우리 기본 시트일 때만 쓴다 — ?sheetId=… 로 다른 시트를 볼 때·?fresh=1·편집기는 예전처럼 직접
+   · 묶음이 실패하면 탭마다 구글에서 직접 받는다(예전 방식) — 화면은 그대로 */
+var DEFAULT_SHEET_ID = '1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
+var _SHEET_BUNDLE = null;
+function sheetBundle(){
+  if (_SHEET_BUNDLE) return _SHEET_BUNDLE;
+  var direct = false;
+  try {
+    var q = new URLSearchParams(location.search);
+    direct = CONTENT_SHEET.sheetId !== DEFAULT_SHEET_ID || q.has('sheetId') || q.get('fresh') === '1' ||
+             /^\/(ops|editor)/.test(location.pathname) || location.protocol === 'file:';
+  } catch(e){ direct = true; }
+  if (direct) return (_SHEET_BUNDLE = Promise.resolve(null));
+  var tabs = Object.keys(CONTENT_SHEET.tabs).filter(function(k){ return !CONTENT_SHEET.urls[k]; }).map(function(k){ return CONTENT_SHEET.tabs[k]; });
+  _SHEET_BUNDLE = fetch('/api/sheets?tabs=' + encodeURIComponent(tabs.join(',')))
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ return (j && j.ok && j.tabs) ? j.tabs : null; })
+    .catch(function(){ return null; });
+  return _SHEET_BUNDLE;
+}
 async function fetchSheet(key){
+  if (!CONTENT_SHEET.urls[key]){
+    const b = await sheetBundle();
+    const t = b && b[CONTENT_SHEET.tabs[key]];
+    if (typeof t === 'string') return csvToObjects(t);
+  }
   const res = await fetch(sheetURL(key), { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return csvToObjects(await res.text());
@@ -1093,6 +1120,9 @@ function normalizeImageUrl(u){
   if (u.indexOf('dropbox.com') !== -1){
     return u.replace('www.dropbox.com','dl.dropboxusercontent.com').replace(/[?&]dl=0/, '');
   }
+  /* 시트에 「images/img-10.jpg」처럼 앞의 / 없이 적힌 경로 — /case/… 같은 하위 페이지에서
+     /case/images/… 로 잘못 불려 404 가 나던 문제 (2026-10-14). 사이트 기준 경로로 고정 */
+  if (!/^(https?:|data:|blob:|\/\/|\/)/i.test(u)) u = '/' + u.replace(/^\.\/+/, '');
   return u;
 }
 /* 구글 드라이브·원드라이브 공유 링크를 바로 받아지는 주소로 바꿔 줍니다.
@@ -3580,8 +3610,18 @@ window.__promoImgFallback = function(img, id){
     var alt = b && b.image;
     if (alt && !img.dataset.fb && img.getAttribute('src') !== alt){ img.dataset.fb = '1'; img.src = alt; return; }
   }catch(e){}
+  /* 대체 이미지가 없으면 빈 칸 대신 기본 아이콘 상자로 */
+  var box = img.parentNode;
+  if (box && box.classList && box.classList.contains('has-img')) { box.classList.remove('has-img'); box.textContent = '◐'; return; }
   img.style.display = 'none';
 };
+/* 외부 사이트에서 막힌 이미지(핫링크 차단 등) — 깨진 그림 아이콘 대신 자리만 남긴다 (2026-10-14) */
+document.addEventListener('error', function(e){
+  var t = e.target;
+  if (!t || t.tagName !== 'IMG' || t.dataset.fb || t.getAttribute('onerror')) return;
+  try { if (new URL(t.src, location.href).origin === location.origin) return; } catch(x){ return; }
+  t.dataset.fb = '1'; t.style.visibility = 'hidden';
+}, true);
 /* ── 사이트 내장 프로모션 ─────────────────────────────────────────────
    Promotions 시트에 행이 없어도 프로모션 목록에 항상 노출됩니다.
    시트에 같은 id(consulting) 행을 추가하면 시트 값이 우선 적용됩니다.

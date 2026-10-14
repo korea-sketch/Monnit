@@ -173,11 +173,31 @@ export function scanText(text, { topics = true, guess = '' } = {}) {
   return out;
 }
 
+/** 회사명 끝에 붙어 온 말꼬리 떼기 (2026-10-13)
+ *  「테스트물류고 저는…」을 AI 가 「테스트물류고」로 읽던 문제 — 「~이고 / ~입니다 / ~인데요」 같은
+ *  연결·종결 어미는 회사명이 아니다. 「고·며·요」 한 글자는 업종 낱말 바로 뒤일 때만 뗀다
+ *  (「한국전자고」는 떼고 「삼성고」 같은 이름은 건드리지 않는다). */
+const BIZ = '물류|산업|전자|전기|건설|센터|병원|의원|대학교|대학|학교|공장|창고|코리아|테크|텍|시스템|솔루션|에너지|화학|제약|식품|물산|상사|공사|공단|그룹|홀딩스|엔지니어링|기계|반도체|바이오|정밀|통상|유통|무역|호텔|리조트|백화점|마트|아파트|빌딩|컴퍼니|랩|연구소|협회|재단|청|시청|구청|군청|㈜|\\)';
+const TAIL_ANY = /\s*(입니다|이에요|에요|예요|이구요|이고요|이고|이며|인데요|인데|이요|이라고\s*합니다|라고\s*합니다|이라서|라서)$/;
+/* 「고」는 학교 이름(OO전자고·OO공고)과 겹칠 수 있어 학교와 무관한 업종 낱말 뒤에서만 뗀다 */
+const GO_BIZ = '물류|건설|센터|병원|의원|창고|코리아|시스템|솔루션|에너지|화학|제약|식품|물산|상사|그룹|홀딩스|엔지니어링|반도체|바이오|통상|유통|무역|호텔|리조트|백화점|마트|아파트|빌딩|컴퍼니|연구소|협회|재단|㈜|\\)';
+const TAIL_BIZ = new RegExp('(' + BIZ + ')(며|요|구요)$');
+const TAIL_GO = new RegExp('(' + GO_BIZ + ')고$');
+export function companyTail(v) {
+  let s = String(v == null ? '' : v).trim();
+  if (!s) return s;
+  const a = s.replace(TAIL_ANY, '').trim();
+  if (a.length >= 2) s = a;
+  const b = s.replace(TAIL_BIZ, '$1').replace(TAIL_GO, '$1').trim();
+  if (b.length >= 2) s = b;
+  return s;
+}
+
 /** 모델이 돌려준 값 정리 — 사전에 없는 키·형식이 틀린 값은 버린다 */
 export function cleanFields(raw = {}, prev = {}) {
   const f = { ...prev };
   const put = (k, v, n) => { const s = clip(v, n); if (s) f[k] = s; };
-  put('company', raw.company, 60);
+  put('company', companyTail(raw.company), 60);
   put('name', raw.name, 30);
   put('title', raw.title, 30);
   put('facility', raw.facility, 60);
