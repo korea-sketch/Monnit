@@ -87,8 +87,8 @@ async function raw(days) {
 }
 
 const parseLines = texts => {
-  const out = [];
-  for (const t of texts) for (const l of String(t || '').split('\n')) { if (!l) continue; try { const o = JSON.parse(l); if (o) out.push(o); } catch (e) { /* 깨진 줄 건너뜀 */ } }
+  const out = [], seen = new Set();   /* 완전히 같은 줄은 한 번만 (이관 중복 방지) */
+  for (const t of texts) for (const l of String(t || '').split('\n')) { if (!l || seen.has(l)) continue; seen.add(l); try { const o = JSON.parse(l); if (o) out.push(o); } catch (e) { /* 깨진 줄 건너뜀 */ } }
   return out;
 };
 

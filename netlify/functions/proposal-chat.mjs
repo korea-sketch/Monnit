@@ -37,7 +37,9 @@ function sameOrigin(req) {
   } catch (e) { return false; }
 }
 /* 기록은 응답을 붙잡지 않는다 — 실패해도 대화는 그대로 이어진다 */
-const later = (p) => { try { p.catch(() => {}); } catch (e) {} };
+/* Cloudflare 에서는 응답 뒤 남은 작업이 끊길 수 있다 — Worker 가 주는 waitUntil 로 끝까지 마친다 (2026-10-14).
+   (이게 없어서 대화 AI 사용량·놓친 말 기록이 저장되지 않고 있었다) */
+const later = (p) => { try { p.catch(() => {}); const w = globalThis.__MNK_WAIT_UNTIL; if (typeof w === 'function') w(p); } catch (e) {} };
 /* 정지 알림 — 담당자 메일은 처음 한 번만. 팝업은 관제 화면이 halt 파일을 읽어 띄운다 */
 async function alertHalt(h) {
   /* 다른 인스턴스가 먼저 멈췄으면(existing) 그쪽이 메일을 보낸다 — 같은 정지로 두 통 나가지 않게 */

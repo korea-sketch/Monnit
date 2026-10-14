@@ -79,18 +79,25 @@ export async function append(store, key, obj) {
   return set(store, shardKey(key), JSON.stringify(obj));
 }
 
-const parse = t => String(t || '').split('\n').filter(Boolean)
+/* 완전히 같은 줄은 한 번만 — 이관 때 이미 합쳐진 조각이 다시 복사돼도 두 번 세지 않게 (2026-10-14).
+   한 줄에는 접수 시각(ms)·세션 같은 고유값이 들어 있어, 진짜 다른 기록이 글자까지 같을 일은 없다 */
+const parse = (t, seen) => String(t || '').split('\n').filter(l => {
+    if (!l) return false;
+    if (seen) { if (seen.has(l)) return false; seen.add(l); }
+    return true;
+  })
   .map(l => { try { return JSON.parse(l); } catch { return null; } })
   .filter(Boolean);
 
 export async function readLines(store, key) {
+  const seen = new Set();
   /* ① 예전 방식으로 쌓인 한 덩어리 파일 */
-  const out = parse(await get(store, key));
+  const out = parse(await get(store, key), seen);
   /* ② 새 방식의 조각들 — 키에 시각이 들어 있어 이름순 = 시간순 */
   const keys = (await list(store, key + SHARD)).sort();
   if (keys.length) {
     const parts = await Promise.all(keys.map(k => get(store, k).catch(() => null)));
-    for (const t of parts) out.push(...parse(t));
+    for (const t of parts) out.push(...parse(t, seen));
   }
   return out;
 }
@@ -102,11 +109,15 @@ export async function compact(store, key, { keep = 200 } = {}) {
   if (keys.length <= keep) return { merged: 0, left: keys.length };
   const take = keys.slice(0, keys.length - keep);   /* 최근 것은 건드리지 않는다 */
   const parts = await Promise.all(take.map(k => get(store, k).catch(() => null)));
-  const lines = [];
-  for (const t of parts) for (const o of parse(t)) lines.push(JSON.stringify(o));
-  if (!lines.length) return { merged: 0, left: keys.length };
   const cur = (await get(store, key)) || '';
-  const ok = await set(store, key, cur ? cur + '\n' + lines.join('\n') : lines.join('\n'));
+  /* 본 파일에 이미 있는 줄(이관 때 다시 복사된 조각 등)은 다시 붙이지 않고, 본 파일 안의 중복도 한 번만 남긴다 */
+  const seen = new Set();
+  const base = cur.split('\n').filter(l => l && !seen.has(l) && seen.add(l));
+  const lines = [];
+  for (const t of parts) for (const o of parse(t)) { const l = JSON.stringify(o); if (!seen.has(l)) { seen.add(l); lines.push(l); } }
+  const all = base.concat(lines);
+  if (!all.length) { for (const k of take) await del(store, k); return { merged: take.length, left: keys.length - take.length }; }
+  const ok = await set(store, key, all.join('\n'));
   if (!ok) return { merged: 0, left: keys.length, error: '합치기 실패' };
   for (const k of take) await del(store, k);
   return { merged: take.length, left: keys.length - take.length };

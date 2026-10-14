@@ -73,6 +73,8 @@ for (const [name, mod] of Object.entries(SCHEDULED)) if (mod.config && mod.confi
 
 /* ── 실행 환경 ───────────────────────────────────────────────── */
 const ALS = new AsyncLocalStorage();
+/* 함수 코드가 응답 뒤에 마칠 일을 맡길 수 있게 — 요청마다 그 요청의 ctx.waitUntil 로 */
+globalThis.__MNK_WAIT_UNTIL = p => { try { const st = ALS.getStore(); if (st && st.ctx) st.ctx.waitUntil(Promise.resolve(p).catch(() => {})); } catch (e) { /* 무시 */ } };
 let BOOTED = false;
 function boot(env) {
   bindBlobs(env.BLOBS);
@@ -106,8 +108,20 @@ globalThis.fetch = async function (input, init) {
     try {
       const req = new Request(input, init);
       const u = new URL(req.url);
-      if ((st.hosts.has(u.host) || u.host === st.host) && (u.pathname.startsWith('/.netlify/functions/') || ROUTES.has(u.pathname))) {
-        return await dispatch(req, st.env, st.ctx, { internal: true });
+      /* 자기 도메인 주소는 전부 안에서 처리 (2026-10-14).
+         Worker 가 자기 도메인(monnit.co.kr)을 밖으로 부르면 Cloudflare 가 522 로 막는다 —
+         그래서 15분마다 도는 사이트 감시(health)가 모든 페이지를 「응답 없음」으로 기록하고 경보 메일을 보냈다 */
+      if (st.hosts.has(u.host) || u.host === st.host) {
+        /* 밖으로 나가는 fetch 처럼 리다이렉트(301·302 …)는 따라간다 — redirect:'manual' 이면 그대로 돌려준다 */
+        let r = req, res = await dispatch(r, st.env, st.ctx, { internal: true });
+        for (let hop = 0; hop < 5 && req.redirect !== 'manual' && [301, 302, 303, 307, 308].includes(res.status) && res.headers.get('location'); hop++) {
+          const next = new URL(res.headers.get('location'), r.url);
+          if (!(st.hosts.has(next.host) || next.host === st.host)) return realFetch(next.toString(), { headers: r.headers });
+          const keep = res.status === 307 || res.status === 308;
+          r = new Request(next.toString(), keep ? r : { method: 'GET', headers: r.headers });
+          res = await dispatch(r, st.env, st.ctx, { internal: true });
+        }
+        return res;
       }
     } catch (e) { /* 일반 요청으로 */ }
   }
@@ -352,6 +366,12 @@ export default {
         if (t0) console.log('[timing]', req.method, u.pathname, res.status, (Date.now() - t0) + 'ms');
         if (!res.headers.has('strict-transport-security')) {          /* Netlify 처럼 모든 응답에 HSTS */
           res = new Response(res.body, res); res.headers.set('strict-transport-security', DEFAULT_HSTS);
+        }
+        /* 관제·방문 관리 화면에는 Cloudflare 방문 분석 스크립트를 끼워 넣지 않게(no-transform) —
+           이 화면들은 보안상 외부 스크립트를 막아 두어 콘솔에 오류만 남는다 (2026-10-14) */
+        if (/^\/(ops|visit)(\/|$)/.test(u.pathname) && /text\/html/.test(res.headers.get('content-type') || '')) {
+          const cc = res.headers.get('cache-control') || 'no-store';
+          if (!/no-transform/.test(cc)) { res = new Response(res.body, res); res.headers.set('cache-control', cc + ', no-transform'); }
         }
         return res;
       }
