@@ -94,7 +94,7 @@ async function createOffer(b) {
   const prod = products(b.products);           // 비어 있으면 고객이 계약 화면에서 직접 고른다
   const terms = {
     products: prod, solNote: str(b.solNote, 120),
-    sol: str(b.sol, 160) || "긴급 경보 알리미",
+    sol: str(b.sol, 160) || (prod.length ? prod.map((k) => PRODUCT_LABEL[k]).join(" · ") + (str(b.solNote, 120) ? " — " + str(b.solNote, 120) : "") : "긴급 경보 알리미"),
     ...p,
     discountNote: str(b.discountNote, 120),
     from: date(b.from), to: date(b.to),

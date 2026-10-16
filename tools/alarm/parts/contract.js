@@ -454,6 +454,12 @@
 
     var ok = !!(out && out.ok);
     var no = (ok && out.ref) ? out.ref : "미접수";
+    /* 접수 완료 화면의 「계약서 PDF 내려받기」 용 — 서버 기록과 같은 모양으로 보관 */
+    SIGNED = { ref: no, submittedAt: now.toISOString(), terms: { solution: FIXED ? T.sol : (chosenProducts().map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (T.solNote ? " — " + T.solNote : "")),
+      products: chosenProducts(), unitPrice: T.unit, sites: T.qty, listPrice: T.list, discount: T.discount, discountType: T.discountType, discountValue: T.discountValue, discountNote: T.discountNote,
+      monthly: T.monthly, from: T.from, to: T.to, payDay: T.pay, bank: T.bank, etc: T.etc },
+      customer: body.customer, recipients: body.recipients, acknowledged: body.acknowledged, slaAgreedAt: body.slaAgreedAt, slaViewedAt: body.slaViewedAt, slaReadPct: body.slaReadPct,
+      signature: body.signature, attachments: body.attachments };
 
     $("d_no").textContent = no;
     $("d_cust").textContent = body.customer.name + " (대표 " + body.customer.ceo + ")";
@@ -473,4 +479,11 @@
   });
 
   $("printBtn").addEventListener("click", function(){ window.print(); });
+  var SIGNED = null;
+  $("pdfBtn").addEventListener("click", async function(){
+    if(!SIGNED || !window.MKDoc) return;
+    var b = this, t = b.textContent; b.disabled = true; b.textContent = "PDF 만드는 중…";
+    try{ await window.MKDoc.pdf(SIGNED); }catch(e){ alert(e.message || "PDF를 만들지 못했습니다. 「이 화면 인쇄」로 저장해 주십시오."); }
+    b.disabled = false; b.textContent = t;
+  });
 })();

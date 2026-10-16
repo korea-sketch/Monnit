@@ -130,17 +130,19 @@ def build_contract():
             '<p class="lede">계약 내용을 확인하신 뒤 서명해 주십시오. 서비스수준협약(SLA)은 앞 단계에서 확인·동의하셨습니다.</p>')
     b = rep(b, '<p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button></p>',
             '<p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button> <span id="slaDoneTag"></span></p>')
+    b = rep(b, '<button type="button" class="btn ghost" id="printBtn">이 화면 인쇄 / PDF 저장</button>',
+            '<button type="button" class="btn" id="pdfBtn">계약서 PDF 내려받기</button> <button type="button" class="btn ghost" id="printBtn">이 화면 인쇄</button>')
     html_modal = modal(False, True)
     html_modal = rep(html_modal, '\n    </div>\n    <div class="mfoot">',
         '\n    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>서명 전 확인 항목</span></h3>'
         '<p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 하단의 「전체 동의하고 계속」 버튼을 누르면 모든 항목에 한 번에 동의할 수 있습니다.</p>\n' + checks + '    </div>\n    </div>\n    <div class="mfoot">')
-    html = head("구독 계약 체결", "긴급 경보 알리미 구독서비스 계약 체결") + b + html_modal + "\n</main>\n\n" + FOOTER + "\n<script>" + rd("contract.js") + "</script>\n</body>\n</html>\n"
+    html = head("구독 계약 체결", "긴급 경보 알리미 구독서비스 계약 체결") + b + html_modal + "\n</main>\n\n" + FOOTER + "\n<script>" + rd("contract_doc.js") + "\n" + rd("contract.js") + "</script>\n</body>\n</html>\n"
     (OUT / "contract.html").write_text(html, encoding="utf-8"); print("built contract.html", len(html))
 
 # ───────── 2. 관리자 화면 ─────────
 def build_admin():
     page("contract-admin.html", "알리미 계약 관리", "모넷코리아 알리미 계약 관리(내부용)",
-         rd("admin_body.html"), rd("admin.js"), extra_css=rd("admin.css"), with_modal=False)
+         rd("admin_body.html"), rd("contract_doc.js") + "\n" + rd("admin.js"), extra_css=rd("admin.css"), with_modal=False)
 
 # ───────── 3. 만족도 조사 ─────────
 def build_survey():
