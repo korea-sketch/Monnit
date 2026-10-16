@@ -152,7 +152,7 @@
     $("mbody").scrollTop = 0;
     $("mbody").focus();
     if(!slaViewedAt) slaViewedAt = new Date().toISOString();
-    $("slaAgreeBtn").textContent = slaGate ? "동의하고 계속" : "동의";
+    agreeGate();
   }
   function closeSla(){
     slaModal.hidden = true;
@@ -169,18 +169,24 @@
     else openSla(this, true);
   });
 
+  function agreeGate(){
+    var all = activeCks().every(function(c){ return c.checked; });
+    $("slaAgreeBtn").disabled = !($("slaAgree").checked && all);
+    $("slaAgreeBtn").textContent = all ? (slaGate ? "동의하고 계속" : "동의") : "확인 항목을 모두 체크해 주십시오";
+  }
   $("slaAgree").addEventListener("change", function(){
-    $("slaAgreeBtn").disabled = !this.checked;
+    agreeGate();
   });
 
   $("slaAgreeBtn").addEventListener("click", function(){
-    if(!$("slaAgree").checked) return;
+    if(!$("slaAgree").checked || !activeCks().every(function(c){ return c.checked; })) return;
     if(!slaAgreedAt){
       slaAgreedAt = new Date().toISOString();
       var d = new Date(slaAgreedAt);
       $("slaseen").hidden = false;
       $("slaseenAt").textContent = d.toLocaleString("ko-KR");
       $("openSla").textContent = "SLA 전문 다시 보기";
+      if($("slaDoneTag")) $("slaDoneTag").textContent = "확인 항목 " + activeCks().length + "개 체크 · 동의 완료 " + d.toLocaleString("ko-KR");
     }
     var go = slaGate;
     closeSla();
@@ -318,7 +324,7 @@
   function syncChecks(){
     cks.forEach(function(c){ c.parentNode.classList.toggle("on", c.checked); });
     $("ckall").checked = activeCks().every(function(c){ return c.checked; });
-    gate();
+    agreeGate(); gate();
   }
   cks.forEach(function(c){ c.addEventListener("change", syncChecks); });
   $("ckall").addEventListener("change", function(){
@@ -380,7 +386,7 @@
   $("sg_date").textContent = today.getFullYear() + "년 " + (today.getMonth()+1) + "월 " + today.getDate() + "일";
 
   function gate(){
-    var ok = !!slaAgreedAt && activeCks().every(function(c){ return c.checked; })
+    var ok = !!slaAgreedAt
              && hasInk && !!$("sg_name").value.trim();
     $("submitBtn").disabled = !ok;
   }

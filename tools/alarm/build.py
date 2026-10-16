@@ -119,7 +119,20 @@ def build_contract():
     b = rep(b, "모넷코리아 담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드립니다.",
             "모넷코리아 담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드립니다. 체결 내용은 이 화면을 인쇄하거나 PDF로 저장해 보관하실 수 있습니다.")
     # 단계 탭: 조건을 못 불러오면 이동 막기 (스크립트에서 처리)
-    page("contract.html", "구독 계약 체결", "긴급 경보 알리미 구독서비스 계약 체결", b, rd("contract.js"))
+    # 서명 전 확인 항목은 SLA 팝업 안에서 한 번만 보여 준다 (2026-10-16)
+    i = b.find('  <label class="allcheck" for="ckall">'); j = b.find('  <fieldset style="margin-top:30px">')
+    assert 0 < i < j
+    checks = b[i:j]; b = b[:i] + b[j:]
+    b = rep(b, '<p class="lede">아래 항목은 계약의 핵심 조건입니다. 각 항목을 읽고 확인한 뒤 서명해 주십시오.</p>',
+            '<p class="lede">계약 내용을 확인하신 뒤 서명해 주십시오. 서비스수준협약(SLA)은 앞 단계에서 확인·동의하셨습니다.</p>')
+    b = rep(b, '<p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button></p>',
+            '<p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button> <span id="slaDoneTag"></span></p>')
+    html_modal = modal(False, True)
+    html_modal = rep(html_modal, '\n    </div>\n    <div class="mfoot">',
+        '\n    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>서명 전 확인 항목</span></h3>'
+        '<p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 모두 확인하신 뒤 하단의 동의 버튼을 눌러 주십시오.</p>\n' + checks + '    </div>\n    </div>\n    <div class="mfoot">')
+    html = head("구독 계약 체결", "긴급 경보 알리미 구독서비스 계약 체결") + b + html_modal + "\n</main>\n\n" + FOOTER + "\n<script>" + rd("contract.js") + "</script>\n</body>\n</html>\n"
+    (OUT / "contract.html").write_text(html, encoding="utf-8"); print("built contract.html", len(html))
 
 # ───────── 2. 관리자 화면 ─────────
 def build_admin():

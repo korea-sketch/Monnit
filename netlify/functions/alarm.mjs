@@ -4,7 +4,8 @@
  *  저장: @netlify/blobs 저장소 "alarm" → Cloudflare 에서는 R2 (wrangler.toml alias)
  *        offers/<id> 계약 링크(조건) · contracts/<ref> 체결 계약 · clients/<id> 기존 고객 ·
  *        surveys/<id> 설문 · consents/<ref> SLA 동의
- *  알림: 접수마다 _notify.notify() (대표님 메일함) + _staffnote.note() (/ops/notices 알림함).
+ *  알림: 접수마다 _notify.notify() (대표님 메일함) + _staffnote.note() (/ops/notices 알림함)
+ *        + 먼데이 「알리미 계약 현황」 보드 아이템 (_alarm_monday.mjs, MONDAY_TOKEN 필요).
  *        BREVO_API_KEY 가 있으면 계약 체결 고객에게 확인 메일 1통.
  *  관리 키: ALARM_ADMIN_KEY (없으면 OPS_PASS 로 대신) — /contract-admin 로그인
  */
@@ -12,6 +13,7 @@ import { getStore } from "@netlify/blobs";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { notify } from "./_notify.mjs";
 import { note } from "./_staffnote.mjs";
+import { pushContract, pushConsent, pushSurvey } from "./_alarm_monday.mjs";
 
 export const config = { path: [
   "/api/alarm/offer", "/api/alarm/contract", "/api/alarm/client", "/api/alarm/survey", "/api/alarm/consent",
@@ -226,7 +228,8 @@ async function submitContract(req, b) {
     "알림 수신자": rec.recipients.map((r) => `${r.name} ${r.phone}`).join(" / "),
     "계약서 보기": SITE + "/contract-admin",
   });
-  await customerMail(rec);
+  const [, monday] = await Promise.all([customerMail(rec), pushContract(rec)]);
+  if (monday && monday.id) { rec.mondayItemId = monday.id; await s.setJSON(TYPES.contracts + ref, rec); }
   return json({ ok: true, ref, mailed });
 }
 
@@ -273,6 +276,8 @@ async function submitSurvey(req, b) {
     "결과 보기": SITE + "/contract-admin",
   });
   if (client) { client.surveyAt = rec.createdAt; client.surveyId = id; await s.setJSON(TYPES.clients + client.id, client); }
+  const monday = await pushSurvey(rec);
+  if (monday && monday.id) { rec.mondayItemId = monday.id; await s.setJSON(TYPES.surveys + id, rec); }
   return json({ ok: true, ref: id });
 }
 
@@ -309,6 +314,8 @@ async function submitConsent(req, b) {
     if (!cFixed && cProds.length) client.products = cProds;
     await s.setJSON(TYPES.clients + client.id, client);
   }
+  const monday = await pushConsent(rec, client);
+  if (monday && monday.id) { rec.mondayItemId = monday.id; await s.setJSON(TYPES.consents + ref, rec); }
   return json({ ok: true, ref });
 }
 
