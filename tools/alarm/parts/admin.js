@@ -123,21 +123,25 @@
   function resetNew(){
     var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + 1);
     $("n_from").value = ymd(d); $("n_years").value = "3"; etcEdited = false; setTo();
-    ["n_customer","n_contact","n_note","n_dnote"].forEach(function(id){ $(id).value = ""; });
+    ["n_customer","n_contact","n_note","n_dnote","n_solnote"].forEach(function(id){ $(id).value = ""; });
+    document.querySelectorAll("#n_prod input").forEach(function(c){ c.checked = false; });
     $("n_qty").value = 1; $("n_unit").value = 30000; $("n_dtype").value = "none"; setDiscUi();
     $("n_out").hidden = true; $("n_make").hidden = false; $("n_err").hidden = true;
   }
   resetNew();
 
+  var PRODUCT_LABEL = {fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
+  function prods(id){ return Array.prototype.map.call(document.querySelectorAll("#" + id + " input:checked"), function(c){ return c.value; }); }
+  function solName(list, note){ var s = list.map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") || "긴급 경보 알리미 (고객이 계약 화면에서 선택)"; return note ? s + " — " + note : s; }
   var lastLink = "", lastOffer = null;
   function offerUrl(id){ return SITE + "/contract?id=" + id; }
   function offerMsg(o){
     var t = o.terms;
     return (o.memo.customer ? o.memo.customer + " 담당자님, 안녕하세요. 모넷코리아입니다.\n\n" : "안녕하세요. 모넷코리아입니다.\n\n") +
-      "긴급 경보 알리미(" + t.sol + ") 구독 계약 링크를 보내 드립니다.\n" +
+      "긴급 경보 알리미" + ((t.products || []).length ? "(" + t.products.map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (t.solNote ? " — " + t.solNote : "") + ")" : "") + " 구독 계약 링크를 보내 드립니다.\n" +
       "· " + t.qty + "개소 · 월 " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " — 할인 적용" : "") + "\n" +
       "· 계약 기간 " + kdate(t.from) + " ~ " + kdate(t.to) + "\n\n" +
-      "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하신 뒤 서명해 주시면 됩니다.\n" + offerUrl(o.id) + "\n\n" +
+      "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하신 뒤 서명해 주시면 됩니다." + ((t.products || []).length ? "" : " 도입하실 알리미는 화면에서 직접 선택하시면 됩니다.") + "\n" + offerUrl(o.id) + "\n\n" +
       "궁금하신 점은 02-2088-1454로 연락 주세요. 감사합니다.";
   }
   $("n_make").addEventListener("click", async function(){
@@ -148,7 +152,7 @@
     btn.disabled = true; btn.textContent = "만드는 중…";
     try{
       var j = await api("offer", {body: Object.assign({}, t, {
-        sol:$("n_sol").value.trim(), discountNote:$("n_dnote").value.trim(),
+        products: prods("n_prod"), solNote: $("n_solnote").value.trim(), sol: solName(prods("n_prod"), $("n_solnote").value.trim()), discountNote:$("n_dnote").value.trim(),
         from:$("n_from").value, to:$("n_to").value, pay:$("n_pay").value.trim(), bank:$("n_bank").value.trim(), etc:$("n_etc").value,
         customer:$("n_customer").value.trim(), contact:$("n_contact").value.trim(), note:$("n_note").value.trim()
       })});
@@ -187,7 +191,7 @@
         '<td><span class="pill ' + o.status + '">' + ST[o.status] + "</span></td>" +
         "<td>" + esc(c ? c.customer.name : (o.memo.customer || "—")) + (c ? "" : '<div class="muted">' + esc(o.memo.contact || "") + "</div>") + "</td>" +
         "<td>" + esc(c ? c.customer.site : "—") + "</td>" +
-        "<td>" + esc(t.sol) + "</td>" +
+        "<td>" + esc(c ? c.terms.solution : t.sol) + "</td>" +
         '<td class="num">' + t.qty + "</td>" +
         '<td class="num">' + won(t.monthly) + (t.discount ? '<div class="muted">할인 −' + Number(t.discount).toLocaleString("ko-KR") + "</div>" : "") + "</td>" +
         "<td>" + kdate(t.from) + " ~<br>" + kdate(t.to) + "</td>" +
@@ -257,10 +261,10 @@
       "1. 만족도 조사 (약 2분)\n   별점과 짧은 의견을 남겨 주시면 서비스 개선에 반영하겠습니다.\n   ▶ " + L.survey + "\n\n" +
       "2. 서비스수준협약(SLA) 확인 및 동의 요청\n   서비스 범위와 책임 기준을 문서로 정리한 SLA를 새로 마련했습니다.\n" +
       "   · 알림 발송까지가 서비스 범위이며, 상시 관제·현장 출동·기관 신고는 포함되지 않습니다.\n" +
-      "   · 법정 소방설비를 대신하지 않으며, 센서 특성상 오탐·미탐이 생길 수 있습니다.\n" +
+      "   · 법정 안전설비를 대신하지 않으며, 센서 특성상 오탐·미탐이 생길 수 있습니다.\n" +
       "   · 회사 배상 한도는 직전 12개월간 지급한 이용료 총액입니다. (고의·중과실 제외)\n" +
       "   · 월 1회 테스트 알림 점검, 배터리 알림 후 14일 안에 교체, 수신자 정보 최신 유지를 부탁드립니다.\n" +
-      "   동의해 주셔야 적용되며, 동의하지 않으셔도 서비스는 기존 계약 조건대로 제공됩니다.\n   SLA 전문 PDF: " + SITE + "/alarm/sla.pdf\n   ▶ " + L.sla + "\n\n" +
+      "   동의해 주셔야 적용되며, 동의하지 않으셔도 서비스는 기존 계약 조건대로 제공됩니다." + ((c.products || []).length ? "" : " 이용 중인 알리미는 화면에서 선택하시면 됩니다.") + "\n   SLA 전문 PDF: " + SITE + ((c.products || []).length === 1 ? "/alarm/sla-" + c.products[0] + ".pdf" : "/alarm/sla.pdf") + "\n   ▶ " + L.sla + "\n\n" +
       "궁금하신 점은 이 메일에 회신하시거나 02-2088-1454로 연락 주세요.\n\n감사합니다.\n주식회사 모넷코리아\n02-2088-1454 · korea@monnit.com";
   }
   $("k_make").addEventListener("click", async function(){
@@ -269,7 +273,8 @@
     btn.disabled = true;
     try{
       var j = await api("client", {body:{name:$("k_name").value, site:$("k_site").value, mgr:$("k_mgr").value, email:$("k_email").value,
-        since:$("k_since").value, ref:$("k_ref").value, type:$("k_type").value}});
+        since:$("k_since").value, ref:$("k_ref").value, type:$("k_type").value, products: prods("k_prod")}});
+      document.querySelectorAll("#k_prod input").forEach(function(c){ c.checked = false; });
       $("k_mail").value = clientMail(j.client); $("k_out").hidden = false;
       ["k_name","k_site","k_mgr","k_email","k_since","k_ref"].forEach(function(id){ $(id).value = ""; });
       load("clients");
@@ -282,7 +287,7 @@
       var sla = c.consentDecision === "agree" ? '<span class="pill agree">동의 ' + kdate(c.consentAt) + "</span>"
         : c.consentDecision === "not-now" ? '<span class="pill not-now">미동의</span>'
         : '<span class="muted">미응답</span>';
-      return "<tr><td>" + kdt(c.createdAt) + "</td><td>" + esc(c.name) + '<div class="muted">' + esc(c.mgr || "") + " " + esc(c.email || "") + "</div></td>" +
+      return "<tr><td>" + kdt(c.createdAt) + "</td><td>" + esc(c.name) + '<div class="muted">' + esc(c.mgr || "") + " " + esc(c.email || "") + (c.products && c.products.length ? " · " + c.products.map(function(k){ return PRODUCT_LABEL[k] || k; }).join("·") : "") + "</div></td>" +
         "<td>" + esc(c.site || "—") + "</td><td>" + kdate(c.since) + "</td>" +
         "<td>" + (c.surveyAt ? '<span class="pill agree">완료 ' + kdate(c.surveyAt) + "</span>" : '<span class="muted">미응답</span>') + "</td>" +
         "<td>" + sla + "</td>" +

@@ -10,8 +10,9 @@ def rep(s, a, b, n=1):
     assert c == n, (a[:60], c)
     return s.replace(a, b)
 
-STYLE = rd("style.css") + rd("extra.css")
+STYLE = rd("style.css") + rd("extra.css") + ".annex-head{border-top:2px solid var(--rule-strong);margin-top:10px} .annex[hidden]{display:none} .chk[hidden]{display:none}"
 ARTICLES = rd("sla_articles.html")
+ANNEX_B = rd("sla_annex.html")
 FOOTER = rd("footer.html")
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
          '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
@@ -35,7 +36,7 @@ def head(title, desc, extra_css=""):
 </head>
 """
 
-ANNEX = """
+SUPPL = """
     <div class="article">
       <h3><span class="no">부 칙</span><span>기존 이용 고객에 대한 적용</span></h3>
       <ol class="cl">
@@ -51,11 +52,13 @@ def articles(existing=False):
     if existing:
         a = rep(a, "고객은 계약 체결 전에 본 SLA 전문을 제공받아 열람하였고",
                 "고객은 본 SLA에 동의하기 전에 그 전문을 제공받아 열람하였고")
-        a += ANNEX
+    a += ANNEX_B
+    if existing:
+        a += SUPPL
     return a
 
 def modal(existing=False, foot=True):
-    scope = "제1조 ~ 제18조 · 부칙" if existing else "제1조 ~ 제18조"
+    scope = "제1조 ~ 제18조 · 부속서 B · 부칙" if existing else "제1조 ~ 제18조 · 부속서 B"
     agree_txt = ("위 서비스수준협약(SLA) 전문을 확인하였습니다." if existing else
                  "위 서비스수준협약(SLA) 전문을 확인하였으며, <b>제3조·제4조·제6조·제10조·제11조</b>를 포함한 그 내용에 동의합니다.")
     btn = "확인 완료" if existing else "동의하고 계속"
@@ -78,11 +81,11 @@ def modal(existing=False, foot=True):
   <div class="msheet">
     <div class="mhd">
       <div>
-        <p class="kicker" style="margin:0 0 2px">부속문서 A · Rev. 2.2</p>
+        <p class="kicker" style="margin:0 0 2px">이용계약 부속문서 A · 2026년 10월 16일 시행</p>
         <h2 id="slatitle">긴급 경보 알리미 서비스수준협약서(SLA)</h2>
       </div>
       <span class="spacer"></span>
-      <a class="btn quiet" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA_Rev2.2.pdf" style="text-decoration:none">PDF</a>
+      <a class="btn quiet slapdf" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none">PDF</a>
       <button type="button" class="btn quiet" data-close aria-label="닫기">닫기</button>
     </div>
     <div class="mbody compact" id="mbody" tabindex="0">{articles(existing)}
@@ -141,10 +144,10 @@ def build_terms():
   <span class="nm">긴급 경보 알리미 · 서비스 이용약관(SLA)</span>
 </div></div></div>
 <main class="sheet" style="padding-top:22px">
-  <p class="kicker" style="margin:0 0 2px">부속문서 A · Rev. 2.2 · 시행 2026년 10월</p>
+  <p class="kicker" style="margin:0 0 2px">이용계약 부속문서 A · 2026년 10월 16일 시행 · 공통 본문 + 제품별 부속서 B</p>
   <h1 style="font-size:21px">긴급 경보 알리미 서비스수준협약서(SLA)</h1>
   <p class="hint" style="margin:0 0 10px">구독 계약의 부속문서입니다. 계약 체결 시 이 내용을 다시 안내하고 동의를 받습니다.</p>
-  <p class="noprint" style="margin:0 0 16px"><a class="btn quiet" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA_Rev2.2.pdf" style="text-decoration:none;padding:8px 13px;font-size:13px">PDF 내려받기</a></p>
+  <p class="noprint" style="margin:0 0 16px"><a class="btn quiet" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none;padding:8px 13px;font-size:13px">PDF 내려받기</a></p>
   <div class="mbody compact" style="overflow:visible;padding:0">""" + articles(False) + """
   </div>
 """
@@ -152,9 +155,12 @@ def build_terms():
            "@media print{.noprint,.topbar{display:none!important} .termspage .sheet{padding:0} .article{break-inside:auto} .article h3{break-after:avoid}}"
            "body.pdf{background:#fff;color:#000} body.pdf .topbar,body.pdf footer,body.pdf .noprint{display:none} body.pdf .sheet{max-width:none;padding:0}"
            "body.pdf mark{background:#eef3ef} body.pdf .compact{font-size:11pt;line-height:1.65} body.pdf ol.cl>li{font-size:11pt} body.pdf .pdfhead{font-size:9.5pt;color:#555;border-bottom:1px solid #999;padding-bottom:6px;margin-bottom:14px;display:flex;justify-content:space-between}")
-    js = ("if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');"
+    js = ("(function(){var m=/[?&]p=([a-z,]+)/.exec(location.search);if(!m)return;var want=m[1].split(',');"
+          "document.querySelectorAll('.annex[data-product]').forEach(function(el){el.hidden=want.indexOf(el.dataset.product)<0;});"
+          "var h=document.querySelector('.annex-head .sub');if(h)h.textContent='이 계약의 납품 솔루션에 해당하는 부속서만 수록했습니다. 전체 부속서는 monnit.co.kr/alarm/terms 에서 볼 수 있습니다.';})();"
+          "if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');"
           "if(/[?&]pdf=1/.test(location.search)){document.body.classList.add('pdf');"
-          "var h=document.createElement('div');h.className='pdfhead';h.innerHTML='<span>주식회사 모넷코리아 · 긴급 경보 알리미 서비스수준협약서(SLA) · 부속문서 A · Rev. 2.2</span><span>monnit.co.kr · 02-2088-1454</span>';"
+          "var h=document.createElement('div');h.className='pdfhead';h.innerHTML='<span>주식회사 모넷코리아 · 긴급 경보 알리미 서비스수준협약서(SLA) · 2026년 10월 16일 시행</span><span>monnit.co.kr · 02-2088-1454</span>';"
           "document.querySelector('.sheet').prepend(h);}")
     page("alarm/terms.html", "알리미 서비스 이용약관(SLA)", "긴급 경보 알리미 서비스수준협약서(SLA) 전문", body, js,
          extra_css=css, with_modal=False)

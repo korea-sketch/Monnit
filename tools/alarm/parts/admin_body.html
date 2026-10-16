@@ -21,7 +21,7 @@
 
 <main class="sheet wide">
 
-<!-- 로그인 -->
+
 <section class="pane on" id="t_login">
   <p class="kicker">관리자 확인</p>
   <h1>관리 키를 입력해 주십시오</h1>
@@ -33,7 +33,7 @@
   <div class="btnrow"><button type="button" class="btn" id="loginBtn">확인</button></div>
 </section>
 
-<!-- 1. 계약 링크 만들기 -->
+
 <section class="pane" id="t_new">
   <p class="kicker">신규 계약 · 고객에게 보낼 계약 링크</p>
   <h1>계약 링크 만들기</h1>
@@ -53,10 +53,16 @@
       <fieldset>
         <legend>납품 및 요금</legend>
         <div class="grid">
-          <div class="f wide"><label for="n_sol">납품 솔루션</label>
-            <input type="text" id="n_sol" list="solList" value="화재 알리미">
-            <datalist id="solList"><option value="화재 알리미"><option value="물감지 알리미"><option value="정전 알리미"><option value="경보 알리미"><option value="커스텀 알리미"><option value="화재·물감지 알리미"></datalist>
+<div class="f wide"><span class="flab">납품 솔루션 <small style="color:var(--faint)">(선택 · 비워 두면 고객이 계약 화면에서 직접 고릅니다. 고르면 고객은 바꿀 수 없습니다)</small></span>
+            <div class="opts" id="n_prod">
+              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="custom"><span>💡 커스텀 알리미</span></label>
+            </div>
           </div>
+          <div class="f wide"><label for="n_solnote">솔루션 상세 (선택 · 계약서 납품 솔루션 란에 함께 표시)</label><input type="text" id="n_solnote" placeholder="예: 수신기 연동형 2개소 + 지하 집수정 로프센서 3개소"></div>
           <div class="f"><label for="n_unit">1개소 월 이용료 (원, 부가세 별도)</label><input type="number" id="n_unit" value="30000" min="0" step="1000"></div>
           <div class="f"><label for="n_qty">설치 개소 수</label>
             <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
@@ -103,7 +109,7 @@
   </div>
 </section>
 
-<!-- 2. 계약 현황 -->
+
 <section class="pane" id="t_contracts">
   <p class="kicker">계약 링크와 체결 현황</p>
   <h1>계약 현황</h1>
@@ -115,7 +121,7 @@
   <div class="tablewrap"><table class="list" id="c_table"></table></div>
 </section>
 
-<!-- 3. 기존 고객 -->
+
 <section class="pane" id="t_clients">
   <p class="kicker">기존 고객 · 만족도 조사와 SLA 동의 링크</p>
   <h1>기존 고객 설문 · SLA</h1>
@@ -130,6 +136,15 @@
       <div class="f"><label for="k_since">이용 시작일</label><input type="date" id="k_since"></div>
       <div class="f"><label for="k_ref">계약 번호</label><input type="text" id="k_ref"></div>
       <div class="f"><label for="k_type">계약 구분</label><select id="k_type"><option value="B2B">사업자 (B2B)</option><option value="B2C">소비자 (B2C)</option></select></div>
+      <div class="f wide"><span class="flab">이용 중인 알리미 <small style="color:var(--faint)">(여러 개 선택 가능 · 비워 두면 고객이 동의 화면에서 직접 고릅니다)</small></span>
+            <div class="opts" id="k_prod">
+              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="custom"><span>💡 커스텀 알리미</span></label>
+            </div>
+          </div>
     </div>
     <p class="err" id="k_err" hidden style="margin-top:12px"></p>
     <div class="btnrow" style="margin-top:16px"><span class="spacer"></span><button type="button" class="btn" id="k_make">등록하고 링크 만들기</button></div>
@@ -143,7 +158,7 @@
   <div class="tablewrap"><table class="list" id="k_table"></table></div>
 </section>
 
-<!-- 4. 설문 응답 -->
+
 <section class="pane" id="t_surveys">
   <p class="kicker">만족도 조사 결과</p>
   <h1>설문 응답</h1>
@@ -152,7 +167,7 @@
   <div class="tablewrap"><table class="list" id="s_table"></table></div>
 </section>
 
-<!-- 상세 보기 -->
+
 <div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
   <div class="backdrop" data-dclose></div>
   <div class="msheet">

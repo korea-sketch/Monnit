@@ -8,7 +8,7 @@
 (function(){
   "use strict";
   var API = "/api/alarm/consent";
-  var SLA_VERSION = "Rev. 2.2";
+  var SLA_VERSION = "Rev. 3.0";
   var $ = function(id){ return document.getElementById(id); };
 
   function esc(v){
@@ -22,12 +22,16 @@
     return p.length === 3 ? (p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일") : s;
   }
   /* ── 고객 정보 받아오기 ── */
-  var C = null, K = new URLSearchParams(location.search).get("k") || "";
+  var C = null, K = new URLSearchParams(location.search).get("k") || "", FIXED = false;
+  function picked(){ return Array.prototype.map.call(document.querySelectorAll("#pick input:checked"), function(c){ return c.value; }); }
+  function chosenProducts(){ return FIXED ? (C && C.products || []) : picked(); }
   function nolink(){ $("nolink").hidden = false; $("p1nav").hidden = true; $("stepnav").hidden = true; }
   if(!K) nolink();
   else fetch("/api/alarm/client?id=" + encodeURIComponent(K)).then(function(r){ return r.json(); }).then(function(j){
     if(!j || !j.ok) return nolink();
     C = j.client;
+    FIXED = (C.products || []).length > 0;
+    if(FIXED) applyProducts(C.products); else { $("pickBox").hidden = false; applyProducts([]); }
     $("who").hidden = false;
     $("v_cust").textContent = C.name; $("v_site").textContent = C.site || "—"; $("v_since").textContent = kdate(C.since);
     $("hello").textContent = (C.mgr ? C.mgr + "님" : C.name + " 담당자님") + ", 안녕하세요. ";
@@ -39,6 +43,15 @@
     var el = document.querySelector('input[name="'+name+'"]:checked');
     return el ? el.value : "";
   }
+
+  $("go2").addEventListener("click", function(){
+    if(!FIXED){
+      if(!picked().length){ $("pickErr").hidden = false; $("pickErr").textContent = "이용 중인 알리미를 하나 이상 선택해 주십시오."; return; }
+      $("pickErr").hidden = true; applyProducts(picked());
+    }
+    show(2);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#pick input"), function(c){ c.addEventListener("change", function(){ $("pickErr").hidden = true; }); });
 
   /* ── 단계 이동 ── */
   var PANES = ["p1","p2","p5"], maxSeen = 1;
@@ -60,7 +73,12 @@
     b.addEventListener("click", function(){ show(Number(b.dataset.next)); });
   });
   Array.prototype.forEach.call(document.querySelectorAll(".steptab"), function(b){
-    b.addEventListener("click", function(){ if(C && !C.consentDone) show(Number(b.dataset.go)); });
+    b.addEventListener("click", function(){
+      if(!(C && !C.consentDone)) return;
+      var n = Number(b.dataset.go);
+      if(n >= 2 && !FIXED && !picked().length){ show(1); $("pickErr").hidden = false; $("pickErr").textContent = "이용 중인 알리미를 하나 이상 선택해 주십시오."; return; }
+      show(n);
+    });
   });
 
   /* ── SLA 팝업 ── */
@@ -109,6 +127,30 @@
       : "제1조 ~ 제18조 · 부칙 전문 · " + Math.round(p * 100) + "% 읽음";
   });
 
+
+  /* ── 제품별 부속서·확인 항목 표시 ── */
+  var PRODUCT_LABEL = {fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
+  function applyProducts(list){
+    var want = (list && list.length) ? list : ["fire","water","power","alarm","custom"];
+    Array.prototype.forEach.call(document.querySelectorAll("[data-product]"), function(el){
+      var on = want.indexOf(el.dataset.product) >= 0;
+      el.hidden = !on;
+      if(!on){ var c = el.querySelector("[data-ck]"); if(c) c.checked = false; }
+    });
+    var n = activeCks().length; if($("ckCount")) $("ckCount").textContent = n;
+    var pdf = (want.length === 1) ? "/alarm/sla-" + want[0] + ".pdf" : "/alarm/sla.pdf";
+    Array.prototype.forEach.call(document.querySelectorAll("a.slapdf"), function(a){ a.href = pdf; });
+    var hd = document.querySelector(".annex-head .sub");
+    if(hd && list && list.length) hd.textContent = "이 계약에 적용되는 부속서: " + want.map(function(k){ return PRODUCT_LABEL[k] || k; }).join(" · ") + ". 전체 부속서는 monnit.co.kr/alarm/terms 에서 볼 수 있습니다.";
+  }
+  function activeCks(){
+    return Array.prototype.filter.call(document.querySelectorAll("[data-ck]"), function(c){
+      var p = c.closest("[data-product]"); return !p || !p.hidden;
+    });
+  }
+  function ackList(){
+    return activeCks().map(function(c){ var e = c.parentNode.querySelector("em"); return e ? e.textContent.trim() : ""; }).filter(Boolean);
+  }
   /* ── 동의 여부 ── */
   function decision(){ return radio("decision"); }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="decision"]'), function(r){
@@ -121,16 +163,16 @@
     });
   });
 
-  var cks = Array.prototype.slice.call(document.querySelectorAll("[data-ck]"));
+  var cks = Array.prototype.slice.call(document.querySelectorAll("[data-ck]"));  /* 전체 — 표시 여부는 activeCks() 로 */
   function syncChecks(){
     cks.forEach(function(c){ c.parentNode.classList.toggle("on", c.checked); });
-    $("ckall").checked = cks.every(function(c){ return c.checked; });
+    $("ckall").checked = activeCks().every(function(c){ return c.checked; });
     gate();
   }
   cks.forEach(function(c){ c.addEventListener("change", syncChecks); });
   $("ckall").addEventListener("change", function(){
     var v = this.checked;
-    cks.forEach(function(c){ c.checked = v; });
+    activeCks().forEach(function(c){ c.checked = v; });
     syncChecks();
   });
 
@@ -191,7 +233,7 @@
     if(d === "later") ok = true;
     else if(d === "agree"){
       if(!slaAgreedAt) msg = "SLA 전문을 열어 확인하고 동의 표시를 해 주십시오.";
-      else if(!cks.every(function(c){ return c.checked; })) msg = "8개 확인 항목을 모두 체크해 주십시오.";
+      else if(!activeCks().every(function(c){ return c.checked; })) msg = "확인 항목을 모두 체크해 주십시오.";
       else if(!$("sg_name").value.trim()) msg = "서명자 성명을 입력해 주십시오.";
       else if(!hasInk) msg = "서명란에 서명해 주십시오.";
       else ok = true;
@@ -224,9 +266,8 @@
         agreedAt: agree ? slaAgreedAt : "",
         readPct: Math.round(slaReadPct * 100),
         effectiveFrom: agree ? ymd(now) : "",
-        acknowledged: agree ? ["제3조 회사가 부담하지 않는 의무","제3조5호 오탐·미탐",
-          "제4조 사용제한·위험인수","제6조 크레딧 부적용","제10조 책임한도",
-          "제11조 면책","제7조 고객의무·기록","제12·13조 보험·제3자청구 / 적용 시점"] : []
+        acknowledged: agree ? ackList() : [],
+        products: chosenProducts()
       },
       signature: agree ? {name:$("sg_name").value.trim(), role:$("sg_role").value.trim(),
                           signedOn: ymd(now), image: cv.toDataURL("image/png")} : null
@@ -244,7 +285,7 @@
     $("d_cust").textContent = C ? C.name : "—";
     $("d_site").textContent = C && C.site || "—";
     $("d_sla").textContent = agree
-      ? ("동의 · " + SLA_VERSION + " · " + kdate(body.sla.effectiveFrom) + "부터 적용")
+      ? ("동의 · " + kdate(body.sla.effectiveFrom) + "부터 적용")
       : "동의하지 않음 · 기존 계약 조건 유지";
     $("d_signer").textContent = agree ? (body.signature.name + (body.signature.role ? " · " + body.signature.role : "")) : "—";
     $("d_when").textContent = now.toLocaleString("ko-KR");

@@ -146,3 +146,6 @@
 /alarm/sla.pdf
   Content-Type: application/pdf
   Cache-Control: public, max-age=300, must-revalidate
+/alarm/sla-*.pdf
+  Content-Type: application/pdf
+  Cache-Control: public, max-age=300, must-revalidate

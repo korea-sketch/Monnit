@@ -23,7 +23,9 @@
       return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
     });
   }
-  var T = null, OFFER_ID = "";
+  var T = null, OFFER_ID = "", FIXED = false;
+  function picked(){ return Array.prototype.map.call(document.querySelectorAll("#pick input:checked"), function(c){ return c.value; }); }
+  function chosenProducts(){ return FIXED ? (T.products || []) : picked(); }
   function won(n){ return "￦ " + Number(n||0).toLocaleString("ko-KR"); }
 
   function etcHtml(){
@@ -47,7 +49,7 @@
     }
     rows += '<div class="row total"><span>월 청구액 <small style="font-weight:400;color:var(--muted)">(부가세 별도)</small></span><span class="money">' + won(T.monthly) + '</span></div>';
     $("priceBox").innerHTML = rows;
-    $("o_sol").textContent = T.sol;
+    $("o_sol").textContent = (T.products && T.products.length) ? T.sol : (T.solNote ? T.solNote + " · 아래에서 알리미 선택" : "아래에서 알리미를 선택해 주십시오");
     $("o_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
     $("o_pay").textContent = T.pay || "—";
     $("o_bank").textContent = T.bank || "—";
@@ -84,12 +86,27 @@
       if(o.status !== "open") return offerFail("사용할 수 없는 링크입니다", "담당자에게 새 링크를 요청해 주십시오. 문의 02-2088-1454");
       T = o.terms;
       renderTerms();
+      FIXED = (T.products || []).length > 0;
+      if(FIXED) applyProducts(T.products); else { $("pickBox").hidden = false; applyProducts([]); }
       $("loading").hidden = true;
       $("offerBox").hidden = false;
     }).catch(function(){
       offerFail("계약 조건을 불러오지 못했습니다", "잠시 후 다시 시도해 주십시오. 계속 안 되면 02-2088-1454로 연락 주십시오.");
     });
   }
+
+  /* 1단계 → 2단계: 고객이 직접 고르는 경우 최소 1개 */
+  $("go1").addEventListener("click", function(){
+    if(!FIXED){
+      if(!picked().length){ $("pickErr").hidden = false; $("pickErr").textContent = "알리미를 하나 이상 선택해 주십시오."; return; }
+      $("pickErr").hidden = true;
+      applyProducts(picked());
+      $("v_sol").textContent = picked().map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (T.solNote ? " — " + T.solNote : "");
+      $("o_sol").textContent = $("v_sol").textContent;
+    }
+    show(1);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#pick input"), function(c){ c.addEventListener("change", function(){ $("pickErr").hidden = true; }); });
 
   /* ── 단계 이동 ── */
   var cur = 0, maxSeen = 0, PANES = ["p0","p1","p3","p4","p5"];
@@ -114,6 +131,7 @@
     b.addEventListener("click", function(){
       var n = Number(b.dataset.go);
       if(!T) return;
+      if(n >= 1 && !FIXED && !picked().length){ show(0); $("pickErr").hidden = false; $("pickErr").textContent = "알리미를 하나 이상 선택해 주십시오."; return; }
       if(n >= 3 && !slaAgreedAt){ openSla(b, true); return; }
       show(n);
     });
@@ -271,17 +289,41 @@
     show(4);
   });
 
+
+  /* ── 제품별 부속서·확인 항목 표시 ── */
+  var PRODUCT_LABEL = {fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
+  function applyProducts(list){
+    var want = (list && list.length) ? list : ["fire","water","power","alarm","custom"];
+    Array.prototype.forEach.call(document.querySelectorAll("[data-product]"), function(el){
+      var on = want.indexOf(el.dataset.product) >= 0;
+      el.hidden = !on;
+      if(!on){ var c = el.querySelector("[data-ck]"); if(c) c.checked = false; }
+    });
+    var n = activeCks().length; if($("ckCount")) $("ckCount").textContent = n;
+    var pdf = (want.length === 1) ? "/alarm/sla-" + want[0] + ".pdf" : "/alarm/sla.pdf";
+    Array.prototype.forEach.call(document.querySelectorAll("a.slapdf"), function(a){ a.href = pdf; });
+    var hd = document.querySelector(".annex-head .sub");
+    if(hd && list && list.length) hd.textContent = "이 계약에 적용되는 부속서: " + want.map(function(k){ return PRODUCT_LABEL[k] || k; }).join(" · ") + ". 전체 부속서는 monnit.co.kr/alarm/terms 에서 볼 수 있습니다.";
+  }
+  function activeCks(){
+    return Array.prototype.filter.call(document.querySelectorAll("[data-ck]"), function(c){
+      var p = c.closest("[data-product]"); return !p || !p.hidden;
+    });
+  }
+  function ackList(){
+    return activeCks().map(function(c){ var e = c.parentNode.querySelector("em"); return e ? e.textContent.trim() : ""; }).filter(Boolean);
+  }
   /* ── 확인 체크 ── */
-  var cks = Array.prototype.slice.call(document.querySelectorAll("[data-ck]"));
+  var cks = Array.prototype.slice.call(document.querySelectorAll("[data-ck]"));  /* 전체 — 표시 여부는 activeCks() 로 */
   function syncChecks(){
     cks.forEach(function(c){ c.parentNode.classList.toggle("on", c.checked); });
-    $("ckall").checked = cks.every(function(c){ return c.checked; });
+    $("ckall").checked = activeCks().every(function(c){ return c.checked; });
     gate();
   }
   cks.forEach(function(c){ c.addEventListener("change", syncChecks); });
   $("ckall").addEventListener("change", function(){
     var v = this.checked;
-    cks.forEach(function(c){ c.checked = v; });
+    activeCks().forEach(function(c){ c.checked = v; });
     syncChecks();
   });
 
@@ -338,7 +380,7 @@
   $("sg_date").textContent = today.getFullYear() + "년 " + (today.getMonth()+1) + "월 " + today.getDate() + "일";
 
   function gate(){
-    var ok = !!slaAgreedAt && cks.every(function(c){ return c.checked; })
+    var ok = !!slaAgreedAt && activeCks().every(function(c){ return c.checked; })
              && hasInk && !!$("sg_name").value.trim();
     $("submitBtn").disabled = !ok;
   }
@@ -375,10 +417,8 @@
       slaViewedAt: slaViewedAt,
       slaAgreedAt: slaAgreedAt,
       slaReadPct: Math.round(slaReadPct * 100),
-      acknowledged: ["제3조 회사가 부담하지 않는 의무","제3조5호 오탐·미탐",
-                     "제4조 사용제한·위험인수","제6조 크레딧 부적용",
-                     "제10조 책임한도","제11조 면책","제7조 고객의무·기록",
-                     "제12·13조 보험·제3자청구·계약기간"],
+      acknowledged: ackList(),
+      products: chosenProducts(),
       signature: {name:$("sg_name").value.trim(), role:$("sg_role").value.trim(),
                   signedOn: ymd(now), image: cv.toDataURL("image/png")},
       attachments: {businessLicense: LIC ? {filename:LIC.name, mimeType:"image/jpeg", image:LIC.dataUrl} : null}

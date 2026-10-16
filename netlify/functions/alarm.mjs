@@ -29,7 +29,10 @@ export const config = { path: [
 
 const MAX_BODY = 12 * 1024 * 1024;           // 사업자등록증 이미지 포함
 const TYPES = { offers: "offers/", contracts: "contracts/", clients: "clients/", surveys: "surveys/", consents: "consents/" };
-const SLA_VERSION = "Rev. 2.2";
+const SLA_VERSION = "Rev. 3.0";
+const PRODUCTS = ["fire", "water", "power", "alarm", "custom"];
+const PRODUCT_LABEL = { fire: "화재 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
+const products = (v) => (Array.isArray(v) ? v : []).map((x) => str(x, 10)).filter((x, i, a) => PRODUCTS.includes(x) && a.indexOf(x) === i);
 
 const SITE = String(process.env.URL || "https://monnit.co.kr").replace(/\/$/, "");
 const ST = getStore("alarm");
@@ -86,8 +89,10 @@ export function price(t) {
 /* ───────── 관리자 ───────── */
 async function createOffer(b) {
   const p = price(b);
+  const prod = products(b.products);           // 비어 있으면 고객이 계약 화면에서 직접 고른다
   const terms = {
-    sol: str(b.sol, 80) || "긴급 경보 알리미",
+    products: prod, solNote: str(b.solNote, 120),
+    sol: str(b.sol, 160) || "긴급 경보 알리미",
     ...p,
     discountNote: str(b.discountNote, 120),
     from: date(b.from), to: date(b.to),
@@ -120,7 +125,7 @@ async function createClient(b) {
   const client = {
     id, createdAt: now(), name,
     site: str(b.site, 160), mgr: str(b.mgr, 40), email: str(b.email, 120),
-    since: date(b.since), ref: str(b.ref, 40), type: b.type === "B2C" ? "B2C" : "B2B",
+    since: date(b.since), ref: str(b.ref, 40), type: b.type === "B2C" ? "B2C" : "B2B", products: products(b.products),
     surveyAt: "", consentAt: "", consentDecision: "",
   };
   await store().setJSON(TYPES.clients + id, client);
@@ -181,9 +186,14 @@ async function submitContract(req, b) {
 
   const ref = refNo("MK");
   const t = o.terms; // 조건은 언제나 서버에 저장된 값을 쓴다 (링크·화면 조작 방지)
+  // 제품: 담당자가 정해 두었으면 그 값, 아니면 고객이 고른 값 (최소 1개)
+  const prodFixed = (t.products || []).length > 0;
+  const prodList = prodFixed ? t.products : products(b.products);
+  if (!prodList.length) return json({ ok: false, error: "products_required" }, 400);
+  const solution = prodFixed ? t.sol : prodList.map((k) => PRODUCT_LABEL[k]).join(" · ") + (t.solNote ? " — " + t.solNote : "");
   const rec = {
     ref, offerId: o.id, submittedAt: now(), slaVersion: SLA_VERSION,
-    terms: { solution: t.sol, unitPrice: t.unit, sites: t.qty, listPrice: t.list,
+    terms: { solution, products: prodList, productsChosenBy: prodFixed ? "staff" : "customer", unitPrice: t.unit, sites: t.qty, listPrice: t.list,
              discountType: t.discountType, discountValue: t.discountValue, discount: t.discount, discountNote: t.discountNote,
              monthly: t.monthly, from: t.from, to: t.to, payDay: t.pay, bank: t.bank, etc: t.etc },
     customer: {
@@ -207,7 +217,7 @@ async function submitContract(req, b) {
   const mailed = await alert({
     kind: "alarm_contract", label: "알리미 계약 체결", interest: "긴급 경보 알리미 계약 체결",
     company: rec.customer.name, name: rec.customer.manager, phone: rec.customer.phone, email: rec.customer.email,
-    memo: `${t.sol} · ${t.qty}개소 · 월 ${won(t.monthly)} (부가세 별도)${t.discount ? " · 할인 " + won(t.discount) : ""} · ${t.from} ~ ${t.to}`,
+    memo: `${solution} · ${t.qty}개소 · 월 ${won(t.monthly)} (부가세 별도)${t.discount ? " · 할인 " + won(t.discount) : ""} · ${t.from} ~ ${t.to}`,
     ip: rec.client.ip, ref,
   }, {
     "접수번호": ref, "설치 현장": rec.customer.site, "대표자": rec.customer.ceo, "계약 구분": rec.customer.contractType,
@@ -224,7 +234,7 @@ async function submitContract(req, b) {
 async function getClient(id) {
   const c = id && await store().get(TYPES.clients + str(id, 40));
   if (!c) return json({ ok: false, error: "not_found" }, 404);
-  return json({ ok: true, client: { id: c.id, name: c.name, site: c.site, mgr: c.mgr, since: c.since, type: c.type,
+  return json({ ok: true, client: { id: c.id, name: c.name, site: c.site, mgr: c.mgr, since: c.since, type: c.type, products: c.products || [],
     surveyDone: !!c.surveyAt, consentDone: c.consentDecision === "agree" } });
 }
 
@@ -271,6 +281,9 @@ async function submitConsent(req, b) {
   const client = b.clientId && await s.get(TYPES.clients + str(b.clientId, 40));
   if (!client) return json({ ok: false, error: "client_not_found" }, 404);
   const agree = b.decision === "agree";
+  const cFixed = (client.products || []).length > 0;
+  const cProds = cFixed ? client.products : products(b.products || (b.sla && b.sla.products));
+  if (agree && !cProds.length) return json({ ok: false, error: "products_required" }, 400);
   if (agree && !(b.signature && /^data:image\/png;base64,/.test(b.signature.image || "") && b.sla && b.sla.agreedAt)) {
     return json({ ok: false, error: "missing_signature" }, 400);
   }
@@ -279,7 +292,7 @@ async function submitConsent(req, b) {
     ref, createdAt: now(), clientId: client.id, company: client.name, site: client.site,
     decision: agree ? "agree" : "not-now",
     sla: { version: SLA_VERSION, viewedAt: str(b.sla && b.sla.viewedAt, 40), agreedAt: agree ? str(b.sla.agreedAt, 40) : "",
-           readPct: Number(b.sla && b.sla.readPct) || 0, effectiveFrom: agree ? date(b.sla.effectiveFrom) : "",
+           readPct: Number(b.sla && b.sla.readPct) || 0, effectiveFrom: agree ? date(b.sla.effectiveFrom) : "", products: cProds, productsChosenBy: cFixed ? "staff" : "customer",
            acknowledged: agree && Array.isArray(b.sla.acknowledged) ? b.sla.acknowledged.slice(0, 20).map((x) => str(x, 80)) : [] },
     signature: agree ? { name: str(b.signature.name, 40), role: str(b.signature.role, 40), signedOn: date(b.signature.signedOn), image: b.signature.image } : null,
     client: meta(req),
@@ -293,6 +306,7 @@ async function submitConsent(req, b) {
   // 한 번 동의한 기록은 덮어쓰지 않는다
   if (client.consentDecision !== "agree") {
     client.consentAt = rec.createdAt; client.consentDecision = rec.decision; client.consentRef = ref;
+    if (!cFixed && cProds.length) client.products = cProds;
     await s.setJSON(TYPES.clients + client.id, client);
   }
   return json({ ok: true, ref });
@@ -327,7 +341,7 @@ async function customerMail(rec) {
     `· 납품 솔루션: ${t.solution} · ${t.sites}개소`,
     `· 월 청구액: ${won(t.monthly)} (부가세 별도)${t.discount ? " — 정가 " + won(t.listPrice) + "에서 " + won(t.discount) + " 할인" : ""}`,
     `· 계약 기간: ${t.from} ~ ${t.to}`, `· 지급: ${t.payDay} · ${t.bank}`, "",
-    `서비스수준협약(SLA ${rec.slaVersion}) 전문: ${SITE}/alarm/sla.pdf`, "",
+    `서비스수준협약(SLA) 전문 — 공통 본문과 ${(t.products || []).map((k) => PRODUCT_LABEL[k]).join("·")} 부속서: ${SITE}${(t.products || []).length === 1 ? "/alarm/sla-" + t.products[0] + ".pdf" : "/alarm/sla.pdf"}`, "",
     "담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드리겠습니다.",
     "문의 02-2088-1454 · korea@monnit.com", "", "주식회사 모넷코리아",
   ].join("\n");

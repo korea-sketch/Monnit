@@ -349,8 +349,11 @@ function initEmergencyHero(){
       const count = Math.max(1,Math.min(10,Math.round(Number(siteCountEl.value)||1)));
       siteCountEl.value = count;
       const isQuote = count>=10;
-      const unit = count>=5 ? 25000 : 30000;
-      unitEl.textContent = isQuote ? '10곳 이상 · 별도 견적' : `월 단가 ${unit.toLocaleString('ko-KR')}원`;
+      /* 2026-10-16 자동 할인 제거 — 할인은 담당자가 계약 조건에서만 적용한다 */
+      const unit = 30000;
+      /* 2026-10-16 「월 단가」→ 「월 구독료 · 1곳당」 — 구독 서비스라는 점과 부가세 기준을 함께 보여 준다 */
+      unitEl.innerHTML = isQuote ? '10곳 이상은 <b>별도 견적</b>으로 안내드려요'
+        : `월 구독료 <b>${unit.toLocaleString('ko-KR')}원</b> <span>/ 1곳 · 부가세 별도</span>`;
       if(planImageEl){
         const hasPhotoSlides = plan.value==='fire'||plan.value==='water'||plan.value==='outage'||plan.value==='alarm';
         carouselEl?.classList.toggle('is-product',!hasPhotoSlides);
@@ -379,7 +382,7 @@ function initEmergencyHero(){
       if(resultModelEl) resultModelEl.textContent = plan.dataset.label;
       if(resultPriceEl){
         const installation = region.value==='metro' ? '설치비 무료' : '설치비 별도 상담';
-        resultPriceEl.textContent = isQuote ? `별도 견적 · ${installation}` : `월 ${(unit*count).toLocaleString('ko-KR')}원 · ${installation}`;
+        resultPriceEl.textContent = isQuote ? `별도 견적 · ${installation}` : `월 구독료 ${(unit*count).toLocaleString('ko-KR')}원 · ${installation}`;
       }
       if(resultSitesEl) resultSitesEl.textContent = `${count}곳`;
       if(resultRegionEl) resultRegionEl.textContent = region.dataset.label;

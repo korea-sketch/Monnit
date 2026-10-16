@@ -20,9 +20,21 @@
         <dt>기타 사항</dt><dd id="o_etc">—</dd>
       </dl>
     </div>
+  <fieldset id="pickBox" hidden>
+    <legend>도입하실 알리미 <span class="req">*</span></legend>
+    <p class="hint" style="margin:-8px 0 14px">해당하는 알리미를 모두 선택해 주십시오. 선택한 제품의 서비스수준협약(SLA) 부속서가 다음 단계에 표시됩니다.</p>
+    <div class="opts" id="pick" role="group" aria-label="알리미 선택">
+      <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+      <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
+      <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
+      <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>
+      <label class="opt"><input type="checkbox" value="custom"><span>💡 커스텀 알리미</span></label>
+    </div>
+    <p class="err" id="pickErr" hidden style="margin-top:10px"></p>
+  </fieldset>
     <div class="btnrow" id="p0nav">
       <span class="spacer"></span>
-      <button type="button" class="btn" data-next="1">구독계약서 확인 →</button>
+      <button type="button" class="btn" id="go1">구독계약서 확인 →</button>
     </div>
   </div>
 </section>
