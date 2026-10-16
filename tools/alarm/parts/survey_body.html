@@ -1,0 +1,81 @@
+<body>
+<div class="topbar">
+  <div class="inner">
+    <div class="brand">
+      <a class="mk" href="/" style="text-decoration:none">MONNIT KOREA</a>
+      <span class="nm">긴급 경보 알리미 · 만족도 조사</span>
+    </div>
+  </div>
+</div>
+
+<main class="sheet">
+
+<section class="pane on" id="p0" aria-label="만족도 조사">
+  <p class="kicker">만족도 조사 · 약 2분</p>
+  <h1>긴급 경보 알리미, 써 보시니 어떠셨나요?</h1>
+  <p class="lede"><span id="hello">안녕하세요.</span> 이용해 주셔서 감사합니다. 별점과 짧은 의견을 남겨 주시면 서비스 개선에 반영하겠습니다.</p>
+
+  <div class="terms" id="who" hidden style="margin-bottom:22px">
+    <dl><dt>고객</dt><dd id="v_cust">—</dd><dt>설치 현장</dt><dd id="v_site">—</dd></dl>
+  </div>
+  <div class="note" id="again" hidden><span class="tag">안내</span>이미 응답해 주셨습니다. 다시 제출하시면 새 응답으로 함께 기록됩니다.</div>
+
+  <fieldset id="anon" hidden>
+    <legend>고객 정보</legend>
+    <div class="grid">
+      <div class="f"><label for="s_company">회사 / 시설명 <span class="req">*</span></label><input type="text" id="s_company"></div>
+      <div class="f"><label for="s_site">설치 현장</label><input type="text" id="s_site"></div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>별점 평가 <span class="req">*</span></legend>
+    <div id="ratings"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>이용 경험</legend>
+    <p class="qlab" style="margin-bottom:10px">알림을 받고 실제로 이상 상황에 대응하신 적이 있나요?</p>
+    <div class="opts" role="radiogroup" aria-label="실제 대응 경험">
+      <label class="opt"><input type="radio" name="used" value="있음"><span>있음</span></label>
+      <label class="opt"><input type="radio" name="used" value="없음"><span>없음</span></label>
+      <label class="opt"><input type="radio" name="used" value="잘 모르겠음"><span>잘 모르겠음</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>의견</legend>
+    <div class="grid">
+      <div class="f wide">
+        <label for="s_opinion">서비스를 이용하며 느끼신 점 <span class="req">*</span> <small>(5자 이상)</small></label>
+        <textarea id="s_opinion" rows="4" placeholder="예: 새벽에 누수를 바로 알 수 있어서 피해를 줄였습니다"></textarea>
+        <div class="counter" id="c_opinion">0자 / 최소 5자</div>
+      </div>
+      <div class="f wide"><label for="s_improve">개선했으면 하는 점</label><textarea id="s_improve" rows="3" placeholder="예: 문자 내용에 위치가 더 자세히 나오면 좋겠습니다"></textarea></div>
+      <div class="f wide"><label for="s_recv">알림 수신자 변경 요청 (있을 때만)</label><input type="text" id="s_recv" placeholder="예: 수신자 2 김○○ → 이○○ 010-0000-0000"></div>
+      <div class="f"><label for="s_name">응답자 성함</label><input type="text" id="s_name"></div>
+    </div>
+  </fieldset>
+
+  <p class="hint">응답 내용은 서비스 개선과 고객 지원에만 사용하며 3년간 보관합니다. <a href="/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></p>
+  <p class="err" id="err" hidden></p>
+  <div class="btnrow">
+    <span class="spacer"></span>
+    <button type="button" class="btn" id="submitBtn">제출하기</button>
+  </div>
+</section>
+
+<section class="pane" id="p5" aria-label="제출 완료">
+  <div class="receipt">
+    <div class="hd">
+      <p class="kicker" style="margin:0">제출 완료</p>
+      <div class="t">소중한 의견 감사합니다</div>
+      <p class="rno" id="d_no">—</p>
+    </div>
+    <div class="bd">
+      <p style="margin:0">남겨 주신 의견은 담당자가 확인한 뒤 서비스 개선에 반영하겠습니다. 수신자 변경 요청을 남기셨다면 확인 후 연락드리겠습니다.</p>
+      <p class="hint" style="margin-top:14px">문의 02-2088-1454 · korea@monnit.com</p>
+      <p class="err" id="d_warn" hidden style="margin-top:14px"></p>
+    </div>
+  </div>
+</section>

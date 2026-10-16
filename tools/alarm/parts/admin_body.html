@@ -1,0 +1,167 @@
+<body class="admin">
+<div class="topbar">
+  <div class="inner">
+    <div class="brand">
+      <a class="mk" href="/" style="text-decoration:none">MONNIT KOREA</a>
+      <span class="nm">알리미 계약 관리 <small class="badge">내부용</small></span>
+    </div>
+    <span class="spacer" style="flex:1"></span>
+    <button type="button" class="btn quiet sm" id="logout" hidden>로그아웃</button>
+  </div>
+</div>
+
+<nav class="steps" id="tabs" aria-label="관리 메뉴" hidden>
+  <ol>
+    <li><button class="steptab" data-tab="new" aria-current="true">계약 링크 만들기</button></li>
+    <li><button class="steptab" data-tab="contracts">계약 현황</button></li>
+    <li><button class="steptab" data-tab="clients">기존 고객 · 설문/SLA</button></li>
+    <li><button class="steptab" data-tab="surveys">설문 응답</button></li>
+  </ol>
+</nav>
+
+<main class="sheet wide">
+
+<!-- 로그인 -->
+<section class="pane on" id="t_login">
+  <p class="kicker">관리자 확인</p>
+  <h1>관리 키를 입력해 주십시오</h1>
+  <p class="lede">Netlify 환경변수 <code>ALARM_ADMIN_KEY</code>에 설정한 값입니다. 이 브라우저 탭을 닫으면 다시 입력해야 합니다.</p>
+  <div class="grid" style="max-width:460px">
+    <div class="f wide"><label for="adminKey">관리 키</label><input type="password" id="adminKey" autocomplete="current-password"></div>
+  </div>
+  <p class="err" id="loginErr" hidden style="margin-top:12px"></p>
+  <div class="btnrow"><button type="button" class="btn" id="loginBtn">확인</button></div>
+</section>
+
+<!-- 1. 계약 링크 만들기 -->
+<section class="pane" id="t_new">
+  <p class="kicker">신규 계약 · 고객에게 보낼 계약 링크</p>
+  <h1>계약 링크 만들기</h1>
+  <p class="lede">조건을 입력하면 금액이 자동 계산됩니다. 링크를 만들면 조건이 서버에 저장되고, 고객 화면에서는 수정할 수 없습니다.</p>
+
+  <div class="cols">
+    <div>
+      <fieldset>
+        <legend>고객 (관리용 메모)</legend>
+        <div class="grid">
+          <div class="f"><label for="n_customer">고객사</label><input type="text" id="n_customer" placeholder="○○빌딩관리"></div>
+          <div class="f"><label for="n_contact">담당자 · 연락처</label><input type="text" id="n_contact" placeholder="홍길동 010-0000-0000"></div>
+          <div class="f wide"><label for="n_note">내부 메모</label><input type="text" id="n_note" placeholder="고객 화면에는 보이지 않습니다"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>납품 및 요금</legend>
+        <div class="grid">
+          <div class="f wide"><label for="n_sol">납품 솔루션</label>
+            <input type="text" id="n_sol" list="solList" value="화재 알리미">
+            <datalist id="solList"><option value="화재 알리미"><option value="물감지 알리미"><option value="정전 알리미"><option value="경보 알리미"><option value="커스텀 알리미"><option value="화재·물감지 알리미"></datalist>
+          </div>
+          <div class="f"><label for="n_unit">1개소 월 이용료 (원, 부가세 별도)</label><input type="number" id="n_unit" value="30000" min="0" step="1000"></div>
+          <div class="f"><label for="n_qty">설치 개소 수</label>
+            <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
+          </div>
+          <div class="f"><label for="n_dtype">할인</label>
+            <select id="n_dtype"><option value="none">할인 없음</option><option value="percent">할인율 (%)</option><option value="amount">월 할인액 (원)</option></select>
+          </div>
+          <div class="f"><label for="n_dval" id="n_dvalLab">할인 값</label><input type="number" id="n_dval" value="0" min="0" step="1" disabled></div>
+          <div class="f wide"><label for="n_dnote">할인 사유 (고객 화면에 표시)</label><input type="text" id="n_dnote" placeholder="예: 다수 개소 도입 할인" disabled></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>기간 및 결제</legend>
+        <div class="grid">
+          <div class="f"><label for="n_from">계약 시작일</label><input type="date" id="n_from"></div>
+          <div class="f"><label for="n_years">의무 이용기간</label>
+            <select id="n_years"><option value="3">3년</option><option value="2">2년</option><option value="1">1년</option><option value="0">직접 입력</option></select></div>
+          <div class="f"><label for="n_to">계약 종료일</label><input type="date" id="n_to"></div>
+          <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 25일"></div>
+          <div class="f wide"><label for="n_bank">입금 계좌</label><input type="text" id="n_bank" value="하나은행 375-910030-09904 (예금주: 주식회사 모넷코리아)"></div>
+          <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea></div>
+        </div>
+      </fieldset>
+    </div>
+
+    <aside class="sidecard">
+      <p class="kicker" style="margin:0 0 10px">고객에게 보이는 금액</p>
+      <div class="price" id="n_price"></div>
+      <p class="hint" id="n_vat"></p>
+      <p class="err" id="n_err" hidden></p>
+      <button type="button" class="btn" id="n_make" style="width:100%;margin-top:6px">계약 링크 만들기</button>
+      <div id="n_out" hidden>
+        <p class="kicker" style="margin:18px 0 6px">고객 전용 링크</p>
+        <div class="linkbox" id="n_link"></div>
+        <div class="row2">
+          <button type="button" class="btn quiet sm" id="n_copy">링크 복사</button>
+          <button type="button" class="btn quiet sm" id="n_copyMsg">안내 문구 복사</button>
+          <a class="btn quiet sm" id="n_open" target="_blank" rel="noopener">고객 화면 보기</a>
+        </div>
+        <button type="button" class="btn ghost sm" id="n_reset" style="margin-top:12px">새 계약 링크 만들기</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- 2. 계약 현황 -->
+<section class="pane" id="t_contracts">
+  <p class="kicker">계약 링크와 체결 현황</p>
+  <h1>계약 현황</h1>
+  <div class="toolbar">
+    <select id="c_filter"><option value="all">전체 링크</option><option value="open">서명 대기</option><option value="signed">체결 완료</option><option value="void">무효</option></select>
+    <span class="spacer"></span>
+    <button type="button" class="btn quiet sm" data-reload="contracts">새로고침</button>
+  </div>
+  <div class="tablewrap"><table class="list" id="c_table"></table></div>
+</section>
+
+<!-- 3. 기존 고객 -->
+<section class="pane" id="t_clients">
+  <p class="kicker">기존 고객 · 만족도 조사와 SLA 동의 링크</p>
+  <h1>기존 고객 설문 · SLA</h1>
+  <p class="lede">고객을 등록하면 설문 링크와 SLA 동의 링크가 함께 만들어집니다. 개별 메일 문구도 자동으로 채워집니다.</p>
+  <fieldset>
+    <legend>고객 등록</legend>
+    <div class="grid">
+      <div class="f"><label for="k_name">고객사 <span class="req">*</span></label><input type="text" id="k_name"></div>
+      <div class="f"><label for="k_mgr">담당자 성명</label><input type="text" id="k_mgr"></div>
+      <div class="f"><label for="k_email">담당자 이메일</label><input type="email" id="k_email"></div>
+      <div class="f wide"><label for="k_site">설치 현장</label><input type="text" id="k_site"></div>
+      <div class="f"><label for="k_since">이용 시작일</label><input type="date" id="k_since"></div>
+      <div class="f"><label for="k_ref">계약 번호</label><input type="text" id="k_ref"></div>
+      <div class="f"><label for="k_type">계약 구분</label><select id="k_type"><option value="B2B">사업자 (B2B)</option><option value="B2C">소비자 (B2C)</option></select></div>
+    </div>
+    <p class="err" id="k_err" hidden style="margin-top:12px"></p>
+    <div class="btnrow" style="margin-top:16px"><span class="spacer"></span><button type="button" class="btn" id="k_make">등록하고 링크 만들기</button></div>
+  </fieldset>
+  <div class="note" id="k_out" hidden>
+    <span class="tag">메일 문구 (복사해서 개별 발송)</span>
+    <textarea id="k_mail" rows="14" style="font-size:13px;margin-top:6px"></textarea>
+    <div class="row2" style="margin-top:8px"><button type="button" class="btn quiet sm" id="k_copy">메일 문구 복사</button></div>
+  </div>
+  <div class="toolbar"><span class="hint">설문·SLA 진행 현황</span><span class="spacer"></span><button type="button" class="btn quiet sm" data-reload="clients">새로고침</button></div>
+  <div class="tablewrap"><table class="list" id="k_table"></table></div>
+</section>
+
+<!-- 4. 설문 응답 -->
+<section class="pane" id="t_surveys">
+  <p class="kicker">만족도 조사 결과</p>
+  <h1>설문 응답</h1>
+  <div class="kpis" id="s_kpis"></div>
+  <div class="toolbar"><span class="spacer"></span><button type="button" class="btn quiet sm" id="s_csv">CSV 내려받기</button><button type="button" class="btn quiet sm" data-reload="surveys">새로고침</button></div>
+  <div class="tablewrap"><table class="list" id="s_table"></table></div>
+</section>
+
+<!-- 상세 보기 -->
+<div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
+  <div class="backdrop" data-dclose></div>
+  <div class="msheet">
+    <div class="mhd">
+      <div><p class="kicker" style="margin:0 0 2px" id="dkick">상세</p><h2 id="dtitle">—</h2></div>
+      <span class="spacer"></span>
+      <button type="button" class="btn quiet" id="dprint">인쇄</button>
+      <button type="button" class="btn quiet" data-dclose>닫기</button>
+    </div>
+    <div class="mbody" id="dbody" tabindex="0"></div>
+  </div>
+</div>

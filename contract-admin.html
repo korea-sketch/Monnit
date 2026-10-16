@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="description" content="모넷코리아 알리미 계약 관리(내부용)">
+<title>알리미 계약 관리 | 모넷코리아</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#F4F7F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#13171A" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+KR:wght@500;600&display=swap">
+<style>
+:root{
+  --paper:#F4F7F4; --surface:#FFFFFF; --surface-2:#E9EFEA; --field:#FFFFFF;
+  --rule:#D5DED7; --rule-strong:#AFBCB2;
+  --ink:#0F1A16; --muted:#41524B; --faint:#6E7F77;
+  --accent:#0B6B4F; --accent-ink:#FFFFFF; --accent-soft:rgba(11,107,79,.10);
+  --caution:#8E5307; --caution-soft:#FAF0DF;
+  --critical:#9E3626; --critical-soft:#FAEAE8;
+  --ok:#0B6B4F; --ok-soft:#E2EFE9;
+  --seal:#C0392B;
+  --serif:"Noto Serif KR",Georgia,"Apple SD Gothic Neo",serif;
+  --sans:"IBM Plex Sans KR",system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#13161A; --surface:#1A1E24; --surface-2:#232830; --field:#1E232A;
+    --rule:#2C323B; --rule-strong:#454D58;
+    --ink:#E8EBEF; --muted:#9DA5B0; --faint:#7C8490;
+    --accent:#6FC4A0; --accent-ink:#08150F; --accent-soft:rgba(111,196,160,.13);
+    --caution:#D9A45F; --caution-soft:#2B2418;
+    --critical:#E58D84; --critical-soft:#2D1C1A;
+    --ok:#77C5A0; --ok-soft:#16281F;
+    --seal:#E07A6C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#13161A; --surface:#1A1E24; --surface-2:#232830; --field:#1E232A;
+  --rule:#2C323B; --rule-strong:#454D58;
+  --ink:#E8EBEF; --muted:#9DA5B0; --faint:#7C8490;
+  --accent:#6FC4A0; --accent-ink:#08150F; --accent-soft:rgba(111,196,160,.13);
+  --caution:#D9A45F; --caution-soft:#2B2418;
+  --critical:#E58D84; --critical-soft:#2D1C1A;
+  --ok:#77C5A0; --ok-soft:#16281F;
+  --seal:#E07A6C;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:15.5px; line-height:1.8;
+  letter-spacing:-.005em; word-break:keep-all; overflow-wrap:anywhere;
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.topbar{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+.topbar .inner{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;flex:1;min-width:200px}
+.brand .mk{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.14em;color:var(--seal)}
+.brand .nm{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:-.01em}
+
+.steps{max-width:1080px;margin:0 auto;padding:0 24px;overflow-x:auto;border-bottom:1px solid var(--rule)}
+.steps ol{display:flex;margin:0;padding:0;min-width:max-content;list-style:none}
+.steptab{display:flex;align-items:center;gap:9px;padding:13px 18px 12px;font-size:13.5px;color:var(--faint);
+  border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.steptab .n{font-family:var(--mono);font-size:11px;font-weight:600;width:20px;height:20px;
+  display:grid;place-items:center;border:1px solid var(--rule-strong);color:var(--faint);flex:none}
+.steptab[aria-current="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:500}
+.steptab[aria-current="true"] .n{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.steptab.done .n{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.steptab.done .n::after{content:"✓"}
+.steptab.done .n span{display:none}
+
+.sheet{max-width:820px;margin:0 auto;padding:34px 24px 120px}
+.pane{display:none}
+.pane.on{display:block}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(23px,3.6vw,30px);line-height:1.4;margin:0 0 8px;text-wrap:balance;letter-spacing:-.02em}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.lede{color:var(--muted);font-size:14.5px;margin:0 0 26px;max-width:62ch}
+
+.banner{border-left:2px solid var(--rule-strong);background:var(--surface-2);padding:14px 17px;
+  margin:0 0 28px;font-size:14px;line-height:1.75;color:var(--muted)}
+.banner strong{color:var(--ink);font-weight:600}
+.banner .ref{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;
+  color:var(--accent);margin-left:2px}
+.note{border-left:3px solid var(--caution);background:var(--caution-soft);padding:13px 17px;margin:18px 0;font-size:13.5px;line-height:1.7}
+.note .tag{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--caution);margin-bottom:4px}
+
+fieldset{border:none;margin:0 0 30px;padding:0}
+legend{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  padding:0 0 10px;width:100%;border-bottom:1px solid var(--rule);margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px 20px}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f.wide{grid-column:1/-1}
+label,.flab{font-size:13px;color:var(--muted);font-weight:500}
+.req{color:var(--critical);font-weight:700}
+input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],select,textarea{
+  font:400 15px/1.5 var(--sans);color:var(--ink);background:var(--field);
+  border:1px solid var(--rule-strong);padding:10px 12px;width:100%;min-width:0;border-radius:2px}
+input:disabled,select:disabled,textarea:disabled{background:var(--surface);color:var(--muted)}
+textarea{resize:vertical;min-height:120px;line-height:1.7}
+.hint{font-size:12.5px;color:var(--faint);line-height:1.65}
+
+.btn{font:500 14px/1 var(--sans);padding:12px 20px;cursor:pointer;border-radius:2px;
+  border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:none;color:var(--accent)}
+.btn.quiet{background:none;border-color:var(--rule-strong);color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:28px;padding-top:22px;border-top:1px solid var(--rule)}
+.btnrow .spacer{flex:1}
+.err{color:var(--critical);font-size:13.5px;margin:0}
+
+.terms{border:1px solid var(--rule);background:var(--surface);margin:0 0 8px}
+.terms dl{margin:0;display:grid;grid-template-columns:minmax(96px,auto) 1fr}
+.terms dt{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  padding:11px 16px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.terms dd{margin:0;padding:11px 16px;border-bottom:1px solid var(--rule);font-size:14px}
+.terms dt:last-of-type,.terms dd:last-of-type{border-bottom:none}
+.money{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+
+.doc{border:1px solid var(--rule);background:var(--surface);padding:22px 24px;margin:0 0 22px}
+.doc h3{font-family:var(--serif);font-size:16px;font-weight:600;margin:0 0 12px}
+.doc p{margin:0}
+ul.plain{margin:8px 0 0;padding-left:19px}
+ul.plain li{margin:0 0 5px}
+
+.article{border-top:1px solid var(--rule);padding:20px 0 4px;scroll-margin-top:120px}
+.article h3{font-family:var(--serif);font-weight:600;font-size:17px;line-height:1.5;margin:0 0 10px;
+  display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+.article h3 .no{font-family:var(--mono);font-weight:600;font-size:11.5px;letter-spacing:.06em;color:var(--accent);flex:none;padding-top:3px}
+.article .sub{margin:0 0 12px 54px;font-size:12.5px;color:var(--faint);line-height:1.65}
+ol.cl{list-style:none;margin:0;padding:0;counter-reset:cl}
+ol.cl>li{counter-increment:cl;position:relative;padding-left:54px;margin:0 0 10px;font-size:14.5px}
+ol.cl>li::before{content:"(" counter(cl) ")";position:absolute;left:0;top:0;width:42px;text-align:right;
+  font-family:var(--mono);font-size:11.5px;color:var(--faint);padding-top:4px;font-variant-numeric:tabular-nums}
+@media (max-width:600px){
+  ol.cl>li{padding-left:30px}ol.cl>li::before{width:24px;text-align:left}
+  .article h3{flex-direction:column;gap:2px}.article .sub{margin-left:0}
+}
+mark{background:var(--accent-soft);color:inherit;padding:1px 3px;font-weight:500}
+.warn{color:var(--critical);font-weight:700}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:13.5px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{background:var(--surface-2);font-weight:500;font-size:11.5px;letter-spacing:.04em;color:var(--muted);
+  text-transform:uppercase;font-family:var(--mono)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.checks{display:flex;flex-direction:column;border:1px solid var(--rule);background:var(--surface)}
+.chk{display:flex;gap:13px;padding:15px 17px;align-items:flex-start;border-bottom:1px solid var(--rule);cursor:pointer}
+.chk:last-child{border-bottom:none}
+.chk input{margin:5px 0 0;width:17px;height:17px;flex:none;accent-color:var(--accent)}
+.chk .tx{font-size:14px;line-height:1.65}
+.chk .tx em{display:block;font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+.chk.on{background:var(--accent-soft)}
+.allcheck{display:flex;gap:13px;padding:14px 17px;align-items:center;border:1px solid var(--rule-strong);
+  background:var(--surface-2);margin-bottom:14px;cursor:pointer;font-weight:500;font-size:14.5px;color:var(--ink)}
+.allcheck input{width:18px;height:18px;accent-color:var(--accent)}
+
+.upload{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px dashed var(--rule-strong);
+  background:var(--surface);padding:14px 16px}
+.upload.drag{border-color:var(--accent);background:var(--accent-soft)}
+.licprev{margin:12px 0 0;border:1px solid var(--rule);background:var(--surface);padding:12px}
+.licprev img{display:block;max-width:100%;max-height:300px;background:#fff;border:1px solid var(--rule)}
+.licprev figcaption{display:flex;gap:12px;align-items:center;justify-content:space-between;
+  margin-top:10px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.modal{position:fixed;inset:0;z-index:60}
+.modal[hidden]{display:none}
+.modal .backdrop{position:absolute;inset:0;background:rgba(15,26,22,.55)}
+.msheet{position:absolute;inset:20px;max-width:860px;margin:0 auto;background:var(--paper);
+  border:1px solid var(--rule-strong);display:flex;flex-direction:column;
+  box-shadow:0 24px 60px rgba(15,26,22,.28)}
+.mhd{display:flex;align-items:flex-start;gap:14px;padding:16px 22px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.mhd h2{font-family:var(--serif);font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
+.mhd .spacer,.mfoot .spacer{flex:1}
+.mbody{overflow-y:auto;padding:20px 26px 44px;flex:1;-webkit-overflow-scrolling:touch}
+.mbody .article:first-of-type{border-top:none}
+.mfoot{padding:14px 22px 16px;border-top:1px solid var(--rule);background:var(--surface);
+  display:flex;flex-direction:column;gap:12px}
+.magree{display:flex;gap:11px;align-items:flex-start;cursor:pointer;font-size:13.5px;line-height:1.6}
+.magree input{margin:3px 0 0;width:17px;height:17px;flex:none;accent-color:var(--accent)}
+.mfootbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media (max-width:640px){.mfoot{padding:12px 18px 14px}.mfootbar .btn{flex:1}}
+@media (max-width:640px){.msheet{inset:0}.mbody{padding:16px 18px 40px}}
+.slabtn{display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  border:1px solid var(--rule-strong);background:var(--surface);padding:16px 18px;margin:26px 0 0}
+.slabtn .tx{flex:1;min-width:200px;font-size:13.5px;color:var(--muted);line-height:1.65}
+.slabtn .tx b{color:var(--ink)}
+.slaseen{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ok);
+  border:1px solid var(--ok);padding:6px 11px;white-space:nowrap}
+.slaseen b{display:block;font-size:10.5px;letter-spacing:.04em;font-weight:400;color:var(--muted);margin-top:2px}
+.signwrap{border:1px solid var(--rule-strong);background:var(--field);position:relative}
+canvas#sigpad{display:block;width:100%;height:190px;touch-action:none;cursor:crosshair}
+.sigph{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:var(--faint);font-size:13.5px}
+.sigbar{display:flex;gap:12px;align-items:center;margin-top:9px;flex-wrap:wrap}
+
+.receipt{border:1px solid var(--rule-strong);background:var(--surface)}
+.receipt .hd{background:var(--ok-soft);border-bottom:1px solid var(--rule);padding:20px 24px}
+.receipt .hd .t{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ok)}
+.receipt .bd{padding:20px 24px}
+.rno{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.04em;margin:6px 0 0}
+
+.adminlist{display:flex;flex-direction:column;gap:12px}
+.rec{border:1px solid var(--rule);background:var(--surface);padding:16px 18px}
+.rec .top{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.rec .id{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+.rec .co{font-weight:700;font-size:15px}
+.rec .dt{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-left:auto}
+.rec dl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;font-size:13.5px}
+.rec dt{color:var(--muted);font-size:12px}
+.rec dd{margin:0}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;padding:3px 8px;border:1px solid currentColor}
+.pill.b2b{color:var(--accent)}
+.pill.b2c{color:var(--caution)}
+.empty{border:1px dashed var(--rule-strong);padding:34px;text-align:center;color:var(--faint);font-size:14px}
+.sigthumb{max-width:220px;margin-top:12px;background:#fff;border:1px solid var(--rule);padding:4px}
+
+
+footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid var(--rule);
+  font-size:12.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:6px 18px}
+
+/* ── 모바일 ─────────────────────────────────────────────────────
+   · 입력칸 16px — 이보다 작으면 iOS Safari 가 포커스할 때 화면을 확대한다
+   · 누르는 것은 최소 44px — 손가락으로 정확히 눌리는 크기
+   · 팝업 스크롤이 뒤 페이지로 새지 않게 overscroll-behavior 로 가둔다
+   · 아이폰 홈바에 버튼이 가리지 않게 safe-area 만큼 아래를 띄운다 */
+[hidden]{display:none!important}
+.mbody{overscroll-behavior:contain}
+.mfoot{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+@media (max-width:640px){
+  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],
+  select,textarea{font-size:16px}
+  .btn{min-height:44px}
+  .chk input,.allcheck input,.magree input{width:20px;height:20px}
+  .chk{padding:16px 15px;gap:12px}
+  .allcheck{padding:15px 15px}
+  .slabtn{padding:15px 16px}
+  .slabtn .btn{width:100%}
+  .sheet{padding:24px 16px 96px}
+  .topbar .inner{padding:12px 16px}
+  .steps{padding:0 16px}
+  footer{padding:24px 16px 52px}
+  canvas#sigpad{height:210px}
+  .btnrow .btn{flex:1;min-width:118px}
+  .terms dl{grid-template-columns:minmax(84px,auto) 1fr}
+  .terms dt,.terms dd{padding:10px 13px}
+}
+@media (max-width:380px){
+  .terms dl{grid-template-columns:1fr}
+  .terms dt{border-bottom:none;padding-bottom:2px}
+}
+
+@media print{
+  .topbar,.steps,.btnrow,.modal,.slabtn{display:none!important}
+  body{background:#fff;color:#000;font-size:10.5pt}
+  .sheet{max-width:none;padding:0}
+  .article,.doc,.receipt{break-inside:avoid;background:#fff}
+}
+
+/* ── 약관: 작은 글씨 · 한 번에 스크롤 ── */
+.mbody.compact{padding:14px 22px 30px;font-size:12.5px;line-height:1.7}
+.compact .banner{font-size:12.5px;line-height:1.65;padding:10px 13px;margin:0 0 14px}
+.compact .article{padding:11px 0 2px;scroll-margin-top:60px}
+.compact .article h3{font-size:13.5px;margin:0 0 5px;gap:8px}
+.compact .article h3 .no{font-size:11px}
+.compact .article .sub{font-size:12px;margin:0 0 6px}
+.compact ol.cl>li{font-size:12.5px;line-height:1.7;padding-left:30px;margin:0 0 4px}
+.compact ol.cl>li::before{width:24px;font-size:11px}
+.compact ul.plain{margin:4px 0 0;padding-left:16px}
+.compact ul.plain li{margin:0 0 2px}
+.compact table{font-size:12px;min-width:460px}
+.compact th,.compact td{padding:6px 10px}
+.compact .tablewrap{margin:8px 0}
+.compact .b2c,.compact .note{font-size:12px;padding:8px 12px;margin:8px 0}
+.compact mark{padding:0 2px}
+
+/* ── 계약 조건 금액 ── */
+.price{border:1px solid var(--rule);background:var(--surface);margin:0 0 22px}
+.price .row{display:flex;justify-content:space-between;gap:14px;padding:11px 17px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.price .row:last-child{border-bottom:none}
+.price .row span:first-child{color:var(--muted)}
+.price .row.disc span:last-child{color:var(--critical)}
+.price .row.total{background:var(--ok-soft);font-weight:600}
+.price .row.total span:last-child{font-size:19px;color:var(--ok)}
+.state{border:1px solid var(--rule-strong);background:var(--surface);padding:28px 24px;text-align:center}
+.state h2{font-family:var(--serif);font-size:20px;margin:0 0 8px}
+
+/* ── 별점 ── */
+.qrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.qrow:last-child{border-bottom:none}
+.qlab{font-size:14.5px;line-height:1.6;color:var(--ink);margin:0}
+.stars{display:flex;gap:2px;direction:ltr}
+.stars button{border:none;background:none;padding:2px 3px;cursor:pointer;font-size:30px;line-height:1;color:var(--rule-strong);transition:transform .08s}
+.stars button.on{color:#E2A400}
+.stars button:hover{transform:scale(1.08)}
+.stars .sv{font:500 12px/1 var(--mono);color:var(--faint);align-self:center;margin-left:8px;min-width:44px}
+.qrow.miss .qlab{color:var(--critical)}
+.counter{font:400 12px/1 var(--mono);color:var(--faint);text-align:right;margin-top:4px}
+.counter.bad{color:var(--critical)}
+.opts{display:flex;gap:10px;flex-wrap:wrap}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:11px 15px;border:1px solid var(--rule-strong);background:var(--field);cursor:pointer;font-size:14px;line-height:1.55}
+.opt input{margin:3px 0 0;accent-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opts.big{flex-direction:column}
+.opts.big .opt{padding:15px 17px}
+.opts.big small{color:var(--muted);font-size:13px}
+@media (max-width:640px){.qrow{grid-template-columns:1fr}.stars button{font-size:34px}}
+
+.sheet.wide{max-width:1080px}
+.badge{font:500 10.5px/1 var(--mono);letter-spacing:.06em;padding:3px 6px;border:1px solid var(--caution);color:var(--caution);margin-left:6px;vertical-align:2px}
+.btn.sm{padding:8px 13px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center}
+.admin .steptab{padding:13px 16px 12px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:30px;align-items:start}
+.sidecard{position:sticky;top:120px;border:1px solid var(--rule-strong);background:var(--surface);padding:18px}
+.sidecard .price{margin-bottom:8px}
+.stepper{display:flex;gap:6px}
+.stepper .btn{padding:0;width:44px;font-size:18px;justify-content:center}
+.stepper input{text-align:center}
+.linkbox{font:400 12px/1.5 var(--mono);word-break:break-all;background:var(--surface-2);border:1px solid var(--rule);padding:9px 11px}
+.row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.toolbar{display:flex;gap:8px;align-items:center;margin:18px 0 8px;flex-wrap:wrap}
+.toolbar .spacer{flex:1}
+.toolbar select{width:auto}
+table.list{min-width:860px;font-size:13px}
+table.list th{font:500 11px/1.4 var(--mono);letter-spacing:.05em;color:var(--muted);background:var(--surface-2);white-space:nowrap}
+table.list td{vertical-align:top}
+table.list td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+table.list td .btn{padding:5px 9px;font-size:12px}
+table.list .muted{color:var(--faint)}
+.pill{display:inline-block;font:500 11px/1 var(--mono);padding:4px 7px;border:1px solid var(--rule-strong);white-space:nowrap}
+.pill.open{color:var(--caution);border-color:var(--caution)}
+.pill.signed,.pill.agree{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+.pill.void,.pill.not-now{color:var(--faint)}
+.pill.call{color:var(--critical);border-color:var(--critical)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 6px}
+.kpi{border:1px solid var(--rule);background:var(--surface);padding:12px 14px}
+.kpi b{display:block;font:600 22px/1.2 var(--mono);color:var(--ink)}
+.kpi span{font-size:12px;color:var(--muted)}
+.stars-s{color:#E2A400;letter-spacing:1px;white-space:nowrap}
+.dgrid{display:grid;grid-template-columns:minmax(110px,auto) 1fr;border:1px solid var(--rule);margin:0 0 16px;font-size:13.5px}
+.dgrid dt,.dgrid dd{margin:0;padding:8px 12px;border-bottom:1px solid var(--rule)}
+.dgrid dt{background:var(--surface-2);color:var(--muted);font-size:12px}
+.dimg{max-width:100%;border:1px solid var(--rule);background:#fff;display:block;margin:6px 0 14px}
+#dbody h3{font-family:var(--serif);font-size:15px;margin:18px 0 8px}
+@media (max-width:860px){.cols{grid-template-columns:1fr}.sidecard{position:static}}
+@media print{.admin .topbar,.admin .steps,.admin .pane,.admin footer{display:none!important}
+  .admin #dmodal{display:block!important;position:static}.admin #dmodal .backdrop,.admin #dmodal .mhd .btn{display:none}
+  .admin .msheet{position:static;box-shadow:none;border:none}.admin .mbody{overflow:visible}}
+</style>
+</head>
+<body class="admin">
+<div class="topbar">
+  <div class="inner">
+    <div class="brand">
+      <a class="mk" href="/" style="text-decoration:none">MONNIT KOREA</a>
+      <span class="nm">알리미 계약 관리 <small class="badge">내부용</small></span>
+    </div>
+    <span class="spacer" style="flex:1"></span>
+    <button type="button" class="btn quiet sm" id="logout" hidden>로그아웃</button>
+  </div>
+</div>
+
+<nav class="steps" id="tabs" aria-label="관리 메뉴" hidden>
+  <ol>
+    <li><button class="steptab" data-tab="new" aria-current="true">계약 링크 만들기</button></li>
+    <li><button class="steptab" data-tab="contracts">계약 현황</button></li>
+    <li><button class="steptab" data-tab="clients">기존 고객 · 설문/SLA</button></li>
+    <li><button class="steptab" data-tab="surveys">설문 응답</button></li>
+  </ol>
+</nav>
+
+<main class="sheet wide">
+
+<!-- 로그인 -->
+<section class="pane on" id="t_login">
+  <p class="kicker">관리자 확인</p>
+  <h1>관리 키를 입력해 주십시오</h1>
+  <p class="lede">Netlify 환경변수 <code>ALARM_ADMIN_KEY</code>에 설정한 값입니다. 이 브라우저 탭을 닫으면 다시 입력해야 합니다.</p>
+  <div class="grid" style="max-width:460px">
+    <div class="f wide"><label for="adminKey">관리 키</label><input type="password" id="adminKey" autocomplete="current-password"></div>
+  </div>
+  <p class="err" id="loginErr" hidden style="margin-top:12px"></p>
+  <div class="btnrow"><button type="button" class="btn" id="loginBtn">확인</button></div>
+</section>
+
+<!-- 1. 계약 링크 만들기 -->
+<section class="pane" id="t_new">
+  <p class="kicker">신규 계약 · 고객에게 보낼 계약 링크</p>
+  <h1>계약 링크 만들기</h1>
+  <p class="lede">조건을 입력하면 금액이 자동 계산됩니다. 링크를 만들면 조건이 서버에 저장되고, 고객 화면에서는 수정할 수 없습니다.</p>
+
+  <div class="cols">
+    <div>
+      <fieldset>
+        <legend>고객 (관리용 메모)</legend>
+        <div class="grid">
+          <div class="f"><label for="n_customer">고객사</label><input type="text" id="n_customer" placeholder="○○빌딩관리"></div>
+          <div class="f"><label for="n_contact">담당자 · 연락처</label><input type="text" id="n_contact" placeholder="홍길동 010-0000-0000"></div>
+          <div class="f wide"><label for="n_note">내부 메모</label><input type="text" id="n_note" placeholder="고객 화면에는 보이지 않습니다"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>납품 및 요금</legend>
+        <div class="grid">
+          <div class="f wide"><label for="n_sol">납품 솔루션</label>
+            <input type="text" id="n_sol" list="solList" value="화재 알리미">
+            <datalist id="solList"><option value="화재 알리미"><option value="물감지 알리미"><option value="정전 알리미"><option value="경보 알리미"><option value="커스텀 알리미"><option value="화재·물감지 알리미"></datalist>
+          </div>
+          <div class="f"><label for="n_unit">1개소 월 이용료 (원, 부가세 별도)</label><input type="number" id="n_unit" value="30000" min="0" step="1000"></div>
+          <div class="f"><label for="n_qty">설치 개소 수</label>
+            <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
+          </div>
+          <div class="f"><label for="n_dtype">할인</label>
+            <select id="n_dtype"><option value="none">할인 없음</option><option value="percent">할인율 (%)</option><option value="amount">월 할인액 (원)</option></select>
+          </div>
+          <div class="f"><label for="n_dval" id="n_dvalLab">할인 값</label><input type="number" id="n_dval" value="0" min="0" step="1" disabled></div>
+          <div class="f wide"><label for="n_dnote">할인 사유 (고객 화면에 표시)</label><input type="text" id="n_dnote" placeholder="예: 다수 개소 도입 할인" disabled></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>기간 및 결제</legend>
+        <div class="grid">
+          <div class="f"><label for="n_from">계약 시작일</label><input type="date" id="n_from"></div>
+          <div class="f"><label for="n_years">의무 이용기간</label>
+            <select id="n_years"><option value="3">3년</option><option value="2">2년</option><option value="1">1년</option><option value="0">직접 입력</option></select></div>
+          <div class="f"><label for="n_to">계약 종료일</label><input type="date" id="n_to"></div>
+          <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 25일"></div>
+          <div class="f wide"><label for="n_bank">입금 계좌</label><input type="text" id="n_bank" value="하나은행 375-910030-09904 (예금주: 주식회사 모넷코리아)"></div>
+          <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea></div>
+        </div>
+      </fieldset>
+    </div>
+
+    <aside class="sidecard">
+      <p class="kicker" style="margin:0 0 10px">고객에게 보이는 금액</p>
+      <div class="price" id="n_price"></div>
+      <p class="hint" id="n_vat"></p>
+      <p class="err" id="n_err" hidden></p>
+      <button type="button" class="btn" id="n_make" style="width:100%;margin-top:6px">계약 링크 만들기</button>
+      <div id="n_out" hidden>
+        <p class="kicker" style="margin:18px 0 6px">고객 전용 링크</p>
+        <div class="linkbox" id="n_link"></div>
+        <div class="row2">
+          <button type="button" class="btn quiet sm" id="n_copy">링크 복사</button>
+          <button type="button" class="btn quiet sm" id="n_copyMsg">안내 문구 복사</button>
+          <a class="btn quiet sm" id="n_open" target="_blank" rel="noopener">고객 화면 보기</a>
+        </div>
+        <button type="button" class="btn ghost sm" id="n_reset" style="margin-top:12px">새 계약 링크 만들기</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- 2. 계약 현황 -->
+<section class="pane" id="t_contracts">
+  <p class="kicker">계약 링크와 체결 현황</p>
+  <h1>계약 현황</h1>
+  <div class="toolbar">
+    <select id="c_filter"><option value="all">전체 링크</option><option value="open">서명 대기</option><option value="signed">체결 완료</option><option value="void">무효</option></select>
+    <span class="spacer"></span>
+    <button type="button" class="btn quiet sm" data-reload="contracts">새로고침</button>
+  </div>
+  <div class="tablewrap"><table class="list" id="c_table"></table></div>
+</section>
+
+<!-- 3. 기존 고객 -->
+<section class="pane" id="t_clients">
+  <p class="kicker">기존 고객 · 만족도 조사와 SLA 동의 링크</p>
+  <h1>기존 고객 설문 · SLA</h1>
+  <p class="lede">고객을 등록하면 설문 링크와 SLA 동의 링크가 함께 만들어집니다. 개별 메일 문구도 자동으로 채워집니다.</p>
+  <fieldset>
+    <legend>고객 등록</legend>
+    <div class="grid">
+      <div class="f"><label for="k_name">고객사 <span class="req">*</span></label><input type="text" id="k_name"></div>
+      <div class="f"><label for="k_mgr">담당자 성명</label><input type="text" id="k_mgr"></div>
+      <div class="f"><label for="k_email">담당자 이메일</label><input type="email" id="k_email"></div>
+      <div class="f wide"><label for="k_site">설치 현장</label><input type="text" id="k_site"></div>
+      <div class="f"><label for="k_since">이용 시작일</label><input type="date" id="k_since"></div>
+      <div class="f"><label for="k_ref">계약 번호</label><input type="text" id="k_ref"></div>
+      <div class="f"><label for="k_type">계약 구분</label><select id="k_type"><option value="B2B">사업자 (B2B)</option><option value="B2C">소비자 (B2C)</option></select></div>
+    </div>
+    <p class="err" id="k_err" hidden style="margin-top:12px"></p>
+    <div class="btnrow" style="margin-top:16px"><span class="spacer"></span><button type="button" class="btn" id="k_make">등록하고 링크 만들기</button></div>
+  </fieldset>
+  <div class="note" id="k_out" hidden>
+    <span class="tag">메일 문구 (복사해서 개별 발송)</span>
+    <textarea id="k_mail" rows="14" style="font-size:13px;margin-top:6px"></textarea>
+    <div class="row2" style="margin-top:8px"><button type="button" class="btn quiet sm" id="k_copy">메일 문구 복사</button></div>
+  </div>
+  <div class="toolbar"><span class="hint">설문·SLA 진행 현황</span><span class="spacer"></span><button type="button" class="btn quiet sm" data-reload="clients">새로고침</button></div>
+  <div class="tablewrap"><table class="list" id="k_table"></table></div>
+</section>
+
+<!-- 4. 설문 응답 -->
+<section class="pane" id="t_surveys">
+  <p class="kicker">만족도 조사 결과</p>
+  <h1>설문 응답</h1>
+  <div class="kpis" id="s_kpis"></div>
+  <div class="toolbar"><span class="spacer"></span><button type="button" class="btn quiet sm" id="s_csv">CSV 내려받기</button><button type="button" class="btn quiet sm" data-reload="surveys">새로고침</button></div>
+  <div class="tablewrap"><table class="list" id="s_table"></table></div>
+</section>
+
+<!-- 상세 보기 -->
+<div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
+  <div class="backdrop" data-dclose></div>
+  <div class="msheet">
+    <div class="mhd">
+      <div><p class="kicker" style="margin:0 0 2px" id="dkick">상세</p><h2 id="dtitle">—</h2></div>
+      <span class="spacer"></span>
+      <button type="button" class="btn quiet" id="dprint">인쇄</button>
+      <button type="button" class="btn quiet" data-dclose>닫기</button>
+    </div>
+    <div class="mbody" id="dbody" tabindex="0"></div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>주식회사 모넷코리아</span>
+  <span>서울시 서초구 효령로 380 세안빌딩 2F</span>
+  <span>korea@monnit.com</span>
+  <span>02-2088-1454</span>
+  <span>사업자등록번호 242-88-01218</span>
+  <span><a href="/" style="color:inherit">monnit.co.kr</a></span>
+</footer>
+<script>
+/** 알리미 계약 관리 (내부용, /contract-admin)
+ *  모든 API 호출에 x-admin-key 헤더를 붙인다. 키는 이 탭(sessionStorage)에만 보관.
+ */
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var KEY = "";
+  try{ KEY = sessionStorage.getItem("alarmAdminKey") || ""; }catch(e){}
+  var DATA = {offers:[], contracts:[], clients:[], surveys:[]};
+  var SITE = location.origin;
+
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function won(n){ return "￦ " + Number(n||0).toLocaleString("ko-KR"); }
+  function kdate(s){ if(!s) return "—"; var p = String(s).slice(0,10).split("-"); return p.length === 3 ? (p[0] + "." + p[1] + "." + p[2]) : s; }
+  function kdt(s){ if(!s) return "—"; var d = new Date(s); return isNaN(d) ? s : d.toLocaleString("ko-KR", {year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}); }
+  function ymd(d){ var p=function(n){return String(n).padStart(2,"0");}; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+  function copy(text, btn){
+    var done = function(){ if(!btn) return; var t = btn.textContent; btn.textContent = "복사됨 ✓"; setTimeout(function(){ btn.textContent = t; }, 1400); };
+    if(navigator.clipboard) navigator.clipboard.writeText(text).then(done, function(){ window.prompt("복사해 주십시오", text); });
+    else window.prompt("복사해 주십시오", text);
+  }
+
+  async function api(path, opt){
+    opt = opt || {};
+    var res = await fetch("/api/alarm/admin/" + path, {
+      method: opt.body ? "POST" : "GET",
+      headers: Object.assign({"x-admin-key": KEY}, opt.body ? {"content-type":"application/json"} : {}),
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    });
+    var j = await res.json().catch(function(){ return {ok:false, error:"bad_response"}; });
+    if(res.status === 401){ logout(); throw new Error("관리 키가 맞지 않습니다."); }
+    if(!j.ok) throw new Error(j.error || "요청 실패");
+    return j;
+  }
+
+  /* ── 로그인 ── */
+  function enter(){
+    $("t_login").classList.remove("on");
+    $("tabs").hidden = false; $("logout").hidden = false;
+    tab("new");
+  }
+  function logout(){
+    KEY = ""; try{ sessionStorage.removeItem("alarmAdminKey"); }catch(e){}
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.remove("on"); });
+    $("t_login").classList.add("on"); $("tabs").hidden = true; $("logout").hidden = true;
+  }
+  async function tryLogin(k){
+    KEY = k;
+    try{ await api("ping"); try{ sessionStorage.setItem("alarmAdminKey", k); }catch(e){} enter(); }
+    catch(e){ $("loginErr").hidden = false; $("loginErr").textContent = e.message; KEY = ""; }
+  }
+  $("loginBtn").addEventListener("click", function(){ tryLogin($("adminKey").value.trim()); });
+  $("adminKey").addEventListener("keydown", function(e){ if(e.key === "Enter") tryLogin(this.value.trim()); });
+  $("logout").addEventListener("click", logout);
+  if(KEY) tryLogin(KEY);
+
+  /* ── 탭 ── */
+  function tab(name){
+    document.querySelectorAll(".pane").forEach(function(p){ p.classList.remove("on"); });
+    $("t_" + name).classList.add("on");
+    document.querySelectorAll("[data-tab]").forEach(function(b){ b.setAttribute("aria-current", b.dataset.tab === name ? "true" : "false"); });
+    if(name !== "new") load(name);
+  }
+  document.querySelectorAll("[data-tab]").forEach(function(b){ b.addEventListener("click", function(){ tab(b.dataset.tab); }); });
+  document.querySelectorAll("[data-reload]").forEach(function(b){ b.addEventListener("click", function(){ load(b.dataset.reload); }); });
+
+  /* ── 1. 계약 링크 만들기 ── */
+  function calc(){
+    var unit = Math.max(0, Math.round(Number($("n_unit").value) || 0));
+    var qty = Math.max(1, Math.round(Number($("n_qty").value) || 1));
+    var list = unit * qty, type = $("n_dtype").value, val = Math.max(0, Number($("n_dval").value) || 0), disc = 0;
+    if(type === "percent"){ val = Math.min(100, val); disc = Math.round(list * val / 100); }
+    if(type === "amount"){ val = Math.min(list, Math.round(val)); disc = val; }
+    return {unit:unit, qty:qty, list:list, discountType:type, discountValue: type === "none" ? 0 : val, discount:disc, monthly:list - disc};
+  }
+  function renderPrice(){
+    var t = calc(), note = $("n_dnote").value.trim();
+    var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(t.unit) + '</span></div>' +
+      '<div class="row"><span>설치 개소</span><span class="money">' + t.qty + '개소</span></div>';
+    if(t.discount){
+      rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(t.list) + '</span></div>' +
+        '<div class="row disc"><span>' + (t.discountType === "percent" ? "할인 " + t.discountValue + "%" : "할인") + (note ? " · " + esc(note) : "") +
+        '</span><span class="money">− ' + won(t.discount) + '</span></div>';
+    }
+    rows += '<div class="row total"><span>월 청구액</span><span class="money">' + won(t.monthly) + '</span></div>';
+    $("n_price").innerHTML = rows;
+    $("n_vat").textContent = "부가세 별도 · 부가세 포함 " + won(Math.round(t.monthly * 1.1)) + " / 월";
+  }
+  function setDiscUi(){
+    var t = $("n_dtype").value;
+    $("n_dval").disabled = t === "none"; $("n_dnote").disabled = t === "none";
+    $("n_dvalLab").textContent = t === "percent" ? "할인율 (%)" : t === "amount" ? "월 할인액 (원)" : "할인 값";
+    if(t === "none") $("n_dval").value = 0;
+    renderPrice();
+  }
+  document.querySelectorAll("[data-q]").forEach(function(b){
+    b.addEventListener("click", function(){ $("n_qty").value = Math.max(1, (Number($("n_qty").value) || 1) + Number(b.dataset.q)); renderPrice(); });
+  });
+  ["n_unit","n_qty","n_dval","n_dnote"].forEach(function(id){ $(id).addEventListener("input", renderPrice); });
+  $("n_dtype").addEventListener("change", setDiscUi);
+
+  var etcEdited = false;
+  function etcTemplate(){
+    var y = Number($("n_years").value);
+    var first = y ? "최초 계약은 의무계약으로 " + y + "년, 이후 1년 단위 갱신" : "의무 이용기간은 계약 기간과 같음, 이후 1년 단위 갱신";
+    return [first,
+      "사용자 과실로 인한 제품 분실 및 파손 시 사용자 부담",
+      "매달 20일 세금계산서 발행",
+      "계약 해지 시 하드웨어는 반납",
+      "계약기간 만료 한 달 전까지 해지 의사를 표시하지 않으면 동일 조건으로 1년 자동 연장",
+      "문자메시지·수신자 변경·문의 사항은 매뉴얼 참고 또는 02-2088-1454"].join("\n");
+  }
+  function setTo(){
+    var y = Number($("n_years").value), f = $("n_from").value;
+    if(y && f){ var d = new Date(f + "T00:00:00"); d.setFullYear(d.getFullYear() + y); d.setDate(d.getDate() - 1); $("n_to").value = ymd(d); }
+    if(!etcEdited) $("n_etc").value = etcTemplate();
+  }
+  $("n_from").addEventListener("change", setTo);
+  $("n_years").addEventListener("change", setTo);
+  $("n_to").addEventListener("input", function(){ $("n_years").value = "0"; if(!etcEdited) $("n_etc").value = etcTemplate(); });
+  $("n_etc").addEventListener("input", function(){ etcEdited = true; });
+  function resetNew(){
+    var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + 1);
+    $("n_from").value = ymd(d); $("n_years").value = "3"; etcEdited = false; setTo();
+    ["n_customer","n_contact","n_note","n_dnote"].forEach(function(id){ $(id).value = ""; });
+    $("n_qty").value = 1; $("n_unit").value = 30000; $("n_dtype").value = "none"; setDiscUi();
+    $("n_out").hidden = true; $("n_make").hidden = false; $("n_err").hidden = true;
+  }
+  resetNew();
+
+  var lastLink = "", lastOffer = null;
+  function offerUrl(id){ return SITE + "/contract?id=" + id; }
+  function offerMsg(o){
+    var t = o.terms;
+    return (o.memo.customer ? o.memo.customer + " 담당자님, 안녕하세요. 모넷코리아입니다.\n\n" : "안녕하세요. 모넷코리아입니다.\n\n") +
+      "긴급 경보 알리미(" + t.sol + ") 구독 계약 링크를 보내 드립니다.\n" +
+      "· " + t.qty + "개소 · 월 " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " — 할인 적용" : "") + "\n" +
+      "· 계약 기간 " + kdate(t.from) + " ~ " + kdate(t.to) + "\n\n" +
+      "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하신 뒤 서명해 주시면 됩니다.\n" + offerUrl(o.id) + "\n\n" +
+      "궁금하신 점은 02-2088-1454로 연락 주세요. 감사합니다.";
+  }
+  $("n_make").addEventListener("click", async function(){
+    var btn = this, t = calc();
+    $("n_err").hidden = true;
+    if(!t.unit){ $("n_err").hidden = false; $("n_err").textContent = "월 이용료를 입력해 주십시오."; return; }
+    if(!$("n_from").value || !$("n_to").value){ $("n_err").hidden = false; $("n_err").textContent = "계약 기간을 입력해 주십시오."; return; }
+    btn.disabled = true; btn.textContent = "만드는 중…";
+    try{
+      var j = await api("offer", {body: Object.assign({}, t, {
+        sol:$("n_sol").value.trim(), discountNote:$("n_dnote").value.trim(),
+        from:$("n_from").value, to:$("n_to").value, pay:$("n_pay").value.trim(), bank:$("n_bank").value.trim(), etc:$("n_etc").value,
+        customer:$("n_customer").value.trim(), contact:$("n_contact").value.trim(), note:$("n_note").value.trim()
+      })});
+      lastOffer = j.offer; lastLink = offerUrl(j.offer.id);
+      $("n_link").textContent = lastLink; $("n_open").href = lastLink;
+      $("n_out").hidden = false; btn.hidden = true;
+    }catch(e){ $("n_err").hidden = false; $("n_err").textContent = e.message; }
+    btn.disabled = false; btn.textContent = "계약 링크 만들기";
+  });
+  $("n_copy").addEventListener("click", function(){ copy(lastLink, this); });
+  $("n_copyMsg").addEventListener("click", function(){ if(lastOffer) copy(offerMsg(lastOffer), this); });
+  $("n_reset").addEventListener("click", resetNew);
+
+  /* ── 목록 불러오기 ── */
+  async function load(name){
+    try{
+      if(name === "contracts"){
+        var r = await Promise.all([api("list?type=offers"), api("list?type=contracts")]);
+        DATA.offers = r[0].items; DATA.contracts = r[1].items; renderContracts();
+      }else if(name === "clients"){
+        DATA.clients = (await api("list?type=clients")).items; renderClients();
+      }else if(name === "surveys"){
+        DATA.surveys = (await api("list?type=surveys")).items; renderSurveys();
+      }
+    }catch(e){ alert(e.message); }
+  }
+
+  /* ── 2. 계약 현황 ── */
+  var ST = {open:"서명 대기", signed:"체결 완료", void:"무효"};
+  function renderContracts(){
+    var f = $("c_filter").value, byRef = {};
+    DATA.contracts.forEach(function(c){ byRef[c.ref] = c; });
+    var rows = DATA.offers.filter(function(o){ return f === "all" || o.status === f; }).map(function(o){
+      var c = o.contractRef ? byRef[o.contractRef] : null, t = o.terms;
+      return "<tr><td>" + kdt(o.createdAt) + "</td>" +
+        '<td><span class="pill ' + o.status + '">' + ST[o.status] + "</span></td>" +
+        "<td>" + esc(c ? c.customer.name : (o.memo.customer || "—")) + (c ? "" : '<div class="muted">' + esc(o.memo.contact || "") + "</div>") + "</td>" +
+        "<td>" + esc(c ? c.customer.site : "—") + "</td>" +
+        "<td>" + esc(t.sol) + "</td>" +
+        '<td class="num">' + t.qty + "</td>" +
+        '<td class="num">' + won(t.monthly) + (t.discount ? '<div class="muted">할인 −' + Number(t.discount).toLocaleString("ko-KR") + "</div>" : "") + "</td>" +
+        "<td>" + kdate(t.from) + " ~<br>" + kdate(t.to) + "</td>" +
+        "<td>" + (c ? kdt(c.submittedAt) + '<div class="muted">' + esc(c.signature ? c.signature.name : "") + "</div>" : "—") + "</td>" +
+        '<td style="white-space:nowrap">' +
+          (c ? '<button class="btn quiet" data-c="' + c.ref + '">계약서</button> ' : "") +
+          (o.status === "open" ? '<button class="btn quiet" data-copy="' + o.id + '">링크</button> <button class="btn quiet" data-void="' + o.id + '">무효</button>' : "") +
+        "</td></tr>";
+    }).join("");
+    $("c_table").innerHTML = "<thead><tr><th>생성</th><th>상태</th><th>고객</th><th>설치 현장</th><th>솔루션</th><th>개소</th><th>월 청구액</th><th>계약 기간</th><th>체결</th><th></th></tr></thead><tbody>" +
+      (rows || '<tr><td colspan="10" class="muted">항목이 없습니다.</td></tr>') + "</tbody>";
+  }
+  $("c_filter").addEventListener("change", renderContracts);
+  $("c_table").addEventListener("click", async function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.copy) copy(offerUrl(b.dataset.copy), b);
+    if(b.dataset.void){
+      if(!confirm("이 계약 링크를 무효로 할까요? 고객이 더 이상 서명할 수 없습니다.")) return;
+      try{ await api("offer/void", {body:{id:b.dataset.void}}); load("contracts"); }catch(err){ alert(err.message); }
+    }
+    if(b.dataset.c) showContract(b.dataset.c);
+  });
+
+  function dl(pairs){ return '<dl class="dgrid">' + pairs.map(function(p){ return "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>"; }).join("") + "</dl>"; }
+  function openD(kick, title, html){
+    $("dkick").textContent = kick; $("dtitle").textContent = title; $("dbody").innerHTML = html;
+    $("dmodal").hidden = false; document.body.style.overflow = "hidden"; $("dbody").scrollTop = 0;
+  }
+  function closeD(){ $("dmodal").hidden = true; document.body.style.overflow = ""; }
+  document.querySelectorAll("[data-dclose]").forEach(function(b){ b.addEventListener("click", closeD); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !$("dmodal").hidden) closeD(); });
+  $("dprint").addEventListener("click", function(){ window.print(); });
+
+  async function showContract(ref){
+    try{
+      var c = (await api("item?type=contracts&id=" + encodeURIComponent(ref))).item, t = c.terms, u = c.customer;
+      var lic = c.attachments && c.attachments.businessLicense;
+      openD("계약서 · " + c.ref, u.name + " · " + u.site,
+        "<h3>계약 조건</h3>" + dl([
+          ["납품 솔루션", esc(t.solution)], ["월 이용료", won(t.unitPrice) + " × " + t.sites + "개소 = " + won(t.listPrice)],
+          ["할인", t.discount ? "− " + won(t.discount) + (t.discountType === "percent" ? " (" + t.discountValue + "%)" : "") + (t.discountNote ? " · " + esc(t.discountNote) : "") : "없음"],
+          ["월 청구액", "<b>" + won(t.monthly) + "</b> (부가세 별도)"], ["계약 기간", kdate(t.from) + " ~ " + kdate(t.to)],
+          ["지급일", esc(t.payDay)], ["입금 계좌", esc(t.bank)], ["기타 사항", esc(t.etc).replace(/\n/g, "<br>")]]) +
+        "<h3>고객</h3>" + dl([
+          ["상호", esc(u.name)], ["사업자등록번호", esc(u.bizNo || "—")], ["주소", esc(u.address)], ["대표자", esc(u.ceo)],
+          ["계약 구분", u.contractType], ["담당자", esc(u.manager) + " · " + esc(u.phone) + " · " + esc(u.email)], ["설치 현장", esc(u.site)]]) +
+        "<h3>알림 수신자</h3>" + dl(c.recipients.map(function(r, i){ return ["수신자 " + (i+1), esc(r.name) + " · " + esc(r.phone) + (r.email ? " · " + esc(r.email) : "")]; })) +
+        "<h3>SLA 동의 기록</h3>" + dl([
+          ["SLA 버전", esc(c.slaVersion)], ["전문 열람", kdt(c.slaViewedAt) + " · " + c.slaReadPct + "% 읽음"], ["동의", kdt(c.slaAgreedAt)],
+          ["확인 항목", esc((c.acknowledged || []).join(" / "))], ["접수", kdt(c.submittedAt) + " · IP " + esc(c.client && c.client.ip)]]) +
+        "<h3>서명</h3>" + dl([["서명자", esc(c.signature.name) + (c.signature.role ? " · " + esc(c.signature.role) : "") + " · " + kdate(c.signature.signedOn)]]) +
+        '<img class="dimg" alt="서명" src="' + c.signature.image + '" style="max-width:420px">' +
+        (lic ? "<h3>사업자등록증</h3>" + '<img class="dimg" alt="사업자등록증" src="' + lic.image + '">' : ""));
+    }catch(e){ alert(e.message); }
+  }
+
+  /* ── 3. 기존 고객 ── */
+  function clientLinks(c){ return {survey: SITE + "/survey?k=" + c.id, sla: SITE + "/sla-consent?k=" + c.id}; }
+  function clientMail(c){
+    var L = clientLinks(c), who = c.mgr ? c.mgr + "님" : c.name + " 담당자님";
+    var months = "";
+    if(c.since){ var s = new Date(c.since), n = new Date(); var m = (n.getFullYear() - s.getFullYear()) * 12 + n.getMonth() - s.getMonth(); if(m > 0) months = " 설치한 지 어느덧 " + m + "개월이 됐습니다."; }
+    return "제목: [모넷코리아] " + who + ", 긴급 경보 알리미 이용 의견과 SLA 확인 부탁드립니다\n\n" +
+      who + ", 안녕하세요. 모넷코리아입니다.\n" +
+      (c.site ? c.site + "에" : "") + " 긴급 경보 알리미를" + (months || " 이용해 주셔서 감사합니다.") + "\n" +
+      "그동안 써 보시면서 느끼신 점을 듣고 싶어 연락드렸습니다.\n\n" +
+      "1. 만족도 조사 (약 2분)\n   별점과 짧은 의견을 남겨 주시면 서비스 개선에 반영하겠습니다.\n   ▶ " + L.survey + "\n\n" +
+      "2. 서비스수준협약(SLA) 확인 및 동의 요청\n   서비스 범위와 책임 기준을 문서로 정리한 SLA를 새로 마련했습니다.\n" +
+      "   · 알림 발송까지가 서비스 범위이며, 상시 관제·현장 출동·기관 신고는 포함되지 않습니다.\n" +
+      "   · 법정 소방설비를 대신하지 않으며, 센서 특성상 오탐·미탐이 생길 수 있습니다.\n" +
+      "   · 회사 배상 한도는 직전 12개월간 지급한 이용료 총액입니다. (고의·중과실 제외)\n" +
+      "   · 월 1회 테스트 알림 점검, 배터리 알림 후 14일 안에 교체, 수신자 정보 최신 유지를 부탁드립니다.\n" +
+      "   동의해 주셔야 적용되며, 동의하지 않으셔도 서비스는 기존 계약 조건대로 제공됩니다.\n   SLA 전문 PDF: " + SITE + "/alarm/sla.pdf\n   ▶ " + L.sla + "\n\n" +
+      "궁금하신 점은 이 메일에 회신하시거나 02-2088-1454로 연락 주세요.\n\n감사합니다.\n주식회사 모넷코리아\n02-2088-1454 · korea@monnit.com";
+  }
+  $("k_make").addEventListener("click", async function(){
+    var btn = this; $("k_err").hidden = true;
+    if(!$("k_name").value.trim()){ $("k_err").hidden = false; $("k_err").textContent = "고객사를 입력해 주십시오."; return; }
+    btn.disabled = true;
+    try{
+      var j = await api("client", {body:{name:$("k_name").value, site:$("k_site").value, mgr:$("k_mgr").value, email:$("k_email").value,
+        since:$("k_since").value, ref:$("k_ref").value, type:$("k_type").value}});
+      $("k_mail").value = clientMail(j.client); $("k_out").hidden = false;
+      ["k_name","k_site","k_mgr","k_email","k_since","k_ref"].forEach(function(id){ $(id).value = ""; });
+      load("clients");
+    }catch(e){ $("k_err").hidden = false; $("k_err").textContent = e.message; }
+    btn.disabled = false;
+  });
+  $("k_copy").addEventListener("click", function(){ copy($("k_mail").value, this); });
+  function renderClients(){
+    var rows = DATA.clients.map(function(c){
+      var sla = c.consentDecision === "agree" ? '<span class="pill agree">동의 ' + kdate(c.consentAt) + "</span>"
+        : c.consentDecision === "not-now" ? '<span class="pill not-now">미동의</span>'
+        : '<span class="muted">미응답</span>';
+      return "<tr><td>" + kdt(c.createdAt) + "</td><td>" + esc(c.name) + '<div class="muted">' + esc(c.mgr || "") + " " + esc(c.email || "") + "</div></td>" +
+        "<td>" + esc(c.site || "—") + "</td><td>" + kdate(c.since) + "</td>" +
+        "<td>" + (c.surveyAt ? '<span class="pill agree">완료 ' + kdate(c.surveyAt) + "</span>" : '<span class="muted">미응답</span>') + "</td>" +
+        "<td>" + sla + "</td>" +
+        '<td style="white-space:nowrap"><button class="btn quiet" data-mail="' + c.id + '">메일 문구</button> ' +
+        (c.consentRef ? '<button class="btn quiet" data-consent="' + c.consentRef + '">동의서</button>' : "") + "</td></tr>";
+    }).join("");
+    $("k_table").innerHTML = "<thead><tr><th>등록</th><th>고객</th><th>설치 현장</th><th>이용 시작</th><th>설문</th><th>SLA</th><th></th></tr></thead><tbody>" +
+      (rows || '<tr><td colspan="7" class="muted">등록된 고객이 없습니다.</td></tr>') + "</tbody>";
+  }
+  $("k_table").addEventListener("click", async function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.mail){
+      var c = DATA.clients.find(function(x){ return x.id === b.dataset.mail; });
+      $("k_mail").value = clientMail(c); $("k_out").hidden = false; $("k_out").scrollIntoView({behavior:"smooth"});
+    }
+    if(b.dataset.consent){
+      try{
+        var x = (await api("item?type=consents&id=" + encodeURIComponent(b.dataset.consent))).item;
+        openD("SLA 동의서 · " + x.ref, x.company + (x.site ? " · " + x.site : ""),
+          dl([["결정", x.decision === "agree" ? "동의" : "동의하지 않음 (기존 계약 유지)"], ["SLA 버전", esc(x.sla.version)],
+              ["적용 시작일", kdate(x.sla.effectiveFrom)], ["전문 열람", kdt(x.sla.viewedAt) + " · " + x.sla.readPct + "% 읽음"],
+              ["동의 시각", kdt(x.sla.agreedAt)], ["확인 항목", esc((x.sla.acknowledged || []).join(" / "))],
+              ["접수", kdt(x.createdAt) + " · IP " + esc(x.client && x.client.ip)]]) +
+          (x.signature ? "<h3>서명</h3>" + dl([["서명자", esc(x.signature.name) + (x.signature.role ? " · " + esc(x.signature.role) : "")]]) +
+            '<img class="dimg" alt="서명" src="' + x.signature.image + '" style="max-width:420px">' : ""));
+      }catch(err){ alert(err.message); }
+    }
+  });
+
+  /* ── 4. 설문 응답 ── */
+  var RK = [["overall","전반"],["accuracy","정확도"],["speed","속도"],["install","설치"],["support","응대"]];
+  function stars(n){ return '<span class="stars-s">' + "★★★★★".slice(0, n) + '<span style="color:var(--rule-strong)">' + "★★★★★".slice(n) + "</span></span>"; }
+  function renderSurveys(){
+    var S = DATA.surveys, n = S.length;
+    var avg = function(k){ return n ? (S.reduce(function(a, s){ return a + s.ratings[k]; }, 0) / n).toFixed(1) : "—"; };
+    $("s_kpis").innerHTML = '<div class="kpi"><b>' + n + "</b><span>응답 수</span></div>" +
+      '<div class="kpi"><b>' + (n ? (S.reduce(function(a, s){ return a + s.avg; }, 0) / n).toFixed(1) : "—") + "</b><span>평균 별점</span></div>" +
+      RK.map(function(r){ return '<div class="kpi"><b>' + avg(r[0]) + "</b><span>" + r[1] + "</span></div>"; }).join("");
+    var rows = S.map(function(s){
+      return "<tr><td>" + kdt(s.createdAt) + "</td><td>" + esc(s.company) + '<div class="muted">' + esc(s.respondent || "") + "</div></td>" +
+        '<td class="num">' + s.avg + "</td>" + RK.map(function(r){ return "<td>" + stars(s.ratings[r[0]]) + "</td>"; }).join("") +
+        "<td>" + esc(s.opinion) + "</td><td>" + esc(s.improve || "") + "</td><td>" + esc(s.recipientChange || "") + "</td></tr>";
+    }).join("");
+    $("s_table").innerHTML = "<thead><tr><th>응답</th><th>고객</th><th>평균</th>" + RK.map(function(r){ return "<th>" + r[1] + "</th>"; }).join("") +
+      "<th>의견</th><th>개선 요청</th><th>수신자 변경</th></tr></thead><tbody>" + (rows || '<tr><td colspan="11" class="muted">응답이 없습니다.</td></tr>') + "</tbody>";
+  }
+  $("s_csv").addEventListener("click", function(){
+    var head = ["응답일시","고객","현장","응답자","평균"].concat(RK.map(function(r){ return r[1]; })).concat(["실제 대응 경험","의견","개선 요청","수신자 변경"]);
+    var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+    var lines = [head.map(q).join(",")].concat(DATA.surveys.map(function(s){
+      return [s.createdAt, s.company, s.site, s.respondent, s.avg].concat(RK.map(function(r){ return s.ratings[r[0]]; }))
+        .concat([s.used, s.opinion, s.improve, s.recipientChange]).map(q).join(",");
+    }));
+    var blob = new Blob(["﻿" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "알리미_만족도조사_" + ymd(new Date()) + ".csv"; a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  });
+})();
+</script>
+</body>
+</html>

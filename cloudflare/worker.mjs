@@ -34,6 +34,8 @@ import * as fn_proposal_chat from '../netlify/functions/proposal-chat.mjs';
 import * as fn_track from '../netlify/functions/track.mjs';
 import * as fn_visitadmin from '../netlify/functions/visitadmin.mjs';
 import * as fn_blob_export from '../netlify/functions/blob-export.mjs';
+/* 긴급 경보 알리미 계약·설문·SLA (2026-10-16) */
+import * as fn_alarm from '../netlify/functions/alarm.mjs';
 /* 백그라운드 · 예약 */
 import * as fn_build_bg from '../netlify/functions/proposal-build-background.mjs';
 import * as fn_adsync from '../netlify/functions/adsync.mjs';
@@ -53,7 +55,7 @@ const V2 = {
   blockadmin: fn_blockadmin, blockapi: fn_blockapi, flowadmin: fn_flowadmin, lead: fn_lead,
   mailpreview: fn_mailpreview, noticeadmin: fn_noticeadmin, ops: fn_ops, 'proposal-admin': fn_proposal_admin,
   'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, track: fn_track, visitadmin: fn_visitadmin,
-  'blob-export': fn_blob_export
+  'blob-export': fn_blob_export, alarm: fn_alarm
 };
 const BACKGROUND = { 'proposal-build-background': fn_build_bg };
 const SCHEDULED = { adsync: fn_adsync, health: fn_health, 'proposal-dispatch': fn_dispatch };

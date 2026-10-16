@@ -1,0 +1,49 @@
+
+/* ── 약관: 작은 글씨 · 한 번에 스크롤 ── */
+.mbody.compact{padding:14px 22px 30px;font-size:12.5px;line-height:1.7}
+.compact .banner{font-size:12.5px;line-height:1.65;padding:10px 13px;margin:0 0 14px}
+.compact .article{padding:11px 0 2px;scroll-margin-top:60px}
+.compact .article h3{font-size:13.5px;margin:0 0 5px;gap:8px}
+.compact .article h3 .no{font-size:11px}
+.compact .article .sub{font-size:12px;margin:0 0 6px}
+.compact ol.cl>li{font-size:12.5px;line-height:1.7;padding-left:30px;margin:0 0 4px}
+.compact ol.cl>li::before{width:24px;font-size:11px}
+.compact ul.plain{margin:4px 0 0;padding-left:16px}
+.compact ul.plain li{margin:0 0 2px}
+.compact table{font-size:12px;min-width:460px}
+.compact th,.compact td{padding:6px 10px}
+.compact .tablewrap{margin:8px 0}
+.compact .b2c,.compact .note{font-size:12px;padding:8px 12px;margin:8px 0}
+.compact mark{padding:0 2px}
+
+/* ── 계약 조건 금액 ── */
+.price{border:1px solid var(--rule);background:var(--surface);margin:0 0 22px}
+.price .row{display:flex;justify-content:space-between;gap:14px;padding:11px 17px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.price .row:last-child{border-bottom:none}
+.price .row span:first-child{color:var(--muted)}
+.price .row.disc span:last-child{color:var(--critical)}
+.price .row.total{background:var(--ok-soft);font-weight:600}
+.price .row.total span:last-child{font-size:19px;color:var(--ok)}
+.state{border:1px solid var(--rule-strong);background:var(--surface);padding:28px 24px;text-align:center}
+.state h2{font-family:var(--serif);font-size:20px;margin:0 0 8px}
+
+/* ── 별점 ── */
+.qrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.qrow:last-child{border-bottom:none}
+.qlab{font-size:14.5px;line-height:1.6;color:var(--ink);margin:0}
+.stars{display:flex;gap:2px;direction:ltr}
+.stars button{border:none;background:none;padding:2px 3px;cursor:pointer;font-size:30px;line-height:1;color:var(--rule-strong);transition:transform .08s}
+.stars button.on{color:#E2A400}
+.stars button:hover{transform:scale(1.08)}
+.stars .sv{font:500 12px/1 var(--mono);color:var(--faint);align-self:center;margin-left:8px;min-width:44px}
+.qrow.miss .qlab{color:var(--critical)}
+.counter{font:400 12px/1 var(--mono);color:var(--faint);text-align:right;margin-top:4px}
+.counter.bad{color:var(--critical)}
+.opts{display:flex;gap:10px;flex-wrap:wrap}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:11px 15px;border:1px solid var(--rule-strong);background:var(--field);cursor:pointer;font-size:14px;line-height:1.55}
+.opt input{margin:3px 0 0;accent-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opts.big{flex-direction:column}
+.opts.big .opt{padding:15px 17px}
+.opts.big small{color:var(--muted);font-size:13px}
+@media (max-width:640px){.qrow{grid-template-columns:1fr}.stars button{font-size:34px}}

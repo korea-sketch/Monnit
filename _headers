@@ -113,3 +113,36 @@
 # 설치 사례(The Field Review) 히어로 배너 — 교체 시 파일명을 바꿔 캐시를 무효화하세요
 /images/field-review/*
   Cache-Control: public, max-age=2592000
+
+# ===== 긴급 경보 알리미 계약·설문·SLA (2026-10-16) — 링크를 받은 사람만 보는 화면 · 색인 금지 =====
+/contract
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+/contract.html
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+/contract-admin
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-store
+/contract-admin.html
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-store
+/survey
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+/survey.html
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+/sla-consent
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+/sla-consent.html
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, must-revalidate
+/alarm/terms
+  Cache-Control: no-cache, must-revalidate
+/alarm/terms.html
+  Cache-Control: no-cache, must-revalidate
+/alarm/sla.pdf
+  Content-Type: application/pdf
+  Cache-Control: public, max-age=300, must-revalidate
