@@ -315,6 +315,8 @@ footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid
 .opts.big .opt{padding:15px 17px}
 .opts.big small{color:var(--muted);font-size:13px}
 @media (max-width:640px){.qrow{grid-template-columns:1fr}.stars button{font-size:34px}}
+.fineprint{margin:26px 0 4px;padding-top:10px;border-top:1px dashed var(--rule);font-size:11px;color:var(--faint);text-align:right}
+body.pdf .fineprint{font-size:9pt;color:#666}
 .annex-head{border-top:2px solid var(--rule-strong);margin-top:10px} .annex[hidden]{display:none} .chk[hidden]{display:none}</style>
 </head>
 <body>
@@ -486,7 +488,6 @@ footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid
   <div class="msheet">
     <div class="mhd">
       <div>
-        <p class="kicker" style="margin:0 0 2px">이용계약 부속문서 A · 2026년 10월 16일 시행</p>
         <h2 id="slatitle">긴급 경보 알리미 서비스수준협약서(SLA)</h2>
       </div>
       <span class="spacer"></span>
@@ -833,6 +834,7 @@ footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid
         <li>고객이 동의하지 않는 경우에도 서비스는 종전 이용계약의 조건에 따라 계속 제공됩니다.</li>
       </ol>
     </div>
+    <p class="fineprint">본 서비스수준협약은 2026년 10월 16일부터 시행합니다. · 주식회사 모넷코리아</p>
     </div>
     <div class="mfoot">
       <label class="magree" for="slaAgree">
@@ -843,7 +845,8 @@ footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid
         <span class="hint" id="slaprog">제1조 ~ 제18조 · 부속서 B · 부칙 전문 · 한 번에 스크롤해서 확인하실 수 있습니다</span>
         <span class="spacer"></span>
         <button type="button" class="btn quiet" data-close>닫기</button>
-        <button type="button" class="btn" id="slaAgreeBtn" disabled>확인 완료</button>
+        <button type="button" class="btn" id="slaAgreeBtn" hidden>확인 완료</button>
+        <button type="button" class="btn" id="agreeAllBtn">확인 완료</button>
       </div>
     </div>
   </div>
@@ -966,14 +969,16 @@ footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid
   }
   $("openSla").addEventListener("click", function(){ openSla(this); });
   $("openSla2").addEventListener("click", function(){ openSla(this); });
-  $("slaAgree").addEventListener("change", function(){ $("slaAgreeBtn").disabled = !this.checked; });
-  $("slaAgreeBtn").addEventListener("click", function(){
-    if(!$("slaAgree").checked) return;
+  $("slaAgree").addEventListener("change", function(){ $("slaAgreeBtn").hidden = !this.checked; $("agreeAllBtn").hidden = this.checked; });
+  function finishSla(){
     if(!slaAgreedAt) slaAgreedAt = new Date().toISOString();
     $("openSla2").textContent = "SLA 전문 다시 보기 ✓";
     closeSla();
     gate();
-  });
+  }
+  $("slaAgreeBtn").addEventListener("click", function(){ if($("slaAgree").checked) finishSla(); });
+  /* 한 번에 확인 완료 */
+  $("agreeAllBtn").addEventListener("click", function(){ $("slaAgree").checked = true; finishSla(); });
   Array.prototype.forEach.call(slaModal.querySelectorAll("[data-close]"), function(b){
     b.addEventListener("click", closeSla);
   });

@@ -105,14 +105,16 @@
   }
   $("openSla").addEventListener("click", function(){ openSla(this); });
   $("openSla2").addEventListener("click", function(){ openSla(this); });
-  $("slaAgree").addEventListener("change", function(){ $("slaAgreeBtn").disabled = !this.checked; });
-  $("slaAgreeBtn").addEventListener("click", function(){
-    if(!$("slaAgree").checked) return;
+  $("slaAgree").addEventListener("change", function(){ $("slaAgreeBtn").hidden = !this.checked; $("agreeAllBtn").hidden = this.checked; });
+  function finishSla(){
     if(!slaAgreedAt) slaAgreedAt = new Date().toISOString();
     $("openSla2").textContent = "SLA 전문 다시 보기 ✓";
     closeSla();
     gate();
-  });
+  }
+  $("slaAgreeBtn").addEventListener("click", function(){ if($("slaAgree").checked) finishSla(); });
+  /* 한 번에 확인 완료 */
+  $("agreeAllBtn").addEventListener("click", function(){ $("slaAgree").checked = true; finishSla(); });
   Array.prototype.forEach.call(slaModal.querySelectorAll("[data-close]"), function(b){
     b.addEventListener("click", closeSla);
   });

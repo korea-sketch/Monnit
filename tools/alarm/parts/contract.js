@@ -169,17 +169,18 @@
     else openSla(this, true);
   });
 
+  /* 직접 다 체크한 경우에만 「동의하고 계속」 이 나타나고, 그 전에는 「전체 동의하고 계속」 한 번으로 끝낸다 */
   function agreeGate(){
-    var all = activeCks().every(function(c){ return c.checked; });
-    $("slaAgreeBtn").disabled = !($("slaAgree").checked && all);
-    $("slaAgreeBtn").textContent = all ? (slaGate ? "동의하고 계속" : "동의") : "확인 항목을 모두 체크해 주십시오";
+    var all = activeCks().every(function(c){ return c.checked; }) && $("slaAgree").checked;
+    $("slaAgreeBtn").hidden = !all;
+    $("slaAgreeBtn").textContent = slaGate ? "동의하고 계속" : "동의";
+    $("agreeAllBtn").hidden = all;
+    $("agreeAllBtn").textContent = slaGate ? "전체 동의하고 계속" : "전체 동의";
   }
   $("slaAgree").addEventListener("change", function(){
     agreeGate();
   });
-
-  $("slaAgreeBtn").addEventListener("click", function(){
-    if(!$("slaAgree").checked || !activeCks().every(function(c){ return c.checked; })) return;
+  function finishAgree(){
     if(!slaAgreedAt){
       slaAgreedAt = new Date().toISOString();
       var d = new Date(slaAgreedAt);
@@ -191,6 +192,17 @@
     var go = slaGate;
     closeSla();
     if(go) show(3);
+  }
+  $("slaAgreeBtn").addEventListener("click", function(){
+    if(!$("slaAgree").checked || !activeCks().every(function(c){ return c.checked; })) return;
+    finishAgree();
+  });
+  /* 전체 동의: 확인 항목 전부 + 동의 체크를 한 번에 표시하고 바로 진행 (각 항목의 체크 상태는 그대로 기록에 남는다) */
+  $("agreeAllBtn").addEventListener("click", function(){
+    activeCks().forEach(function(c){ c.checked = true; });
+    $("slaAgree").checked = true;
+    syncChecks();
+    finishAgree();
   });
   Array.prototype.forEach.call(slaModal.querySelectorAll("[data-close]"), function(b){
     b.addEventListener("click", closeSla);

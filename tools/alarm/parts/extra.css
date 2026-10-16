@@ -47,3 +47,5 @@
 .opts.big .opt{padding:15px 17px}
 .opts.big small{color:var(--muted);font-size:13px}
 @media (max-width:640px){.qrow{grid-template-columns:1fr}.stars button{font-size:34px}}
+.fineprint{margin:26px 0 4px;padding-top:10px;border-top:1px dashed var(--rule);font-size:11px;color:var(--faint);text-align:right}
+body.pdf .fineprint{font-size:9pt;color:#666}

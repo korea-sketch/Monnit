@@ -55,6 +55,8 @@ def articles(existing=False):
     a += ANNEX_B
     if existing:
         a += SUPPL
+    # 시행일은 문서 맨 끝에 작은 글씨로만 (상단 큰 표기는 2026-10-16 요청으로 제거)
+    a += '\n    <p class="fineprint">본 서비스수준협약은 2026년 10월 16일부터 시행합니다. · 주식회사 모넷코리아</p>'
     return a
 
 def modal(existing=False, foot=True):
@@ -62,6 +64,7 @@ def modal(existing=False, foot=True):
     agree_txt = ("위 서비스수준협약(SLA) 전문을 확인하였습니다." if existing else
                  "위 서비스수준협약(SLA) 전문을 확인하였으며, <b>제3조·제4조·제6조·제10조·제11조</b>를 포함한 그 내용에 동의합니다.")
     btn = "확인 완료" if existing else "동의하고 계속"
+    allbtn = "확인 완료" if existing else "전체 동의하고 계속"
     footer = f"""
     <div class="mfoot">
       <label class="magree" for="slaAgree">
@@ -72,7 +75,8 @@ def modal(existing=False, foot=True):
         <span class="hint" id="slaprog">{scope} 전문 · 한 번에 스크롤해서 확인하실 수 있습니다</span>
         <span class="spacer"></span>
         <button type="button" class="btn quiet" data-close>닫기</button>
-        <button type="button" class="btn" id="slaAgreeBtn" disabled>{btn}</button>
+        <button type="button" class="btn" id="slaAgreeBtn" hidden>{btn}</button>
+        <button type="button" class="btn" id="agreeAllBtn">{allbtn}</button>
       </div>
     </div>""" if foot else ""
     return f"""
@@ -81,7 +85,6 @@ def modal(existing=False, foot=True):
   <div class="msheet">
     <div class="mhd">
       <div>
-        <p class="kicker" style="margin:0 0 2px">이용계약 부속문서 A · 2026년 10월 16일 시행</p>
         <h2 id="slatitle">긴급 경보 알리미 서비스수준협약서(SLA)</h2>
       </div>
       <span class="spacer"></span>
@@ -130,7 +133,7 @@ def build_contract():
     html_modal = modal(False, True)
     html_modal = rep(html_modal, '\n    </div>\n    <div class="mfoot">',
         '\n    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>서명 전 확인 항목</span></h3>'
-        '<p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 모두 확인하신 뒤 하단의 동의 버튼을 눌러 주십시오.</p>\n' + checks + '    </div>\n    </div>\n    <div class="mfoot">')
+        '<p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 하단의 「전체 동의하고 계속」 버튼을 누르면 모든 항목에 한 번에 동의할 수 있습니다.</p>\n' + checks + '    </div>\n    </div>\n    <div class="mfoot">')
     html = head("구독 계약 체결", "긴급 경보 알리미 구독서비스 계약 체결") + b + html_modal + "\n</main>\n\n" + FOOTER + "\n<script>" + rd("contract.js") + "</script>\n</body>\n</html>\n"
     (OUT / "contract.html").write_text(html, encoding="utf-8"); print("built contract.html", len(html))
 
@@ -157,9 +160,8 @@ def build_terms():
   <span class="nm">긴급 경보 알리미 · 서비스 이용약관(SLA)</span>
 </div></div></div>
 <main class="sheet" style="padding-top:22px">
-  <p class="kicker" style="margin:0 0 2px">이용계약 부속문서 A · 2026년 10월 16일 시행 · 공통 본문 + 제품별 부속서 B</p>
   <h1 style="font-size:21px">긴급 경보 알리미 서비스수준협약서(SLA)</h1>
-  <p class="hint" style="margin:0 0 10px">구독 계약의 부속문서입니다. 계약 체결 시 이 내용을 다시 안내하고 동의를 받습니다.</p>
+  <p class="hint" style="margin:0 0 10px">구독 계약의 부속문서입니다. 계약 체결 시 이 내용을 다시 안내하고 동의를 받습니다. (공통 본문 + 제품별 부속서)</p>
   <p class="noprint" style="margin:0 0 16px"><a class="btn quiet" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none;padding:8px 13px;font-size:13px">PDF 내려받기</a></p>
   <div class="mbody compact" style="overflow:visible;padding:0">""" + articles(False) + """
   </div>
