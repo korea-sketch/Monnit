@@ -21,11 +21,11 @@
 
 <main class="sheet wide">
 
-
+<!-- 로그인 -->
 <section class="pane on" id="t_login">
   <p class="kicker">관리자 확인</p>
   <h1>관리 키를 입력해 주십시오</h1>
-  <p class="lede">Netlify 환경변수 <code>ALARM_ADMIN_KEY</code>에 설정한 값입니다. 이 브라우저 탭을 닫으면 다시 입력해야 합니다.</p>
+  <p class="lede">모넷코리아 담당자 전용 화면입니다.</p>
   <div class="grid" style="max-width:460px">
     <div class="f wide"><label for="adminKey">관리 키</label><input type="password" id="adminKey" autocomplete="current-password"></div>
   </div>
@@ -33,7 +33,7 @@
   <div class="btnrow"><button type="button" class="btn" id="loginBtn">확인</button></div>
 </section>
 
-
+<!-- 1. 계약 링크 만들기 -->
 <section class="pane" id="t_new">
   <p class="kicker">신규 계약 · 고객에게 보낼 계약 링크</p>
   <h1>계약 링크 만들기</h1>
@@ -109,7 +109,7 @@
   </div>
 </section>
 
-
+<!-- 2. 계약 현황 -->
 <section class="pane" id="t_contracts">
   <p class="kicker">계약 링크와 체결 현황</p>
   <h1>계약 현황</h1>
@@ -121,7 +121,7 @@
   <div class="tablewrap"><table class="list" id="c_table"></table></div>
 </section>
 
-
+<!-- 3. 기존 고객 -->
 <section class="pane" id="t_clients">
   <p class="kicker">기존 고객 · 만족도 조사와 SLA 동의 링크</p>
   <h1>기존 고객 설문 · SLA</h1>
@@ -158,7 +158,7 @@
   <div class="tablewrap"><table class="list" id="k_table"></table></div>
 </section>
 
-
+<!-- 4. 설문 응답 -->
 <section class="pane" id="t_surveys">
   <p class="kicker">만족도 조사 결과</p>
   <h1>설문 응답</h1>
@@ -167,7 +167,7 @@
   <div class="tablewrap"><table class="list" id="s_table"></table></div>
 </section>
 
-
+<!-- 상세 보기 -->
 <div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
   <div class="backdrop" data-dclose></div>
   <div class="msheet">

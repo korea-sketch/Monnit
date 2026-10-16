@@ -15,7 +15,10 @@
  *  어느 경로로 나갔는지(via)를 항상 함께 돌려준다. ops 화면에서 확인할 수 있다.
  *
  *  환경변수
- *    NOTIFY_TO         Brevo 로 떨어질 때의 수신자 (미설정 시 korea@monnit.com)
+ *    NOTIFY_TO         Brevo 로 떨어질 때의 수신자. 쉼표로 여러 명 (미설정 시 korea@monnit.com)
+ *    NOTIFY_ALWAYS_TO  어느 경로로 나가든 항상 함께 받는 사람 (미설정 시 0702yeom@gmail.com — 대표님 지시 2026-10-16)
+ *                      StaticForms·Web3Forms 는 수신자를 그쪽 대시보드에서 정하므로, 그 경로로 나간 뒤에도
+ *                      이 주소에는 Brevo 로 한 통 더 보낸다. 대표님이 "문의가 이젠 안 들어온다" 하신 뒤 추가.
  *    STATICFORMS_KEY   1순위 키
  *    WEB3FORMS_KEY     2순위 키
  *    BREVO_API_KEY     3순위. 없으면 건너뛴다.
@@ -27,7 +30,9 @@
    이제 환경변수가 없으면 그 경로를 건너뛴다 — 알림은 Brevo 로 나간다.
    어느 경로가 꺼져 있는지는 /ops → 연동 점검에서 바로 보인다.
    ※ 저장소에 한 번 올라간 두 키는 이미 노출된 값이므로 재발급이 필요하다. */
+const splitTo  = s => String(s || '').split(/[,;\s]+/).map(x => x.trim().toLowerCase()).filter(x => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(x));
 const TO       = process.env.NOTIFY_TO || 'korea@monnit.com';
+const ALWAYS   = () => splitTo(process.env.NOTIFY_ALWAYS_TO == null ? '0702yeom@gmail.com' : process.env.NOTIFY_ALWAYS_TO);
 const SF_KEY   = process.env.STATICFORMS_KEY || '';
 const W3_KEY   = process.env.WEB3FORMS_KEY   || '';
 const FROM     = { name: 'Monnit Korea 접수알림', email: 'no-reply@monnit.co.kr' };
@@ -111,15 +116,28 @@ async function viaBrevo(subject, text, to) {
   const r = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sender: FROM, to: [{ email: to }], replyTo: REPLY_TO, subject, textContent: text })
+    body: JSON.stringify({ sender: FROM, to: splitTo(to).map(email => ({ email })), replyTo: REPLY_TO, subject, textContent: text })
   });
   if (!r.ok) return { ok: false, error: `brevo ${r.status}` };
   return { ok: true, via: 'brevo', to };
 }
 
+/** 항상 받는 사람(대표님)에게 Brevo 로 한 통 더 — 1·2순위로 나갔을 때 그쪽 수신자 설정과 무관하게 받도록 */
+async function copyAlways(subject, text, already) {
+  const extra = ALWAYS().filter(e => !splitTo(already).includes(e));
+  if (!extra.length) return null;
+  try { return await viaBrevo(subject, text, extra.join(',')); }
+  catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+}
+
 /** 알림 한 통. 한 곳이 실패하면 다음으로 넘어간다. 절대 throw 하지 않는다. */
 export async function notify(lead, payload, opts) {
-  const to = (opts && opts.to) || TO;
+  /* Brevo 수신자: 지정값(또는 NOTIFY_TO) + 항상 받는 사람 */
+  const base = (opts && opts.to) || TO;
+  /* 예지보전 가이드 자동 발송 건(무경험 신청)은 대표님께 보내지 않는다 (2026-10-16) */
+  const guide = String((lead && lead.exp_group) || (payload && payload['경험 구분']) || '').trim() === '무경험';
+  const always = guide ? [] : ALWAYS();
+  const to = [...new Set([...splitTo(base), ...always])].join(',');
   const subject = subjectOf(lead);
   const fields = fieldsOf(lead, payload);
   const text = textOf(fields);
@@ -132,7 +150,11 @@ export async function notify(lead, payload, opts) {
   ]) {
     try {
       const r = await step();
-      if (r.ok) return { ...r, tried };
+      if (r.ok) {
+        /* 1·2순위(무료 폼)로 나갔으면 대표님께는 따로 한 통 더 */
+        if (r.via !== 'brevo' && always.length) { const c = await copyAlways(subject, text, ''); if (c) r.copy = c; }
+        return { ...r, tried };
+      }
       tried.push(r.error || r.skipped);
     } catch (e) {
       tried.push(String(e && e.message || e));
@@ -143,7 +165,7 @@ export async function notify(lead, payload, opts) {
 
 export function configured() {
   return {
-    to: TO,
+    to: TO, always: ALWAYS(),
     order: ['staticforms', 'web3forms', 'brevo'],
     staticforms: !!SF_KEY, web3forms: !!W3_KEY, brevo: !!process.env.BREVO_API_KEY
   };

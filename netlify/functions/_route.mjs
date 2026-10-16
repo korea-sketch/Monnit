@@ -17,6 +17,9 @@
  *  환경변수 (없으면 기본값)
  *    ROUTE_GENERAL_TO   일반 문의 담당. 쉼표로 여러 명. 기본 1015@monnit.com
  *    ROUTE_ALARM_TO     알리미 담당. 쉼표로 여러 명. 기본 5959@monnit.com
+ *    ROUTE_ALWAYS_TO    어떤 종류든 배분 메일을 항상 함께 받는 사람. 기본 0702yeom@gmail.com
+ *                       (대표님 지시 2026-10-16 — 담당자에게 가는 문의를 대표도 같이 받는다. 비우려면 ROUTE_ALWAYS_TO=- )
+ *                       단, 예지보전 가이드 자동 발송 건(/promo/consulting 무경험 신청)은 대표님께 보내지 않는다.
  *    VISIT_NOTIFY_TO    /visit/admin 에서 한 번도 저장하지 않았을 때의 예약 알림 기본값. 기본 msk8206@monnit.com
  *    ROUTE_MAIL_OFF=1   이 배분 메일을 끈다
  */
@@ -35,6 +38,12 @@ const splitList = s => String(s || '').split(/[,;\s]+/).map(x => x.trim().toLowe
 
 export const generalTo = () => splitList(env('ROUTE_GENERAL_TO', '1015@monnit.com'));
 export const alarmTo = () => splitList(env('ROUTE_ALARM_TO', '5959@monnit.com'));
+export const alwaysTo = () => splitList(env('ROUTE_ALWAYS_TO', '0702yeom@gmail.com'));
+/** 예지보전 가이드 자동 발송 건 — 무경험 신청. 대표님은 받지 않는다 (2026-10-16) */
+export const isGuideLead = (lead, payload) => {
+  const p = payload || {};
+  return String((lead && lead.exp_group) || p['경험 구분'] || '').trim() === '무경험';
+};
 const visitDefault = () => splitList(env('VISIT_NOTIFY_TO', 'msk8206@monnit.com'));
 
 /* 예약 알림 받는 사람 — 공개 설정(config.json)과 분리해서 둔다.
@@ -83,11 +92,12 @@ export function kindOf(lead, payload) {
   return 'general';
 }
 
-export async function recipientsFor(kind) {
+export async function recipientsFor(kind, opts) {
   if (kind === 'proposal') return [];
   const out = new Set(generalTo());
   if (kind === 'visit') for (const r of (await readVisitRecipients()).list) out.add(r.email);
   if (kind === 'alarm') for (const e of alarmTo()) out.add(e);
+  if (!(opts && opts.guide)) for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 — 가이드 건만 제외 */
   return [...out];
 }
 
@@ -129,7 +139,7 @@ export async function routeLead(lead, payload) {
     if (env('ROUTE_MAIL_OFF', '') === '1') return { ok: false, skipped: 'off' };
     const kind = kindOf(lead, payload);
     if (kind === 'proposal') return { ok: true, kind, skipped: '맞춤 제안서 — 배분 대상 아님' };
-    const to = await recipientsFor(kind);
+    const to = await recipientsFor(kind, { guide: isGuideLead(lead, payload) });
     const tag = kind === 'visit' ? '현장진단 예약' : kind === 'alarm' ? '알리미 문의' : '일반 문의';
     const subject = `[${tag}] ` + subjectOf(lead).replace(/^\[모넷·접수\]\s*/, '') + (lead.test ? ' (테스트 의심)' : '');
     const fields = fieldsOf(lead, payload);
