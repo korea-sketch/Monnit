@@ -372,7 +372,8 @@
       var j = await api("client", {body:{name:$("k_name").value, site:$("k_site").value, mgr:$("k_mgr").value, email:$("k_email").value,
         since:$("k_since").value, ref:$("k_ref").value, type:$("k_type").value, products: prods("k_prod")}});
       document.querySelectorAll("#k_prod input").forEach(function(c){ c.checked = false; });
-      $("k_mail").value = clientMail(j.client); $("k_out").hidden = false;
+      try{ var mv0 = (await api("client/mail?id=" + encodeURIComponent(j.client.id))).mail; $("k_mail").value = "제목: " + mv0.subject + "\n\n" + mv0.text; }catch(e2){ $("k_mail").value = clientMail(j.client); }
+      $("k_out").hidden = false;
       ["k_name","k_site","k_mgr","k_email","k_since","k_ref"].forEach(function(id){ $(id).value = ""; });
       load("clients");
     }catch(e){ $("k_err").hidden = false; $("k_err").textContent = e.message; }
@@ -384,27 +385,63 @@
       var sla = c.consentDecision === "agree" ? '<span class="pill agree">동의 ' + kdate(c.consentAt) + "</span>"
         : c.consentDecision === "not-now" ? '<span class="pill not-now">미동의</span>'
         : '<span class="muted">미응답</span>';
+      var mail = c.mailedAt ? '<span class="pill agree">발송 ' + kdate(c.mailedAt) + (c.mailCount > 1 ? " ×" + c.mailCount : "") + "</span>" : '<span class="muted">미발송</span>';
       return "<tr><td>" + kdt(c.createdAt) + "</td><td>" + esc(c.name) + '<div class="muted">' + esc(c.mgr || "") + " " + esc(c.email || "") + (c.products && c.products.length ? " · " + c.products.map(function(k){ return PRODUCT_LABEL[k] || k; }).join("·") : "") + "</div></td>" +
         "<td>" + esc(c.site || "—") + "</td><td>" + kdate(c.since) + "</td>" +
+        "<td>" + mail + "</td>" +
         "<td>" + (c.surveyAt ? '<span class="pill agree">완료 ' + kdate(c.surveyAt) + "</span>" : '<span class="muted">미응답</span>') + "</td>" +
         "<td>" + sla + "</td>" +
-        '<td style="white-space:nowrap"><button class="btn quiet" data-mail="' + c.id + '">메일 문구</button> ' +
+        '<td style="white-space:nowrap"><button class="btn quiet" data-send="' + c.id + '" data-kname="' + esc(c.name) + '" data-kmail="' + esc(c.email || "") + '">' + (c.mailedAt ? "다시 보내기" : "안내 메일 보내기") + '</button> ' +
+        '<button class="btn quiet" data-prev="' + c.id + '">미리보기</button> <button class="btn quiet" data-mail="' + c.id + '">문구</button> ' +
         (c.consentRef ? '<button class="btn quiet" data-consent="' + c.consentRef + '">동의서</button> ' : "") +
-        '<button class="btn quiet danger" data-kdel="' + c.id + '" data-kname="' + esc(c.name) + '">삭제</button></td></tr>";
+        '<button class="btn quiet danger" data-kdel="' + c.id + '" data-kname="' + esc(c.name) + '">삭제</button></td></tr>';
     }).join("");
-    $("k_table").innerHTML = "<thead><tr><th>등록</th><th>고객</th><th>설치 현장</th><th>이용 시작</th><th>설문</th><th>SLA</th><th></th></tr></thead><tbody>" +
-      (rows || '<tr><td colspan="7" class="muted">등록된 고객이 없습니다.</td></tr>') + "</tbody>"; labelize("k_table");
+    $("k_table").innerHTML = "<thead><tr><th>등록</th><th>고객</th><th>설치 현장</th><th>이용 시작</th><th>안내 메일</th><th>설문</th><th>SLA</th><th></th></tr></thead><tbody>" +
+      (rows || '<tr><td colspan="8" class="muted">등록된 고객이 없습니다.</td></tr>') + "</tbody>"; labelize("k_table");
+    var unsent = DATA.clients.filter(function(c){ return !c.mailedAt && c.email; });
+    $("k_sendall").hidden = !unsent.length; $("k_sendall").textContent = "미발송 " + unsent.length + "명에게 안내 메일 보내기";
   }
+  async function sendMails(ids, btn){
+    var t = btn.textContent; btn.disabled = true; btn.textContent = "보내는 중…";
+    try{
+      var r = await api("client/mail", {body:{ids: ids}});
+      var bad = (r.results || []).filter(function(x){ return !x.ok; });
+      if(bad.length) alert("보내지 못한 건:\n" + bad.map(function(x){ return (x.name || x.id) + " — " + x.error; }).join("\n"));
+      else alert((r.results || []).length + "건 발송했습니다.");
+    }catch(err){ alert(err.message); }
+    btn.disabled = false; btn.textContent = t; load("clients");
+  }
+  $("k_sendall").addEventListener("click", function(){
+    var ids = DATA.clients.filter(function(c){ return !c.mailedAt && c.email; }).map(function(c){ return c.id; });
+    if(!ids.length) return;
+    if(!confirm(ids.length + "명에게 SLA 시행 안내 메일을 보낼까요? 각 고객의 동의 링크·설문 링크가 들어갑니다.")) return;
+    sendMails(ids, this);
+  });
   $("k_table").addEventListener("click", async function(e){
     var b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.send){
+      if(!b.dataset.kmail){ alert("이 고객은 이메일이 등록되어 있지 않습니다. 「문구」를 복사해 직접 보내 주십시오."); return; }
+      if(!confirm("「" + b.dataset.kname + "」 (" + b.dataset.kmail + ") 에게 SLA 시행 안내 메일을 보낼까요?")) return;
+      sendMails([b.dataset.send], b); return;
+    }
+    if(b.dataset.prev){
+      try{
+        var pv = (await api("client/mail?id=" + encodeURIComponent(b.dataset.prev))).mail;
+        var w = window.open("", "_blank"); if(!w){ alert("팝업이 차단되었습니다."); return; }
+        w.document.write("<!doctype html><title>" + esc(pv.subject) + "</title><div style='font:13px sans-serif;padding:10px 16px;background:#eee;border-bottom:1px solid #ccc'><b>제목:</b> " + esc(pv.subject) + "</div>" + pv.html); w.document.close();
+      }catch(err){ alert(err.message); }
+      return;
+    }
     if(b.dataset.kdel){
       if(!confirm("「" + b.dataset.kname + "」 고객을 삭제할까요?\n설문 응답과 SLA 동의 기록도 함께 지워지며 되돌릴 수 없습니다.")) return;
       try{ await api("delete", {body:{type:"clients", ids:[b.dataset.kdel]}}); }catch(err){ alert(err.message); }
       load("clients"); load("surveys"); return;
     }
     if(b.dataset.mail){
-      var c = DATA.clients.find(function(x){ return x.id === b.dataset.mail; });
-      $("k_mail").value = clientMail(c); $("k_out").hidden = false; $("k_out").scrollIntoView({behavior:"smooth"});
+      try{
+        var mv = (await api("client/mail?id=" + encodeURIComponent(b.dataset.mail))).mail;
+        $("k_mail").value = "제목: " + mv.subject + "\n\n" + mv.text; $("k_out").hidden = false; $("k_out").scrollIntoView({behavior:"smooth"});
+      }catch(err){ alert(err.message); }
     }
     if(b.dataset.consent){
       try{
@@ -433,7 +470,7 @@
       return "<tr><td>" + kdt(s.createdAt) + "</td><td>" + esc(s.company) + '<div class="muted">' + esc(s.respondent || "") + "</div></td>" +
         '<td class="num">' + s.avg + "</td>" + RK.map(function(r){ return "<td>" + stars(s.ratings[r[0]]) + "</td>"; }).join("") +
         "<td>" + esc(s.opinion) + "</td><td>" + esc(s.improve || "") + "</td><td>" + esc(s.recipientChange || "") + "</td>" +
-        '<td style="white-space:nowrap"><button class="btn quiet danger" data-sdel="' + s.id + '">삭제</button></td></tr>";
+        '<td style="white-space:nowrap"><button class="btn quiet danger" data-sdel="' + s.id + '">삭제</button></td></tr>';
     }).join("");
     $("s_table").innerHTML = "<thead><tr><th>응답</th><th>고객</th><th>평균</th>" + RK.map(function(r){ return "<th>" + r[1] + "</th>"; }).join("") +
       "<th>의견</th><th>개선 요청</th><th>수신자 변경</th><th></th></tr></thead><tbody>" + (rows || '<tr><td colspan="12" class="muted">응답이 없습니다.</td></tr>') + "</tbody>"; labelize("s_table");

@@ -21,7 +21,7 @@
 
 <main class="sheet wide">
 
-<!-- 로그인 -->
+
 <section class="pane on" id="t_login">
   <p class="kicker">관리자 확인</p>
   <h1>관리 키를 입력해 주십시오</h1>
@@ -33,7 +33,7 @@
   <div class="btnrow"><button type="button" class="btn" id="loginBtn">확인</button></div>
 </section>
 
-<!-- 1. 계약 링크 만들기 -->
+
 <section class="pane" id="t_new">
   <p class="kicker">신규 계약 · 고객에게 보낼 계약 링크</p>
   <h1>계약 링크 만들기</h1>
@@ -109,7 +109,7 @@
   </div>
 </section>
 
-<!-- 2. 계약 현황 -->
+
 <section class="pane" id="t_contracts">
   <p class="kicker">계약 링크와 체결 현황</p>
   <h1>계약 현황</h1>
@@ -132,11 +132,11 @@
   <div class="tablewrap"><table class="list" id="c_table"></table></div>
 </section>
 
-<!-- 3. 기존 고객 -->
+
 <section class="pane" id="t_clients">
   <p class="kicker">기존 고객 · 만족도 조사와 SLA 동의 링크</p>
   <h1>기존 고객 설문 · SLA</h1>
-  <p class="lede">고객을 등록하면 설문 링크와 SLA 동의 링크가 함께 만들어집니다. 개별 메일 문구도 자동으로 채워집니다.</p>
+  <p class="lede">고객을 등록하면 설문 링크와 SLA 동의 링크가 함께 만들어지고, 등록된 이메일로 SLA 시행 안내 메일을 바로 보낼 수 있습니다.</p>
   <fieldset>
     <legend>고객 등록</legend>
     <div class="grid">
@@ -165,11 +165,11 @@
     <textarea id="k_mail" rows="14" style="font-size:13px;margin-top:6px"></textarea>
     <div class="row2" style="margin-top:8px"><button type="button" class="btn quiet sm" id="k_copy">메일 문구 복사</button></div>
   </div>
-  <div class="toolbar"><span class="hint">설문·SLA 진행 현황</span><span class="spacer"></span><button type="button" class="btn quiet sm" data-reload="clients">새로고침</button></div>
+  <div class="toolbar"><span class="hint">설문·SLA 진행 현황 · 「안내 메일 보내기」는 고객별 동의·설문 링크가 들어간 SLA 시행 안내 메일을 바로 발송합니다.</span><span class="spacer"></span><button type="button" class="btn sm" id="k_sendall" hidden>미발송 고객에게 안내 메일 보내기</button><button type="button" class="btn quiet sm" data-reload="clients">새로고침</button></div>
   <div class="tablewrap"><table class="list" id="k_table"></table></div>
 </section>
 
-<!-- 4. 설문 응답 -->
+
 <section class="pane" id="t_surveys">
   <p class="kicker">만족도 조사 결과</p>
   <h1>설문 응답</h1>
@@ -178,7 +178,7 @@
   <div class="tablewrap"><table class="list" id="s_table"></table></div>
 </section>
 
-<!-- 상세 보기 -->
+
 <div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
   <div class="backdrop" data-dclose></div>
   <div class="msheet">

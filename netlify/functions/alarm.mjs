@@ -14,11 +14,12 @@ import { randomBytes, timingSafeEqual } from "node:crypto";
 import { notify } from "./_notify.mjs";
 import { note } from "./_staffnote.mjs";
 import { pushContract, pushConsent, pushSurvey } from "./_alarm_monday.mjs";
+import { noticeMail, sendNotice } from "./_alarm_mail.mjs";
 
 export const config = { path: [
   "/api/alarm/offer", "/api/alarm/contract", "/api/alarm/client", "/api/alarm/survey", "/api/alarm/consent",
   "/api/alarm/admin/ping", "/api/alarm/admin/list", "/api/alarm/admin/item",
-  "/api/alarm/admin/offer", "/api/alarm/admin/offer/void", "/api/alarm/admin/client", "/api/alarm/admin/delete"
+  "/api/alarm/admin/offer", "/api/alarm/admin/offer/void", "/api/alarm/admin/client", "/api/alarm/admin/client/mail", "/api/alarm/admin/delete"
 ] };
 //
 // 공개(고객)                                관리자 (헤더 x-admin-key = 환경변수 ALARM_ADMIN_KEY)
@@ -59,6 +60,7 @@ export default async (req) => {
       if (m === "POST" && r === "offer") return createOffer(await body(req));
       if (m === "POST" && r === "offer/void") return voidOffer(await body(req));
       if (m === "POST" && r === "delete") return deleteItems(await body(req));
+      if (r === "client/mail") return m === "GET" ? clientMailPreview(url.searchParams.get("id")) : clientMailSend(await body(req));
       if (m === "POST" && r === "client") return createClient(await body(req));
       if (m === "GET" && r === "ping") return json({ ok: true });
       return json({ ok: false, error: "not_found" }, 404);
@@ -163,6 +165,25 @@ async function deleteItems(b) {
     }
   }
   return json({ ok: true, removed: removed.length });
+}
+
+/* 기존 고객 안내 메일 — 미리보기 / 발송 (2026-10-20) */
+async function clientMailPreview(id) {
+  const c = await store().get(TYPES.clients + str(id, 40));
+  if (!c) return json({ ok: false, error: "not_found" }, 404);
+  return json({ ok: true, mail: noticeMail(c) });
+}
+async function clientMailSend(b) {
+  const ids = (Array.isArray(b.ids) ? b.ids : [b.id]).map((x) => str(x, 40)).filter(Boolean).slice(0, 100);
+  const s = store(), results = [];
+  for (const id of ids) {
+    const c = await s.get(TYPES.clients + id);
+    if (!c) { results.push({ id, ok: false, error: "not_found" }); continue; }
+    const r = await sendNotice(c);
+    if (r.ok) { c.mailedAt = now(); c.mailCount = (c.mailCount || 0) + 1; await s.setJSON(TYPES.clients + id, c); }
+    results.push({ id, name: c.name, email: c.email, ...r });
+  }
+  return json({ ok: results.every((r) => r.ok), results });
 }
 
 async function createClient(b) {
