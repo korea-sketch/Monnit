@@ -43,6 +43,11 @@ table.list .muted{color:var(--faint)}
   .admin #dmodal{display:block!important;position:static}.admin #dmodal .backdrop,.admin #dmodal .mhd .btn{display:none}
   .admin .msheet{position:static;box-shadow:none;border:none}.admin .mbody{overflow:visible}}
 
+.selbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px;margin:8px 0 0;border:1px solid var(--accent);background:var(--accent-soft);font-size:13px}
+.selbar .spacer{flex:1}
+.btn.danger{color:var(--critical);border-color:var(--critical)}
+table.list th.sel,table.list td.sel{width:34px;text-align:center;padding-left:8px;padding-right:4px}
+table.list .rowck,#c_all{width:17px;height:17px;margin:0;vertical-align:middle;accent-color:var(--accent)}
 /* ── 모바일 (2026-10-16) ── */
 @media (max-width:720px){
   .sheet.wide{padding:20px 14px 90px}
@@ -65,6 +70,13 @@ table.list .muted{color:var(--faint)}
   table.list td .muted{display:inline;margin-left:6px}
   table.list td.acts{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px;margin-top:4px;border-top:1px dashed var(--rule)}
   table.list td.acts::before{display:none}
+  table.list td.sel{position:absolute;right:10px;top:10px;padding:0;width:auto}
+  table.list td.sel::before{display:none}
+  table.list tr{position:relative}
+  table.list .rowck{width:22px;height:22px}
+  .selbar{position:sticky;top:0;z-index:5}
+  .selbar .btn{flex:1 1 30%;justify-content:center}
+  .selbar .hint:not(#c_selstat){display:none}
   table.list td.acts .btn{flex:1 1 30%;justify-content:center;padding:9px 8px;font-size:13px;min-height:40px}
   table.list td.acts:empty{display:none}
   .stepper .btn{width:48px}

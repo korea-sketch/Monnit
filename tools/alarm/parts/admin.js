@@ -187,7 +187,7 @@
     DATA.contracts.forEach(function(c){ byRef[c.ref] = c; });
     var rows = DATA.offers.filter(function(o){ return f === "all" || o.status === f; }).map(function(o){
       var c = o.contractRef ? byRef[o.contractRef] : null, t = o.terms;
-      return "<tr><td>" + kdt(o.createdAt) + "</td>" +
+      return '<tr data-oid="' + o.id + '"' + (c ? ' data-ref="' + c.ref + '"' : "") + '><td class="sel"><input type="checkbox" class="rowck" aria-label="선택"></td><td>' + kdt(o.createdAt) + "</td>" +
         '<td><span class="pill ' + o.status + '">' + ST[o.status] + "</span></td>" +
         "<td>" + esc(c ? c.customer.name : (o.memo.customer || "—")) + (c ? "" : '<div class="muted">' + esc(o.memo.contact || "") + "</div>") + "</td>" +
         "<td>" + esc(c ? c.customer.site : "—") + "</td>" +
@@ -201,9 +201,44 @@
           (o.status === "open" ? '<button class="btn quiet" data-copy="' + o.id + '">링크</button> <button class="btn quiet" data-void="' + o.id + '">무효</button>' : "") +
         "</td></tr>";
     }).join("");
-    $("c_table").innerHTML = "<thead><tr><th>생성</th><th>상태</th><th>고객</th><th>설치 현장</th><th>솔루션</th><th>개소</th><th>월 청구액</th><th>계약 기간</th><th>체결</th><th></th></tr></thead><tbody>" +
-      (rows || '<tr><td colspan="10" class="muted">항목이 없습니다.</td></tr>') + "</tbody>"; labelize("c_table");
+    $("c_table").innerHTML = "<thead><tr><th class=\"sel\"><input type=\"checkbox\" id=\"c_all\" aria-label=\"전체 선택\"></th><th>생성</th><th>상태</th><th>고객</th><th>설치 현장</th><th>솔루션</th><th>개소</th><th>월 청구액</th><th>계약 기간</th><th>체결</th><th></th></tr></thead><tbody>" +
+      (rows || '<tr><td colspan="11" class="muted">항목이 없습니다.</td></tr>') + "</tbody>"; labelize("c_table"); selSync();
   }
+  /* ── 선택 작업 (체크한 건 각각 내려받기 · 삭제) ── */
+  function selected(){ return Array.prototype.slice.call(document.querySelectorAll("#c_table tbody .rowck:checked")).map(function(ck){ return ck.closest("tr"); }); }
+  function selSync(){
+    var rows = selected(), signed = rows.filter(function(tr){ return tr.dataset.ref; });
+    $("c_selbar").hidden = !rows.length;
+    $("c_selcount").textContent = rows.length + "건 선택" + (signed.length !== rows.length ? " (체결 " + signed.length + "건)" : "");
+    $("c_selpdf").disabled = !signed.length; $("c_sellic").disabled = !signed.length;
+    var all = $("c_all"); if(all){ var every = document.querySelectorAll("#c_table tbody .rowck"); all.checked = every.length > 0 && rows.length === every.length; }
+  }
+  $("c_table").addEventListener("change", function(e){
+    if(e.target.id === "c_all"){ var v = e.target.checked; document.querySelectorAll("#c_table tbody .rowck").forEach(function(ck){ ck.checked = v; }); }
+    if(e.target.classList.contains("rowck") || e.target.id === "c_all") selSync();
+  });
+  var pause = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
+  async function eachSelected(label, fn){
+    var refs = selected().map(function(tr){ return tr.dataset.ref; }).filter(Boolean);
+    if(!refs.length) return;
+    var st = $("c_selstat"); st.hidden = false;
+    for(var i = 0; i < refs.length; i++){
+      st.textContent = label + " " + (i + 1) + " / " + refs.length + " — " + refs[i];
+      try{ await fn(await fetchContract(refs[i])); }catch(err){ alert(refs[i] + ": " + (err.message || "실패")); }
+      await pause(700);   /* 브라우저가 연속 다운로드를 막지 않도록 간격 */
+    }
+    st.textContent = label + " 완료 — " + refs.length + "건"; setTimeout(function(){ st.hidden = true; }, 4000);
+  }
+  $("c_selpdf").addEventListener("click", function(){ eachSelected("계약서 PDF", function(c){ return window.MKDoc.pdf(c); }); });
+  $("c_sellic").addEventListener("click", function(){ eachSelected("사업자등록증", function(c){ return dlLicense(c.ref, c); }); });
+  $("c_seldel").addEventListener("click", async function(){
+    var rows = selected(); if(!rows.length) return;
+    var names = rows.map(function(tr){ var td = tr.children[3]; return td ? td.textContent.trim().split("\n")[0] : tr.dataset.oid; });
+    if(!confirm(rows.length + "건을 삭제할까요?\n\n" + names.slice(0, 8).join("\n") + (names.length > 8 ? "\n…" : "") + "\n\n체결된 계약은 계약서·서명·사업자등록증 기록이 함께 지워지며 되돌릴 수 없습니다. 먼데이 보드의 항목은 남습니다.")) return;
+    var ids = rows.map(function(tr){ return tr.dataset.oid; });
+    try{ await api("delete", {body:{type:"offers", ids: ids}}); }catch(err){ alert(err.message); }
+    load("contracts");
+  });
   $("c_filter").addEventListener("change", renderContracts);
   $("c_csv").addEventListener("click", function(){
     var H = ["접수번호","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","솔루션","개소","1개소 월이용료","할인","월청구액(VAT별도)","계약시작","계약종료","지급일","서명자","SLA동의","사업자등록증"];
@@ -255,7 +290,7 @@
   /* 모바일 카드 보기용: 머리글 텍스트를 각 칸의 data-l 로 */
   function labelize(id){
     var tb = $(id), hs = Array.prototype.map.call(tb.querySelectorAll("thead th"), function(th){ return th.textContent.trim(); });
-    tb.querySelectorAll("tbody tr").forEach(function(tr){ Array.prototype.forEach.call(tr.children, function(td, i){ if(hs[i]) td.setAttribute("data-l", hs[i]); else td.classList.add("acts"); }); });
+    tb.querySelectorAll("tbody tr").forEach(function(tr){ Array.prototype.forEach.call(tr.children, function(td, i){ if(td.classList.contains("sel")) return; if(hs[i]) td.setAttribute("data-l", hs[i]); else td.classList.add("acts"); }); });
   }
   function dl(pairs){ return '<dl class="dgrid">' + pairs.map(function(p){ return "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>"; }).join("") + "</dl>"; }
   function openD(kick, title, html){
@@ -354,13 +389,19 @@
         "<td>" + (c.surveyAt ? '<span class="pill agree">완료 ' + kdate(c.surveyAt) + "</span>" : '<span class="muted">미응답</span>') + "</td>" +
         "<td>" + sla + "</td>" +
         '<td style="white-space:nowrap"><button class="btn quiet" data-mail="' + c.id + '">메일 문구</button> ' +
-        (c.consentRef ? '<button class="btn quiet" data-consent="' + c.consentRef + '">동의서</button>' : "") + "</td></tr>";
+        (c.consentRef ? '<button class="btn quiet" data-consent="' + c.consentRef + '">동의서</button> ' : "") +
+        '<button class="btn quiet danger" data-kdel="' + c.id + '" data-kname="' + esc(c.name) + '">삭제</button></td></tr>";
     }).join("");
     $("k_table").innerHTML = "<thead><tr><th>등록</th><th>고객</th><th>설치 현장</th><th>이용 시작</th><th>설문</th><th>SLA</th><th></th></tr></thead><tbody>" +
       (rows || '<tr><td colspan="7" class="muted">등록된 고객이 없습니다.</td></tr>') + "</tbody>"; labelize("k_table");
   }
   $("k_table").addEventListener("click", async function(e){
     var b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.kdel){
+      if(!confirm("「" + b.dataset.kname + "」 고객을 삭제할까요?\n설문 응답과 SLA 동의 기록도 함께 지워지며 되돌릴 수 없습니다.")) return;
+      try{ await api("delete", {body:{type:"clients", ids:[b.dataset.kdel]}}); }catch(err){ alert(err.message); }
+      load("clients"); load("surveys"); return;
+    }
     if(b.dataset.mail){
       var c = DATA.clients.find(function(x){ return x.id === b.dataset.mail; });
       $("k_mail").value = clientMail(c); $("k_out").hidden = false; $("k_out").scrollIntoView({behavior:"smooth"});
@@ -391,11 +432,18 @@
     var rows = S.map(function(s){
       return "<tr><td>" + kdt(s.createdAt) + "</td><td>" + esc(s.company) + '<div class="muted">' + esc(s.respondent || "") + "</div></td>" +
         '<td class="num">' + s.avg + "</td>" + RK.map(function(r){ return "<td>" + stars(s.ratings[r[0]]) + "</td>"; }).join("") +
-        "<td>" + esc(s.opinion) + "</td><td>" + esc(s.improve || "") + "</td><td>" + esc(s.recipientChange || "") + "</td></tr>";
+        "<td>" + esc(s.opinion) + "</td><td>" + esc(s.improve || "") + "</td><td>" + esc(s.recipientChange || "") + "</td>" +
+        '<td style="white-space:nowrap"><button class="btn quiet danger" data-sdel="' + s.id + '">삭제</button></td></tr>";
     }).join("");
     $("s_table").innerHTML = "<thead><tr><th>응답</th><th>고객</th><th>평균</th>" + RK.map(function(r){ return "<th>" + r[1] + "</th>"; }).join("") +
-      "<th>의견</th><th>개선 요청</th><th>수신자 변경</th></tr></thead><tbody>" + (rows || '<tr><td colspan="11" class="muted">응답이 없습니다.</td></tr>') + "</tbody>"; labelize("s_table");
+      "<th>의견</th><th>개선 요청</th><th>수신자 변경</th><th></th></tr></thead><tbody>" + (rows || '<tr><td colspan="12" class="muted">응답이 없습니다.</td></tr>') + "</tbody>"; labelize("s_table");
   }
+  $("s_table").addEventListener("click", async function(e){
+    var b = e.target.closest("button[data-sdel]"); if(!b) return;
+    if(!confirm("이 설문 응답을 삭제할까요? 되돌릴 수 없습니다.")) return;
+    try{ await api("delete", {body:{type:"surveys", ids:[b.dataset.sdel]}}); }catch(err){ alert(err.message); }
+    load("surveys"); load("clients");
+  });
   $("s_csv").addEventListener("click", function(){
     var head = ["응답일시","고객","현장","응답자","평균"].concat(RK.map(function(r){ return r[1]; })).concat(["실제 대응 경험","의견","개선 요청","수신자 변경"]);
     var q = function(v){ return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };

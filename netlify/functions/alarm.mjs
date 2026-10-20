@@ -18,7 +18,7 @@ import { pushContract, pushConsent, pushSurvey } from "./_alarm_monday.mjs";
 export const config = { path: [
   "/api/alarm/offer", "/api/alarm/contract", "/api/alarm/client", "/api/alarm/survey", "/api/alarm/consent",
   "/api/alarm/admin/ping", "/api/alarm/admin/list", "/api/alarm/admin/item",
-  "/api/alarm/admin/offer", "/api/alarm/admin/offer/void", "/api/alarm/admin/client"
+  "/api/alarm/admin/offer", "/api/alarm/admin/offer/void", "/api/alarm/admin/client", "/api/alarm/admin/delete"
 ] };
 //
 // 공개(고객)                                관리자 (헤더 x-admin-key = 환경변수 ALARM_ADMIN_KEY)
@@ -42,6 +42,7 @@ const store = () => ({
   setJSON: (k, v) => ST.setJSON(k, v),
   get: (k) => ST.get(k, { type: "json" }).catch(() => null),
   list: (o) => ST.list(o),
+  delete: (k) => ST.delete(k),
 });
 
 export default async (req) => {
@@ -57,6 +58,7 @@ export default async (req) => {
       if (m === "GET" && r === "item") return adminItem(url.searchParams.get("type"), url.searchParams.get("id"));
       if (m === "POST" && r === "offer") return createOffer(await body(req));
       if (m === "POST" && r === "offer/void") return voidOffer(await body(req));
+      if (m === "POST" && r === "delete") return deleteItems(await body(req));
       if (m === "POST" && r === "client") return createClient(await body(req));
       if (m === "GET" && r === "ping") return json({ ok: true });
       return json({ ok: false, error: "not_found" }, 404);
@@ -118,6 +120,49 @@ async function voidOffer(b) {
   o.status = "void"; o.voidedAt = now();
   await s.setJSON(key, o);
   return json({ ok: true, offer: o });
+}
+
+/* 관리자: 기록 삭제 (테스트 건 정리용). { type, ids:[...] }
+   - offers  : 링크 + 그 링크로 체결된 계약
+   - contracts: 계약 + 그 계약의 링크
+   - clients : 고객 + 그 고객의 설문·SLA 동의 기록
+   - surveys / consents : 해당 기록만
+   먼데이 보드의 항목은 지우지 않는다(보드에서 직접). */
+async function deleteItems(b) {
+  const type = String(b.type || ""), ids = (Array.isArray(b.ids) ? b.ids : [b.id]).map((x) => str(x, 60)).filter(Boolean).slice(0, 200);
+  if (!TYPES[type] || !ids.length) return json({ ok: false, error: "bad_request" }, 400);
+  const s = store(), removed = [];
+  const del = async (prefix, id) => { try { await s.delete(prefix + id); removed.push(prefix + id); } catch (e) { /* 없으면 무시 */ } };
+  for (const id of ids) {
+    if (type === "offers") {
+      const o = await s.get(TYPES.offers + id);
+      if (o && o.contractRef) await del(TYPES.contracts, o.contractRef);
+      await del(TYPES.offers, id);
+    } else if (type === "contracts") {
+      const c = await s.get(TYPES.contracts + id);
+      if (c && c.offerId) await del(TYPES.offers, c.offerId);
+      await del(TYPES.contracts, id);
+    } else if (type === "clients") {
+      for (const t of ["surveys", "consents"]) {
+        const { blobs } = await s.list({ prefix: TYPES[t] });
+        for (const bl of blobs) { const x = await s.get(bl.key); if (x && x.clientId === id) await del("", bl.key); }
+      }
+      await del(TYPES.clients, id);
+    } else {
+      const x = await s.get(TYPES[type] + id);
+      /* 고객 카드의 진행 표시도 되돌린다 */
+      if (x && x.clientId) {
+        const cl = await s.get(TYPES.clients + x.clientId);
+        if (cl) {
+          if (type === "surveys" && cl.surveyId === id) { cl.surveyAt = ""; cl.surveyId = ""; }
+          if (type === "consents" && cl.consentRef === id) { cl.consentAt = ""; cl.consentDecision = ""; cl.consentRef = ""; }
+          await s.setJSON(TYPES.clients + cl.id, cl);
+        }
+      }
+      await del(TYPES[type], id);
+    }
+  }
+  return json({ ok: true, removed: removed.length });
 }
 
 async function createClient(b) {
@@ -203,7 +248,7 @@ async function submitContract(req, b) {
       contractType: c.contractType === "B2C" ? "B2C" : "B2B", manager: str(c.manager, 40), phone: str(c.phone, 30),
       email: str(c.email, 120), site: str(c.site, 200),
     },
-    recipients: (Array.isArray(b.recipients) ? b.recipients : []).slice(0, 3)
+    recipients: (Array.isArray(b.recipients) ? b.recipients : []).slice(0, 10)
       .map((r) => ({ name: str(r.name, 40), phone: str(r.phone, 30), email: str(r.email, 120) })),
     slaViewedAt: str(b.slaViewedAt, 40), slaAgreedAt: str(b.slaAgreedAt, 40), slaReadPct: Number(b.slaReadPct) || 0,
     acknowledged: Array.isArray(b.acknowledged) ? b.acknowledged.slice(0, 20).map((x) => str(x, 80)) : [],

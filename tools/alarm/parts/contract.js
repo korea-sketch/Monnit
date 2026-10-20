@@ -222,17 +222,8 @@
 
   /* ── 사업자등록증 첨부 ── */
   var LIC = null;
-  function setLicRequired(){
-    var b2b = $("c_type").value === "B2B";
-    $("licreq").hidden = !b2b;
-    if(!LIC){
-      $("licmsg").textContent = b2b
-        ? "JPG·PNG 이미지 (최대 10MB). 스마트폰 촬영본도 괜찮습니다."
-        : "소비자(B2C) 계약은 첨부하지 않아도 됩니다.";
-    }
-  }
-  $("c_type").addEventListener("change", setLicRequired);
-  setLicRequired();
+  var LICMSG = $("licmsg").innerHTML;
+  function setLicRequired(){ if(!LIC) $("licmsg").innerHTML = LICMSG; }   /* 사업자등록증은 선택 (2026-10-20) */
 
   function takeFile(file){
     var msg = $("licmsg");
@@ -282,7 +273,7 @@
   /* ── 고객 정보 검증 ── */
   var REQ = [["c_name","상호/성명"],["c_addr","주소"],["c_ceo","대표자"],
              ["c_mgr","담당자 성명"],["c_tel","담당자 연락처"],["c_mail","담당자 이메일"],
-             ["c_site","설치 현장"],["r1n","수신자 1 성명"],["r1p","수신자 1 휴대전화"]];
+             ["c_site","설치 현장"]];
   $("go4").addEventListener("click", function(){
     var miss = REQ.filter(function(p){ return !$(p[0]).value.trim(); });
     var e = $("err3");
@@ -292,14 +283,16 @@
       $(miss[0][0]).focus();
       return;
     }
-    if($("c_type").value === "B2B" && !LIC){
+    /* 수신자: 성명과 휴대전화가 짝이 맞아야 한다 (둘 다 비면 건너뜀) */
+    var half = recvRows().filter(function(r){ return (r.name && !r.phone) || (!r.name && r.phone); });
+    if(half.length){
       e.hidden = false;
-      e.textContent = "사업자등록증 사본을 첨부해 주십시오.";
-      $("licpick").focus();
+      e.textContent = "수신자 " + half[0].i + "의 성명과 휴대전화를 함께 입력해 주십시오.";
+      $("r" + half[0].i + (half[0].name ? "p" : "n")).focus();
       return;
     }
     e.hidden = true;
-    $("s_lic").textContent = LIC ? ("첨부됨 · " + LIC.name) : "첨부 없음";
+    $("s_lic").textContent = LIC ? ("첨부됨 · " + LIC.name) : "첨부 없음 (추후 1015@monnit.com 으로 보내 주십시오)";
     $("s_cust").textContent = $("c_name").value.trim() + " (대표 " + $("c_ceo").value.trim() + ") · " + $("c_type").value;
     $("s_site").textContent = $("c_site").value.trim();
     if(!$("sg_name").value.trim()) $("sg_name").value = $("c_ceo").value.trim();
@@ -405,11 +398,21 @@
   $("sg_name").addEventListener("input", gate);
 
   /* ── 제출 ── */
-  function recvs(){
-    return [1,2,3].map(function(i){
-      return {name:$("r"+i+"n").value.trim(), phone:$("r"+i+"p").value.trim(), email:$("r"+i+"e").value.trim()};
-    }).filter(function(r){ return r.name || r.phone; });
+  function recvRows(){
+    var out = [];
+    for(var i = 1; i <= 10; i++) out.push({i:i, name:$("r"+i+"n").value.trim(), phone:$("r"+i+"p").value.trim(), email:$("r"+i+"e").value.trim()});
+    return out.filter(function(r){ return r.name || r.phone; });
   }
+  function recvs(){ return recvRows().map(function(r){ return {name:r.name, phone:r.phone, email:r.email}; }); }
+  /* 수신자 칸 3개부터, 「+ 수신자 추가」로 10명까지 */
+  var recvShown = 3;
+  function recvSync(){
+    document.querySelectorAll("#recvGrid .recv").forEach(function(f){ f.hidden = Number(f.dataset.i) > recvShown; });
+    $("recvCount").textContent = recvShown + " / 10";
+    $("recvMore").hidden = recvShown >= 10;
+  }
+  $("recvMore").addEventListener("click", function(){ if(recvShown < 10){ recvShown++; recvSync(); $("r" + recvShown + "n").focus(); } });
+  recvSync();
   function ymd(d){ var p=function(n){return String(n).padStart(2,"0");}; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
   function refNo(){
     var d = new Date(), p = function(n){ return String(n).padStart(2,"0"); };
