@@ -187,12 +187,12 @@ def build_notice():
     body = """<body class="noticepage">
 <div class="topbar"><div class="inner"><div class="brand">
   <a class="mk" href="/" style="text-decoration:none">MONNIT KOREA</a>
-  <span class="nm">긴급 경보 알리미 · 서비스 이용약관 시행 안내</span>
+  <span class="nm">긴급 경보 알리미 · 서비스 이용약관 안내</span>
 </div></div></div>
 <main class="sheet" style="padding-top:26px">
-  <p class="kicker">2026년 10월 16일 시행</p>
-  <h1 style="font-size:24px;line-height:1.35">긴급 경보 알리미 서비스 이용약관(SLA) 시행 및<br>개인정보처리방침 개정 안내</h1>
-  <p class="lede">그동안 구두와 계약서로만 안내드리던 서비스 범위와 책임 기준을 서비스수준협약서(SLA)로 정리하여 2026년 10월 16일부터 시행합니다. 같은 날 개인정보처리방침도 알리미 서비스에 맞게 개정하였습니다. 기존 이용 고객께는 동의해 주신 날부터 SLA가 적용되며, 동의하지 않으셔도 서비스는 기존 계약 조건대로 계속 제공됩니다.</p>
+  <p class="kicker">서비스 이용약관 안내</p>
+  <h1 style="font-size:24px;line-height:1.35">긴급 경보 알리미 서비스 이용약관(SLA) 및<br>개인정보처리방침 안내</h1>
+  <p class="lede">긴급 경보 알리미 서비스의 범위와 책임 기준, 고객께서 확인해 주실 사항을 정리한 서비스수준협약서(SLA)와 개인정보처리방침입니다. 이용 중인 고객께는 동의해 주신 날부터 SLA가 적용되며, 동의하지 않으셔도 서비스는 기존 계약 조건대로 계속 제공됩니다.</p>
 
   <div class="ntc-actions" id="ntcActions">
     <a class="btn" id="ntcConsent" href="/sla-consent">SLA 확인하고 동의하기</a>
@@ -200,14 +200,14 @@ def build_notice():
   </div>
   <p class="hint" id="ntcNoKey" hidden>동의와 설문은 고객별 링크로 진행됩니다. 안내 메일의 버튼으로 접속하시거나, 링크가 없으시면 <a href="mailto:1015@monnit.com">1015@monnit.com</a> 으로 요청해 주십시오.</p>
 
-  <h2 class="ntc-h">무엇이 달라지나요</h2>
+  <h2 class="ntc-h">핵심 내용</h2>
   <div class="ntc-grid">
     <div class="ntc-card"><b>서비스 범위</b><p>알림 발송까지가 서비스 범위입니다. 상시 관제·현장 출동·기관 신고는 포함되지 않습니다. <small>SLA 제3조</small></p></div>
     <div class="ntc-card"><b>보조 수단</b><p>법정 안전설비와 자체 안전관리 체계를 대체하지 않으며, 센서 특성상 오탐·미탐이 생길 수 있습니다. <small>SLA 제3·5조</small></p></div>
     <div class="ntc-card"><b>책임 한도</b><p>회사의 배상 한도는 직전 12개월간 지급한 이용료 총액입니다(고의·중과실 제외). <small>SLA 제10·11조</small></p></div>
     <div class="ntc-card"><b>고객이 하실 일</b><p>월 1회 테스트 알림 점검, 배터리 알림 후 14일 안에 교체, 수신자 정보 최신 유지. <small>SLA 제7조</small></p></div>
     <div class="ntc-card"><b>알림 수신자</b><p>최대 10명까지 등록할 수 있습니다. 추가·변경은 <a href="mailto:1015@monnit.com">1015@monnit.com</a> 으로 알려 주시면 반영해 드립니다. <small>SLA 제8조</small></p></div>
-    <div class="ntc-card"><b>개인정보</b><p>알리미 서비스 관련 처리 항목·보관 기간(계약 종료 후 5년)·위탁 내용을 개인정보처리방침에 추가했습니다. <small>개인정보처리방침 2026-10-16 개정</small></p></div>
+    <div class="ntc-card"><b>개인정보</b><p>계약·수신자 정보는 알림 발송과 고객 지원 목적으로만 처리하며, 보관 기간과 위탁 내용은 개인정보처리방침에 정해져 있습니다. <small>개인정보처리방침</small></p></div>
   </div>
 
   <h2 class="ntc-h">문서 전문</h2>
@@ -217,7 +217,7 @@ def build_notice():
     <li><a href="/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></li>
   </ul>
 
-  <h2 class="ntc-h">기존 계약은 어떻게 되나요</h2>
+  <h2 class="ntc-h">기존 계약과의 관계</h2>
   <p class="ntc-p">계약 기간, 이용 요금, 지급 조건, 최소 이용기간 등 종전 계약의 조건은 바뀌지 않습니다. SLA는 동의해 주신 날부터 적용되고, 그 전에 발생한 사유에는 종전 계약 조건이 적용됩니다. 동의하지 않으셔도 서비스는 종전 조건대로 계속 제공됩니다(SLA 부칙).</p>
   <p class="ntc-p">궁금하신 점은 <b>02-2088-1454</b> 또는 <a href="mailto:korea@monnit.com">korea@monnit.com</a> 으로 연락 주십시오.</p>
 """
@@ -234,7 +234,7 @@ def build_notice():
     js = ("(function(){var m=/[?&]k=([A-Za-z0-9_-]+)/.exec(location.search);var k=m?m[1]:'';"
           "var c=document.getElementById('ntcConsent'),s=document.getElementById('ntcSurvey');"
           "if(k){c.href='/sla-consent?k='+k;s.href='/survey?k='+k;}else{document.getElementById('ntcNoKey').hidden=false;c.href='/alarm/terms';c.textContent='SLA 전문 보기';s.hidden=true;}})();")
-    page("alarm/notice.html", "알리미 서비스 이용약관 시행 안내", "긴급 경보 알리미 서비스수준협약서(SLA) 시행 및 개인정보처리방침 개정 안내", body, js, extra_css=css, with_modal=False)
+    page("alarm/notice.html", "알리미 서비스 이용약관 안내", "긴급 경보 알리미 서비스수준협약서(SLA) 및 개인정보처리방침 안내", body, js, extra_css=css, with_modal=False)
 
 if __name__ == "__main__":
     build_contract(); build_admin(); build_survey(); build_consent(); build_terms(); build_notice()

@@ -17,15 +17,15 @@
 
 <main class="sheet">
 
-
+<!-- ───────── 2. SLA 안내 ───────── -->
 <section class="pane on" id="p1" aria-label="SLA 안내">
   <p class="kicker">단계 1 / 2 · 서비스수준협약(SLA) 안내</p>
-  <h1>서비스 기준(SLA)을 새로 정리했습니다</h1>
-  <p class="lede"><span id="hello"></span>서비스 범위와 책임 기준을 분명히 하기 위해 서비스수준협약(SLA)을 마련했습니다. 계약 조건과 관련된 내용이니 아래 요약과 전문을 확인하신 뒤, 다음 단계에서 동의 여부를 선택해 주십시오.</p>
+  <h1>서비스 기준(SLA)을 확인해 주십시오</h1>
+  <p class="lede"><span id="hello"></span>서비스 범위와 책임 기준을 정리한 서비스수준협약(SLA)입니다. 계약 조건과 관련된 내용이니 아래 요약과 전문을 확인하신 뒤, 다음 단계에서 동의 여부를 선택해 주십시오.</p>
 
   <div class="note" id="nolink" hidden>
-    <span class="tag">확인 필요</span>
-    담당자가 보낸 <b>전용 링크</b>로 접속하지 않으셨습니다. 메일에 있는 링크로 다시 접속해 주시거나 02-2088-1454로 연락 주십시오.
+    <span class="tag">안내</span>
+    <span id="nolinkMsg">이 화면은 고객별 링크로 동의를 받는 화면입니다. 메일로 받으신 링크로 접속하시면 바로 동의하실 수 있습니다. 링크가 없으시면 <a href="mailto:1015@monnit.com">1015@monnit.com</a> 또는 02-2088-1454로 요청해 주십시오. SLA 전문은 아래에서 확인하실 수 있습니다.</span>
   </div>
   <div class="terms" id="who" hidden style="margin-bottom:18px">
     <dl><dt>고객</dt><dd id="v_cust">—</dd><dt>설치 현장</dt><dd id="v_site">—</dd><dt>이용 시작일</dt><dd id="v_since">—</dd></dl>
@@ -50,8 +50,12 @@
     </dl>
   </div>
 
-  <p style="margin:22px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost" id="openSla">SLA 전문 보기 (제1조 ~ 제18조 · 부칙)</button><a class="btn quiet slapdf" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none">PDF 내려받기</a></p>
-  <p class="hint" id="slaseen" hidden style="margin-top:10px">전문 확인 · <span id="slaseenAt"></span></p>
+  <div class="slabtn" style="margin-top:22px">
+    <div class="tx"><b>서비스수준협약(SLA) 전문</b> — 위 요약의 근거가 되는 전체 문서입니다(제1조~제18조·부칙, 이용 제품의 부속서 포함). 동의 전에 한 번 읽어 주십시오.</div>
+    <button type="button" class="btn" id="openSla">전문 읽기 →</button>
+    <a class="btn quiet slapdf" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none">PDF로 받기</a>
+    <span class="slaseen" id="slaseen" hidden>확인함 ✓<b id="slaseenAt"></b></span>
+  </div>
 
   <fieldset id="pickBox" hidden>
     <legend>이용 중인 알리미 <span class="req">*</span></legend>
@@ -71,7 +75,7 @@
   </div>
 </section>
 
-
+<!-- ───────── 3. 동의 여부 · 서명 ───────── -->
 <section class="pane" id="p2" aria-label="동의 여부">
   <p class="kicker">단계 2 / 2 · 동의 여부 선택</p>
   <h1>SLA 적용에 동의하시겠습니까?</h1>
@@ -133,7 +137,7 @@
   </div>
 </section>
 
-
+<!-- ───────── 완료 ───────── -->
 <section class="pane" id="p5" aria-label="접수 완료">
   <div class="receipt">
     <div class="hd">

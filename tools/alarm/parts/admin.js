@@ -356,7 +356,7 @@
       (c.site ? c.site + "에" : "") + " 긴급 경보 알리미를" + (months || " 이용해 주셔서 감사합니다.") + "\n" +
       "그동안 써 보시면서 느끼신 점을 듣고 싶어 연락드렸습니다.\n\n" +
       "1. 만족도 조사 (약 2분)\n   별점과 짧은 의견을 남겨 주시면 서비스 개선에 반영하겠습니다.\n   ▶ " + L.survey + "\n\n" +
-      "2. 서비스수준협약(SLA) 확인 및 동의 요청\n   서비스 범위와 책임 기준을 문서로 정리한 SLA를 새로 마련했습니다.\n" +
+      "2. 서비스수준협약(SLA) 확인 및 동의 요청\n   서비스 범위와 책임 기준을 정리한 SLA입니다.\n" +
       "   · 알림 발송까지가 서비스 범위이며, 상시 관제·현장 출동·기관 신고는 포함되지 않습니다.\n" +
       "   · 법정 안전설비를 대신하지 않으며, 센서 특성상 오탐·미탐이 생길 수 있습니다.\n" +
       "   · 회사 배상 한도는 직전 12개월간 지급한 이용료 총액입니다. (고의·중과실 제외)\n" +
@@ -414,14 +414,14 @@
   $("k_sendall").addEventListener("click", function(){
     var ids = DATA.clients.filter(function(c){ return !c.mailedAt && c.email; }).map(function(c){ return c.id; });
     if(!ids.length) return;
-    if(!confirm(ids.length + "명에게 SLA 시행 안내 메일을 보낼까요? 각 고객의 동의 링크·설문 링크가 들어갑니다.")) return;
+    if(!confirm(ids.length + "명에게 SLA 안내 메일을 보낼까요? 각 고객의 동의 링크·설문 링크가 들어갑니다.")) return;
     sendMails(ids, this);
   });
   $("k_table").addEventListener("click", async function(e){
     var b = e.target.closest("button"); if(!b) return;
     if(b.dataset.send){
       if(!b.dataset.kmail){ alert("이 고객은 이메일이 등록되어 있지 않습니다. 「문구」를 복사해 직접 보내 주십시오."); return; }
-      if(!confirm("「" + b.dataset.kname + "」 (" + b.dataset.kmail + ") 에게 SLA 시행 안내 메일을 보낼까요?")) return;
+      if(!confirm("「" + b.dataset.kname + "」 (" + b.dataset.kmail + ") 에게 SLA 안내 메일을 보낼까요?")) return;
       sendMails([b.dataset.send], b); return;
     }
     if(b.dataset.prev){

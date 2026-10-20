@@ -33,7 +33,7 @@ const POINTS = [
   ["책임 한도", "회사의 배상 한도는 직전 12개월간 지급한 이용료 총액입니다(고의·중과실 제외)."],
   ["고객이 하실 일", "월 1회 테스트 알림 점검, 배터리 알림 후 14일 안에 교체, 수신자 정보 최신 유지."],
   ["수신자", "알림 수신자는 최대 10명까지 등록할 수 있으며, 추가·변경은 1015@monnit.com 으로 알려 주시면 반영해 드립니다."],
-  ["개인정보", "개인정보처리방침이 같은 날 개정되었습니다(알리미 서비스 관련 처리 항목·보관 기간·위탁 내용 추가)."],
+  ["개인정보", "입력하신 정보와 알림 수신자 정보는 개인정보처리방침에 따라 알림 발송·고객 지원 목적으로만 처리합니다."],
 ];
 
 export function noticeMail(client) {
@@ -41,14 +41,14 @@ export function noticeMail(client) {
   const who = client.mgr ? `${client.mgr}님` : `${client.name} 담당자님`;
   const prods = (Array.isArray(client.products) ? client.products : []).map((k) => PRODUCT_LABEL[k]).filter(Boolean);
   const using = prods.length ? prods.join("·") : "긴급 경보 알리미";
-  const site = client.site ? `${client.site}에 ` : "";
-  const subject = `[모넷코리아] 긴급 경보 알리미 서비스 이용약관(SLA) 시행 안내 및 이용 의견 요청 — ${client.name}`;
+  const site = "";   /* 설치 현장은 여러 곳일 수 있어 인사말에 넣지 않는다 (2026-10-20) */
+  const subject = `[모넷코리아] 긴급 경보 알리미 서비스 이용약관(SLA) 확인 요청 및 이용 의견 — ${client.name}`;
 
   const text = [
     `${who}, 안녕하세요. 모넷코리아입니다.`,
     `${site}${using}를 이용해 주셔서 감사합니다.`, "",
-    "2026년 10월 16일부터 긴급 경보 알리미 서비스수준협약서(SLA)를 시행하고, 같은 날 개인정보처리방침을 개정하였습니다.",
-    "그동안 구두와 계약서로만 안내드리던 서비스 범위와 책임 기준을 문서로 정리한 것으로, 주요 내용은 아래와 같습니다.", "",
+    "긴급 경보 알리미 서비스의 서비스수준협약서(SLA)와 개인정보처리방침을 안내드립니다.",
+    "서비스 범위와 책임 기준, 고객께서 확인해 주실 사항을 정리한 문서로, 주요 내용은 아래와 같습니다.", "",
     ...POINTS.map(([t, d]) => `· ${t}: ${d}`), "",
     "1) SLA 확인 및 동의",
     "   아래 링크에서 전문을 확인하시고 동의 여부를 표시해 주십시오. 동의해 주셔야 SLA가 적용되며,",
@@ -57,7 +57,7 @@ export function noticeMail(client) {
     "2) 이용 만족도 조사 (약 2분)",
     "   별점과 짧은 의견을 남겨 주시면 서비스 개선에 반영하겠습니다.",
     `   ▶ ${L.survey}`, "",
-    `변경 내용 안내 페이지: ${L.notice}`,
+    `SLA 요약 안내 페이지: ${L.notice}`,
     `SLA 전문(웹): ${L.terms}`,
     `SLA PDF: ${L.pdf}`,
     `개인정보처리방침: ${L.privacy}`, "",
@@ -74,8 +74,8 @@ export function noticeMail(client) {
 <tr><td style="padding:22px 30px;border-bottom:2px solid #0b6b4f"><span style="font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#b3261e">MONNIT KOREA</span></td></tr>
 <tr><td style="padding:28px 30px 8px">
   <p style="margin:0 0 14px">${esc(who)}, 안녕하세요. 모넷코리아입니다.<br>${esc(site)}${esc(using)}를 이용해 주셔서 감사합니다.</p>
-  <h1 style="font-size:20px;line-height:1.4;margin:0 0 12px">긴급 경보 알리미 서비스 이용약관(SLA) 시행 및<br>개인정보처리방침 개정 안내</h1>
-  <p style="margin:0 0 18px;color:#41524b"><b style="color:#0f1a16">2026년 10월 16일</b>부터 긴급 경보 알리미 서비스수준협약서(SLA)를 시행하고, 같은 날 개인정보처리방침을 개정하였습니다. 그동안 구두와 계약서로만 안내드리던 서비스 범위와 책임 기준을 문서로 정리한 것입니다.</p>
+  <h1 style="font-size:20px;line-height:1.4;margin:0 0 12px">긴급 경보 알리미 서비스 이용약관(SLA) 및<br>개인정보처리방침 확인 요청</h1>
+  <p style="margin:0 0 18px;color:#41524b">긴급 경보 알리미 서비스의 서비스수준협약서(SLA)와 개인정보처리방침을 안내드립니다. 서비스 범위와 책임 기준, 고객께서 확인해 주실 사항을 정리한 문서이니 한 번 읽어 보시고 동의 여부를 표시해 주십시오.</p>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5e2;margin:0 0 22px;font-size:14px">
     ${POINTS.map(([t, d], i) => `<tr><td style="padding:10px 14px;width:96px;background:#f3f5f4;color:#41524b;font-weight:600;vertical-align:top;${i ? "border-top:1px solid #dfe5e2" : ""}">${esc(t)}</td><td style="padding:10px 14px;vertical-align:top;${i ? "border-top:1px solid #dfe5e2" : ""}">${esc(d)}</td></tr>`).join("")}
   </table>
@@ -87,7 +87,7 @@ export function noticeMail(client) {
   <p style="margin:0 0 26px">${btn(L.survey, "만족도 조사 참여", false)}</p>
   <p style="margin:0 0 4px;font-size:13px;color:#41524b">자세히 보기</p>
   <p style="margin:0 0 24px;font-size:13px;line-height:1.9">
-    <a href="${L.notice}" style="color:#0b6b4f">변경 내용 안내 페이지</a> ·
+    <a href="${L.notice}" style="color:#0b6b4f">SLA 요약 안내 페이지</a> ·
     <a href="${L.terms}" style="color:#0b6b4f">SLA 전문(웹)</a> ·
     <a href="${L.pdf}" style="color:#0b6b4f">SLA PDF</a> ·
     <a href="${L.privacy}" style="color:#0b6b4f">개인정보처리방침</a></p>

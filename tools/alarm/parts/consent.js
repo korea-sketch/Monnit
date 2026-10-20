@@ -25,10 +25,13 @@
   var C = null, K = new URLSearchParams(location.search).get("k") || "", FIXED = false;
   function picked(){ return Array.prototype.map.call(document.querySelectorAll("#pick input:checked"), function(c){ return c.value; }); }
   function chosenProducts(){ return FIXED ? (C && C.products || []) : picked(); }
-  function nolink(){ $("nolink").hidden = false; $("p1nav").hidden = true; $("stepnav").hidden = true; }
+  function nolink(bad){
+    $("nolink").hidden = false; $("p1nav").hidden = true; $("stepnav").hidden = true;
+    if(bad) $("nolinkMsg").innerHTML = '접속하신 링크가 만료되었거나 올바르지 않습니다. 메일에 있는 링크를 다시 눌러 주시거나 <a href="mailto:1015@monnit.com">1015@monnit.com</a> · 02-2088-1454로 연락 주십시오. SLA 전문은 아래에서 확인하실 수 있습니다.';
+  }
   if(!K) nolink();
   else fetch("/api/alarm/client?id=" + encodeURIComponent(K)).then(function(r){ return r.json(); }).then(function(j){
-    if(!j || !j.ok) return nolink();
+    if(!j || !j.ok) return nolink(true);
     C = j.client;
     FIXED = (C.products || []).length > 0;
     if(FIXED) applyProducts(C.products); else { $("pickBox").hidden = false; applyProducts([]); }
@@ -37,7 +40,7 @@
     $("hello").textContent = (C.mgr ? C.mgr + "님" : C.name + " 담당자님") + ", 안녕하세요. ";
     if(C.mgr) $("sg_name").value = C.mgr;
     if(C.consentDone){ $("done").hidden = false; $("p1nav").hidden = true; $("stepnav").hidden = true; }
-  }).catch(nolink);
+  }).catch(function(){ nolink(true); });
 
   function radio(name){
     var el = document.querySelector('input[name="'+name+'"]:checked');
@@ -94,7 +97,7 @@
     if(!slaViewedAt){
       slaViewedAt = new Date().toISOString();
       $("slaseen").hidden = false;
-      $("slaseenAt").textContent = new Date(slaViewedAt).toLocaleString("ko-KR");
+      $("slaseenAt").textContent = new Date(slaViewedAt).toLocaleString("ko-KR", {month:"long", day:"numeric", hour:"2-digit", minute:"2-digit"});
     }
   }
   function closeSla(){
@@ -108,7 +111,7 @@
   $("slaAgree").addEventListener("change", function(){ $("slaAgreeBtn").hidden = !this.checked; $("agreeAllBtn").hidden = this.checked; });
   function finishSla(){
     if(!slaAgreedAt) slaAgreedAt = new Date().toISOString();
-    $("openSla2").textContent = "SLA 전문 다시 보기 ✓";
+    $("openSla2").textContent = "SLA 전문 다시 보기 ✓"; $("openSla").textContent = "전문 다시 읽기";
     closeSla();
     gate();
   }
