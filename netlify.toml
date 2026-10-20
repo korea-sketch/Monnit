@@ -2,7 +2,7 @@
 # 빌드 시 build.js 가 robots.txt / sitemap.xml / llms.txt / llms-full.txt / pages/*.html 를 생성합니다.
 [build]
   # proposal-sync: 맞춤 제안서 사례 데이터를 구글 시트에서 갱신 (실패해도 스냅샷으로 계속 진행)
-  command = "node scripts/proposal-sync.mjs && node build.js"
+  command = "node scripts/proposal-sync.mjs && node scripts/support-sync.mjs && node build.js"
   publish = "."
 
 # Node 18+ (Function/ESM 없이 순수 CommonJS라 버전 민감도 낮음)

@@ -206,6 +206,8 @@ export async function sendAlarmReply({ product, email, name, origin }) {
   const raw = String(product || '');
   if (!/알리미/.test(raw) && !['alarm', 'fire', 'power', 'water'].includes(raw.trim()))
     return { sent: false, skipped: 'not_alarm' };
+  /* 이미 쓰고 있는 고객의 AS·설치 확인 접수에 「소개 메일」이 나가면 안 된다 (2026-10-20) */
+  if (/기술지원|설치\s*확인|AS\s*접수|수리/.test(raw)) return { sent: false, skipped: 'support' };
 
   const keys = productsOf(product);
   if (!keys.length) return { sent: false, skipped: 'no_product' };

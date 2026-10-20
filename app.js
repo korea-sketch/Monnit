@@ -97,7 +97,7 @@ function ensureProposalChat(){
   if (window.MKPropChat || window.__propChatLoading) return;
   window.__propChatLoading = true;
   var s = document.createElement('script');
-  s.src = '/js/proposal-chat.js?v=32'; s.async = true;
+  s.src = '/js/proposal-chat.js?v=33'; s.async = true;
   s.onload = function(){ window.__propChatLoading = false; if (window.MKPropChat) window.MKPropChat.bind(); };
   s.onerror = function(){ window.__propChatLoading = false; console.warn('[proposal-chat] load failed'); };
   document.head.appendChild(s);
@@ -4835,6 +4835,30 @@ function renderFaqs(){
       <button class="faq-q">${esc(f.q)}</button>
       <div class="faq-a"><div class="faq-a-inner">${esc(f.a)}</div></div>
     </div>`).join('');
+  wireSupportFaq();
+}
+/* 2026-10-20 — 자주 묻는 질문을 기술지원 지식베이스(js/support-kb.js)로 확장.
+   검색·분류·문제 해결 단계 + 「해결 안 됨 → 모니와 이어서 확인 → 접수」.
+   FAQ 화면이 열릴 때만 불러온다(다른 페이지 무게 0). 불러오지 못하면 위의 기본 FAQ 가 그대로 보인다.
+   시트(CMS)의 FAQS 는 「도입 전 궁금해요」 분류로 함께 보여 준다. */
+let _faqSupportWired = false, _faqSupportDone = false;
+function wireSupportFaq(){
+  const view = document.getElementById('view-faqs'), list = document.getElementById('faqList');
+  if (!view || !list) return;
+  const run = () => {
+    if (!view.classList.contains('active')) return;
+    let host = document.getElementById('faqSupport');
+    if (!host){ host = document.createElement('div'); host.id = 'faqSupport'; list.parentNode.insertBefore(host, list); }
+    const go = () => { if (!window.MKSupport) return; if (host._faqs === FAQS) return; host._faqs = FAQS; window.MKSupport.renderFaq(host, FAQS); window.MKSupport.ensure(K => { if (K){ list.hidden = true; _faqSupportDone = true; } }); };
+    if (window.MKSupport) return go();
+    if (window.__spLoading) return; window.__spLoading = true;
+    const sc = document.createElement('script'); sc.src = '/js/support-chat.js?v=1'; sc.async = true;
+    sc.onload = () => { window.__spLoading = false; go(); }; sc.onerror = () => { window.__spLoading = false; };
+    document.head.appendChild(sc);
+  };
+  if (_faqSupportDone) { run(); return; }
+  if (!_faqSupportWired){ _faqSupportWired = true; try { new MutationObserver(run).observe(view, { attributes:true, attributeFilter:['class'] }); } catch(e){} }
+  run();
 }
 let kbState = { view:'home', cat:null, search:'', page:1, docId:null, ret:null };
 let kbWired = false;

@@ -17,6 +17,9 @@
  *  환경변수 (없으면 기본값)
  *    ROUTE_GENERAL_TO   일반 문의 담당. 쉼표로 여러 명. 기본 1015@monnit.com
  *    ROUTE_ALARM_TO     알리미 담당. 쉼표로 여러 명. 기본 5959@monnit.com
+ *    ROUTE_SUPPORT_TO   기술지원(AS) 접수 담당 — 모니 「사용 중 문제 해결」에서 들어온 건 (2026-10-20).
+ *                       비어 있으면 일반 문의 담당만 받는다. 기술팀 주소를 넣으면 그쪽도 함께 받는다.
+ *                       제품이 알리미인 고장 접수는 알리미 담당에게도 간다.
  *    ROUTE_ALWAYS_TO    어떤 종류든 배분 메일을 항상 함께 받는 사람. 기본 0702yeom@gmail.com
  *                       (대표님 지시 2026-10-16 — 담당자에게 가는 문의를 대표도 같이 받는다. 비우려면 ROUTE_ALWAYS_TO=- )
  *                       단, 예지보전 가이드 자동 발송 건(/promo/consulting 무경험 신청)은 대표님께 보내지 않는다.
@@ -38,6 +41,7 @@ const splitList = s => String(s || '').split(/[,;\s]+/).map(x => x.trim().toLowe
 
 export const generalTo = () => splitList(env('ROUTE_GENERAL_TO', '1015@monnit.com'));
 export const alarmTo = () => splitList(env('ROUTE_ALARM_TO', '5959@monnit.com'));
+export const supportTo = () => splitList(env('ROUTE_SUPPORT_TO', ''));
 export const alwaysTo = () => splitList(env('ROUTE_ALWAYS_TO', '0702yeom@gmail.com'));
 /** 예지보전 가이드 자동 발송 건 — 무경험 신청. 대표님은 받지 않는다 (2026-10-16) */
 export const isGuideLead = (lead, payload) => {
@@ -89,6 +93,8 @@ export function kindOf(lead, payload) {
   if (/현장진단 예약|visit_booking/.test(String(lead.point || '')) || /현장\s*진단\s*예약/.test(hay)) return 'visit';
   /* 알리미 — 알리미 모델을 고른 신청이거나, 알리미 랜딩(/promo/alarm)에서 들어온 접수 */
   if (String(p['알리미 모델'] || '').trim() || /알리미/.test(hay) || /promo[\/-]alarm/.test(String(lead.landing || p['유입 페이지'] || ''))) return 'alarm';
+  /* 모니 기술지원 접수 — 제품이 알리미면 알리미 담당도 함께 (2026-10-20) */
+  if (/기술지원|support_ticket/.test(hay + ' ' + String(lead.point || ''))) return /알리미/.test(String(p['제품'] || '')) ? 'alarm-support' : 'support';
   return 'general';
 }
 
@@ -96,7 +102,8 @@ export async function recipientsFor(kind, opts) {
   if (kind === 'proposal') return [];
   const out = new Set(generalTo());
   if (kind === 'visit') for (const r of (await readVisitRecipients()).list) out.add(r.email);
-  if (kind === 'alarm') for (const e of alarmTo()) out.add(e);
+  if (kind === 'alarm' || kind === 'alarm-support') for (const e of alarmTo()) out.add(e);
+  if (kind === 'support' || kind === 'alarm-support') for (const e of supportTo()) out.add(e);
   if (!(opts && opts.guide)) for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 — 가이드 건만 제외 */
   return [...out];
 }

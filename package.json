@@ -9,7 +9,7 @@
     "smol-toml": "^1.9.1"
   },
   "scripts": {
-    "build:cf": "node scripts/proposal-sync.mjs && node build.js && node cloudflare/prepare.mjs",
+    "build:cf": "node scripts/proposal-sync.mjs && node scripts/support-sync.mjs && node build.js && node cloudflare/prepare.mjs",
     "dev:cf": "npx wrangler@4 dev",
     "deploy:cf": "npx wrangler@4 deploy"
   }

@@ -12,7 +12,7 @@ keep_vars = true
 
 # 빌드 — Cloudflare 가 GitHub 에서 받아 이 명령을 실행한 뒤 배포합니다
 [build]
-command = "node scripts/proposal-sync.mjs && node build.js && node cloudflare/prepare.mjs"
+command = "node scripts/proposal-sync.mjs && node scripts/support-sync.mjs && node build.js && node cloudflare/prepare.mjs"
 
 # 정적 파일 (dist/)
 #  · 페이지·API 는 Worker 가 먼저 받아 Netlify 와 같은 규칙(리다이렉트·IP 차단·방문 기록)으로 처리

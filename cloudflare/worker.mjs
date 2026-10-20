@@ -31,6 +31,7 @@ import * as fn_ops from '../netlify/functions/ops.mjs';
 import * as fn_proposal_admin from '../netlify/functions/proposal-admin.mjs';
 import * as fn_proposal_api from '../netlify/functions/proposal-api.mjs';
 import * as fn_proposal_chat from '../netlify/functions/proposal-chat.mjs';
+import * as fn_support_chat from '../netlify/functions/support-chat.mjs';   /* 기술지원 대화 (2026-10-20) */
 import * as fn_track from '../netlify/functions/track.mjs';
 import * as fn_visitadmin from '../netlify/functions/visitadmin.mjs';
 import * as fn_blob_export from '../netlify/functions/blob-export.mjs';
@@ -54,7 +55,7 @@ import * as guardMod from '../netlify/functions/_guard.js';
 const V2 = {
   blockadmin: fn_blockadmin, blockapi: fn_blockapi, flowadmin: fn_flowadmin, lead: fn_lead,
   mailpreview: fn_mailpreview, noticeadmin: fn_noticeadmin, ops: fn_ops, 'proposal-admin': fn_proposal_admin,
-  'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, track: fn_track, visitadmin: fn_visitadmin,
+  'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, 'support-chat': fn_support_chat, track: fn_track, visitadmin: fn_visitadmin,
   'blob-export': fn_blob_export, alarm: fn_alarm
 };
 const BACKGROUND = { 'proposal-build-background': fn_build_bg };

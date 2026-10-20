@@ -4,8 +4,10 @@ import { append } from './_store.mjs';
 import { notify } from './_notify.mjs';
 import * as _note from './_staffnote.mjs';   /* 메일 보낼 것 / 알림함에만 남길 것 (2026-09-30) */
 import { pushLead } from './_monday.mjs';
+import { pushSupport, isSupportLead } from './_monday_support.mjs';   /* 기술지원 보드 — AS·설치 확인 접수는 리드 원장 대신 여기로 (2026-10-20) */
 import * as _test from './_istest.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
+import { sendSupportAck } from './_supportmail.mjs';   /* 모니 기술지원 접수 확인 메일 — 고객에게 (2026-10-20) */
 import { routeLead } from './_route.mjs';   /* 담당자별 배분 — 일반 1015@ · 예약 msk8206@ (2026-10-13) */
 import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
@@ -172,14 +174,29 @@ export default async (req) => {
          · 맞춤 제안서 외 모든 접수 → 1015@monnit.com (백서·프로모션·협업·컨설팅 등)
          · 현장 진단 예약           → /visit/admin 「예약 알림 받는 사람」(기본 msk8206@monnit.com) + 1015@
        규칙·주소는 _route.mjs 참고. */
-    const [_notified, , _reply, _routed] = await Promise.allSettled([
+    const _support = isSupportLead(lead, p);
+    const [_notified, _board, _reply, _routed, _ack] = await Promise.allSettled([
       _browserSent ? Promise.resolve({ ok: true, via: _byProposal ? 'proposal' : 'browser' })
         : !_wantMail ? Promise.resolve({ ok: true, via: 'ops', held: true })
         : notify(lead, p),
-      pushLead(id, lead),
+      _support ? pushSupport(id, lead, p) : pushLead(id, lead),
       sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin }),
-      routeLead(lead, p)
+      routeLead(lead, p),
+      sendSupportAck({ interest: lead.interest, email: lead.email, name: lead.name, no: pick(p, ['접수번호']), urgent: /긴급/.test(pick(p, ['긴급도'])) })
     ]);
+    try {
+      const bv = (_board && _board.status === 'fulfilled') ? _board.value : null;
+      if (_support) await append('ops', 'route-' + monthKey(safeTs(body.ts)), {
+        ts: lead.ts, ok: !!(bv && bv.ok), kind: 'monday-support', to: (bv && bv.itemId) ? 'item ' + bv.itemId : '',
+        note: (bv && (bv.skipped || bv.error)) || '', point: lead.point || '', company: lead.company || ''
+      });
+    } catch (e) { /* 관측용 */ }
+    try {
+      const av = (_ack && _ack.status === 'fulfilled') ? _ack.value : null;
+      if (av && av.kind) await append('ops', 'automail-' + monthKey(safeTs(body.ts)), {
+        ts: lead.ts, email: lead.email, product: 'support-ack:' + av.kind, sent: !!av.sent, note: av.skipped || av.error || ''
+      });
+    } catch (e) { /* 관측용 */ }
     try {
       const rv = (_routed && _routed.status === 'fulfilled') ? _routed.value : null;
       await append('ops', 'route-' + monthKey(safeTs(body.ts)), {

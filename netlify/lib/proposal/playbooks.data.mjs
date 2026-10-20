@@ -1,4 +1,4 @@
-/* 자동 생성 — scripts/proposal-sync.mjs (2026-10-20T02:14:31.730Z, 원본: data/proposal/playbooks/*.json)
+/* 자동 생성 — scripts/proposal-sync.mjs (2026-10-20T07:09:02.773Z, 원본: data/proposal/playbooks/*.json)
    산업 문구는 JSON 파일을 고치세요. */
 export default {
  "bio_pharma": {

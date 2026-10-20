@@ -1193,18 +1193,33 @@ const FAQ_ITEMS = [
   ['알림은 어떤 방식으로 받나요?', '사용자가 설정한 조건을 초과하면 iMonnit이 SMS 문자, 이메일, 전화로 즉시 알림을 보냅니다. 임계값과 수신자는 자유롭게 설정할 수 있습니다.'],
   ['설치와 설정은 어렵지 않나요?', '대부분의 ALTA 센서는 전원을 켜는 즉시 게이트웨이에 연결되는 플러그앤플레이 방식으로, 시스템 구성에 보통 15분이면 충분합니다. Monnit Korea가 현장 설치와 초기 설정을 지원합니다.']
 ];
+/* 2026-10-20 — 기술지원 지식베이스(js/support-kb.js)의 문제 해결 문서도 같은 페이지·스키마에 싣는다.
+   (빌드 순서: support-sync → build.js. 파일이 없거나 읽지 못하면 기존 6문항만) */
+const SUPPORT_ITEMS = (() => {
+  try {
+    const box = { window: {} };
+    require('vm').runInNewContext(fs.readFileSync(path.join(__dirname, 'js/support-kb.js'), 'utf8'), box);
+    const K = box.window.MKSupportKB;
+    return K.ARTICLES.filter(a => a.cat !== 'general').map(a => {
+      const c = (K.CATS.find(x => x.key === a.cat) || {}).name || '';
+      const steps = (a.steps || []).map((x, i) => `${i + 1}) ${x}`).join(' ');
+      return [a.title, a.lead + (steps ? ' 확인 순서: ' + steps : ''), c];
+    });
+  } catch (e) { console.warn('[build] support-kb 읽기 실패 — FAQ 기본 문항만', e.message); return []; }
+})();
 writePage('faqs', page({
   slug: 'faqs',
-  title: 'Monnit 자주 묻는 질문 — 통신 거리·배터리·보안',
-  desc: '무선 통신 거리, 배터리 수명, 통신 두절 시 데이터 보존, Encrypt-RF 보안, 알림 방식, 설치 난이도 등 도입 전 가장 많이 받는 질문을 정리했습니다.',
+  title: 'Monnit 자주 묻는 질문 — 통신 거리·배터리·보안·문제 해결',
+  desc: '무선 통신 거리, 배터리 수명, 보안 같은 도입 전 질문과 센서 연결·게이트웨이 LED·알림 미수신·오류 메시지 등 사용 중 문제 해결 방법을 정리했습니다.',
   h1: '자주 묻는 질문',
   jsonld: {
     '@context': 'https://schema.org', '@type': 'FAQPage',
-    mainEntity: FAQ_ITEMS.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }))
+    mainEntity: FAQ_ITEMS.concat(SUPPORT_ITEMS).map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }))
   },
   bodyHtml: `
-<p>도입 전 가장 많이 받는 질문을 정리했습니다. 더 궁금한 점은 언제든 문의해 주세요.</p>
+<p>도입 전 질문부터 사용 중 문제 해결까지 정리했습니다. 찾는 답이 없으면 사이트의 모니에게 물어보세요.</p>
 ${FAQ_ITEMS.map(([q, a]) => `<h2>${esc(q)}</h2><p>${esc(a)}</p>`).join('\n')}
+${SUPPORT_ITEMS.length ? '<h2>사용 중 문제 해결</h2>\n' + SUPPORT_ITEMS.map(([q, a, c]) => `<h3>${esc(q)}</h3><p>${c ? '[' + esc(c) + '] ' : ''}${esc(a)}</p>`).join('\n') : ''}
 <p><a href="${SITE}/contact">상담·문의</a> · <a href="${SITE}/knowledgebase">기술 지식베이스</a> · <a href="${SITE}/guides">설치 가이드</a></p>`
 }), 'Monnit 자주 묻는 질문');
 
