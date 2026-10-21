@@ -142,6 +142,7 @@
     var etc = String(t.etc || "").split("\n").map(function(l){ return l.replace(/^[-·\s]+/, "").trim(); }).filter(Boolean);
     var rows = [
       ["납품 솔루션", esc(sol)],
+      ["설치 현장", u.site ? esc(u.site) + (u.siteAddr ? '<br><span style="color:#5A6B7B">' + esc(u.siteAddr) + "</span>" : "") : "—"],
       ["사용 금액", price],
       ["안내 사항", esc(m.notice)],
       ["계약 기간", kd(t.from) + " ~ " + kd(t.to) + (per ? ' <span class="red">(' + per + ")</span>" : "")],

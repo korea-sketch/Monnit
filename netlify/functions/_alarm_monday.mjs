@@ -80,7 +80,7 @@ export function pushContract(rec) {
   ].filter(Boolean).join('\n');
   return createItem(GROUP.contract, `${c.name} · ${c.site}`, {
     [COL.kind]: { label: '계약서 발급' },
-    [COL.company]: cut(c.name, 120), [COL.site]: cut(c.site, 200),
+    [COL.company]: cut(c.name, 120), [COL.site]: cut(c.site + (c.siteAddr ? ' (' + c.siteAddr + ')' : ''), 200),
     [COL.products]: products(t.products),
     [COL.sites]: String(t.sites || ''), [COL.monthly]: String(t.monthly || ''),
     [COL.term]: (t.from && t.to) ? { from: t.from, to: t.to } : null,

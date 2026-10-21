@@ -222,7 +222,7 @@
       return '<tr data-oid="' + o.id + '"' + (c ? ' data-ref="' + c.ref + '"' : "") + (st === "returned" ? ' class="hot"' : "") + '><td class="sel"><input type="checkbox" class="rowck" aria-label="선택"></td><td>' + kdate(o.createdAt) + "</td>" +
         '<td><span class="pill ' + st + '">' + (ST[st] || st) + "</span></td>" +
         "<td>" + esc(c ? c.customer.name : (o.memo.customer || "—")) + '<div class="muted">' + esc(c ? c.customer.manager + " " + c.customer.phone : (o.memo.contact || "")) + "</div></td>" +
-        "<td>" + esc(c ? c.customer.site : "—") + "</td>" +
+        "<td>" + esc(c ? c.customer.site : "—") + (c && c.customer.siteAddr ? '<div class="muted">' + esc(c.customer.siteAddr) + "</div>" : "") + "</td>" +
         "<td>" + esc(c ? c.terms.solution : t.sol) + "</td>" +
         '<td class="num">' + t.qty + "</td>" +
         '<td class="num">' + won(t.monthly) + (t.discount ? '<div class="muted">할인 −' + Number(t.discount).toLocaleString("ko-KR") + "</div>" : "") + "</td>" +
@@ -276,11 +276,11 @@
   });
   $("c_filter").addEventListener("change", renderContracts);
   $("c_csv").addEventListener("click", function(){
-    var H = ["계약번호","상태","발급일시","회신일시","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","솔루션","개소","1개소 월이용료","할인","월청구액(VAT별도)","계약시작","계약종료","지급일","SLA동의","날인 계약서","사업자등록증","알림 수신자"];
+    var H = ["계약번호","상태","발급일시","회신일시","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","현장주소","솔루션","개소","1개소 월이용료","할인","월청구액(VAT별도)","계약시작","계약종료","지급일","SLA동의","날인 계약서","사업자등록증","알림 수신자"];
     var q = function(v){ v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     var lines = [H.join(",")].concat(DATA.contracts.map(function(c){ var t = c.terms, u = c.customer, fs = c.files || [];
       var has = function(k){ return fs.some(function(f){ return f.kind === k; }); };
-      return [c.ref, ST[c.status] || c.status, kdt(c.submittedAt), kdt(c.returnedAt), kdt(c.signedAt), u.name, u.bizNo, u.ceo, u.address, u.contractType, u.manager, u.phone, u.email, u.site, t.solution, t.sites, t.unitPrice, t.discount || 0, t.monthly, t.from, t.to, t.payDay, kdt(c.slaAgreedAt),
+      return [c.ref, ST[c.status] || c.status, kdt(c.submittedAt), kdt(c.returnedAt), kdt(c.signedAt), u.name, u.bizNo, u.ceo, u.address, u.contractType, u.manager, u.phone, u.email, u.site, u.siteAddr || "", t.solution, t.sites, t.unitPrice, t.discount || 0, t.monthly, t.from, t.to, t.payDay, kdt(c.slaAgreedAt),
         has("contract") ? "회신" : "없음", has("license") || c.hasLicense ? "회신" : "없음", (c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(" / ")].map(q).join(","); }));
     var blob = new Blob(["﻿" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "알리미_계약현황_" + ymd(new Date()) + ".csv"; a.click();
@@ -323,7 +323,7 @@
     var t = c.terms, u = c.customer;
     return ["[긴급 경보 알리미 구독계약] " + c.ref + " · " + (ST[c.status] || c.status),
       "상호: " + u.name, "사업자등록번호: " + (u.bizNo || "-"), "대표자: " + u.ceo, "주소: " + u.address, "계약 구분: " + u.contractType,
-      "담당자: " + u.manager + " / " + u.phone + " / " + u.email, "설치 현장: " + u.site,
+      "담당자: " + u.manager + " / " + u.phone + " / " + u.email, "설치 현장: " + u.site, "현장 주소: " + (u.siteAddr || "-"),
       "납품 솔루션: " + window.MKPaper.meta(t.products, t.solNote).solution, "개소: " + t.sites, "월 청구액: " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " · 할인 " + Number(t.discount).toLocaleString("ko-KR") + "원" : ""),
       "계약 기간: " + t.from + " ~ " + t.to, "지급일: " + t.payDay, "입금 계좌: " + t.bank,
       "알림 수신자: " + ((c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(", ") || "-"),
@@ -392,7 +392,7 @@
         ["지급일", esc(t.payDay)], ["입금 계좌", esc(t.bank)], ["기타 사항", esc(t.etc).replace(/\n/g, "<br>")]]) +
       "<h3>발주처 (고객)</h3>" + dl([
         ["상호", esc(u.name)], ["사업자등록번호", esc(u.bizNo || "—")], ["주소", esc(u.address)], ["대표자", esc(u.ceo)],
-        ["계약 구분", u.contractType === "B2C" ? "소비자 (B2C)" : "사업자 (B2B)"], ["담당자", esc(u.manager) + " · " + esc(u.phone) + " · " + esc(u.email)], ["설치 현장", esc(u.site)]]) +
+        ["계약 구분", u.contractType === "B2C" ? "소비자 (B2C)" : "사업자 (B2B)"], ["담당자", esc(u.manager) + " · " + esc(u.phone) + " · " + esc(u.email)], ["설치 현장", esc(u.site)], ["현장 주소", esc(u.siteAddr || "—")]]) +
       "<h3>알림 수신자</h3>" + ((c.recipients || []).length ? dl(c.recipients.map(function(r, i){ return ["수신자 " + (i+1), esc(r.name) + " · " + esc(r.phone) + (r.email ? " · " + esc(r.email) : "")]; })) : '<p class="muted">등록된 수신자가 없습니다.</p>') +
       "<h3>진행 기록</h3>" + dl([
         ["SLA", esc(c.slaVersion) + " · 동의 " + kdt(c.slaAgreedAt) + (c.slaViewedAt ? " · 열람 " + kdt(c.slaViewedAt) + " · " + (c.slaReadPct || 0) + "% 읽음" : "")],

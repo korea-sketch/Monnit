@@ -222,12 +222,12 @@
   });
 
   /* ── 3 → 4: 고객 정보 검증 후 계약서 발급 ── */
-  var REQ = [["c_name","상호/성명"],["c_addr","주소"],["c_ceo","대표자"],["c_mgr","담당자 성명"],["c_tel","담당자 연락처"],["c_mail","담당자 이메일"],["c_site","설치 현장"]];
+  var REQ = [["c_name","상호/성명"],["c_addr","주소"],["c_ceo","대표자"],["c_mgr","담당자 성명"],["c_tel","담당자 연락처"],["c_mail","담당자 이메일"],["c_site","설치 현장명"],["c_siteAddr","설치 현장 주소"]];
   function fillForm(r){
     var u = r.customer || {};
     $("c_name").value = u.name || ""; $("c_biz").value = u.bizNo || ""; $("c_addr").value = u.address || ""; $("c_ceo").value = u.ceo || "";
     $("c_type").value = u.contractType === "B2C" ? "B2C" : "B2B"; $("c_mgr").value = u.manager || ""; $("c_tel").value = u.phone || "";
-    $("c_mail").value = u.email || ""; $("c_site").value = u.site || "";
+    $("c_mail").value = u.email || ""; $("c_site").value = u.site || ""; $("c_siteAddr").value = u.siteAddr || "";
     (r.recipients || []).forEach(function(x, i){ if(i < 10){ $("r"+(i+1)+"n").value = x.name || ""; $("r"+(i+1)+"p").value = x.phone || ""; $("r"+(i+1)+"e").value = x.email || ""; } });
     recvShown = Math.max(3, Math.min(10, (r.recipients || []).length)); recvSync();
   }
@@ -244,7 +244,7 @@
     var body = {
       offerId: OFFER_ID, products: chosen(),
       customer: { name: $("c_name").value.trim(), bizNo: $("c_biz").value.trim(), address: $("c_addr").value.trim(), ceo: $("c_ceo").value.trim(),
-                  contractType: $("c_type").value, manager: $("c_mgr").value.trim(), phone: $("c_tel").value.trim(), email: $("c_mail").value.trim(), site: $("c_site").value.trim() },
+                  contractType: $("c_type").value, manager: $("c_mgr").value.trim(), phone: $("c_tel").value.trim(), email: $("c_mail").value.trim(), site: $("c_site").value.trim(), siteAddr: $("c_siteAddr").value.trim() },
       recipients: recvRows().map(function(r){ return { name: r.name, phone: r.phone, email: r.email }; }),
       slaViewedAt: slaViewedAt, slaAgreedAt: slaAgreedAt === "issued" ? (REC && REC.slaAgreedAt) || "" : slaAgreedAt,
       slaReadPct: Math.round(slaReadPct * 100), acknowledged: ackList()
@@ -272,6 +272,7 @@
     $("d_sol").textContent = t.products && t.products.length ? m.solution : t.solution;
     $("d_cust").textContent = u.name + " (대표 " + u.ceo + ")";
     $("d_site").textContent = u.site;
+    $("d_siteAddr").textContent = u.siteAddr || "—";
     $("d_price").textContent = won(t.monthly) + " / 월 (부가세 별도)";
     $("d_term").textContent = kdate(t.from) + " ~ " + kdate(t.to);
     var st = REC.status || STATUS || "issued";
@@ -380,4 +381,8 @@
     $("sentList").innerHTML = fs.map(function(f){ return '<li><span class="k">' + (KIND[f.kind] || "첨부") + '</span><span class="n">' + esc(f.name) + '</span><span class="s">' + new Date(f.uploadedAt).toLocaleString("ko-KR") + "</span></li>"; }).join("");
     renderPending();
   }
+  /* 설치 현장 주소 = 발주처 주소 */
+  function syncAddr(){ if($("c_sameAddr").checked){ $("c_siteAddr").value = $("c_addr").value; } $("c_siteAddr").readOnly = $("c_sameAddr").checked; }
+  $("c_sameAddr").addEventListener("change", syncAddr);
+  $("c_addr").addEventListener("input", function(){ if($("c_sameAddr").checked) $("c_siteAddr").value = this.value; });
 })();

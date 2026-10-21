@@ -285,7 +285,7 @@ async function submitContract(req, b) {
   if (o.status !== "open" && o.status !== "issued") return json({ ok: false, error: "offer_" + o.status }, 409);
 
   const c = b.customer || {};
-  for (const k of ["name", "address", "ceo", "manager", "phone", "email", "site"]) {
+  for (const k of ["name", "address", "ceo", "manager", "phone", "email", "site", "siteAddr"]) {
     if (!str(c[k], 200)) return json({ ok: false, error: "missing_" + k }, 400);
   }
   if (!b.slaAgreedAt) return json({ ok: false, error: "missing_sla" }, 400);
@@ -308,7 +308,7 @@ async function submitContract(req, b) {
     customer: {
       name: str(c.name, 120), bizNo: str(c.bizNo, 20), address: str(c.address, 200), ceo: str(c.ceo, 40),
       contractType: c.contractType === "B2C" ? "B2C" : "B2B", manager: str(c.manager, 40), phone: str(c.phone, 30),
-      email: str(c.email, 120), site: str(c.site, 200),
+      email: str(c.email, 120), site: str(c.site, 200), siteAddr: str(c.siteAddr, 200),
     },
     recipients: (Array.isArray(b.recipients) ? b.recipients : []).slice(0, 10)
       .map((r) => ({ name: str(r.name, 40), phone: str(r.phone, 30), email: str(r.email, 120) })).filter((r) => r.name || r.phone),
@@ -333,7 +333,7 @@ async function submitContract(req, b) {
     ip: rec.client.ip, ref,
   }, {
     "계약번호": ref, "진행": "고객이 계약서를 내려받았습니다 — 직인 날인본·사업자등록증 회신 대기 (1015@monnit.com 또는 온라인 회신)",
-    "설치 현장": rec.customer.site, "대표자": rec.customer.ceo, "계약 구분": rec.customer.contractType,
+    "설치 현장": rec.customer.site, "현장 주소": rec.customer.siteAddr, "대표자": rec.customer.ceo, "계약 구분": rec.customer.contractType,
     "월 청구액": won(t.monthly) + " (부가세 별도)", "계약 기간": `${t.from} ~ ${t.to}`,
     "SLA": `${SLA_VERSION} 동의 ${rec.slaAgreedAt}`,
     "알림 수신자": rec.recipients.map((r) => `${r.name} ${r.phone}`).join(" / ") || "—",
@@ -541,7 +541,7 @@ async function customerMail(rec, offerId) {
   const text = [
     `${rec.customer.manager}님, 안녕하세요. 모넷코리아입니다.`, "",
     `긴급 경보 알리미 구독 계약서가 발급되었습니다. (계약번호 ${rec.ref})`, "",
-    `· 발주처: ${rec.customer.name} (대표 ${rec.customer.ceo})`, `· 설치 현장: ${rec.customer.site}`,
+    `· 발주처: ${rec.customer.name} (대표 ${rec.customer.ceo})`, `· 설치 현장: ${rec.customer.site} (${rec.customer.siteAddr})`,
     `· 납품 솔루션: ${t.solution} · ${t.sites}개소`,
     `· 월 청구액: ${won(t.monthly)} (부가세 별도)${t.discount ? " — 정가 " + won(t.listPrice) + "에서 " + won(t.discount) + " 할인" : ""}`,
     `· 계약 기간: ${t.from} ~ ${t.to}`, "",
