@@ -22,7 +22,7 @@
  *                       제품이 알리미인 고장 접수는 알리미 담당에게도 간다.
  *    ROUTE_ALWAYS_TO    어떤 종류든 배분 메일을 항상 함께 받는 사람. 기본 0702yeom@gmail.com
  *                       (대표님 지시 2026-10-16 — 담당자에게 가는 문의를 대표도 같이 받는다. 비우려면 ROUTE_ALWAYS_TO=- )
- *                       단, 예지보전 가이드 자동 발송 건(/promo/consulting 무경험 신청)은 대표님께 보내지 않는다.
+ *                       (2026-10-21) 예지보전 가이드 자동 발송 건도 대표님께 보낸다.
  *    VISIT_NOTIFY_TO    /visit/admin 에서 한 번도 저장하지 않았을 때의 예약 알림 기본값. 기본 msk8206@monnit.com
  *    ROUTE_MAIL_OFF=1   이 배분 메일을 끈다
  */
@@ -98,13 +98,18 @@ export function kindOf(lead, payload) {
   return 'general';
 }
 
+/* 2026-10-21 대표 지시 — 일반 문의는 「무조건」 1015 와 대표님이 같이 받는다.
+   환경변수를 잘못 바꿔도 이 두 주소는 빠지지 않는다. */
+export const MUST_TO = ['1015@monnit.com', '0702yeom@gmail.com'];
+
 export async function recipientsFor(kind, opts) {
   if (kind === 'proposal') return [];
-  const out = new Set(generalTo());
+  const out = new Set([...MUST_TO, ...generalTo()]);
   if (kind === 'visit') for (const r of (await readVisitRecipients()).list) out.add(r.email);
   if (kind === 'alarm' || kind === 'alarm-support') for (const e of alarmTo()) out.add(e);
   if (kind === 'support' || kind === 'alarm-support') for (const e of supportTo()) out.add(e);
-  if (!(opts && opts.guide)) for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 — 가이드 건만 제외 */
+  for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 (2026-10-21: 가이드 건 제외 규칙 폐지) */
+  out.delete('korea@monnit.com');   /* 2026-10-21 — korea@ 로는 접수 알림을 보내지 않는다 */
   return [...out];
 }
 
@@ -153,8 +158,18 @@ export async function routeLead(lead, payload) {
     /* 고객 메일 주소가 맞으면 「답장」 이 곧바로 고객에게 가도록 */
     const _rn = String(lead.name || lead.company || '').trim();
     const replyTo = okEmail(lead.email) ? (_rn ? { email: String(lead.email).trim(), name: _rn } : { email: String(lead.email).trim() }) : undefined;
-    const r = await sendBrevo({ to, subject, fields, replyTo });
-    return { ...r, kind, to };
+    /* 받는 사람마다 따로 보낸다 (2026-10-21) — 한 주소가 막혀도(수신 거부·반송 목록) 나머지는 받고,
+       누가 받았는지(delivered)를 주소별로 남길 수 있다. 실패한 주소는 한 번 더 시도한다. */
+    const one = async e => {
+      let r = await sendBrevo({ to: [e], subject, fields, replyTo }).catch(err => ({ ok: false, error: String(err && err.message || err) }));
+      if (!r.ok && !r.skipped) r = await sendBrevo({ to: [e], subject, fields, replyTo }).catch(err => ({ ok: false, error: String(err && err.message || err) }));
+      return { email: e, ...r };
+    };
+    const res = await Promise.all(to.map(one));
+    const delivered = res.filter(x => x.ok).map(x => x.email);
+    const failed = res.filter(x => !x.ok).map(x => x.email + ':' + (x.error || x.skipped || '실패'));
+    return { ok: failed.length === 0 && delivered.length > 0, via: 'brevo', kind, to, delivered,
+      ...(failed.length ? { error: failed.join(' / ') } : {}) };
   } catch (e) {
     return { ok: false, error: String(e && e.message || e) };
   }

@@ -10,7 +10,7 @@ const SITE = 'https://monnit.co.kr';
    다만 Web3Forms 로 나가는 경로는 키에 등록된 주소로만 가므로,
    실제로 주소를 바꾸려면 Brevo 경로(_notify.mjs)를 타야 한다. */
 /* 키·개인 주소를 코드에 두지 않는다 (2026-09-18) — 없으면 그 경로를 건너뛴다 */
-const ALERT_TO = process.env.NOTIFY_TO || 'korea@monnit.com';
+const ALERT_TO = ((process.env.NOTIFY_TO || '0702yeom@gmail.com').split(/[,;\s]+/).filter(e => e && e.toLowerCase() !== 'korea@monnit.com').join(',')) || '0702yeom@gmail.com';   /* 2026-10-21 korea@ 제외 */
 const WEB3FORMS_KEY = process.env.WEB3FORMS_KEY || '';
 
 const PAGES = [
