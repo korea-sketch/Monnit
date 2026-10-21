@@ -175,13 +175,25 @@ export default async (req) => {
          · 현장 진단 예약           → /visit/admin 「예약 알림 받는 사람」(기본 msk8206@monnit.com) + 1015@
        규칙·주소는 _route.mjs 참고. */
     const _support = isSupportLead(lead, p);
+    /* ── 메일 정책 (2026-10-21 대표 지시) ─────────────────────────────
+         · 백서·자료 신청(doc_request)·구독(subscribe) → 담당자 메일 없음 (알림함·먼데이에만)
+         · 그 밖의 문의(contact)                      → 1015@monnit.com + 0702yeom@gmail.com 동시에 (같은 메일)
+       대표님께 따로 가던 알림(notify)은 배분 메일이 대표님께 닿지 못했을 때만 예비로 보낸다 → 중복 없음. */
+    const _mailable = type === 'contact';
+    const _routeP = _mailable ? routeLead(lead, p) : Promise.resolve({ ok: true, kind: 'doc', skipped: '자료·구독 — 메일 없음' });
+    const _notifyP = _routeP.catch(() => null).then(rv => {
+      if (!_mailable) return { ok: true, via: 'ops', held: true };
+      if (rv && rv.kind !== 'proposal' && Array.isArray(rv.delivered) && rv.delivered.includes('0702yeom@gmail.com'))
+        return { ok: true, via: 'route' };
+      if (_browserSent) return { ok: true, via: _byProposal ? 'proposal' : 'browser' };
+      if (rv && rv.kind === 'proposal' && !_wantMail) return { ok: true, via: 'ops', held: true };
+      return notify(lead, p);
+    });
     const [_notified, _board, _reply, _routed, _ack] = await Promise.allSettled([
-      _browserSent ? Promise.resolve({ ok: true, via: _byProposal ? 'proposal' : 'browser' })
-        : !_wantMail ? Promise.resolve({ ok: true, via: 'ops', held: true })
-        : notify(lead, p),
+      _notifyP,
       _support ? pushSupport(id, lead, p) : pushLead(id, lead),
       sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin }),
-      routeLead(lead, p),
+      _routeP,
       sendSupportAck({ interest: lead.interest, email: lead.email, name: lead.name, no: pick(p, ['접수번호']), urgent: /긴급/.test(pick(p, ['긴급도'])) })
     ]);
     try {
