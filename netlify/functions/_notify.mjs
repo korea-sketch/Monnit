@@ -31,11 +31,7 @@
    어느 경로가 꺼져 있는지는 /ops → 연동 점검에서 바로 보인다.
    ※ 저장소에 한 번 올라간 두 키는 이미 노출된 값이므로 재발급이 필요하다. */
 const splitTo  = s => String(s || '').split(/[,;\s]+/).map(x => x.trim().toLowerCase()).filter(x => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(x));
-/* 2026-10-21 — 접수 알림은 korea@monnit.com 으로 보내지 않는다. 대표님(0702yeom@gmail.com)이 받는다.
-   NOTIFY_TO 환경변수에 korea@monnit.com 이 남아 있어도 아래 noKorea() 가 걸러낸다. */
-const DROP     = ['korea@monnit.com'];
-const noKorea  = arr => arr.filter(e => DROP.indexOf(e) < 0);
-const TO       = process.env.NOTIFY_TO || '0702yeom@gmail.com';
+const TO       = process.env.NOTIFY_TO || 'korea@monnit.com';
 const ALWAYS   = () => splitTo(process.env.NOTIFY_ALWAYS_TO == null ? '0702yeom@gmail.com' : process.env.NOTIFY_ALWAYS_TO);
 const SF_KEY   = process.env.STATICFORMS_KEY || '';
 const W3_KEY   = process.env.WEB3FORMS_KEY   || '';
@@ -138,23 +134,19 @@ async function copyAlways(subject, text, already) {
 export async function notify(lead, payload, opts) {
   /* Brevo 수신자: 지정값(또는 NOTIFY_TO) + 항상 받는 사람 */
   const base = (opts && opts.to) || TO;
-  /* 2026-10-21 — 무경험(가이드 자동 발송) 신청도 대표님께 보낸다. 예전엔 빠져 있어 「메일이 안 온다」고 하셨다. */
-  const always = ALWAYS();
-  let to = noKorea([...new Set([...splitTo(base), ...always])]);
-  if (!to.length) to = ['0702yeom@gmail.com'];
-  to = to.join(',');
+  /* 예지보전 가이드 자동 발송 건(무경험 신청)은 대표님께 보내지 않는다 (2026-10-16) */
+  const guide = String((lead && lead.exp_group) || (payload && payload['경험 구분']) || '').trim() === '무경험';
+  const always = guide ? [] : ALWAYS();
+  const to = [...new Set([...splitTo(base), ...always])].join(',');
   const subject = subjectOf(lead);
   const fields = fieldsOf(lead, payload);
   const text = textOf(fields);
   const tried = [];
 
-  /* 2026-10-21 — Brevo 를 1순위로. 받는 주소를 코드가 정하는 유일한 경로라서
-     대표님 메일함으로 확실히 간다. StaticForms·Web3Forms 는 Brevo 가 실패할 때만 쓴다
-     (그 둘의 수신자는 각 서비스 대시보드 설정을 따른다). */
   for (const step of [
-    () => viaBrevo(subject, text, to),
     () => viaStaticForms(subject, fields),
-    () => viaWeb3Forms(subject, fields)
+    () => viaWeb3Forms(subject, fields),
+    () => viaBrevo(subject, text, to)
   ]) {
     try {
       const r = await step();

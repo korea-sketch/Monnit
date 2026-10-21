@@ -65,11 +65,11 @@ async function createItem(group, name, values) {
   } catch (e) { console.error('[alarm→monday]', e && e.message || e); return { ok: false, error: String(e && e.message || e) }; }
 }
 
-/** 신규 계약 체결 */
+/** 신규 계약 — 계약서 발급(날인본 회신 대기). 회신·체결 완료는 setContractKind 로 「구분」만 바꾼다 */
 export function pushContract(rec) {
   const t = rec.terms || {}, c = rec.customer || {};
   const memo = [
-    `서명 ${rec.signature && rec.signature.name || ''} ${rec.signature && rec.signature.role || ''}`.trim(),
+    `계약서 발급 ${rec.ref} — 직인 날인본·사업자등록증 회신 대기 (1015@monnit.com / 온라인 회신)`,
     `SLA ${rec.slaVersion || ''} 동의 ${rec.slaAgreedAt || ''} · 제품 선택 ${t.productsChosenBy === 'customer' ? '고객' : '담당자'}`,
     t.discount ? `할인 ${Number(t.discount).toLocaleString('ko-KR')}원 (${t.discountNote || t.discountType})` : '',
     `지급 ${t.payDay || ''} · ${t.bank || ''}`,
@@ -79,7 +79,7 @@ export function pushContract(rec) {
     t.etc ? `기타: ${t.etc}` : ''
   ].filter(Boolean).join('\n');
   return createItem(GROUP.contract, `${c.name} · ${c.site}`, {
-    [COL.kind]: { label: '계약 체결' },
+    [COL.kind]: { label: '계약서 발급' },
     [COL.company]: cut(c.name, 120), [COL.site]: cut(c.site, 200),
     [COL.products]: products(t.products),
     [COL.sites]: String(t.sites || ''), [COL.monthly]: String(t.monthly || ''),
@@ -126,3 +126,15 @@ export function pushSurvey(rec) {
 }
 
 export function configured() { return { board: BOARD(), token: !!TOKEN() }; }
+
+/** 계약 진행 단계 갱신: 계약서 발급 → 날인본 회신 → 계약 체결 */
+export async function setContractKind(itemId, label) {
+  if (!TOKEN() || !itemId) return { ok: false, skipped: true };
+  try {
+    await gql(
+      `mutation($b:ID!,$i:ID!,$v:JSON!){ change_multiple_column_values(board_id:$b, item_id:$i, column_values:$v, create_labels_if_missing:true){ id } }`,
+      { b: BOARD(), i: String(itemId), v: JSON.stringify({ [COL.kind]: { label } }) }
+    );
+    return { ok: true };
+  } catch (e) { console.error('[alarm→monday]', e && e.message || e); return { ok: false, error: String(e && e.message || e) }; }
+}

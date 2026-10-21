@@ -2,7 +2,7 @@
  *
  *  Netlify v2 함수 형식. Cloudflare Worker(cloudflare/worker.mjs) 가 V2 목록에서 불러 실행한다.
  *  저장: @netlify/blobs 저장소 "alarm" → Cloudflare 에서는 R2 (wrangler.toml alias)
- *        offers/<id> 계약 링크(조건) · contracts/<ref> 체결 계약 · clients/<id> 기존 고객 ·
+ *        offers/<id> 계약 링크(조건) · contracts/<ref> 발급 계약 · files/<ref>/<fid> 회신 파일 · clients/<id> 기존 고객 ·
  *        surveys/<id> 설문 · consents/<ref> SLA 동의
  *  알림: 접수마다 _notify.notify() (대표님 메일함) + _staffnote.note() (/ops/notices 알림함)
  *        + 먼데이 「알리미 계약 현황」 보드 아이템 (_alarm_monday.mjs, MONDAY_TOKEN 필요).
@@ -13,28 +13,39 @@ import { getStore } from "@netlify/blobs";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { notify } from "./_notify.mjs";
 import { note } from "./_staffnote.mjs";
-import { pushContract, pushConsent, pushSurvey } from "./_alarm_monday.mjs";
+import { pushContract, pushConsent, pushSurvey, setContractKind } from "./_alarm_monday.mjs";
 import { noticeMail, sendNotice } from "./_alarm_mail.mjs";
 
 export const config = { path: [
-  "/api/alarm/offer", "/api/alarm/contract", "/api/alarm/client", "/api/alarm/survey", "/api/alarm/consent",
+  "/api/alarm/offer", "/api/alarm/contract", "/api/alarm/contract/file", "/api/alarm/client", "/api/alarm/survey", "/api/alarm/consent",
   "/api/alarm/admin/ping", "/api/alarm/admin/list", "/api/alarm/admin/item",
-  "/api/alarm/admin/offer", "/api/alarm/admin/offer/void", "/api/alarm/admin/client", "/api/alarm/admin/client/mail", "/api/alarm/admin/delete"
+  "/api/alarm/admin/offer", "/api/alarm/admin/offer/void", "/api/alarm/admin/client", "/api/alarm/admin/client/mail", "/api/alarm/admin/delete",
+  "/api/alarm/admin/file", "/api/alarm/admin/file/delete", "/api/alarm/admin/contract/status"
 ] };
 //
 // 공개(고객)                                관리자 (헤더 x-admin-key = 환경변수 ALARM_ADMIN_KEY)
 //   GET  /api/alarm/offer?id=…  계약 조건     GET  /api/alarm/admin/list?type=offers|contracts|clients|surveys|consents
-//   POST /api/alarm/contract    계약 체결     GET  /api/alarm/admin/item?type=…&id=…
+//   POST /api/alarm/contract    계약서 발급   GET  /api/alarm/admin/item?type=…&id=…
+//   POST /api/alarm/contract/file?offer&ref&kind&name  (본문=파일) 날인 계약서·사업자등록증 회신
+//                                            GET  /api/alarm/admin/file?ref&id      회신 파일 내려받기
+//                                            POST /api/alarm/admin/file?ref&kind&name 담당자가 메일로 받은 파일 등록
+//                                            POST /api/alarm/admin/file/delete {ref,id}
+//                                            POST /api/alarm/admin/contract/status {ref,status} 체결 완료 처리
 //   GET  /api/alarm/client?id=… 기존 고객     POST /api/alarm/admin/offer        계약 링크(조건) 만들기
 //   POST /api/alarm/survey      만족도 조사   POST /api/alarm/admin/offer/void   계약 링크 무효화
 //   POST /api/alarm/consent     SLA 동의      POST /api/alarm/admin/client       기존 고객 등록(설문·SLA 링크)
 //
 
-const MAX_BODY = 12 * 1024 * 1024;           // 사업자등록증 이미지 포함
+const MAX_BODY = 2 * 1024 * 1024;            // JSON 요청 (파일은 /contract/file 로 따로)
+const FILE_MAX = 10 * 1024 * 1024;           // 회신 파일 1개 (PDF·이미지)
+const FILE_KINDS = { contract: "날인 계약서", license: "사업자등록증", other: "기타" };
+// 계약 링크 상태: open(링크 발송) → issued(계약서 발급·회신 대기) → returned(회신 접수) → signed(체결 완료) · void(무효)
+const CONTRACT_STATUS = ["issued", "returned", "signed"];
 const TYPES = { offers: "offers/", contracts: "contracts/", clients: "clients/", surveys: "surveys/", consents: "consents/" };
+const FILES = "files/";                      // files/<ref>/<fid> — 회신 파일 원본(바이너리)
 const SLA_VERSION = "Rev. 3.0";
 const PRODUCTS = ["fire", "water", "power", "alarm", "custom"];
-const PRODUCT_LABEL = { fire: "화재 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
+const PRODUCT_LABEL = { fire: "화재경보 연동 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
 const products = (v) => (Array.isArray(v) ? v : []).map((x) => str(x, 10)).filter((x, i, a) => PRODUCTS.includes(x) && a.indexOf(x) === i);
 
 const SITE = String(process.env.URL || "https://monnit.co.kr").replace(/\/$/, "");
@@ -42,6 +53,8 @@ const ST = getStore("alarm");
 const store = () => ({
   setJSON: (k, v) => ST.setJSON(k, v),
   get: (k) => ST.get(k, { type: "json" }).catch(() => null),
+  setFile: (k, buf, meta) => ST.set(k, buf, { metadata: meta }),
+  getFile: (k) => ST.getWithMetadata(k, { type: "stream" }).catch(() => null),
   list: (o) => ST.list(o),
   delete: (k) => ST.delete(k),
 });
@@ -60,6 +73,10 @@ export default async (req) => {
       if (m === "POST" && r === "offer") return createOffer(await body(req));
       if (m === "POST" && r === "offer/void") return voidOffer(await body(req));
       if (m === "POST" && r === "delete") return deleteItems(await body(req));
+      if (m === "GET" && r === "file") return adminFile(url.searchParams.get("ref"), url.searchParams.get("id"));
+      if (m === "POST" && r === "file") return uploadFile(req, url, "staff");
+      if (m === "POST" && r === "file/delete") return deleteFile(await body(req));
+      if (m === "POST" && r === "contract/status") return setStatus(await body(req));
       if (r === "client/mail") return m === "GET" ? clientMailPreview(url.searchParams.get("id")) : clientMailSend(await body(req));
       if (m === "POST" && r === "client") return createClient(await body(req));
       if (m === "GET" && r === "ping") return json({ ok: true });
@@ -68,6 +85,7 @@ export default async (req) => {
 
     if (m === "GET" && route === "offer") return getOffer(url.searchParams.get("id"));
     if (m === "POST" && route === "contract") return submitContract(req, await body(req));
+    if (m === "POST" && route === "contract/file") return uploadFile(req, url, "customer");
     if (m === "GET" && route === "client") return getClient(url.searchParams.get("id"));
     if (m === "POST" && route === "survey") return submitSurvey(req, await body(req));
     if (m === "POST" && route === "consent") return submitConsent(req, await body(req));
@@ -138,11 +156,12 @@ async function deleteItems(b) {
   for (const id of ids) {
     if (type === "offers") {
       const o = await s.get(TYPES.offers + id);
-      if (o && o.contractRef) await del(TYPES.contracts, o.contractRef);
+      if (o && o.contractRef) { await delFiles(s, o.contractRef, del); await del(TYPES.contracts, o.contractRef); }
       await del(TYPES.offers, id);
     } else if (type === "contracts") {
       const c = await s.get(TYPES.contracts + id);
       if (c && c.offerId) await del(TYPES.offers, c.offerId);
+      await delFiles(s, id, del);
       await del(TYPES.contracts, id);
     } else if (type === "clients") {
       for (const t of ["surveys", "consents"]) {
@@ -165,6 +184,11 @@ async function deleteItems(b) {
     }
   }
   return json({ ok: true, removed: removed.length });
+}
+
+async function delFiles(s, ref, del) {
+  const { blobs } = await s.list({ prefix: FILES + ref + "/" });
+  for (const bl of blobs) await del("", bl.key);
 }
 
 /* 기존 고객 안내 메일 — 미리보기 / 발송 (2026-10-20) */
@@ -222,8 +246,11 @@ async function adminItem(type, id) {
 function slim(type, x) {
   if (type === "contracts") {
     const { signature, attachments, ...rest } = x;
-    return { ...rest, signature: signature ? { name: signature.name, role: signature.role, signedOn: signature.signedOn } : null,
-             hasLicense: !!(attachments && attachments.businessLicense) };
+    const files = x.files || [];
+    return { ...rest, status: x.status || "signed", files,
+             signature: signature ? { name: signature.name, role: signature.role, signedOn: signature.signedOn } : null,
+             hasLicense: !!(attachments && attachments.businessLicense) || files.some((f) => f.kind === "license"),
+             hasContractFile: files.some((f) => f.kind === "contract") };
   }
   if (type === "consents") {
     const { signature, ...rest } = x;
@@ -233,35 +260,49 @@ function slim(type, x) {
 }
 
 /* ───────── 공개: 계약 ───────── */
-async function getOffer(id) {
-  const o = id && await store().get(TYPES.offers + str(id, 40));
-  if (!o) return json({ ok: false, error: "not_found" }, 404);
-  return json({ ok: true, id: o.id, status: o.status, terms: o.terms, customer: o.memo.customer || "" });
+// 고객에게 돌려줄 계약 기록 — 접속 정보·내부 메모·옛 서명 이미지는 뺀다
+function pub(rec) {
+  if (!rec) return null;
+  const { client, mondayItemId, signature, attachments, notes, ...rest } = rec;
+  return { ...rest, status: rec.status || "signed", files: (rec.files || []).map(({ by, ...f }) => f) };
 }
 
+async function getOffer(id) {
+  const s = store();
+  const o = id && await s.get(TYPES.offers + str(id, 40));
+  if (!o) return json({ ok: false, error: "not_found" }, 404);
+  const out = { ok: true, id: o.id, status: o.status, terms: o.terms, customer: o.memo.customer || "" };
+  if (o.contractRef && o.status !== "void") out.contract = pub(await s.get(TYPES.contracts + o.contractRef));
+  return json(out);
+}
+
+/* 계약서 발급 — 고객 정보·SLA 동의를 받아 계약번호를 매긴다. 전자서명은 받지 않는다(날인본 회신으로 체결).
+   발급 후 회신 전(issued)에는 같은 링크로 정보를 고쳐 다시 발급할 수 있다(같은 계약번호). */
 async function submitContract(req, b) {
   const s = store(), key = TYPES.offers + str(b.offerId, 40);
   const o = await s.get(key);
   if (!o) return json({ ok: false, error: "offer_not_found" }, 404);
-  if (o.status !== "open") return json({ ok: false, error: "offer_" + o.status }, 409);
+  if (o.status !== "open" && o.status !== "issued") return json({ ok: false, error: "offer_" + o.status }, 409);
 
   const c = b.customer || {};
   for (const k of ["name", "address", "ceo", "manager", "phone", "email", "site"]) {
     if (!str(c[k], 200)) return json({ ok: false, error: "missing_" + k }, 400);
   }
-  if (!b.signature || !/^data:image\/png;base64,/.test(b.signature.image || "")) return json({ ok: false, error: "missing_signature" }, 400);
   if (!b.slaAgreedAt) return json({ ok: false, error: "missing_sla" }, 400);
 
-  const ref = refNo("MK");
+  const prev = o.status === "issued" && o.contractRef ? await s.get(TYPES.contracts + o.contractRef) : null;
+  const ref = prev ? prev.ref : refNo("MK");
   const t = o.terms; // 조건은 언제나 서버에 저장된 값을 쓴다 (링크·화면 조작 방지)
-  // 제품: 담당자가 정해 두었으면 그 값, 아니면 고객이 고른 값 (최소 1개)
   const prodFixed = (t.products || []).length > 0;
   const prodList = prodFixed ? t.products : products(b.products);
   if (!prodList.length) return json({ ok: false, error: "products_required" }, 400);
-  const solution = prodFixed ? t.sol : prodList.map((k) => PRODUCT_LABEL[k]).join(" · ") + (t.solNote ? " — " + t.solNote : "");
+  const solution = prodList.map((k) => PRODUCT_LABEL[k]).join(" · ") + (t.solNote ? " — " + t.solNote : "");
+  const ack = Array.isArray(b.acknowledged) ? b.acknowledged.slice(0, 20).map((x) => str(x, 80)).filter(Boolean) : [];
   const rec = {
-    ref, offerId: o.id, submittedAt: now(), slaVersion: SLA_VERSION,
-    terms: { solution, products: prodList, productsChosenBy: prodFixed ? "staff" : "customer", unitPrice: t.unit, sites: t.qty, listPrice: t.list,
+    ref, offerId: o.id, status: "issued", submittedAt: prev ? prev.submittedAt : now(), ...(prev ? { updatedAt: now() } : {}),
+    slaVersion: SLA_VERSION,
+    terms: { solution, products: prodList, productsChosenBy: prodFixed ? "staff" : "customer", solNote: t.solNote || "",
+             unitPrice: t.unit, sites: t.qty, listPrice: t.list,
              discountType: t.discountType, discountValue: t.discountValue, discount: t.discount, discountNote: t.discountNote,
              monthly: t.monthly, from: t.from, to: t.to, payDay: t.pay, bank: t.bank, etc: t.etc },
     customer: {
@@ -270,33 +311,122 @@ async function submitContract(req, b) {
       email: str(c.email, 120), site: str(c.site, 200),
     },
     recipients: (Array.isArray(b.recipients) ? b.recipients : []).slice(0, 10)
-      .map((r) => ({ name: str(r.name, 40), phone: str(r.phone, 30), email: str(r.email, 120) })),
-    slaViewedAt: str(b.slaViewedAt, 40), slaAgreedAt: str(b.slaAgreedAt, 40), slaReadPct: Number(b.slaReadPct) || 0,
-    acknowledged: Array.isArray(b.acknowledged) ? b.acknowledged.slice(0, 20).map((x) => str(x, 80)) : [],
-    signature: { name: str(b.signature.name, 40), role: str(b.signature.role, 40), signedOn: date(b.signature.signedOn), image: b.signature.image },
-    attachments: { businessLicense: b.attachments && b.attachments.businessLicense || null },
+      .map((r) => ({ name: str(r.name, 40), phone: str(r.phone, 30), email: str(r.email, 120) })).filter((r) => r.name || r.phone),
+    slaViewedAt: str(b.slaViewedAt, 40) || (prev && prev.slaViewedAt) || "", slaAgreedAt: str(b.slaAgreedAt, 40),
+    slaReadPct: Math.max(Number(b.slaReadPct) || 0, (prev && prev.slaReadPct) || 0),
+    acknowledged: ack.length ? ack : (prev && prev.acknowledged) || [],
+    files: (prev && prev.files) || [],
     client: meta(req),
+    ...(prev && prev.mondayItemId ? { mondayItemId: prev.mondayItemId } : {}),
   };
   await s.setJSON(TYPES.contracts + ref, rec);
-  o.status = "signed"; o.signedAt = rec.submittedAt; o.contractRef = ref;
+  o.status = "issued"; o.issuedAt = o.issuedAt || rec.submittedAt; o.contractRef = ref;
   await s.setJSON(key, o);
+
+  if (prev) return json({ ok: true, ref, updated: true, contract: pub(rec) });   // 정보 수정·재발급은 알림 없이
 
   const won = (n) => Number(n || 0).toLocaleString("ko-KR") + "원";
   const mailed = await alert({
-    kind: "alarm_contract", label: "알리미 계약 체결", interest: "긴급 경보 알리미 계약 체결",
+    kind: "alarm_contract", label: "알리미 계약서 발급", interest: "긴급 경보 알리미 계약서 발급 (날인본 회신 대기)",
     company: rec.customer.name, name: rec.customer.manager, phone: rec.customer.phone, email: rec.customer.email,
     memo: `${solution} · ${t.qty}개소 · 월 ${won(t.monthly)} (부가세 별도)${t.discount ? " · 할인 " + won(t.discount) : ""} · ${t.from} ~ ${t.to}`,
     ip: rec.client.ip, ref,
   }, {
-    "접수번호": ref, "설치 현장": rec.customer.site, "대표자": rec.customer.ceo, "계약 구분": rec.customer.contractType,
+    "계약번호": ref, "진행": "고객이 계약서를 내려받았습니다 — 직인 날인본·사업자등록증 회신 대기 (1015@monnit.com 또는 온라인 회신)",
+    "설치 현장": rec.customer.site, "대표자": rec.customer.ceo, "계약 구분": rec.customer.contractType,
     "월 청구액": won(t.monthly) + " (부가세 별도)", "계약 기간": `${t.from} ~ ${t.to}`,
-    "서명자": `${rec.signature.name} ${rec.signature.role}`.trim(), "SLA": `${SLA_VERSION} 동의 ${rec.slaAgreedAt}`,
-    "알림 수신자": rec.recipients.map((r) => `${r.name} ${r.phone}`).join(" / "),
-    "계약서 보기": SITE + "/contract-admin",
+    "SLA": `${SLA_VERSION} 동의 ${rec.slaAgreedAt}`,
+    "알림 수신자": rec.recipients.map((r) => `${r.name} ${r.phone}`).join(" / ") || "—",
+    "관리 화면": SITE + "/contract-admin",
   });
-  const [, monday] = await Promise.all([customerMail(rec), pushContract(rec)]);
+  const [, monday] = await Promise.all([customerMail(rec, o.id), pushContract(rec)]);
   if (monday && monday.id) { rec.mondayItemId = monday.id; await s.setJSON(TYPES.contracts + ref, rec); }
-  return json({ ok: true, ref, mailed });
+  return json({ ok: true, ref, mailed, contract: pub(rec) });
+}
+
+/* ───────── 회신 파일 (날인 계약서 · 사업자등록증) ─────────
+   본문 = 파일 그대로 (JSON·base64 아님 — Worker CPU 를 쓰지 않도록). R2 files/<ref>/<fid> 에 저장. */
+async function uploadFile(req, url, by) {
+  const s = store(), q = (k, n) => str(url.searchParams.get(k), n);
+  const ref = q("ref", 40), kind = FILE_KINDS[q("kind", 12)] ? q("kind", 12) : "other";
+  const rec = ref && await s.get(TYPES.contracts + ref);
+  if (!rec) return json({ ok: false, error: "contract_not_found" }, 404);
+  let offer = null;
+  if (by === "customer") {
+    offer = await s.get(TYPES.offers + q("offer", 40));
+    if (!offer || offer.contractRef !== ref) return json({ ok: false, error: "forbidden" }, 403);
+    if (!["issued", "returned"].includes(offer.status)) return json({ ok: false, error: "offer_" + offer.status }, 409);
+  } else {
+    offer = rec.offerId ? await s.get(TYPES.offers + rec.offerId) : null;
+  }
+  const type = String(req.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  if (!/^image\/(jpeg|png|webp|gif|heic|heif)$/.test(type) && type !== "application/pdf") return json({ ok: false, error: "bad_type" }, 415);
+  const len = Number(req.headers.get("content-length") || 0);
+  if (len > FILE_MAX) return json({ ok: false, error: "too_large" }, 413);
+  if ((rec.files || []).length >= 30) return json({ ok: false, error: "too_many" }, 409);
+  const buf = await req.arrayBuffer();
+  if (!buf.byteLength) return json({ ok: false, error: "empty" }, 400);
+  if (buf.byteLength > FILE_MAX) return json({ ok: false, error: "too_large" }, 413);
+
+  const name = (q("name", 120) || "file").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, "_");
+  const id = token(8);
+  await s.setFile(FILES + ref + "/" + id, buf, { name, type, kind });
+  const f = { id, kind, name, type, size: buf.byteLength, uploadedAt: now(), by };
+  rec.files = [...(rec.files || []), f];
+  const first = !(rec.status === "returned" || rec.status === "signed");
+  if (rec.status !== "signed") { rec.status = "returned"; rec.returnedAt = rec.returnedAt || f.uploadedAt; }
+  await s.setJSON(TYPES.contracts + ref, rec);
+  if (offer && offer.status !== "signed" && offer.status !== "void") { offer.status = rec.status; await s.setJSON(TYPES.offers + offer.id, offer); }
+
+  if (by === "customer") {
+    await alert({
+      kind: "alarm_contract_return", label: "알리미 계약서 회신", interest: "긴급 경보 알리미 날인 계약서 회신",
+      company: rec.customer.name, name: rec.customer.manager, phone: rec.customer.phone, email: rec.customer.email,
+      memo: `${FILE_KINDS[kind]} · ${name}`, ref,
+    }, {
+      "계약번호": ref, "올린 파일": `${FILE_KINDS[kind]} — ${name} (${Math.round(buf.byteLength / 1024)}KB)`,
+      "지금까지 받은 파일": rec.files.map((x) => `${FILE_KINDS[x.kind] || x.kind}: ${x.name}`).join(" / "),
+      "확인": "관리 화면 → 계약 현황 → 상세에서 파일을 열어 확인한 뒤 「체결 완료」로 처리해 주세요. " + SITE + "/contract-admin",
+    });
+    if (first && rec.mondayItemId) await mondayStatus(rec, "날인본 회신");
+  }
+  return json({ ok: true, status: rec.status, files: rec.files.map(({ by: _b, ...x }) => x) });
+}
+
+async function adminFile(ref, id) {
+  const r = await store().getFile(FILES + str(ref, 40) + "/" + str(id, 20));
+  if (!r || !r.data) return json({ ok: false, error: "not_found" }, 404);
+  const m = r.metadata || {};
+  return new Response(r.data, { headers: {
+    "content-type": m.type || "application/octet-stream", "cache-control": "no-store",
+    "content-disposition": "inline; filename*=UTF-8''" + encodeURIComponent(m.name || "file"),
+  } });
+}
+
+async function deleteFile(b) {
+  const s = store(), ref = str(b.ref, 40), id = str(b.id, 20);
+  const rec = await s.get(TYPES.contracts + ref);
+  if (!rec) return json({ ok: false, error: "not_found" }, 404);
+  try { await s.delete(FILES + ref + "/" + id); } catch (e) { /* 이미 없음 */ }
+  rec.files = (rec.files || []).filter((f) => f.id !== id);
+  await s.setJSON(TYPES.contracts + ref, rec);
+  return json({ ok: true, files: rec.files });
+}
+
+/* 담당자: 날인본 확인 후 체결 완료 처리 (또는 되돌리기) */
+async function setStatus(b) {
+  const s = store(), ref = str(b.ref, 40), st = str(b.status, 12);
+  if (!CONTRACT_STATUS.includes(st)) return json({ ok: false, error: "bad_status" }, 400);
+  const rec = await s.get(TYPES.contracts + ref);
+  if (!rec) return json({ ok: false, error: "not_found" }, 404);
+  rec.status = st;
+  if (st === "signed") rec.signedAt = now(); else delete rec.signedAt;
+  if (b.note) rec.notes = [...(rec.notes || []), { at: now(), text: str(b.note, 300) }];
+  await s.setJSON(TYPES.contracts + ref, rec);
+  const o = rec.offerId && await s.get(TYPES.offers + rec.offerId);
+  if (o && o.status !== "void") { o.status = st; if (st === "signed") o.signedAt = rec.signedAt; await s.setJSON(TYPES.offers + o.id, o); }
+  if (rec.mondayItemId) await mondayStatus(rec, st === "signed" ? "계약 체결" : st === "returned" ? "날인본 회신" : "계약서 발급");
+  return json({ ok: true, status: st, signedAt: rec.signedAt || "" });
 }
 
 /* ───────── 공개: 기존 고객 설문·SLA ───────── */
@@ -401,22 +531,28 @@ async function alert(lead, fields) {
   return !!(r && r.ok);
 }
 
-/* 계약 체결 고객에게 확인 메일 — Brevo 가 설정된 경우에만. 실패해도 접수는 유지. */
-async function customerMail(rec) {
+/* 계약서를 발급한 고객에게 회신 안내 메일 — Brevo 가 설정된 경우에만. 실패해도 발급은 유지. */
+async function customerMail(rec, offerId) {
   const key = process.env.BREVO_API_KEY;
   const to = String(rec.customer.email || "").trim();
   if (!key || !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(to)) return false;
   const t = rec.terms, won = (n) => Number(n || 0).toLocaleString("ko-KR") + "원";
+  const link = `${SITE}/contract?id=${offerId}`;
   const text = [
     `${rec.customer.manager}님, 안녕하세요. 모넷코리아입니다.`, "",
-    `긴급 경보 알리미 구독 계약이 접수되었습니다. (접수번호 ${rec.ref})`, "",
-    `· 고객: ${rec.customer.name} (대표 ${rec.customer.ceo})`, `· 설치 현장: ${rec.customer.site}`,
+    `긴급 경보 알리미 구독 계약서가 발급되었습니다. (계약번호 ${rec.ref})`, "",
+    `· 발주처: ${rec.customer.name} (대표 ${rec.customer.ceo})`, `· 설치 현장: ${rec.customer.site}`,
     `· 납품 솔루션: ${t.solution} · ${t.sites}개소`,
     `· 월 청구액: ${won(t.monthly)} (부가세 별도)${t.discount ? " — 정가 " + won(t.listPrice) + "에서 " + won(t.discount) + " 할인" : ""}`,
-    `· 계약 기간: ${t.from} ~ ${t.to}`, `· 지급: ${t.payDay} · ${t.bank}`, "",
-    `서비스수준협약(SLA) 전문 — 공통 본문과 ${(t.products || []).map((k) => PRODUCT_LABEL[k]).join("·")} 부속서: ${SITE}${(t.products || []).length === 1 ? "/alarm/sla-" + t.products[0] + ".pdf" : "/alarm/sla.pdf"}`, "",
-    "담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드리겠습니다.",
-    "문의 02-2088-1454 · korea@monnit.com", "", "주식회사 모넷코리아",
+    `· 계약 기간: ${t.from} ~ ${t.to}`, "",
+    "[계약 체결 절차]",
+    "1. 아래 링크에서 계약서(A4 양면: 앞면 계약서 · 뒷면 서비스수준협약)를 내려받아 인쇄합니다.",
+    "2. 앞면 발주처 대표이사 (인) 란과 계약일을 기재하고 직인을 날인합니다.",
+    "3. 날인한 계약서와 사업자등록증 사본을 링크 화면에서 올리시거나 1015@monnit.com 으로 보내 주십시오.",
+    `   (메일 제목에 계약번호 ${rec.ref} 를 적어 주십시오)`,
+    "4. 모넷코리아가 확인한 뒤 납품처 직인본을 보내 드리고 설치 일정과 세금계산서 발행 절차를 안내드립니다.", "",
+    `계약서 내려받기·회신: ${link}`, "",
+    "문의 02-2088-1454 · 1015@monnit.com", "", "주식회사 모넷코리아",
   ].join("\n");
   try {
     const r = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -424,12 +560,17 @@ async function customerMail(rec) {
       body: JSON.stringify({
         sender: { name: "모넷코리아", email: process.env.MAIL_FROM || "no-reply@monnit.co.kr" },
         to: [{ email: to, name: rec.customer.manager }],
-        replyTo: { name: "모넷코리아", email: process.env.MAIL_REPLYTO || "korea@monnit.com" },
-        subject: `[모넷코리아] 긴급 경보 알리미 구독 계약 접수 확인 (${rec.ref})`, textContent: text, tags: ["alarm-contract"],
+        replyTo: { name: "모넷코리아", email: "1015@monnit.com" },
+        subject: `[모넷코리아] 긴급 경보 알리미 계약서 발급 및 회신 안내 (${rec.ref})`, textContent: text, tags: ["alarm-contract"],
       }), signal: AbortSignal.timeout(8000),
     });
     return r.status === 201;
   } catch (e) { return false; }
+}
+
+/* 먼데이 「구분」 값 갱신 — 실패해도 무시 */
+async function mondayStatus(rec, label) {
+  try { await setContractKind(rec.mondayItemId, label); } catch (e) { /* 무시 */ }
 }
 
 /* ───────── 유틸 ───────── */

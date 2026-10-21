@@ -13,7 +13,7 @@
 <nav class="steps" id="tabs" aria-label="관리 메뉴" hidden>
   <ol>
     <li><button class="steptab" data-tab="new" aria-current="true">계약 링크 만들기</button></li>
-    <li><button class="steptab" data-tab="contracts">계약 현황</button></li>
+    <li><button class="steptab" data-tab="contracts">계약 현황 · 회신</button></li>
     <li><button class="steptab" data-tab="clients">기존 고객 · 설문/SLA</button></li>
     <li><button class="steptab" data-tab="surveys">설문 응답</button></li>
   </ol>
@@ -55,7 +55,7 @@
         <div class="grid">
 <div class="f wide"><span class="flab">납품 솔루션 <small style="color:var(--faint)">(선택 · 비워 두면 고객이 계약 화면에서 직접 고릅니다. 고르면 고객은 바꿀 수 없습니다)</small></span>
             <div class="opts" id="n_prod">
-              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재경보 연동 알리미</span></label>
               <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
               <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
               <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>
@@ -111,11 +111,12 @@
 
 
 <section class="pane" id="t_contracts">
-  <p class="kicker">계약 링크와 체결 현황</p>
+  <p class="kicker">계약 링크 · 계약서 발급 · 날인본 회신 · 체결 현황</p>
   <h1>계약 현황</h1>
+  <p class="lede" style="margin-bottom:14px">진행 순서: <b>링크 발송</b> → 고객이 정보 입력 후 계약서를 내려받으면 <b>회신 대기</b> → 날인 계약서·사업자등록증이 올라오면 <b>회신 접수</b> → 확인 후 「체결 완료 처리」. 메일(1015@monnit.com)로 받은 파일은 상세 화면에서 등록해 두면 함께 보관됩니다.</p>
   <div class="toolbar">
-    <select id="c_filter"><option value="all">전체 링크</option><option value="open">서명 대기</option><option value="signed">체결 완료</option><option value="void">무효</option></select>
-    <span class="hint">체결된 계약은 「상세 보기」에서 고객 정보·서명·사업자등록증을 확인하고 내려받을 수 있습니다.</span>
+    <select id="c_filter"><option value="all">전체</option><option value="open">링크 발송</option><option value="issued">회신 대기</option><option value="returned">회신 접수 · 확인 필요</option><option value="signed">체결 완료</option><option value="void">무효</option></select>
+    <button type="button" class="btn sm" id="c_hot" hidden></button>
     <span class="spacer"></span>
     <button type="button" class="btn quiet sm" id="c_csv">계약 CSV 내려받기</button>
     <button type="button" class="btn quiet sm" data-reload="contracts">새로고침</button>
@@ -125,7 +126,7 @@
     <span class="hint">체크한 건을 한 건씩 각각 파일로 받습니다.</span>
     <span class="spacer"></span>
     <button type="button" class="btn sm" id="c_selpdf">선택 계약서 PDF</button>
-    <button type="button" class="btn quiet sm" id="c_sellic">선택 사업자등록증</button>
+    <button type="button" class="btn quiet sm" id="c_selfiles">선택 회신 파일</button>
     <button type="button" class="btn quiet sm danger" id="c_seldel">선택 삭제</button>
     <span class="hint" id="c_selstat" hidden></span>
   </div>
@@ -149,7 +150,7 @@
       <div class="f"><label for="k_type">계약 구분</label><select id="k_type"><option value="B2B">사업자 (B2B)</option><option value="B2C">소비자 (B2C)</option></select></div>
       <div class="f wide"><span class="flab">이용 중인 알리미 <small style="color:var(--faint)">(여러 개 선택 가능 · 비워 두면 고객이 동의 화면에서 직접 고릅니다)</small></span>
             <div class="opts" id="k_prod">
-              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재경보 연동 알리미</span></label>
               <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
               <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
               <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>

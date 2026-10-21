@@ -317,6 +317,11 @@ footer{max-width:820px;margin:0 auto;padding:26px 24px 60px;border-top:1px solid
 @media (max-width:640px){.qrow{grid-template-columns:1fr}.stars button{font-size:34px}}
 .fineprint{margin:26px 0 4px;padding-top:10px;border-top:1px dashed var(--rule);font-size:11px;color:var(--faint);text-align:right}
 body.pdf .fineprint{font-size:9pt;color:#666}
+
+.recvbanner{display:flex;flex-direction:column;gap:4px;margin:-4px 0 14px;padding:14px 16px;border:1px solid var(--accent);border-left-width:4px;background:var(--accent-soft)}
+.recvbanner b{font-size:16px;color:var(--ink)}
+.recvbanner span{font-size:13.5px;color:var(--muted);line-height:1.6}
+.recvbanner a{color:var(--accent);font-weight:600}
 .annex-head{border-top:2px solid var(--rule-strong);margin-top:10px} .annex[hidden]{display:none} .chk[hidden]{display:none}.termspage .topbar{position:static} body.embed .topbar,body.embed footer,body.embed .noprint{display:none} body.embed .sheet{padding:16px 18px 30px}@media print{.noprint,.topbar{display:none!important} .termspage .sheet{padding:0} .article{break-inside:auto} .article h3{break-after:avoid}}body.pdf{background:#fff;color:#000} body.pdf .topbar,body.pdf footer,body.pdf .noprint{display:none} body.pdf .sheet{max-width:none;padding:0}body.pdf mark{background:#eef3ef} body.pdf .compact{font-size:11pt;line-height:1.65} body.pdf ol.cl>li{font-size:11pt} body.pdf .pdfhead{font-size:9.5pt;color:#555;border-bottom:1px solid #999;padding-bottom:6px;margin-bottom:14px;display:flex;justify-content:space-between}</style>
 </head>
 <body class="termspage">
@@ -605,14 +610,14 @@ body.pdf .fineprint{font-size:9pt;color:#666}
     </div>
 
     <div class="article annex" data-product="fire">
-      <h3><span class="no">B-1</span><span>화재 알리미</span></h3>
+      <h3><span class="no">B-1</span><span>화재경보 연동 알리미</span></h3>
       <ol class="cl">
-        <li><b>법정 소방시설이 아님</b> — 화재 알리미는 「소방시설 설치 및 관리에 관한 법률」에 따른 <span class="warn">소방시설(자동화재탐지설비·자동화재속보설비·경보설비 등)이 아니며</span>, 이를 대체하지 않습니다. 고객은 법령이 요구하는 소방시설을 스스로 설치·유지·점검합니다.</li>
+        <li><b>법정 소방시설이 아님</b> — 화재경보 연동 알리미는 고객의 기존 소방수신기가 내보내는 접점 신호를 수신자에게 전달하는 <mark>보조 알림 장치</mark>입니다. 화재를 직접 감지하는 기능이 없으며, 「소방시설 설치 및 관리에 관한 법률」에 따른 <span class="warn">소방시설(자동화재탐지설비·자동화재속보설비 등) 또는 형식승인 대상 소방용품(감지기·수신기·발신기·중계기·경종 등)이 아니고</span>, 이를 대체하지 않습니다. 고객은 법령이 요구하는 소방시설을 스스로 설치·유지·점검합니다.</li>
         <li><b>수신기 연동 시 비접촉 원칙</b> — 고객의 화재수신기와 연동하는 경우 회사는 수신기의 <mark>외부 출력 단자(무전압 접점)에서 신호를 수신하는 것</mark>에 한합니다. 수신기의 내부 회로·설정·프로그램을 변경하지 않고, 소방시설을 제어·정지·폐쇄·차단하지 않습니다. 이 연결은 「소방시설공사업법」 제2조의 소방시설 신설·증설·개설·이전·정비(시공)에 해당하지 않으며, 같은 법 시행령 제4조의 착공신고 대상 공사가 아닌 것으로 회사는 판단합니다. 다만 관할 소방관서의 해석이 다를 수 있고, 그 확인은 고객의 책임으로 받습니다.</li>
         <li><b>관계인 승인과 입회</b> — 수신기 단자에 연결할 때 고객은 특정소방대상물의 관계인으로서 이를 승인하고 <mark>소방안전관리자(또는 고객이 지정한 책임자)를 입회</mark>하게 하며, 연결 직후 소방시설이 정상 작동함을 함께 확인합니다. 회사는 연결 단자·방식·입회자를 기록하여 고객에게 제공합니다.</li>
-        <li><b>감지 한계</b> — 수신기 연동형은 수신기가 출력 단자로 신호를 내보낸 경우에만 알림이 발송됩니다. 독립 설치형(연기·열·불꽃 센서)은 센서의 감지 원리·설치 위치·거리·환경(연기 흐름, 천장 높이, 먼지·수증기)에 따라 감지하지 못하거나 늦게 감지할 수 있습니다. 조리 연기·수증기·먼지·담배 연기 등에 의한 <mark>비화재보(오탐)가 발생할 수 있으며</mark> 이는 하자가 아닙니다.</li>
+        <li><b>알림의 한계</b> — 알림은 <mark>소방수신기가 출력 단자로 신호를 내보낸 경우에만</mark> 발송됩니다. 수신기가 화재를 인지하지 못하거나 신호를 늦게 내보낸 경우, 수신기의 비화재보가 그대로 전달된 경우는 본 서비스의 하자가 아닙니다.</li>
         <li><b>면책</b> — 수신기·감지기·속보기 등 고객 소방시설 자체의 고장·오작동·설정 오류·점검 불량, 수신기의 출력 단자가 신호를 내보내지 않은 경우, 고객 또는 제3자가 수신기를 정지·차단·조작한 경우로 인한 미알림에 대하여 회사는 책임을 지지 않습니다.</li>
-        <li><b>기계경비 아님</b> — 화재 알리미는 「경비업법」상 기계경비업무가 아니며, 회사는 화재 발생 시 출동·진압·소방서 신고를 하지 않습니다. 신고와 초동 대응은 고객의 자체 대응 체계에 따릅니다.</li>
+        <li><b>기계경비 아님</b> — 화재경보 연동 알리미는 「경비업법」상 기계경비업무가 아니며, 회사는 화재 발생 시 출동·진압·소방서 신고를 하지 않습니다. 신고와 초동 대응은 고객의 자체 대응 체계에 따릅니다.</li>
       </ol>
     </div>
 

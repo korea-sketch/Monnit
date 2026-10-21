@@ -11,7 +11,7 @@
  *  환경변수: BREVO_API_KEY (없으면 발송 건너뜀) · MAIL_FROM · MAIL_REPLYTO
  */
 const SITE = () => String(process.env.URL || "https://monnit.co.kr").replace(/\/$/, "");
-const PRODUCT_LABEL = { fire: "화재 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
+const PRODUCT_LABEL = { fire: "화재경보 연동 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
 const esc = (v) => String(v == null ? "" : v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
 
 export function linksFor(client) {

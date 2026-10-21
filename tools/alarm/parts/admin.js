@@ -105,7 +105,7 @@
     var y = Number($("n_years").value);
     var first = y ? "최초 계약은 의무계약으로 " + y + "년, 이후 1년 단위 갱신" : "의무 이용기간은 계약 기간과 같음, 이후 1년 단위 갱신";
     return [first,
-      "사용자 과실로 인한 제품 분실 및 파손 시 사용자 부담",
+      "발주처의 고의·과실(임의 이설·분해, 충격·침수, 도난 등)로 인한 장비 분실·파손 시 수리비 또는 교체비(출장비 포함)는 발주처가 부담하며, 제품 결함·정상 사용 중 고장은 납품처가 무상 교체",
       "매달 20일 세금계산서 발행",
       "계약 해지 시 하드웨어는 반납",
       "계약기간 만료 한 달 전까지 해지 의사를 표시하지 않으면 동일 조건으로 1년 자동 연장",
@@ -130,7 +130,7 @@
   }
   resetNew();
 
-  var PRODUCT_LABEL = {fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
+  var PRODUCT_LABEL = {fire:"화재경보 연동 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
   function prods(id){ return Array.prototype.map.call(document.querySelectorAll("#" + id + " input:checked"), function(c){ return c.value; }); }
   function solName(list, note){ var s = list.map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") || "긴급 경보 알리미 (고객이 계약 화면에서 선택)"; return note ? s + " — " + note : s; }
   var lastLink = "", lastOffer = null;
@@ -141,7 +141,8 @@
       "긴급 경보 알리미" + ((t.products || []).length ? "(" + t.products.map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (t.solNote ? " — " + t.solNote : "") + ")" : "") + " 구독 계약 링크를 보내 드립니다.\n" +
       "· " + t.qty + "개소 · 월 " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " — 할인 적용" : "") + "\n" +
       "· 계약 기간 " + kdate(t.from) + " ~ " + kdate(t.to) + "\n\n" +
-      "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하신 뒤 서명해 주시면 됩니다." + ((t.products || []).length ? "" : " 도입하실 알리미는 화면에서 직접 선택하시면 됩니다.") + "\n" + offerUrl(o.id) + "\n\n" +
+      "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하고 고객 정보를 입력하시면 계약서(A4 양면)를 내려받으실 수 있습니다." + ((t.products || []).length ? "" : " 도입하실 알리미는 화면에서 직접 선택하시면 됩니다.") + "\n" + offerUrl(o.id) + "\n\n" +
+      "계약서에 직인을 날인하신 뒤 사업자등록증 사본과 함께 링크 화면에서 올려 주시거나 1015@monnit.com 으로 회신해 주십시오.\n\n" +
       "궁금하신 점은 02-2088-1454로 연락 주세요. 감사합니다.";
   }
   $("n_make").addEventListener("click", async function(){
@@ -181,36 +182,49 @@
   }
 
   /* ── 2. 계약 현황 ── */
-  var ST = {open:"서명 대기", signed:"체결 완료", void:"무효"};
+  var ST = {open:"링크 발송", issued:"회신 대기", returned:"회신 접수 · 확인 필요", signed:"체결 완료", void:"무효"};
+  var KIND = {contract:"날인 계약서", license:"사업자등록증", other:"기타"};
+  function stOf(o, c){ return c && c.status && o.status !== "void" ? c.status : o.status; }
+  function filesNote(c){
+    if(!c) return "";
+    var fs = c.files || [], has = function(k){ return fs.some(function(f){ return f.kind === k; }); };
+    if(!fs.length) return c.hasLicense ? '<div class="muted">등록증(이전 방식)</div>' : "";
+    return '<div class="muted">' + (has("contract") ? "계약서 ✓" : "계약서 ✗") + " · " + (has("license") || c.hasLicense ? "등록증 ✓" : "등록증 ✗") + " · " + fs.length + "개</div>";
+  }
   function renderContracts(){
     var f = $("c_filter").value, byRef = {};
     DATA.contracts.forEach(function(c){ byRef[c.ref] = c; });
-    var rows = DATA.offers.filter(function(o){ return f === "all" || o.status === f; }).map(function(o){
-      var c = o.contractRef ? byRef[o.contractRef] : null, t = o.terms;
-      return '<tr data-oid="' + o.id + '"' + (c ? ' data-ref="' + c.ref + '"' : "") + '><td class="sel"><input type="checkbox" class="rowck" aria-label="선택"></td><td>' + kdt(o.createdAt) + "</td>" +
-        '<td><span class="pill ' + o.status + '">' + ST[o.status] + "</span></td>" +
-        "<td>" + esc(c ? c.customer.name : (o.memo.customer || "—")) + (c ? "" : '<div class="muted">' + esc(o.memo.contact || "") + "</div>") + "</td>" +
+    var cnt = {returned:0};
+    var rows = DATA.offers.map(function(o){ var c = o.contractRef ? byRef[o.contractRef] : null; return {o:o, c:c, st:stOf(o, c)}; })
+      .filter(function(x){ if(x.st === "returned") cnt.returned++; return f === "all" || x.st === f; }).map(function(x){
+      var o = x.o, c = x.c, t = o.terms, st = x.st;
+      return '<tr data-oid="' + o.id + '"' + (c ? ' data-ref="' + c.ref + '"' : "") + (st === "returned" ? ' class="hot"' : "") + '><td class="sel"><input type="checkbox" class="rowck" aria-label="선택"></td><td>' + kdate(o.createdAt) + "</td>" +
+        '<td><span class="pill ' + st + '">' + (ST[st] || st) + "</span></td>" +
+        "<td>" + esc(c ? c.customer.name : (o.memo.customer || "—")) + '<div class="muted">' + esc(c ? c.customer.manager + " " + c.customer.phone : (o.memo.contact || "")) + "</div></td>" +
         "<td>" + esc(c ? c.customer.site : "—") + "</td>" +
         "<td>" + esc(c ? c.terms.solution : t.sol) + "</td>" +
         '<td class="num">' + t.qty + "</td>" +
         '<td class="num">' + won(t.monthly) + (t.discount ? '<div class="muted">할인 −' + Number(t.discount).toLocaleString("ko-KR") + "</div>" : "") + "</td>" +
         "<td>" + kdate(t.from) + " ~<br>" + kdate(t.to) + "</td>" +
-        "<td>" + (c ? kdt(c.submittedAt) + '<div class="muted">' + esc(c.signature ? c.signature.name : "") + "</div>" : "—") + "</td>" +
+        "<td>" + (c ? kdt(c.returnedAt || c.submittedAt) + filesNote(c) : "—") + "</td>" +
         '<td style="white-space:nowrap">' +
-          (c ? '<button class="btn quiet" data-c="' + c.ref + '">상세</button> <button class="btn quiet" data-pdf="' + c.ref + '">계약서 PDF</button> ' + (c.hasLicense ? '<button class="btn quiet" data-lic="' + c.ref + '">등록증</button> ' : "") : "") +
-          (o.status === "open" ? '<button class="btn quiet" data-copy="' + o.id + '">링크</button> <button class="btn quiet" data-void="' + o.id + '">무효</button>' : "") +
+          (c ? '<button class="btn quiet" data-c="' + c.ref + '">상세</button> <button class="btn quiet" data-pdf="' + c.ref + '">계약서 PDF</button> ' : "") +
+          (o.status !== "void" && st !== "signed" ? '<button class="btn quiet" data-copy="' + o.id + '">링크</button> ' : "") +
+          (o.status === "open" || o.status === "issued" ? '<button class="btn quiet" data-void="' + o.id + '">무효</button>' : "") +
         "</td></tr>";
     }).join("");
-    $("c_table").innerHTML = "<thead><tr><th class=\"sel\"><input type=\"checkbox\" id=\"c_all\" aria-label=\"전체 선택\"></th><th>생성</th><th>상태</th><th>고객</th><th>설치 현장</th><th>솔루션</th><th>개소</th><th>월 청구액</th><th>계약 기간</th><th>체결</th><th></th></tr></thead><tbody>" +
+    $("c_table").innerHTML = "<thead><tr><th class=\"sel\"><input type=\"checkbox\" id=\"c_all\" aria-label=\"전체 선택\"></th><th>생성</th><th>상태</th><th>고객</th><th>설치 현장</th><th>솔루션</th><th>개소</th><th>월 청구액</th><th>계약 기간</th><th>발급 · 회신</th><th></th></tr></thead><tbody>" +
       (rows || '<tr><td colspan="11" class="muted">항목이 없습니다.</td></tr>') + "</tbody>"; labelize("c_table"); selSync();
+    $("c_hot").hidden = !cnt.returned; $("c_hot").textContent = "확인이 필요한 회신 " + cnt.returned + "건";
   }
+  $("c_hot").addEventListener("click", function(){ $("c_filter").value = "returned"; renderContracts(); });
   /* ── 선택 작업 (체크한 건 각각 내려받기 · 삭제) ── */
   function selected(){ return Array.prototype.slice.call(document.querySelectorAll("#c_table tbody .rowck:checked")).map(function(ck){ return ck.closest("tr"); }); }
   function selSync(){
-    var rows = selected(), signed = rows.filter(function(tr){ return tr.dataset.ref; });
+    var rows = selected(), issued = rows.filter(function(tr){ return tr.dataset.ref; });
     $("c_selbar").hidden = !rows.length;
-    $("c_selcount").textContent = rows.length + "건 선택" + (signed.length !== rows.length ? " (체결 " + signed.length + "건)" : "");
-    $("c_selpdf").disabled = !signed.length; $("c_sellic").disabled = !signed.length;
+    $("c_selcount").textContent = rows.length + "건 선택" + (issued.length !== rows.length ? " (계약서 발급 " + issued.length + "건)" : "");
+    $("c_selpdf").disabled = !issued.length; $("c_selfiles").disabled = !issued.length;
     var all = $("c_all"); if(all){ var every = document.querySelectorAll("#c_table tbody .rowck"); all.checked = every.length > 0 && rows.length === every.length; }
   }
   $("c_table").addEventListener("change", function(e){
@@ -229,61 +243,71 @@
     }
     st.textContent = label + " 완료 — " + refs.length + "건"; setTimeout(function(){ st.hidden = true; }, 4000);
   }
-  $("c_selpdf").addEventListener("click", function(){ eachSelected("계약서 PDF", function(c){ return window.MKDoc.pdf(c); }); });
-  $("c_sellic").addEventListener("click", function(){ eachSelected("사업자등록증", function(c){ return dlLicense(c.ref, c); }); });
+  $("c_selpdf").addEventListener("click", function(){ eachSelected("계약서 PDF", function(c){ return window.MKPaper.pdf(c); }); });
+  $("c_selfiles").addEventListener("click", function(){ eachSelected("회신 파일", function(c){ return dlAllFiles(c); }); });
   $("c_seldel").addEventListener("click", async function(){
     var rows = selected(); if(!rows.length) return;
     var names = rows.map(function(tr){ var td = tr.children[3]; return td ? td.textContent.trim().split("\n")[0] : tr.dataset.oid; });
-    if(!confirm(rows.length + "건을 삭제할까요?\n\n" + names.slice(0, 8).join("\n") + (names.length > 8 ? "\n…" : "") + "\n\n체결된 계약은 계약서·서명·사업자등록증 기록이 함께 지워지며 되돌릴 수 없습니다. 먼데이 보드의 항목은 남습니다.")) return;
+    if(!confirm(rows.length + "건을 삭제할까요?\n\n" + names.slice(0, 8).join("\n") + (names.length > 8 ? "\n…" : "") + "\n\n발급된 계약은 고객 정보·회신 파일(날인 계약서·사업자등록증)이 함께 지워지며 되돌릴 수 없습니다. 먼데이 보드의 항목은 남습니다.")) return;
     var ids = rows.map(function(tr){ return tr.dataset.oid; });
     try{ await api("delete", {body:{type:"offers", ids: ids}}); }catch(err){ alert(err.message); }
     load("contracts");
   });
   $("c_filter").addEventListener("change", renderContracts);
   $("c_csv").addEventListener("click", function(){
-    var H = ["접수번호","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","솔루션","개소","1개소 월이용료","할인","월청구액(VAT별도)","계약시작","계약종료","지급일","서명자","SLA동의","사업자등록증"];
+    var H = ["계약번호","상태","발급일시","회신일시","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","솔루션","개소","1개소 월이용료","할인","월청구액(VAT별도)","계약시작","계약종료","지급일","SLA동의","날인 계약서","사업자등록증","알림 수신자"];
     var q = function(v){ v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    var lines = [H.join(",")].concat(DATA.contracts.map(function(c){ var t = c.terms, u = c.customer;
-      return [c.ref, kdt(c.submittedAt), u.name, u.bizNo, u.ceo, u.address, u.contractType, u.manager, u.phone, u.email, u.site, t.solution, t.sites, t.unitPrice, t.discount || 0, t.monthly, t.from, t.to, t.payDay, c.signature ? c.signature.name : "", kdt(c.slaAgreedAt), c.hasLicense ? "첨부" : "없음"].map(q).join(","); }));
-    var blob = new Blob(["\ufeff" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
+    var lines = [H.join(",")].concat(DATA.contracts.map(function(c){ var t = c.terms, u = c.customer, fs = c.files || [];
+      var has = function(k){ return fs.some(function(f){ return f.kind === k; }); };
+      return [c.ref, ST[c.status] || c.status, kdt(c.submittedAt), kdt(c.returnedAt), kdt(c.signedAt), u.name, u.bizNo, u.ceo, u.address, u.contractType, u.manager, u.phone, u.email, u.site, t.solution, t.sites, t.unitPrice, t.discount || 0, t.monthly, t.from, t.to, t.payDay, kdt(c.slaAgreedAt),
+        has("contract") ? "회신" : "없음", has("license") || c.hasLicense ? "회신" : "없음", (c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(" / ")].map(q).join(","); }));
+    var blob = new Blob(["﻿" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "알리미_계약현황_" + ymd(new Date()) + ".csv"; a.click();
   });
   $("c_table").addEventListener("click", async function(e){
     var b = e.target.closest("button"); if(!b) return;
     if(b.dataset.copy) copy(offerUrl(b.dataset.copy), b);
     if(b.dataset.void){
-      if(!confirm("이 계약 링크를 무효로 할까요? 고객이 더 이상 서명할 수 없습니다.")) return;
+      if(!confirm("이 계약 링크를 무효로 할까요? 고객이 더 이상 계약서를 내려받거나 회신할 수 없습니다.")) return;
       try{ await api("offer/void", {body:{id:b.dataset.void}}); load("contracts"); }catch(err){ alert(err.message); }
     }
     if(b.dataset.c) showContract(b.dataset.c);
-    if(b.dataset.lic){ b.disabled = true; try{ await dlLicense(b.dataset.lic); }catch(err){ alert(err.message); } b.disabled = false; }
-    if(b.dataset.pdf){ await withBusy(b, async function(){ await window.MKDoc.pdf(await fetchContract(b.dataset.pdf)); }); }
+    if(b.dataset.pdf){ await withBusy(b, async function(){ await window.MKPaper.pdf(await fetchContract(b.dataset.pdf)); }); }
   });
   async function withBusy(b, fn){ var t = b.textContent; b.disabled = true; b.textContent = "만드는 중…"; try{ await fn(); }catch(err){ alert(err.message || "실패했습니다."); } b.disabled = false; b.textContent = t; }
 
-  /* ── 내려받기 도우미 ── */
+  /* ── 파일 도우미 ── */
   function safeName(v){ return String(v || "").replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40) || "고객"; }
-  function saveDataUrl(dataUrl, filename){
-    var a = document.createElement("a"); a.href = dataUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
-  }
+  function saveUrl(url, filename){ var a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); }
   function extOf(dataUrl){ var m = /^data:image\/(\w+)/.exec(dataUrl || ""); return m ? (m[1] === "jpeg" ? "jpg" : m[1]) : "jpg"; }
+  function size(n){ return n > 1048576 ? (n / 1048576).toFixed(1) + "MB" : Math.max(1, Math.round(n / 1024)) + "KB"; }
   async function fetchContract(ref){ return (await api("item?type=contracts&id=" + encodeURIComponent(ref))).item; }
-  async function dlLicense(ref, c){
-    c = c || await fetchContract(ref);
-    var lic = c.attachments && c.attachments.businessLicense;
-    if(!lic || !lic.image){ alert("이 계약에는 사업자등록증이 첨부되지 않았습니다."); return; }
-    saveDataUrl(lic.image, "사업자등록증_" + safeName(c.customer.name) + "_" + c.ref + "." + extOf(lic.image));
+  var BLOBS = {};
+  async function fileBlob(ref, id){
+    var k = ref + "/" + id; if(BLOBS[k]) return BLOBS[k];
+    var res = await fetch("/api/alarm/admin/file?ref=" + encodeURIComponent(ref) + "&id=" + encodeURIComponent(id), { headers: {"x-admin-key": KEY} });
+    if(res.status === 401){ logout(); throw new Error("관리 키가 맞지 않습니다."); }
+    if(!res.ok) throw new Error("파일을 불러오지 못했습니다.");
+    BLOBS[k] = URL.createObjectURL(await res.blob()); return BLOBS[k];
+  }
+  function fileName(c, f){ return (KIND[f.kind] || "첨부") + "_" + safeName(c.customer.name) + "_" + c.ref + "_" + f.name; }
+  async function dlFile(c, f){ saveUrl(await fileBlob(c.ref, f.id), fileName(c, f)); }
+  async function dlAllFiles(c){
+    var fs = c.files || [], lic = c.attachments && c.attachments.businessLicense;
+    if(!fs.length && !(lic && lic.image)){ alert(c.customer.name + " (" + c.ref + ") — 회신된 파일이 없습니다."); return; }
+    for(var i = 0; i < fs.length; i++){ await dlFile(c, fs[i]); await pause(500); }
+    if(lic && lic.image) saveUrl(lic.image, "사업자등록증_" + safeName(c.customer.name) + "_" + c.ref + "." + extOf(lic.image));
   }
   function contractText(c){
     var t = c.terms, u = c.customer;
-    return ["[긴급 경보 알리미 구독계약] " + c.ref,
+    return ["[긴급 경보 알리미 구독계약] " + c.ref + " · " + (ST[c.status] || c.status),
       "상호: " + u.name, "사업자등록번호: " + (u.bizNo || "-"), "대표자: " + u.ceo, "주소: " + u.address, "계약 구분: " + u.contractType,
       "담당자: " + u.manager + " / " + u.phone + " / " + u.email, "설치 현장: " + u.site,
-      "납품 솔루션: " + t.solution, "개소: " + t.sites, "월 청구액: " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " · 할인 " + Number(t.discount).toLocaleString("ko-KR") + "원" : ""),
+      "납품 솔루션: " + window.MKPaper.meta(t.products, t.solNote).solution, "개소: " + t.sites, "월 청구액: " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " · 할인 " + Number(t.discount).toLocaleString("ko-KR") + "원" : ""),
       "계약 기간: " + t.from + " ~ " + t.to, "지급일: " + t.payDay, "입금 계좌: " + t.bank,
-      "알림 수신자: " + (c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(", "),
-      "서명: " + c.signature.name + (c.signature.role ? " (" + c.signature.role + ")" : "") + " · " + c.signature.signedOn,
-      "SLA 동의: " + kdt(c.slaAgreedAt), "접수: " + kdt(c.submittedAt),
+      "알림 수신자: " + ((c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(", ") || "-"),
+      "SLA 동의: " + kdt(c.slaAgreedAt), "계약서 발급: " + kdt(c.submittedAt), c.returnedAt ? "회신: " + kdt(c.returnedAt) : "", c.signedAt ? "체결 완료: " + kdt(c.signedAt) : "",
+      "회신 파일: " + ((c.files || []).map(function(f){ return (KIND[f.kind] || "첨부") + " " + f.name; }).join(", ") || "-"),
       t.etc ? "기타: " + t.etc : ""].filter(Boolean).join("\n");
   }
 
@@ -302,47 +326,106 @@
   document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !$("dmodal").hidden) closeD(); });
   $("dprint").addEventListener("click", function(){ window.print(); });
 
-  async function showContract(ref){
-    try{
-      var c = (await api("item?type=contracts&id=" + encodeURIComponent(ref))).item, t = c.terms, u = c.customer;
-      var lic = c.attachments && c.attachments.businessLicense;
-      CUR = c;
-      openD("계약서 · " + c.ref, u.name + " · " + u.site,
-        '<div class="dactions">' +
-          '<button type="button" class="btn sm" data-act="pdf">계약서 PDF 내려받기</button>' +
-          (lic ? '<button type="button" class="btn sm" data-act="lic">사업자등록증 내려받기</button>' : '<span class="pill void">사업자등록증 미첨부</span>') +
-          '<button type="button" class="btn quiet sm" data-act="print">인쇄</button>' +
-          '<button type="button" class="btn quiet sm" data-act="sig">서명 이미지</button>' +
-          '<button type="button" class="btn quiet sm" data-act="copy">계약 정보 복사</button>' +
-          '<a class="btn quiet sm" href="mailto:' + esc(u.email) + '" style="text-decoration:none">담당자 메일</a>' +
-          (c.mondayItemId ? '<a class="btn quiet sm" target="_blank" rel="noopener" href="https://monnitk.monday.com/boards/' + esc(c.mondayBoardId || "18435756574") + '/pulses/' + esc(c.mondayItemId) + '" style="text-decoration:none">먼데이에서 열기</a>' : "") +
-        '</div>' +
-        "<h3>계약 조건</h3>" + dl([
-          ["납품 솔루션", esc(t.solution)], ["월 이용료", won(t.unitPrice) + " × " + t.sites + "개소 = " + won(t.listPrice)],
-          ["할인", t.discount ? "− " + won(t.discount) + (t.discountType === "percent" ? " (" + t.discountValue + "%)" : "") + (t.discountNote ? " · " + esc(t.discountNote) : "") : "없음"],
-          ["월 청구액", "<b>" + won(t.monthly) + "</b> (부가세 별도)"], ["계약 기간", kdate(t.from) + " ~ " + kdate(t.to)],
-          ["지급일", esc(t.payDay)], ["입금 계좌", esc(t.bank)], ["기타 사항", esc(t.etc).replace(/\n/g, "<br>")]]) +
-        "<h3>고객</h3>" + dl([
-          ["상호", esc(u.name)], ["사업자등록번호", esc(u.bizNo || "—")], ["주소", esc(u.address)], ["대표자", esc(u.ceo)],
-          ["계약 구분", u.contractType], ["담당자", esc(u.manager) + " · " + esc(u.phone) + " · " + esc(u.email)], ["설치 현장", esc(u.site)]]) +
-        "<h3>알림 수신자</h3>" + dl(c.recipients.map(function(r, i){ return ["수신자 " + (i+1), esc(r.name) + " · " + esc(r.phone) + (r.email ? " · " + esc(r.email) : "")]; })) +
-        "<h3>SLA 동의 기록</h3>" + dl([
-          ["SLA 버전", esc(c.slaVersion)], ["전문 열람", kdt(c.slaViewedAt) + " · " + c.slaReadPct + "% 읽음"], ["동의", kdt(c.slaAgreedAt)],
-          ["확인 항목", esc((c.acknowledged || []).join(" / "))], ["접수", kdt(c.submittedAt) + " · IP " + esc(c.client && c.client.ip)]]) +
-        "<h3>서명</h3>" + dl([["서명자", esc(c.signature.name) + (c.signature.role ? " · " + esc(c.signature.role) : "") + " · " + kdate(c.signature.signedOn)]]) +
-        '<img class="dimg" alt="서명" src="' + c.signature.image + '" style="max-width:420px">' +
-        (lic ? "<h3>사업자등록증</h3>" + '<img class="dimg" alt="사업자등록증" src="' + lic.image + '">' : ""));
-    }catch(e){ alert(e.message); }
-  }
   var CUR = null;
-  $("dbody").addEventListener("click", function(e){
-    var b = e.target.closest("[data-act]"); if(!b || !CUR) return;
-    var c = CUR;
-    if(b.dataset.act === "lic") dlLicense(c.ref, c);
-    if(b.dataset.act === "sig") saveDataUrl(c.signature.image, "서명_" + safeName(c.customer.name) + "_" + c.ref + "." + extOf(c.signature.image));
-    if(b.dataset.act === "copy") copy(contractText(c), b);
-    if(b.dataset.act === "print") window.MKDoc.print(c);
-    if(b.dataset.act === "pdf") withBusy(b, function(){ return window.MKDoc.pdf(c); });
+  async function showContract(ref){
+    try{ CUR = await fetchContract(ref); renderDetail(); }catch(e){ alert(e.message); }
+  }
+  function renderDetail(){
+    var c = CUR, t = c.terms, u = c.customer, st = c.status || "signed", fs = c.files || [];
+    var lic = c.attachments && c.attachments.businessLicense, sig = c.signature && c.signature.image ? c.signature : null;
+    var m = window.MKPaper.meta(t.products, t.solNote);
+    var has = function(k){ return fs.some(function(f){ return f.kind === k; }); };
+    var offer = DATA.offers.filter(function(o){ return o.contractRef === c.ref; })[0];
+    openD("계약 · " + c.ref, u.name + " · " + u.site,
+      '<div class="stbar ' + st + '"><span class="pill ' + st + '">' + (ST[st] || st) + "</span>" +
+        "<span>" + (st === "issued" ? "고객이 계약서를 내려받았습니다. 날인본·사업자등록증 회신을 기다리는 중입니다." :
+                    st === "returned" ? "회신 파일을 열어 직인 날인과 사업자등록증을 확인한 뒤 「체결 완료 처리」를 눌러 주십시오." :
+                    "체결 완료" + (c.signedAt ? " · " + kdt(c.signedAt) : "") + (sig ? " (전자서명 · 이전 방식)" : "")) + "</span>" +
+        '<span class="spacer"></span>' +
+        (st !== "signed" ? '<button type="button" class="btn sm" data-act="sign">체결 완료 처리</button>' : '<button type="button" class="btn quiet sm" data-act="unsign">체결 완료 취소</button>') +
+      "</div>" +
+      '<div class="dactions">' +
+        '<button type="button" class="btn sm" data-act="pdf">계약서 PDF</button>' +
+        '<button type="button" class="btn quiet sm" data-act="print">계약서 인쇄</button>' +
+        (fs.length || lic ? '<button type="button" class="btn quiet sm" data-act="files">회신 파일 모두 내려받기</button>' : "") +
+        '<button type="button" class="btn quiet sm" data-act="copy">계약 정보 복사</button>' +
+        (offer ? '<button type="button" class="btn quiet sm" data-act="link">고객 링크 복사</button>' : "") +
+        '<a class="btn quiet sm" href="mailto:' + esc(u.email) + '?subject=' + encodeURIComponent("[모넷코리아] 계약서 회신 안내 (" + c.ref + ")") + '" style="text-decoration:none">담당자 메일</a>' +
+        (c.mondayItemId ? '<a class="btn quiet sm" target="_blank" rel="noopener" href="https://monnitk.monday.com/boards/' + esc(c.mondayBoardId || "18435756574") + '/pulses/' + esc(c.mondayItemId) + '" style="text-decoration:none">먼데이에서 열기</a>' : "") +
+      "</div>" +
+      "<h3>회신 파일 <small class=\"muted\">" + (has("contract") ? "날인 계약서 ✓" : "날인 계약서 없음") + " · " + (has("license") || lic ? "사업자등록증 ✓" : "사업자등록증 없음") + "</small></h3>" +
+      (fs.length ? '<div class="fgrid">' + fs.map(function(f){
+        return '<div class="fcard" data-fid="' + f.id + '">' +
+          (/^image\//.test(f.type) ? '<div class="thumb" data-thumb="' + f.id + '">불러오는 중…</div>' : '<div class="thumb pdf">PDF</div>') +
+          '<div class="fmeta"><b>' + (KIND[f.kind] || "첨부") + "</b><span>" + esc(f.name) + "</span><small>" + size(f.size) + " · " + kdt(f.uploadedAt) + " · " + (f.by === "staff" ? "담당자 등록" : "고객 회신") + "</small></div>" +
+          '<div class="fbtns"><button type="button" class="btn quiet sm" data-open="' + f.id + '">열기</button><button type="button" class="btn quiet sm" data-dl="' + f.id + '">내려받기</button><button type="button" class="btn quiet sm danger" data-rmf="' + f.id + '">삭제</button></div></div>';
+      }).join("") + "</div>" : '<p class="muted" style="margin:0 0 10px">아직 회신된 파일이 없습니다. 메일(1015@monnit.com)로 받은 파일은 아래에서 등록해 두면 함께 보관됩니다.</p>') +
+      '<div class="addfile"><select id="af_kind"><option value="contract">날인 계약서</option><option value="license">사업자등록증</option><option value="other">기타</option></select>' +
+        '<input type="file" id="af_file" accept="image/*,application/pdf" multiple><button type="button" class="btn quiet sm" data-act="addfile">메일로 받은 파일 등록</button><span class="hint" id="af_msg"></span></div>' +
+      "<h3>계약 조건</h3>" + dl([
+        ["계약서 명칭", esc(m.title) + " 구독서비스 계약서"],
+        ["납품 솔루션", esc(t.products && t.products.length ? m.solution : t.solution) + (t.productsChosenBy ? ' <span class="muted">(' + (t.productsChosenBy === "customer" ? "고객 선택" : "담당자 지정") + ")</span>" : "")],
+        ["월 이용료", won(t.unitPrice) + " × " + t.sites + "개소 = " + won(t.listPrice)],
+        ["할인", t.discount ? "− " + won(t.discount) + (t.discountType === "percent" ? " (" + t.discountValue + "%)" : "") + (t.discountNote ? " · " + esc(t.discountNote) : "") : "없음"],
+        ["월 청구액", "<b>" + won(t.monthly) + "</b> (부가세 별도)"], ["계약 기간", kdate(t.from) + " ~ " + kdate(t.to)],
+        ["지급일", esc(t.payDay)], ["입금 계좌", esc(t.bank)], ["기타 사항", esc(t.etc).replace(/\n/g, "<br>")]]) +
+      "<h3>발주처 (고객)</h3>" + dl([
+        ["상호", esc(u.name)], ["사업자등록번호", esc(u.bizNo || "—")], ["주소", esc(u.address)], ["대표자", esc(u.ceo)],
+        ["계약 구분", u.contractType === "B2C" ? "소비자 (B2C)" : "사업자 (B2B)"], ["담당자", esc(u.manager) + " · " + esc(u.phone) + " · " + esc(u.email)], ["설치 현장", esc(u.site)]]) +
+      "<h3>알림 수신자</h3>" + ((c.recipients || []).length ? dl(c.recipients.map(function(r, i){ return ["수신자 " + (i+1), esc(r.name) + " · " + esc(r.phone) + (r.email ? " · " + esc(r.email) : "")]; })) : '<p class="muted">등록된 수신자가 없습니다.</p>') +
+      "<h3>진행 기록</h3>" + dl([
+        ["SLA", esc(c.slaVersion) + " · 동의 " + kdt(c.slaAgreedAt) + (c.slaViewedAt ? " · 열람 " + kdt(c.slaViewedAt) + " · " + (c.slaReadPct || 0) + "% 읽음" : "")],
+        ["확인 항목", esc((c.acknowledged || []).join(" / ") || "—")],
+        ["계약서 발급", kdt(c.submittedAt) + (c.updatedAt ? " · 정보 수정 " + kdt(c.updatedAt) : "") + (c.client && c.client.ip ? " · IP " + esc(c.client.ip) : "")],
+        ["회신 접수", kdt(c.returnedAt)], ["체결 완료", kdt(c.signedAt)]].concat((c.notes || []).map(function(n){ return ["메모 " + kdt(n.at), esc(n.text)]; }))) +
+      (sig ? "<h3>전자서명 (이전 방식)</h3>" + dl([["서명자", esc(sig.name) + (sig.role ? " · " + esc(sig.role) : "") + " · " + kdate(sig.signedOn)]]) + '<img class="dimg" alt="서명" src="' + sig.image + '" style="max-width:420px">' : "") +
+      (lic && lic.image ? "<h3>사업자등록증 (이전 방식 첨부)</h3>" + '<img class="dimg" alt="사업자등록증" src="' + lic.image + '">' : ""));
+    fs.filter(function(f){ return /^image\//.test(f.type); }).forEach(function(f){
+      fileBlob(c.ref, f.id).then(function(u2){ var el = document.querySelector('[data-thumb="' + f.id + '"]'); if(el) el.innerHTML = '<img alt="" src="' + u2 + '">'; }).catch(function(){ var el = document.querySelector('[data-thumb="' + f.id + '"]'); if(el) el.textContent = "미리보기 실패"; });
+    });
+  }
+  $("dbody").addEventListener("click", async function(e){
+    if(!CUR) return;
+    var c = CUR, f;
+    var b = e.target.closest("[data-act],[data-open],[data-dl],[data-rmf]"); if(!b) return;
+    if(b.dataset.open){ f = (c.files || []).filter(function(x){ return x.id === b.dataset.open; })[0]; var w = window.open("", "_blank"); try{ var u3 = await fileBlob(c.ref, f.id); if(w) w.location.href = u3; else saveUrl(u3, fileName(c, f)); }catch(err){ if(w) w.close(); alert(err.message); } return; }
+    if(b.dataset.dl){ f = (c.files || []).filter(function(x){ return x.id === b.dataset.dl; })[0]; try{ await dlFile(c, f); }catch(err){ alert(err.message); } return; }
+    if(b.dataset.rmf){
+      f = (c.files || []).filter(function(x){ return x.id === b.dataset.rmf; })[0];
+      if(!confirm((KIND[f.kind] || "첨부") + " · " + f.name + " 파일을 삭제할까요? 되돌릴 수 없습니다.")) return;
+      try{ var r = await api("file/delete", {body:{ref:c.ref, id:f.id}}); c.files = r.files; renderDetail(); }catch(err){ alert(err.message); }
+      return;
+    }
+    var act = b.dataset.act;
+    if(act === "pdf") withBusy(b, function(){ return window.MKPaper.pdf(c); });
+    if(act === "print"){ var p = window.MKPaper.print(c); p.catch(function(err){ alert(err.message); }); }
+    if(act === "files") withBusy(b, function(){ return dlAllFiles(c); });
+    if(act === "copy") copy(contractText(c), b);
+    if(act === "link"){ var o = DATA.offers.filter(function(x){ return x.contractRef === c.ref; })[0]; if(o) copy(offerUrl(o.id), b); }
+    if(act === "sign" || act === "unsign"){
+      if(act === "sign" && !(c.files || []).some(function(x){ return x.kind === "contract"; }) && !confirm("날인 계약서 파일이 등록되지 않았습니다. 그래도 체결 완료로 처리할까요?")) return;
+      if(act === "unsign" && !confirm("체결 완료를 취소하고 「회신 접수」 상태로 되돌릴까요?")) return;
+      try{
+        var j = await api("contract/status", {body:{ref:c.ref, status: act === "sign" ? "signed" : ((c.files || []).length ? "returned" : "issued")}});
+        c.status = j.status; c.signedAt = j.signedAt; renderDetail(); load("contracts");
+      }catch(err){ alert(err.message); }
+    }
+    if(act === "addfile"){
+      var inp = $("af_file"), kind = $("af_kind").value, files = Array.prototype.slice.call(inp.files || []);
+      if(!files.length){ $("af_msg").textContent = "파일을 먼저 선택해 주십시오."; return; }
+      b.disabled = true;
+      for(var i = 0; i < files.length; i++){
+        $("af_msg").textContent = "올리는 중… " + (i + 1) + " / " + files.length;
+        try{
+          var res = await fetch("/api/alarm/admin/file?ref=" + encodeURIComponent(c.ref) + "&kind=" + kind + "&name=" + encodeURIComponent(files[i].name),
+            { method: "POST", headers: {"x-admin-key": KEY, "content-type": files[i].type || "application/octet-stream"}, body: files[i] });
+          var jj = await res.json();
+          if(!jj.ok) throw new Error(jj.error === "too_large" ? "10MB 초과" : jj.error === "bad_type" ? "PDF·이미지만 등록할 수 있습니다" : jj.error);
+          c.files = jj.files; c.status = jj.status;
+        }catch(err){ alert(files[i].name + ": " + err.message); }
+      }
+      b.disabled = false; renderDetail(); load("contracts");
+    }
   });
 
   /* ── 3. 기존 고객 ── */
