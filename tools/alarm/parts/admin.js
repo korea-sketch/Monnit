@@ -15,10 +15,31 @@
   function kdate(s){ if(!s) return "—"; var p = String(s).slice(0,10).split("-"); return p.length === 3 ? (p[0] + "." + p[1] + "." + p[2]) : s; }
   function kdt(s){ if(!s) return "—"; var d = new Date(s); return isNaN(d) ? s : d.toLocaleString("ko-KR", {year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}); }
   function ymd(d){ var p=function(n){return String(n).padStart(2,"0");}; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+  /* 복사 — ① 숨은 입력란 + execCommand(클릭 직후 동기 실행: 앱 내장 브라우저·iframe·http 에서도 동작)
+             ② Clipboard API  ③ 둘 다 막히면 글자를 선택해 둔 창을 띄워 Ctrl+C 로 복사 (2026-10-21) */
   function copy(text, btn){
-    var done = function(){ if(!btn) return; var t = btn.textContent; btn.textContent = "복사됨 ✓"; setTimeout(function(){ btn.textContent = t; }, 1400); };
-    if(navigator.clipboard) navigator.clipboard.writeText(text).then(done, function(){ window.prompt("복사해 주십시오", text); });
-    else window.prompt("복사해 주십시오", text);
+    var done = function(){ if(!btn) return; var t = btn.dataset.label || btn.textContent; btn.dataset.label = t; btn.textContent = "복사됨 ✓"; setTimeout(function(){ btn.textContent = t; }, 1400); };
+    var ok = false, ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;padding:0;border:0";
+    (document.getElementById("dmodal") && !document.getElementById("dmodal").hidden ? document.getElementById("dmodal") : document.body).appendChild(ta);
+    try{ ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); ok = document.execCommand("copy"); }catch(e){ ok = false; }
+    ta.remove();
+    if(ok){ done(); return; }
+    if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(done, function(){ copyBox(text); }); return; }
+    copyBox(text);
+  }
+  function copyBox(text){
+    var box = document.getElementById("copybox");
+    if(!box){
+      box = document.createElement("div"); box.id = "copybox"; box.className = "modal"; box.setAttribute("role", "dialog");
+      box.innerHTML = '<div class="backdrop" data-cbclose></div><div class="msheet" style="max-width:620px"><div class="mhd"><h2>아래 내용을 복사해 주십시오</h2><span class="spacer"></span><button type="button" class="btn quiet" data-cbclose>닫기</button></div>' +
+        '<div class="mbody" style="padding:16px 20px"><p class="hint" style="margin:0 0 8px">자동 복사가 막힌 환경입니다. 글자가 선택된 상태이니 <b>Ctrl+C</b>(맥은 ⌘+C)를 누르거나 길게 눌러 복사해 주십시오.</p><textarea id="copyboxTa" rows="10" readonly style="width:100%;font-size:13px"></textarea></div></div>';
+      document.body.appendChild(box);
+      box.addEventListener("click", function(e){ if(e.target.closest("[data-cbclose]")) box.hidden = true; });
+    }
+    box.hidden = false;
+    var ta = document.getElementById("copyboxTa"); ta.value = text; ta.focus(); ta.select();
   }
 
   async function api(path, opt){
@@ -158,13 +179,13 @@
         customer:$("n_customer").value.trim(), contact:$("n_contact").value.trim(), note:$("n_note").value.trim()
       })});
       lastOffer = j.offer; lastLink = offerUrl(j.offer.id);
-      $("n_link").textContent = lastLink; $("n_open").href = lastLink;
+      $("n_link").value = lastLink; $("n_open").href = lastLink; $("n_msg").value = offerMsg(j.offer);
       $("n_out").hidden = false; btn.hidden = true;
     }catch(e){ $("n_err").hidden = false; $("n_err").textContent = e.message; }
     btn.disabled = false; btn.textContent = "계약 링크 만들기";
   });
   $("n_copy").addEventListener("click", function(){ copy(lastLink, this); });
-  $("n_copyMsg").addEventListener("click", function(){ if(lastOffer) copy(offerMsg(lastOffer), this); });
+  $("n_copyMsg").addEventListener("click", function(){ if(lastOffer) copy($("n_msg").value || offerMsg(lastOffer), this); });
   $("n_reset").addEventListener("click", resetNew);
 
   /* ── 목록 불러오기 ── */
@@ -576,3 +597,6 @@
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   });
 })();
+
+/* 링크·안내 문구 칸: 누르면 전체 선택 → Ctrl+C 로 바로 복사 */
+document.querySelectorAll("#n_link,#n_msg").forEach(function(el){ el.addEventListener("focus", function(){ var t = this; setTimeout(function(){ t.select(); }, 0); }); });

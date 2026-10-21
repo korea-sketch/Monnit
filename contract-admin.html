@@ -333,7 +333,8 @@ body.pdf .fineprint{font-size:9pt;color:#666}
 .stepper{display:flex;gap:6px}
 .stepper .btn{padding:0;width:44px;font-size:18px;justify-content:center}
 .stepper input{text-align:center}
-.linkbox{font:400 12px/1.5 var(--mono);word-break:break-all;background:var(--surface-2);border:1px solid var(--rule);padding:9px 11px}
+.linkbox{display:block;width:100%;font:400 12px/1.5 var(--mono);background:var(--surface-2);border:1px solid var(--rule);padding:9px 11px;color:var(--ink);user-select:all;-webkit-user-select:all}
+.msgbox{width:100%;font-size:12.5px;line-height:1.6;user-select:text;-webkit-user-select:text}
 .row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .toolbar{display:flex;gap:8px;align-items:center;margin:18px 0 8px;flex-wrap:wrap}
 .toolbar .spacer{flex:1}
@@ -577,7 +578,7 @@ ul.filelist.done li{background:transparent}
           <div class="f"><label for="n_years">의무 이용기간</label>
             <select id="n_years"><option value="3">3년</option><option value="2">2년</option><option value="1">1년</option><option value="0">직접 입력</option></select></div>
           <div class="f"><label for="n_to">계약 종료일</label><input type="date" id="n_to"></div>
-          <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 25일"></div>
+          <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 20일"></div>
           <div class="f wide"><label for="n_bank">입금 계좌</label><input type="text" id="n_bank" value="하나은행 375-910030-09904 (예금주: 주식회사 모넷코리아)"></div>
           <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea></div>
         </div>
@@ -592,12 +593,14 @@ ul.filelist.done li{background:transparent}
       <button type="button" class="btn" id="n_make" style="width:100%;margin-top:6px">계약 링크 만들기</button>
       <div id="n_out" hidden>
         <p class="kicker" style="margin:18px 0 6px">고객 전용 링크</p>
-        <div class="linkbox" id="n_link"></div>
+        <input type="text" class="linkbox" id="n_link" readonly aria-label="고객 전용 링크">
         <div class="row2">
           <button type="button" class="btn quiet sm" id="n_copy">링크 복사</button>
           <button type="button" class="btn quiet sm" id="n_copyMsg">안내 문구 복사</button>
           <a class="btn quiet sm" id="n_open" target="_blank" rel="noopener">고객 화면 보기</a>
         </div>
+        <p class="kicker" style="margin:16px 0 6px">안내 문구 <small style="text-transform:none;letter-spacing:0">(직접 고쳐서 복사할 수 있습니다)</small></p>
+        <textarea id="n_msg" rows="12" class="msgbox" aria-label="고객 안내 문구"></textarea>
         <button type="button" class="btn ghost sm" id="n_reset" style="margin-top:12px">새 계약 링크 만들기</button>
       </div>
     </aside>
@@ -1356,10 +1359,31 @@ ul.filelist.done li{background:transparent}
   function kdate(s){ if(!s) return "—"; var p = String(s).slice(0,10).split("-"); return p.length === 3 ? (p[0] + "." + p[1] + "." + p[2]) : s; }
   function kdt(s){ if(!s) return "—"; var d = new Date(s); return isNaN(d) ? s : d.toLocaleString("ko-KR", {year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}); }
   function ymd(d){ var p=function(n){return String(n).padStart(2,"0");}; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+  /* 복사 — ① 숨은 입력란 + execCommand(클릭 직후 동기 실행: 앱 내장 브라우저·iframe·http 에서도 동작)
+             ② Clipboard API  ③ 둘 다 막히면 글자를 선택해 둔 창을 띄워 Ctrl+C 로 복사 (2026-10-21) */
   function copy(text, btn){
-    var done = function(){ if(!btn) return; var t = btn.textContent; btn.textContent = "복사됨 ✓"; setTimeout(function(){ btn.textContent = t; }, 1400); };
-    if(navigator.clipboard) navigator.clipboard.writeText(text).then(done, function(){ window.prompt("복사해 주십시오", text); });
-    else window.prompt("복사해 주십시오", text);
+    var done = function(){ if(!btn) return; var t = btn.dataset.label || btn.textContent; btn.dataset.label = t; btn.textContent = "복사됨 ✓"; setTimeout(function(){ btn.textContent = t; }, 1400); };
+    var ok = false, ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;padding:0;border:0";
+    (document.getElementById("dmodal") && !document.getElementById("dmodal").hidden ? document.getElementById("dmodal") : document.body).appendChild(ta);
+    try{ ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); ok = document.execCommand("copy"); }catch(e){ ok = false; }
+    ta.remove();
+    if(ok){ done(); return; }
+    if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(done, function(){ copyBox(text); }); return; }
+    copyBox(text);
+  }
+  function copyBox(text){
+    var box = document.getElementById("copybox");
+    if(!box){
+      box = document.createElement("div"); box.id = "copybox"; box.className = "modal"; box.setAttribute("role", "dialog");
+      box.innerHTML = '<div class="backdrop" data-cbclose></div><div class="msheet" style="max-width:620px"><div class="mhd"><h2>아래 내용을 복사해 주십시오</h2><span class="spacer"></span><button type="button" class="btn quiet" data-cbclose>닫기</button></div>' +
+        '<div class="mbody" style="padding:16px 20px"><p class="hint" style="margin:0 0 8px">자동 복사가 막힌 환경입니다. 글자가 선택된 상태이니 <b>Ctrl+C</b>(맥은 ⌘+C)를 누르거나 길게 눌러 복사해 주십시오.</p><textarea id="copyboxTa" rows="10" readonly style="width:100%;font-size:13px"></textarea></div></div>';
+      document.body.appendChild(box);
+      box.addEventListener("click", function(e){ if(e.target.closest("[data-cbclose]")) box.hidden = true; });
+    }
+    box.hidden = false;
+    var ta = document.getElementById("copyboxTa"); ta.value = text; ta.focus(); ta.select();
   }
 
   async function api(path, opt){
@@ -1499,13 +1523,13 @@ ul.filelist.done li{background:transparent}
         customer:$("n_customer").value.trim(), contact:$("n_contact").value.trim(), note:$("n_note").value.trim()
       })});
       lastOffer = j.offer; lastLink = offerUrl(j.offer.id);
-      $("n_link").textContent = lastLink; $("n_open").href = lastLink;
+      $("n_link").value = lastLink; $("n_open").href = lastLink; $("n_msg").value = offerMsg(j.offer);
       $("n_out").hidden = false; btn.hidden = true;
     }catch(e){ $("n_err").hidden = false; $("n_err").textContent = e.message; }
     btn.disabled = false; btn.textContent = "계약 링크 만들기";
   });
   $("n_copy").addEventListener("click", function(){ copy(lastLink, this); });
-  $("n_copyMsg").addEventListener("click", function(){ if(lastOffer) copy(offerMsg(lastOffer), this); });
+  $("n_copyMsg").addEventListener("click", function(){ if(lastOffer) copy($("n_msg").value || offerMsg(lastOffer), this); });
   $("n_reset").addEventListener("click", resetNew);
 
   /* ── 목록 불러오기 ── */
@@ -1917,6 +1941,9 @@ ul.filelist.done li{background:transparent}
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   });
 })();
+
+/* 링크·안내 문구 칸: 누르면 전체 선택 → Ctrl+C 로 바로 복사 */
+document.querySelectorAll("#n_link,#n_msg").forEach(function(el){ el.addEventListener("focus", function(){ var t = this; setTimeout(function(){ t.select(); }, 0); }); });
 </script>
 </body>
 </html>

@@ -9,7 +9,8 @@
 .stepper{display:flex;gap:6px}
 .stepper .btn{padding:0;width:44px;font-size:18px;justify-content:center}
 .stepper input{text-align:center}
-.linkbox{font:400 12px/1.5 var(--mono);word-break:break-all;background:var(--surface-2);border:1px solid var(--rule);padding:9px 11px}
+.linkbox{display:block;width:100%;font:400 12px/1.5 var(--mono);background:var(--surface-2);border:1px solid var(--rule);padding:9px 11px;color:var(--ink);user-select:all;-webkit-user-select:all}
+.msgbox{width:100%;font-size:12.5px;line-height:1.6;user-select:text;-webkit-user-select:text}
 .row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .toolbar{display:flex;gap:8px;align-items:center;margin:18px 0 8px;flex-wrap:wrap}
 .toolbar .spacer{flex:1}
