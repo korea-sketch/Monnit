@@ -9,6 +9,7 @@
   "use strict";
   var ORIGIN = location.origin;
   var LOGO = ORIGIN + "/alarm/monnit-logo.png";
+  var SEAL = ORIGIN + "/alarm/monnit-seal.png";   /* 납품처(모넷코리아) 법인 직인 — 발주처 직인란은 비워 둔다 */
   var SUPPLIER = { name: "주식회사 모넷코리아", biz: "242-88-01218", addr: "서울 서초구 효령로 380 세안빌딩 2F", ceo: "염 정 훈", tel: "02-2088-1454", mail: "korea@monnit.com" };
   var P = {
     fire:   { name: "무선 화재경보 연동 알리미", detail: "기존 소방수신기 화재경보 접점 신호 원격 알림", en: "FIRE ALARM LINK", annex: "B-1 화재경보 연동" },
@@ -90,6 +91,7 @@
     ".mkp .fr .t2 td{border-bottom:1px solid var(--line);padding:7px 8px;height:31px;font-size:11px;vertical-align:middle}",
     ".mkp .fr .t2 td.k{width:74px;font-weight:700;color:var(--navy);letter-spacing:.2em;background:var(--soft)}",
     ".mkp .fr .t2 td.in{text-align:right;color:var(--gray);width:40px}",
+    ".mkp .fr .t2 td.seal{position:relative}.mkp .fr .t2 td.seal img{position:absolute;right:2px;top:50%;width:70px;height:70px;transform:translateY(-50%);opacity:.92}",
     ".mkp .fr .t2 td.v{font-weight:600}",
     ".mkp .fr .foot{position:absolute;left:60px;right:60px;bottom:22px;border-top:1px solid var(--line);padding-top:7px;text-align:center;font-size:8.5px;color:var(--gray)}",
     ".mkp .fr .foot b{color:var(--navy)}.mkp .fr .ref{position:absolute;right:60px;top:40px;font-size:9px;color:var(--gray);text-align:right;line-height:1.5}.mkp .fr .ref b{color:var(--navy);font-family:'IBM Plex Mono',ui-monospace,monospace}",
@@ -166,7 +168,7 @@
         '<tr><td class="k">상　호</td><td class="v" colspan="2">' + blank(u.name) + '</td><td class="k">상　호</td><td class="v" colspan="2">' + SUPPLIER.name + "</td></tr>" +
         '<tr><td class="k">사업자<br>번　호</td><td class="v" colspan="2">' + blank(u.bizNo) + '</td><td class="k">사업자<br>번　호</td><td class="v" colspan="2">' + SUPPLIER.biz + "</td></tr>" +
         '<tr><td class="k">주　소</td><td class="v" colspan="2">' + blank(u.address) + '</td><td class="k">주　소</td><td class="v" colspan="2">' + SUPPLIER.addr + "</td></tr>" +
-        '<tr><td class="k" style="height:46px">대표이사</td><td class="v">' + blank(u.ceo) + '</td><td class="in">(인)</td><td class="k">대표이사</td><td class="v">' + SUPPLIER.ceo + '</td><td class="in">(인)</td></tr>' +
+        '<tr><td class="k" style="height:46px">대표이사</td><td class="v">' + blank(u.ceo) + '</td><td class="in">(인)</td><td class="k">대표이사</td><td class="v">' + SUPPLIER.ceo + '</td><td class="in seal">(인)<img src="' + SEAL + '" alt="모넷코리아 직인" crossorigin="anonymous"></td></tr>' +
       "</tbody></table>" +
       '<div class="foot"><b>주식회사 모넷코리아</b>　|　서울시 서초구 효령로 380 세안빌딩 2F　|　T. 02-2088-1454　|　korea@monnit.com　|　회신 1015@monnit.com</div>' +
     "</div>";
