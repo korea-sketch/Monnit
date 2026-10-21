@@ -22,7 +22,7 @@
  *                       제품이 알리미인 고장 접수는 알리미 담당에게도 간다.
  *    ROUTE_ALWAYS_TO    어떤 종류든 배분 메일을 항상 함께 받는 사람. 기본 0702yeom@gmail.com
  *                       (대표님 지시 2026-10-16 — 담당자에게 가는 문의를 대표도 같이 받는다. 비우려면 ROUTE_ALWAYS_TO=- )
- *                       단, 예지보전 가이드 자동 발송 건(/promo/consulting 무경험 신청)은 대표님께 보내지 않는다.
+ *                       (2026-10-21) 예지보전 가이드 자동 발송 건도 대표님께 보낸다.
  *    VISIT_NOTIFY_TO    /visit/admin 에서 한 번도 저장하지 않았을 때의 예약 알림 기본값. 기본 msk8206@monnit.com
  *    ROUTE_MAIL_OFF=1   이 배분 메일을 끈다
  */
@@ -104,7 +104,8 @@ export async function recipientsFor(kind, opts) {
   if (kind === 'visit') for (const r of (await readVisitRecipients()).list) out.add(r.email);
   if (kind === 'alarm' || kind === 'alarm-support') for (const e of alarmTo()) out.add(e);
   if (kind === 'support' || kind === 'alarm-support') for (const e of supportTo()) out.add(e);
-  if (!(opts && opts.guide)) for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 — 가이드 건만 제외 */
+  for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 (2026-10-21: 가이드 건 제외 규칙 폐지) */
+  out.delete('korea@monnit.com');   /* 2026-10-21 — korea@ 로는 접수 알림을 보내지 않는다 */
   return [...out];
 }
 
