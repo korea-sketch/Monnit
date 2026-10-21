@@ -385,4 +385,19 @@
   function syncAddr(){ if($("c_sameAddr").checked){ $("c_siteAddr").value = $("c_addr").value; } $("c_siteAddr").readOnly = $("c_sameAddr").checked; }
   $("c_sameAddr").addEventListener("change", syncAddr);
   $("c_addr").addEventListener("input", function(){ if($("c_sameAddr").checked) $("c_siteAddr").value = this.value; });
+  /* 이 계약 화면 링크 — 맨 아래에서 복사 (execCommand → Clipboard API → 직접 선택 안내) */
+  (function(){
+    var url = location.origin + "/contract?id=" + encodeURIComponent(OFFER_ID);
+    var inp = $("selfLink"); inp.value = url;
+    inp.addEventListener("focus", function(){ var t = this; setTimeout(function(){ t.select(); }, 0); });
+    $("selfCopy").addEventListener("click", function(){
+      var b = this, ok = false;
+      inp.focus(); inp.select(); inp.setSelectionRange(0, url.length);
+      try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+      var done = function(){ b.textContent = "복사됨 ✓"; $("selfMsg").textContent = "링크를 복사했습니다. 메모나 메일에 붙여 넣어 보관해 주십시오."; setTimeout(function(){ b.textContent = "링크 복사"; }, 1600); };
+      var fail = function(){ $("selfMsg").textContent = "자동 복사가 막힌 브라우저입니다. 위 칸의 링크가 선택되어 있으니 Ctrl+C(맥은 ⌘+C)로 복사해 주십시오."; inp.focus(); inp.select(); };
+      if(ok) return done();
+      if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(done, fail); else fail();
+    });
+  })();
 })();

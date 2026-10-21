@@ -541,6 +541,7 @@ async function customerMail(rec, offerId) {
   const text = [
     `${rec.customer.manager}님, 안녕하세요. 모넷코리아입니다.`, "",
     `긴급 경보 알리미 구독 계약서가 발급되었습니다. (계약번호 ${rec.ref})`, "",
+    "▶ 계약서 내려받기·회신 링크 (보관해 두십시오)", link, "",
     `· 발주처: ${rec.customer.name} (대표 ${rec.customer.ceo})`, `· 설치 현장: ${rec.customer.site} (${rec.customer.siteAddr})`,
     `· 납품 솔루션: ${t.solution} · ${t.sites}개소`,
     `· 월 청구액: ${won(t.monthly)} (부가세 별도)${t.discount ? " — 정가 " + won(t.listPrice) + "에서 " + won(t.discount) + " 할인" : ""}`,
@@ -551,7 +552,8 @@ async function customerMail(rec, offerId) {
     "3. 날인한 계약서와 사업자등록증 사본을 링크 화면에서 올리시거나 1015@monnit.com 으로 보내 주십시오.",
     `   (메일 제목에 계약번호 ${rec.ref} 를 적어 주십시오)`,
     "4. 모넷코리아가 날인본을 확인하면 계약 체결이 완료되며, 설치 일정과 세금계산서 발행 절차를 안내드립니다.", "",
-    `계약서 내려받기·회신: ${link}`, "",
+    "▶ 계약서 내려받기·회신 링크", link, "",
+    "링크는 계약이 체결될 때까지 언제든 다시 열어 계약서를 내려받거나 날인본을 올리실 수 있습니다.", "",
     "문의 02-2088-1454 · 1015@monnit.com", "", "주식회사 모넷코리아",
   ].join("\n");
   try {
