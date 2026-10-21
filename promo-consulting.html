@@ -639,6 +639,7 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';});}})
 
   /* FORM */
   .apply{padding:66px 0 80px;background:var(--ink0)}
+  #apply .formcard{scroll-margin-top:84px}
   .formcard{background:rgba(255,255,255,.03);border:1px solid rgba(51,143,255,.3);border-radius:22px;padding:48px;max-width:720px;margin:0 auto}
   .priority{display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,90,60,.12);border:1px solid rgba(255,90,60,.42);border-radius:14px;padding:12px 16px;margin-bottom:24px;text-align:center}
   .priority .dl{font-size:13px;font-weight:800;color:#ffd7cc}
@@ -1550,7 +1551,7 @@ h2{margin-bottom:14px!important}
 
   <nav><div class="wrap">
     <a href="https://monnit.co.kr/" aria-label="모넷코리아 홈"><img src="/images/promo/pc-01.png" alt="모넷코리아 MONNIT 로고"></a>
-    <a href="tel:0220881454" class="navbtn" data-k="nav-01">무료 체험 신청</a>
+    <a href="#apply" class="navbtn" data-k="nav-01">무료 체험 신청</a>
   </div></nav>
 
   <header class="hero"><div class="wrap">
@@ -3310,5 +3311,19 @@ window.MKDOCS = { spec: spec, catalog: catalog, specFor: specFor, specTitle: spe
     },{threshold:.4}).observe(el);
   });
 })();
+</script>
+<script>
+/* 무료 체험 신청 버튼 → 신청 폼(30초면 신청 끝)으로 정확히 이동 */
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('a[href="#apply"]');
+  if(!a||e.metaKey||e.ctrlKey||e.shiftKey)return;
+  var t=document.querySelector('#apply .formcard')||document.getElementById('apply');
+  if(!t)return;
+  e.preventDefault();
+  t.scrollIntoView({behavior:'smooth',block:'start'});
+  if(history.replaceState)history.replaceState(null,'','#apply');
+  /* 이미지 지연 로딩 등으로 위치가 밀렸으면 한 번 더 보정 */
+  setTimeout(function(){var r=t.getBoundingClientRect().top;if(Math.abs(r-84)>40)t.scrollIntoView({behavior:'smooth',block:'start'})},900);
+});
 </script>
 </body></html>
