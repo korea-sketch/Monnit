@@ -349,11 +349,15 @@ function initEmergencyHero(){
       const count = Math.max(1,Math.min(10,Math.round(Number(siteCountEl.value)||1)));
       siteCountEl.value = count;
       const isQuote = count>=10;
-      /* 2026-10-16 자동 할인 제거 — 할인은 담당자가 계약 조건에서만 적용한다 */
+      /* 2026-10-16 자동 할인 제거 — 할인은 담당자가 계약 조건에서만 적용한다
+         2026-10-23 지역 요금 — 1곳 월 3만 원, 그 외 지역은 개수와 관계없이 출장비 월 1만 원 정액(설치 방문 1회 기준)
+         (그 외 지역은 출장 설치비를 따로 받지 않고 월 1만 원을 더한다 · 산정 근거는 고객 화면에 노출하지 않음) */
+      const isMetro = region.value==='metro';
       const unit = 30000;
+      const tripFee = isMetro ? 0 : 10000;
       /* 2026-10-16 「월 단가」→ 「월 구독료 · 1곳당」 — 구독 서비스라는 점과 부가세 기준을 함께 보여 준다 */
       unitEl.innerHTML = isQuote ? '10곳 이상은 <b>별도 견적</b>으로 안내드려요'
-        : `월 구독료 <b>${unit.toLocaleString('ko-KR')}원</b> <span>/ 1곳 · 부가세 별도</span>`;
+        : `월 구독료 <b>${unit.toLocaleString('ko-KR')}원</b> <span>/ 1곳 · 부가세 별도${isMetro ? '' : ' · 출장비 월 1만 원 별도(개수와 관계없이 1회)'}</span>`;
       if(planImageEl){
         const hasPhotoSlides = plan.value==='fire'||plan.value==='water'||plan.value==='outage'||plan.value==='alarm';
         carouselEl?.classList.toggle('is-product',!hasPhotoSlides);
@@ -381,9 +385,11 @@ function initEmergencyHero(){
       }
       if(resultModelEl) resultModelEl.textContent = plan.dataset.label;
       if(resultPriceEl){
-        const installation = region.value==='metro' ? '설치비 무료' : '설치비 별도 상담';
-        resultPriceEl.textContent = isQuote ? `별도 견적 · ${installation}` : `월 구독료 ${(unit*count).toLocaleString('ko-KR')}원 · ${installation}`;
+        resultPriceEl.textContent = isQuote ? '별도 견적 · 설치비 무료' : `월 구독료 ${(unit*count+tripFee).toLocaleString('ko-KR')}원 · 설치비 무료`;
       }
+      const resultInstallEl = document.getElementById('taBuilderResultInstall');
+      if(resultInstallEl) resultInstallEl.textContent = isMetro ? '설치비 무료 · 출장비 없음' : `설치비 무료 · 출장비 월 1만 원(${count}곳 공통)`;
+
       if(resultSitesEl) resultSitesEl.textContent = `${count}곳`;
       if(resultRegionEl) resultRegionEl.textContent = region.dataset.label;
       if(resultConsultingEl) resultConsultingEl.textContent = consulting?.value==='installation-only' ? '설치만 진행' : '무료 현장 컨설팅 요청';

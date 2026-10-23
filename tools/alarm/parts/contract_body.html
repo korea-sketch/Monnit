@@ -1,0 +1,259 @@
+<body>
+<div class="topbar">
+  <div class="inner">
+    <div class="brand">
+      <a class="mk" href="/" style="text-decoration:none">MONNIT KOREA</a>
+      <span class="nm">긴급 경보 알리미 · 구독 계약</span>
+    </div>
+  </div>
+</div>
+
+<nav class="steps" id="stepnav" aria-label="진행 단계">
+  <ol>
+    <li><button class="steptab" data-go="0" aria-current="true"><span class="n"><span>1</span></span>계약 조건</button></li>
+    <li><button class="steptab" data-go="1"><span class="n"><span>2</span></span>계약서 · SLA</button></li>
+    <li><button class="steptab" data-go="3"><span class="n"><span>3</span></span>고객 정보</button></li>
+    <li><button class="steptab" data-go="4"><span class="n"><span>4</span></span>내려받기 · 회신</button></li>
+  </ol>
+</nav>
+
+<main class="sheet">
+
+<!-- ───────── 1. 계약 조건 ───────── -->
+<section class="pane on" id="p0" aria-label="계약 조건">
+  <p class="kicker">단계 1 / 4 · 계약 조건 확인</p>
+  <h1>계약 조건 확인</h1>
+  <p class="lede">모넷코리아 담당자가 확정한 계약 조건입니다. 내용을 확인하신 뒤 다음 단계로 진행해 주십시오. 수정이 필요하면 담당자에게 연락 주십시오.</p>
+
+  <div class="flow" aria-label="계약 진행 순서">
+    <div class="flow-i"><b>1</b><span>조건·SLA 확인</span></div>
+    <div class="flow-i"><b>2</b><span>고객 정보 입력</span></div>
+    <div class="flow-i"><b>3</b><span>계약서 내려받기·인쇄</span></div>
+    <div class="flow-i"><b>4</b><span>직인 날인 후 회신</span></div>
+  </div>
+
+  <div class="state" id="loading">계약 조건을 불러오는 중입니다…</div>
+  <div class="state" id="offerErr" hidden>
+    <h2 id="offerErrT">링크를 확인해 주십시오</h2>
+    <p class="hint" id="offerErrD" style="margin:0">담당자에게 받은 전용 링크로 접속해 주십시오. 문의 02-2088-1454</p>
+  </div>
+
+  <div id="offerBox" hidden>
+    <div class="price" id="priceBox"></div>
+    <div class="terms">
+      <dl>
+        <dt>납품 솔루션</dt><dd id="o_sol">—</dd>
+        <dt>계약 기간</dt><dd id="o_term">—</dd>
+        <dt>지급 일자</dt><dd id="o_pay">—</dd>
+        <dt>입금 계좌</dt><dd id="o_bank">—</dd>
+        <dt>기타 사항</dt><dd id="o_etc">—</dd>
+      </dl>
+    </div>
+    <fieldset id="pickBox" hidden>
+      <legend>도입하실 알리미 <span class="req">*</span></legend>
+      <p class="hint" style="margin:-8px 0 14px">해당하는 알리미를 모두 선택해 주십시오. 선택한 제품에 맞춰 계약서의 납품 솔루션과 서비스수준협약(SLA) 부속서가 정해집니다.</p>
+      <div class="opts" id="pick" role="group" aria-label="알리미 선택">
+        <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재경보 연동 알리미</span></label>
+        <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
+        <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
+        <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미 (설비 접점 연동)</span></label>
+        <label class="opt"><input type="checkbox" value="custom"><span>💡 커스텀 알리미</span></label>
+      </div>
+      <p class="err" id="pickErr" hidden style="margin-top:10px"></p>
+    </fieldset>
+    <div class="btnrow">
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="go1">계약서 확인 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── 2. 계약서 · SLA ───────── -->
+<section class="pane" id="p1" aria-label="계약서">
+  <p class="kicker">단계 2 / 4 · 계약서 본문</p>
+  <h1 id="v_title">구독서비스 계약서</h1>
+  <p class="lede">발주처(고객)와 납품처 주식회사 모넷코리아는 아래 조건으로 구독서비스 계약을 체결합니다. 이 내용이 내려받으실 계약서 앞면에 그대로 들어갑니다.</p>
+
+  <div class="terms">
+    <dl>
+      <dt>납품 솔루션</dt><dd id="v_sol">—</dd>
+      <dt>사용 금액</dt><dd><b class="money" id="v_price">—</b> (부가세 별도) · <span id="v_sites">—</span><span id="v_disc"></span></dd>
+      <dt>안내 사항</dt><dd id="v_notice">—</dd>
+      <dt>계약 기간</dt><dd id="v_term">—</dd>
+      <dt>지급 일자</dt><dd id="v_pay">—</dd>
+      <dt>입금 계좌</dt><dd id="v_bank">—</dd>
+      <dt>기타 사항</dt><dd id="v_etc">—</dd>
+    </dl>
+  </div>
+  <p class="hint">발주처와 납품처는 상호 동등한 입장에서 위 계약조건에 따라 본 서비스 계약을 체결하고, 신의에 따라 성실히 그 의무를 이행할 것을 확약합니다.</p>
+
+  <div class="doc" style="margin-top:22px">
+    <h3>납품처</h3>
+    <p>상호 : 주식회사 모넷코리아<br>
+    사업자등록번호 : 242-88-01218<br>
+    주소 : 서울시 서초구 효령로 380 세안빌딩 2F<br>
+    대표이사 : 염 정 훈<br>
+    연락처 : 02-2088-1454 · korea@monnit.com</p>
+  </div>
+
+  <div class="slabtn">
+    <div class="tx"><b>서비스수준협약(SLA)</b>은 이 계약의 부속문서로 계약과 일체를 이루며, 계약서 뒷면에 인쇄됩니다.
+      서비스의 성격과 한계, 회사가 부담하지 않는 의무, 책임의 범위가 여기에 정해져 있습니다.</div>
+    <button type="button" class="btn ghost" id="openSla">SLA 전문 보기</button>
+    <a class="btn quiet slapdf" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none">PDF 내려받기</a>
+    <span class="slaseen" id="slaseen" hidden>동의함 ✓<b id="slaseenAt"></b></span>
+  </div>
+
+  <div class="btnrow">
+    <button type="button" class="btn quiet" data-next="0">← 이전</button>
+    <span class="spacer"></span>
+    <button type="button" class="btn" id="go3">고객 정보 입력 →</button>
+  </div>
+</section>
+
+<!-- ───────── 3. 고객 정보 ───────── -->
+<section class="pane" id="p3" aria-label="고객 정보">
+  <p class="kicker">단계 3 / 4 · 고객 작성</p>
+  <h1>고객 정보 입력</h1>
+  <p class="lede">입력하신 정보는 계약서의 발주처 란에 미리 채워집니다. 경보 발생 시 문자·이메일을 받을 수신자도 함께 등록해 주십시오. 수신자 정보는 SLA 제7조 제2호에 따라 항상 최신 상태로 유지해 주십시오.</p>
+
+  <fieldset>
+    <legend>발주처 (고객)</legend>
+    <div class="grid">
+      <div class="f"><label for="c_name">상호 / 성명 <span class="req">*</span></label><input type="text" id="c_name" placeholder="주식회사 ○○" autocomplete="organization"></div>
+      <div class="f"><label for="c_biz">사업자등록번호</label><input type="text" id="c_biz" placeholder="000-00-00000" inputmode="numeric"></div>
+      <div class="f wide"><label for="c_addr">주소 <span class="req">*</span></label><input type="text" id="c_addr" placeholder="시·도 / 시·군·구 / 도로명 주소"></div>
+      <div class="f"><label for="c_ceo">대표자 <span class="req">*</span></label><input type="text" id="c_ceo" placeholder="홍길동"></div>
+      <div class="f">
+        <label for="c_type">계약 구분 <span class="req">*</span></label>
+        <select id="c_type">
+          <option value="B2B">사업자 (B2B)</option>
+          <option value="B2C">소비자 (B2C) — SLA 소비자 특칙 적용</option>
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>계약 담당자 및 설치 현장</legend>
+    <div class="grid">
+      <div class="f"><label for="c_mgr">담당자 성명 <span class="req">*</span></label><input type="text" id="c_mgr" autocomplete="name"></div>
+      <div class="f"><label for="c_tel">담당자 연락처 <span class="req">*</span></label><input type="tel" id="c_tel" placeholder="010-0000-0000" autocomplete="tel"></div>
+      <div class="f"><label for="c_mail">담당자 이메일 <span class="req">*</span></label><input type="email" id="c_mail" placeholder="name@company.co.kr" autocomplete="email"></div>
+      <div class="f wide"><label for="c_site">설치 현장명 <span class="req">*</span></label><input type="text" id="c_site" placeholder="예: ○○공장 지하 1층 기계실 외"></div>
+      <div class="f wide"><div class="lrow"><label for="c_siteAddr">설치 현장 주소 <span class="req">*</span></label><label class="inl"><input type="checkbox" id="c_sameAddr"> 발주처 주소와 같음</label></div><input type="text" id="c_siteAddr" placeholder="시·도 / 시·군·구 / 도로명 주소"></div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>알림 수신자</legend>
+    <div class="recvbanner">
+      <b>알림 수신자는 최대 10명까지 등록할 수 있습니다.</b>
+      <span>지금 입력하지 않아도 계약은 진행됩니다. 수신자 추가·변경은 언제든 <a href="mailto:1015@monnit.com">1015@monnit.com</a> 으로 알려 주시면 반영해 드립니다.</span>
+    </div>
+    <p class="hint" style="margin:0 0 16px">경보 발생 시 문자·이메일을 받을 분입니다. 수신자의 개인정보는 알림 발송·고객 지원 목적으로만 처리하며, 등록 전에 수신자 본인의 동의를 받아 주십시오.</p>
+    <div class="grid" id="recvGrid"></div>
+    <p style="margin:12px 0 0"><button type="button" class="btn quiet" id="recvMore" style="padding:8px 14px;font-size:13px">+ 수신자 추가</button> <span class="hint" id="recvCount">3 / 10</span></p>
+  </fieldset>
+
+  <div class="note" style="margin-top:4px">
+    <span class="tag">개인정보 처리 안내</span>
+    입력하신 정보는 계약 체결·이행, 세금계산서 발행, 알림 발송 목적으로 처리하며 계약 종료 후 5년간 보관합니다. 처리 기준과 담당 연락처는 <a href="/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>에서 확인하실 수 있습니다.
+  </div>
+  <p class="err" id="err3" hidden></p>
+  <div class="btnrow">
+    <button type="button" class="btn quiet" data-next="1">← 이전</button>
+    <span class="spacer"></span>
+    <button type="button" class="btn" id="go4">계약서 만들기 →</button>
+  </div>
+</section>
+
+<!-- ───────── 4. 계약서 내려받기 · 회신 ───────── -->
+<section class="pane" id="p4" aria-label="계약서 내려받기 및 회신">
+  <p class="kicker">단계 4 / 4 · 계약서 내려받기 · 회신</p>
+  <h1 id="p4title">계약서를 내려받아 주십시오</h1>
+  <p class="lede" id="p4lede">입력하신 정보가 채워진 계약서(앞면 계약서 · 뒷면 서비스수준협약)가 준비되었습니다. 내려받거나 인쇄해 내용을 확인하신 뒤, 아래 순서대로 회신해 주십시오.</p>
+
+  <div class="receipt" style="margin-bottom:22px">
+    <div class="hd">
+      <p class="kicker" style="margin:0">계약번호</p>
+      <p class="rno" id="d_no">—</p>
+      <span class="pill" id="d_state">계약서 발급</span>
+    </div>
+    <div class="bd">
+      <div class="terms" style="margin:0">
+        <dl>
+          <dt>납품 솔루션</dt><dd id="d_sol">—</dd>
+          <dt>발주처</dt><dd id="d_cust">—</dd>
+          <dt>설치 현장</dt><dd id="d_site">—</dd>
+          <dt>현장 주소</dt><dd id="d_siteAddr">—</dd>
+          <dt>월 청구액</dt><dd class="money" id="d_price">—</dd>
+          <dt>계약 기간</dt><dd id="d_term">—</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="dlrow">
+    <button type="button" class="btn" id="pdfBtn">계약서 PDF 내려받기</button>
+    <button type="button" class="btn ghost" id="printBtn">계약서 인쇄 (A4 양면)</button>
+    <button type="button" class="btn quiet" id="editBtn">입력 정보 수정</button>
+  </div>
+  <p class="hint" id="pdfMsg" style="margin:8px 0 0">A4 한 장 양면(앞면 계약서, 뒷면 SLA)으로 인쇄하시면 됩니다. 인쇄 시 「양면 인쇄 · 긴 쪽 넘김」을 선택해 주십시오.</p>
+
+  <div id="procBox">
+  <h2 class="sec-h">회신 절차</h2>
+  <ol class="proc">
+    <li><b>계약서 확인</b><span>내려받은 계약서의 앞면 계약 조건과 뒷면 서비스수준협약(SLA)을 확인합니다.</span></li>
+    <li><b>인쇄 및 직인 날인</b><span>A4 양면으로 인쇄한 뒤, 앞면 아래 <em>발주처 대표이사 (인)</em> 란과 계약일을 기재하고 <em>법인(사업자) 직인</em>을 날인합니다.</span></li>
+    <li><b>스캔 또는 촬영</b><span>날인한 계약서(앞·뒷면)와 <em>사업자등록증 사본</em>을 스캔하거나 글자가 잘 보이게 촬영합니다.</span></li>
+    <li><b>회신</b><span>아래 「온라인으로 회신하기」에서 파일을 올리시거나, <a id="mailLink" href="mailto:1015@monnit.com"><b>1015@monnit.com</b></a> 으로 메일 보내 주십시오. 메일 제목에 <em>계약번호</em>를 적어 주시면 빠르게 처리됩니다.</span></li>
+    <li><b>계약 체결 완료</b><span>모넷코리아가 날인본을 확인하면 계약 체결이 완료되며, 설치 일정과 세금계산서 발행 절차를 안내드립니다.</span></li>
+  </ol>
+  </div>
+
+  <fieldset id="upBox" style="margin-top:26px">
+    <legend>온라인으로 회신하기 <small style="font-weight:400;color:var(--faint)">(선택 · 메일로 보내셔도 됩니다)</small></legend>
+    <div class="upgrid">
+      <div class="upcell">
+        <span class="flab">날인한 계약서 <span class="req">*</span></span>
+        <div class="upload" data-kind="contract">
+          <input type="file" accept="image/*,application/pdf" multiple hidden>
+          <button type="button" class="btn quiet" data-pick>파일 선택</button>
+          <span class="hint">PDF·JPG·PNG · 앞·뒷면 모두 · 파일당 10MB</span>
+        </div>
+      </div>
+      <div class="upcell">
+        <span class="flab">사업자등록증 사본 <span class="req">*</span></span>
+        <div class="upload" data-kind="license">
+          <input type="file" accept="image/*,application/pdf" hidden>
+          <button type="button" class="btn quiet" data-pick>파일 선택</button>
+          <span class="hint">PDF·JPG·PNG · 10MB 이하</span>
+        </div>
+      </div>
+    </div>
+    <ul class="filelist" id="pending"></ul>
+    <p class="err" id="upErr" hidden></p>
+    <div class="btnrow" style="margin-top:14px">
+      <span class="hint" id="upHint">파일을 끌어다 놓아도 됩니다.</span>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="upBtn" disabled>회신 제출</button>
+    </div>
+  </fieldset>
+
+  <div class="note" id="sentBox" hidden>
+    <span class="tag">회신 접수됨</span>
+    <span id="sentTxt">파일이 모넷코리아에 전달되었습니다.</span>
+    <ul class="filelist done" id="sentList"></ul>
+  </div>
+
+  <div class="keeplink">
+    <b>이 계약 화면 링크</b>
+    <p>링크를 보관해 두시면 언제든 다시 열어 계약서를 내려받거나 날인본을 회신하실 수 있습니다. 담당자 메일로 보내 드린 안내 메일에도 같은 링크가 있습니다.</p>
+    <div class="klrow"><input type="text" id="selfLink" readonly aria-label="이 계약 화면 링크"><button type="button" class="btn" id="selfCopy">링크 복사</button></div>
+    <p class="hint" id="selfMsg" style="margin:6px 0 0">문의 02-2088-1454 · 1015@monnit.com</p>
+  </div>
+</section>
+
+</main>
+<template id="slaTpl">{{SLA_PAPER}}</template>

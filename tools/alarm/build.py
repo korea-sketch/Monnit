@@ -104,45 +104,23 @@ def page(name, title, desc, body, js, extra_css="", existing=False, with_modal=T
     (OUT / name).write_text(html, encoding="utf-8")
     print("built", name, len(html))
 
-# ───────── 1. 고객용 계약 화면 ─────────
+# ───────── 1. 고객용 계약 화면 (2026-10-21 개편: 전자서명 → 계약서 내려받기·직인 날인·회신) ─────────
 def build_contract():
-    b = rd("contract_body_orig.html")
-    p0a = b.find('<section class="pane on" id="p0"'); p0b = b.find('<section class="pane" id="p1"')
-    b = b[:p0a] + rd("contract_p0.html") + "\n" + b[p0b:]
-    b = rep(b, "<h1>무선 소방 알리미 구독서비스 계약서</h1>", "<h1>긴급 경보 알리미 구독서비스 계약서</h1>")
-    b = rep(b, '<dt>사용 금액</dt><dd><b class="money" id="v_price">월 ￦20,000</b> (부가세 별도) · <span id="v_sites">1개소</span> 기준</dd>',
-            '<dt>사용 금액</dt><dd><b class="money" id="v_price">—</b> (부가세 별도) · <span id="v_sites">—</span><span id="v_disc"></span></dd>')
-    i = b.find('  <div class="note">\n    <span class="tag">계약 기간 안내</span>'); j = b.find("</div>", i) + 6
-    b = b[:i] + b[j:]
-    b = rep(b, "SLA 제6조 제2호에 따라", "SLA 제7조 제2호에 따라")
-    b = rep(b, "소비자 (B2C) — SLA 제16조 특칙 적용", "소비자 (B2C) — SLA 소비자 특칙 적용")
-    b = rep(b, "아울러 최초 <b>3년 의무계약</b>과 <b>1년 자동 연장</b>에 동의하며,",
-            "아울러 계약 조건에 기재된 <b>계약 기간·최소 이용기간·자동 연장</b> 조건에 동의하며,")
-    b = rep(b, '<dt>월 청구액</dt><dd class="money" id="s_price">—</dd>', '<dt>월 청구액</dt><dd class="money" id="s_price">—</dd>')
-    b = rep(b, "모넷코리아 담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드립니다.",
-            "모넷코리아 담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드립니다. 체결 내용은 이 화면을 인쇄하거나 PDF로 저장해 보관하실 수 있습니다.")
-    # 단계 탭: 조건을 못 불러오면 이동 막기 (스크립트에서 처리)
-    # 서명 전 확인 항목은 SLA 팝업 안에서 한 번만 보여 준다 (2026-10-16)
-    i = b.find('  <label class="allcheck" for="ckall">'); j = b.find('  <fieldset style="margin-top:30px">')
-    assert 0 < i < j
-    checks = b[i:j]; b = b[:i] + b[j:]
-    b = rep(b, '<p class="lede">아래 항목은 계약의 핵심 조건입니다. 각 항목을 읽고 확인한 뒤 서명해 주십시오.</p>',
-            '<p class="lede">계약 내용을 확인하신 뒤 서명해 주십시오. 서비스수준협약(SLA)은 앞 단계에서 확인·동의하셨습니다.</p>')
-    b = rep(b, '<p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button></p>',
-            '<p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button> <span id="slaDoneTag"></span></p>')
-    b = rep(b, '<button type="button" class="btn ghost" id="printBtn">이 화면 인쇄 / PDF 저장</button>',
-            '<button type="button" class="btn" id="pdfBtn">계약서 PDF 내려받기</button> <button type="button" class="btn ghost" id="printBtn">이 화면 인쇄</button>')
+    b = rd("contract_body.html").replace("{{SLA_PAPER}}", articles(False))
+    checks = rd("contract_checks.html")
     html_modal = modal(False, True)
     html_modal = rep(html_modal, '\n    </div>\n    <div class="mfoot">',
-        '\n    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>서명 전 확인 항목</span></h3>'
+        '\n    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>계약 전 확인 항목</span></h3>'
         '<p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 하단의 「전체 동의하고 계속」 버튼을 누르면 모든 항목에 한 번에 동의할 수 있습니다.</p>\n' + checks + '    </div>\n    </div>\n    <div class="mfoot">')
-    html = head("구독 계약 체결", "긴급 경보 알리미 구독서비스 계약 체결") + b + html_modal + "\n</main>\n\n" + FOOTER + "\n<script>" + rd("contract_doc.js") + "\n" + rd("contract.js") + "</script>\n</body>\n</html>\n"
+    html = head("구독 계약", "긴급 경보 알리미 구독서비스 계약", rd("contract.css")) + b + html_modal + "\n\n" + FOOTER + \
+        "\n<script>" + rd("contract_paper.js") + "\n" + rd("contract.js") + "</script>\n</body>\n</html>\n"
     (OUT / "contract.html").write_text(html, encoding="utf-8"); print("built contract.html", len(html))
 
 # ───────── 2. 관리자 화면 ─────────
 def build_admin():
+    body = rd("admin_body.html") + '\n<template id="slaTpl">' + articles(False) + "</template>\n"
     page("contract-admin.html", "알리미 계약 관리", "모넷코리아 알리미 계약 관리(내부용)",
-         rd("admin_body.html"), rd("contract_doc.js") + "\n" + rd("admin.js"), extra_css=rd("admin.css"), with_modal=False)
+         body, rd("contract_paper.js") + "\n" + rd("admin.js"), extra_css=rd("admin.css") + rd("contract.css"), with_modal=False)
 
 # ───────── 3. 만족도 조사 ─────────
 def build_survey():

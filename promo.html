@@ -321,9 +321,16 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
   var payload=Object.assign({apiKey:STATICFORMS_KEY,subject:core._subject,replyTo:'@',honeypot:'',email:(isMail?tel:'')},core);
   function done(){try{if(window.MonnitLead)window.MonnitLead.track('contact',{page:'promo_lp',interest:promoName});else if(window.gtag)gtag('event','generate_lead',{form:'promo_lp',promo:PID,value:1});}catch(e){}
     document.getElementById('formLive').style.display='none';var ok=document.getElementById('formOk');ok.style.display='block';ok.scrollIntoView({behavior:'smooth',block:'center'});}
+  /* 1순위: 우리 서버(/api/lead) — 1015@monnit.com · 대표님께 같은 메일이 동시에 간다 (2026-10-21).
+     서버가 응답하지 않을 때만 브라우저 메일(StaticForms → Web3Forms)을 쓴다. */
+  var _ML=window.MonnitLead;
+  (_ML&&_ML.submit?_ML.submit(core).catch(function(){return false}):Promise.resolve(false)).then(function(served){
+    if(served){done();return;}
+    if(_ML&&_ML.setNotified)_ML.setNotified(true);
   fetch(STATICFORMS_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){return r.json().catch(function(){return{success:r.ok};});})
     .then(function(j){if(j&&(j.success||j.ok))done();else web3();}).catch(web3);
+  });
   function web3(){fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
       body:JSON.stringify({access_key:WEB3FORMS_KEY,subject:core._subject,from_name:name,회사명:company,담당자명:name,전화번호:tel,시설:fac,출처:src})})
     .then(done).catch(function(){window.location.href='mailto:korea@monnit.com?subject='+encodeURIComponent('[프로모션] '+promoName+' 상담 신청')+'&body='+encodeURIComponent('회사명: '+company+'\n담당자: '+name+'\n연락처: '+tel+'\n시설: '+fac+'\n출처: '+src);done();});}

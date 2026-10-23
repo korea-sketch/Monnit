@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<meta name="description" content="긴급 경보 알리미 구독서비스 계약 체결">
-<title>구독 계약 체결 | 모넷코리아</title>
+<meta name="description" content="긴급 경보 알리미 구독서비스 계약">
+<title>구독 계약 | 모넷코리아</title>
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="theme-color" content="#F4F7F4" media="(prefers-color-scheme: light)">
@@ -322,14 +322,67 @@ body.pdf .fineprint{font-size:9pt;color:#666}
 .recvbanner b{font-size:16px;color:var(--ink)}
 .recvbanner span{font-size:13.5px;color:var(--muted);line-height:1.6}
 .recvbanner a{color:var(--accent);font-weight:600}
-.annex-head{border-top:2px solid var(--rule-strong);margin-top:10px} .annex[hidden]{display:none} .chk[hidden]{display:none}</style>
+.annex-head{border-top:2px solid var(--rule-strong);margin-top:10px} .annex[hidden]{display:none} .chk[hidden]{display:none}
+/* ── 계약 화면 2026-10-21: 진행 순서 · 내려받기 · 회신 ── */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:0 0 22px;border:1px solid var(--rule);background:var(--surface)}
+.flow-i{display:flex;align-items:center;gap:9px;padding:11px 13px;font-size:13px;color:var(--muted);border-left:1px solid var(--rule)}
+.flow-i:first-child{border-left:0}
+.flow-i b{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:600 12px/1 var(--mono)}
+.dlrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.dlrow .btn{min-height:46px}
+.sec-h{font-family:var(--serif);font-size:17px;margin:30px 0 12px}
+ol.proc{list-style:none;margin:0;padding:0;counter-reset:pr;border-top:1px solid var(--rule)}
+ol.proc>li{counter-increment:pr;display:grid;grid-template-columns:34px 150px 1fr;gap:10px;align-items:baseline;padding:12px 2px;border-bottom:1px solid var(--rule);font-size:14px;line-height:1.65}
+ol.proc>li::before{content:counter(pr);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font:600 12px/1 var(--mono);align-self:start;margin-top:1px}
+ol.proc>li b{font-weight:600}
+ol.proc>li span{color:var(--muted)}
+ol.proc>li em{font-style:normal;color:var(--ink);font-weight:600}
+.upgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upcell .flab{display:block;margin-bottom:6px}
+.upcell .upload{min-height:64px}
+ul.filelist{list-style:none;margin:12px 0 0;padding:0}
+ul.filelist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--rule);border-top:0;background:var(--surface);font-size:13.5px}
+ul.filelist li:first-child{border-top:1px solid var(--rule)}
+ul.filelist .k{flex:none;font:600 11px/1.4 var(--mono);color:var(--accent);background:var(--accent-soft);padding:2px 7px}
+ul.filelist .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ul.filelist .s{flex:none;color:var(--faint);font-size:12px}
+ul.filelist.done li{background:transparent}
+.receipt .hd{position:relative}
+.receipt .hd .pill{position:absolute;right:18px;top:18px}
+.pill.issued{color:var(--caution);border-color:var(--caution)}
+.pill.returned{color:var(--accent);border-color:var(--accent)}
+.pill.signed{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+#pdfMsg.err{color:var(--critical)}
+@media (max-width:640px){
+  .flow{grid-template-columns:1fr 1fr}
+  .flow-i:nth-child(3){border-left:0}
+  .flow-i:nth-child(n+3){border-top:1px solid var(--rule)}
+  ol.proc>li{grid-template-columns:30px 1fr}
+  ol.proc>li span{grid-column:2}
+  .upgrid{grid-template-columns:1fr}
+  .dlrow .btn{width:100%;justify-content:center}
+  .receipt .hd .pill{position:static;display:inline-block;margin-top:8px}
+}
+
+label.inl{display:inline-flex;align-items:center;gap:5px;margin-left:10px;font-weight:400;font-size:12.5px;color:var(--muted);cursor:pointer}
+label.inl input{margin:0;accent-color:var(--accent)}
+#c_siteAddr[readonly]{background:var(--surface-2)}
+.lrow{display:flex;align-items:baseline;flex-wrap:wrap}
+.lrow label.inl{margin-bottom:6px}
+.keeplink{margin-top:28px;padding:16px 18px;border:1px solid var(--accent);border-left-width:4px;background:var(--accent-soft)}
+.keeplink b{display:block;font-size:15px;margin-bottom:4px}
+.keeplink p{margin:0 0 10px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.keeplink .klrow{display:flex;gap:8px}
+.keeplink input{flex:1;min-width:0;font-family:var(--mono);font-size:13px;user-select:all;-webkit-user-select:all}
+@media (max-width:640px){.keeplink .klrow{flex-direction:column}}
+</style>
 </head>
 <body>
 <div class="topbar">
   <div class="inner">
     <div class="brand">
       <a class="mk" href="/" style="text-decoration:none">MONNIT KOREA</a>
-      <span class="nm">긴급 경보 알리미 · 구독 계약 체결</span>
+      <span class="nm">긴급 경보 알리미 · 구독 계약</span>
     </div>
   </div>
 </div>
@@ -337,18 +390,26 @@ body.pdf .fineprint{font-size:9pt;color:#666}
 <nav class="steps" id="stepnav" aria-label="진행 단계">
   <ol>
     <li><button class="steptab" data-go="0" aria-current="true"><span class="n"><span>1</span></span>계약 조건</button></li>
-    <li><button class="steptab" data-go="1"><span class="n"><span>2</span></span>구독계약서 · SLA</button></li>
+    <li><button class="steptab" data-go="1"><span class="n"><span>2</span></span>계약서 · SLA</button></li>
     <li><button class="steptab" data-go="3"><span class="n"><span>3</span></span>고객 정보</button></li>
-    <li><button class="steptab" data-go="4"><span class="n"><span>4</span></span>확인 및 서명</button></li>
+    <li><button class="steptab" data-go="4"><span class="n"><span>4</span></span>내려받기 · 회신</button></li>
   </ol>
 </nav>
 
 <main class="sheet">
 
+<!-- ───────── 1. 계약 조건 ───────── -->
 <section class="pane on" id="p0" aria-label="계약 조건">
   <p class="kicker">단계 1 / 4 · 계약 조건 확인</p>
   <h1>계약 조건 확인</h1>
   <p class="lede">모넷코리아 담당자가 확정한 계약 조건입니다. 내용을 확인하신 뒤 다음 단계로 진행해 주십시오. 수정이 필요하면 담당자에게 연락 주십시오.</p>
+
+  <div class="flow" aria-label="계약 진행 순서">
+    <div class="flow-i"><b>1</b><span>조건·SLA 확인</span></div>
+    <div class="flow-i"><b>2</b><span>고객 정보 입력</span></div>
+    <div class="flow-i"><b>3</b><span>계약서 내려받기·인쇄</span></div>
+    <div class="flow-i"><b>4</b><span>직인 날인 후 회신</span></div>
+  </div>
 
   <div class="state" id="loading">계약 조건을 불러오는 중입니다…</div>
   <div class="state" id="offerErr" hidden>
@@ -367,33 +428,34 @@ body.pdf .fineprint{font-size:9pt;color:#666}
         <dt>기타 사항</dt><dd id="o_etc">—</dd>
       </dl>
     </div>
-  <fieldset id="pickBox" hidden>
-    <legend>도입하실 알리미 <span class="req">*</span></legend>
-    <p class="hint" style="margin:-8px 0 14px">해당하는 알리미를 모두 선택해 주십시오. 선택한 제품의 서비스수준협약(SLA) 부속서가 다음 단계에 표시됩니다.</p>
-    <div class="opts" id="pick" role="group" aria-label="알리미 선택">
-      <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
-      <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
-      <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
-      <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>
-      <label class="opt"><input type="checkbox" value="custom"><span>💡 커스텀 알리미</span></label>
-    </div>
-    <p class="err" id="pickErr" hidden style="margin-top:10px"></p>
-  </fieldset>
-    <div class="btnrow" id="p0nav">
+    <fieldset id="pickBox" hidden>
+      <legend>도입하실 알리미 <span class="req">*</span></legend>
+      <p class="hint" style="margin:-8px 0 14px">해당하는 알리미를 모두 선택해 주십시오. 선택한 제품에 맞춰 계약서의 납품 솔루션과 서비스수준협약(SLA) 부속서가 정해집니다.</p>
+      <div class="opts" id="pick" role="group" aria-label="알리미 선택">
+        <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재경보 연동 알리미</span></label>
+        <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
+        <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
+        <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미 (설비 접점 연동)</span></label>
+        <label class="opt"><input type="checkbox" value="custom"><span>💡 커스텀 알리미</span></label>
+      </div>
+      <p class="err" id="pickErr" hidden style="margin-top:10px"></p>
+    </fieldset>
+    <div class="btnrow">
       <span class="spacer"></span>
-      <button type="button" class="btn" id="go1">구독계약서 확인 →</button>
+      <button type="button" class="btn" id="go1">계약서 확인 →</button>
     </div>
   </div>
 </section>
 
-<section class="pane" id="p1" aria-label="구독계약서">
+<!-- ───────── 2. 계약서 · SLA ───────── -->
+<section class="pane" id="p1" aria-label="계약서">
   <p class="kicker">단계 2 / 4 · 계약서 본문</p>
-  <h1>긴급 경보 알리미 구독서비스 계약서</h1>
-  <p class="lede">발주처(고객)와 납품처 주식회사 모넷코리아는 아래 조건으로 무선 알리미 구독서비스 계약을 체결합니다.</p>
+  <h1 id="v_title">구독서비스 계약서</h1>
+  <p class="lede">발주처(고객)와 납품처 주식회사 모넷코리아는 아래 조건으로 구독서비스 계약을 체결합니다. 이 내용이 내려받으실 계약서 앞면에 그대로 들어갑니다.</p>
 
   <div class="terms">
     <dl>
-      <dt>납품 솔루션</dt><dd id="v_sol">무선 수위·트랩 알리미</dd>
+      <dt>납품 솔루션</dt><dd id="v_sol">—</dd>
       <dt>사용 금액</dt><dd><b class="money" id="v_price">—</b> (부가세 별도) · <span id="v_sites">—</span><span id="v_disc"></span></dd>
       <dt>안내 사항</dt><dd id="v_notice">—</dd>
       <dt>계약 기간</dt><dd id="v_term">—</dd>
@@ -402,9 +464,9 @@ body.pdf .fineprint{font-size:9pt;color:#666}
       <dt>기타 사항</dt><dd id="v_etc">—</dd>
     </dl>
   </div>
-  <p class="hint">발주처와 납품처는 상호 동등한 입장에서 위 계약조건에 의하여 납품 계약을 체결하고, 신의에 따라 성실히 의무를 이행할 것을 확약합니다.</p>
+  <p class="hint">발주처와 납품처는 상호 동등한 입장에서 위 계약조건에 따라 본 서비스 계약을 체결하고, 신의에 따라 성실히 그 의무를 이행할 것을 확약합니다.</p>
 
-  <div class="doc" style="margin-top:26px">
+  <div class="doc" style="margin-top:22px">
     <h3>납품처</h3>
     <p>상호 : 주식회사 모넷코리아<br>
     사업자등록번호 : 242-88-01218<br>
@@ -413,10 +475,8 @@ body.pdf .fineprint{font-size:9pt;color:#666}
     연락처 : 02-2088-1454 · korea@monnit.com</p>
   </div>
 
-
-
   <div class="slabtn">
-    <div class="tx"><b>서비스수준협약(SLA)</b>은 이 계약의 부속문서로 계약과 일체를 이룹니다.
+    <div class="tx"><b>서비스수준협약(SLA)</b>은 이 계약의 부속문서로 계약과 일체를 이루며, 계약서 뒷면에 인쇄됩니다.
       서비스의 성격과 한계, 회사가 부담하지 않는 의무, 책임의 범위가 여기에 정해져 있습니다.</div>
     <button type="button" class="btn ghost" id="openSla">SLA 전문 보기</button>
     <a class="btn quiet slapdf" href="/alarm/sla.pdf" download="모넷코리아_긴급경보알리미_SLA.pdf" style="text-decoration:none">PDF 내려받기</a>
@@ -430,17 +490,17 @@ body.pdf .fineprint{font-size:9pt;color:#666}
   </div>
 </section>
 
-
+<!-- ───────── 3. 고객 정보 ───────── -->
 <section class="pane" id="p3" aria-label="고객 정보">
   <p class="kicker">단계 3 / 4 · 고객 작성</p>
   <h1>고객 정보 입력</h1>
-  <p class="lede">계약서에 기재될 사업자 정보와, 경보 발생 시 문자·이메일을 받을 수신자를 등록합니다. 수신자 정보는 SLA 제7조 제2호에 따라 항상 최신 상태로 유지해 주십시오.</p>
+  <p class="lede">입력하신 정보는 계약서의 발주처 란에 미리 채워집니다. 경보 발생 시 문자·이메일을 받을 수신자도 함께 등록해 주십시오. 수신자 정보는 SLA 제7조 제2호에 따라 항상 최신 상태로 유지해 주십시오.</p>
 
   <fieldset>
     <legend>발주처 (고객)</legend>
     <div class="grid">
-      <div class="f"><label for="c_name">상호 / 성명 <span class="req">*</span></label><input type="text" id="c_name" placeholder="주식회사 ○○"></div>
-      <div class="f"><label for="c_biz">사업자등록번호</label><input type="text" id="c_biz" placeholder="000-00-00000"></div>
+      <div class="f"><label for="c_name">상호 / 성명 <span class="req">*</span></label><input type="text" id="c_name" placeholder="주식회사 ○○" autocomplete="organization"></div>
+      <div class="f"><label for="c_biz">사업자등록번호</label><input type="text" id="c_biz" placeholder="000-00-00000" inputmode="numeric"></div>
       <div class="f wide"><label for="c_addr">주소 <span class="req">*</span></label><input type="text" id="c_addr" placeholder="시·도 / 시·군·구 / 도로명 주소"></div>
       <div class="f"><label for="c_ceo">대표자 <span class="req">*</span></label><input type="text" id="c_ceo" placeholder="홍길동"></div>
       <div class="f">
@@ -450,28 +510,17 @@ body.pdf .fineprint{font-size:9pt;color:#666}
           <option value="B2C">소비자 (B2C) — SLA 소비자 특칙 적용</option>
         </select>
       </div>
-      <div class="f wide">
-        <span class="flab">사업자등록증 사본 <small style="color:var(--faint);font-weight:400">(선택 · 세금계산서 발행 시 필요하며, 나중에 보내 주셔도 됩니다)</small></span>
-        <div class="upload" id="licdrop">
-          <input type="file" id="c_lic" accept="image/*" hidden>
-          <button type="button" class="btn quiet" id="licpick">이미지 선택</button>
-          <span class="hint" id="licmsg">JPG·PNG 이미지 (최대 10MB). 스마트폰 촬영본도 괜찮습니다. 지금 없으시면 추후 <b>1015@monnit.com</b> 으로 보내 주십시오.</span>
-        </div>
-        <figure class="licprev" id="licprev" hidden>
-          <img id="licimg" alt="첨부한 사업자등록증 미리보기">
-          <figcaption><span id="licname"></span><button type="button" class="btn quiet" id="licdel">삭제</button></figcaption>
-        </figure>
-      </div>
     </div>
   </fieldset>
 
   <fieldset>
     <legend>계약 담당자 및 설치 현장</legend>
     <div class="grid">
-      <div class="f"><label for="c_mgr">담당자 성명 <span class="req">*</span></label><input type="text" id="c_mgr"></div>
-      <div class="f"><label for="c_tel">담당자 연락처 <span class="req">*</span></label><input type="tel" id="c_tel" placeholder="010-0000-0000"></div>
-      <div class="f"><label for="c_mail">담당자 이메일 <span class="req">*</span></label><input type="email" id="c_mail" placeholder="name@company.co.kr"></div>
-      <div class="f wide"><label for="c_site">설치 현장명 및 주소 <span class="req">*</span></label><input type="text" id="c_site" placeholder="○○공장 지하 1층 기계실 외"></div>
+      <div class="f"><label for="c_mgr">담당자 성명 <span class="req">*</span></label><input type="text" id="c_mgr" autocomplete="name"></div>
+      <div class="f"><label for="c_tel">담당자 연락처 <span class="req">*</span></label><input type="tel" id="c_tel" placeholder="010-0000-0000" autocomplete="tel"></div>
+      <div class="f"><label for="c_mail">담당자 이메일 <span class="req">*</span></label><input type="email" id="c_mail" placeholder="name@company.co.kr" autocomplete="email"></div>
+      <div class="f wide"><label for="c_site">설치 현장명 <span class="req">*</span></label><input type="text" id="c_site" placeholder="예: ○○공장 지하 1층 기계실 외"></div>
+      <div class="f wide"><div class="lrow"><label for="c_siteAddr">설치 현장 주소 <span class="req">*</span></label><label class="inl"><input type="checkbox" id="c_sameAddr"> 발주처 주소와 같음</label></div><input type="text" id="c_siteAddr" placeholder="시·도 / 시·군·구 / 도로명 주소"></div>
     </div>
   </fieldset>
 
@@ -481,39 +530,8 @@ body.pdf .fineprint{font-size:9pt;color:#666}
       <b>알림 수신자는 최대 10명까지 등록할 수 있습니다.</b>
       <span>지금 입력하지 않아도 계약은 진행됩니다. 수신자 추가·변경은 언제든 <a href="mailto:1015@monnit.com">1015@monnit.com</a> 으로 알려 주시면 반영해 드립니다.</span>
     </div>
-    <p class="hint" style="margin:0 0 16px">경보 발생 시 문자·이메일을 받을 분입니다. 담당자 변경·퇴사·번호 변경 시 지체 없이 갱신해야 하며, 수신자의 개인정보는 알림 발송·고객 지원 목적으로만 처리합니다. 등록 전에 수신자 본인의 동의를 받아 주십시오.</p>
-    <div class="grid" id="recvGrid">
-      <div class="f recv" data-i="1"><label for="r1n">수신자 1 성명</label><input type="text" id="r1n"></div>
-      <div class="f recv" data-i="1"><label for="r1p">휴대전화</label><input type="tel" id="r1p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="1"><label for="r1e">이메일</label><input type="email" id="r1e"></div>
-      <div class="f recv" data-i="2"><label for="r2n">수신자 2 성명</label><input type="text" id="r2n"></div>
-      <div class="f recv" data-i="2"><label for="r2p">휴대전화</label><input type="tel" id="r2p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="2"><label for="r2e">이메일</label><input type="email" id="r2e"></div>
-      <div class="f recv" data-i="3"><label for="r3n">수신자 3 성명</label><input type="text" id="r3n"></div>
-      <div class="f recv" data-i="3"><label for="r3p">휴대전화</label><input type="tel" id="r3p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="3"><label for="r3e">이메일</label><input type="email" id="r3e"></div>
-      <div class="f recv" data-i="4" hidden><label for="r4n">수신자 4 성명</label><input type="text" id="r4n"></div>
-      <div class="f recv" data-i="4" hidden><label for="r4p">휴대전화</label><input type="tel" id="r4p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="4" hidden><label for="r4e">이메일</label><input type="email" id="r4e"></div>
-      <div class="f recv" data-i="5" hidden><label for="r5n">수신자 5 성명</label><input type="text" id="r5n"></div>
-      <div class="f recv" data-i="5" hidden><label for="r5p">휴대전화</label><input type="tel" id="r5p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="5" hidden><label for="r5e">이메일</label><input type="email" id="r5e"></div>
-      <div class="f recv" data-i="6" hidden><label for="r6n">수신자 6 성명</label><input type="text" id="r6n"></div>
-      <div class="f recv" data-i="6" hidden><label for="r6p">휴대전화</label><input type="tel" id="r6p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="6" hidden><label for="r6e">이메일</label><input type="email" id="r6e"></div>
-      <div class="f recv" data-i="7" hidden><label for="r7n">수신자 7 성명</label><input type="text" id="r7n"></div>
-      <div class="f recv" data-i="7" hidden><label for="r7p">휴대전화</label><input type="tel" id="r7p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="7" hidden><label for="r7e">이메일</label><input type="email" id="r7e"></div>
-      <div class="f recv" data-i="8" hidden><label for="r8n">수신자 8 성명</label><input type="text" id="r8n"></div>
-      <div class="f recv" data-i="8" hidden><label for="r8p">휴대전화</label><input type="tel" id="r8p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="8" hidden><label for="r8e">이메일</label><input type="email" id="r8e"></div>
-      <div class="f recv" data-i="9" hidden><label for="r9n">수신자 9 성명</label><input type="text" id="r9n"></div>
-      <div class="f recv" data-i="9" hidden><label for="r9p">휴대전화</label><input type="tel" id="r9p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="9" hidden><label for="r9e">이메일</label><input type="email" id="r9e"></div>
-      <div class="f recv" data-i="10" hidden><label for="r10n">수신자 10 성명</label><input type="text" id="r10n"></div>
-      <div class="f recv" data-i="10" hidden><label for="r10p">휴대전화</label><input type="tel" id="r10p" placeholder="010-0000-0000"></div>
-      <div class="f recv" data-i="10" hidden><label for="r10e">이메일</label><input type="email" id="r10e"></div>
-    </div>
+    <p class="hint" style="margin:0 0 16px">경보 발생 시 문자·이메일을 받을 분입니다. 수신자의 개인정보는 알림 발송·고객 지원 목적으로만 처리하며, 등록 전에 수신자 본인의 동의를 받아 주십시오.</p>
+    <div class="grid" id="recvGrid"></div>
     <p style="margin:12px 0 0"><button type="button" class="btn quiet" id="recvMore" style="padding:8px 14px;font-size:13px">+ 수신자 추가</button> <span class="hint" id="recvCount">3 / 10</span></p>
   </fieldset>
 
@@ -525,81 +543,430 @@ body.pdf .fineprint{font-size:9pt;color:#666}
   <div class="btnrow">
     <button type="button" class="btn quiet" data-next="1">← 이전</button>
     <span class="spacer"></span>
-    <button type="button" class="btn" id="go4">확인 및 서명 →</button>
+    <button type="button" class="btn" id="go4">계약서 만들기 →</button>
   </div>
 </section>
 
-<section class="pane" id="p4" aria-label="확인 및 서명">
-  <p class="kicker">단계 4 / 4 · 최종 확인</p>
-  <h1>확인 및 서명</h1>
-  <p class="lede">계약 내용을 확인하신 뒤 서명해 주십시오. 서비스수준협약(SLA)은 앞 단계에서 확인·동의하셨습니다.</p>
+<!-- ───────── 4. 계약서 내려받기 · 회신 ───────── -->
+<section class="pane" id="p4" aria-label="계약서 내려받기 및 회신">
+  <p class="kicker">단계 4 / 4 · 계약서 내려받기 · 회신</p>
+  <h1 id="p4title">계약서를 내려받아 주십시오</h1>
+  <p class="lede" id="p4lede">입력하신 정보가 채워진 계약서(앞면 계약서 · 뒷면 서비스수준협약)가 준비되었습니다. 내려받거나 인쇄해 내용을 확인하신 뒤, 아래 순서대로 회신해 주십시오.</p>
 
-  <div class="terms" style="margin-bottom:26px">
-    <dl>
-      <dt>고객</dt><dd id="s_cust">—</dd>
-      <dt>설치 현장</dt><dd id="s_site">—</dd>
-      <dt>월 청구액</dt><dd class="money" id="s_price">—</dd>
-      <dt>계약 기간</dt><dd id="s_term">—</dd>
-      <dt>사업자등록증</dt><dd id="s_lic">—</dd>
-    </dl>
-  </div>
-
-  <p class="hint" style="margin:-14px 0 16px"><button type="button" class="btn quiet" id="openSla2" style="padding:7px 13px;font-size:13px">SLA 전문 다시 보기</button> <span id="slaDoneTag"></span></p>
-
-  <fieldset style="margin-top:30px">
-    <legend>서명</legend>
-    <div class="grid" style="margin-bottom:16px">
-      <div class="f"><label for="sg_name">서명자 성명 <span class="req">*</span></label><input type="text" id="sg_name" placeholder="대표자 또는 권한 있는 자"></div>
-      <div class="f"><label for="sg_role">직위</label><input type="text" id="sg_role" placeholder="대표이사"></div>
-    </div>
-    <span class="flab" style="display:block;margin-bottom:6px">아래 칸에 서명하십시오 <span class="req">*</span></span>
-    <div class="signwrap">
-      <canvas id="sigpad" width="1200" height="380"></canvas>
-      <div class="sigph" id="sigph">마우스 또는 손가락으로 서명해 주십시오</div>
-    </div>
-    <div class="sigbar">
-      <button type="button" class="btn quiet" id="sigclear">지우기</button>
-      <span class="hint">서명일자 <span class="money" id="sg_date"></span></span>
-    </div>
-  </fieldset>
-
-  <p class="err" id="err4" hidden></p>
-  <div class="btnrow">
-    <button type="button" class="btn quiet" data-next="3">← 이전</button>
-    <span class="spacer"></span>
-    <button type="button" class="btn" id="submitBtn" disabled>계약 체결 제출</button>
-  </div>
-</section>
-
-<section class="pane" id="p5" aria-label="접수 완료">
-  <div class="receipt">
+  <div class="receipt" style="margin-bottom:22px">
     <div class="hd">
-      <p class="kicker" style="margin:0">접수 완료</p>
-      <div class="t">계약 체결 요청이 접수되었습니다</div>
+      <p class="kicker" style="margin:0">계약번호</p>
       <p class="rno" id="d_no">—</p>
+      <span class="pill" id="d_state">계약서 발급</span>
     </div>
     <div class="bd">
       <div class="terms" style="margin:0">
         <dl>
-          <dt>고객</dt><dd id="d_cust">—</dd>
+          <dt>납품 솔루션</dt><dd id="d_sol">—</dd>
+          <dt>발주처</dt><dd id="d_cust">—</dd>
           <dt>설치 현장</dt><dd id="d_site">—</dd>
+          <dt>현장 주소</dt><dd id="d_siteAddr">—</dd>
           <dt>월 청구액</dt><dd class="money" id="d_price">—</dd>
           <dt>계약 기간</dt><dd id="d_term">—</dd>
-          <dt>서명자</dt><dd id="d_signer">—</dd>
-          <dt>접수 일시</dt><dd id="d_when">—</dd>
-          <dt>전송 상태</dt><dd id="d_mail">—</dd>
         </dl>
       </div>
-      <p class="hint" style="margin-top:16px">모넷코리아 담당자가 내용을 확인한 뒤 설치 일정과 세금계산서 발행 절차를 안내드립니다. 체결 내용은 이 화면을 인쇄하거나 PDF로 저장해 보관하실 수 있습니다. 문의 02-2088-1454 · korea@monnit.com</p>
-      <p class="err" id="d_warn" hidden style="margin-top:14px"></p>
     </div>
   </div>
-  <div class="btnrow">
-    <button type="button" class="btn" id="pdfBtn">계약서 PDF 내려받기</button> <button type="button" class="btn ghost" id="printBtn">이 화면 인쇄</button>
+
+  <div class="dlrow">
+    <button type="button" class="btn" id="pdfBtn">계약서 PDF 내려받기</button>
+    <button type="button" class="btn ghost" id="printBtn">계약서 인쇄 (A4 양면)</button>
+    <button type="button" class="btn quiet" id="editBtn">입력 정보 수정</button>
+  </div>
+  <p class="hint" id="pdfMsg" style="margin:8px 0 0">A4 한 장 양면(앞면 계약서, 뒷면 SLA)으로 인쇄하시면 됩니다. 인쇄 시 「양면 인쇄 · 긴 쪽 넘김」을 선택해 주십시오.</p>
+
+  <div id="procBox">
+  <h2 class="sec-h">회신 절차</h2>
+  <ol class="proc">
+    <li><b>계약서 확인</b><span>내려받은 계약서의 앞면 계약 조건과 뒷면 서비스수준협약(SLA)을 확인합니다.</span></li>
+    <li><b>인쇄 및 직인 날인</b><span>A4 양면으로 인쇄한 뒤, 앞면 아래 <em>발주처 대표이사 (인)</em> 란과 계약일을 기재하고 <em>법인(사업자) 직인</em>을 날인합니다.</span></li>
+    <li><b>스캔 또는 촬영</b><span>날인한 계약서(앞·뒷면)와 <em>사업자등록증 사본</em>을 스캔하거나 글자가 잘 보이게 촬영합니다.</span></li>
+    <li><b>회신</b><span>아래 「온라인으로 회신하기」에서 파일을 올리시거나, <a id="mailLink" href="mailto:1015@monnit.com"><b>1015@monnit.com</b></a> 으로 메일 보내 주십시오. 메일 제목에 <em>계약번호</em>를 적어 주시면 빠르게 처리됩니다.</span></li>
+    <li><b>계약 체결 완료</b><span>모넷코리아가 날인본을 확인하면 계약 체결이 완료되며, 설치 일정과 세금계산서 발행 절차를 안내드립니다.</span></li>
+  </ol>
+  </div>
+
+  <fieldset id="upBox" style="margin-top:26px">
+    <legend>온라인으로 회신하기 <small style="font-weight:400;color:var(--faint)">(선택 · 메일로 보내셔도 됩니다)</small></legend>
+    <div class="upgrid">
+      <div class="upcell">
+        <span class="flab">날인한 계약서 <span class="req">*</span></span>
+        <div class="upload" data-kind="contract">
+          <input type="file" accept="image/*,application/pdf" multiple hidden>
+          <button type="button" class="btn quiet" data-pick>파일 선택</button>
+          <span class="hint">PDF·JPG·PNG · 앞·뒷면 모두 · 파일당 10MB</span>
+        </div>
+      </div>
+      <div class="upcell">
+        <span class="flab">사업자등록증 사본 <span class="req">*</span></span>
+        <div class="upload" data-kind="license">
+          <input type="file" accept="image/*,application/pdf" hidden>
+          <button type="button" class="btn quiet" data-pick>파일 선택</button>
+          <span class="hint">PDF·JPG·PNG · 10MB 이하</span>
+        </div>
+      </div>
+    </div>
+    <ul class="filelist" id="pending"></ul>
+    <p class="err" id="upErr" hidden></p>
+    <div class="btnrow" style="margin-top:14px">
+      <span class="hint" id="upHint">파일을 끌어다 놓아도 됩니다.</span>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="upBtn" disabled>회신 제출</button>
+    </div>
+  </fieldset>
+
+  <div class="note" id="sentBox" hidden>
+    <span class="tag">회신 접수됨</span>
+    <span id="sentTxt">파일이 모넷코리아에 전달되었습니다.</span>
+    <ul class="filelist done" id="sentList"></ul>
+  </div>
+
+  <div class="keeplink">
+    <b>이 계약 화면 링크</b>
+    <p>링크를 보관해 두시면 언제든 다시 열어 계약서를 내려받거나 날인본을 회신하실 수 있습니다. 담당자 메일로 보내 드린 안내 메일에도 같은 링크가 있습니다.</p>
+    <div class="klrow"><input type="text" id="selfLink" readonly aria-label="이 계약 화면 링크"><button type="button" class="btn" id="selfCopy">링크 복사</button></div>
+    <p class="hint" id="selfMsg" style="margin:6px 0 0">문의 02-2088-1454 · 1015@monnit.com</p>
   </div>
 </section>
 
+</main>
+<template id="slaTpl">
+    <div class="banner">
+      본 서비스는 현장 상태를 감지해 등록된 수신자에게 <strong>알려 주는 보조 수단</strong>입니다.
+      상시 감시·현장 출동·기관 신고는 포함되지 않으며, 법정 안전설비와 자체 안전관리 체계를 대체하지 않습니다.
+      제품별 감지 한계와 고객이 따로 갖춰야 할 사항은 <strong>부속서 B</strong>에 있습니다.
+      <span class="ref">자세한 내용은 제3조·제4조·부속서 B</span>
+    </div>
 
+    <div class="article">
+      <h3><span class="no">제 1 조</span><span>목적 및 문서의 지위</span></h3>
+      <ol class="cl">
+        <li>본 서비스수준협약서(이하 “본 SLA”)는 주식회사 모넷코리아(이하 “회사”)가 제공하는 「긴급 경보 알리미」 구독 서비스(이하 “서비스”)의 수준 목표와 당사자의 권리·의무, 특히 <mark>위험의 분담과 책임의 범위</mark>를 정함을 목적으로 합니다.</li>
+        <li>본 SLA는 공통 본문(제1조~제18조)과 제품별 부속서 B(B-1 화재 · B-2 물감지 · B-3 정전 · B-4 경보)로 구성되며, 부속서 B는 <mark>이용계약의 납품 솔루션에 해당하는 것만</mark> 적용됩니다. 커스텀 알리미는 별도 사양서가 부속서 B를 대신합니다. 본 SLA는 이용계약의 부속문서이며 계약과 일체를 이룹니다. 다만 <mark>서비스의 성격·보증·책임의 범위·면책에 관한 사항은 다른 문서에 우선하여 본 SLA가 적용</mark>됩니다. 그 밖의 사항은 이용계약 본문 → 이용약관 → 본 SLA 순으로 우선 적용합니다.</li>
+        <li>회사의 제안서, 견적서, 카탈로그, 홈페이지, 광고, 시연 자료, 담당자의 구두 설명은 계약의 내용을 이루지 아니하며, 본 SLA와 다른 내용이 있더라도 본 SLA가 우선합니다.</li>
+        <li>본 SLA에 정하지 않은 사항은 이용계약, 이용약관, 관계 법령 및 상관례에 따릅니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 2 조</span><span>용어의 정의</span></h3>
+      <ol class="cl">
+        <li><b>서비스</b>란 회사가 공급한 무선 센서가 감지한 이벤트를 회사의 관제 플랫폼을 통해 고객이 사전 등록한 수신자에게 통보하는 <mark>보조적 알림 서비스</mark>를 말합니다.</li>
+        <li><b>이벤트</b>란 고객이 설정하거나 승인한 알림 조건(임계값 초과, 접점 변화 등)이 충족된 상태를 말합니다.</li>
+        <li><b>발송 시도</b>란 회사의 플랫폼이 문자재판매사업자·이메일 게이트웨이·푸시 서버 등 전달 사업자에게 통보 요청을 전달한 행위를 말하며, 수신자 단말에의 <mark>도달·열람·인지를 포함하지 않습니다</mark>. 회사의 이행은 발송 시도로써 완료됩니다.</li>
+        <li><b>미탐</b>이란 실제 상황이 발생하였으나 센서가 이를 감지하지 못하거나 이벤트 조건이 충족되지 않은 경우를, <b>오탐</b>이란 실제 상황이 없음에도 이벤트가 발생한 경우를 말합니다. 미탐과 오탐은 <mark>센서 기술에 내재된 특성</mark>이며 서비스의 하자가 아닙니다.</li>
+        <li><b>계획 점검</b>이란 회사가 사전 공지 후 수행하는 정기·비정기 유지보수를 말합니다.</li>
+        <li><b>가용성</b>이란 해당 월의 총 분(分)에서 계획 점검 시간과 제11조의 면책 사유로 인한 시간을 제외한 시간 중, 회사의 관제 플랫폼이 이벤트를 수신·처리할 수 있었던 시간의 비율을 말합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 3 조</span><span>서비스의 성격 및 회사가 부담하지 않는 의무</span></h3>
+      <p class="sub">본 조는 본 SLA에서 가장 중요한 조항이며, 다른 모든 조항의 해석 기준이 됩니다.</p>
+      <ol class="cl">
+        <li>본 서비스는 현장 상태를 감지하여 <mark>고객이 등록한 수신자에게 통보를 시도하는 것</mark>을 내용으로 합니다. 회사의 계약상 의무는 여기까지이며, 그 밖의 어떠한 결과도 회사의 채무 내용에 포함되지 않습니다.</li>
+        <li>회사는 다음 각 목의 의무를 <span class="warn">부담하지 아니합니다.</span>
+          <ul class="plain">
+            <li>현장의 상시 감시 또는 유인 관제</li>
+            <li>알림 내용의 확인·판단·해석 및 그에 따른 조치</li>
+            <li>현장 출동, 초동 대응, 진압, 복구</li>
+            <li>소방서·경찰서 등 관계 기관에 대한 신고 또는 통보</li>
+            <li>수신자가 알림을 수신하였는지, 열람하였는지, 인지하였는지의 확인</li>
+            <li>수신자가 응답하지 않을 경우의 재발송, 추가 연락, 대체 수단에 의한 전달</li>
+          </ul>
+          고객이 위 각 목의 조치를 원하는 경우 별도의 유상 계약(패트롤 출동 서비스 등)을 체결하여야 하며, 그 경우에도 책임의 범위는 해당 계약이 정하는 바에 따릅니다.
+        </li>
+        <li>본 서비스는 관계 법령이 설치를 요구하는 <span class="warn">법정 안전설비(소방시설·전기안전설비·방재설비 등)가 아닙니다.</span> 본 서비스는 법정 안전설비를 대체하지 아니하며, 고객의 설치·유지·점검 의무를 면제하지 않습니다. 제품별 상세는 부속서 B에 따릅니다.</li>
+        <li>본 서비스는 「경비업법」 제2조 제1호 라목의 <span class="warn">기계경비업무에 해당하지 않습니다.</span> 회사는 관제시설에서 위험 발생을 방지하는 업무를 수행하지 않으며, 등록된 수신자에게 알림을 발송할 뿐입니다.</li>
+        <li><b>기존 설비 연동 시의 비접촉 원칙</b> — 고객의 기존 설비(수신기·경보반·제어반 등)와 연동하는 경우, 회사는 그 설비의 <mark>외부 출력 단자(무전압 접점 등)에서 신호를 수신하는 것</mark>에 한하며, 설비의 내부 회로·설정·프로그램을 변경하거나 설비를 제어·정지·차단하지 않습니다. 연동 대상 설비 자체의 설치·관리·점검 의무와 책임은 고객에게 있습니다.</li>
+        <li>센서는 감지 원리·설치 위치·주변 환경에 따른 물리적 한계가 있어 모든 상황을 감지하지 못할 수 있습니다. <mark>오탐 및 미탐은 반드시 발생하며</mark>, 고객은 이를 알고 이 점을 전제로 계약을 체결합니다. 오탐·미탐의 발생 자체는 회사의 채무불이행 또는 하자에 해당하지 않습니다.</li>
+        <li>회사가 제공하는 센서 배치안, 임계값 권고, 리포트 및 AI 분석 결과는 <mark>참고 자료</mark>이며 자문이 아닙니다. 최종 판단과 조치는 고객의 책임으로 수행합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 4 조</span><span>사용 제한 및 고객의 위험 인수</span></h3>
+      <p class="sub">고객이 본 조를 위반하여 서비스를 사용한 경우, 그로 인한 결과는 전적으로 고객이 부담합니다.</p>
+      <ol class="cl">
+        <li>고객은 본 서비스를 <span class="warn">사람의 생명·신체의 안전을 확보하기 위한 유일한 수단 또는 주된 수단으로 사용하여서는 아니 됩니다.</span> 본 서비스는 그러한 용도로 설계·검증되지 않았습니다.</li>
+        <li>고객은 다음 각 호를 <mark>스스로 갖추고 유지</mark>하여야 하며, 본 서비스는 그 어느 것도 대체하지 않습니다.
+          <ul class="plain">
+            <li>관계 법령이 요구하는 소방·전기·안전 설비</li>
+            <li>자체 안전관리 규정, 순찰, 비상 연락 체계 및 대응 절차</li>
+            <li>본 서비스와 독립적으로 작동하는 감시·경보 수단</li>
+            <li>건물·설비·재고·영업에 대한 손해보험(제12조)</li>
+          </ul>
+        </li>
+        <li>고객은 본 서비스의 알림 수신 여부와 관계없이 위 각 호를 이행할 책임이 있으며, <mark>본 서비스에만 의존하여서는 아니 됩니다.</mark></li>
+        <li>고객이 제1항 또는 제2항을 위반하여 서비스에 의존한 상태에서 손해가 발생한 경우, 그 손해는 <mark>고객이 스스로 인수한 위험이 현실화된 것</mark>으로 보며 회사는 이에 대하여 책임을 지지 않습니다.</li>
+        <li>고객은 위 각 항의 내용을 계약 체결 전에 충분히 설명받고 이해하였으며, 이를 전제로 구독료가 산정되었음을 확인합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 5 조</span><span>서비스 수준 목표</span></h3>
+      <ol class="cl">
+        <li>아래 항목은 회사가 달성을 위해 <mark>합리적으로 노력하는 목표치(target)</mark>이며, 결과에 대한 보증(warranty)·확약·채무의 내용이 아닙니다.
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>항목</th><th>목표</th><th>측정 기준</th></tr></thead>
+              <tbody>
+                <tr><td>관제 플랫폼 월간 가용성</td><td class="num">99.0%</td><td>계획 점검 및 제11조 면책 사유 시간 제외</td></tr>
+                <tr><td>이벤트 수신 후 알림 발송 시도</td><td class="num">60초 이내</td><td>회사 플랫폼 서버 로그</td></tr>
+                <tr><td>장애 접수 후 1차 응답</td><td class="num">1영업일 이내</td><td>지정 이메일 접수 시각</td></tr>
+                <tr><td>기술지원 접수 채널 운영</td><td class="num">평일 09:00–18:00</td><td>KST, 공휴일 제외</td></tr>
+                <tr><td>하드웨어 교체품 발송<br><span class="hint">(회사 귀책 고장에 한함)</span></td><td class="num">5영업일 이내</td><td>회사 출고 기준</td></tr>
+                <tr><td>계획 점검</td><td class="num">월 1회 · 4시간 이내</td><td>야간 시행 원칙, 3일 전 공지</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint">※ 24시간 상시 감시·상시 출동·365일 유인 관제는 본 서비스에 포함되지 않습니다.</p>
+        </li>
+        <li>목표 달성 여부의 측정은 <mark>회사의 시스템 로그를 기준</mark>으로 합니다. 고객은 이와 다른 객관적 자료를 제시하여 다툴 수 있으며, 회사는 요청 시 해당 기간의 로그 요약을 고객에게 제공합니다.</li>
+        <li>알림의 <mark>도달·열람·인지</mark>는 회사가 통제할 수 없는 요소에 좌우되므로 본 조의 목표 대상에 포함하지 않으며, 어떠한 경우에도 회사의 채무 내용이 되지 않습니다.</li>
+        <li>회사는 서비스 개선, 설비 교체, 법령 또는 제3자 사업자 정책 변경에 따라 목표치를 조정할 수 있으며, 제15조에 따라 공지합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 6 조</span><span>목표 미달 시의 조치 — 서비스 크레딧 부적용</span></h3>
+      <ol class="cl">
+        <li>제5조의 목표에 미달한 경우 회사는 원인을 조사하고 재발 방지 조치를 수행하며, 고객이 요청하는 경우 조사 결과를 요약하여 제공합니다.</li>
+        <li>본 SLA는 <mark>서비스 크레딧, 요금 감면, 환급, 위약벌 등 금전적 보상을 규정하지 않습니다.</mark></li>
+        <li>제5조의 목표는 노력 목표이므로, <mark>목표 미달 사실 자체는 회사의 채무불이행 또는 손해배상 책임의 근거가 되지 않습니다.</mark></li>
+        <li>목표 미달에 대한 고객의 구제수단은 제16조에 따른 계약 해지로 한정합니다. 다만 회사의 고의 또는 중대한 과실이 있는 경우에는 그러하지 아니합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 7 조</span><span>고객의 의무</span></h3>
+      <p class="sub">아래 의무를 이행하지 않은 기간에 발생한 알림 지연·미발송·미수신에 대하여 회사는 책임을 지지 않습니다(제11조 제6호). 의무의 이행 여부는 <b>고객이 보관하는 기록</b>으로 확인합니다.</p>
+      <ol class="cl">
+        <li><b>설치 환경 유지</b> — 센서 및 게이트웨이를 설치 위치에서 임의로 이설·개조·도색·차폐하지 않으며, 무선 통신을 방해하는 구조물·설비를 추가하지 않습니다. 부득이한 변경 시 사전에 회사에 통보합니다.</li>
+        <li><b>수신자 정보 최신화</b> — 알림 수신자의 성명·휴대전화번호·이메일을 항상 최신 상태로 유지하고, 담당자 변경·퇴사·번호 변경 시 <mark>지체 없이</mark> 갱신하거나 회사에 통보합니다.</li>
+        <li><b>정기 자체 점검 및 기록 보관</b> — <mark>월 1회 이상</mark> 테스트 알림을 발송하여 전 수신자의 정상 수신 여부를 확인하고, <mark>그 결과를 일자·수신자·결과가 드러나도록 기록하여 보관</mark>합니다. 이상 발견 시 즉시 회사에 통보합니다. <span class="warn">이 기록을 제시하지 못하는 기간은 점검을 이행하지 않은 것으로 추정합니다.</span></li>
+        <li><b>소모품 관리</b> — 배터리 저잔량 알림을 수신한 날부터 <mark>14일 이내</mark>에 배터리를 교체합니다.</li>
+        <li><b>통신·전원 유지</b> — 게이트웨이의 전원 및 인터넷 회선을 상시 유지하고, 방화벽·네트워크 정책 변경 시 회사가 안내한 통신 요건을 계속 충족하도록 합니다.</li>
+        <li><b>수신 환경 설정</b> — 회사 발신번호 및 발신 도메인에 대한 스팸 차단·수신 거부를 해제하고, 수신자 단말의 전원 및 요금 상태를 유지하도록 관리합니다.</li>
+        <li><b>임계값 설정</b> — 현장 특성에 맞는 알림 임계값과 수신 우선순위를 고객의 책임으로 결정합니다. 회사의 권고는 참고 자료입니다.</li>
+        <li><b>대응 체계</b> — 알림 수신 시의 확인·조치·신고 절차를 문서화하고 담당자를 교육합니다.</li>
+        <li><b>기존 설비 연동 시의 승인과 입회</b> — 고객의 기존 설비 외부 출력 단자에 본 서비스의 기기를 연결하는 경우, 고객은 그 설비의 관리 책임자로서 이를 승인하고 책임자를 입회하게 하며, 연결 후 설비가 정상 작동함을 확인합니다. 제품별 추가 의무는 부속서 B에 따릅니다.</li>
+        <li><b>이상 통지</b> — 24시간 이상 센서 데이터 수신이 중단된 사실을 인지하거나 플랫폼상 이상을 발견한 경우 <mark>지체 없이</mark> 회사에 통지합니다. 통지가 지연된 기간에 발생한 손해는 회사의 책임 범위에서 제외합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 8 조</span><span>설치·이전·중단·해지 시의 책임 구간</span></h3>
+      <ol class="cl">
+        <li>서비스의 개시 시점은 회사가 설치 및 초기 설정을 완료하고 <mark>첫 테스트 알림의 정상 수신을 고객이 확인한 때</mark>로 하며, 그 이전에 발생한 사고에 대하여 회사는 책임을 지지 않습니다.</li>
+        <li>계약 해지·종료일 이후, 요금 연체로 인한 서비스 중단 기간 중, 고객이 요청한 일시 정지 기간 중에 발생한 사고에 대하여 회사는 책임을 지지 않습니다.</li>
+        <li>고객의 요청으로 센서를 이설·증설·재설정하는 경우, 회사가 재검증을 완료하기 전까지의 감지 공백에 대하여 회사는 책임을 지지 않습니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 9 조</span><span>보증의 부인</span></h3>
+      <ol class="cl">
+        <li>회사는 본 SLA 및 이용계약에 <mark>명시적으로 기재된 사항 외에</mark> 서비스 및 공급 장비의 상품성, 특정 목적에의 적합성, 무중단성, 무오류성, 특정 사고의 감지 가능성, 알림의 도달 가능성에 대하여 명시적·묵시적 보증을 하지 않습니다.</li>
+        <li>홈페이지·카탈로그·제안서·광고에 기재된 통신 거리, 배터리 수명, 감지 성능 등의 수치는 <mark>표준 시험 환경 기준의 참고값</mark>이며, 현장 환경에 따라 달라질 수 있습니다. 이러한 수치는 보증이 아닙니다.</li>
+        <li>서비스는 <mark>제공되는 상태 그대로(as is)</mark> 제공됩니다.</li>
+        <li>본 조는 회사의 고의 또는 중대한 과실이 있는 경우 및 관계 법령에 따라 배제할 수 없는 책임에는 적용하지 않습니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 10 조</span><span>책임의 제한</span></h3>
+      <p class="sub">본 조는 구독료 산정의 전제입니다. 회사는 고객의 재산 가치나 잠재적 손해액이 아니라 통보 기능의 대가만을 받으며, 그 대가에 상응하는 범위로 책임을 정합니다(「약관의 규제에 관한 법률」 제7조 제2호의 "상당한 이유").</p>
+      <ol class="cl">
+        <li>회사는 회사의 귀책사유로 고객에게 발생한 <mark>통상의 직접손해</mark>에 한하여 배상합니다.</li>
+        <li>회사가 배상할 손해액의 총액은 <mark>사유가 발생한 날 직전 12개월 동안 고객이 해당 설치 현장에 관하여 회사에 실제로 지급한 서비스 이용료 총액</mark>(이용 기간이 12개월 미만인 경우 그 기간 동안 지급한 금액)을 <span class="warn">한도</span>로 합니다. 동일하거나 관련된 원인에서 비롯된 복수의 청구는 하나의 청구로 봅니다.</li>
+        <li>본 조의 제한은 <mark>청구의 법률적 구성을 묻지 않고</mark> 적용됩니다. 채무불이행, 하자담보책임, 불법행위, 부당이득, 제조물책임 그 밖의 어떠한 원인에 의한 청구에도 동일하게 적용됩니다.</li>
+        <li>회사는 다음 각 호의 손해에 대하여 <span class="warn">배상 책임을 지지 않습니다.</span>
+          <ul class="plain">
+            <li>생산·영업·운영의 중단으로 인한 손해</li>
+            <li>매출·이익·기대이익의 상실, 기회 손실, 계약 해지·상실로 인한 손해</li>
+            <li>재고·원재료·완제품·설비·건물 등 재산상 손해 중 특별손해에 해당하는 부분</li>
+            <li>데이터의 손실·훼손 및 복구 비용</li>
+            <li>신용·명예·브랜드 가치의 훼손</li>
+            <li>제3자가 고객에게 제기한 청구 및 그에 따른 배상액·소송비용·변호사비용</li>
+            <li>행정기관이 부과한 과징금·과태료·벌금 및 영업정지 등 행정처분으로 인한 손해</li>
+            <li>보험으로 전보되었거나 전보될 수 있었던 손해</li>
+            <li>고객이 제4조를 위반하여 확대된 손해</li>
+            <li>기타 간접손해, 특별손해, 결과적 손해, 징벌적 손해</li>
+          </ul>
+        </li>
+        <li>고객 또는 제3자의 고의·과실이 손해의 발생 또는 확대에 기여한 경우 그 비율만큼 회사의 책임을 감경합니다.</li>
+        <li>본 조의 제한은 회사의 <mark>임직원·대리인·수급인 및 회사에 장비·회선·플랫폼을 공급하는 자</mark>에게도 동일하게 적용되며, 고객은 이들에 대하여 본 조의 한도를 넘는 청구를 하지 않습니다.</li>
+        <li class="warn">제1항부터 제6항까지의 제한은 회사의 <u>고의 또는 중대한 과실</u>로 인한 손해 및 회사의 귀책으로 인한 생명·신체에 대한 손해에는, <u>관계 법령이 배제를 허용하지 않는 범위에 한하여</u> 적용하지 않습니다.</li>
+      </ol>
+      <div class="note"><span class="tag">B2C 특칙</span>고객이 「소비자기본법」상 소비자인 경우, 본 조의 제한은 「약관의 규제에 관한 법률」 등 관계 법령이 허용하는 범위 내에서만 효력이 있으며, 법령에 반하는 부분은 적용하지 않습니다.</div>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 11 조</span><span>면책 사유</span></h3>
+      <p class="sub">다음 사유로 인한 서비스 중단, 알림 지연·미발송·미도달 및 그로 인한 손해에 대하여 회사는 책임을 지지 않습니다.</p>
+      <ol class="cl">
+        <li>천재지변, 전쟁, 폭동, 화재, 폭발, 감염병 확산, 국가 비상사태, 정부·지방자치단체의 조치 등 불가항력</li>
+        <li>이동통신사, 문자재판매사업자, 인터넷서비스제공자, 클라우드·데이터센터 사업자, 전력회사 등 <mark>제3자의 설비·서비스 장애 또는 정책 변경</mark></li>
+        <li>고객 사업장의 정전, 인터넷 단절, 네트워크·방화벽 정책 변경, 사설망 차단</li>
+        <li>고객 또는 제3자에 의한 센서·게이트웨이의 이설, 훼손, 오염, 전원 차단, 설정 변경, 임의 해체</li>
+        <li>수신자 단말의 전원 꺼짐, 통신 불가 지역 체류, 스팸·광고 차단 설정, 번호 변경, 요금 미납, 기기 고장, 수신 후 미확인·미조치</li>
+        <li>고객이 제7조의 의무를 이행하지 않은 경우(제7조 제3호에 따라 이행하지 않은 것으로 추정되는 경우를 포함)</li>
+        <li>고객이 제4조의 사용 제한을 위반한 경우</li>
+        <li>제5조에 따라 사전 공지된 계획 점검 및 긴급 보안 조치</li>
+        <li>센서의 감지 원리·감지 범위·설치 위치의 한계로 감지가 불가능하거나 지연된 경우, 그 밖에 미탐·오탐이 발생한 경우</li>
+        <li>고객이 요청하거나 승인한 설정 변경·커스터마이징·외부 시스템 연동에 기인한 장애</li>
+        <li>서비스 개시 전 또는 계약 종료·중단 이후에 발생한 사고(제8조)</li>
+        <li>고객이 회사가 공급하지 않은 센서·게이트웨이·소프트웨어를 연동하여 발생한 장애</li>
+        <li>본 서비스와 연동한 고객의 기존 설비(수신기·경보반·제어반·분전반 등) 자체의 고장·오작동·설정 오류·점검 불량, 또는 그 외부 출력 단자가 신호를 내보내지 않은 경우</li>
+        <li>부속서 B에서 정한 제품별 감지 한계에 해당하는 경우</li>
+        <li>법령·행정지도·제3자 사업자 약관의 변경으로 종전과 같은 방식의 알림 제공이 불가능하게 된 경우</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 12 조</span><span>보험 및 위험의 분담</span></h3>
+      <ol class="cl">
+        <li>고객은 자신의 건물·설비·재고·영업에 대한 손해보험을 <mark>스스로 가입·유지하여야 하며</mark>, 본 서비스는 어떠한 경우에도 보험을 대체하지 않습니다.</li>
+        <li>본 서비스의 구독료는 고객의 재산 가치나 잠재적 손해액이 아니라 <mark>회사가 제공하는 통보 기능의 대가</mark>로 산정되었습니다. 회사는 고객의 재산상 위험을 인수하는 대가를 받지 않으며, 당사자는 이를 전제로 제10조의 책임 한도에 합의합니다.</li>
+        <li>고객이 사업자인 경우, 고객은 자신의 보험자가 본 사고와 관련하여 회사 및 회사의 임직원·대리인에 대하여 갖는 <mark>대위권(구상권)을 포기</mark>하도록 보험계약을 체결하거나 보험자로부터 포기 확인을 받습니다.</li>
+        <li>고객이 제3항의 의무를 이행하지 아니하여 회사가 보험자로부터 구상 청구를 받은 경우, 고객은 회사를 방어하고 그로 인한 손해를 보전합니다.</li>
+      </ol>
+      <div class="note"><span class="tag">B2C 특칙</span>소비자 고객에게는 본 조 제3항 및 제4항을 적용하지 않습니다.</div>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 13 조</span><span>제3자 청구에 대한 고객의 방어 및 보전</span></h3>
+      <ol class="cl">
+        <li>고객의 임직원, 입주자, 방문자, 도급인, 그 밖의 제3자가 본 서비스와 관련하여 회사에 손해배상을 청구하는 경우, 고객은 자신의 비용으로 회사를 방어하고 그로 인하여 회사가 부담한 배상액·화해금·소송비용·변호사비용을 보전합니다.</li>
+        <li>제1항은 회사의 고의 또는 중대한 과실로 인한 부분에는 적용하지 않습니다.</li>
+        <li>고객은 제3자에게 본 서비스를 이용하게 하거나 그 결과를 제공하는 경우, 본 SLA 제3조·제4조·제10조의 내용을 그 제3자에게 알리고 동일한 조건을 적용받도록 합니다.</li>
+      </ol>
+      <div class="note"><span class="tag">B2C 특칙</span>소비자 고객에게는 본 조를 적용하지 않습니다.</div>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 14 조</span><span>청구 절차 및 기간의 제한</span></h3>
+      <ol class="cl">
+        <li>고객은 손해의 발생 및 그 원인을 안 날부터 <mark>30일 이내</mark>에 서면(이메일 포함)으로 회사에 통지하여야 하며, 통지 시 발생 일시, 경위, 손해 내역, 증빙 및 <mark>제7조 제3호의 점검 기록</mark>을 첨부합니다.</li>
+        <li>사유가 발생한 날부터 <mark>1년</mark>이 경과한 청구는 하지 못합니다. 다만 회사의 고의 또는 중대한 과실로 인한 청구는 관계 법령의 소멸시효에 따릅니다.</li>
+        <li>손해의 발생과 그 액수, 그리고 회사의 행위와 손해 사이의 인과관계는 <mark>청구하는 고객이 증명</mark>합니다. 회사의 귀책 여부에 관한 증명책임은 관계 법령에 따릅니다.</li>
+        <li>고객은 손해의 확대를 방지하기 위한 합리적인 조치를 취하여야 하며, 이를 게을리하여 확대된 손해는 배상 범위에서 제외합니다.</li>
+      </ol>
+      <div class="note"><span class="tag">B2C 특칙</span>소비자 고객에게는 본 조 제2항을 적용하지 않고 「민법」상 소멸시효를 적용하며, 제1항의 통지는 권고 사항으로 합니다.</div>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 15 조</span><span>본 SLA의 변경</span></h3>
+      <ol class="cl">
+        <li>회사는 서비스 개선, 설비·제3자 사업자 정책 변경, 법령 개정 등을 위하여 본 SLA를 개정할 수 있습니다.</li>
+        <li>회사는 개정 내용과 시행일을 시행일 <mark>15일 전</mark>(고객에게 불리하거나 중대한 변경은 <mark>30일 전</mark>)까지 회사 홈페이지 공지 및 고객이 등록한 이메일로 통지합니다.</li>
+        <li>고객이 시행일 전까지 이의를 제기하지 않으면 개정에 동의한 것으로 봅니다. 고객은 동의하지 않는 경우 시행일 전까지 계약을 해지할 수 있습니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 16 조</span><span>중단 및 해지</span></h3>
+      <ol class="cl">
+        <li>어느 일방은 <mark>30일 전 서면 통지</mark>로 이용계약을 해지할 수 있습니다. 최소 이용기간, 장비 반납, 잔여 요금 정산은 이용계약에 따릅니다.</li>
+        <li>고객이 요금을 <mark>2개월 이상 연체</mark>한 경우 회사는 사전 통지 후 서비스 제공을 중단할 수 있으며, 중단 기간 중의 미알림에 대하여 책임을 지지 않습니다.</li>
+        <li>고객이 제7조의 의무를 중대하게 위반하고 회사의 시정 요구를 받은 날부터 14일 이내에 시정하지 않는 경우, 회사는 계약을 해지할 수 있습니다.</li>
+        <li>회사는 제3자 통신 사업자의 서비스 종료, 법령 변경 등으로 서비스 제공이 불가능하게 된 경우 <mark>60일 전 통지</mark>로 서비스를 종료할 수 있으며, 이 경우 선납 요금 중 잔여 기간분을 일할 환급하는 것 외에 별도의 배상 책임을 지지 않습니다.</li>
+        <li>최소 이용기간 중 고객의 사유로 해지하는 경우의 위약금은 이용계약에서 정한 바에 따르되, 회사에 실제로 발생한 손실(미회수 장비·설치 원가, 잔여 기간 이용료의 합리적 비율 등)을 현저히 초과하는 금액은 청구하지 않습니다.</li>
+        <li>이용계약의 자동 연장이 예정된 경우, 회사는 계약 만료 <mark>30일 전</mark>까지 연장 예정 사실과 해지 방법을 고객이 등록한 이메일로 안내합니다.</li>
+      </ol>
+      <div class="note"><span class="tag">B2C 특칙</span>소비자 고객은 「방문판매 등에 관한 법률」 제31조에 따라 계약기간 중 언제든지 이용계약을 해지할 수 있으며, 위약금과 환급은 같은 법 제32조 및 공정거래위원회 고시 기준에 따릅니다.</div>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 17 조</span><span>개인정보 및 데이터</span></h3>
+      <ol class="cl">
+        <li>회사는 알림 수신자의 성명·연락처를 알림 발송 및 고객 지원 목적으로만 처리하며, 회사 홈페이지에 게시한 개인정보처리방침(monnit.co.kr/privacy.html)에 따라 관리합니다.</li>
+        <li>고객은 알림 수신자로부터 개인정보의 제공 및 알림 수신에 필요한 동의를 받을 책임이 있으며, 동의 미취득으로 발생한 분쟁은 고객이 해결하고 회사를 방어합니다.</li>
+        <li>회사는 센서 측정값 및 알림 이력을 서비스 제공·품질 개선·통계 목적으로 보관·활용할 수 있으며, 고객을 식별할 수 없도록 가공한 데이터는 회사가 자유롭게 활용할 수 있습니다.</li>
+        <li>알림 이력 및 로그의 보관 기간은 <mark>12개월</mark>로 하며, 그 이후에는 회사의 정책에 따라 삭제될 수 있습니다. 고객은 자신에게 필요한 기록을 스스로 보관하여야 합니다.</li>
+        <li>계약 체결·SLA 동의에 관한 기록(열람·동의 시각, 확인 항목, 서명)은 「전자상거래 등에서의 소비자보호에 관한 법률」 및 관계 법령에 따라 <mark>계약 종료 후 5년</mark>간 보관합니다.</li>
+        <li><b>개인정보 보호책임자</b> — 본 서비스와 관련한 개인정보의 처리, 개인정보처리방침의 운영, 정보주체의 열람·정정·삭제·처리정지 요청 및 불만 처리는 회사의 개인정보 보호책임자가 총괄하여 책임집니다. <mark>성명 염정훈(대표이사) · 이메일 korea@monnit.com · 전화 02-2088-1454</mark>. 고객과 알림 수신자는 위 연락처로 관련 요청을 할 수 있으며, 회사는 지체 없이 조치합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article">
+      <h3><span class="no">제 18 조</span><span>소비자 특칙 · 준거법 · 조항의 분리</span></h3>
+      <ol class="cl">
+        <li>고객이 「소비자기본법」상 소비자인 경우, 본 SLA의 어떠한 조항도 「약관의 규제에 관한 법률」, 「전자상거래 등에서의 소비자보호에 관한 법률」, 「소비자기본법」 등 관계 법령상 소비자에게 보장된 권리를 배제하거나 제한하지 않습니다. 청약철회는 관계 법령에 따르며, 분쟁 발생 시 「소비자분쟁해결기준」을 참고하여 협의하고 한국소비자원 등에 조정을 신청할 수 있습니다.</li>
+        <li>본 SLA의 준거법은 대한민국 법으로 합니다.</li>
+        <li>본 SLA에 관한 분쟁은 당사자 간 성실한 협의로 해결하며, 협의가 이루어지지 않는 경우 <mark>서울중앙지방법원</mark>을 제1심 관할 법원으로 합니다. 고객이 소비자인 경우 관할은 「민사소송법」에 따릅니다.</li>
+        <li><b>조항의 분리</b> — 본 SLA의 어느 조항이 관계 법령에 위반되어 전부 또는 일부가 무효로 판단되더라도 「약관의 규제에 관한 법률」 제16조에 따라 <mark>나머지 조항의 효력에는 영향을 미치지 않습니다.</mark> 무효로 된 부분은 관계 법령과 상관례에 따릅니다.</li>
+        <li><b>명시 및 설명의 확인</b> — 고객은 계약 체결 전에 본 SLA 전문을 제공받아 열람하였고, 특히 <mark>제3조·제4조·제6조·제10조·제11조</mark>의 내용에 관하여 개별적으로 설명을 듣고 이해한 뒤 각 항목에 확인 표시를 하였음을 인정합니다. 회사는 그 확인 기록과 시각을 보관합니다.</li>
+      </ol>
+    </div>
+    
+    <div class="article annex-head" data-annex="head">
+      <h3><span class="no">부속서 B</span><span>제품별 감지 한계 및 고객의 추가 의무</span></h3>
+      <p class="sub">이용계약의 납품 솔루션에 해당하는 부속서만 적용됩니다. 각 부속서는 공통 본문(특히 제3조·제4조·제7조·제11조)을 보충하며, 충돌하는 경우 해당 제품에 관하여는 부속서가 우선합니다.</p>
+    </div>
+
+    <div class="article annex" data-product="fire">
+      <h3><span class="no">B-1</span><span>화재경보 연동 알리미</span></h3>
+      <ol class="cl">
+        <li><b>법정 소방시설이 아님</b> — 화재경보 연동 알리미는 고객의 기존 소방수신기가 내보내는 접점 신호를 수신자에게 전달하는 <mark>보조 알림 장치</mark>입니다. 화재를 직접 감지하는 기능이 없으며, 「소방시설 설치 및 관리에 관한 법률」에 따른 <span class="warn">소방시설(자동화재탐지설비·자동화재속보설비 등) 또는 형식승인 대상 소방용품(감지기·수신기·발신기·중계기·경종 등)이 아니고</span>, 이를 대체하지 않습니다. 고객은 법령이 요구하는 소방시설을 스스로 설치·유지·점검합니다.</li>
+        <li><b>수신기 연동 시 비접촉 원칙</b> — 고객의 화재수신기와 연동하는 경우 회사는 수신기의 <mark>외부 출력 단자(무전압 접점)에서 신호를 수신하는 것</mark>에 한합니다. 수신기의 내부 회로·설정·프로그램을 변경하지 않고, 소방시설을 제어·정지·폐쇄·차단하지 않습니다. 이 연결은 「소방시설공사업법」 제2조의 소방시설 신설·증설·개설·이전·정비(시공)에 해당하지 않으며, 같은 법 시행령 제4조의 착공신고 대상 공사가 아닌 것으로 회사는 판단합니다. 다만 관할 소방관서의 해석이 다를 수 있고, 그 확인은 고객의 책임으로 받습니다.</li>
+        <li><b>관계인 승인과 입회</b> — 수신기 단자에 연결할 때 고객은 특정소방대상물의 관계인으로서 이를 승인하고 <mark>소방안전관리자(또는 고객이 지정한 책임자)를 입회</mark>하게 하며, 연결 직후 소방시설이 정상 작동함을 함께 확인합니다. 회사는 연결 단자·방식·입회자를 기록하여 고객에게 제공합니다.</li>
+        <li><b>알림의 한계</b> — 알림은 <mark>소방수신기가 출력 단자로 신호를 내보낸 경우에만</mark> 발송됩니다. 수신기가 화재를 인지하지 못하거나 신호를 늦게 내보낸 경우, 수신기의 비화재보가 그대로 전달된 경우는 본 서비스의 하자가 아닙니다.</li>
+        <li><b>면책</b> — 수신기·감지기·속보기 등 고객 소방시설 자체의 고장·오작동·설정 오류·점검 불량, 수신기의 출력 단자가 신호를 내보내지 않은 경우, 고객 또는 제3자가 수신기를 정지·차단·조작한 경우로 인한 미알림에 대하여 회사는 책임을 지지 않습니다.</li>
+        <li><b>기계경비 아님</b> — 화재경보 연동 알리미는 「경비업법」상 기계경비업무가 아니며, 회사는 화재 발생 시 출동·진압·소방서 신고를 하지 않습니다. 신고와 초동 대응은 고객의 자체 대응 체계에 따릅니다.</li>
+      </ol>
+    </div>
+
+    <div class="article annex" data-product="water">
+      <h3><span class="no">B-2</span><span>물감지 알리미</span></h3>
+      <ol class="cl">
+        <li><b>감지 범위</b> — 물감지 센서(스팟형·로프형·수위형)는 <mark>물이 센서의 감지부에 직접 닿은 경우</mark>에만 감지합니다. 감지 범위는 센서가 설치된 지점(로프형은 로프가 지나는 경로, 수위형은 설정 수위)에 한정되며, 센서에 닿지 않고 흐르거나 고이는 물, 벽체·천장 내부의 누수, 센서 설치 지점 밖의 침수는 감지하지 못합니다.</li>
+        <li><b>오탐</b> — 결로, 청소수, 높은 습도, 세척·소독 작업, 센서부 오염에 의해 알림이 발생할 수 있으며 이는 하자가 아닙니다. 고객은 청소·작업 전에 플랫폼에서 해당 센서의 알림을 일시 정지하거나 담당자에게 알립니다.</li>
+        <li><b>설치 환경 유지</b> — 고객은 센서를 임의로 이설·절단·연장·세척하지 않으며, 센서 위에 물건을 올리거나 바닥재·단열재로 덮지 않습니다. 센서부가 오염되거나 부식된 경우 지체 없이 회사에 통보합니다. 센서 위치·수량 변경은 회사의 재검증 후 유효합니다.</li>
+        <li><b>고객이 갖춰야 할 것</b> — 배관·방수·배수(집수정·배수펌프)의 점검과 유지, 누수 원인의 수리는 고객의 책임입니다. 본 서비스는 누수 방지·차단·배수 기능이 없으며, 알림 수신 후의 밸브 차단·배수·복구는 고객이 수행합니다.</li>
+        <li><b>면책</b> — 센서에 닿지 않은 누수·침수, 센서 설치 지점 밖의 침수, 고객 배관·배수 설비의 고장, 고객 또는 제3자에 의한 센서 이설·훼손·덮임으로 인한 미감지·지연에 대하여 회사는 책임을 지지 않습니다.</li>
+        <li><b>특별손해</b> — 침수로 인한 재고·설비·건물 손해, 영업 중단 손해는 제10조의 배상 범위에 포함되지 않으며, 고객은 수재(水災)를 담보하는 손해보험을 스스로 유지합니다.</li>
+      </ol>
+    </div>
+
+    <div class="article annex" data-product="power">
+      <h3><span class="no">B-3</span><span>정전 알리미</span></h3>
+      <ol class="cl">
+        <li><b>감지 범위</b> — 정전 감지는 <mark>센서가 연결된 회로(콘센트 또는 분전반의 해당 회로)에 한정</mark>됩니다. 다른 회로·다른 층·다른 분전반의 정전, 일부 상(相)만의 결상, 전압 강하는 감지하지 못할 수 있습니다. 감지 간격보다 짧은 <mark>순간 정전(수 초 이내)은 감지되지 않을 수 있습니다</mark>.</li>
+        <li><b>정전 중 통신</b> — 정전 알림은 정전 시에도 게이트웨이와 통신 경로가 살아 있을 때만 발송됩니다. 회사가 공급한 게이트웨이의 내장 배터리와 LTE 통신을 사용하는 구성에서는 정전 시에도 발송을 시도하나, <mark>고객 인터넷 회선·공유기를 통신 경로로 쓰는 구성에서는 정전과 함께 통신이 끊겨 알림이 발송되지 않을 수 있습니다</mark>. 어느 구성인지는 이용계약(납품 솔루션 및 기타 사항)에 따르며, 고객은 설치 시 확인합니다.</li>
+        <li><b>대체하지 않는 것</b> — 본 서비스는 무정전전원장치(UPS), 비상발전기, 자동절체(ATS), 전력 복구 기능이 아니며 이를 대체하지 않습니다. 「전기안전관리법」에 따른 전기안전관리자 선임·점검 의무를 대체하지 않습니다.</li>
+        <li><b>고객이 갖춰야 할 것</b> — 정전 알림 수신 후의 현장 확인, 차단기 복구, 발전기 가동, 보존 대상(냉동·냉장 재고, 서버 등)의 보호 조치는 고객의 대응 체계에 따릅니다. 고객은 게이트웨이 배터리 저잔량 알림 시 14일 이내에 조치합니다(제7조 제4호).</li>
+        <li><b>면책</b> — 센서가 연결되지 않은 회로의 정전, 순간 정전, 고객 통신 경로의 동시 단절, 분전반·차단기 자체의 고장, 고객 또는 제3자의 센서 분리·회로 변경으로 인한 미감지·지연에 대하여 회사는 책임을 지지 않습니다.</li>
+        <li><b>특별손해</b> — 정전으로 인한 냉동·냉장 재고의 변질, 설비 정지, 데이터 손실, 영업 중단 손해는 제10조의 배상 범위에 포함되지 않습니다.</li>
+      </ol>
+    </div>
+
+    <div class="article annex" data-product="alarm">
+      <h3><span class="no">B-4</span><span>경보 알리미 (기존 설비 접점 연동)</span></h3>
+      <ol class="cl">
+        <li><b>연동 방식</b> — 경보 알리미는 고객의 기존 설비(경보반·제어반·PLC·펌프 제어반·승강기·냉동기 등)가 외부로 내보내는 <mark>접점 출력(무전압 접점을 원칙으로 함)을 수신</mark>하여 알림을 발송합니다. 회사는 설비의 내부 회로·설정·프로그램을 변경하지 않으며, 설비를 제어·정지·복구하지 않습니다.</li>
+        <li><b>접점 사양의 확인</b> — 연동 대상 설비에 접점 출력이 있는지, 무전압 접점인지 전압 출력인지, 극성과 정격은 <mark>고객이 설비 제조사·시공사에 확인하여 회사에 알립니다</mark>. 전압 출력 등 사양이 다른 경우 회사가 안내한 변환 장치를 고객 부담으로 설치하며, 사양 미확인·오안내로 인한 장애는 고객의 책임입니다.</li>
+        <li><b>설비 보증과 승인</b> — 연동이 설비 제조사의 보증·유지보수 계약에 미치는 영향은 고객이 확인합니다. 고객은 설비 관리 책임자로서 연동을 승인하고 연결 시 입회하며, 연결 후 설비가 정상 작동함을 확인합니다.</li>
+        <li><b>감지 한계</b> — 알림은 설비가 접점을 동작시킨 경우에만 발송됩니다. 설비가 이상을 감지하지 못하거나 접점을 동작시키지 않은 경우, 설비의 자체 경보 설정(지연·임계값·마스킹)에 의해 접점이 늦게 동작한 경우, 설비의 오경보가 그대로 전달된 경우는 본 서비스의 하자가 아닙니다. 연동 가능한 접점 수는 이용계약에 기재된 수량에 한합니다.</li>
+        <li><b>면책</b> — 연동 대상 설비 자체의 고장·오작동·설정 변경·점검 불량, 접점 출력 미동작, 고객 또는 제3자의 배선 변경·분리로 인한 미알림·오알림에 대하여 회사는 책임을 지지 않습니다.</li>
+        <li><b>대체하지 않는 것</b> — 본 서비스는 설비의 법정 점검·안전관리(승강기·보일러·압력용기·냉동기 등 관계 법령상 의무)를 대체하지 않으며, 설비의 보호 장치·인터록을 대신하지 않습니다.</li>
+      </ol>
+    </div>
+
+    <div class="article annex" data-product="custom">
+      <h3><span class="no">B-5</span><span>커스텀 알리미</span></h3>
+      <ol class="cl">
+        <li>커스텀 알리미는 이용계약에 첨부된 <mark>별도 사양서</mark>(센서 종류, 감지 조건, 설치 위치, 연동 방식)가 본 부속서를 대신합니다. 사양서에 정하지 않은 사항은 공통 본문과 가장 유사한 제품의 부속서를 준용합니다.</li>
+      </ol>
+    </div>
+
+    <p class="fineprint">본 서비스수준협약은 2026년 10월 16일부터 시행합니다. · 주식회사 모넷코리아</p></template>
 
 <div class="modal" id="slamodal" role="dialog" aria-modal="true" aria-labelledby="slatitle" hidden>
   <div class="backdrop" data-close></div>
@@ -889,14 +1256,14 @@ body.pdf .fineprint{font-size:9pt;color:#666}
     </div>
 
     <div class="article annex" data-product="fire">
-      <h3><span class="no">B-1</span><span>화재 알리미</span></h3>
+      <h3><span class="no">B-1</span><span>화재경보 연동 알리미</span></h3>
       <ol class="cl">
-        <li><b>법정 소방시설이 아님</b> — 화재 알리미는 「소방시설 설치 및 관리에 관한 법률」에 따른 <span class="warn">소방시설(자동화재탐지설비·자동화재속보설비·경보설비 등)이 아니며</span>, 이를 대체하지 않습니다. 고객은 법령이 요구하는 소방시설을 스스로 설치·유지·점검합니다.</li>
+        <li><b>법정 소방시설이 아님</b> — 화재경보 연동 알리미는 고객의 기존 소방수신기가 내보내는 접점 신호를 수신자에게 전달하는 <mark>보조 알림 장치</mark>입니다. 화재를 직접 감지하는 기능이 없으며, 「소방시설 설치 및 관리에 관한 법률」에 따른 <span class="warn">소방시설(자동화재탐지설비·자동화재속보설비 등) 또는 형식승인 대상 소방용품(감지기·수신기·발신기·중계기·경종 등)이 아니고</span>, 이를 대체하지 않습니다. 고객은 법령이 요구하는 소방시설을 스스로 설치·유지·점검합니다.</li>
         <li><b>수신기 연동 시 비접촉 원칙</b> — 고객의 화재수신기와 연동하는 경우 회사는 수신기의 <mark>외부 출력 단자(무전압 접점)에서 신호를 수신하는 것</mark>에 한합니다. 수신기의 내부 회로·설정·프로그램을 변경하지 않고, 소방시설을 제어·정지·폐쇄·차단하지 않습니다. 이 연결은 「소방시설공사업법」 제2조의 소방시설 신설·증설·개설·이전·정비(시공)에 해당하지 않으며, 같은 법 시행령 제4조의 착공신고 대상 공사가 아닌 것으로 회사는 판단합니다. 다만 관할 소방관서의 해석이 다를 수 있고, 그 확인은 고객의 책임으로 받습니다.</li>
         <li><b>관계인 승인과 입회</b> — 수신기 단자에 연결할 때 고객은 특정소방대상물의 관계인으로서 이를 승인하고 <mark>소방안전관리자(또는 고객이 지정한 책임자)를 입회</mark>하게 하며, 연결 직후 소방시설이 정상 작동함을 함께 확인합니다. 회사는 연결 단자·방식·입회자를 기록하여 고객에게 제공합니다.</li>
-        <li><b>감지 한계</b> — 수신기 연동형은 수신기가 출력 단자로 신호를 내보낸 경우에만 알림이 발송됩니다. 독립 설치형(연기·열·불꽃 센서)은 센서의 감지 원리·설치 위치·거리·환경(연기 흐름, 천장 높이, 먼지·수증기)에 따라 감지하지 못하거나 늦게 감지할 수 있습니다. 조리 연기·수증기·먼지·담배 연기 등에 의한 <mark>비화재보(오탐)가 발생할 수 있으며</mark> 이는 하자가 아닙니다.</li>
+        <li><b>알림의 한계</b> — 알림은 <mark>소방수신기가 출력 단자로 신호를 내보낸 경우에만</mark> 발송됩니다. 수신기가 화재를 인지하지 못하거나 신호를 늦게 내보낸 경우, 수신기의 비화재보가 그대로 전달된 경우는 본 서비스의 하자가 아닙니다.</li>
         <li><b>면책</b> — 수신기·감지기·속보기 등 고객 소방시설 자체의 고장·오작동·설정 오류·점검 불량, 수신기의 출력 단자가 신호를 내보내지 않은 경우, 고객 또는 제3자가 수신기를 정지·차단·조작한 경우로 인한 미알림에 대하여 회사는 책임을 지지 않습니다.</li>
-        <li><b>기계경비 아님</b> — 화재 알리미는 「경비업법」상 기계경비업무가 아니며, 회사는 화재 발생 시 출동·진압·소방서 신고를 하지 않습니다. 신고와 초동 대응은 고객의 자체 대응 체계에 따릅니다.</li>
+        <li><b>기계경비 아님</b> — 화재경보 연동 알리미는 「경비업법」상 기계경비업무가 아니며, 회사는 화재 발생 시 출동·진압·소방서 신고를 하지 않습니다. 신고와 초동 대응은 고객의 자체 대응 체계에 따릅니다.</li>
       </ol>
     </div>
 
@@ -944,13 +1311,13 @@ body.pdf .fineprint{font-size:9pt;color:#666}
     </div>
 
     <p class="fineprint">본 서비스수준협약은 2026년 10월 16일부터 시행합니다. · 주식회사 모넷코리아</p>
-    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>서명 전 확인 항목</span></h3><p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 하단의 「전체 동의하고 계속」 버튼을 누르면 모든 항목에 한 번에 동의할 수 있습니다.</p>
+    <div class="article" id="ackBlock"><h3><span class="no">확인</span><span>계약 전 확인 항목</span></h3><p class="sub">아래 항목은 본 SLA의 핵심 조건입니다. 하단의 「전체 동의하고 계속」 버튼을 누르면 모든 항목에 한 번에 동의할 수 있습니다.</p>
   <label class="allcheck" for="ckall"><input type="checkbox" id="ckall"><span>아래 <span id="ckCount">8</span>개 항목을 모두 확인했습니다</span></label>
 
   <div class="checks">
     <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제3조 · 회사가 부담하지 않는 의무</em>본 서비스는 <b>통보를 시도하는 것</b>까지가 회사의 의무이며, 회사는 상시 감시·현장 출동·기관 신고·수신 확인·재발송 의무를 지지 않음을 확인합니다. 법정 안전설비가 아니고 「경비업법」상 기계경비업무에도 해당하지 않습니다.</span></label>
     <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제3조 제5호 · 오탐·미탐</em>센서의 물리적 한계로 <b>오탐과 미탐은 반드시 발생하며</b>, 그 발생 자체는 회사의 채무불이행이나 하자가 아님을 확인합니다.</span></label>
-    <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제4조 · 사용 제한 및 위험 인수</em>본 서비스를 <b>생명·신체 안전의 유일한 수단으로 사용하지 않겠으며</b>, 법정 소방설비·자체 대응체계·독립된 감시수단·손해보험을 별도로 갖추겠습니다. 이를 어기고 서비스에 의존해 발생한 손해는 <b>제가 인수한 위험</b>임을 확인합니다.</span></label>
+    <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제4조 · 사용 제한 및 위험 인수</em>본 서비스를 <b>생명·신체 안전의 유일한 수단으로 사용하지 않겠으며</b>, 법정 안전설비·자체 대응체계·독립된 감시수단·손해보험을 별도로 갖추겠습니다. 이를 어기고 서비스에 의존해 발생한 손해는 <b>제가 인수한 위험</b>임을 확인합니다.</span></label>
     <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제6조 · 서비스 크레딧 부적용</em>수준 목표 미달 시 <b>요금 감면·환급·위약벌 등 금전적 보상이 없으며</b>, 목표 미달 사실 자체가 배상 책임의 근거가 되지 않고 구제수단은 계약 해지로 한정됨을 확인합니다.</span></label>
     <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제10조 · 책임의 한도</em>회사의 배상 한도는 <b>사유 발생 직전 12개월간 해당 현장에 실제 지급한 이용료 총액</b>이며, 청구의 법률적 구성을 묻지 않고 적용됨을 확인합니다. 영업 중단·기대이익 상실·보험으로 전보 가능한 손해 등은 배상 대상이 아닙니다. (고의·중대과실 및 생명·신체 손해는 법령이 허용하는 범위에서 제외)</span></label>
     <label class="chk"><input type="checkbox" data-ck><span class="tx"><em>SLA 제11조 · 면책 사유</em>불가항력, 통신사·전력 등 제3자 장애, 수신자 단말 문제나 <b>수신 후 미확인·미조치</b>, 고객 의무 미이행 등으로 인한 알림 지연·미도달에 대해 회사가 책임지지 않음을 확인합니다.</span></label>
@@ -959,7 +1326,7 @@ body.pdf .fineprint{font-size:9pt;color:#666}
   </div>
 
   <div class="checks" id="prodChecks" style="margin-top:10px">
-    <label class="chk" data-product="fire" hidden><input type="checkbox" data-ck><span class="tx"><em>부속서 B-1 · 화재 알리미</em>화재 알리미는 <b>법정 소방시설이 아니며</b>, 수신기 연동 시 수신기의 외부 출력 단자에서 신호만 받습니다. 연결은 관계인 승인과 <b>소방안전관리자 입회</b> 하에 하며, 수신기 자체의 고장·비화재보(오탐)는 회사 책임이 아님을 확인합니다.</span></label>
+    <label class="chk" data-product="fire" hidden><input type="checkbox" data-ck><span class="tx"><em>부속서 B-1 · 화재경보 연동 알리미</em>본 제품은 기존 소방수신기의 접점 신호를 담당자에게 전달하는 <b>보조 알림 장치</b>로, 화재를 직접 감지하지 않으며 <b>법정 소방시설이나 형식승인 소방용품이 아님</b>을 확인합니다. 수신기 연결은 관계인 승인과 <b>소방안전관리자 입회</b> 하에 하며, 수신기 자체의 고장·비화재보는 회사 책임이 아닙니다.</span></label>
     <label class="chk" data-product="water" hidden><input type="checkbox" data-ck><span class="tx"><em>부속서 B-2 · 물감지 알리미</em><b>물이 센서에 직접 닿아야 감지</b>되며 설치 지점 밖의 누수·침수는 감지하지 못합니다. 결로·청소수 오탐이 있을 수 있고, 배관·배수 점검과 침수 후 차단·배수는 제가 수행함을 확인합니다.</span></label>
     <label class="chk" data-product="power" hidden><input type="checkbox" data-ck><span class="tx"><em>부속서 B-3 · 정전 알리미</em><b>센서가 연결된 회로의 정전만 감지</b>하며 순간 정전은 감지되지 않을 수 있습니다. 고객 인터넷을 통신 경로로 쓰는 구성에서는 정전 시 알림이 가지 않을 수 있고, UPS·발전기·전기안전관리를 대체하지 않음을 확인합니다.</span></label>
     <label class="chk" data-product="alarm" hidden><input type="checkbox" data-ck><span class="tx"><em>부속서 B-4 · 경보 알리미</em>기존 설비의 <b>접점 출력을 받는 방식</b>이며, 접점 사양 확인과 설비 보증에 미치는 영향 확인은 제가 합니다. 설비 자체의 고장·오경보·접점 미동작은 회사 책임이 아님을 확인합니다.</span></label>
@@ -984,7 +1351,6 @@ body.pdf .fineprint{font-size:9pt;color:#666}
   </div>
 </div>
 
-</main>
 
 <footer>
   <span>주식회사 모넷코리아</span>
@@ -994,588 +1360,376 @@ body.pdf .fineprint{font-size:9pt;color:#666}
   <span>사업자등록번호 242-88-01218</span>
   <span><a href="/" style="color:inherit">monnit.co.kr</a></span>
 </footer>
-<script>/* 계약서 문서 렌더 + PDF 내려받기 (관리 화면 · 고객 접수 완료 화면 공용) — 2026-10-16
-   window.MKDoc.html(c)         → 계약서 HTML (A4 폭 기준)
-   window.MKDoc.pdf(c, name)    → html2canvas + jsPDF 로 PDF 파일 저장 (cdnjs 에서 지연 로드)
-   window.MKDoc.print(c)        → 새 창에 문서만 띄워 인쇄
-   c = 서버에 저장된 계약 레코드(contracts/…) 와 같은 모양 */
+<script>/* 종이 계약서 (A4 한 장 양면) — 앞면 구독서비스 계약서 · 뒷면 서비스수준협약(SLA)   2026-10-21
+   고객 화면(/contract 4단계)과 관리 화면(/contract-admin)이 같은 문서를 만든다.
+     window.MKPaper.meta(products)        → 제품별 계약서 명칭·납품 솔루션·안내 문구
+     window.MKPaper.pdf(rec [, filename]) → html2canvas + jsPDF 로 A4 PDF 저장 (cdnjs 지연 로드)
+     window.MKPaper.print(rec)            → 새 창에 A4 문서만 띄워 인쇄 (벡터 인쇄 · 가장 선명)
+   rec = 서버 계약 레코드(contracts/<ref>)와 같은 모양. 뒷면 SLA 본문은 페이지의 <template id="slaTpl"> 에서 가져온다.
+   소방 형식승인 대상이 아니므로 화재 제품은 「화재경보 연동 알리미」 — 감지기·수신기·경보기로 읽히는 표현을 쓰지 않는다. */
 (function(){
-  var SUPPLIER = { name: "주식회사 모넷코리아", biz: "242-88-01218", addr: "서울특별시 서초구 효령로 380, 2층", ceo: "염정훈", tel: "02-2088-1454", mail: "korea@monnit.com" };
-  var PRODUCT_LABEL = { fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미" };
-  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]; }); }
-  function won(n){ return "₩" + Number(n || 0).toLocaleString("ko-KR"); }
-  function kd(s){ if(!s) return "—"; var p = String(s).slice(0,10).split("-"); return p.length === 3 ? p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일" : s; }
-  function kdt(s){ if(!s) return "—"; var d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString("ko-KR", {year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"}); }
-  function safe(v){ return String(v || "").replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40) || "고객"; }
-  function row(k, v){ return "<tr><th>" + k + "</th><td>" + v + "</td></tr>"; }
-  function months(from, to){
-    if(!from || !to) return "";
-    var a = new Date(from), b = new Date(to); if(isNaN(a) || isNaN(b)) return "";
-    var m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + 1;
-    return m > 0 ? " (" + (m % 12 === 0 ? (m / 12) + "년" : m + "개월") + ")" : "";
+  "use strict";
+  var ORIGIN = location.origin;
+  var LOGO = ORIGIN + "/alarm/monnit-logo.png";
+  var SEAL = ORIGIN + "/alarm/monnit-seal.png";   /* 납품처(모넷코리아) 법인 직인 — 발주처 직인란은 비워 둔다 */
+  var SUPPLIER = { name: "주식회사 모넷코리아", biz: "242-88-01218", addr: "서울 서초구 효령로 380 세안빌딩 2F", ceo: "염 정 훈", tel: "02-2088-1454", mail: "korea@monnit.com" };
+  var P = {
+    fire:   { name: "무선 화재경보 연동 알리미", detail: "기존 소방수신기 화재경보 접점 신호 원격 알림", en: "FIRE ALARM LINK", annex: "B-1 화재경보 연동" },
+    water:  { name: "무선 물감지 알리미",       detail: "누수·침수 감지 센서 신호 원격 알림",          en: "WATER LEAK",      annex: "B-2 물감지" },
+    power:  { name: "무선 정전 알리미",         detail: "감시 회로 전원 차단(정전) 원격 알림",          en: "POWER OUTAGE",    annex: "B-3 정전" },
+    alarm:  { name: "무선 경보 연동 알리미",     detail: "기존 설비 경보 접점 신호 원격 알림",          en: "EQUIPMENT ALARM LINK", annex: "B-4 경보 연동" },
+    custom: { name: "무선 커스텀 알리미",       detail: "별도 사양서에 따른 원격 알림",                en: "CUSTOM",          annex: "B-5 커스텀(별도 사양서)" }
+  };
+  var ORDER = ["fire", "water", "power", "alarm", "custom"];
+  /* 2026-10-23 설치 지역 요금 — 서울·경기·인천은 설치비 무료, 그 외 지역은 설치 출장비(1회 약 50만 원)를
+     따로 청구하지 않고 계약당 월 1만 원 정액을 더한다(개소 수와 무관). 산정 근거(출장비 ÷ 36개월)는 내부 기준이라 고객 화면·계약서에 쓰지 않는다.
+     고객 화면 · 관리 화면 · 종이 계약서가 같은 문구를 쓴다. region 이 없는 예전 계약은 아무것도 표시하지 않는다. */
+  var REGION = { metro: "서울·경기·인천", other: "그 외 지역" };
+  var REGION_FEE = 10000;
+  /* 설치 주소 → 지역 (서버 regionOf 와 같은 규칙) */
+  function regionOf(addr){
+    var a = String(addr || "").replace(/^\s*\(?\d{5}\)?\s*/, "").trim();
+    if(!a) return "";
+    return /^(서울|경기|인천)/.test(a) ? "metro" : "other";
+  }
+  /* region "auto" 조건에 주소를 넣어 금액을 확정 (서버 settleTerms 와 같은 규칙). 주소가 없으면 그대로 */
+  function settle(T, addr){
+    if(!T || T.region !== "auto") return T;
+    var r = regionOf(addr); if(!r) return T;
+    var o = {}; for(var k in T) o[k] = T[k];
+    o.region = r; o.regionFee = r === "other" ? REGION_FEE : 0;
+    o.list = (Number(T.unit) || 0) * Math.max(1, Number(T.qty) || 1) + o.regionFee;
+    o.discount = T.discountType === "percent" ? Math.round(o.list * Math.min(100, Number(T.discountValue) || 0) / 100) : T.discountType === "amount" ? Math.min(o.list, Math.round(Number(T.discountValue) || 0)) : 0;
+    o.monthly = o.list - o.discount;
+    return o;
+  }
+  function regionLine(t){
+    if(!t || !t.region || t.region === "auto") return "";
+    return t.region === "other"
+      ? "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 + 지역 출장비 월 " + num(t.regionFee) + "원 (" + REGION.other + " · 개소 수와 무관 · 설치비·출장비 별도 청구 없음)"
+      : "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 (" + REGION.metro + " · 설치비 무료)";
   }
 
-  var CSS = ".mkdoc{box-sizing:border-box;width:794px;padding:56px 60px 48px;background:#fff;color:#111;font:13px/1.65 Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;-webkit-font-smoothing:antialiased}" +
-    ".mkdoc *{box-sizing:border-box}" +
-    ".mkdoc .d-top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:22px}" +
-    ".mkdoc .d-top .d-brand{font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#555}" +
-    ".mkdoc h1{font-size:22px;letter-spacing:-.01em;margin:8px 0 0;font-weight:700}" +
-    ".mkdoc .d-meta{text-align:right;font-size:11.5px;color:#444;line-height:1.7}" +
-    ".mkdoc .d-meta b{font-family:ui-monospace,Menlo,monospace;font-weight:600;color:#111}" +
-    ".mkdoc .d-lede{margin:0 0 18px;color:#333}" +
-    ".mkdoc .d-sec{margin:0 0 20px}" +
-    ".mkdoc h2{font-size:13.5px;margin:0 0 7px;padding-left:9px;border-left:3px solid #0b6b4f}" +
-    ".mkdoc table{width:100%;border-collapse:collapse;font-size:12.5px}" +
-    ".mkdoc th,.mkdoc td{border:1px solid #cfd4d1;padding:7px 10px;text-align:left;vertical-align:top}" +
-    ".mkdoc th{width:150px;background:#f3f5f4;font-weight:600;color:#333;white-space:nowrap}" +
-    ".mkdoc td b.d-money{font-size:14px}" +
-    ".mkdoc .d-note{font-size:11.5px;color:#555;margin:6px 0 0}" +
-    ".mkdoc ul.d-ack{margin:4px 0 0;padding-left:18px;font-size:12px;color:#333}" +
-    ".mkdoc ul.d-ack li{margin:2px 0}" +
-    ".mkdoc .d-parties{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}" +
-    ".mkdoc .d-party{border:1px solid #cfd4d1;padding:12px 14px;font-size:12px;min-height:150px}" +
-    ".mkdoc .d-party h3{margin:0 0 6px;font-size:12px;color:#555;font-weight:600}" +
-    ".mkdoc .d-party .d-sig{height:64px;display:flex;align-items:center;gap:10px;margin-top:8px;border-top:1px dashed #cfd4d1;padding-top:8px}" +
-    ".mkdoc .d-party .d-sig img{height:56px;max-width:220px;object-fit:contain}" +
-    ".mkdoc .d-party .d-sig .d-st{color:#777;font-size:11px}" +
-    ".mkdoc .d-seal{font-size:11px;color:#555}" +
-    ".mkdoc .d-foot{margin-top:26px;padding-top:10px;border-top:1px solid #cfd4d1;font-size:10.5px;color:#777;display:flex;justify-content:space-between}" +
-    ".mkdoc .d-attach{page-break-before:always;break-before:page}" +
-    ".mkdoc .d-attach img{max-width:100%;max-height:980px;border:1px solid #cfd4d1;display:block}";
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function num(n){ return Number(n || 0).toLocaleString("ko-KR"); }
+  function kd(s){ if(!s) return "　　년　　월　　일"; var p = String(s).slice(0,10).split("-"); return p.length === 3 ? p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일" : esc(s); }
+  function period(from, to){
+    if(!from || !to) return "";
+    var a = new Date(from + "T00:00:00"), b = new Date(to + "T00:00:00"); if(isNaN(a) || isNaN(b)) return "";
+    b.setDate(b.getDate() + 1);
+    var m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+    if(m <= 0) return "";
+    return m % 12 === 0 ? (m / 12) + "년" : m + "개월";
+  }
+  /* 30000 → 삼만 */
+  function hangul(n){
+    n = Math.round(Number(n) || 0); if(!n) return "영";
+    var D = ["","일","이","삼","사","오","육","칠","팔","구"], S = ["","십","백","천"], B = ["","만","억","조"], out = "", g = 0;
+    while(n > 0){
+      var part = n % 10000, s = "";
+      for(var i = 0; i < 4 && part > 0; i++){ var d = part % 10; if(d) s = (d === 1 && i > 0 ? "" : D[d]) + S[i] + s; part = Math.floor(part / 10); }
+      if(s) out = s + B[g] + out;
+      n = Math.floor(n / 10000); g++;
+    }
+    return out;
+  }
+  function list(products){ return ORDER.filter(function(k){ return (products || []).indexOf(k) >= 0; }); }
 
-  function normalize(c){
-    var t = c.terms || {}, u = c.customer || {};
+  /* 제품 선택에 따른 계약서 명칭 */
+  function meta(products, solNote){
+    var ks = list(products), one = ks.length === 1 ? P[ks[0]] : null, note = String(solNote || "").trim();
+    var title = one ? one.name : "무선 긴급 경보 알리미";
+    var sol = one ? one.name + " (" + one.detail + ")" : (ks.length ? ks.map(function(k){ return P[k].name; }).join(" · ") : "긴급 경보 알리미");
+    if(note) sol += " — " + note;
+    var hasFire = ks.indexOf("fire") >= 0;
     return {
-      ref: c.ref || "", submittedAt: c.submittedAt || "",
-      terms: {
-        solution: t.solution || t.sol || ((t.products || []).map(function(k){ return PRODUCT_LABEL[k] || k; }).join(" · ")) || "긴급 경보 알리미",
-        products: t.products || [], unitPrice: t.unitPrice != null ? t.unitPrice : t.unit, sites: t.sites != null ? t.sites : t.qty,
-        listPrice: t.listPrice != null ? t.listPrice : t.list, discount: t.discount || 0, discountType: t.discountType, discountValue: t.discountValue, discountNote: t.discountNote || "",
-        monthly: t.monthly, from: t.from, to: t.to, payDay: t.payDay || t.pay || "", bank: t.bank || "", etc: t.etc || ""
-      },
-      customer: u, recipients: c.recipients || [], acknowledged: c.acknowledged || [],
-      slaAgreedAt: c.slaAgreedAt || "", slaViewedAt: c.slaViewedAt || "", slaReadPct: c.slaReadPct,
-      signature: c.signature || {}, license: c.attachments && c.attachments.businessLicense || null
+      products: ks, title: title, solution: sol,
+      en: "WIRELESS " + (one ? one.en : "EMERGENCY ALERT") + " NOTIFIER",
+      notice: hasFire ? (one ? "본 제품은 보조 알림 장치이며, 법정 소방시설을 대체하지 않습니다." : "본 서비스는 보조 알림 수단이며, 법정 소방시설 등 법정 안전설비를 대체하지 않습니다.")
+                      : "본 서비스는 보조 알림 수단이며, 법정 안전설비를 대체하지 않습니다.",
+      annex: ks.length ? ks.map(function(k){ return P[k].annex; }).join(" · ") : "B 전체"
     };
   }
 
-  function html(c0){
-    var c = normalize(c0), t = c.terms, u = c.customer, s = c.signature;
-    var disc = t.discount ? "월 " + won(t.listPrice) + " − 할인 " + won(t.discount) + (t.discountType === "percent" ? " (" + t.discountValue + "%)" : "") + (t.discountNote ? " · " + esc(t.discountNote) : "") : "";
-    return '<div class="mkdoc">' +
-      '<div class="d-top"><div><div class="d-brand">MONNIT KOREA</div><h1>긴급 경보 알리미 구독서비스 계약서</h1></div>' +
-        '<div class="d-meta">계약번호 <b>' + esc(c.ref) + '</b><br>체결일 ' + esc(kd(s.signedOn || c.submittedAt)) + '</div></div>' +
-      '<p class="d-lede">발주처(이하 "고객")와 납품처 주식회사 모넷코리아(이하 "회사")는 아래 조건으로 긴급 경보 알리미 구독서비스 이용계약을 체결합니다. 서비스수준협약서(SLA)는 본 계약의 부속문서로서 계약과 일체를 이룹니다.</p>' +
-      '<div class="d-sec"><h2>1. 계약 조건</h2><table>' +
-        row("납품 솔루션", esc(t.solution)) +
-        row("설치 개소", esc(t.sites) + "개소") +
-        row("월 이용료", won(t.unitPrice) + " × " + esc(t.sites) + "개소" + (disc ? "<br><span class='d-note'>" + disc + "</span>" : "")) +
-        row("월 청구액", "<b class='d-money'>" + won(t.monthly) + "</b> (부가세 별도)") +
-        row("계약 기간", esc(kd(t.from)) + " ~ " + esc(kd(t.to)) + esc(months(t.from, t.to))) +
-        row("지급 조건", esc(t.payDay) + (t.bank ? " · " + esc(t.bank) : "")) +
-        (t.etc ? row("기타 사항", esc(t.etc).replace(/\n/g, "<br>")) : "") +
-      '</table></div>' +
-      '<div class="d-sec"><h2>2. 고객 정보</h2><table>' +
-        row("상호", esc(u.name)) + row("사업자등록번호", esc(u.bizNo || "—")) + row("대표자", esc(u.ceo)) + row("주소", esc(u.address)) +
-        row("계약 구분", esc(u.contractType === "B2C" ? "소비자 (B2C)" : "사업자 (B2B)")) +
-        row("담당자", esc(u.manager) + " · " + esc(u.phone) + (u.email ? " · " + esc(u.email) : "")) + row("설치 현장", esc(u.site)) +
-      '</table></div>' +
-      '<div class="d-sec"><h2>3. 알림 수신자</h2><table>' +
-        (c.recipients.length ? c.recipients.map(function(r, i){ return row("수신자 " + (i + 1), esc(r.name) + " · " + esc(r.phone) + (r.email ? " · " + esc(r.email) : "")); }).join("") : row("수신자", "—")) +
-      '</table><p class="d-note">수신자 정보가 바뀌면 고객이 회사에 알려 갱신하여야 하며, 갱신 전 발생한 미수신에 대해 회사는 책임지지 않습니다(SLA 제8조).</p></div>' +
-      '<div class="d-sec"><h2>4. 서비스수준협약(SLA) 동의</h2><table>' +
-        row("적용 문서", "긴급 경보 알리미 서비스수준협약서(SLA) · 2026년 10월 16일 시행 · 공통 본문 및 해당 제품 부속서 B") +
-        row("동의 일시", esc(kdt(c.slaAgreedAt))) +
-        (c.slaViewedAt ? row("전문 열람", esc(kdt(c.slaViewedAt)) + (c.slaReadPct != null ? " · " + esc(c.slaReadPct) + "% 열람" : "")) : "") +
-        (c.acknowledged.length ? row("확인 항목", "<ul class='d-ack'>" + c.acknowledged.map(function(a){ return "<li>" + esc(a) + "</li>"; }).join("") + "</ul>") : "") +
-      '</table><p class="d-note">SLA 전문: monnit.co.kr/alarm/terms · 고객은 계약 체결 전에 SLA 전문을 제공받아 열람하고 그 내용에 동의하였습니다.</p></div>' +
-      '<div class="d-sec"><h2>5. 계약 당사자</h2>' +
-        '<p class="d-note" style="margin:0 0 8px">고객과 회사는 상호 동등한 입장에서 위 계약조건과 SLA에 따라 계약을 체결하고, 신의에 따라 성실히 의무를 이행할 것을 확약합니다. 본 계약은 전자서명으로 체결되었으며 「전자문서 및 전자거래 기본법」에 따라 서면과 동일한 효력을 가집니다.</p>' +
-        '<div class="d-parties">' +
-          '<div class="d-party"><h3>고객 (발주처)</h3>' + esc(u.name) + '<br>대표자 ' + esc(u.ceo) + '<br>' + esc(u.address) +
-            '<div class="d-sig">' + (s.image ? '<img alt="고객 서명" src="' + s.image + '">' : "") + '<span class="d-st">' + esc(s.name) + (s.role ? " · " + esc(s.role) : "") + '<br>' + esc(kd(s.signedOn)) + '</span></div></div>' +
-          '<div class="d-party"><h3>회사 (납품처)</h3>' + SUPPLIER.name + '<br>대표이사 ' + SUPPLIER.ceo + '<br>' + SUPPLIER.addr + '<br>사업자등록번호 ' + SUPPLIER.biz +
-            '<div class="d-sig"><span class="d-seal">' + SUPPLIER.tel + ' · ' + SUPPLIER.mail + '<br>전자 접수번호 ' + esc(c.ref) + ' · ' + esc(kdt(c.submittedAt)) + '</span></div></div>' +
-        '</div></div>' +
-      '<div class="d-foot"><span>주식회사 모넷코리아 · 긴급 경보 알리미 구독서비스 계약서</span><span>' + esc(c.ref) + '</span></div>' +
-      (c.license && c.license.image ? '<div class="d-sec d-attach"><h2>첨부. 사업자등록증</h2><img alt="사업자등록증" src="' + c.license.image + '"></div>' : "") +
-    '</div>';
+  var CSS = [
+    ".mkp{--navy:#1E3A52;--blue:#315C80;--gray:#5A6B7B;--red:#C82128;--line:#C9D3DD;--soft:#F4F7FA;font-family:'IBM Plex Sans KR','Pretendard','Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#1F2933;-webkit-font-smoothing:antialiased}",
+    ".mkp *{box-sizing:border-box}",
+    ".mkp .pg{position:relative;width:794px;height:1123px;background:#fff;overflow:hidden;margin:0 auto}",
+    /* 앞면 */
+    ".mkp .fr{padding:30px 60px 0}",
+    ".mkp .fr .logo{height:24px;display:block;margin:6px 0 20px}",
+    ".mkp .fr .rule{height:2px;background:var(--navy);margin:0 0 3px}.mkp .fr .rule2{height:1px;background:var(--red);margin:0 0 10px}",
+    ".mkp .fr .en{font-size:8.5px;letter-spacing:.42em;word-spacing:.5em;color:var(--blue);font-weight:600;margin:0 0 4px}",
+    ".mkp .fr h1{font-size:21px;line-height:1.3;color:var(--navy);margin:0 0 8px;font-weight:700}",
+    ".mkp .fr .bar{display:flex;border-top:1px solid var(--navy);border-bottom:1px solid var(--navy);padding:5px 0;font-size:11px;color:var(--navy);margin:0 0 9px}",
+    ".mkp .fr .bar span{flex:1;text-align:center;font-weight:600}.mkp .fr .bar span+span{border-left:1.5px solid var(--navy)}.mkp .fr .bar b{font-weight:700;color:#1F2933;margin-left:6px}",
+    ".mkp .fr .intro{font-size:11.5px;line-height:1.65;margin:0 0 14px}",
+    ".mkp .fr .intro u{text-decoration:none;border-bottom:1px solid var(--blue);padding:0 4px;font-weight:600}",
+    ".mkp .fr h2{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--navy);margin:0 0 8px;letter-spacing:.18em}",
+    ".mkp .fr h2:before{content:'';width:3px;height:15px;background:var(--red)}.mkp .fr h2 i{font-style:normal;color:var(--red);letter-spacing:0}",
+    ".mkp .fr table{width:100%;border-collapse:collapse;font-size:11px}",
+    ".mkp .fr .t1 th{background:var(--navy);color:#fff;font-weight:600;padding:6px 8px;text-align:left}",
+    ".mkp .fr .t1 td{border-bottom:1px solid var(--line);padding:5.5px 8px;vertical-align:middle;line-height:1.45}",
+    ".mkp .fr .t1 td.no{width:44px;text-align:center;font-weight:600}.mkp .fr .t1 td.k{width:120px;text-align:center;font-weight:700;color:var(--navy);letter-spacing:.12em}",
+    ".mkp .fr .t1 tr:nth-child(even) td{background:var(--soft)}",
+    ".mkp .fr .t1 .red{color:var(--red)}",
+    ".mkp .fr .etc{background:var(--soft);border-left:3px solid var(--blue);padding:7px 12px;margin:0 0 12px}",
+    ".mkp .fr .etc div{position:relative;padding:3px 0 3px 18px;font-size:10.5px;line-height:1.55}.mkp .fr .etc div:before{content:'·';position:absolute;left:4px;color:var(--red);font-weight:700}",
+    ".mkp .fr .close{font-size:11px;line-height:1.65;margin:0 0 6px}",
+    ".mkp .fr .date{text-align:center;font-size:13px;font-weight:700;color:var(--navy);margin:6px 0 10px;letter-spacing:.06em}",
+    ".mkp .fr .t2 th{background:var(--navy);color:#fff;padding:6px;font-size:11.5px;letter-spacing:.3em}",
+    ".mkp .fr .t2 td{border-bottom:1px solid var(--line);padding:7px 8px;height:31px;font-size:11px;vertical-align:middle}",
+    ".mkp .fr .t2 td.k{width:74px;font-weight:700;color:var(--navy);letter-spacing:.2em;background:var(--soft)}",
+    ".mkp .fr .t2 td.in{text-align:right;color:var(--gray);width:40px}",
+    ".mkp .fr .t2 td.seal{position:relative}.mkp .fr .t2 td.seal img{position:absolute;right:2px;top:50%;width:70px;height:70px;transform:translateY(-50%);opacity:.92}",
+    ".mkp .fr .t2 td.v{font-weight:600}",
+    ".mkp .fr .foot{position:absolute;left:60px;right:60px;bottom:22px;border-top:1px solid var(--line);padding-top:7px;text-align:center;font-size:8.5px;color:var(--gray)}",
+    ".mkp .fr .foot b{color:var(--navy)}.mkp .fr .ref{position:absolute;right:60px;top:40px;font-size:9px;color:var(--gray);text-align:right;line-height:1.5}.mkp .fr .ref b{color:var(--navy);font-family:'IBM Plex Mono',ui-monospace,monospace}",
+    /* 뒷면 */
+    ".mkp .bk{padding:22px 30px 34px}",
+    ".mkp .bk .hd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 5px}",
+    ".mkp .bk .hd h1{font-size:15px;color:var(--navy);margin:0;font-weight:700}.mkp .bk .hd span{font-size:8px;color:var(--gray)}",
+    ".mkp .bk .bn{background:#EEF3F8;border-left:3px solid var(--blue);padding:4px 8px;font-size:7.2px;line-height:1.5;margin:0 0 6px}.mkp .bk .bn .ref{display:none}",
+    ".mkp .bk .cols{column-count:3;column-gap:11px;column-rule:1px solid #DDE3EA;font-size:6px;line-height:1.36;text-align:justify;word-break:keep-all;overflow-wrap:anywhere}",
+    ".mkp .bk .article{break-inside:auto;margin:0 0 .45em;padding:.35em 0 0;border-top:1px solid #D7DEE6}",
+    ".mkp .bk .cols>.article:first-child{border-top:0;padding-top:0}",
+    ".mkp .bk .article h3{font-size:1.12em;color:var(--navy);margin:0 0 .2em;font-weight:700;break-after:avoid;display:block}",
+    ".mkp .bk .article h3 .no{margin-right:.4em}",
+    ".mkp .bk .article .sub,.mkp .bk .hint{color:var(--gray);margin:0 0 .2em;font-size:1em}",
+    ".mkp .bk ol.cl{list-style:none;margin:0;padding:0;counter-reset:cl}",
+    ".mkp .bk ol.cl>li{counter-increment:cl;position:relative;padding-left:2.05em;margin:0 0 .12em}",
+    ".mkp .bk ol.cl>li:before{content:'(' counter(cl) ')';position:absolute;left:0;color:var(--blue);font-weight:700}",
+    ".mkp .bk ul.plain{margin:.1em 0 .1em;padding-left:1.1em}.mkp .bk ul.plain li{margin:0}",
+    ".mkp .bk mark,.mkp .bk b,.mkp .bk strong{background:none;color:var(--navy);font-weight:700}.mkp .bk .warn{color:var(--navy);font-weight:700}",
+    ".mkp .bk .note{background:var(--soft);padding:.25em .5em;margin:.25em 0;color:var(--gray)}.mkp .bk .note .tag{color:#C82128;font-weight:700;margin-right:.4em}",
+    ".mkp .bk .tablewrap{margin:.2em 0}.mkp .bk table{width:100%;border-collapse:collapse;font-size:.92em}",
+    ".mkp .bk th{background:var(--navy);color:#fff;font-weight:600;padding:.15em .3em;text-align:left}.mkp .bk td{border-bottom:1px solid #D7DEE6;padding:.12em .3em;vertical-align:top}",
+    ".mkp .bk .annex-head{border-top:1.5px solid var(--navy)}",
+    ".mkp .bk .fineprint{text-align:right;color:var(--gray);margin:.4em 0 0}",
+    ".mkp .bk .annex[hidden]{display:none}",
+    ".mkp .bk .foot{position:absolute;left:30px;right:30px;bottom:14px;border-top:1px solid var(--line);padding-top:5px;display:flex;justify-content:space-between;font-size:7.5px;color:var(--gray)}",
+    ".mkp .pg.grow{height:auto;min-height:1123px}"
+  ].join("");
+
+  function norm(rec){
+    var t = rec.terms || {}, u = rec.customer || {};
+    return {
+      ref: rec.ref || "", t: {
+        products: t.products || [], solNote: t.solNote || "", solution: t.solution || t.sol || "",
+        unit: t.unitPrice != null ? t.unitPrice : t.unit, region: t.region || "", regionFee: Number(t.regionFee) || 0, qty: t.sites != null ? t.sites : t.qty, list: t.listPrice != null ? t.listPrice : t.list,
+        discount: t.discount || 0, discountType: t.discountType, discountValue: t.discountValue, discountNote: t.discountNote || "",
+        monthly: t.monthly, from: t.from, to: t.to, pay: t.payDay || t.pay || "", bank: t.bank || "", etc: t.etc || ""
+      }, u: u
+    };
+  }
+
+  function front(rec){
+    var d = norm(rec), t = d.t, u = d.u, m = meta(t.products, t.solNote);
+    var sol = t.products.length ? m.solution : (t.solution || m.solution);
+    var per = period(t.from, t.to);
+    var price = "월 " + num(t.monthly) + "원 (금 " + hangul(t.monthly) + "원, VAT 별도) — " + num(t.qty) + "개소 기준" +
+      (t.region ? '<br><span style="color:#5A6B7B">' + esc(regionLine(t)) + "</span>" : "") +
+      (t.discount ? '<br><span style="color:#5A6B7B">정가 월 ' + num(t.list) + "원에서 " + (t.discountType === "percent" ? t.discountValue + "% " : "") + "할인 " + num(t.discount) + "원" + (t.discountNote ? " · " + esc(t.discountNote) : "") + "</span>" : "");
+    var etc = String(t.etc || "").split("\n").map(function(l){ return l.replace(/^[-·\s]+/, "").trim(); }).filter(Boolean);
+    var rows = [
+      ["납품 솔루션", esc(sol)],
+      ["설치 현장", u.site ? esc(u.site) + (u.siteAddr ? '<br><span style="color:#5A6B7B">' + esc(u.siteAddr) + "</span>" : "") : "—"],
+      ["사용 금액", price],
+      ["안내 사항", esc(m.notice)],
+      ["계약 기간", kd(t.from) + " ~ " + kd(t.to) + (per ? ' <span class="red">(' + per + ")</span>" : "")],
+      ["지급 일자", esc(t.pay || "—")],
+      ["입금 계좌", esc(t.bank || "—")]
+    ];
+    var blank = function(v){ return v ? esc(v) : ""; };
+    return '<div class="pg fr">' +
+      '<img class="logo" src="' + LOGO + '" alt="MONNIT" crossorigin="anonymous">' +
+      (d.ref ? '<div class="ref">계약번호 <b>' + esc(d.ref) + "</b></div>" : "") +
+      '<div class="rule"></div><div class="rule2"></div>' +
+      '<p class="en">' + esc(m.en) + "</p>" +
+      "<h1>" + esc(m.title) + "<br>구독서비스 계약서</h1>" +
+      '<div class="bar"><span>발주처<b>' + blank(u.name) + '</b></span><span>납품처<b>㈜모넷코리아</b></span><span>대상<b>' + num(t.qty) + "개소</b></span></div>" +
+      '<p class="intro">본 계약의 이행을 위하여 발주처인 <u>' + (u.name ? esc(u.name) : "　　　　　　") + '</u>(이하 "발주처")와 납품처인 주식회사 모넷코리아(이하 "납품처")는 ' + esc(m.title) + " 구독서비스에 관하여 다음과 같이 계약을 체결한다.</p>" +
+      "<h2><i>01</i>계약내용</h2>" +
+      '<table class="t1" style="margin:0 0 14px"><thead><tr><th style="text-align:center">No</th><th style="text-align:center">구　분</th><th>내　용</th></tr></thead><tbody>' +
+        rows.map(function(r, i){ return '<tr><td class="no">' + (i + 1) + '</td><td class="k">' + r[0] + "</td><td>" + r[1] + "</td></tr>"; }).join("") +
+      "</tbody></table>" +
+      (etc.length ? "<h2><i>02</i>기타사항</h2>" + '<div class="etc">' + etc.map(function(l){ return "<div>" + esc(l) + "</div>"; }).join("") + "</div>" : "") +
+      '<p class="close">발주처와 납품처는 상호 동등한 입장에서 위 계약조건과 뒷면의 서비스수준협약(SLA)에 따라 본 서비스 계약을 체결하고, 신의에 따라 성실히 그 의무를 이행할 것을 확약한다. 뒷면의 서비스수준협약(SLA)은 본 계약의 부속문서로서 계약과 일체를 이룬다.<br>이 계약의 증거로 계약서를 작성하여 당사자가 기명날인 후 각각 1부씩 보관한다.</p>' +
+      '<p class="date">' + "20　　년　　　월　　　일" + "</p>" +
+      '<table class="t2"><thead><tr><th colspan="3">발 주 처</th><th colspan="3">납 품 처</th></tr></thead><tbody>' +
+        '<tr><td class="k">상　호</td><td class="v" colspan="2">' + blank(u.name) + '</td><td class="k">상　호</td><td class="v" colspan="2">' + SUPPLIER.name + "</td></tr>" +
+        '<tr><td class="k">사업자<br>번　호</td><td class="v" colspan="2">' + blank(u.bizNo) + '</td><td class="k">사업자<br>번　호</td><td class="v" colspan="2">' + SUPPLIER.biz + "</td></tr>" +
+        '<tr><td class="k">주　소</td><td class="v" colspan="2">' + blank(u.address) + '</td><td class="k">주　소</td><td class="v" colspan="2">' + SUPPLIER.addr + "</td></tr>" +
+        '<tr><td class="k" style="height:46px">대표이사</td><td class="v">' + blank(u.ceo) + '</td><td class="in">(인)</td><td class="k">대표이사</td><td class="v">' + SUPPLIER.ceo + '</td><td class="in seal">(인)<img src="' + SEAL + '" alt="모넷코리아 직인" crossorigin="anonymous"></td></tr>' +
+      "</tbody></table>" +
+      '<div class="foot"><b>주식회사 모넷코리아</b>　|　서울시 서초구 효령로 380 세안빌딩 2F　|　T. 02-2088-1454　|　korea@monnit.com　|　회신 1015@monnit.com</div>' +
+    "</div>";
+  }
+
+  function slaHtml(products){
+    var tpl = document.getElementById("slaTpl");
+    if(!tpl) return { banner: "", body: '<p>서비스수준협약(SLA) 전문: monnit.co.kr/alarm/terms</p>' };
+    var box = document.createElement("div"); box.innerHTML = tpl.innerHTML;
+    var ks = list(products);
+    Array.prototype.forEach.call(box.querySelectorAll(".annex[data-product]"), function(el){ if(ks.length && ks.indexOf(el.dataset.product) < 0) el.remove(); });
+    var sub = box.querySelector(".annex-head .sub");
+    if(sub && ks.length) sub.textContent = "본 계약의 납품 솔루션에 해당하는 부속서만 적용됩니다(" + meta(ks).annex + "). 부속서는 공통 본문(특히 제3조·제4조·제7조·제11조)을 보충하며, 충돌하는 경우 해당 제품에 관하여는 부속서가 우선합니다.";
+    var bn = box.querySelector(".banner"), banner = "";
+    if(bn){ banner = bn.innerHTML; bn.remove(); }
+    return { banner: banner, body: box.innerHTML };
+  }
+
+  function back(rec){
+    var d = norm(rec), m = meta(d.t.products, d.t.solNote), s = slaHtml(d.t.products);
+    return '<div class="pg bk">' +
+      '<div class="hd"><h1>긴급 경보 알리미 서비스수준협약서(SLA)</h1><span>구독서비스 계약서 부속문서 · 공통 본문 + 부속서 ' + esc(m.annex) + " · 2026. 10. 16. 시행</span></div>" +
+      (s.banner ? '<div class="bn">' + s.banner + "</div>" : "") +
+      '<div class="cols">' + s.body + "</div>" +
+      '<div class="foot"><span>주식회사 모넷코리아 · 긴급 경보 알리미 서비스수준협약서(SLA)</span><span>' + (d.ref ? "계약번호 " + esc(d.ref) + " · " : "") + "전문 monnit.co.kr/alarm/terms</span></div>" +
+    "</div>";
+  }
+
+  function html(rec){ return '<div class="mkp">' + front(rec) + back(rec) + "</div>"; }
+
+  /* 뒷면이 한 쪽에 들어가도록 글자 크기를 맞춘다 (6.4px → 최소 4.9px). 그래도 넘치면 쪽을 늘린다. */
+  function fit(root){
+    var pg = root.querySelector(".pg.bk"), cols = pg && pg.querySelector(".cols");
+    if(!cols) return;
+    var foot = pg.querySelector(".foot");
+    var limit = function(){ return pg.clientHeight - 34 - cols.offsetTop; };
+    cols.style.height = limit() + "px"; cols.style.columnFill = "auto";
+    var fs = 6.4;
+    for(; fs >= 4.9; fs -= 0.1){
+      cols.style.fontSize = fs.toFixed(2) + "px";
+      if(cols.scrollWidth <= cols.clientWidth + 1) break;
+    }
+    if(fs < 4.9){
+      cols.style.fontSize = "4.9px"; cols.style.height = ""; cols.style.columnFill = "balance";
+      pg.classList.add("grow"); if(foot) foot.style.position = "static";
+    }
+    root.dataset.fs = Math.max(fs, 4.9).toFixed(2);
+  }
+
+  /* 사이트 CSS 와 섞이지 않도록 보이지 않는 iframe 안에서 조판한다 */
+  function fontLinks(){
+    return Array.prototype.map.call(document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis"]'), function(l){ return '<link rel="stylesheet" href="' + l.href + '">'; }).join("");
+  }
+  function docHtml(inner, extra){
+    return "<!doctype html><html lang='ko'><head><meta charset='utf-8'>" + fontLinks() + "<style>html,body{margin:0;padding:0;background:#fff}" + CSS + (extra || "") + "</style></head><body>" + inner + "</body></html>";
+  }
+  function mount(rec){
+    return new Promise(function(resolve){
+      var fr = document.createElement("iframe");
+      fr.setAttribute("aria-hidden", "true"); fr.tabIndex = -1;
+      fr.style.cssText = "position:fixed;left:-12000px;top:0;width:794px;height:1200px;border:0;visibility:hidden";
+      document.body.appendChild(fr);
+      var d = fr.contentDocument; d.open(); d.write(docHtml(html(rec))); d.close();
+      var root = d.querySelector(".mkp");
+      var imgs = Array.prototype.map.call(d.querySelectorAll("img"), function(im){
+        return im.complete && im.naturalWidth ? Promise.resolve() : new Promise(function(r){ im.onload = im.onerror = r; setTimeout(r, 5000); });
+      });
+      var fonts = d.fonts && d.fonts.ready ? d.fonts.ready : Promise.resolve();
+      Promise.all(imgs.concat([fonts, new Promise(function(r){ setTimeout(r, 120); })])).then(function(){
+        fit(root);
+        resolve({ frame: fr, root: root });
+      });
+    });
   }
 
   /* ── PDF ── */
   var LIBS = ["https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
   function loadScript(src){
     return new Promise(function(res, rej){
-      if(document.querySelector('script[src="' + src + '"]')){ return res(); }
-      var s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = function(){ rej(new Error("PDF 구성 요소를 불러오지 못했습니다. 인터넷 연결을 확인해 주십시오.")); };
+      if(document.querySelector('script[src="' + src + '"]')) return res();
+      var s = document.createElement("script"); s.src = src; s.onload = res;
+      s.onerror = function(){ rej(new Error("PDF 구성 요소를 불러오지 못했습니다. 「계약서 인쇄」에서 PDF로 저장해 주십시오.")); };
       document.head.appendChild(s);
     });
   }
-  function ensureLibs(){
-    if(window.html2canvas && window.jspdf) return Promise.resolve();
-    return LIBS.reduce(function(p, u){ return p.then(function(){ return loadScript(u); }); }, Promise.resolve());
-  }
-  function ensureStyle(){
-    if(document.getElementById("mkdoc-css")) return;
-    var st = document.createElement("style"); st.id = "mkdoc-css"; st.textContent = CSS; document.head.appendChild(st);
-  }
-  function waitImages(root){
-    return Promise.all(Array.prototype.map.call(root.querySelectorAll("img"), function(im){
-      return im.complete ? Promise.resolve() : new Promise(function(r){ im.onload = im.onerror = r; });
-    }));
-  }
-  async function pdf(c, filename){
-    await ensureLibs(); ensureStyle();
-    var host = document.createElement("div");
-    host.style.cssText = "position:fixed;left:-10000px;top:0;width:794px;background:#fff;z-index:-1";
-    host.innerHTML = html(c);
-    document.body.appendChild(host);
+  function libs(){ return window.html2canvas && window.jspdf ? Promise.resolve() : LIBS.reduce(function(p, u){ return p.then(function(){ return loadScript(u); }); }, Promise.resolve()); }
+  function safe(v){ return String(v || "").replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40) || "고객"; }
+  function fileName(rec){ var m = meta((rec.terms || {}).products); return "계약서_" + safe(m.title.replace(/^무선\s*/, "")) + "_" + safe((rec.customer || {}).name) + (rec.ref ? "_" + rec.ref : "") + ".pdf"; }
+
+  async function pdf(rec, filename){
+    await libs();
+    var m = await mount(rec);
     try{
-      var doc = host.firstElementChild;
-      await waitImages(doc);
-      var PAGE_W = 794, PAGE_H = Math.round(794 * 285 / 210);  /* 쪽 윗여백 12mm 를 뺀 높이 */
-      /* 자르는 위치: 섹션 경계 기준으로 */
-      var blocks = Array.prototype.map.call(doc.querySelectorAll(".d-sec, .d-foot"), function(el){ return { top: el.offsetTop, h: el.offsetHeight, br: el.classList.contains("d-attach") }; });
-      var cuts = [], start = 0;
-      blocks.forEach(function(b){
-        var bottom = b.top + b.h + 48;
-        if(b.br || bottom - start > PAGE_H){ if(b.top > start){ cuts.push(b.top - 2); start = b.top - 2; } }
-      });
-      var total = doc.offsetHeight; cuts = cuts.filter(function(y){ return y > 0 && y < total; });
-      /* 긴 섹션(첨부 이미지)이 한 페이지를 넘기면 고정 간격으로 추가 분할 */
-      var bounds = [0].concat(cuts, [total]), pages = [];
-      for(var i = 0; i < bounds.length - 1; i++){ var y = bounds[i], end = bounds[i + 1]; while(end - y > PAGE_H){ pages.push([y, y + PAGE_H]); y += PAGE_H; } pages.push([y, end]); }
-      var scale = 2;
-      var canvas = await window.html2canvas(doc, { scale: scale, useCORS: true, backgroundColor: "#ffffff", width: PAGE_W, windowWidth: PAGE_W, logging: false });
+      var root = m.root;
       var J = window.jspdf.jsPDF, out = new J({ unit: "mm", format: "a4", compress: true });
-      pages.forEach(function(pg, idx){
-        var y0 = Math.round(pg[0] * scale), y1 = Math.min(canvas.height, Math.round(pg[1] * scale)); if(y1 - y0 < 4) return;
-        var cv = document.createElement("canvas"); cv.width = canvas.width; cv.height = y1 - y0;
-        var x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(canvas, 0, y0, canvas.width, y1 - y0, 0, 0, cv.width, cv.height);
-        if(idx > 0) out.addPage();
-        out.addImage(cv.toDataURL("image/jpeg", 0.9), "JPEG", 0, idx > 0 ? 12 : 0, 210, 210 * cv.height / cv.width);
-        out.setFontSize(8); out.setTextColor(140); out.text(String(idx + 1) + " / " + pages.length, 200, 292, { align: "right" });
-      });
-      var u = (c.customer || {});
-      out.save(filename || ("계약서_" + safe(u.name) + "_" + (c.ref || "") + ".pdf"));
-    } finally { host.remove(); }
+      var pages = root.querySelectorAll(".pg");
+      for(var i = 0; i < pages.length; i++){
+        var pg = pages[i], scale = pg.classList.contains("bk") ? 3 : 2.2;
+        var cv = await window.html2canvas(pg, { scale: scale, useCORS: true, backgroundColor: "#ffffff", logging: false, width: 794, windowWidth: 794 });
+        var sliceH = Math.round(1123 * scale);
+        for(var y = 0, first = true; y < cv.height - 4; y += sliceH, first = false){
+          var h = Math.min(sliceH, cv.height - y), part = document.createElement("canvas");
+          part.width = cv.width; part.height = sliceH;
+          var x = part.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, part.width, part.height); x.drawImage(cv, 0, y, cv.width, h, 0, 0, cv.width, h);
+          if(i > 0 || !first) out.addPage();
+          out.addImage(part.toDataURL("image/jpeg", 0.86), "JPEG", 0, 0, 210, 297, undefined, "FAST");
+        }
+      }
+      out.setProperties({ title: meta((rec.terms || {}).products).title + " 구독서비스 계약서" + (rec.ref ? " " + rec.ref : ""), author: "주식회사 모넷코리아" });
+      out.save(filename || fileName(rec));
+    } finally { m.frame.remove(); }
   }
-  function print(c){
+
+  /* ── 인쇄: 새 창에 A4 문서만 ── */
+  async function print(rec){
     var w = window.open("", "_blank");
-    if(!w){ alert("팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도해 주십시오."); return; }
-    w.document.write("<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>계약서 " + esc(c.ref || "") + "</title><style>" + CSS + "body{margin:0;background:#fff}.mkdoc{width:auto;max-width:794px;margin:0 auto}@media print{@page{size:A4;margin:14mm}.mkdoc{padding:0}}</style></head><body>" + html(c) + "<script>setTimeout(function(){window.print()},400)<\/script></body></html>");
-    w.document.close();
+    if(!w){ throw new Error("팝업이 차단되었습니다. 이 사이트의 팝업을 허용한 뒤 다시 눌러 주십시오."); }
+    w.document.write("<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>계약서 준비 중…</title></head><body style='font:14px sans-serif;padding:30px'>계약서를 준비하고 있습니다…</body></html>");
+    var m = await mount(rec);
+    try{
+      var root = m.root;
+      var title = meta((rec.terms || {}).products).title + " 구독서비스 계약서" + (rec.ref ? " " + rec.ref : "");
+      var fonts = fontLinks();
+      w.document.open();
+      w.document.write("<!doctype html><html lang='ko'><head><meta charset='utf-8'><title>" + esc(title) + "</title>" + fonts +
+        "<style>" + CSS + "@page{size:A4;margin:0}html,body{margin:0;background:#e9edf1}.mkp .pg{margin:0 auto 16px;box-shadow:0 2px 12px rgba(0,0,0,.12)}" +
+        "@media print{html,body{background:#fff}.mkp .pg{margin:0;box-shadow:none;break-after:page;page-break-after:always}.mkp .pg:last-child{break-after:auto;page-break-after:auto}.tip{display:none}}" +
+        ".tip{max-width:794px;margin:14px auto;font:13px/1.5 sans-serif;color:#333;background:#fff;border:1px solid #cfd6de;padding:9px 13px}</style></head><body>" +
+        "<div class='tip'>인쇄 창에서 <b>용지 A4 · 양면 인쇄(긴 쪽 넘김) · 여백 없음 · 배율 100%</b>를 선택해 주십시오. PDF로 저장하려면 대상(프린터)을 「PDF로 저장」으로 바꾸면 됩니다.</div>" +
+        root.outerHTML + "<script>(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(function(){window.focus();window.print()},350)})<\/script></body></html>");
+      w.document.close();
+    } finally { m.frame.remove(); }
   }
-  window.MKDoc = { html: html, pdf: pdf, print: print, normalize: normalize };
+
+  window.MKPaper = { REGION: REGION, REGION_FEE: REGION_FEE, regionOf: regionOf, settle: settle, regionLine: function(t){ return regionLine(t); }, meta: meta, html: html, pdf: pdf, print: print, fileName: fileName, LABEL: (function(){ var o = {}; ORDER.forEach(function(k){ o[k] = P[k].name.replace(/^무선\s*/, ""); }); return o; })() };
 })();
 
-
-/** 무선 알리미 구독 계약 체결 — 고객 화면 (/contract)
+/** 긴급 경보 알리미 구독 계약 — 고객 화면 (/contract?id=…)   2026-10-21 개편
  *
- *  조건은 담당자가 관리 화면(/contract-admin)에서 만든 링크(?id=…)로 서버에서 받아 온다.
- *  고객 화면에서는 고칠 수 없고, 제출 시에도 서버는 저장된 조건만 쓴다.
- *  제출은 POST /api/alarm/contract 한 번. 서버가 기록 후 기존 /api/contract 로 전달해
- *  기존 알림 메일도 그대로 나간다.
- *
- *  메일이 안 나가도 접수는 살아 있다. 그래도 화면에는 전송 상태를 그대로
- *  보여 준다 — 고객이 "보냈는데 연락이 없다"고 하는 상황을 막기 위해서다.
+ *  흐름: ① 계약 조건 확인(제품 선택) → ② 계약서·SLA 동의 → ③ 고객 정보 → ④ 계약서 내려받기·회신
+ *  - 전자서명은 받지 않는다. ④에 들어갈 때 고객 정보를 서버에 보내 계약번호를 받고(계약서 발급),
+ *    고객은 A4 양면 계약서(앞면 계약 · 뒷면 SLA)를 내려받거나 인쇄해 직인을 날인한다.
+ *  - 회신: 날인 계약서 + 사업자등록증을 이 화면에서 올리거나(POST /api/alarm/contract/file) 1015@monnit.com 으로 메일.
+ *  - 같은 링크를 다시 열면 발급된 계약서를 다시 내려받고 회신할 수 있다(조건은 언제나 서버 값).
  */
 (function(){
   "use strict";
-  var API = "/api/alarm/contract";
   var $ = function(id){ return document.getElementById(id); };
-  function kdate(s){
-    if(!s) return "—";
-    var p = String(s).split("-");
-    return p.length === 3 ? (p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일") : s;
-  }
-  function esc(v){
-    return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
-    });
-  }
-  var T = null, OFFER_ID = "", FIXED = false;
+  var RETURN_MAIL = "1015@monnit.com";
+  function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function kdate(s){ if(!s) return "—"; var p = String(s).split("-"); return p.length === 3 ? (p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일") : s; }
+  function won(n){ return "￦ " + Number(n || 0).toLocaleString("ko-KR"); }
+  function size(n){ return n > 1048576 ? (n / 1048576).toFixed(1) + "MB" : Math.max(1, Math.round(n / 1024)) + "KB"; }
+
+  var T = null, OFFER_ID = "", FIXED = false, REC = null, STATUS = "open";
+  var LABEL = window.MKPaper ? window.MKPaper.LABEL : {};
   function picked(){ return Array.prototype.map.call(document.querySelectorAll("#pick input:checked"), function(c){ return c.value; }); }
-  function chosenProducts(){ return FIXED ? (T.products || []) : picked(); }
-  function won(n){ return "￦ " + Number(n||0).toLocaleString("ko-KR"); }
+  function chosen(){ return FIXED ? (T.products || []) : picked(); }
 
-  function etcHtml(){
-    var lines = String(T.etc||"").split("\n")
-      .map(function(l){ return l.replace(/^[-·\s]+/,"").trim(); })
-      .filter(function(l){ return l; });
-    if(!lines.length) return "—";
-    return lines.map(function(l){ return "<div>· " + esc(l) + "</div>"; }).join("");
-  }
-  function discLabel(){
-    if(!T.discount) return "";
-    var k = T.discountType === "percent" ? ("할인 " + T.discountValue + "%") : "할인";
-    return k + (T.discountNote ? " · " + T.discountNote : "");
-  }
-  function renderTerms(){
-    var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(T.unit) + '</span></div>' +
-      '<div class="row"><span>설치 개소</span><span class="money">' + T.qty + '개소</span></div>';
-    if(T.discount){
-      rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(T.list) + '</span></div>' +
-        '<div class="row disc"><span>' + esc(discLabel()) + '</span><span class="money">− ' + won(T.discount) + '</span></div>';
+  /* ── 수신자 칸 (10개) ── */
+  (function(){
+    var g = $("recvGrid"), h = "";
+    for(var i = 1; i <= 10; i++){
+      h += '<div class="f recv" data-i="' + i + '"><label for="r' + i + 'n">수신자 ' + i + ' 성명</label><input type="text" id="r' + i + 'n"></div>' +
+           '<div class="f recv" data-i="' + i + '"><label for="r' + i + 'p">휴대전화</label><input type="tel" id="r' + i + 'p" placeholder="010-0000-0000"></div>' +
+           '<div class="f recv" data-i="' + i + '"><label for="r' + i + 'e">이메일</label><input type="email" id="r' + i + 'e"></div>';
     }
-    rows += '<div class="row total"><span>월 청구액 <small style="font-weight:400;color:var(--muted)">(부가세 별도)</small></span><span class="money">' + won(T.monthly) + '</span></div>';
-    $("priceBox").innerHTML = rows;
-    $("o_sol").textContent = (T.products && T.products.length) ? T.sol : (T.solNote ? T.solNote + " · 아래에서 알리미 선택" : "아래에서 알리미를 선택해 주십시오");
-    $("o_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
-    $("o_pay").textContent = T.pay || "—";
-    $("o_bank").textContent = T.bank || "—";
-    $("o_etc").innerHTML = etcHtml();
-
-    $("v_sol").textContent = T.sol;
-    $("v_price").textContent = "월 " + won(T.monthly);
-    $("v_sites").textContent = T.qty + "개소 기준";
-    $("v_disc").textContent = T.discount ? " · 정가 " + won(T.list) + "에서 " + discLabel() + " 적용" : "";
-    $("v_notice").textContent = "매월 " + won(T.monthly) + " 청구 (부가세 별도) / 계약 해지 시 하드웨어는 반납";
-    $("v_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
-    $("v_pay").textContent = T.pay || "—";
-    $("v_bank").textContent = T.bank || "—";
-    $("v_etc").innerHTML = etcHtml();
-    $("s_price").textContent = won(T.monthly) + " / 월 (부가세 별도)";
-    $("s_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
-  }
-  function offerFail(t, d){
-    $("loading").hidden = true;
-    $("offerErr").hidden = false;
-    $("offerErrT").textContent = t;
-    $("offerErrD").textContent = d;
-    $("stepnav").hidden = true;
-  }
-
-  /* ── 조건 받아오기 (서버에 저장된 조건만 사용) ── */
-  OFFER_ID = new URLSearchParams(location.search).get("id") || "";
-  if(!OFFER_ID){
-    offerFail("전용 링크로 접속해 주십시오", "계약 조건은 담당자가 보내 드린 전용 링크에서만 확인하실 수 있습니다. 문의 02-2088-1454");
-  }else{
-    fetch("/api/alarm/offer?id=" + encodeURIComponent(OFFER_ID)).then(function(r){ return r.json(); }).then(function(o){
-      if(!o || !o.ok) return offerFail("링크를 찾을 수 없습니다", "링크가 잘못되었거나 만료되었습니다. 담당자에게 다시 요청해 주십시오. 문의 02-2088-1454");
-      if(o.status === "signed") return offerFail("이미 체결된 계약입니다", "이 링크로 계약이 이미 체결되었습니다. 변경이 필요하시면 02-2088-1454로 연락 주십시오.");
-      if(o.status !== "open") return offerFail("사용할 수 없는 링크입니다", "담당자에게 새 링크를 요청해 주십시오. 문의 02-2088-1454");
-      T = o.terms;
-      renderTerms();
-      FIXED = (T.products || []).length > 0;
-      if(FIXED) applyProducts(T.products); else { $("pickBox").hidden = false; applyProducts([]); }
-      $("loading").hidden = true;
-      $("offerBox").hidden = false;
-    }).catch(function(){
-      offerFail("계약 조건을 불러오지 못했습니다", "잠시 후 다시 시도해 주십시오. 계속 안 되면 02-2088-1454로 연락 주십시오.");
-    });
-  }
-
-  /* 1단계 → 2단계: 고객이 직접 고르는 경우 최소 1개 */
-  $("go1").addEventListener("click", function(){
-    if(!FIXED){
-      if(!picked().length){ $("pickErr").hidden = false; $("pickErr").textContent = "알리미를 하나 이상 선택해 주십시오."; return; }
-      $("pickErr").hidden = true;
-      applyProducts(picked());
-      $("v_sol").textContent = picked().map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (T.solNote ? " — " + T.solNote : "");
-      $("o_sol").textContent = $("v_sol").textContent;
-    }
-    show(1);
-  });
-  Array.prototype.forEach.call(document.querySelectorAll("#pick input"), function(c){ c.addEventListener("change", function(){ $("pickErr").hidden = true; }); });
-
-  /* ── 단계 이동 ── */
-  var cur = 0, maxSeen = 0, PANES = ["p0","p1","p3","p4","p5"];
-  function show(n){
-    PANES.forEach(function(id){ $(id).classList.remove("on"); });
-    if(n === 5){ $("p5").classList.add("on"); $("stepnav").hidden = true; window.scrollTo(0,0); return; }
-    $("stepnav").hidden = false;
-    $("p"+n).classList.add("on");
-    cur = n;
-    if(n > maxSeen) maxSeen = n;
-    Array.prototype.forEach.call(document.querySelectorAll(".steptab"), function(b){
-      var i = Number(b.dataset.go);
-      b.setAttribute("aria-current", i === n ? "true" : "false");
-      b.classList.toggle("done", i < maxSeen && i !== n);
-    });
-    window.scrollTo(0,0);
-  }
-  Array.prototype.forEach.call(document.querySelectorAll("[data-next]"), function(b){
-    b.addEventListener("click", function(){ show(Number(b.dataset.next)); });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll(".steptab"), function(b){
-    b.addEventListener("click", function(){
-      var n = Number(b.dataset.go);
-      if(!T) return;
-      if(n >= 1 && !FIXED && !picked().length){ show(0); $("pickErr").hidden = false; $("pickErr").textContent = "알리미를 하나 이상 선택해 주십시오."; return; }
-      if(n >= 3 && !slaAgreedAt){ openSla(b, true); return; }
-      show(n);
-    });
-  });
-
-  /* ── SLA 팝업 ── */
-  var slaViewedAt = "", slaAgreedAt = "", slaReadPct = 0, slaGate = false;
-  var slaLastFocus = null;
-  var slaModal = $("slamodal");
-
-  function openSla(from, gate){
-    slaGate = !!gate;
-    slaLastFocus = from || document.activeElement;
-    slaModal.hidden = false;
-    /* iOS Safari 는 body 만 잠가서는 뒤 페이지가 같이 밀린다 */
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    $("mbody").scrollTop = 0;
-    $("mbody").focus();
-    if(!slaViewedAt) slaViewedAt = new Date().toISOString();
-    agreeGate();
-  }
-  function closeSla(){
-    slaModal.hidden = true;
-    document.body.style.overflow = "";
-    document.documentElement.style.overflow = "";
-    if(slaLastFocus && slaLastFocus.focus) slaLastFocus.focus();
-  }
-  $("openSla").addEventListener("click", function(){ openSla(this, false); });
-  $("openSla2").addEventListener("click", function(){ openSla(this, false); });
-
-  /* 「고객 정보 입력 →」 — 동의 전이면 먼저 SLA 창을 띄우고, 동의해야 넘어간다 */
-  $("go3").addEventListener("click", function(){
-    if(slaAgreedAt) show(3);
-    else openSla(this, true);
-  });
-
-  /* 직접 다 체크한 경우에만 「동의하고 계속」 이 나타나고, 그 전에는 「전체 동의하고 계속」 한 번으로 끝낸다 */
-  function agreeGate(){
-    var all = activeCks().every(function(c){ return c.checked; }) && $("slaAgree").checked;
-    $("slaAgreeBtn").hidden = !all;
-    $("slaAgreeBtn").textContent = slaGate ? "동의하고 계속" : "동의";
-    $("agreeAllBtn").hidden = all;
-    $("agreeAllBtn").textContent = slaGate ? "전체 동의하고 계속" : "전체 동의";
-  }
-  $("slaAgree").addEventListener("change", function(){
-    agreeGate();
-  });
-  function finishAgree(){
-    if(!slaAgreedAt){
-      slaAgreedAt = new Date().toISOString();
-      var d = new Date(slaAgreedAt);
-      $("slaseen").hidden = false;
-      $("slaseenAt").textContent = d.toLocaleString("ko-KR");
-      $("openSla").textContent = "SLA 전문 다시 보기";
-      if($("slaDoneTag")) $("slaDoneTag").textContent = "확인 항목 " + activeCks().length + "개 체크 · 동의 완료 " + d.toLocaleString("ko-KR");
-    }
-    var go = slaGate;
-    closeSla();
-    if(go) show(3);
-  }
-  $("slaAgreeBtn").addEventListener("click", function(){
-    if(!$("slaAgree").checked || !activeCks().every(function(c){ return c.checked; })) return;
-    finishAgree();
-  });
-  /* 전체 동의: 확인 항목 전부 + 동의 체크를 한 번에 표시하고 바로 진행 (각 항목의 체크 상태는 그대로 기록에 남는다) */
-  $("agreeAllBtn").addEventListener("click", function(){
-    activeCks().forEach(function(c){ c.checked = true; });
-    $("slaAgree").checked = true;
-    syncChecks();
-    finishAgree();
-  });
-  Array.prototype.forEach.call(slaModal.querySelectorAll("[data-close]"), function(b){
-    b.addEventListener("click", closeSla);
-  });
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape" && !slaModal.hidden) closeSla();
-  });
-
-  /* 어디까지 읽었는지 표시 — 부담 주지 않되 기록은 남긴다 */
-  $("mbody").addEventListener("scroll", function(){
-    var el = this, p = (el.scrollTop + el.clientHeight) / el.scrollHeight;
-    if(p > slaReadPct) slaReadPct = Math.min(1, p);
-    $("slaprog").textContent = p > 0.98
-      ? "제1조 ~ 제18조 전문 · 끝까지 확인함"
-      : "제1조 ~ 제18조 전문 · " + Math.round(p * 100) + "% 읽음";
-  });
-
-  /* ── 사업자등록증 첨부 ── */
-  var LIC = null;
-  var LICMSG = $("licmsg").innerHTML;
-  function setLicRequired(){ if(!LIC) $("licmsg").innerHTML = LICMSG; }   /* 사업자등록증은 선택 (2026-10-20) */
-
-  function takeFile(file){
-    var msg = $("licmsg");
-    if(!file) return;
-    if(!/^image\//.test(file.type)){ msg.textContent = "이미지 파일만 첨부할 수 있습니다."; return; }
-    if(file.size > 10 * 1024 * 1024){ msg.textContent = "10MB 이하 이미지를 첨부해 주십시오."; return; }
-    msg.textContent = "불러오는 중…";
-    var fr = new FileReader();
-    fr.onerror = function(){ msg.textContent = "파일을 읽지 못했습니다. 다시 시도해 주십시오."; };
-    fr.onload = function(){
-      var im = new Image();
-      im.onerror = function(){ msg.textContent = "이 형식은 브라우저에서 열 수 없습니다. JPG 또는 PNG로 변환해 첨부해 주십시오."; };
-      im.onload = function(){
-        var max = 1600, sc = Math.min(1, max / Math.max(im.width, im.height));
-        var c = document.createElement("canvas");
-        c.width = Math.max(1, Math.round(im.width * sc));
-        c.height = Math.max(1, Math.round(im.height * sc));
-        var x = c.getContext("2d");
-        x.fillStyle = "#ffffff"; x.fillRect(0, 0, c.width, c.height);
-        x.drawImage(im, 0, 0, c.width, c.height);
-        var url = c.toDataURL("image/jpeg", 0.82);
-        LIC = {name:file.name, dataUrl:url};
-        $("licimg").src = url;
-        $("licname").textContent = file.name + " · " + Math.round(url.length / 1400) + "KB";
-        $("licprev").hidden = false;
-        msg.textContent = "첨부되었습니다. 다른 파일을 고르면 교체됩니다.";
-      };
-      im.src = fr.result;
-    };
-    fr.readAsDataURL(file);
-  }
-  $("licpick").addEventListener("click", function(){ $("c_lic").click(); });
-  $("c_lic").addEventListener("change", function(){ takeFile(this.files && this.files[0]); });
-  $("licdel").addEventListener("click", function(){
-    LIC = null; $("c_lic").value = ""; $("licprev").hidden = true; setLicRequired();
-  });
-  ["dragenter","dragover"].forEach(function(ev){
-    $("licdrop").addEventListener(ev, function(e){ e.preventDefault(); this.classList.add("drag"); });
-  });
-  ["dragleave","drop"].forEach(function(ev){
-    $("licdrop").addEventListener(ev, function(e){ e.preventDefault(); this.classList.remove("drag"); });
-  });
-  $("licdrop").addEventListener("drop", function(e){
-    takeFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
-  });
-
-  /* ── 고객 정보 검증 ── */
-  var REQ = [["c_name","상호/성명"],["c_addr","주소"],["c_ceo","대표자"],
-             ["c_mgr","담당자 성명"],["c_tel","담당자 연락처"],["c_mail","담당자 이메일"],
-             ["c_site","설치 현장"]];
-  $("go4").addEventListener("click", function(){
-    var miss = REQ.filter(function(p){ return !$(p[0]).value.trim(); });
-    var e = $("err3");
-    if(miss.length){
-      e.hidden = false;
-      e.textContent = "다음 항목을 입력해 주십시오 — " + miss.map(function(p){ return p[1]; }).join(", ");
-      $(miss[0][0]).focus();
-      return;
-    }
-    /* 수신자: 성명과 휴대전화가 짝이 맞아야 한다 (둘 다 비면 건너뜀) */
-    var half = recvRows().filter(function(r){ return (r.name && !r.phone) || (!r.name && r.phone); });
-    if(half.length){
-      e.hidden = false;
-      e.textContent = "수신자 " + half[0].i + "의 성명과 휴대전화를 함께 입력해 주십시오.";
-      $("r" + half[0].i + (half[0].name ? "p" : "n")).focus();
-      return;
-    }
-    e.hidden = true;
-    $("s_lic").textContent = LIC ? ("첨부됨 · " + LIC.name) : "첨부 없음 (추후 1015@monnit.com 으로 보내 주십시오)";
-    $("s_cust").textContent = $("c_name").value.trim() + " (대표 " + $("c_ceo").value.trim() + ") · " + $("c_type").value;
-    $("s_site").textContent = $("c_site").value.trim();
-    if(!$("sg_name").value.trim()) $("sg_name").value = $("c_ceo").value.trim();
-    gate();
-    show(4);
-  });
-
-
-  /* ── 제품별 부속서·확인 항목 표시 ── */
-  var PRODUCT_LABEL = {fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
-  function applyProducts(list){
-    var want = (list && list.length) ? list : ["fire","water","power","alarm","custom"];
-    Array.prototype.forEach.call(document.querySelectorAll("[data-product]"), function(el){
-      var on = want.indexOf(el.dataset.product) >= 0;
-      el.hidden = !on;
-      if(!on){ var c = el.querySelector("[data-ck]"); if(c) c.checked = false; }
-    });
-    var n = activeCks().length; if($("ckCount")) $("ckCount").textContent = n;
-    var pdf = (want.length === 1) ? "/alarm/sla-" + want[0] + ".pdf" : "/alarm/sla.pdf";
-    Array.prototype.forEach.call(document.querySelectorAll("a.slapdf"), function(a){ a.href = pdf; });
-    var hd = document.querySelector(".annex-head .sub");
-    if(hd && list && list.length) hd.textContent = "이 계약에 적용되는 부속서: " + want.map(function(k){ return PRODUCT_LABEL[k] || k; }).join(" · ") + ". 전체 부속서는 monnit.co.kr/alarm/terms 에서 볼 수 있습니다.";
-  }
-  function activeCks(){
-    return Array.prototype.filter.call(document.querySelectorAll("[data-ck]"), function(c){
-      var p = c.closest("[data-product]"); return !p || !p.hidden;
-    });
-  }
-  function ackList(){
-    return activeCks().map(function(c){ var e = c.parentNode.querySelector("em"); return e ? e.textContent.trim() : ""; }).filter(Boolean);
-  }
-  /* ── 확인 체크 ── */
-  var cks = Array.prototype.slice.call(document.querySelectorAll("[data-ck]"));  /* 전체 — 표시 여부는 activeCks() 로 */
-  function syncChecks(){
-    cks.forEach(function(c){ c.parentNode.classList.toggle("on", c.checked); });
-    $("ckall").checked = activeCks().every(function(c){ return c.checked; });
-    agreeGate(); gate();
-  }
-  cks.forEach(function(c){ c.addEventListener("change", syncChecks); });
-  $("ckall").addEventListener("change", function(){
-    var v = this.checked;
-    activeCks().forEach(function(c){ c.checked = v; });
-    syncChecks();
-  });
-
-  /* ── 서명 패드 ── */
-  var cv = $("sigpad"), ctx = cv.getContext("2d"), drawing = false, hasInk = false, last = null;
-  function fit(){
-    var r = cv.getBoundingClientRect();
-    if(!r.width) return;
-    var dpr = window.devicePixelRatio || 1;
-    var data = hasInk ? cv.toDataURL() : null;
-    cv.width = Math.round(r.width * dpr);
-    cv.height = Math.round(r.height * dpr);
-    ctx = cv.getContext("2d");
-    ctx.scale(dpr, dpr);
-    ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.strokeStyle = "#0F1A16";
-    if(data){
-      var im = new Image();
-      im.onload = function(){ ctx.drawImage(im, 0, 0, r.width, r.height); };
-      im.src = data;
-    }
-  }
-  function pos(ev){
-    var r = cv.getBoundingClientRect();
-    var t = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
-    return {x: t.clientX - r.left, y: t.clientY - r.top};
-  }
-  function start(ev){ ev.preventDefault(); drawing = true; last = pos(ev); }
-  function move(ev){
-    if(!drawing) return;
-    ev.preventDefault();
-    var p = pos(ev);
-    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
-    last = p;
-    if(!hasInk){ hasInk = true; $("sigph").style.display = "none"; gate(); }
-  }
-  function end(){ drawing = false; }
-  cv.addEventListener("mousedown", start);
-  cv.addEventListener("mousemove", move);
-  window.addEventListener("mouseup", end);
-  cv.addEventListener("touchstart", start, {passive:false});
-  cv.addEventListener("touchmove", move, {passive:false});
-  cv.addEventListener("touchend", end);
-  $("sigclear").addEventListener("click", function(){
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    hasInk = false;
-    $("sigph").style.display = "grid";
-    gate();
-  });
-  window.addEventListener("resize", fit);
-  setTimeout(fit, 60);
-
-  var today = new Date();
-  $("sg_date").textContent = today.getFullYear() + "년 " + (today.getMonth()+1) + "월 " + today.getDate() + "일";
-
-  function gate(){
-    var ok = !!slaAgreedAt
-             && hasInk && !!$("sg_name").value.trim();
-    $("submitBtn").disabled = !ok;
-  }
-  $("sg_name").addEventListener("input", gate);
-
-  /* ── 제출 ── */
-  function recvRows(){
-    var out = [];
-    for(var i = 1; i <= 10; i++) out.push({i:i, name:$("r"+i+"n").value.trim(), phone:$("r"+i+"p").value.trim(), email:$("r"+i+"e").value.trim()});
-    return out.filter(function(r){ return r.name || r.phone; });
-  }
-  function recvs(){ return recvRows().map(function(r){ return {name:r.name, phone:r.phone, email:r.email}; }); }
-  /* 수신자 칸 3개부터, 「+ 수신자 추가」로 10명까지 */
+    g.innerHTML = h;
+  })();
   var recvShown = 3;
   function recvSync(){
     document.querySelectorAll("#recvGrid .recv").forEach(function(f){ f.hidden = Number(f.dataset.i) > recvShown; });
@@ -1584,82 +1738,380 @@ body.pdf .fineprint{font-size:9pt;color:#666}
   }
   $("recvMore").addEventListener("click", function(){ if(recvShown < 10){ recvShown++; recvSync(); $("r" + recvShown + "n").focus(); } });
   recvSync();
-  function ymd(d){ var p=function(n){return String(n).padStart(2,"0");}; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
-  function refNo(){
-    var d = new Date(), p = function(n){ return String(n).padStart(2,"0"); };
-    var abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", r = "";
-    for(var i=0;i<4;i++) r += abc[Math.floor(Math.random()*abc.length)];
-    return "MK-" + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + "-" + r;
+  function recvRows(){
+    var out = [];
+    for(var i = 1; i <= 10; i++) out.push({ i: i, name: $("r"+i+"n").value.trim(), phone: $("r"+i+"p").value.trim(), email: $("r"+i+"e").value.trim() });
+    return out.filter(function(r){ return r.name || r.phone; });
   }
 
-  $("submitBtn").addEventListener("click", async function(){
-    var btn = this;
-    btn.disabled = true;
-    btn.textContent = "제출 중…";
-    $("err4").hidden = true;
+  /* ── 계약 조건 표시 ── */
+  function etcHtml(){
+    var lines = String(T.etc || "").split("\n").map(function(l){ return l.replace(/^[-·\s]+/, "").trim(); }).filter(Boolean);
+    return lines.length ? lines.map(function(l){ return "<div>· " + esc(l) + "</div>"; }).join("") : "—";
+  }
+  function discLabel(){
+    if(!T.discount) return "";
+    return (T.discountType === "percent" ? "할인 " + T.discountValue + "%" : "할인") + (T.discountNote ? " · " + T.discountNote : "");
+  }
+  function solText(list){
+    if(!list.length) return T.solNote ? T.solNote + " · 아래에서 알리미 선택" : "아래에서 알리미를 선택해 주십시오";
+    return window.MKPaper.meta(list, T.solNote).solution;
+  }
+  /* 2026-10-23 지역 출장비 자동 — 링크가 region "auto" 면 3단계에서 입력한 설치 현장 주소로 판정해 금액을 바로 바꾼다.
+     최종 금액은 계약서 발급 때 서버가 같은 규칙으로 다시 계산한다. */
+  function siteAddrNow(){ var el = $("c_siteAddr"), el2 = $("c_addr"); return (el && el.value.trim()) || (el2 && el2.value.trim()) || ""; }
+  function renderTerms(){
+    var P = window.MKPaper || {}, R = P.REGION || {}, FEE = P.REGION_FEE || 10000;
+    var E = P.settle ? P.settle(T, siteAddrNow()) : T;
+    var pending = E.region === "auto";
+    var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(E.unit) + "</span></div>" +
+      '<div class="row"><span>설치 개소</span><span class="money">' + E.qty + "개소</span></div>";
+    if(pending) rows += '<div class="row"><span>지역 출장비 <small style="color:var(--muted)">(개소 수와 무관 · 설치 주소로 자동 적용)</small></span><span class="money">' + esc(R.metro || "서울·경기·인천") + " 0 / 그 외 + " + won(FEE) + "</span></div>";
+    else if(E.region === "other") rows += '<div class="row"><span>지역 출장비 (' + esc(R.other || "그 외 지역") + ' · 개소 수와 무관)</span><span class="money">+ ' + won(E.regionFee) + "</span></div>";
+    if(E.region) rows += '<div class="row"><span>설치비 · 출장비</span><span class="money">' + (E.region === "metro" ? "무료 (" + esc(R.metro || "서울·경기·인천") + ")" : "별도 청구 없음") + "</span></div>";
+    if(E.discount) rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(E.list) + "</span></div>" +
+      '<div class="row disc"><span>' + esc(discLabel()) + '</span><span class="money">− ' + won(E.discount) + "</span></div>";
+    rows += '<div class="row total"><span>월 청구액 <small style="font-weight:400;color:var(--muted)">(부가세 별도' + (pending ? " · 서울·경기·인천 기준" : "") + ')</small></span><span class="money">' + won(E.monthly) + "</span></div>";
+    $("priceBox").innerHTML = rows;
+    $("o_sol").textContent = solText(T.products || []);
+    $("o_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
+    $("o_pay").textContent = T.pay || "—";
+    $("o_bank").textContent = T.bank || "—";
+    $("o_etc").innerHTML = etcHtml();
+    $("v_price").textContent = "월 " + won(E.monthly);
+    $("v_sites").textContent = E.qty + "개소 기준" + (pending ? " · 설치 현장이 서울·경기·인천 외 지역이면 지역 출장비 월 " + Number(FEE).toLocaleString("ko-KR") + "원 추가(개소 수와 무관)"
+      : E.region === "other" ? " · 지역 출장비 월 " + Number(E.regionFee || 0).toLocaleString("ko-KR") + "원 포함(개소 수와 무관)" : E.region === "metro" ? " · 설치비 무료" : "");
+    $("v_disc").textContent = E.discount ? " · 정가 " + won(E.list) + "에서 " + discLabel() + " 적용" : "";
+    $("v_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
+    $("v_pay").textContent = T.pay || "—";
+    $("v_bank").textContent = T.bank || "—";
+    $("v_etc").innerHTML = etcHtml();
+  }
+  /* 제품이 정해지면 계약서 명칭·솔루션·안내 문구와 SLA 부속서를 맞춘다 */
+  function applyProducts(list){
+    var want = list.length ? list : ["fire","water","power","alarm","custom"];
+    Array.prototype.forEach.call(document.querySelectorAll("#slamodal [data-product]"), function(el){
+      var on = want.indexOf(el.dataset.product) >= 0;
+      el.hidden = !on;
+      if(!on){ var c = el.querySelector("[data-ck]"); if(c) c.checked = false; }
+    });
+    if($("ckCount")) $("ckCount").textContent = activeCks().length;
+    var pdf = want.length === 1 ? "/alarm/sla-" + want[0] + ".pdf" : "/alarm/sla.pdf";
+    document.querySelectorAll("a.slapdf").forEach(function(a){ a.href = pdf; });
+    var hd = document.querySelector("#slamodal .annex-head .sub");
+    if(hd && list.length) hd.textContent = "이 계약에 적용되는 부속서: " + want.map(function(k){ return LABEL[k] || k; }).join(" · ") + ". 전체 부속서는 monnit.co.kr/alarm/terms 에서 볼 수 있습니다.";
+    if(list.length){
+      var m = window.MKPaper.meta(list, T.solNote);
+      $("v_title").textContent = m.title + " 구독서비스 계약서";
+      $("v_sol").textContent = m.solution;
+      $("v_notice").textContent = m.notice;
+      $("o_sol").textContent = m.solution;
+      document.title = m.title + " 구독 계약 | 모넷코리아";
+    }
+  }
 
-    var now = new Date();
+  function offerFail(t, d){
+    $("loading").hidden = true; $("offerErr").hidden = false;
+    $("offerErrT").textContent = t; $("offerErrD").textContent = d;
+    $("stepnav").hidden = true;
+  }
+
+  /* ── 조건 받아오기 ── */
+  OFFER_ID = new URLSearchParams(location.search).get("id") || "";
+  if(!OFFER_ID){
+    offerFail("전용 링크로 접속해 주십시오", "계약 조건은 담당자가 보내 드린 전용 링크에서만 확인하실 수 있습니다. 문의 02-2088-1454");
+  }else{
+    fetch("/api/alarm/offer?id=" + encodeURIComponent(OFFER_ID)).then(function(r){ return r.json(); }).then(function(o){
+      if(!o || !o.ok) return offerFail("링크를 찾을 수 없습니다", "링크가 잘못되었거나 만료되었습니다. 담당자에게 다시 요청해 주십시오. 문의 02-2088-1454");
+      if(o.status === "void") return offerFail("사용할 수 없는 링크입니다", "담당자에게 새 링크를 요청해 주십시오. 문의 02-2088-1454");
+      T = o.terms; STATUS = o.status;
+      FIXED = (T.products || []).length > 0;
+      renderTerms();
+      if(FIXED) applyProducts(T.products); else { $("pickBox").hidden = false; applyProducts([]); }
+      $("loading").hidden = true; $("offerBox").hidden = false;
+      /* 이미 계약서를 발급한 링크 → 4단계(내려받기·회신)로 바로 */
+      if(o.contract){
+        REC = o.contract;
+        if(!FIXED) (REC.terms.products || []).forEach(function(k){ var c = document.querySelector('#pick input[value="' + k + '"]'); if(c) c.checked = true; });
+        applyProducts(REC.terms.products || []);
+        fillForm(REC);
+        slaAgreedAt = REC.slaAgreedAt || "issued";
+        maxSeen = 4; showIssued();
+      }
+    }).catch(function(){
+      offerFail("계약 조건을 불러오지 못했습니다", "잠시 후 다시 시도해 주십시오. 계속 안 되면 02-2088-1454로 연락 주십시오.");
+    });
+  }
+
+  $("go1").addEventListener("click", function(){
+    if(!FIXED){
+      if(!picked().length){ $("pickErr").hidden = false; $("pickErr").textContent = "알리미를 하나 이상 선택해 주십시오."; return; }
+      $("pickErr").hidden = true;
+      applyProducts(picked());
+    }
+    show(1);
+  });
+  document.querySelectorAll("#pick input").forEach(function(c){ c.addEventListener("change", function(){ $("pickErr").hidden = true; }); });
+
+  /* ── 단계 이동 ── */
+  var maxSeen = 0, PANES = ["p0","p1","p3","p4"];
+  function show(n){
+    if(n === 4 && !REC) n = 3;
+    PANES.forEach(function(id){ $(id).classList.remove("on"); });
+    $("p" + n).classList.add("on");
+    if(n > maxSeen) maxSeen = n;
+    document.querySelectorAll(".steptab").forEach(function(b){
+      var i = Number(b.dataset.go);
+      b.setAttribute("aria-current", i === n ? "true" : "false");
+      b.classList.toggle("done", i < maxSeen && i !== n);
+    });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll("[data-next]").forEach(function(b){ b.addEventListener("click", function(){ show(Number(b.dataset.next)); }); });
+  document.querySelectorAll(".steptab").forEach(function(b){
+    b.addEventListener("click", function(){
+      var n = Number(b.dataset.go);
+      if(!T) return;
+      if(n >= 1 && !FIXED && !picked().length){ show(0); $("pickErr").hidden = false; $("pickErr").textContent = "알리미를 하나 이상 선택해 주십시오."; return; }
+      if(n >= 3 && !slaAgreedAt){ openSla(b, true); return; }
+      if(n === 4 && !REC){ $("go4").click(); return; }
+      show(n);
+    });
+  });
+
+  /* ── SLA 팝업 (서명 전 확인 항목 포함) ── */
+  var slaViewedAt = "", slaAgreedAt = "", slaReadPct = 0, slaGate = false, slaLastFocus = null, slaModal = $("slamodal");
+  function openSla(from, gate){
+    slaGate = !!gate; slaLastFocus = from || document.activeElement;
+    slaModal.hidden = false;
+    document.body.style.overflow = "hidden"; document.documentElement.style.overflow = "hidden";
+    $("mbody").scrollTop = 0; $("mbody").focus();
+    if(!slaViewedAt) slaViewedAt = new Date().toISOString();
+    agreeGate();
+  }
+  function closeSla(){
+    slaModal.hidden = true;
+    document.body.style.overflow = ""; document.documentElement.style.overflow = "";
+    if(slaLastFocus && slaLastFocus.focus) slaLastFocus.focus();
+  }
+  $("openSla").addEventListener("click", function(){ openSla(this, false); });
+  $("go3").addEventListener("click", function(){ if(slaAgreedAt) show(3); else openSla(this, true); });
+  function activeCks(){
+    return Array.prototype.filter.call(document.querySelectorAll("#slamodal [data-ck]"), function(c){ var p = c.closest("[data-product]"); return !p || !p.hidden; });
+  }
+  function ackList(){ return activeCks().map(function(c){ var e = c.parentNode.querySelector("em"); return e ? e.textContent.trim() : ""; }).filter(Boolean); }
+  function agreeGate(){
+    var all = activeCks().every(function(c){ return c.checked; }) && $("slaAgree").checked;
+    $("slaAgreeBtn").hidden = !all; $("slaAgreeBtn").textContent = slaGate ? "동의하고 계속" : "동의";
+    $("agreeAllBtn").hidden = all; $("agreeAllBtn").textContent = slaGate ? "전체 동의하고 계속" : "전체 동의";
+  }
+  function syncChecks(){
+    document.querySelectorAll("#slamodal [data-ck]").forEach(function(c){ c.parentNode.classList.toggle("on", c.checked); });
+    if($("ckall")) $("ckall").checked = activeCks().every(function(c){ return c.checked; });
+    agreeGate();
+  }
+  document.querySelectorAll("#slamodal [data-ck]").forEach(function(c){ c.addEventListener("change", syncChecks); });
+  if($("ckall")) $("ckall").addEventListener("change", function(){ var v = this.checked; activeCks().forEach(function(c){ c.checked = v; }); syncChecks(); });
+  $("slaAgree").addEventListener("change", agreeGate);
+  function finishAgree(){
+    if(!slaAgreedAt || slaAgreedAt === "issued"){
+      slaAgreedAt = new Date().toISOString();
+      $("slaseen").hidden = false; $("slaseenAt").textContent = new Date(slaAgreedAt).toLocaleString("ko-KR");
+      $("openSla").textContent = "SLA 전문 다시 보기";
+    }
+    var go = slaGate; closeSla(); if(go) show(3);
+  }
+  $("slaAgreeBtn").addEventListener("click", function(){ if($("slaAgree").checked && activeCks().every(function(c){ return c.checked; })) finishAgree(); });
+  $("agreeAllBtn").addEventListener("click", function(){ activeCks().forEach(function(c){ c.checked = true; }); $("slaAgree").checked = true; syncChecks(); finishAgree(); });
+  slaModal.querySelectorAll("[data-close]").forEach(function(b){ b.addEventListener("click", closeSla); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !slaModal.hidden) closeSla(); });
+  $("mbody").addEventListener("scroll", function(){
+    var p = (this.scrollTop + this.clientHeight) / this.scrollHeight;
+    if(p > slaReadPct) slaReadPct = Math.min(1, p);
+    $("slaprog").textContent = p > 0.98 ? "제1조 ~ 제18조 · 부속서 전문 · 끝까지 확인함" : "제1조 ~ 제18조 · 부속서 전문 · " + Math.round(p * 100) + "% 읽음";
+  });
+
+  /* ── 3 → 4: 고객 정보 검증 후 계약서 발급 ── */
+  var REQ = [["c_name","상호/성명"],["c_addr","주소"],["c_ceo","대표자"],["c_mgr","담당자 성명"],["c_tel","담당자 연락처"],["c_mail","담당자 이메일"],["c_site","설치 현장명"],["c_siteAddr","설치 현장 주소"]];
+  function fillForm(r){
+    var u = r.customer || {};
+    $("c_name").value = u.name || ""; $("c_biz").value = u.bizNo || ""; $("c_addr").value = u.address || ""; $("c_ceo").value = u.ceo || "";
+    $("c_type").value = u.contractType === "B2C" ? "B2C" : "B2B"; $("c_mgr").value = u.manager || ""; $("c_tel").value = u.phone || "";
+    $("c_mail").value = u.email || ""; $("c_site").value = u.site || ""; $("c_siteAddr").value = u.siteAddr || "";
+    (r.recipients || []).forEach(function(x, i){ if(i < 10){ $("r"+(i+1)+"n").value = x.name || ""; $("r"+(i+1)+"p").value = x.phone || ""; $("r"+(i+1)+"e").value = x.email || ""; } });
+    recvShown = Math.max(3, Math.min(10, (r.recipients || []).length)); recvSync();
+  }
+  $("go4").addEventListener("click", async function(){
+    var e = $("err3");
+    var miss = REQ.filter(function(p){ return !$(p[0]).value.trim(); });
+    if(miss.length){ e.hidden = false; e.textContent = "다음 항목을 입력해 주십시오 — " + miss.map(function(p){ return p[1]; }).join(", "); $(miss[0][0]).focus(); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test($("c_mail").value.trim())){ e.hidden = false; e.textContent = "담당자 이메일 형식을 확인해 주십시오."; $("c_mail").focus(); return; }
+    var half = recvRows().filter(function(r){ return (r.name && !r.phone) || (!r.name && r.phone); });
+    if(half.length){ e.hidden = false; e.textContent = "수신자 " + half[0].i + "의 성명과 휴대전화를 함께 입력해 주십시오."; $("r" + half[0].i + (half[0].name ? "p" : "n")).focus(); return; }
+    if(!slaAgreedAt){ openSla(this, true); return; }
+    e.hidden = true;
+    var btn = this, t = btn.textContent; btn.disabled = true; btn.textContent = "계약서 만드는 중…";
     var body = {
-      offerId: OFFER_ID,
-      customer: {name:$("c_name").value.trim(), bizNo:$("c_biz").value.trim(), address:$("c_addr").value.trim(),
-                 ceo:$("c_ceo").value.trim(), contractType:$("c_type").value,
-                 manager:$("c_mgr").value.trim(), phone:$("c_tel").value.trim(),
-                 email:$("c_mail").value.trim(), site:$("c_site").value.trim()},
-      recipients: recvs(),
-      slaViewedAt: slaViewedAt,
-      slaAgreedAt: slaAgreedAt,
-      slaReadPct: Math.round(slaReadPct * 100),
-      acknowledged: ackList(),
-      products: chosenProducts(),
-      signature: {name:$("sg_name").value.trim(), role:$("sg_role").value.trim(),
-                  signedOn: ymd(now), image: cv.toDataURL("image/png")},
-      attachments: {businessLicense: LIC ? {filename:LIC.name, mimeType:"image/jpeg", image:LIC.dataUrl} : null}
+      offerId: OFFER_ID, products: chosen(),
+      customer: { name: $("c_name").value.trim(), bizNo: $("c_biz").value.trim(), address: $("c_addr").value.trim(), ceo: $("c_ceo").value.trim(),
+                  contractType: $("c_type").value, manager: $("c_mgr").value.trim(), phone: $("c_tel").value.trim(), email: $("c_mail").value.trim(), site: $("c_site").value.trim(), siteAddr: $("c_siteAddr").value.trim() },
+      recipients: recvRows().map(function(r){ return { name: r.name, phone: r.phone, email: r.email }; }),
+      slaViewedAt: slaViewedAt, slaAgreedAt: slaAgreedAt === "issued" ? (REC && REC.slaAgreedAt) || "" : slaAgreedAt,
+      slaReadPct: Math.round(slaReadPct * 100), acknowledged: ackList()
     };
-
     var out = null;
     try{
-      var res = await fetch(API, {
-        method: "POST",
-        headers: {"content-type": "application/json"},
-        body: JSON.stringify(body)
-      });
+      var res = await fetch("/api/alarm/contract", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       out = await res.json();
     }catch(err){ out = null; }
-
-    var ok = !!(out && out.ok);
-    var no = (ok && out.ref) ? out.ref : "미접수";
-    /* 접수 완료 화면의 「계약서 PDF 내려받기」 용 — 서버 기록과 같은 모양으로 보관 */
-    SIGNED = { ref: no, submittedAt: now.toISOString(), terms: { solution: FIXED ? T.sol : (chosenProducts().map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (T.solNote ? " — " + T.solNote : "")),
-      products: chosenProducts(), unitPrice: T.unit, sites: T.qty, listPrice: T.list, discount: T.discount, discountType: T.discountType, discountValue: T.discountValue, discountNote: T.discountNote,
-      monthly: T.monthly, from: T.from, to: T.to, payDay: T.pay, bank: T.bank, etc: T.etc },
-      customer: body.customer, recipients: body.recipients, acknowledged: body.acknowledged, slaAgreedAt: body.slaAgreedAt, slaViewedAt: body.slaViewedAt, slaReadPct: body.slaReadPct,
-      signature: body.signature, attachments: body.attachments };
-
-    $("d_no").textContent = no;
-    $("d_cust").textContent = body.customer.name + " (대표 " + body.customer.ceo + ")";
-    $("d_site").textContent = body.customer.site;
-    $("d_price").textContent = won(T.monthly) + " / 월 (부가세 별도)";
-    $("d_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
-    $("d_signer").textContent = body.signature.name + (body.signature.role ? " · " + body.signature.role : "");
-    $("d_when").textContent = now.toLocaleString("ko-KR");
-    $("d_mail").textContent = ok ? "모넷코리아에 접수되었습니다"
-      : (out && out.error === "offer_signed" ? "이미 체결된 링크입니다" : "전송되지 않음");
-
-    if(!ok){
-      $("d_warn").hidden = false;
-      $("d_warn").textContent = "계약서를 보내지 못했습니다. 아래 인쇄 버튼으로 PDF를 저장해 korea@monnit.com 으로 보내 주시면 동일하게 처리됩니다. 또는 02-2088-1454로 연락 주십시오.";
+    btn.disabled = false; btn.textContent = t;
+    if(!out || !out.ok){
+      var why = { offer_returned: "이미 날인본이 회신된 계약입니다. 변경은 02-2088-1454로 연락 주십시오.", offer_signed: "이미 체결이 완료된 계약입니다.", offer_void: "무효 처리된 링크입니다. 담당자에게 새 링크를 요청해 주십시오." };
+      e.hidden = false; e.textContent = (out && why[out.error]) || "계약서를 만들지 못했습니다. 잠시 후 다시 시도해 주십시오. 계속 안 되면 02-2088-1454로 연락 주십시오.";
+      return;
     }
-    show(5);
+    REC = out.contract; STATUS = "issued";
+    showIssued();
   });
 
-  $("printBtn").addEventListener("click", function(){ window.print(); });
-  var SIGNED = null;
-  $("pdfBtn").addEventListener("click", async function(){
-    if(!SIGNED || !window.MKDoc) return;
-    var b = this, t = b.textContent; b.disabled = true; b.textContent = "PDF 만드는 중…";
-    try{ await window.MKDoc.pdf(SIGNED); }catch(e){ alert(e.message || "PDF를 만들지 못했습니다. 「이 화면 인쇄」로 저장해 주십시오."); }
+  /* ── 4. 내려받기 · 회신 ── */
+  var STLABEL = { issued: "계약서 발급 · 회신 대기", returned: "회신 접수 · 확인 중", signed: "체결 완료" };
+  function showIssued(){
+    var t = REC.terms, u = REC.customer, m = window.MKPaper.meta(t.products, t.solNote);
+    $("d_no").textContent = REC.ref;
+    $("d_sol").textContent = t.products && t.products.length ? m.solution : t.solution;
+    $("d_cust").textContent = u.name + " (대표 " + u.ceo + ")";
+    $("d_site").textContent = u.site;
+    $("d_siteAddr").textContent = u.siteAddr || "—";
+    $("d_price").textContent = won(t.monthly) + " / 월 (부가세 별도)";
+    $("d_term").textContent = kdate(t.from) + " ~ " + kdate(t.to);
+    var st = REC.status || STATUS || "issued";
+    $("d_state").textContent = STLABEL[st] || st; $("d_state").className = "pill " + st;
+    $("mailLink").href = "mailto:" + RETURN_MAIL + "?subject=" + encodeURIComponent("[계약서 회신] " + u.name + " · " + REC.ref) +
+      "&body=" + encodeURIComponent("계약번호: " + REC.ref + "\n상호: " + u.name + "\n\n직인 날인한 계약서와 사업자등록증 사본을 첨부합니다.\n");
+    $("editBtn").hidden = st !== "issued";
+    if(st === "signed"){ $("p4title").textContent = "계약 체결이 완료되었습니다"; $("p4lede").textContent = "모넷코리아가 날인본을 확인했습니다. 계약서는 아래에서 다시 내려받으실 수 있습니다."; $("upBox").hidden = true; $("procBox").hidden = true; }
+    else if(st === "returned"){ $("p4title").textContent = "회신해 주셔서 감사합니다"; $("p4lede").textContent = "날인 계약서가 접수되어 모넷코리아가 확인 중입니다. 빠진 파일이 있으면 아래에서 더 올려 주시거나 1015@monnit.com 으로 보내 주십시오."; }
+    renderSent();
+    show(4);
+  }
+  $("editBtn").addEventListener("click", function(){ show(3); });
+  async function busy(b, fn){
+    var t = b.textContent; b.disabled = true; b.textContent = "준비 중…"; $("pdfMsg").classList.remove("err");
+    try{ await fn(); }catch(err){ $("pdfMsg").textContent = err.message || "실패했습니다. 다시 시도해 주십시오."; $("pdfMsg").classList.add("err"); }
     b.disabled = false; b.textContent = t;
+  }
+  $("pdfBtn").addEventListener("click", function(){ var b = this; busy(b, function(){ return window.MKPaper.pdf(REC); }); });
+  $("printBtn").addEventListener("click", function(){
+    var b = this, p = window.MKPaper.print(REC);   /* 팝업은 클릭 안에서 바로 열어야 한다 */
+    busy(b, function(){ return p; });
   });
+
+  /* ── 회신 파일 ── */
+  var PENDING = [];   /* {kind, file, name, type, blob} */
+  var KIND = { contract: "날인 계약서", license: "사업자등록증" };
+  function renderPending(){
+    $("pending").innerHTML = PENDING.map(function(p, i){
+      return '<li><span class="k">' + KIND[p.kind] + '</span><span class="n">' + esc(p.name) + '</span><span class="s">' + size(p.blob.size) + '</span><button type="button" class="btn quiet sm" data-rm="' + i + '">빼기</button></li>';
+    }).join("");
+    var hasC = PENDING.some(function(p){ return p.kind === "contract"; });
+    var hasL = PENDING.some(function(p){ return p.kind === "license"; }) || sentHas("license");
+    $("upBtn").disabled = !PENDING.length;
+    $("upHint").textContent = !PENDING.length ? "파일을 끌어다 놓아도 됩니다." : (!hasC && !sentHas("contract") ? "날인한 계약서도 함께 올려 주십시오." : (!hasL ? "사업자등록증 사본도 함께 올려 주십시오. 나중에 메일로 보내셔도 됩니다." : "준비되었습니다."));
+  }
+  function sentHas(kind){ return (REC && REC.files || []).some(function(f){ return f.kind === kind; }); }
+  $("pending").addEventListener("click", function(e){ var b = e.target.closest("[data-rm]"); if(!b) return; PENDING.splice(Number(b.dataset.rm), 1); renderPending(); });
+  /* 사진은 글자가 읽히는 선에서 줄인다 (긴 변 2400px · JPEG) — 업로드 시간을 줄이기 위해 */
+  function shrink(file){
+    return new Promise(function(res){
+      if(!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 900 * 1024) return res(file);
+      var url = URL.createObjectURL(file), im = new Image();
+      im.onload = function(){
+        var max = 2400, sc = Math.min(1, max / Math.max(im.width, im.height));
+        var c = document.createElement("canvas"); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc);
+        var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function(b){ res(b && b.size < file.size ? b : file); }, "image/jpeg", 0.86);
+      };
+      im.onerror = function(){ URL.revokeObjectURL(url); res(file); };
+      im.src = url;
+    });
+  }
+  async function take(kind, files){
+    $("upErr").hidden = true;
+    for(var i = 0; i < files.length; i++){
+      var f = files[i];
+      if(!/^image\//.test(f.type) && f.type !== "application/pdf"){ $("upErr").hidden = false; $("upErr").textContent = f.name + " — PDF 또는 이미지(JPG·PNG) 파일만 올릴 수 있습니다."; continue; }
+      var b = await shrink(f);
+      if(b.size > 10 * 1024 * 1024){ $("upErr").hidden = false; $("upErr").textContent = f.name + " — 10MB 이하로 올려 주십시오. 큰 파일은 " + RETURN_MAIL + " 으로 보내 주셔도 됩니다."; continue; }
+      if(kind === "license") PENDING = PENDING.filter(function(p){ return p.kind !== "license"; });
+      var nm = b === f ? f.name : f.name.replace(/\.\w+$/, "") + ".jpg";
+      PENDING.push({ kind: kind, name: nm, type: b.type || f.type, blob: b });
+    }
+    renderPending();
+  }
+  document.querySelectorAll("#upBox .upload").forEach(function(box){
+    var inp = box.querySelector("input"), kind = box.dataset.kind;
+    box.querySelector("[data-pick]").addEventListener("click", function(){ inp.click(); });
+    inp.addEventListener("change", function(){ take(kind, Array.prototype.slice.call(inp.files || [])); inp.value = ""; });
+    ["dragenter","dragover"].forEach(function(ev){ box.addEventListener(ev, function(e){ e.preventDefault(); box.classList.add("drag"); }); });
+    ["dragleave","drop"].forEach(function(ev){ box.addEventListener(ev, function(e){ e.preventDefault(); box.classList.remove("drag"); }); });
+    box.addEventListener("drop", function(e){ take(kind, Array.prototype.slice.call(e.dataTransfer && e.dataTransfer.files || [])); });
+  });
+  $("upBtn").addEventListener("click", async function(){
+    if(!PENDING.length || !REC) return;
+    var btn = this; btn.disabled = true; $("upErr").hidden = true;
+    var done = 0, total = PENDING.length;
+    while(PENDING.length){
+      var p = PENDING[0];
+      btn.textContent = "올리는 중… " + (done + 1) + " / " + total;
+      var out = null;
+      try{
+        var q = "?offer=" + encodeURIComponent(OFFER_ID) + "&ref=" + encodeURIComponent(REC.ref) + "&kind=" + p.kind + "&name=" + encodeURIComponent(p.name);
+        var res = await fetch("/api/alarm/contract/file" + q, { method: "POST", headers: { "content-type": p.type || "application/octet-stream" }, body: p.blob });
+        out = await res.json();
+      }catch(err){ out = null; }
+      if(!out || !out.ok){
+        $("upErr").hidden = false;
+        $("upErr").textContent = p.name + " — 올리지 못했습니다" + (out && out.error === "too_large" ? " (10MB 초과)" : "") + ". 다시 시도하시거나 " + RETURN_MAIL + " 으로 보내 주십시오.";
+        break;
+      }
+      REC.files = out.files; REC.status = out.status; PENDING.shift(); done++;
+    }
+    btn.textContent = "회신 제출";
+    renderPending(); renderSent();
+    if(done && !PENDING.length){ $("d_state").textContent = STLABEL[REC.status] || REC.status; $("d_state").className = "pill " + REC.status; }
+  });
+  function renderSent(){
+    var fs = REC && REC.files || [];
+    $("sentBox").hidden = !fs.length;
+    if(!fs.length) return;
+    var hasC = sentHas("contract"), hasL = sentHas("license");
+    $("sentTxt").textContent = "모넷코리아에 전달된 파일입니다." + (!hasC ? " 날인한 계약서를 아직 받지 못했습니다." : "") + (!hasL ? " 사업자등록증 사본을 함께 보내 주십시오." : "") + (hasC && hasL ? " 확인 후 연락드리겠습니다." : "");
+    $("sentList").innerHTML = fs.map(function(f){ return '<li><span class="k">' + (KIND[f.kind] || "첨부") + '</span><span class="n">' + esc(f.name) + '</span><span class="s">' + new Date(f.uploadedAt).toLocaleString("ko-KR") + "</span></li>"; }).join("");
+    renderPending();
+  }
+  /* 설치 현장 주소 = 발주처 주소 */
+  function syncAddr(){ if($("c_sameAddr").checked){ $("c_siteAddr").value = $("c_addr").value; } $("c_siteAddr").readOnly = $("c_sameAddr").checked; }
+  $("c_sameAddr").addEventListener("change", syncAddr);
+  $("c_addr").addEventListener("input", function(){ if($("c_sameAddr").checked) $("c_siteAddr").value = this.value; });
+  /* 설치 주소가 바뀌면 지역 출장비를 다시 계산해 보여 준다 */
+  ["c_addr","c_siteAddr","c_sameAddr"].forEach(function(id){ var el = $(id); if(el){ el.addEventListener("input", function(){ if(T) renderTerms(); }); el.addEventListener("change", function(){ if(T) renderTerms(); }); } });
+  /* 이 계약 화면 링크 — 맨 아래에서 복사 (execCommand → Clipboard API → 직접 선택 안내) */
+  (function(){
+    var url = location.origin + "/contract?id=" + encodeURIComponent(OFFER_ID);
+    var inp = $("selfLink"); inp.value = url;
+    inp.addEventListener("focus", function(){ var t = this; setTimeout(function(){ t.select(); }, 0); });
+    $("selfCopy").addEventListener("click", function(){
+      var b = this, ok = false;
+      inp.focus(); inp.select(); inp.setSelectionRange(0, url.length);
+      try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+      var done = function(){ b.textContent = "복사됨 ✓"; $("selfMsg").textContent = "링크를 복사했습니다. 메모나 메일에 붙여 넣어 보관해 주십시오."; setTimeout(function(){ b.textContent = "링크 복사"; }, 1600); };
+      var fail = function(){ $("selfMsg").textContent = "자동 복사가 막힌 브라우저입니다. 위 칸의 링크가 선택되어 있으니 Ctrl+C(맥은 ⌘+C)로 복사해 주십시오."; inp.focus(); inp.select(); };
+      if(ok) return done();
+      if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(done, fail); else fail();
+    });
+  })();
 })();
 </script>
 </body>

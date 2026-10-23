@@ -134,7 +134,7 @@
 
 
   /* ── 제품별 부속서·확인 항목 표시 ── */
-  var PRODUCT_LABEL = {fire:"화재 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
+  var PRODUCT_LABEL = {fire:"화재경보 연동 알리미", water:"물감지 알리미", power:"정전 알리미", alarm:"경보 알리미", custom:"커스텀 알리미"};
   function applyProducts(list){
     var want = (list && list.length) ? list : ["fire","water","power","alarm","custom"];
     Array.prototype.forEach.call(document.querySelectorAll("[data-product]"), function(el){

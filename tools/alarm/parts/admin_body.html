@@ -13,7 +13,7 @@
 <nav class="steps" id="tabs" aria-label="관리 메뉴" hidden>
   <ol>
     <li><button class="steptab" data-tab="new" aria-current="true">계약 링크 만들기</button></li>
-    <li><button class="steptab" data-tab="contracts">계약 현황</button></li>
+    <li><button class="steptab" data-tab="contracts">계약 현황 · 회신</button></li>
     <li><button class="steptab" data-tab="clients">기존 고객 · 설문/SLA</button></li>
     <li><button class="steptab" data-tab="surveys">설문 응답</button></li>
   </ol>
@@ -55,7 +55,7 @@
         <div class="grid">
 <div class="f wide"><span class="flab">납품 솔루션 <small style="color:var(--faint)">(선택 · 비워 두면 고객이 계약 화면에서 직접 고릅니다. 고르면 고객은 바꿀 수 없습니다)</small></span>
             <div class="opts" id="n_prod">
-              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재경보 연동 알리미</span></label>
               <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
               <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
               <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>
@@ -67,6 +67,7 @@
           <div class="f"><label for="n_qty">설치 개소 수</label>
             <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
           </div>
+          <div class="f wide" id="n_rhint"><p class="hint" style="margin:-4px 0 0"><span style="font-weight:600">지역 출장비는 자동 적용</span> — 고객이 입력한 설치 현장 주소가 서울·경기·인천 외 지역이면 계약서 발급 때 월 1만 원이 더해집니다(개소 수와 무관). [내부 기준] 출장비 1회 약 50만 원 ÷ 36개월 ≈ 월 13,900원 중 1만 원 반영 — 고객 화면·계약서에는 근거를 표시하지 않습니다.</p></div>
           <div class="f"><label for="n_dtype">할인</label>
             <select id="n_dtype"><option value="none">할인 없음</option><option value="percent">할인율 (%)</option><option value="amount">월 할인액 (원)</option></select>
           </div>
@@ -82,7 +83,7 @@
           <div class="f"><label for="n_years">의무 이용기간</label>
             <select id="n_years"><option value="3">3년</option><option value="2">2년</option><option value="1">1년</option><option value="0">직접 입력</option></select></div>
           <div class="f"><label for="n_to">계약 종료일</label><input type="date" id="n_to"></div>
-          <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 25일"></div>
+          <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 20일"></div>
           <div class="f wide"><label for="n_bank">입금 계좌</label><input type="text" id="n_bank" value="하나은행 375-910030-09904 (예금주: 주식회사 모넷코리아)"></div>
           <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea></div>
         </div>
@@ -97,12 +98,14 @@
       <button type="button" class="btn" id="n_make" style="width:100%;margin-top:6px">계약 링크 만들기</button>
       <div id="n_out" hidden>
         <p class="kicker" style="margin:18px 0 6px">고객 전용 링크</p>
-        <div class="linkbox" id="n_link"></div>
+        <input type="text" class="linkbox" id="n_link" readonly aria-label="고객 전용 링크">
         <div class="row2">
           <button type="button" class="btn quiet sm" id="n_copy">링크 복사</button>
           <button type="button" class="btn quiet sm" id="n_copyMsg">안내 문구 복사</button>
           <a class="btn quiet sm" id="n_open" target="_blank" rel="noopener">고객 화면 보기</a>
         </div>
+        <p class="kicker" style="margin:16px 0 6px">안내 문구 <small style="text-transform:none;letter-spacing:0">(직접 고쳐서 복사할 수 있습니다)</small></p>
+        <textarea id="n_msg" rows="12" class="msgbox" aria-label="고객 안내 문구"></textarea>
         <button type="button" class="btn ghost sm" id="n_reset" style="margin-top:12px">새 계약 링크 만들기</button>
       </div>
     </aside>
@@ -111,11 +114,12 @@
 
 
 <section class="pane" id="t_contracts">
-  <p class="kicker">계약 링크와 체결 현황</p>
+  <p class="kicker">계약 링크 · 계약서 발급 · 날인본 회신 · 체결 현황</p>
   <h1>계약 현황</h1>
+  <p class="lede" style="margin-bottom:14px">진행 순서: <b>링크 발송</b> → 고객이 정보 입력 후 계약서를 내려받으면 <b>회신 대기</b> → 날인 계약서·사업자등록증이 올라오면 <b>회신 접수</b> → 확인 후 「체결 완료 처리」. 메일(1015@monnit.com)로 받은 파일은 상세 화면에서 등록해 두면 함께 보관됩니다.</p>
   <div class="toolbar">
-    <select id="c_filter"><option value="all">전체 링크</option><option value="open">서명 대기</option><option value="signed">체결 완료</option><option value="void">무효</option></select>
-    <span class="hint">체결된 계약은 「상세 보기」에서 고객 정보·서명·사업자등록증을 확인하고 내려받을 수 있습니다.</span>
+    <select id="c_filter"><option value="all">전체</option><option value="open">링크 발송</option><option value="issued">회신 대기</option><option value="returned">회신 접수 · 확인 필요</option><option value="signed">체결 완료</option><option value="void">무효</option></select>
+    <button type="button" class="btn sm" id="c_hot" hidden></button>
     <span class="spacer"></span>
     <button type="button" class="btn quiet sm" id="c_csv">계약 CSV 내려받기</button>
     <button type="button" class="btn quiet sm" data-reload="contracts">새로고침</button>
@@ -125,7 +129,7 @@
     <span class="hint">체크한 건을 한 건씩 각각 파일로 받습니다.</span>
     <span class="spacer"></span>
     <button type="button" class="btn sm" id="c_selpdf">선택 계약서 PDF</button>
-    <button type="button" class="btn quiet sm" id="c_sellic">선택 사업자등록증</button>
+    <button type="button" class="btn quiet sm" id="c_selfiles">선택 회신 파일</button>
     <button type="button" class="btn quiet sm danger" id="c_seldel">선택 삭제</button>
     <span class="hint" id="c_selstat" hidden></span>
   </div>
@@ -149,7 +153,7 @@
       <div class="f"><label for="k_type">계약 구분</label><select id="k_type"><option value="B2B">사업자 (B2B)</option><option value="B2C">소비자 (B2C)</option></select></div>
       <div class="f wide"><span class="flab">이용 중인 알리미 <small style="color:var(--faint)">(여러 개 선택 가능 · 비워 두면 고객이 동의 화면에서 직접 고릅니다)</small></span>
             <div class="opts" id="k_prod">
-              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재 알리미</span></label>
+              <label class="opt"><input type="checkbox" value="fire"><span>🔥 화재경보 연동 알리미</span></label>
               <label class="opt"><input type="checkbox" value="water"><span>💧 물감지 알리미</span></label>
               <label class="opt"><input type="checkbox" value="power"><span>⚡ 정전 알리미</span></label>
               <label class="opt"><input type="checkbox" value="alarm"><span>🚨 경보 알리미</span></label>

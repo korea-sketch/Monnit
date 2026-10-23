@@ -1,0 +1,53 @@
+
+/* ── 계약 화면 2026-10-21: 진행 순서 · 내려받기 · 회신 ── */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:0 0 22px;border:1px solid var(--rule);background:var(--surface)}
+.flow-i{display:flex;align-items:center;gap:9px;padding:11px 13px;font-size:13px;color:var(--muted);border-left:1px solid var(--rule)}
+.flow-i:first-child{border-left:0}
+.flow-i b{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:600 12px/1 var(--mono)}
+.dlrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.dlrow .btn{min-height:46px}
+.sec-h{font-family:var(--serif);font-size:17px;margin:30px 0 12px}
+ol.proc{list-style:none;margin:0;padding:0;counter-reset:pr;border-top:1px solid var(--rule)}
+ol.proc>li{counter-increment:pr;display:grid;grid-template-columns:34px 150px 1fr;gap:10px;align-items:baseline;padding:12px 2px;border-bottom:1px solid var(--rule);font-size:14px;line-height:1.65}
+ol.proc>li::before{content:counter(pr);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font:600 12px/1 var(--mono);align-self:start;margin-top:1px}
+ol.proc>li b{font-weight:600}
+ol.proc>li span{color:var(--muted)}
+ol.proc>li em{font-style:normal;color:var(--ink);font-weight:600}
+.upgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upcell .flab{display:block;margin-bottom:6px}
+.upcell .upload{min-height:64px}
+ul.filelist{list-style:none;margin:12px 0 0;padding:0}
+ul.filelist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--rule);border-top:0;background:var(--surface);font-size:13.5px}
+ul.filelist li:first-child{border-top:1px solid var(--rule)}
+ul.filelist .k{flex:none;font:600 11px/1.4 var(--mono);color:var(--accent);background:var(--accent-soft);padding:2px 7px}
+ul.filelist .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ul.filelist .s{flex:none;color:var(--faint);font-size:12px}
+ul.filelist.done li{background:transparent}
+.receipt .hd{position:relative}
+.receipt .hd .pill{position:absolute;right:18px;top:18px}
+.pill.issued{color:var(--caution);border-color:var(--caution)}
+.pill.returned{color:var(--accent);border-color:var(--accent)}
+.pill.signed{color:var(--ok);border-color:var(--ok);background:var(--ok-soft)}
+#pdfMsg.err{color:var(--critical)}
+@media (max-width:640px){
+  .flow{grid-template-columns:1fr 1fr}
+  .flow-i:nth-child(3){border-left:0}
+  .flow-i:nth-child(n+3){border-top:1px solid var(--rule)}
+  ol.proc>li{grid-template-columns:30px 1fr}
+  ol.proc>li span{grid-column:2}
+  .upgrid{grid-template-columns:1fr}
+  .dlrow .btn{width:100%;justify-content:center}
+  .receipt .hd .pill{position:static;display:inline-block;margin-top:8px}
+}
+
+label.inl{display:inline-flex;align-items:center;gap:5px;margin-left:10px;font-weight:400;font-size:12.5px;color:var(--muted);cursor:pointer}
+label.inl input{margin:0;accent-color:var(--accent)}
+#c_siteAddr[readonly]{background:var(--surface-2)}
+.lrow{display:flex;align-items:baseline;flex-wrap:wrap}
+.lrow label.inl{margin-bottom:6px}
+.keeplink{margin-top:28px;padding:16px 18px;border:1px solid var(--accent);border-left-width:4px;background:var(--accent-soft)}
+.keeplink b{display:block;font-size:15px;margin-bottom:4px}
+.keeplink p{margin:0 0 10px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.keeplink .klrow{display:flex;gap:8px}
+.keeplink input{flex:1;min-width:0;font-family:var(--mono);font-size:13px;user-select:all;-webkit-user-select:all}
+@media (max-width:640px){.keeplink .klrow{flex-direction:column}}
