@@ -396,6 +396,44 @@ function initEmergencyHero(){
     };
     builderForm.addEventListener('change',updateBuilder,opt);
     builderAddon?.addEventListener('change',updateBuilder,opt);
+    /* 2026-10-23 숨겨진 이벤트 — 선물 상자를 세 번 두드리면 열리며 선택지가 펼쳐진다 (기본값: 설치만 진행) */
+    (()=>{
+      const gift = document.getElementById('taGift'), grid = document.getElementById('taBuilderAddonGrid');
+      const wrap = document.getElementById('taGiftWrap'), cur = document.getElementById('taGiftCurrent');
+      if(!gift||!grid) return;
+      const title = document.getElementById('taGiftTitle'), sub = document.getElementById('taGiftSub');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const NEED = 3, lines = ['한 번 더! 뭔가 들어 있어요','거의 다 왔어요 — 마지막 한 번!'];
+      let taps = 0, opened = false;
+      const burst = () => {
+        if(reduce) return;
+        const colors = ['#3182f6','#ffb800','#ff5a5f','#22c55e','#a855f7','#00c2ff'];
+        for(let i=0;i<34;i++){
+          const s = document.createElement('i'); s.className = 'ta-gift__confetti';
+          const a = Math.random()*Math.PI*2, d = 90+Math.random()*150;
+          s.style.setProperty('--x', Math.cos(a)*d+'px'); s.style.setProperty('--y', (Math.sin(a)*d-70)+'px');
+          s.style.setProperty('--r', (Math.random()*720-360)+'deg'); s.style.background = colors[i%colors.length];
+          s.style.animationDelay = (Math.random()*80)+'ms';
+          gift.querySelector('.ta-gift__box').appendChild(s);
+          setTimeout(()=>s.remove(), 1300);
+        }
+      };
+      const open = () => {
+        opened = true; gift.classList.add('is-open'); gift.setAttribute('aria-expanded','true');
+        title.textContent = '🎉 무료 현장 컨설팅 당첨!'; sub.textContent = '전문 엔지니어가 설치하면서 현장을 함께 진단해 드려요. 아래에서 선택해 주세요.';
+        burst();
+        setTimeout(()=>{ grid.hidden = false; requestAnimationFrame(()=>grid.classList.add('is-revealed')); if(cur) cur.hidden = true; }, reduce ? 0 : 520);
+      };
+      gift.addEventListener('click',()=>{
+        if(opened){ grid.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'}); return; }
+        taps = reduce ? NEED : taps+1;
+        gift.style.setProperty('--tap', taps);
+        gift.querySelectorAll('.ta-gift__taps i').forEach((d,i)=>d.classList.toggle('on', i<taps));
+        gift.classList.remove('is-shake'); void gift.offsetWidth; gift.classList.add('is-shake');
+        if(taps>=NEED) open(); else { title.textContent = lines[taps-1]; }
+      },opt);
+      builderAddon?.addEventListener('change',()=>{ if(cur){ const c=document.querySelector('input[name="consulting"]:checked'); cur.querySelector('b').textContent = c?.value==='consulting' ? '무료 현장 컨설팅 요청' : '설치만 진행'; } },opt);
+    })();
     siteCountEl.addEventListener('input',updateBuilder,opt);
     builderForm.querySelectorAll('[data-site-delta]').forEach(button=>{
       button.addEventListener('click',()=>{

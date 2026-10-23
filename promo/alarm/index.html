@@ -424,13 +424,23 @@
     </div>
     <fieldset class="ta-builder-addon" aria-labelledby="taBuilderInstallTitle">
       <legend id="taBuilderInstallTitle"><b>숨겨진 이벤트.</b> 함께 받아 보시겠어요?</legend>
-      <div class="ta-builder-addon__grid">
-        <label class="ta-builder-addon__choice">
-          <input type="radio" name="consulting" value="consulting" checked>
+      <!-- 2026-10-23 숨겨진 이벤트 — 기본은 「설치만 진행」, 상자를 세 번 두드려 열면 선택지가 펼쳐진다 -->
+      <div class="ta-gift-wrap" id="taGiftWrap">
+        <button type="button" class="ta-gift" id="taGift" aria-expanded="false" aria-controls="taBuilderAddonGrid">
+          <span class="ta-gift__box" aria-hidden="true"><i class="ta-gift__lid"></i><i class="ta-gift__body"></i><i class="ta-gift__glow"></i></span>
+          <span class="ta-gift__copy"><b id="taGiftTitle">선물 상자를 3번 톡톡 두드려 보세요</b><small id="taGiftSub">설치와 함께 받을 수 있는 혜택이 숨어 있어요</small></span>
+          <span class="ta-gift__taps" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <p class="ta-gift__current" id="taGiftCurrent">현재 선택: <b>설치만 진행</b></p>
+      </div>
+      <div class="ta-builder-addon__grid" id="taBuilderAddonGrid" hidden>
+        <label class="ta-builder-addon__choice ta-builder-addon__choice--prize">
+          <input type="radio" name="consulting" value="consulting">
+          <em class="ta-builder-addon__badge">🎉 당첨 혜택</em>
           <span><b>무료 현장 컨설팅 요청</b><small>전문 엔지니어가 설치와 함께 현장을 살펴 보고<br>추가 관리가 필요한 포인트를 진단해 드려요.</small></span>
         </label>
         <label class="ta-builder-addon__choice">
-          <input type="radio" name="consulting" value="installation-only">
+          <input type="radio" name="consulting" value="installation-only" checked>
           <span><b>설치만 진행</b><small>별도 컨설팅 없이 신청하신 알리미 제품의 설치만 진행해 드려요.</small></span>
         </label>
         <a class="ta-builder-addon__help" href="https://monnit.co.kr/whitepaper">
@@ -451,7 +461,7 @@
           <div><dt>관리 현장</dt><dd id="taBuilderResultSites">1곳</dd></div>
           <div><dt>도입 지역</dt><dd id="taBuilderResultRegion">서울·경기·인천권</dd></div>
           <div><dt>설치비 · 출장비</dt><dd id="taBuilderResultInstall">설치비 무료</dd></div>
-          <div><dt>이벤트</dt><dd id="taBuilderResultConsulting">무료 현장 컨설팅 요청</dd></div>
+          <div><dt>이벤트</dt><dd id="taBuilderResultConsulting">설치만 진행</dd></div>
         </dl>
         <p class="ta-builder-result__note" id="taBuilderResultNote">표시 금액은 선택 조건에 따른 예상 월 구독료(부가세 별도)이며, 현장 환경에 따라 최종 견적이 달라질 수 있어요.</p>
       </div>
