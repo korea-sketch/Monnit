@@ -101,7 +101,7 @@
     var t = calc(), note = $("n_dnote").value.trim();
     var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(t.unit) + '</span></div>' +
       '<div class="row"><span>설치 개소</span><span class="money">' + t.qty + '개소</span></div>' +
-      '<div class="row"><span>지역 출장비 <small>(설치 주소로 자동)</small></span><span class="money">그 외 지역 + ' + won(REGION_FEE) + '</span></div>' +
+      '<div class="row"><span>지역 출장비 <small>(그 외 지역 · 주소로 자동)</small></span><span class="money">+ ' + won(REGION_FEE) + '</span></div>' +
       '<div class="row"><span>설치비 · 출장비</span><span class="money">별도 청구 없음</span></div>';
     if(t.discount){
       rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(t.list) + '</span></div>' +

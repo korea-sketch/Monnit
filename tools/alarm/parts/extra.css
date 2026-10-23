@@ -20,7 +20,8 @@
 .price{border:1px solid var(--rule);background:var(--surface);margin:0 0 22px}
 .price .row{display:flex;justify-content:space-between;gap:14px;padding:11px 17px;border-bottom:1px solid var(--rule);font-size:14.5px}
 .price .row:last-child{border-bottom:none}
-.price .row span:first-child{color:var(--muted)}
+.price .row span:first-child{color:var(--muted);flex:1;min-width:0;word-break:keep-all}
+.price .row .money{white-space:nowrap;text-align:right}
 .price .row.disc span:last-child{color:var(--critical)}
 .price .row.total{background:var(--ok-soft);font-weight:600}
 .price .row.total span:last-child{font-size:19px;color:var(--ok)}

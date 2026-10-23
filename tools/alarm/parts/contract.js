@@ -66,7 +66,7 @@
     var pending = E.region === "auto";
     var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(E.unit) + "</span></div>" +
       '<div class="row"><span>설치 개소</span><span class="money">' + E.qty + "개소</span></div>";
-    if(pending) rows += '<div class="row"><span>지역 출장비 <small style="color:var(--muted)">(개소 수와 무관 · 설치 주소로 자동 적용)</small></span><span class="money">' + esc(R.metro || "서울·경기·인천") + " 0 / 그 외 + " + won(FEE) + "</span></div>";
+    if(pending) rows += '<div class="row"><span>지역 출장비 <small style="color:var(--muted)">(개소 수와 무관 · 설치 주소로 자동 적용)</small></span><span class="money">' + '그 외 지역 + ' + won(FEE) + "</span></div>";
     else if(E.region === "other") rows += '<div class="row"><span>지역 출장비 (' + esc(R.other || "그 외 지역") + ' · 개소 수와 무관)</span><span class="money">+ ' + won(E.regionFee) + "</span></div>";
     if(E.region) rows += '<div class="row"><span>설치비 · 출장비</span><span class="money">' + (E.region === "metro" ? "무료 (" + esc(R.metro || "서울·경기·인천") + ")" : "별도 청구 없음") + "</span></div>";
     if(E.discount) rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(E.list) + "</span></div>" +

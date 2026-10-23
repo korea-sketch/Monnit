@@ -357,7 +357,7 @@ function initEmergencyHero(){
       const tripFee = isMetro ? 0 : 10000;
       /* 2026-10-16 「월 단가」→ 「월 구독료 · 1곳당」 — 구독 서비스라는 점과 부가세 기준을 함께 보여 준다 */
       unitEl.innerHTML = isQuote ? '10곳 이상은 <b>별도 견적</b>으로 안내드려요'
-        : `월 구독료 <b>${unit.toLocaleString('ko-KR')}원</b> <span>/ 1곳 · 부가세 별도${isMetro ? '' : ' · 출장비 월 1만 원 별도(개수와 관계없이 1회)'}</span>`;
+        : `월 구독료 <b>${unit.toLocaleString('ko-KR')}원</b> <span>/ 1곳 · 부가세 별도${isMetro ? '' : ' + 출장비 월 1만 원(개수 무관)'}</span>`;
       if(planImageEl){
         const hasPhotoSlides = plan.value==='fire'||plan.value==='water'||plan.value==='outage'||plan.value==='alarm';
         carouselEl?.classList.toggle('is-product',!hasPhotoSlides);
@@ -388,7 +388,7 @@ function initEmergencyHero(){
         resultPriceEl.textContent = isQuote ? '별도 견적 · 설치비 무료' : `월 구독료 ${(unit*count+tripFee).toLocaleString('ko-KR')}원 · 설치비 무료`;
       }
       const resultInstallEl = document.getElementById('taBuilderResultInstall');
-      if(resultInstallEl) resultInstallEl.textContent = isMetro ? '설치비 무료 · 출장비 없음' : `설치비 무료 · 출장비 월 1만 원(${count}곳 공통)`;
+      if(resultInstallEl) resultInstallEl.textContent = isMetro ? '설치비 무료 · 출장비 없음' : '설치비 무료 · 출장비 월 1만 원';
 
       if(resultSitesEl) resultSitesEl.textContent = `${count}곳`;
       if(resultRegionEl) resultRegionEl.textContent = region.dataset.label;
