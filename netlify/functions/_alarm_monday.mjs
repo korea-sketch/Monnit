@@ -4,6 +4,7 @@
  *  토큰: 리드 원장과 같은 MONDAY_TOKEN. 없으면 조용히 건너뛴다 — 보드 기록 실패가 접수를 막으면 안 된다.
  *  보드 id 는 ALARM_MONDAY_BOARD 로 바꿀 수 있다 (기본 18435756574).
  *
+ *  실행: Cloudflare Worker (process.env 는 cloudflare/env-config.mjs 가 채움)
  *  그룹: 신규 계약(topics) · 기존 고객 SLA 동의(group_mm86a9c5) · 만족도 조사(group_mm864g85)
  *  컬럼 id 는 보드에서 컬럼을 지우거나 새로 만들면 여기도 바꿔야 한다.
  */
@@ -28,7 +29,8 @@ const COL = {
   date: 'date_mm86tsxr',       // 접수일
   rating: 'numeric_mm86ct5j',  // 평균 별점
   memo: 'long_text_mm86gsaw',
-  admin: 'text_mm86fvzk'       // 관리 화면
+  admin: 'text_mm86fvzk',      // 관리 화면
+  files: 'file_mm8gye1m'       // 회신 파일 (날인 계약서·사업자등록증) — 2026-10-26 추가
 };
 const PRODUCT_LABEL = { fire: '화재 알리미', water: '물감지 알리미', power: '정전 알리미', alarm: '경보 알리미', custom: '커스텀 알리미' };
 
@@ -137,4 +139,22 @@ export async function setContractKind(itemId, label) {
     );
     return { ok: true };
   } catch (e) { console.error('[alarm→monday]', e && e.message || e); return { ok: false, error: String(e && e.message || e) }; }
+}
+
+/** 회신 파일(날인 계약서·사업자등록증 등)을 아이템의 「회신 파일」 컬럼에 첨부 — 2026-10-26
+ *  monday 파일 업로드는 /v2/file 멀티파트(query + variables[file]). 성공 시 asset id 를 돌려준다. */
+export async function attachFile(itemId, buf, name, type) {
+  if (!TOKEN() || !itemId || !buf) return { ok: false, skipped: true };
+  try {
+    const fd = new FormData();
+    fd.append('query', `mutation($file: File!){ add_file_to_column(item_id: ${Number(itemId)}, column_id: "${COL.files}", file: $file){ id } }`);
+    fd.append('variables[file]', new Blob([buf], { type: type || 'application/octet-stream' }), cut(name, 120) || 'file');
+    const r = await fetch(API + '/file', {
+      method: 'POST', headers: { Authorization: TOKEN(), 'API-Version': '2024-10' }, body: fd,
+      signal: AbortSignal.timeout(25000)
+    });
+    const j = await r.json().catch(() => ({}));
+    if (j.errors || !j.data || !j.data.add_file_to_column) throw new Error(j.errors ? j.errors.map(e => e.message).join(' / ') : ('HTTP ' + r.status));
+    return { ok: true, id: String(j.data.add_file_to_column.id) };
+  } catch (e) { console.error('[alarm→monday file]', e && e.message || e); return { ok: false, error: String(e && e.message || e) }; }
 }

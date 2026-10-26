@@ -1,11 +1,12 @@
 /** 긴급 경보 알리미 — 계약 링크·계약 접수·설문·SLA 동의 API
  *
- *  Netlify v2 함수 형식. Cloudflare Worker(cloudflare/worker.mjs) 가 V2 목록에서 불러 실행한다.
+ *  Cloudflare Worker(cloudflare/worker.mjs) 가 V2 목록에서 불러 실행한다 (Netlify 는 쓰지 않음 — 함수 형식만 유지).
  *  저장: @netlify/blobs 저장소 "alarm" → Cloudflare 에서는 R2 (wrangler.toml alias)
  *        offers/<id> 계약 링크(조건) · contracts/<ref> 발급 계약 · files/<ref>/<fid> 회신 파일 · clients/<id> 기존 고객 ·
  *        surveys/<id> 설문 · consents/<ref> SLA 동의
  *  알림: 접수마다 _notify.notify() (대표님 메일함) + _staffnote.note() (/ops/notices 알림함)
  *        + 먼데이 「알리미 계약 현황」 보드 아이템 (_alarm_monday.mjs, MONDAY_TOKEN 필요).
+ *          진행 단계(「구분」)와 회신 파일(날인 계약서·사업자등록증 → 「회신 파일」 칸)까지 응답 뒤(waitUntil)에 기록.
  *        BREVO_API_KEY 가 있으면 계약 체결 고객에게 확인 메일 1통.
  *  관리 키: ALARM_ADMIN_KEY (없으면 OPS_PASS 로 대신) — /contract-admin 로그인
  */
@@ -13,7 +14,7 @@ import { getStore } from "@netlify/blobs";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { notify } from "./_notify.mjs";
 import { note } from "./_staffnote.mjs";
-import { pushContract, pushConsent, pushSurvey, setContractKind } from "./_alarm_monday.mjs";
+import { pushContract, pushConsent, pushSurvey, setContractKind, attachFile } from "./_alarm_monday.mjs";
 import { noticeMail, sendNotice } from "./_alarm_mail.mjs";
 
 export const config = { path: [
@@ -55,6 +56,7 @@ const store = () => ({
   get: (k) => ST.get(k, { type: "json" }).catch(() => null),
   setFile: (k, buf, meta) => ST.set(k, buf, { metadata: meta }),
   getFile: (k) => ST.getWithMetadata(k, { type: "stream" }).catch(() => null),
+  getBytes: (k) => ST.get(k, { type: "arrayBuffer" }).catch(() => null),
   list: (o) => ST.list(o),
   delete: (k) => ST.delete(k),
 });
@@ -423,8 +425,14 @@ async function uploadFile(req, url, by) {
       "지금까지 받은 파일": rec.files.map((x) => `${FILE_KINDS[x.kind] || x.kind}: ${x.name}`).join(" / "),
       "확인": "관리 화면 → 계약 현황 → 상세에서 파일을 열어 확인한 뒤 「체결 완료」로 처리해 주세요. " + SITE + "/contract-admin",
     });
-    if (first && rec.mondayItemId) await mondayStatus(rec, "날인본 회신");
   }
+  // 먼데이: 「구분」 갱신(고객 첫 회신) + 「회신 파일」 첨부 — 고객 회신·담당자 등록 모두.
+  // Cloudflare waitUntil 로 응답 뒤에 처리 → 업로드 화면이 먼데이를 기다리지 않는다 (2026-10-26)
+  if (rec.mondayItemId) later((async () => {
+    if (by === "customer" && first) await mondayStatus(rec, "날인본 회신");
+    const a = await attachFile(rec.mondayItemId, buf, monName(f), type);
+    if (a.ok) await markAsset(s, ref, { [id]: a.id });
+  })());
   return json({ ok: true, status: rec.status, files: rec.files.map(({ by: _b, ...x }) => x) });
 }
 
@@ -460,7 +468,18 @@ async function setStatus(b) {
   await s.setJSON(TYPES.contracts + ref, rec);
   const o = rec.offerId && await s.get(TYPES.offers + rec.offerId);
   if (o && o.status !== "void") { o.status = st; if (st === "signed") o.signedAt = rec.signedAt; await s.setJSON(TYPES.offers + o.id, o); }
-  if (rec.mondayItemId) await mondayStatus(rec, st === "signed" ? "계약 체결" : st === "returned" ? "날인본 회신" : "계약서 발급");
+  // 먼데이 (응답 뒤 처리): 발급 때 아이템이 빠졌으면 지금 만들고 → 「구분」 갱신 → 아직 안 올라간 회신 파일 보충 (2026-10-26)
+  later((async () => {
+    if (!rec.mondayItemId) {
+      const m = await pushContract(rec).catch(() => null);
+      if (!m || !m.id) return;
+      const cur = (await s.get(TYPES.contracts + ref)) || rec;
+      cur.mondayItemId = rec.mondayItemId = m.id;
+      await s.setJSON(TYPES.contracts + ref, cur);
+    }
+    await mondayStatus(rec, st === "signed" ? "계약 체결" : st === "returned" ? "날인본 회신" : "계약서 발급");
+    await syncFiles(s, rec);
+  })());
   return json({ ok: true, status: st, signedAt: rec.signedAt || "" });
 }
 
@@ -604,6 +623,35 @@ async function customerMail(rec, offerId) {
     });
     return r.status === 201;
   } catch (e) { return false; }
+}
+
+/* 응답 뒤에 마칠 일 — Cloudflare ctx.waitUntil (worker.mjs 의 __MNK_WAIT_UNTIL). 없으면 그냥 흘려보낸다 */
+function later(p) {
+  try { p.catch(() => {}); const w = globalThis.__MNK_WAIT_UNTIL; if (typeof w === "function") w(p); } catch (e) { /* 무시 */ }
+}
+const monName = (f) => `${FILE_KINDS[f.kind] || "기타"}_${f.name}`;
+
+/* 먼데이에 올라간 파일 표시 — 최신 레코드를 다시 읽어 그 파일에만 mondayAssetId 를 붙인다 (동시 업로드 덮어쓰기 방지) */
+async function markAsset(s, ref, map) {
+  const cur = await s.get(TYPES.contracts + ref);
+  if (!cur) return;
+  cur.files = (cur.files || []).map((x) => map[x.id] ? { ...x, mondayAssetId: map[x.id] } : x);
+  await s.setJSON(TYPES.contracts + ref, cur);
+}
+
+/* 먼데이 「회신 파일」 칸에 아직 없는 파일(mondayAssetId 없음)만 차례로 올린다 — 실패해도 무시 */
+async function syncFiles(s, rec) {
+  const done = {};
+  for (const f of rec.files || []) {
+    if (f.mondayAssetId) continue;
+    try {
+      const buf = await s.getBytes(FILES + rec.ref + "/" + f.id);
+      if (!buf) continue;
+      const a = await attachFile(rec.mondayItemId, buf, monName(f), f.type);
+      if (a.ok) done[f.id] = a.id;
+    } catch (e) { /* 무시 */ }
+  }
+  if (Object.keys(done).length) await markAsset(s, rec.ref, done);
 }
 
 /* 먼데이 「구분」 값 갱신 — 실패해도 무시 */
