@@ -435,7 +435,7 @@ html, body { overflow-x: clip !important; overflow-y: visible !important; }
 .ta-builder__unit b { color:#333d4b; font-size:17px; font-weight:700; letter-spacing:-.02em; }
 .ta-builder__unit span { color:#8b95a1; font-size:13px; }
 .ta-builder__unit-note { margin:10px 2px 2px; color:#6e6e73; font-size:14px; line-height:1.45; }
-/* 2026-10-23 지역 요금 설명 — 그 외 지역 월 1만 원(출장비 분할 반영) */
+/* 2026-10-26 지역 요금 설명 — 그 외 지역 1곳 월 4만 원 */
 .ta-builder__region-step .ta-builder__option em, .ta-builder__option em.ta-price { color:#333d4b; font-size:15px; font-weight:650; white-space:nowrap; }
 .ta-builder__unit span { word-break:keep-all; }
 @media(max-width:620px){ .ta-builder__option em.ta-price { font-size:14px; margin-top:-8px; } .ta-builder-result__summary dl div { gap:14px; } .ta-builder-result__summary dd { word-break:keep-all; } }

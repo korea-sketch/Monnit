@@ -19,11 +19,11 @@
     custom: { name: "무선 커스텀 알리미",       detail: "별도 사양서에 따른 원격 알림",                en: "CUSTOM",          annex: "B-5 커스텀(별도 사양서)" }
   };
   var ORDER = ["fire", "water", "power", "alarm", "custom"];
-  /* 2026-10-23 설치 지역 요금 — 서울·경기·인천은 설치비 무료, 그 외 지역은 설치 출장비(1회 약 50만 원)를
-     따로 청구하지 않고 계약당 월 1만 원 정액을 더한다(개소 수와 무관). 산정 근거(출장비 ÷ 36개월)는 내부 기준이라 고객 화면·계약서에 쓰지 않는다.
+  /* 2026-10-26 설치 지역 요금 — 서울·경기·인천 1곳 월 3만 원, 그 외 지역 1곳 월 4만 원(1개소 단가에 1만 원 가산). 설치비는 모두 무료.
+     별도 「출장비」 항목은 두지 않는다. (10-23 ~ 10-25 발급분은 regionFee > 0 — 예전 정액 문구로 표시)
      고객 화면 · 관리 화면 · 종이 계약서가 같은 문구를 쓴다. region 이 없는 예전 계약은 아무것도 표시하지 않는다. */
   var REGION = { metro: "서울·경기·인천", other: "그 외 지역" };
-  var REGION_FEE = 10000;
+  var REGION_ADD = 10000;
   /* 설치 주소 → 지역 (서버 regionOf 와 같은 규칙) */
   function regionOf(addr){
     var a = String(addr || "").replace(/^\s*\(?\d{5}\)?\s*/, "").trim();
@@ -35,17 +35,18 @@
     if(!T || T.region !== "auto") return T;
     var r = regionOf(addr); if(!r) return T;
     var o = {}; for(var k in T) o[k] = T[k];
-    o.region = r; o.regionFee = r === "other" ? REGION_FEE : 0;
-    o.list = (Number(T.unit) || 0) * Math.max(1, Number(T.qty) || 1) + o.regionFee;
+    o.region = r; o.regionFee = 0;
+    o.unit = (Number(T.unit) || 0) + (r === "other" ? REGION_ADD : 0);
+    o.list = o.unit * Math.max(1, Number(T.qty) || 1);
     o.discount = T.discountType === "percent" ? Math.round(o.list * Math.min(100, Number(T.discountValue) || 0) / 100) : T.discountType === "amount" ? Math.min(o.list, Math.round(Number(T.discountValue) || 0)) : 0;
     o.monthly = o.list - o.discount;
     return o;
   }
   function regionLine(t){
     if(!t || !t.region || t.region === "auto") return "";
-    return t.region === "other"
-      ? "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 + 지역 출장비 월 " + num(t.regionFee) + "원 (" + REGION.other + " · 개소 수와 무관 · 설치비·출장비 별도 청구 없음)"
-      : "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 (" + REGION.metro + " · 설치비 무료)";
+    if(t.region === "other" && Number(t.regionFee) > 0)   /* 10-23 ~ 10-25 발급분 */
+      return "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 + 지역 출장비 월 " + num(t.regionFee) + "원 (" + REGION.other + " · 개소 수와 무관 · 설치비·출장비 별도 청구 없음)";
+    return "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 (" + (t.region === "other" ? REGION.other : REGION.metro) + " · 설치비 무료)";
   }
 
   function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
@@ -333,5 +334,5 @@
     } finally { m.frame.remove(); }
   }
 
-  window.MKPaper = { REGION: REGION, REGION_FEE: REGION_FEE, regionOf: regionOf, settle: settle, regionLine: function(t){ return regionLine(t); }, meta: meta, html: html, pdf: pdf, print: print, fileName: fileName, LABEL: (function(){ var o = {}; ORDER.forEach(function(k){ o[k] = P[k].name.replace(/^무선\s*/, ""); }); return o; })() };
+  window.MKPaper = { REGION: REGION, REGION_ADD: REGION_ADD, regionOf: regionOf, settle: settle, regionLine: function(t){ return regionLine(t); }, meta: meta, html: html, pdf: pdf, print: print, fileName: fileName, LABEL: (function(){ var o = {}; ORDER.forEach(function(k){ o[k] = P[k].name.replace(/^무선\s*/, ""); }); return o; })() };
 })();

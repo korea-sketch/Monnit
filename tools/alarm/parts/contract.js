@@ -57,18 +57,18 @@
     if(!list.length) return T.solNote ? T.solNote + " · 아래에서 알리미 선택" : "아래에서 알리미를 선택해 주십시오";
     return window.MKPaper.meta(list, T.solNote).solution;
   }
-  /* 2026-10-23 지역 출장비 자동 — 링크가 region "auto" 면 3단계에서 입력한 설치 현장 주소로 판정해 금액을 바로 바꾼다.
+  /* 2026-10-26 지역 요금 자동 — 그 외 지역은 1곳 월 4만 원(1개소 단가 + 1만 원). 링크가 region "auto" 면 3단계에서 입력한 설치 현장 주소로 판정해 금액을 바로 바꾼다.
      최종 금액은 계약서 발급 때 서버가 같은 규칙으로 다시 계산한다. */
   function siteAddrNow(){ var el = $("c_siteAddr"), el2 = $("c_addr"); return (el && el.value.trim()) || (el2 && el2.value.trim()) || ""; }
   function renderTerms(){
-    var P = window.MKPaper || {}, R = P.REGION || {}, FEE = P.REGION_FEE || 10000;
+    var P = window.MKPaper || {}, R = P.REGION || {}, ADD = P.REGION_ADD || 10000;
     var E = P.settle ? P.settle(T, siteAddrNow()) : T;
     var pending = E.region === "auto";
-    var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(E.unit) + "</span></div>" +
-      '<div class="row"><span>설치 개소</span><span class="money">' + E.qty + "개소</span></div>";
-    if(pending) rows += '<div class="row"><span>지역 출장비 <small style="color:var(--muted)">(개소 수와 무관 · 설치 주소로 자동 적용)</small></span><span class="money">' + '그 외 지역 + ' + won(FEE) + "</span></div>";
-    else if(E.region === "other") rows += '<div class="row"><span>지역 출장비 (' + esc(R.other || "그 외 지역") + ' · 개소 수와 무관)</span><span class="money">+ ' + won(E.regionFee) + "</span></div>";
-    if(E.region) rows += '<div class="row"><span>설치비 · 출장비</span><span class="money">' + (E.region === "metro" ? "무료 (" + esc(R.metro || "서울·경기·인천") + ")" : "별도 청구 없음") + "</span></div>";
+    var rows = '<div class="row"><span>월 이용료 (1개소' + (E.region === "other" ? " · " + esc(R.other || "그 외 지역") : E.region === "metro" ? " · " + esc(R.metro || "서울·경기·인천") : "") + ')</span><span class="money">' + won(E.unit) + "</span></div>";
+    if(pending) rows += '<div class="row"><span>그 외 지역 <small style="color:var(--muted)">(서울·경기·인천 외 · 설치 주소로 자동 적용)</small></span><span class="money">1개소 ' + won((Number(E.unit) || 0) + ADD) + "</span></div>";
+    rows += '<div class="row"><span>설치 개소</span><span class="money">' + E.qty + "개소</span></div>";
+    if(E.region === "other" && Number(E.regionFee) > 0) rows += '<div class="row"><span>지역 출장비 (' + esc(R.other || "그 외 지역") + ' · 개소 수와 무관)</span><span class="money">+ ' + won(E.regionFee) + "</span></div>";
+    if(E.region) rows += '<div class="row"><span>설치비</span><span class="money">무료</span></div>';
     if(E.discount) rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(E.list) + "</span></div>" +
       '<div class="row disc"><span>' + esc(discLabel()) + '</span><span class="money">− ' + won(E.discount) + "</span></div>";
     rows += '<div class="row total"><span>월 청구액 <small style="font-weight:400;color:var(--muted)">(부가세 별도' + (pending ? " · 서울·경기·인천 기준" : "") + ')</small></span><span class="money">' + won(E.monthly) + "</span></div>";
@@ -79,8 +79,8 @@
     $("o_bank").textContent = T.bank || "—";
     $("o_etc").innerHTML = etcHtml();
     $("v_price").textContent = "월 " + won(E.monthly);
-    $("v_sites").textContent = E.qty + "개소 기준" + (pending ? " · 설치 현장이 서울·경기·인천 외 지역이면 지역 출장비 월 " + Number(FEE).toLocaleString("ko-KR") + "원 추가(개소 수와 무관)"
-      : E.region === "other" ? " · 지역 출장비 월 " + Number(E.regionFee || 0).toLocaleString("ko-KR") + "원 포함(개소 수와 무관)" : E.region === "metro" ? " · 설치비 무료" : "");
+    $("v_sites").textContent = E.qty + "개소 기준" + (pending ? " · 설치 현장이 서울·경기·인천 외 지역이면 1개소 월 " + ((Number(E.unit) || 0) + ADD).toLocaleString("ko-KR") + "원 적용"
+      : E.region === "other" ? (Number(E.regionFee) > 0 ? " · 지역 출장비 월 " + Number(E.regionFee).toLocaleString("ko-KR") + "원 포함(개소 수와 무관)" : " · 그 외 지역 1개소 월 " + Number(E.unit || 0).toLocaleString("ko-KR") + "원 · 설치비 무료") : E.region === "metro" ? " · 설치비 무료" : "");
     $("v_disc").textContent = E.discount ? " · 정가 " + won(E.list) + "에서 " + discLabel() + " 적용" : "";
     $("v_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
     $("v_pay").textContent = T.pay || "—";
@@ -395,7 +395,7 @@
   function syncAddr(){ if($("c_sameAddr").checked){ $("c_siteAddr").value = $("c_addr").value; } $("c_siteAddr").readOnly = $("c_sameAddr").checked; }
   $("c_sameAddr").addEventListener("change", syncAddr);
   $("c_addr").addEventListener("input", function(){ if($("c_sameAddr").checked) $("c_siteAddr").value = this.value; });
-  /* 설치 주소가 바뀌면 지역 출장비를 다시 계산해 보여 준다 */
+  /* 설치 주소가 바뀌면 지역 요금을 다시 계산해 보여 준다 */
   ["c_addr","c_siteAddr","c_sameAddr"].forEach(function(id){ var el = $(id); if(el){ el.addEventListener("input", function(){ if(T) renderTerms(); }); el.addEventListener("change", function(){ if(T) renderTerms(); }); } });
   /* 이 계약 화면 링크 — 맨 아래에서 복사 (execCommand → Clipboard API → 직접 선택 안내) */
   (function(){

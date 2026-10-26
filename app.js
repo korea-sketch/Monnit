@@ -3630,7 +3630,7 @@ const BUILTIN_PROMOS = [{
   id: 'alarm',
   title: '긴급 경보 알리미 상시 프로모션',
   html: '',
-  period: '구독제 · 월 3만 원(서울·경기·인천 외 출장비 월 1만 원) · 설치비 무료 EVENT',
+  period: '구독제 · 월 3만 원(서울·경기·인천 외 지역 월 4만 원) · 설치비 무료 EVENT',
   badge: 'NEW',
   desc: '화재·침수·정전·설비 이상 발생 시 담당자 휴대폰으로 즉시 알려드려요. 필요한 알리미부터 간편하게 시작하세요.',
   image: '/images/promo-emergency-alert-thumb.webp?v=1',

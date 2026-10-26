@@ -98,18 +98,18 @@ export default async (req) => {
 };
 
 /* ───────── 계약 조건 계산 (화면과 같은 규칙) ─────────
-   2026-10-23 설치 지역 — metro(서울·경기·인천) 는 지역 출장비 없음, other(그 외 지역) 는
-   설치 출장비(1회 약 50만 원)를 따로 청구하지 않고 계약당 월 1만 원 정액을 더한다(개소 수와 무관 — 출장은 방문 1회 기준).
+   2026-10-26 설치 지역 요금 변경 — metro(서울·경기·인천) 1곳 월 3만 원, other(그 외 지역) 1곳 월 4만 원.
+   그 외 지역은 1개소 월 이용료에 1만 원을 더한 단가(unit)로 계산한다 — 별도 「출장비」 항목은 없다.
+   (2026-10-23 ~ 10-25 의 「계약당 월 1만 원 정액 출장비」 방식은 폐지. 그 기간에 발급된 계약은 regionFee > 0 으로 남아 예전 문구로 표시)
    지역은 사람이 고르지 않는다 — 새 링크는 region "auto" 로 저장되고, 계약서 발급 때 고객이 입력한 설치 현장 주소로
-   자동 판정해 금액을 확정한다(settleTerms). 고객에게는 산정 근거를 노출하지 않는다.
-   예전 링크(region 없음)는 metro · 0원으로 그대로. */
-export const REGION_FEE = 10000;
+   자동 판정해 금액을 확정한다(settleTerms). 예전 링크(region 없음)는 그대로. */
+export const REGION_ADD = 10000;   // 그 외 지역 1개소당 월 가산액 (30,000 → 40,000)
 export function price(t) {
-  const unit = Math.max(0, Math.round(Number(t.unit) || 0));
-  const qty = Math.max(1, Math.round(Number(t.qty) || 1));
   const region = t.region === "other" || t.region === "metro" ? t.region : "auto";
-  const regionFee = region === "other" ? REGION_FEE : 0;   // auto 는 발급 때 주소로 확정
-  const list = unit * qty + regionFee;
+  const unit = Math.max(0, Math.round(Number(t.unit) || 0)) + (region === "other" ? REGION_ADD : 0);   // auto 는 발급 때 주소로 확정
+  const qty = Math.max(1, Math.round(Number(t.qty) || 1));
+  const regionFee = 0;
+  const list = unit * qty;
   const type = ["none", "percent", "amount"].includes(t.discountType) ? t.discountType : "none";
   let value = Math.max(0, Number(t.discountValue) || 0);
   let discount = 0;
@@ -127,19 +127,22 @@ export function regionOf(addr) {
 export function settleTerms(t, addr) {
   if (!t || t.region !== "auto") return t;
   const region = regionOf(addr);
-  const regionFee = region === "other" ? REGION_FEE : 0;
-  const list = Math.round(Number(t.unit) || 0) * Math.max(1, Math.round(Number(t.qty) || 1)) + regionFee;
+  const regionFee = 0;
+  const unit = Math.round(Number(t.unit) || 0) + (region === "other" ? REGION_ADD : 0);
+  const list = unit * Math.max(1, Math.round(Number(t.qty) || 1));
   let discount = 0;
   if (t.discountType === "percent") discount = Math.round(list * Math.min(100, Number(t.discountValue) || 0) / 100);
   if (t.discountType === "amount") discount = Math.min(list, Math.round(Number(t.discountValue) || 0));
-  return { ...t, region, regionFee, list, discount, monthly: list - discount };
+  return { ...t, region, unit, regionFee, list, discount, monthly: list - discount };
 }
 const REGION_LABEL = { metro: "서울·경기·인천", other: "그 외 지역" };
 function regionText(t) {
   if (!t || !t.region || t.region === "auto") return "";
+  if (t.region === "other" && Number(t.regionFee) > 0)   // 2026-10-23 ~ 10-25 발급분 (정액 출장비 방식)
+    return `${REGION_LABEL.other} · 지역 출장비 월 ${Number(t.regionFee).toLocaleString("ko-KR")}원 포함 (개소 수와 무관 · 설치비·출장비 별도 청구 없음)`;
   return t.region === "other"
-    ? `${REGION_LABEL.other} · 지역 출장비 월 ${Number(t.regionFee || 0).toLocaleString("ko-KR")}원 포함 (개소 수와 무관 · 설치비·출장비 별도 청구 없음)`
-    : `${REGION_LABEL.metro} · 설치비 무료`;
+    ? `${REGION_LABEL.other} · 1개소 월 ${Number(t.unit ?? t.unitPrice ?? 0).toLocaleString("ko-KR")}원 · 설치비 무료`
+    : `${REGION_LABEL.metro} · 1개소 월 ${Number(t.unit ?? t.unitPrice ?? 0).toLocaleString("ko-KR")}원 · 설치비 무료`;
 }
 
 /* ───────── 관리자 ───────── */
@@ -324,7 +327,7 @@ async function submitContract(req, b) {
 
   const prev = o.status === "issued" && o.contractRef ? await s.get(TYPES.contracts + o.contractRef) : null;
   const ref = prev ? prev.ref : refNo("MK");
-  const t = settleTerms(o.terms, c.siteAddr || c.address); // 조건은 언제나 서버에 저장된 값을 쓴다 (링크·화면 조작 방지) · 지역 출장비는 설치 주소로 자동 확정
+  const t = settleTerms(o.terms, c.siteAddr || c.address); // 조건은 언제나 서버에 저장된 값을 쓴다 (링크·화면 조작 방지) · 지역 요금(그 외 지역 1곳 월 4만 원)은 설치 주소로 자동 확정
   const prodFixed = (t.products || []).length > 0;
   const prodList = prodFixed ? t.products : products(b.products);
   if (!prodList.length) return json({ ok: false, error: "products_required" }, 400);
