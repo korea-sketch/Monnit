@@ -715,6 +715,10 @@
     'Monnit Korea 대표이사': 'CEO, Monnit Korea',
     '서울시 서초구 효령로 380, 2층 모넷코리아': 'Monnit Korea, 2F, 380 Hyoryeong-ro, Seocho-gu, Seoul',
     '평일 09:00 – 18:00 (KST)': 'Weekdays 09:00–18:00 (KST)',
+    /* 문의 페이지 연락 버튼 (2026-10-27) */
+    '바로 연락하기': 'Contact us directly', '메일 보내기': 'Send email', '전화 걸기': 'Call now',
+    '복사': 'Copy', '복사됨': 'Copied', '지도 보기': 'View map',
+    '이메일 주소 복사': 'Copy email address', '전화번호 복사': 'Copy phone number',
     '월 1회, 핵심 소식만 골라서': 'Once a month, only the essentials',
 
     // 기타 단편 라벨 모음

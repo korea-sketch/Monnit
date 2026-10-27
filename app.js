@@ -3133,9 +3133,56 @@ if (faqListEl) {
 /* ========== MOBILE NAV ========== */
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
-if (navToggle) {
-  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+/* 2026-10-27 모바일 메뉴: 화면 끝까지 덮고(뒤 페이지 버튼이 메뉴 항목처럼 보이던 문제),
+   열린 동안 본문 스크롤·모니 말풍선을 잠그며, ☰ ↔ ✕ 로 닫기를 분명히 한다. */
+function setMobileNav(open){
+  if (!navLinks) return;
+  if (open) {
+    const nav = navLinks.closest('.topnav');
+    const bottom = nav ? Math.round(nav.getBoundingClientRect().bottom) : 64;
+    document.documentElement.style.setProperty('--m-nav-bottom', Math.max(0, bottom) + 'px');
+  }
+  navLinks.classList.toggle('open', open);
+  document.documentElement.classList.toggle('m-nav-open', open);
+  if (navToggle){
+    navToggle.textContent = open ? '✕' : '☰';
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  if (!open) document.querySelectorAll('.nav-item.m-open').forEach(i => i.classList.remove('m-open'));
 }
+if (navToggle) {
+  navToggle.setAttribute('aria-expanded', 'false');
+  navToggle.setAttribute('aria-controls', 'navLinks');
+  navToggle.addEventListener('click', () => setMobileNav(!navLinks.classList.contains('open')));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && navLinks.classList.contains('open')) setMobileNav(false); });
+  window.addEventListener('resize', () => { if (window.innerWidth > 920 && navLinks.classList.contains('open')) setMobileNav(false); });
+  /* 뒤로 가기·주소 이동으로 화면이 바뀌어도 메뉴가 남지 않게 */
+  window.addEventListener('popstate', () => setMobileNav(false));
+}
+
+/* 문의 페이지 — 이메일·전화 복사 버튼 */
+document.addEventListener('click', e => {
+  const b = e.target.closest('.ci-copy');
+  if (!b) return;
+  const val = b.getAttribute('data-copy') || '';
+  const t = b.querySelector('.ci-copy-t');
+  const en = document.documentElement.lang === 'en';
+  const done = () => {
+    b.classList.add('is-done');
+    if (t) t.textContent = en ? 'Copied' : '복사됨';
+    clearTimeout(b._ciT);
+    b._ciT = setTimeout(() => { b.classList.remove('is-done'); if (t) t.textContent = en ? 'Copy' : '복사'; }, 1600);
+  };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = val; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(_){}
+    ta.remove(); done();
+  };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(val).then(done, fallback);
+  else fallback();
+});
 // On mobile, tapping a dropdown parent opens its submenu instead of navigating
 document.querySelectorAll('.nav-link.has-caret').forEach(btn => {
   btn.addEventListener('click', e => {
@@ -3147,10 +3194,7 @@ document.querySelectorAll('.nav-link.has-caret').forEach(btn => {
 });
 // Close mobile menu after choosing any nav target
 document.querySelectorAll('[data-nav]').forEach(el => {
-  el.addEventListener('click', () => {
-    if (navLinks) navLinks.classList.remove('open');
-    document.querySelectorAll('.nav-item.m-open').forEach(i => i.classList.remove('m-open'));
-  });
+  el.addEventListener('click', () => setMobileNav(false));
 });
 
 /* ========== 현장 사진 갤러리 (브라우저 저장) ========== */

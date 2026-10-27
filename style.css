@@ -11560,3 +11560,88 @@ html[lang="en"] .nh-metric:last-child .nh-metric-num { font-size: clamp(28px, 3.
 /* 핵심가치 카드: 한글용 강제 줄바꿈(<br>)이 영문에서는 어색한 끊김을 만들어 자연 줄바꿈으로 */
 html[lang="en"] [data-sc^="home2.val"] br { display: none; }
 html[lang="en"] [data-sc^="home2.val"][data-sc$=".d"] { text-wrap: pretty; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   2026-10-27 · 모바일 메뉴 전체 화면 + 문의 페이지 연락 버튼
+   [1] 모바일 메뉴가 화면 중간에서 끊겨 뒤쪽 홈 버튼(산업별 제안서 보기 등)이
+       '프로모션' 아래 메뉴 항목처럼 보이던 문제 → 메뉴가 화면 끝까지 덮는다.
+       열린 동안 본문 스크롤·모니 말풍선 잠금. Products ▾ 위치도 다른 항목과 통일.
+   [2] 문의 페이지 Email·Tel 이 글자 링크라 눌러지는지 몰랐음 → 버튼 카드 + 복사.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 920px) {
+  .nav-links.open {
+    height: calc(100vh - var(--m-nav-bottom, 64px));
+    height: calc(100dvh - var(--m-nav-bottom, 64px));
+    max-height: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    border-bottom: 0;
+  }
+  .nav-links > .nav-item > .nav-link { display: flex; align-items: center; }
+  .nav-links > .nav-item > .nav-link.has-caret::after { float: none; margin-left: auto; padding-left: 12px; }
+  html.m-nav-open, html.m-nav-open body { overflow: hidden; }
+  html.m-nav-open #mkpet, html.m-nav-open .pc-launcher { display: none !important; }
+  .nav-toggle { min-width: 44px; min-height: 44px; line-height: 1; }
+}
+
+.contact-info.ci { display: block; }
+.ci-head { font-family: var(--fb); font-size: 13px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 14px; }
+.ci-row { display: flex; gap: 10px; align-items: stretch; margin-bottom: 12px; }
+.ci-btn {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px;
+  padding: 16px 16px 16px 16px; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(74,130,196,.16), rgba(74,130,196,.06));
+  border: 1.5px solid rgba(74,130,196,.5); color: var(--ink); text-decoration: none;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ci-btn:hover { border-color: var(--accent-dark); background: rgba(74,130,196,.22); transform: translateY(-1px); box-shadow: 0 10px 26px rgba(74,130,196,.22); }
+.ci-btn:active { transform: translateY(0); background: rgba(74,130,196,.28); }
+.ci-btn:focus-visible, .ci-copy:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: 2px; }
+.ci-ico { width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.ci-ico svg { width: 21px; height: 21px; }
+.ci-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.ci-lbl { font-family: var(--fm); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.ci-val { font-size: 18px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ci-go {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0;
+  padding: 10px 15px; border-radius: 999px; background: var(--accent); color: #fff;
+  font-size: 14px; font-weight: 700; white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+}
+.ci-go svg { width: 15px; height: 15px; transition: transform .18s ease; }
+.ci-btn:hover .ci-go svg { transform: translateX(3px); }
+.ci-copy {
+  flex-shrink: 0; width: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  border-radius: 14px; border: 1.5px solid var(--line-strong); background: transparent; color: var(--ink-soft);
+  font-family: var(--fb); font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: border-color .18s ease, color .18s ease, background .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ci-copy svg { width: 18px; height: 18px; }
+.ci-copy:hover { border-color: var(--accent-dark); color: var(--ink); }
+.ci-copy.is-done { border-color: #3FB37F; color: #3FB37F; background: rgba(63,179,127,.08); }
+.ci-meta { margin: 8px 0 0; }
+.ci-meta dt { font-family: var(--fm); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); margin-top: 24px; }
+.ci-meta dd { font-size: 17px; color: var(--ink); margin: 6px 0 0; line-height: 1.6; }
+.ci-map {
+  display: inline-flex; align-items: center; margin-left: 6px; vertical-align: 1px;
+  padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-strong);
+  color: var(--accent-dark); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+.ci-map:hover { border-color: var(--accent-dark); color: #fff; }
+
+/* 데스크톱 2단(문의 정보 | 폼)에서 카드 폭이 좁을 때 */
+@media (min-width: 921px) and (max-width: 1180px) {
+  .ci-btn { flex-wrap: wrap; }
+  .ci-go { width: 100%; }
+}
+/* 모바일: 아이콘·값 위, 큰 실행 버튼 아래 — 엄지로 누르기 쉬운 전폭 버튼 */
+@media (max-width: 560px) {
+  .ci-row { gap: 8px; }
+  .ci-btn { flex-wrap: wrap; gap: 12px; padding: 14px; }
+  .ci-ico { width: 40px; height: 40px; }
+  .ci-val { font-size: 17px; }
+  .ci-go { width: 100%; min-height: 46px; font-size: 15px; }
+  .ci-copy { width: 58px; }
+  .ci-btn-tel .ci-go { background: linear-gradient(180deg, #5A92D4, var(--accent)); }
+}
