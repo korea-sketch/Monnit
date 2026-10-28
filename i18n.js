@@ -3546,8 +3546,16 @@ Object.assign(DICT, {
 });
 /* 문장 조각으로 등록되어 다른 곳까지 오역을 만들던 짧은 키 제거 (헤드라인은 HTML_DICT 가 처리) */
 delete DICT['합니다'];
+/* 2026-10-28 영문 전수 보강 사전은 /js/i18n-extra.js (영문 전환 시에만 로드) */
 
-  var LANG = (function () { try { return localStorage.getItem('mlang') || 'ko'; } catch (e) { return 'ko'; } })();
+  var LANG = (function () {
+    try {
+      /* ?lang=en / ?lang=ko 로 들어오면 그 언어로 고정(공유 링크·광고용) */
+      var q = (location.search.match(/[?&]lang=(en|ko)(?:&|$)/) || [])[1];
+      if (q) { localStorage.setItem('mlang', q); localStorage.setItem('mlang_src', 'url'); return q; }
+      return localStorage.getItem('mlang') || 'ko';
+    } catch (e) { return 'ko'; }
+  })();
   var busy = false;
   var handled = new WeakSet();
   var HEADLINE_SEL = 'h1,h2,h3,p.home-lede,.astat-l,[data-i18n-html]';
@@ -3560,14 +3568,89 @@ delete DICT['합니다'];
     [/^(\d+)건$/, '$1 items'],
     [/^(\d+)곳$/, '$1 sites'],
     [/^(\d+)개$/, '$1'],
-    [/^검색 결과 (\d+)건$/, '$1 results']
+    [/^검색 결과 (\d+)건$/, '$1 results'],
+    [/^(\d+)개 문서$/, '$1 articles'],
+    [/^"(.+)" — (\d+)건$/, '"$1" — $2 results'],
+    [/^(\d+)종$/, '$1 types'],
+    /* 2026-10-28(2차) 동적 문구 */
+    [/^(\d{4})년 (\d{1,2})월 (\d{1,2})일$/, function (m, y, mo, d) { return MON[+mo - 1] + ' ' + (+d) + ', ' + y; }],
+    [/^(\d{4})년 (\d{1,2})월 (\d{1,2})일 종료$/, function (m, y, mo, d) { return 'Ended ' + MON[+mo - 1] + ' ' + (+d) + ', ' + y; }],
+    [/^(\d{4})년 (\d{1,2})월$/, function (m, y, mo) { return MON[+mo - 1] + ' ' + y; }],
+    [/^(\d{1,2})월 (\d{1,2})일$/, function (m, mo, d) { return MON[+mo - 1] + ' ' + (+d); }],
+    [/^은\(는\) (\d{4})년 (\d{1,2})월 (\d{1,2})일자로 접수가 마감되었습니다\.$/, function (m, y, mo, d) { return ' closed for applications on ' + MON[+mo - 1] + ' ' + (+d) + ', ' + y + '.'; }],
+    [/^은\(는\) 접수가 마감되었습니다\.$/, ' is closed for applications.'],
+    [/^(.+) 어플리케이션$/, function (m, a) { var t = /[가-힣]/.test(a) ? lookup(a) : a; return t ? t + ' Applications' : null; }],
+    [/^「(.+)」 관련 안내 (\d+)건$/, '$2 articles about \u201c$1\u201d'],
+    [/^· (\d+)mAh · HB (\d+)분 · (\d+)회\/HB · 신호 (.+) \(TX×([\d.]+)\)$/, function (m, b, hb, r, sl, x) { return '· ' + b + 'mAh · HB ' + hb + ' min · ' + r + '×/HB · Signal ' + (lookup(sl) || sl) + ' (TX×' + x + ')'; }],
+    [/^▸ 일 소비량 ([\d.]+) mAh → 예상$/, '▸ Daily consumption $1 mAh → est.'],
+    [/^(\d{1,2}(?:\.\d+)?)년$/, '$1 yrs'],
+    [/^· 총 ([\d,]+)회 전송$/, '· $1 transmissions in total'],
+    [/^(\d+)분$/, '$1 min'],
+    [/^(\d+)시간$/, '$1 hr'],
+    [/^(\d+)일$/, '$1 days'],
+    [/^(\d+)개월$/, '$1 months'],
+    [/^(\d+)년간$/, '$1 years'],
+    [/^(\d+)명$/, '$1 people'],
+    [/^(\d+)대$/, '$1 units'],
+    [/^(\d+)회$/, '$1 times'],
+    [/^([\d,]+)원$/, 'KRW $1'],
+    [/^월 ([\d,]+)원$/, 'KRW $1/month'],
+    [/^(\d+)단계$/, 'Step $1'],
+    [/^(\d{1,2})월 (\d{1,2})일 \(([월화수목금토일])\)$/, function (m, mo, d, w) { return WD[w] + ', ' + MON[+mo - 1] + ' ' + (+d); }],
+    [/^(\d{1,2})월 (\d{1,2})일 \(([월화수목금토일])\) · (\d+)분$/, function (m, mo, d, w, n) { return WD[w] + ', ' + MON[+mo - 1] + ' ' + (+d) + ' · ' + n + ' min'; }],
+    [/^(\d{1,2})월 (\d{1,2})일 \(([월화수목금토일])\) (\d{1,2}:\d{2})부터 (\d{1,2}:\d{2})까지$/, function (m, mo, d, w, a, b) { return WD[w] + ', ' + MON[+mo - 1] + ' ' + (+d) + ', ' + a + '\u2013' + b; }],
+    [/^(\d+) \/ (\d+) 입력$/, '$1 / $2 completed'],
+    [/^(\d+) \/ (\d+) 사례$/, '$1 / $2 projects'],
+    [/^\/ (\d+)곳 · 부가세 별도 · (.+)$/, function (m, n, r) { return '/ ' + n + (n === '1' ? ' site' : ' sites') + ' · VAT excluded · ' + (lookup(r) || 'Outside the Seoul metropolitan area'); }],
+    [/^\/ (\d+)곳 · 부가세 별도$/, function (m, n) { return '/ ' + n + (n === '1' ? ' site' : ' sites') + ' · VAT excluded'; }],
+    [/^월 구독료 ([\d,]+)원 · 설치비 무료$/, 'KRW $1/month subscription · Free installation'],
+    [/^월 구독료 ([\d,]+)원$/, 'KRW $1/month subscription'],
+    [/^빨간 표시된 (\d+)곳을 확인해 주세요\.$/, 'Please check the $1 highlighted field(s).'],
+    [/^현장 진단 방문 · (\d+)분$/, 'Site assessment visit · $1 min'],
+    [/^선택한 (.+)$/, function (m, a) { var t = lookup(a); return t ? 'Selected: ' + t : null; }],
+    [/^ACTUAL INSTALLATION · (.+)$/, function (m, a) { var t = lookup(a); return t ? 'ACTUAL INSTALLATION · ' + t : null; }],
+    [/^(.+) 사진 (\d+) \/ (\d+)$/, function (m, a, i, n) { var t = lookup(a); return t ? t + ' — photo ' + i + ' / ' + n : null; }]
   ];
-  function tr(s) {
+  PATTERNS.push([/^(\d+)식$/, function (m, n) { return n + (n === '1' ? ' set' : ' sets'); }], [/^(\d+)주$/, function (m, n) { return n + (n === '1' ? ' week' : ' weeks'); }]);
+  var WD = { '월': 'Mon', '화': 'Tue', '수': 'Wed', '목': 'Thu', '금': 'Fri', '토': 'Sat', '일': 'Sun' };
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function lookup(x) { var k = norm(x); return (DICT[k] != null && norm(DICT[k]) !== k) ? DICT[k] : null; }
+  /* '차압 · 온도 · 전류' 처럼 가운뎃점으로 이은 목록 — 조각마다 사전에 있으면 조합 */
+  function splitDots(k) {
+    if (k.indexOf('·') < 0 && k.indexOf(' / ') < 0 && k.indexOf(', ') < 0) return null;
+    var parts = k.split(/(\s*·\s*|\s+\/\s+|,\s+)/), ok = false;
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1 || !/[가-힣]/.test(parts[i])) continue;
+      var t = lookup(parts[i]) || pat(parts[i]);
+      if (t == null) return null;
+      parts[i] = t; ok = true;
+    }
+    return ok ? parts.join('') : null;
+  }
+  function pat(k) {
+    for (var i = 0; i < PATTERNS.length; i++) {
+      var P = PATTERNS[i], m = P[0].exec(k);
+      if (!m) continue;
+      var o = typeof P[1] === 'function' ? P[1].apply(null, m) : k.replace(P[0], P[1]);
+      return (o == null || o === k) ? null : o;
+    }
+    return null;
+  }
+
+  /* 2026-10-28(2차) 영문 다듬기 — 'Server-Room Environment' 처럼 명사를 하이픈으로 잇던 번역(시트 영문 포함)을
+     자연스러운 띄어쓰기로. 단어 목록에 있는 것만 바꾼다(Wi-Fi·Real-Time·On-Premises 등은 그대로). */
+  var HY = /\b(Server|Data|Telecom|Semiconductor|Backup|Power|Paint|Raw|Clean|Parts|Gas|Threat|Patient|Coffee|Energy|Industrial|Packaging|Finished|Material|Air|Asset|Base|Camp|Chemo|Cold|Common|Construction|Distribution|Equipment|Factory|Fermentation|Filter|Fire|Food|Foreclosed|Fresh|Fuel|Guest|Healthcare|Heat|Herbal|Hot|Leak|Lecture|Lumber|Manufacturing|Oil|Plant|Production|Rotating|Shared|Smart|Smelting|Solar|Specimen|Stored|Tank|Temperature|Vacant|Vaccine|Warehouse|Water|Welding|Remote|Aerospace|Elderly|Automated|Strategic|Facility|Door|Generator|Ammunition|Building)-(Room|Center|Centre|Infrastructure|Fab|Battery|System|Load|Booth|booth|Generation|Material|Gas|Warehouse|Storage|Leak|Detection|Bean|Use|Usage|Packaging|Goods|Quality|Monitoring|Station|Facility|Drug|Chain|chain|Area|area|Panel|Consumption|Control|Efficiency|Management|Vibration|Equipment|Tank|tank|Replacement|replacement|Safety|Property|Food|Exchanger|Yoga|Automation|Site|Hall|Line|Furnace|Fridge|Operations|Care|Logging|Parts|asset|Asset|room|center|load|battery)\b/g;
+  function polish(en) { return (typeof en === 'string' && en.indexOf('-') > -1) ? en.replace(HY, '$1 $2') : en; }
+  function tr(s) { var o = tr0(s); return o == null ? o : polish(o); }
+  function tr0(s) {
     var k = norm(s);
     if (!k) return null;
-    if (DICT[k] != null) return DICT[k];
-    for (var i = 0; i < PATTERNS.length; i++) { if (PATTERNS[i][0].test(k)) return k.replace(PATTERNS[i][0], PATTERNS[i][1]); }
-    return null;
+    /* 2026-10-28 번역값이 원문과 같으면(시트 영문 열이 비어 한글 이름이 그대로 등록된 경우 등) 번역 안 함.
+       같은 글자를 다시 쓰면 characterData 변경 → 감시자 재호출이 끝없이 반복되어 영문 모드에서
+       사례 상세 화면이 멈췄다(Case Study 13 · 호반건설). */
+    if (DICT[k] != null) return norm(DICT[k]) === k ? null : DICT[k];
+    var o = pat(k); if (o != null) return o;
+    return splitDots(k);
   }
   var ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
   var EN_TITLE = 'Monnit Korea — Industrial Wireless IoT Sensors, Integrated Monitoring & AI Predictive Maintenance';
@@ -3600,6 +3683,13 @@ delete DICT['합니다'];
         }
       }
     }
+    // 1-2) value 없는 <option> — 글자를 영문으로 바꾸면 선택값(select.value)까지 영문이 되어
+    //      '기타' 비교 등 화면 로직과 접수 데이터가 달라진다. 번역 전에 원래 한글을 value 로 고정 (2026-10-28 2차)
+    if (root.querySelectorAll) {
+      var ops = root.querySelectorAll('option:not([value])');
+      for (var oi = 0; oi < ops.length; oi++) ops[oi].setAttribute('value', ops[oi].textContent);
+      if (root.tagName === 'OPTION' && !root.hasAttribute('value')) root.setAttribute('value', root.textContent);
+    }
     // 2) 텍스트 노드
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     var batch = [], n;
@@ -3611,6 +3701,7 @@ delete DICT['합니다'];
       var raw = tn.nodeValue, trimmed = raw.trim();
       if (!trimmed) return;
       var en = tr(raw);
+      if (en == null && raw.indexOf('-') > -1 && !/[가-힣]/.test(raw)) { HY.lastIndex = 0; if (HY.test(raw)) { HY.lastIndex = 0; en = polish(trimmed); } }
       if (en != null) {
         if (tn.__ko == null) tn.__ko = raw;
         /* 문장 조각이 마침표·쉼표로 시작하면 앞 공백을 붙여 'ms .' 같은 띄어쓰기 어색함 방지 */
@@ -3631,9 +3722,54 @@ delete DICT['합니다'];
         }
       }
     }
+    kbEnhance();
+    swapImgs(root);
+  }
+  /* 2026-10-28(2차) 글자가 박힌 이미지 — data-en-src / data-en-srcset 이 있으면 영문 이미지로 교체 */
+  function swapImgs(root) {
+    if (!root.querySelectorAll) return;
+    var list = root.querySelectorAll('[data-en-src],[data-en-srcset]');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (el.__koImg) continue;
+      el.__koImg = { src: el.getAttribute('src'), srcset: el.getAttribute('srcset') };
+      if (el.hasAttribute('data-en-src')) el.setAttribute('src', el.getAttribute('data-en-src'));
+      if (el.hasAttribute('data-en-srcset')) el.setAttribute('srcset', el.getAttribute('data-en-srcset'));
+    }
+  }
+  function unswapImgs() {
+    var list = document.querySelectorAll('[data-en-src],[data-en-srcset]');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i], o = el.__koImg; if (!o) continue;
+      if (o.src != null) el.setAttribute('src', o.src);
+      if (o.srcset != null) el.setAttribute('srcset', o.srcset);
+      el.__koImg = null;
+    }
   }
 
+  /* 2026-10-28(2차) 기술문서 본문은 한국어 번역본이라 영문 모드에서는 숨기고, 같은 제목으로
+     Monnit 본사 영문 지식베이스를 검색하는 버튼을 보여 준다 */
+  function kbEnhance() {
+    if (LANG !== 'en') return;
+    var arts = document.querySelectorAll('.kb-article');
+    for (var i = 0; i < arts.length; i++) {
+      var art = arts[i];
+      if (art.querySelector('.kb-en-cta')) continue;
+      var t = art.querySelector('.kb-art-title');
+      var q = t ? norm(t.textContent) : '';
+      if (/[가-힣]/.test(q)) q = '';
+      var box = document.createElement('div');
+      box.className = 'kb-en-cta';
+      box.innerHTML = '<p>This technical article is maintained in Korean for our local customers. The English original is available in Monnit\'s official Knowledge Base.</p>' +
+        '<a class="kb-en-btn" target="_blank" rel="noopener" href="' + MONNIT_KB_EN + (q ? 'search?query=' + encodeURIComponent(q) : '') + '">Read in English on support.monnit.com \u2192</a>' +
+        '<span class="kb-en-alt">Need help? <a href="/contact/">Contact Monnit Korea</a></span>';
+      if (t && t.parentNode) t.parentNode.insertBefore(box, t.nextSibling); else art.appendChild(box);
+    }
+  }
+  function kbRestore() { var b = document.querySelectorAll('.kb-en-cta'); for (var i = 0; i < b.length; i++) b[i].parentNode.removeChild(b[i]); }
+
   function restoreTree() {
+    kbRestore(); unswapImgs();
     // 텍스트 노드 복원
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     var n; while ((n = walker.nextNode())) { if (n.__ko != null) { n.nodeValue = n.__ko; n.__ko = null; } }
@@ -3647,9 +3783,28 @@ delete DICT['합니다'];
     handled = new WeakSet();
   }
 
-  function setLang(lang) {
+  /* 보강 사전 지연 로드 — 영문으로 전환할 때 한 번만 */
+  var extraState = 0;
+  function loadExtra() {
+    if (extraState) return; extraState = 1;
+    if (window.__I18N_EXTRA) { mergeExtra(); return; }
+    var sc = document.createElement('script');
+    sc.src = '/js/i18n-extra.js?v=2';
+    sc.onload = mergeExtra;
+    sc.onerror = function () { extraState = 0; };
+    document.head.appendChild(sc);
+  }
+  function mergeExtra() {
+    var X = window.__I18N_EXTRA; if (!X) return;
+    for (var k in X) { if (Object.prototype.hasOwnProperty.call(X, k) && DICT[k] == null) DICT[k] = X[k]; }
+    extraState = 2;
+    if (LANG === 'en') { busy = true; try { translateTree(document.body); applyMeta(); } finally { busy = false; } }
+  }
+
+  function setLang(lang, src) {
     LANG = lang;
-    try { localStorage.setItem('mlang', lang); } catch (e) {}
+    if (lang === 'en') loadExtra();
+    try { localStorage.setItem('mlang', lang); if (src) localStorage.setItem('mlang_src', src); } catch (e) {}
     document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'ko');
     busy = true;
     if (lang === 'en') translateTree(document.body); else restoreTree();
@@ -3659,6 +3814,7 @@ delete DICT['합니다'];
     try { window.dispatchEvent(new CustomEvent('monnit:langchange', { detail: { lang: lang } })); } catch (e) {}
   }
 
+  function freezeOpt(tn) { var p = tn.parentElement; if (p && p.tagName === 'OPTION' && !p.hasAttribute('value')) p.setAttribute('value', p.textContent); }
   // 동적 렌더 자동 번역
   var obs = new MutationObserver(function (muts) {
     if (LANG !== 'en' || busy) return;
@@ -3675,13 +3831,14 @@ delete DICT['합니다'];
         return;
       }
       if (m.type === 'characterData') {
-        var cn = m.target; if (cn.nodeValue && /[가-힣]/.test(cn.nodeValue)) { var ce = tr(cn.nodeValue); if (ce != null) { cn.__ko = cn.nodeValue; cn.nodeValue = cn.nodeValue.replace(cn.nodeValue.trim(), ce); } }
+        var cn = m.target; if (cn.nodeValue && /[가-힣]/.test(cn.nodeValue)) { freezeOpt(cn); var ce = tr(cn.nodeValue); if (ce != null) { var nv = cn.nodeValue.replace(cn.nodeValue.trim(), ce); if (nv !== cn.nodeValue) { cn.__ko = cn.nodeValue; cn.nodeValue = nv; } } }
         return;
       }
       for (var i = 0; i < m.addedNodes.length; i++) {
         var node = m.addedNodes[i];
         if (node.nodeType === 1) translateTree(node);
         else if (node.nodeType === 3) {
+          freezeOpt(node);
           var en = tr(node.nodeValue);
           if (en != null) { node.__ko = node.nodeValue; node.nodeValue = node.nodeValue.replace(node.nodeValue.trim(), en); }
         }
@@ -3692,17 +3849,64 @@ delete DICT['합니다'];
 
   // 토글 버튼
   var btn;
-  function updateToggle() { if (btn) btn.textContent = (LANG === 'en') ? 'KO' : 'EN'; }
+  /* 2026-10-28(2차) 언어 선택 — 'KO | EN' 두 칸으로 나눠 지금 언어가 칠해져 보이게.
+     (예전 버튼은 '바꿀 언어'를 표시해 한국어 화면에 EN 이 떠 있어 헷갈렸음) */
+  function updateToggle() {
+    if (!btn) return;
+    var bs = btn.querySelectorAll('button[data-lang]');
+    for (var i = 0; i < bs.length; i++) {
+      var on = bs[i].getAttribute('data-lang') === LANG;
+      bs[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      bs[i].classList.toggle('on', on);
+    }
+  }
   function buildToggle() {
-    btn = document.createElement('button');
+    if (document.getElementById('langToggle')) return;
+    btn = document.createElement('div');
     btn.id = 'langToggle';
-    btn.type = 'button';
+    btn.className = 'lang-switch';
+    btn.setAttribute('role', 'group');
     btn.setAttribute('aria-label', 'Language');
-    btn.addEventListener('click', function () { setLang(LANG === 'en' ? 'ko' : 'en'); });
+    btn.innerHTML = '<button type="button" data-lang="ko" lang="ko" title="Korean">KO</button><button type="button" data-lang="en" lang="en" title="English">EN</button>';
+    btn.addEventListener('click', function (ev) {
+      var b = ev.target.closest ? ev.target.closest('button[data-lang]') : null;
+      if (!b) return;
+      var l = b.getAttribute('data-lang');
+      if (l !== LANG) setLang(l, 'user'); else { try { localStorage.setItem('mlang', l); localStorage.setItem('mlang_src', 'user'); } catch (e) {} }
+    });
     var nav = document.querySelector('.nav-cta');
+    var slot = document.querySelector('[data-lang-slot]');
     if (nav && nav.parentElement) nav.parentElement.insertBefore(btn, nav);
-    else document.body.appendChild(btn);
+    else if (slot) {
+      /* 단독 페이지 머리말 안의 자리 */
+      btn.classList.add('lang-switch--inline');
+      slot.style.display = 'inline-flex'; slot.style.alignItems = 'center';
+      slot.appendChild(btn);
+    }
+    else {
+      /* 머리말이 없는 단독 페이지는 우측 상단에 떠 있게 */
+      btn.classList.add('lang-switch--float');
+      document.body.appendChild(btn);
+    }
+    injectToggleCss();
     updateToggle();
+  }
+  /* 단독 페이지(style.css 를 안 쓰는 랜딩)에서도 같은 모양이 나오도록 최소 스타일을 함께 넣는다 */
+  function injectToggleCss() {
+    if (document.getElementById('langSwitchCss')) return;
+    var st = document.createElement('style');
+    st.id = 'langSwitchCss';
+    st.textContent =
+      '.lang-switch{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:999px;border:1px solid rgba(127,140,160,.45);background:rgba(127,140,160,.10);flex-shrink:0;white-space:nowrap;line-height:1;vertical-align:middle}' +
+      '.lang-switch button{appearance:none;-webkit-appearance:none;border:0;margin:0;background:transparent;color:inherit;opacity:.62;cursor:pointer;min-width:34px;height:26px;padding:0 9px;border-radius:999px;font:700 11.5px/1 Pretendard,-apple-system,system-ui,sans-serif;letter-spacing:.06em;transition:background .18s ease,color .18s ease,opacity .18s ease}' +
+      '.lang-switch button:hover{opacity:1}' +
+      '.lang-switch button.on{opacity:1;background:#4A82C4;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}' +
+      '.lang-switch button:focus-visible{outline:2px solid #7fb0ea;outline-offset:1px}' +
+      '.lang-switch--float{position:fixed;top:12px;right:12px;z-index:1000;color:#fff!important;background:rgba(8,12,22,.9)!important;border-color:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 18px rgba(0,0,0,.35)}' +
+      '.lang-switch--inline{margin:0}' +
+      '.lang-switch--float button{opacity:.85;color:#fff!important}' +
+      '@media(max-width:480px){.lang-switch--inline button{min-width:26px;height:24px;padding:0 6px;font-size:10.5px}}';
+    document.head.appendChild(st);
   }
 
   // 영문 모드에서 기술문서(지식베이스/가이드)는 본사 영문 KB로 유도
@@ -3716,9 +3920,21 @@ delete DICT['합니다'];
 
   // 구글 시트로 추가/수정된 제품의 영문(name_en·desc_en)을 런타임에 등록하기 위한 훅
   window.MonnitI18N = {
-    add: function (ko, en) { if (ko != null && en != null && String(en).trim() !== '') DICT[norm(ko)] = String(en); },
-    refresh: function () { try { if (LANG === 'en') translateTree(document.body); } catch (e) {} }
+    add: function (ko, en) { if (ko != null && en != null && String(en).trim() !== '' && norm(ko) !== norm(en) && !/[가-힣]/.test(en)) DICT[norm(ko)] = String(en); },  /* 영문 칸에 한글이 섞인 값(시트 오입력)은 무시 */
+    refresh: function () { try { if (LANG === 'en') translateTree(document.body); } catch (e) {} },
+    setLang: function (l, src) { if (l === 'en' || l === 'ko') { if (l !== LANG) setLang(l, src || 'api'); else try { localStorage.setItem('mlang_src', src || 'api'); } catch (e) {} } },
+    lang: function () { return LANG; }
   };
+
+  /* 2026-10-28 알림창(alert/confirm)도 영문 모드에서 번역 */
+  ['alert', 'confirm'].forEach(function (fn) {
+    var orig = window[fn];
+    if (typeof orig !== 'function') return;
+    window[fn] = function (msg) {
+      if (LANG === 'en' && msg != null && /[가-힣]/.test(String(msg))) { var t = tr(String(msg)); if (t != null) msg = t; }
+      return orig.call(window, msg);
+    };
+  });
 
   function init() {
     buildToggle();

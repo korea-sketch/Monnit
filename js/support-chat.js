@@ -222,7 +222,7 @@
     var hist = S.log.filter(function (x) { return x.t === 'msg'; }).slice(-8).map(function (x) { return { role: x.role, text: x.text }; });
     var c = w.AbortController ? new AbortController() : null, timer = setTimeout(function () { if (c) c.abort(); }, 15000);
     fetch(API, { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, signal: c ? c.signal : undefined,
-      body: JSON.stringify({ q: text, history: hist, cat: S.cat, seen: S.seen, lang: 'ko', elapsed: Date.now() - S.T0, website: '' }) })
+      body: JSON.stringify({ q: text, history: hist, cat: S.cat, seen: S.seen, lang: (function(){ try { return (document.documentElement.lang === 'en' || localStorage.getItem('mlang') === 'en') ? 'en' : 'ko'; } catch (e) { return 'ko'; } })(), elapsed: Date.now() - S.T0, website: '' }) })
       .then(function (r) { return r.json(); })
       .then(function (x) { done(x); }, function () { done(null); });
     function done(x) {

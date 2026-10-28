@@ -159,6 +159,8 @@ export const config = {
     "/api/proposal/status", "/api/proposal/preview", "/api/proposal/detect",
     /* 유입·경로 기록과 팝업 설정 — 페이지마다 불리므로 엣지를 거치지 않게 (2026-09-23) */
     "/api/track", "/api/popup",
+    /* 접속 국가 조회 — 첫 방문 때 한 번, 방문 기록 제외 (2026-10-28) */
+    "/api/geo",
     "/*.css", "/*.js", "/*.mjs", "/*.webp", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.svg",
     "/*.ico", "/*.woff", "/*.woff2", "/*.map", "/*.txt", "/*.xml"
   ],

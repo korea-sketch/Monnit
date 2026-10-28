@@ -336,5 +336,24 @@ document.getElementById('leadForm').addEventListener('submit',function(e){
     .then(done).catch(function(){window.location.href='mailto:korea@monnit.com?subject='+encodeURIComponent('[프로모션] '+promoName+' 상담 신청')+'&body='+encodeURIComponent('회사명: '+company+'\n담당자: '+name+'\n연락처: '+tel+'\n시설: '+fac+'\n출처: '+src);done();});}
 });
 </script>
+<script>/* 언어 선택 (2026-10-28 2차) — 저장된 선택(mlang) · ?lang=en|ko 우선. 처음 온 방문자는 접속 국가(/api/geo)가
+   한국이 아니면 영문으로 시작(검색로봇·미리보기 창 제외). 한국어 화면에서는 i18n.js 를 늦게 받는다. */
+(function(){var d=document,w=window,n=navigator,ls=null;try{ls=w.localStorage;}catch(e){}
+ function get(k){try{return ls&&ls.getItem(k);}catch(e){return null;}}
+ function put(k,v){try{if(ls)ls.setItem(k,v);}catch(e){}}
+ var q=(location.search.match(/[?&]lang=(en|ko)(?:&|$)/)||[])[1]; if(q){put('mlang',q);put('mlang_src','url');}
+ var m=get('mlang');
+ function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=120';s.defer=true;d.head.appendChild(s);}
+ function toEn(){if(w.MonnitI18N&&w.MonnitI18N.setLang){w.MonnitI18N.setLang('en','geo');}else{d.documentElement.lang='en';load();}}
+ if(m==='en'){d.documentElement.lang='en';load();return;}
+ 
+ var bot=/bot|crawl|spider|slurp|yeti|daum|naver|facebookexternalhit|lighthouse|headless|prerender/i.test(n.userAgent||'')||n.webdriver;
+ if(m||bot||w.top!==w.self||!w.fetch)return;
+ fetch('/api/geo',{credentials:'omit',cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+   var c=j&&j.country; if(!c||get('mlang'))return;
+   if(c==='KR'){put('mlang','ko');put('mlang_src','geo');return;}
+   put('mlang','en');put('mlang_src','geo');toEn();
+ }).catch(function(){});
+})();</script>
 </body>
 </html>

@@ -876,3 +876,6 @@ dialog#retDlg::backdrop{
 .knownbox .kb-l span{overflow-wrap:anywhere}
 .form.is-known .known-f{display:none}
 @media (prefers-reduced-motion:reduce){.handoff{animation:none}}
+
+/* 2026-10-28 영문 모드: 한글용 줄 단위 묶음(.nb)을 풀어 자연스럽게 줄바꿈 */
+html[lang="en"] .nb{white-space:normal}

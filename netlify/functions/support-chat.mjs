@@ -15,7 +15,7 @@ import * as S from '../lib/proposal/store.mjs';
 import { readUsage, addUsage, readHalt, setHalt, isBillingSignal, recordAiError } from '../lib/proposal/aiusage.mjs';
 import { kDay } from '../lib/proposal/schedule.mjs';
 import * as _guard from '../lib/proposal/guard.mjs';
-import { find, confidence, mood, getArticle, askSupportAI, RULE } from '../lib/support/answer.mjs';
+import { find, confidence, mood, getArticle, askSupportAI, RULE as RULE_KO, RULE_EN } from '../lib/support/answer.mjs';
 
 export const config = { path: '/api/support/chat' };
 
@@ -51,6 +51,7 @@ export default async (req) => {
   } catch (e) { return json({ ok: false, error: 'bad_request' }, 400); }
   if (!b || typeof b !== 'object') return json({ ok: false, error: 'bad_request' }, 400);
 
+  const RULE = b.lang === 'en' ? RULE_EN : RULE_KO;   /* 2026-10-28 영문 모드 */
   const q = String(b.q || '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 600);
   if (!q) return json({ ok: false, error: 'empty' }, 400);
   const cat = typeof b.cat === 'string' ? b.cat.slice(0, 20) : '';
@@ -105,7 +106,7 @@ export default async (req) => {
     }
   }
   if (allowAI) {
-    const r = await askSupportAI(q, history, docs);
+    const r = await askSupportAI(q, history, docs, b.lang === 'en' ? 'en' : 'ko');
     if (r && r.out && r.out.reply) {
       if (r.usage) later(addUsage(r.model, r.usage));
       later(logQ('ai', { q, top: topIds, got: r.out.ids, esc: !!r.out.escalate }));

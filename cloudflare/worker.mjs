@@ -37,6 +37,7 @@ import * as fn_visitadmin from '../netlify/functions/visitadmin.mjs';
 import * as fn_blob_export from '../netlify/functions/blob-export.mjs';
 /* 긴급 경보 알리미 계약·설문·SLA (2026-10-16) */
 import * as fn_alarm from '../netlify/functions/alarm.mjs';
+import * as fn_geo from '../netlify/functions/geo.mjs';   /* 접속 국가 → 영문 첫 화면 (2026-10-28) */
 /* 백그라운드 · 예약 */
 import * as fn_build_bg from '../netlify/functions/proposal-build-background.mjs';
 import * as fn_adsync from '../netlify/functions/adsync.mjs';
@@ -56,7 +57,7 @@ const V2 = {
   blockadmin: fn_blockadmin, blockapi: fn_blockapi, flowadmin: fn_flowadmin, lead: fn_lead,
   mailpreview: fn_mailpreview, noticeadmin: fn_noticeadmin, ops: fn_ops, 'proposal-admin': fn_proposal_admin,
   'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, 'support-chat': fn_support_chat, track: fn_track, visitadmin: fn_visitadmin,
-  'blob-export': fn_blob_export, alarm: fn_alarm
+  'blob-export': fn_blob_export, alarm: fn_alarm, geo: fn_geo
 };
 const BACKGROUND = { 'proposal-build-background': fn_build_bg };
 const SCHEDULED = { adsync: fn_adsync, health: fn_health, 'proposal-dispatch': fn_dispatch };

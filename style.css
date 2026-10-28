@@ -11645,3 +11645,66 @@ html[lang="en"] [data-sc^="home2.val"][data-sc$=".d"] { text-wrap: pretty; }
   .ci-copy { width: 58px; }
   .ci-btn-tel .ci-go { background: linear-gradient(180deg, #5A92D4, var(--accent)); }
 }
+
+/* 2026-10-28 영문 모드 — 기술문서(지식베이스·가이드)는 한국어 문서이므로 목록의 한글 요약은 숨기고 원문 안내 */
+html[lang="en"] .kb-card p { display: none; }
+html[lang="en"] .kb-art-body { display: none; }
+html[lang="en"] .kb-en-cta { margin: 6px 0 8px; padding: 22px 22px 20px; border-radius: 14px;
+  border: 1px solid rgba(74,130,196,.45); background: rgba(74,130,196,.10); }
+html[lang="en"] .kb-en-cta p { margin: 0 0 16px; color: var(--ink); font-size: 15px; line-height: 1.65; }
+html[lang="en"] .kb-en-btn { display: inline-flex; align-items: center; gap: 6px; padding: 12px 18px; border-radius: 999px;
+  background: var(--accent, #4A82C4); color: #fff !important; font-weight: 700; font-size: 14px; text-decoration: none; }
+html[lang="en"] .kb-en-btn:hover { filter: brightness(1.08); }
+html[lang="en"] .kb-en-alt { display: block; margin-top: 14px; font-size: 13px; color: var(--ink-soft); }
+html[lang="en"] .kb-en-alt a { color: var(--accent-dark, #7fb0ea); }
+
+/* 2026-10-28 상세 페이지 모바일 가로 넘침 방지 — 영문의 긴 단어(Availability↑ 등)·지표 카드가
+   좁은 화면에서 그리드 칸을 밀어내 화면 밖으로 나가던 문제 (한글에서도 ROI 줄이 10px 넘쳤음) */
+.case-row > *, .roi-metrics > *, .res-grid > *, .compare-row > *, .snapshot-bar > * { min-width: 0; }
+.roi-num, .res-num, .roi-desc, .res-lbl, .case-lead, .compare-side p, .compare-side h5, .snap-value { overflow-wrap: break-word; }
+@media (max-width: 780px) {
+  .res-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .compare-row { grid-template-columns: 1fr; gap: 16px; }
+  html[lang="en"] .roi-num { font-size: 25px; line-height: 1.15; }
+  html[lang="en"] .res-num { font-size: 32px; }
+}
+@media (max-width: 400px) {
+  html[lang="en"] .roi-metrics { grid-template-columns: 1fr; }
+}
+
+
+/* ==========================================================================
+   2026-10-28(2차) 영문 모드 다듬기
+   - 사례 카드 업종 태그(MANUFACTURING & INDUSTRY)가 모바일 2열에서 글자 중간에 끊기던 문제
+   - 긴 영단어는 단어 단위로만 줄바꿈(anywhere → break-word)
+   ========================================================================== */
+html[lang="en"] .case-card * { overflow-wrap: break-word; }
+html[lang="en"] .case-card .tag, html[lang="en"] .featured-card .tag { letter-spacing: .04em; overflow-wrap: normal; word-break: normal; hyphens: none; }
+@media (max-width: 640px) {
+  html[lang="en"] .case-card .tag { font-size: 10px; letter-spacing: .02em; padding: 4px 7px; line-height: 1.45; }
+  html[lang="en"] .case-card .logo { overflow-wrap: break-word; hyphens: auto; }
+  html[lang="en"] .case-card .headline, html[lang="en"] .case-card .apps li { hyphens: auto; }
+}
+
+/* ==========================================================================
+   2026-10-28(2차) 언어 선택 KO | EN — 두 칸으로 나누고 현재 언어를 칠해서 표시
+   (i18n.js 가 #langToggle.lang-switch 안에 버튼 2개를 만든다)
+   ========================================================================== */
+#langToggle.lang-switch{
+  display:inline-flex; align-items:center; gap:2px; padding:2px !important; margin-right:14px;
+  border:1px solid var(--line-strong); border-radius:999px; background:rgba(255,255,255,.03);
+  letter-spacing:normal; font-size:inherit; line-height:1; cursor:default;
+}
+#langToggle.lang-switch:hover{ border-color:var(--line-strong); color:inherit; }
+#langToggle.lang-switch button{
+  appearance:none; -webkit-appearance:none; border:0; margin:0; background:transparent;
+  min-width:34px; height:28px; padding:0 9px; border-radius:999px; cursor:pointer;
+  font-family:var(--fm); font-size:11.5px; font-weight:600; letter-spacing:.08em; line-height:1;
+  color:var(--ink-faint, var(--ink)); opacity:.75; transition:background .18s ease, color .18s ease, opacity .18s ease;
+}
+#langToggle.lang-switch button:hover{ opacity:1; color:var(--ink); }
+#langToggle.lang-switch button.on{ opacity:1; background:var(--accent); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,.25); }
+#langToggle.lang-switch button:focus-visible{ outline:2px solid var(--accent-dark, #7fb0ea); outline-offset:1px; }
+@media (max-width:1380px) and (min-width:921px){ #langToggle.lang-switch{ margin-right:8px; } #langToggle.lang-switch button{ min-width:30px; height:26px; padding:0 7px; font-size:10.5px; } }
+@media (max-width:1080px) and (min-width:921px){ #langToggle.lang-switch button{ min-width:26px; padding:0 5px; letter-spacing:.04em; } }
+@media (max-width:920px){ #langToggle.lang-switch{ margin-right:8px; } #langToggle.lang-switch button{ min-width:32px; height:28px; padding:0 8px; font-size:11px; } }

@@ -39,6 +39,17 @@ export const RULE = {
   mid: '말씀하신 내용과 가까운 안내를 찾았어요. 아래에서 가장 비슷한 것을 골라 주세요.',
   high: '이 증상은 아래 순서로 점검하면 대부분 해결돼요. 쉬운 것부터 차례로 같이 확인해 볼게요.'
 };
+/* 2026-10-28 영문 모드(lang:'en')용 규칙 답 */
+export const RULE_EN = {
+  angry: "I'm sorry this still isn't resolved after several tries. So you don't have to wait any longer, I'll hand this over to an engineer right now. Everything we've discussed goes along with it, so you won't need to explain again.",
+  human: "Sure — I'll have an engineer look into this directly. Just leave your contact details in the form below; our conversation so far will be passed along automatically.",
+  fire: "If you can see fire or smoke right now, call 119 and evacuate first. Checking sensors and alerts can wait. Once everyone is safe, submit an \u201cUrgent\u201d request below and we'll check it first.",
+  urgent: "On-site safety comes first. If this needs an immediate response — fire, flooding or a temperature excursion — please check the site in person first, and submit an \u201cUrgent\u201d request below so we can prioritize it.",
+  sales: "For purchasing, quotes, delivery or contracts, our sales team can give you the most accurate answer. Leave your details below and we'll get back to you.",
+  none: "I couldn't find a guide that exactly matches what you described. Rather than give you a rough answer, it will be faster for an engineer to check directly. Describe the symptom below and we'll get back to you.",
+  mid: "I found guides close to what you described. Please pick the one that matches best below.",
+  high: "Most cases like this are solved by checking the steps below in order. Let's go through them together, starting with the easiest."
+};
 
 /* ── AI ────────────────────────────────────────────────────────── */
 const SYSTEM = `당신은 모넷코리아(Monnit ALTA 무선 IoT 센서 국내 공식 공급사) 홈페이지의 기술지원 도우미 「모니」입니다.
@@ -121,11 +132,11 @@ async function callGemini(text, signal) {
 }
 
 /** AI 답 — 실패하면 { error } (부른 쪽이 규칙 답으로 이어 간다) */
-export async function askSupportAI(q, history, docs) {
+export async function askSupportAI(q, history, docs, lang) {
   if (!CFG.chatAiKey) return { error: { status: 0, message: 'no-key' } };
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), CFG.chatTimeoutMs);
   try {
-    const text = convo(q, history, docs);
+    const text = convo(q, history, docs) + (lang === 'en' ? '\n\n[답변 언어]\n고객이 영문 페이지를 보고 있습니다. reply 는 반드시 자연스러운 영어(English)로 작성합니다.' : '');
     const r = CFG.aiProvider === 'gemini' ? await callGemini(text, ac.signal) : await callAnthropic(text, ac.signal);
     if (r && r.out) {
       const allowed = new Set(docs.map(d => d.id));

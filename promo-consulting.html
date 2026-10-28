@@ -1538,6 +1538,7 @@ h2{margin-bottom:14px!important}
 }
 </style>
   <script src="/valid.js?v=1"></script>
+<style>/* 2026-10-28(2차) 언어 선택(KO|EN)이 들어간 모바일 머리말 정리 */@media(max-width:480px){nav .wrap:has(#langToggle) img{max-width:112px;height:auto}nav .wrap:has(#langToggle) .navbtn{font-size:12px;padding:8px 10px;white-space:nowrap}}</style>
 </head>
 <body>
   
@@ -1551,7 +1552,7 @@ h2{margin-bottom:14px!important}
 
   <nav><div class="wrap">
     <a href="https://monnit.co.kr/" aria-label="모넷코리아 홈"><img src="/images/promo/pc-01.png" alt="모넷코리아 MONNIT 로고"></a>
-    <a href="#apply" class="navbtn" data-k="nav-01">무료 체험 신청</a>
+    <span style="display:flex;align-items:center;gap:10px"><span data-lang-slot></span><a href="#apply" class="navbtn" data-k="nav-01">무료 체험 신청</a></span>
   </div></nav>
 
   <header class="hero"><div class="wrap">
@@ -3279,6 +3280,7 @@ window.MKDOCS = { spec: spec, catalog: catalog, specFor: specFor, specTitle: spe
 
   /* B. DecryptedText — 원문 글자만 섞어 순차 해독 (한글 안전) */
   [].slice.call(document.querySelectorAll('[data-decrypt]')).forEach(function(el){
+    try{ if(localStorage.getItem('mlang')==='en') return; }catch(_){} /* 영문 모드: 한글 글자 섞임 연출 생략 */
     var nodes=[],walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null);
     var n; while((n=walker.nextNode())){ if(n.nodeValue.trim()) nodes.push({node:n,text:n.nodeValue}); }
     if(!nodes.length) return;
@@ -3326,4 +3328,23 @@ document.addEventListener('click',function(e){
   setTimeout(function(){var r=t.getBoundingClientRect().top;if(Math.abs(r-84)>40)t.scrollIntoView({behavior:'smooth',block:'start'})},900);
 });
 </script>
+<script>/* 언어 선택 (2026-10-28 2차) — 저장된 선택(mlang) · ?lang=en|ko 우선. 처음 온 방문자는 접속 국가(/api/geo)가
+   한국이 아니면 영문으로 시작(검색로봇·미리보기 창 제외). 한국어 화면에서는 i18n.js 를 늦게 받는다. */
+(function(){var d=document,w=window,n=navigator,ls=null;try{ls=w.localStorage;}catch(e){}
+ function get(k){try{return ls&&ls.getItem(k);}catch(e){return null;}}
+ function put(k,v){try{if(ls)ls.setItem(k,v);}catch(e){}}
+ var q=(location.search.match(/[?&]lang=(en|ko)(?:&|$)/)||[])[1]; if(q){put('mlang',q);put('mlang_src','url');}
+ var m=get('mlang');
+ function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=120';s.defer=true;d.head.appendChild(s);}
+ function toEn(){if(w.MonnitI18N&&w.MonnitI18N.setLang){w.MonnitI18N.setLang('en','geo');}else{d.documentElement.lang='en';load();}}
+ if(m==='en'){d.documentElement.lang='en';load();return;}
+ 
+ var bot=/bot|crawl|spider|slurp|yeti|daum|naver|facebookexternalhit|lighthouse|headless|prerender/i.test(n.userAgent||'')||n.webdriver;
+ if(m||bot||w.top!==w.self||!w.fetch)return;
+ fetch('/api/geo',{credentials:'omit',cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+   var c=j&&j.country; if(!c||get('mlang'))return;
+   if(c==='KR'){put('mlang','ko');put('mlang_src','geo');return;}
+   put('mlang','en');put('mlang_src','geo');toEn();
+ }).catch(function(){});
+})();</script>
 </body></html>

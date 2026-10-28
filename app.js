@@ -1018,6 +1018,8 @@ function mapCategories(rows){
   return out;
 }
 
+/* 시트 Applications·AppDetails 탭의 *_en 열 사용 여부 (2026-10-28 행 어긋남 확인 → false) */
+const SHEET_EN_APPS = false;
 /* Applications — 한 행 = 한 어플리케이션 */
 function mapApps(rows){
   const out = [];
@@ -1034,8 +1036,9 @@ function mapApps(rows){
       file: (o.file||o.pdf||o.download||o.attachment||'').trim(),
       photos: parsePhotos(o.photos)
     });
-    reg(o.name, o.name_en || o.nameen);   // 영문(EN) 전환 시 앱 이름/설명 번역
-    reg(o.desc, o.desc_en || o.descen);
+    /* 2026-10-28 Applications 탭 name_en·desc_en 열이 행과 어긋나 있음(예: 호텔·숙박 → Financial Services).
+       시트를 바로잡기 전까지 영문은 /js/i18n-extra.js 사전을 씁니다. 바로잡은 뒤 SHEET_EN_APPS 를 true 로. */
+    if (SHEET_EN_APPS) { reg(o.name, o.name_en || o.nameen); reg(o.desc, o.desc_en || o.descen); }
   });
   return out;
 }
@@ -1073,7 +1076,7 @@ function mapAppDetails(rows){
     };
 
     // 영문(EN) 등록 — *_en 열이 있을 때만 (한글 칸과 항목 개수·구분자가 같아야 매칭)
-    const I18N = (typeof window !== 'undefined') ? window.MonnitI18N : null;
+    const I18N = (typeof window !== 'undefined' && SHEET_EN_APPS) ? window.MonnitI18N : null;  /* AppDetails *_en 열도 공통 문구·행 어긋남이 있어 보류 (위 SHEET_EN_APPS 참고) */
     if (I18N) {
       const reg = (ko, en) => { if (ko != null && en != null && String(ko).trim() && String(en).trim()) I18N.add(String(ko).trim(), String(en).trim()); };
       const regList = (ko, en) => { const k = splitItems(ko), e = splitItems(en); const m = Math.min(k.length, e.length); for (let i=0;i<m;i++) reg(k[i], e[i]); };
@@ -1228,8 +1231,8 @@ function applySiteContentNow(){
   /* 파인더 Q1·Q2 목록(finder.config)이 시트에서 들어왔으면 버튼을 다시 그립니다 */
   try{ if(typeof window.MK_FINDER_REFRESH==='function') window.MK_FINDER_REFRESH(); }catch(e){}
   if(!_siteToggleHooked){
-    const lt=document.getElementById('langToggle');
-    if(lt){ lt.addEventListener('click', function(){ setTimeout(applySiteContent, 90); }); _siteToggleHooked=true; }
+    /* 2026-10-28(2차) 버튼 클릭뿐 아니라 접속 국가로 자동 전환될 때도 시트 문구(영문 열)를 다시 적용 */
+    window.addEventListener('monnit:langchange', function(){ setTimeout(applySiteContent, 90); }); _siteToggleHooked=true;
   }
 }
 
@@ -4896,7 +4899,7 @@ function wireSupportFaq(){
     const go = () => { if (!window.MKSupport) return; if (host._faqs === FAQS) return; host._faqs = FAQS; window.MKSupport.renderFaq(host, FAQS); window.MKSupport.ensure(K => { if (K){ list.hidden = true; _faqSupportDone = true; } }); };
     if (window.MKSupport) return go();
     if (window.__spLoading) return; window.__spLoading = true;
-    const sc = document.createElement('script'); sc.src = '/js/support-chat.js?v=1'; sc.async = true;
+    const sc = document.createElement('script'); sc.src = '/js/support-chat.js?v=2'; sc.async = true;
     sc.onload = () => { window.__spLoading = false; go(); }; sc.onerror = () => { window.__spLoading = false; };
     document.head.appendChild(sc);
   };
@@ -5416,6 +5419,17 @@ async function boot() {
   try { await alignSheetToWriter(); await loadSheetData(); }
   catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
   renderAll();
+  /* 2026-10-28 시트에만 있는 사례·활용분야로 바로 들어오면(새로고침·외부 링크·검색) 첫 라우팅 때는
+     기본 데이터에 없어 '준비 중' 화면이 떴고, 시트가 로드된 뒤에도 그대로 남았다.
+     시트 반영 후 사례·활용분야 상세는 최신 데이터로 다시 그린다(스크롤 위치 유지). */
+  try {
+    const cur = pathToRoute(location.pathname);
+    if (cur && /^(case|app)\//.test(cur)) {
+      const y = window.scrollY;
+      navigate(cur);
+      if (y) window.scrollTo({ top: y, behavior: 'instant' });
+    }
+  } catch(e){}
   try { if (typeof applySiteContent === 'function' && SITE_CONTENT && Object.keys(SITE_CONTENT).length) applySiteContent(); } catch(e){}
 }
 boot();

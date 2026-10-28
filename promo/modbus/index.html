@@ -653,6 +653,7 @@ footer a{color:#6db3e8}
   .rv{opacity:1;transform:none}
 }
 </style>
+<style>/* 2026-10-28(2차) 언어 선택(KO|EN)이 들어간 모바일 머리말 정리 */@media(max-width:480px){.bar-in:has(#langToggle){gap:8px}.bar-in:has(#langToggle) .logo{white-space:nowrap;font-size:13px}.bar-in:has(#langToggle)>div:last-child{gap:8px!important}.bar-in:has(#langToggle) .cta{white-space:nowrap;padding:7px 10px;font-size:12px}}</style>
 </head>
 <body>
 
@@ -666,7 +667,7 @@ footer a{color:#6db3e8}
 <div class="bar">
   <div class="wrap bar-in">
     <div class="logo">MONNIT <span>KOREA</span></div>
-    <div style="display:flex;align-items:center;gap:22px"><a class="mini" href="#why-data">왜 계측인가</a><a class="mini" href="#why">왜 Monnit인가</a><a class="mini" href="#industries">구성안</a><a class="mini" href="#setup">구성 방법</a><a class="mini tel" href="tel:0220881454">02-2088-1454</a><a class="cta" href="#download">제안서 받기</a></div>
+    <div style="display:flex;align-items:center;gap:22px"><a class="mini" href="#why-data">왜 계측인가</a><a class="mini" href="#why">왜 Monnit인가</a><a class="mini" href="#industries">구성안</a><a class="mini" href="#setup">구성 방법</a><a class="mini tel" href="tel:0220881454">02-2088-1454</a><span data-lang-slot></span><a class="cta" href="#download">제안서 받기</a></div>
   </div>
 </div>
 
@@ -1587,5 +1588,24 @@ footer a{color:#6db3e8}
   }
 })();
 </script>
+<script>/* 언어 선택 (2026-10-28 2차) — 저장된 선택(mlang) · ?lang=en|ko 우선. 처음 온 방문자는 접속 국가(/api/geo)가
+   한국이 아니면 영문으로 시작(검색로봇·미리보기 창 제외). 한국어 화면에서는 i18n.js 를 늦게 받는다. */
+(function(){var d=document,w=window,n=navigator,ls=null;try{ls=w.localStorage;}catch(e){}
+ function get(k){try{return ls&&ls.getItem(k);}catch(e){return null;}}
+ function put(k,v){try{if(ls)ls.setItem(k,v);}catch(e){}}
+ var q=(location.search.match(/[?&]lang=(en|ko)(?:&|$)/)||[])[1]; if(q){put('mlang',q);put('mlang_src','url');}
+ var m=get('mlang');
+ function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=120';s.defer=true;d.head.appendChild(s);}
+ function toEn(){if(w.MonnitI18N&&w.MonnitI18N.setLang){w.MonnitI18N.setLang('en','geo');}else{d.documentElement.lang='en';load();}}
+ if(m==='en'){d.documentElement.lang='en';load();return;}
+ 
+ var bot=/bot|crawl|spider|slurp|yeti|daum|naver|facebookexternalhit|lighthouse|headless|prerender/i.test(n.userAgent||'')||n.webdriver;
+ if(m||bot||w.top!==w.self||!w.fetch)return;
+ fetch('/api/geo',{credentials:'omit',cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+   var c=j&&j.country; if(!c||get('mlang'))return;
+   if(c==='KR'){put('mlang','ko');put('mlang_src','geo');return;}
+   put('mlang','en');put('mlang_src','geo');toEn();
+ }).catch(function(){});
+})();</script>
 </body>
 </html>
