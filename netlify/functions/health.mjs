@@ -2,6 +2,9 @@
  *  광고가 도는 동안 신청 폼이 죽으면 광고비가 전액 낭비된다. 그 공백을 없앤다. */
 import { append, set, get } from './_store.mjs';
 import { runOnce as backfillOnce } from './_backfill.mjs';
+import { syncOnce as mondaySyncOnce } from './_monday_sync.mjs';   /* 리드 원장 ↔ 먼데이 자동 맞춤 (2026-10-28) */
+import { withMust } from './_staffto.mjs';
+import { sendBrevo } from './_route.mjs';
 
 export const config = { schedule: '*/15 * * * *' };
 
@@ -85,6 +88,16 @@ async function alertMail(fails) {
     `· ${f.name} (${f.path || '-'}) — ${f.error ? '응답 없음: ' + f.error
       : f.status >= 400 ? 'HTTP ' + f.status
       : (f.missing?.length) ? '누락: ' + f.missing.join(', ') : '이상'}`).join('\n');
+  /* 장애 경보도 1015@ 무조건 (2026-10-28) — 받는 사람을 우리가 정할 수 있는 Brevo 로 먼저 보낸다 */
+  try {
+    const b = await sendBrevo({
+      to: withMust(ALERT_TO), subject: `[모넷·경보] 사이트 점검 이상 ${fails.length}건`,
+      fields: { '점검 시각': new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), '이상 항목': lines,
+        '조치': '광고가 계속 집행 중입니다. 신청 폼이 정상인지 즉시 확인해 주세요.' }
+    });
+    if (b && b.ok) return;   /* 나갔으면 예비 경로(Web3Forms)는 쓰지 않는다 — 중복 방지 */
+  } catch (e) {}
+  if (!WEB3FORMS_KEY) return;
   try {
     await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -107,6 +120,8 @@ export default async () => {
   if (process.env.NETLIFY_CRON_OFF === '1') return new Response('off');
   /* 밀린 접수 1회 자동 발송 — 배포 직후 한 번만 돈다. 실패해도 감시는 계속한다. */
   try { await backfillOnce(); } catch (e) {}
+  /* 리드 원장에 있는데 먼데이 「리드 원장 (Lead CRM)」에 없는 접수를 채운다 — 15분마다 (2026-10-28) */
+  try { const r = await mondaySyncOnce(); if (r && (r.created || (r.failed && r.failed.length))) await append('ops', 'monday-sync-' + new Date().toISOString().slice(0, 7) + '.jsonl', { ts: new Date().toISOString(), ...r }); } catch (e) {}
 
   const results = [];
   for (const p of PAGES) results.push(await checkPage(p));

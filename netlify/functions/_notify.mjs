@@ -19,6 +19,7 @@
  *    NOTIFY_ALWAYS_TO  어느 경로로 나가든 항상 함께 받는 사람 (미설정 시 0702yeom@gmail.com — 대표님 지시 2026-10-16)
  *                      StaticForms·Web3Forms 는 수신자를 그쪽 대시보드에서 정하므로, 그 경로로 나간 뒤에도
  *                      이 주소에는 Brevo 로 한 통 더 보낸다. 대표님이 "문의가 이젠 안 들어온다" 하신 뒤 추가.
+ *    STAFF_MUST_TO     무조건 함께 받는 사람 (기본 1015@monnit.com · _staffto.mjs). 예지보전 가이드 건만 예외 (2026-10-28)
  *    STATICFORMS_KEY   1순위 키
  *    WEB3FORMS_KEY     2순위 키
  *    BREVO_API_KEY     3순위. 없으면 건너뛴다.
@@ -39,6 +40,7 @@ const FROM     = { name: 'Monnit Korea 접수알림', email: 'no-reply@monnit.co
 const REPLY_TO = { name: 'Monnit Korea', email: 'korea@monnit.com' };
 
 import { shortUrl, campaignOf } from './_staffnote.mjs';
+import { withMust, isGuide, isGuideExp } from './_staffto.mjs';   /* 1015@ 필수 수신 — 예지보전 가이드만 예외 (2026-10-28) */
 
 const JSON_HEAD = { 'Content-Type': 'application/json', Accept: 'application/json' };
 /* 폼이 보낸 값 중 메일에 싣지 않는 것 — 긴 추적값은 알림함(/ops/notices)에 원문이 남는다 (2026-09-30) */
@@ -122,9 +124,9 @@ async function viaBrevo(subject, text, to) {
   return { ok: true, via: 'brevo', to };
 }
 
-/** 항상 받는 사람(대표님)에게 Brevo 로 한 통 더 — 1·2순위로 나갔을 때 그쪽 수신자 설정과 무관하게 받도록 */
-async function copyAlways(subject, text, already) {
-  const extra = ALWAYS().filter(e => !splitTo(already).includes(e));
+/** 항상 받는 사람(대표님 · 1015@)에게 Brevo 로 한 통 더 — 1·2순위로 나갔을 때 그쪽 수신자 설정과 무관하게 받도록 */
+async function copyAlways(subject, text, already, list) {
+  const extra = (list || ALWAYS()).filter(e => !splitTo(already).includes(e));
   if (!extra.length) return null;
   try { return await viaBrevo(subject, text, extra.join(',')); }
   catch (e) { return { ok: false, error: String(e && e.message || e) }; }
@@ -135,9 +137,11 @@ export async function notify(lead, payload, opts) {
   /* Brevo 수신자: 지정값(또는 NOTIFY_TO) + 항상 받는 사람 */
   const base = (opts && opts.to) || TO;
   /* 예지보전 가이드 자동 발송 건(무경험 신청)은 대표님께 보내지 않는다 (2026-10-16) */
-  const guide = String((lead && lead.exp_group) || (payload && payload['경험 구분']) || '').trim() === '무경험';
-  const always = guide ? [] : ALWAYS();
-  const to = [...new Set([...splitTo(base), ...always])].join(',');
+  const guide = isGuideExp(lead, payload);
+  /* 1015@monnit.com 은 무조건 — 예지보전 가이드(무경험 · 가이드 자료 신청)만 예외 (2026-10-28) */
+  const must = withMust([], { guide: isGuide(lead, payload) });
+  const always = [...new Set([...(guide ? [] : ALWAYS()), ...must])];
+  const to = withMust([...splitTo(base), ...always], { guide: isGuide(lead, payload) }).join(',');
   const subject = subjectOf(lead);
   const fields = fieldsOf(lead, payload);
   const text = textOf(fields);
@@ -152,7 +156,7 @@ export async function notify(lead, payload, opts) {
       const r = await step();
       if (r.ok) {
         /* 1·2순위(무료 폼)로 나갔으면 대표님께는 따로 한 통 더 */
-        if (r.via !== 'brevo' && always.length) { const c = await copyAlways(subject, text, ''); if (c) r.copy = c; }
+        if (r.via !== 'brevo' && always.length) { const c = await copyAlways(subject, text, '', always); if (c) r.copy = c; }
         return { ...r, tried };
       }
       tried.push(r.error || r.skipped);
@@ -165,7 +169,7 @@ export async function notify(lead, payload, opts) {
 
 export function configured() {
   return {
-    to: TO, always: ALWAYS(),
+    to: TO, always: ALWAYS(), must: withMust([]),
     order: ['staticforms', 'web3forms', 'brevo'],
     staticforms: !!SF_KEY, web3forms: !!W3_KEY, brevo: !!process.env.BREVO_API_KEY
   };

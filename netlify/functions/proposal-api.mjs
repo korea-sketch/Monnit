@@ -25,7 +25,7 @@ import { PROBLEMS } from '../lib/proposal/kb.mjs';
 import { langOf } from '../lib/proposal/i18n.mjs';
 import { kickBuild, sendJob } from '../lib/proposal/pipeline.mjs';
 import * as Mail from '../lib/proposal/mail.mjs';
-import { recordFactoryConsult } from './_factoryconsult.mjs';   /* 공장 설비 진단 EVENT — 별도 메일 대신 리드 원장 (2026-10-02) */
+import { recordFactoryConsult, recordProposalLead } from './_factoryconsult.mjs';   /* 공장 설비 진단 EVENT — 별도 메일 대신 리드 원장 (2026-10-02) */
 import * as _guard from '../lib/proposal/guard.mjs';   /* 경쟁사 차단 — 느슨한 연결 */
 
 export const config = { path: ['/api/proposal', '/api/proposal/status', '/api/proposal/pdf', '/api/proposal/preview', '/api/proposal/detect'] };
@@ -208,7 +208,8 @@ async function create(req, url) {
     console.error('[proposal-api] 저장 실패', e);
     const [mainNotice, consultNotice] = await Promise.allSettled([
       Mail.notifyStaff('new', job, { '주의': '저장소 오류로 자동 제안서가 만들어지지 않습니다. 직접 연락해 주세요.' }),
-      recordFactoryConsult(job)
+      recordFactoryConsult(job),
+      recordProposalLead(job)   /* 먼데이 리드 원장 — 서버가 직접 (2026-10-28) */
     ]);
     const r = mainNotice.status === 'fulfilled' ? mainNotice.value : { ok: false };
     return json({ ok: r.ok, token: null, degraded: true, due: fmtKST(job.dueAt), name: lead.name, company: lead.company });
@@ -223,7 +224,9 @@ async function create(req, url) {
     instant ? Promise.resolve(null) : Mail.sendReceipt(job),
     Mail.notifyStaff('new', job),
     /* 공장 설비 진단 EVENT — 메일은 위 notifyStaff('new') 한 통에 합치고, 여기서는 원장·먼데이·알림함에만 남긴다 */
-    recordFactoryConsult(job)
+    recordFactoryConsult(job),
+    /* 맞춤 제안서 접수도 먼데이 리드 원장에 서버가 직접 — 브라우저 줄이 끊겨도 빠지지 않게 (2026-10-28) */
+    recordProposalLead(job)
   ]);
   const v = x => (x.status === 'fulfilled' ? x.value : { ok: false, error: String(x.reason) });
   await S.patchJob(job.id, j => {

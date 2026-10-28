@@ -49,7 +49,7 @@ H('규칙 3 — StaticForms 기본, 실패 시 Web3Forms');
   process.env.BREVO_API_KEY = 'x';
   const { notify } = await import(F + '_notify.mjs?c');
   const r = await notify({ ts: '2026-09-07T05:00:00Z', company: '가나전자' }, {});
-  ok('둘 다 한도 초과 → brevo', r.via === 'brevo' && r.to === '0702yeom@gmail.com', r);
+  ok('둘 다 한도 초과 → brevo (대표 + 1015@ 필수 · 2026-10-28)', r.via === 'brevo' && r.to === '0702yeom@gmail.com,1015@monnit.com', r);
   delete process.env.BREVO_API_KEY;
 }
 {

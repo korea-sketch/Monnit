@@ -322,7 +322,7 @@ export async function notifyStaff(kind, job, extra = {}) {
     try {
       const F = await import('../../functions/_notify.mjs');
       const lead = { ts: new Date().toISOString(), label: '맞춤제안', interest: '맞춤 제안서 · ' + (KIND[kind] || kind), company: L.company, name: L.name, phone: L.phone, email: L.email, memo: text, channel: chan };
-      r = await F.notify(lead, {}, { to: to[0] });
+      r = await F.notify(lead, {}, { to: to.join(',') });   /* 첫 주소만 가던 것 → 전원 (2026-10-28) */
       if (!r.ok) tried.push(String(r.tried || 'notify 실패'));
     } catch (e) { tried.push('notify ' + e.message); }
   }

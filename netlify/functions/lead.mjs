@@ -180,7 +180,9 @@ export default async (req) => {
          · 그 밖의 문의(contact)                      → 1015@monnit.com + 0702yeom@gmail.com 동시에 (같은 메일)
        대표님께 따로 가던 알림(notify)은 배분 메일이 대표님께 닿지 못했을 때만 예비로 보낸다 → 중복 없음. */
     const _mailable = type === 'contact';
-    const _routeP = _mailable ? routeLead(lead, p) : Promise.resolve({ ok: true, kind: 'doc', skipped: '자료·구독 — 메일 없음' });
+    /* 2026-10-28 대표 지시 — 「예지보전 가이드 말고는 1015@ 무조건」.
+       자료 신청·구독도 1015@monnit.com 에게 한 통 간다(예지보전 제안 가이드만 메일 없음). 대표님 메일함 제외는 그대로. */
+    const _routeP = _mailable ? routeLead(lead, p) : routeLead(lead, p, { doc: true });
     const _notifyP = _routeP.catch(() => null).then(rv => {
       if (!_mailable) return { ok: true, via: 'ops', held: true };
       if (rv && rv.kind !== 'proposal' && Array.isArray(rv.delivered) && rv.delivered.includes('0702yeom@gmail.com'))
@@ -191,7 +193,8 @@ export default async (req) => {
     });
     const [_notified, _board, _reply, _routed, _ack] = await Promise.allSettled([
       _notifyP,
-      _support ? pushSupport(id, lead, p) : pushLead(id, lead),
+      /* 기술지원 접수도 리드 원장(Lead CRM)에 함께 — 「리드 원장만 보면 모든 리드」 (2026-10-28). 기술지원 보드도 그대로 */
+      _support ? Promise.allSettled([pushSupport(id, lead, p), pushLead(id, lead)]).then(a => a[0].status === 'fulfilled' ? a[0].value : { ok: false, error: String(a[0].reason) }) : pushLead(id, lead),
       sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin }),
       _routeP,
       sendSupportAck({ interest: lead.interest, email: lead.email, name: lead.name, no: pick(p, ['접수번호']), urgent: /긴급/.test(pick(p, ['긴급도'])) })
@@ -241,12 +244,15 @@ export default async (req) => {
     /* 알림함 — 메일을 보냈든 안 보냈든 한 줄 */
     {
       const nv = (_notified && _notified.status === 'fulfilled') ? _notified.value : null;
+      const rvd = (_routed && _routed.status === 'fulfilled') ? _routed.value : null;
+      const docMailed = !_mailable && !!(rvd && rvd.ok && !rvd.skipped);
       const why = _browserSent ? (_byProposal ? '맞춤제안 알림 메일로 대신' : '브라우저가 이미 알림 메일을 보냄')
-        : !_wantMail ? '결정적 행위 아님 — 알림함에만 기록'
+        : docMailed ? '담당자(1015@) 메일로 알림 — 대표님 메일함 제외'
+        : !_wantMail ? (rvd && rvd.skipped ? String(rvd.skipped) + ' — 알림함에만 기록' : '결정적 행위 아님 — 알림함에만 기록')
         : (nv && nv.ok) ? '' : '메일 발송 실패: ' + String((nv && nv.tried) || '');
       await _note.note({
         ts: lead.ts, src: 'lead', kind: _byProposal && _browserSent ? 'dup' : type,
-        mailed: !!(nv && nv.ok && !nv.held && nv.via !== 'proposal'), via: (nv && nv.via) || '', why,
+        mailed: docMailed || !!(nv && nv.ok && !nv.held && nv.via !== 'proposal'), via: docMailed ? 'route' : (nv && nv.via) || '', why,
         subject: `[모넷·${lead.label || '접수'}] ${lead.interest || '문의'} — ${lead.company || lead.name || lead.email || ''}`, company: lead.company, name: lead.name, phone: lead.phone, email: lead.email,
         channel: lead.channel, campaign: _note.campaignOf(lead.source), landing: lead.landing, test: !!lead.test,
         ref: lead.point || '',

@@ -28,6 +28,7 @@
  */
 import { get, set } from './_store.mjs';
 import { subjectOf, fieldsOf } from './_notify.mjs';
+import { withMust, isGuide, isGuideDoc } from './_staffto.mjs';   /* 1015@ 필수 수신 (2026-10-28) */
 
 const env = (k, d = '') => {
   try { const v = globalThis.Netlify && globalThis.Netlify.env && globalThis.Netlify.env.get(k); if (v != null && v !== '') return v; } catch (e) { /* 무시 */ }
@@ -105,7 +106,8 @@ export async function recipientsFor(kind, opts) {
   if (kind === 'alarm' || kind === 'alarm-support') for (const e of alarmTo()) out.add(e);
   if (kind === 'support' || kind === 'alarm-support') for (const e of supportTo()) out.add(e);
   if (!(opts && opts.guide)) for (const e of alwaysTo()) out.add(e);   /* 대표님은 종류와 상관없이 항상 — 가이드 건만 제외 */
-  return [...out];
+  /* 1015@monnit.com 무조건 (2026-10-28) — ROUTE_GENERAL_TO 를 바꿔도 빠지지 않는다. 예지보전 가이드 건만 예외 */
+  return withMust([...out], { guide: !!(opts && opts.mustExempt) });
 }
 
 const FROM     = { name: 'Monnit Korea 접수알림', email: env('MAIL_FROM', 'no-reply@monnit.co.kr') };
@@ -141,12 +143,23 @@ export async function sendBrevo({ to, subject, fields, replyTo }) {
 }
 
 /** 접수 한 건을 담당자에게 배분한다. { ok, kind, to, skipped?, error? } */
-export async function routeLead(lead, payload) {
+export async function routeLead(lead, payload, opts) {
   try {
     if (env('ROUTE_MAIL_OFF', '') === '1') return { ok: false, skipped: 'off' };
     const kind = kindOf(lead, payload);
     if (kind === 'proposal') return { ok: true, kind, skipped: '맞춤 제안서 — 배분 대상 아님' };
-    const to = await recipientsFor(kind, { guide: isGuideLead(lead, payload) });
+    /* 자료 신청 · 구독 (2026-10-28 대표 지시) — 예지보전 가이드만 빼고 1015@ 에게만 한 통 (대표님 메일함은 그대로 제외) */
+    if (opts && opts.doc) {
+      if (isGuideDoc(lead, payload)) return { ok: true, kind: 'doc', skipped: '예지보전 가이드 — 메일 없음' };
+      const to = withMust([]);
+      const tag = lead.type === 'subscribe' ? '구독' : '자료 신청';
+      const subject = `[${tag}] ` + subjectOf(lead).replace(/^\[모넷·접수\]\s*/, '') + (lead.test ? ' (테스트 의심)' : '');
+      const _rn = String(lead.name || lead.company || '').trim();
+      const replyTo = okEmail(lead.email) ? (_rn ? { email: String(lead.email).trim(), name: _rn } : { email: String(lead.email).trim() }) : undefined;
+      const r = await sendBrevo({ to, subject, fields: fieldsOf(lead, payload), replyTo });
+      return { ...r, kind: 'doc', to };
+    }
+    const to = await recipientsFor(kind, { guide: isGuideLead(lead, payload), mustExempt: isGuide(lead, payload) });
     const tag = kind === 'visit' ? '현장진단 예약' : kind === 'alarm' ? '알리미 문의' : '일반 문의';
     const subject = `[${tag}] ` + subjectOf(lead).replace(/^\[모넷·접수\]\s*/, '') + (lead.test ? ' (테스트 의심)' : '');
     const fields = fieldsOf(lead, payload);

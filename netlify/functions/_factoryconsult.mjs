@@ -80,3 +80,34 @@ export async function recordFactoryConsult(job) {
 
   return { ok: true, via: 'ledger', monday: mon.status === 'fulfilled' };
 }
+
+/** 맞춤 제안서 접수 자체도 먼데이 리드 원장에 — 서버가 직접 (2026-10-28)
+ *
+ *  그동안 맞춤 제안서 리드는 「브라우저」가 /api/lead 로 한 줄 더 보내야만 원장·먼데이에 올라갔다.
+ *  고객이 접수 직후 창을 닫거나 광고 차단기·느린 망으로 그 요청이 끊기면 제안서는 나갔는데 리드 원장에는 없었다.
+ *  이제 서버가 접수 순간 먼데이에 먼저 올린다. 뒤이어 브라우저가 보낸 줄은 「같은 날 같은 신청」으로 묶여 두 줄이 되지 않는다.
+ *  (사이트 원장 /ops 는 예전처럼 브라우저 줄을 쓴다 — 두 줄 방지) */
+export function proposalLead(job, now = new Date().toISOString()) {
+  const L = job.lead || {}, M = job.meta || {};
+  const probs = ((job.match && job.match.input && job.match.input.problems) || []).join(', ');
+  const ind = (job.match && job.match.industry && job.match.industry.label) || L.industryText || '';
+  return {
+    ts: now, type: 'contact', label: '접수', channel: _note.channelOf(M.source),
+    point: 'custom_proposal',
+    company: L.company || '', name: `${L.name || ''} ${L.title || ''}`.trim(),
+    phone: L.phone || '', email: L.email || '', region: L.region || '',
+    asset: [ind, L.facility].filter(Boolean).join(' · '), product: '',
+    interest: '맞춤 제안서',
+    memo: [`[${(M.grade && M.grade.grade) || '-'}] ${probs}`, L.scale ? '규모: ' + L.scale : '', L.timeline ? '도입 시점: ' + L.timeline : '', L.memo || ''].filter(Boolean).join(' / ').slice(0, 1200),
+    flags: '', source: M.source || '', landing: M.landing || '',
+    consent_mkt: L.consentMkt ? '동의' : '미동의', ua: M.ua || '', ip: M.ip || '',
+    via: 'proposal', proposal: job.no || job.id
+  };
+}
+
+export async function recordProposalLead(job) {
+  if (!job || !job.lead || job.test === true) return { ok: true, skipped: 'test' };
+  const lead = proposalLead(job);
+  if (_test.isTestLead(lead)) return { ok: true, skipped: 'test' };
+  return pushLead('proposal|' + (job.id || job.no), lead);
+}
