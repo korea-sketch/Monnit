@@ -63,14 +63,17 @@
             </div>
           </div>
           <div class="f wide"><label for="n_solnote">솔루션 상세 (선택 · 계약서 납품 솔루션 란에 함께 표시)</label><input type="text" id="n_solnote" placeholder="예: 수신기 연동형 2개소 + 지하 집수정 로프센서 3개소"></div>
+          <div class="f wide"><span class="flab">설치 지역</span>
+            <div class="opts" id="n_regionTabs">
+              <label class="opt"><input type="radio" name="n_region" value="metro" checked><span>서울·경기·인천 <small style="color:var(--muted)">월 3만 원</small></span></label>
+              <label class="opt"><input type="radio" name="n_region" value="other"><span>그 외 지역 <small style="color:var(--muted)">월 4만 원</small></span></label>
+              <label class="opt"><input type="radio" name="n_region" value="fixed"><span>수기로 기입 <small style="color:var(--muted)">금액 직접 입력</small></span></label>
+            </div></div>
           <div class="f"><label for="n_unit">1개소 월 이용료 (원, 부가세 별도)</label><input type="number" id="n_unit" value="30000" min="0" step="1000"></div>
           <div class="f"><label for="n_qty">설치 개소 수</label>
             <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
           </div>
           <div class="f"><label for="n_install">설치비 (1회 · 원, 부가세 별도)</label><input type="number" id="n_install" value="0" min="0" step="10000"></div>
-          <div class="f"><label for="n_region">지역 요금</label>
-            <select id="n_region"><option value="auto">자동 — 서울·경기·인천 외 지역이면 1개소 +1만 원</option><option value="fixed">입력한 월 이용료 그대로 (지역 가산 없음)</option></select></div>
-          <div class="f wide" id="n_rhint"><p class="hint" style="margin:-4px 0 0" id="n_rhintTxt"></p></div>
           <div class="f"><label for="n_dtype">할인</label>
             <select id="n_dtype"><option value="none">할인 없음</option><option value="percent">할인율 (%)</option><option value="amount">월 할인액 (원)</option></select>
           </div>

@@ -572,14 +572,17 @@ label.inl input{margin:0;accent-color:var(--accent)}
             </div>
           </div>
           <div class="f wide"><label for="n_solnote">솔루션 상세 (선택 · 계약서 납품 솔루션 란에 함께 표시)</label><input type="text" id="n_solnote" placeholder="예: 수신기 연동형 2개소 + 지하 집수정 로프센서 3개소"></div>
+          <div class="f wide"><span class="flab">설치 지역</span>
+            <div class="opts" id="n_regionTabs">
+              <label class="opt"><input type="radio" name="n_region" value="metro" checked><span>서울·경기·인천 <small style="color:var(--muted)">월 3만 원</small></span></label>
+              <label class="opt"><input type="radio" name="n_region" value="other"><span>그 외 지역 <small style="color:var(--muted)">월 4만 원</small></span></label>
+              <label class="opt"><input type="radio" name="n_region" value="fixed"><span>수기로 기입 <small style="color:var(--muted)">금액 직접 입력</small></span></label>
+            </div></div>
           <div class="f"><label for="n_unit">1개소 월 이용료 (원, 부가세 별도)</label><input type="number" id="n_unit" value="30000" min="0" step="1000"></div>
           <div class="f"><label for="n_qty">설치 개소 수</label>
             <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
           </div>
           <div class="f"><label for="n_install">설치비 (1회 · 원, 부가세 별도)</label><input type="number" id="n_install" value="0" min="0" step="10000"></div>
-          <div class="f"><label for="n_region">지역 요금</label>
-            <select id="n_region"><option value="auto">자동 — 서울·경기·인천 외 지역이면 1개소 +1만 원</option><option value="fixed">입력한 월 이용료 그대로 (지역 가산 없음)</option></select></div>
-          <div class="f wide" id="n_rhint"><p class="hint" style="margin:-4px 0 0" id="n_rhintTxt"></p></div>
           <div class="f"><label for="n_dtype">할인</label>
             <select id="n_dtype"><option value="none">할인 없음</option><option value="percent">할인율 (%)</option><option value="amount">월 할인액 (원)</option></select>
           </div>
@@ -1487,22 +1490,33 @@ label.inl input{margin:0;accent-color:var(--accent)}
 
   /* ── 1. 계약 링크 만들기 ── */
   function calc(){
-    var unit = Math.max(0, Math.round(Number($("n_unit").value) || 0));
+    var unit = Math.max(0, Math.round(Number($("n_unit").value) || 0));   // 1개소 실제 월 이용료(화면에 보이는 금액)
     var qty = Math.max(1, Math.round(Number($("n_qty").value) || 1));
     /* 2026-10-26 설치 지역 — 그 외 지역은 1개소 단가에 1만 원을 더한다(3만 → 4만 원) · 별도 출장비 없음 (서버 price() 와 같은 규칙) */
-    /* 2026-10-29 지역 요금 「fixed」(입력한 월 이용료 그대로) 추가 · 설치비(1회) 입력 추가 */
-    var region = $("n_region").value === "fixed" ? "fixed" : "auto", regionFee = 0;   // auto 는 계약서 발급 때 설치 주소로 자동 판정
+    /* 2026-10-29 설치 지역 탭 — 서울·경기·인천(3만) / 그 외 지역(4만) / 수기로 기입. 주소 자동 판정(auto)은 새 링크에서 쓰지 않는다 */
+    var region = regionVal(), regionFee = 0;
     var installFee = Math.max(0, Math.round(Number($("n_install").value) || 0));
     var list = unit * qty + regionFee, type = $("n_dtype").value, val = Math.max(0, Number($("n_dval").value) || 0), disc = 0;
     if(type === "percent"){ val = Math.min(100, val); disc = Math.round(list * val / 100); }
     if(type === "amount"){ val = Math.min(list, Math.round(val)); disc = val; }
     return {unit:unit, region:region, regionFee:regionFee, qty:qty, list:list, discountType:type, discountValue: type === "none" ? 0 : val, discount:disc, monthly:list - disc, installFee:installFee};
   }
+  var BASE_UNIT = 30000;
+  function regionVal(){ var r = document.querySelector('input[name="n_region"]:checked'); return r ? r.value : "metro"; }
+  /* 탭을 고르면 1개소 월 이용료를 채운다 — 수기로 기입만 직접 고칠 수 있다 */
+  function setRegionUi(){
+    var r = regionVal(), u = $("n_unit");
+    if(r === "metro") u.value = BASE_UNIT;
+    if(r === "other") u.value = BASE_UNIT + REGION_ADD;
+    u.readOnly = r !== "fixed";
+    if(r === "fixed") u.focus();
+    renderPrice();
+  }
   function renderPrice(){
     var t = calc(), note = $("n_dnote").value.trim();
     var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(t.unit) + '</span></div>' +
       '<div class="row"><span>설치 개소</span><span class="money">' + t.qty + '개소</span></div>' +
-      (t.region === "auto" ? '<div class="row"><span>그 외 지역 1개소 <small>(서울·경기·인천 외 · 주소로 자동)</small></span><span class="money">' + won(t.unit + REGION_ADD) + '</span></div>' : '') +
+      '<div class="row"><span>설치 지역</span><span class="money">' + ({metro:"서울·경기·인천", other:"그 외 지역", fixed:"수기 기입"})[t.region] + '</span></div>' +
       '<div class="row"><span>설치비 <small>(1회)</small></span><span class="money">' + (t.installFee ? won(t.installFee) : "무료") + '</span></div>';
     if(t.discount){
       rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(t.list) + '</span></div>' +
@@ -1511,12 +1525,8 @@ label.inl input{margin:0;accent-color:var(--accent)}
     }
     rows += '<div class="row total"><span>월 청구액</span><span class="money">' + won(t.monthly) + '</span></div>';
     $("n_price").innerHTML = rows;
-    var far = (t.unit + REGION_ADD) * t.qty, farDisc = t.discountType === "percent" ? Math.round(far * t.discountValue / 100) : t.discountType === "amount" ? Math.min(far, t.discountValue) : 0;
-    $("n_vat").textContent = (t.region === "auto" ? "서울·경기·인천 기준 · " : "지역과 무관하게 이 금액 · ") + "부가세 별도 (부가세 포함 " + won(Math.round(t.monthly * 1.1)) + ")" + (t.region === "auto" ? " · 그 외 지역이면 " + won(far - farDisc) + " / 월" : "") +
+    $("n_vat").textContent = "부가세 별도 (부가세 포함 " + won(Math.round(t.monthly * 1.1)) + " / 월)" +
       (t.installFee ? " · 설치비 " + won(t.installFee) + " 1회 별도 (부가세 포함 " + won(Math.round(t.installFee * 1.1)) + ")" : "");
-    $("n_rhintTxt").innerHTML = t.region === "auto"
-      ? '<span style="font-weight:600">지역 요금 자동</span> — 고객이 입력한 설치 현장 주소가 서울·경기·인천 외 지역이면 계약서 발급 때 1개소 월 이용료에 ' + REGION_ADD.toLocaleString("ko-KR") + '원이 더해집니다(' + won(t.unit) + ' → ' + won(t.unit + REGION_ADD) + '). 입력한 금액 그대로 계약하려면 「입력한 월 이용료 그대로」를 고르십시오.'
-      : '<span style="font-weight:600">입력한 월 이용료 그대로</span> — 설치 현장 주소와 무관하게 1개소 월 ' + won(t.unit) + '으로 계약서가 만들어집니다. 계약서에 지역 문구는 표시되지 않습니다.';
     etcSync();
   }
   function setDiscUi(){
@@ -1531,7 +1541,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
   });
   var REGION_ADD = (window.MKPaper && window.MKPaper.REGION_ADD) || 10000;
   ["n_unit","n_qty","n_dval","n_dnote","n_install"].forEach(function(id){ $(id).addEventListener("input", renderPrice); });
-  $("n_region").addEventListener("change", renderPrice);
+  document.querySelectorAll('input[name="n_region"]').forEach(function(r){ r.addEventListener("change", setRegionUi); });
   $("n_dtype").addEventListener("change", setDiscUi);
 
   var etcEdited = false;
@@ -1540,9 +1550,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
     var first = y ? "최초 계약은 의무계약으로 " + y + "년, 이후 1년 단위 갱신" : "의무 이용기간은 계약 기간과 같음, 이후 1년 단위 갱신";
     /* 2026-10-29 화면에서 정한 조건(설치비·지역 요금·이용료·지급일)을 따라 문구를 만든다 — 예전에는 「설치비 무료 · 4만 원」「매달 20일」이 고정 문구였다 */
     var unit = Math.max(0, Math.round(Number($("n_unit").value) || 0)), fee = Math.max(0, Math.round(Number($("n_install").value) || 0));
-    var auto = $("n_region").value !== "fixed";
-    var install = (fee ? "설치비 " + fee.toLocaleString("ko-KR") + "원(부가세 별도)은 설치 완료 후 1회 청구" : "설치비 무료") +
-      (auto ? " (설치 현장이 서울·경기·인천 외 지역이면 1개소 월 이용료 " + (unit + REGION_ADD).toLocaleString("ko-KR") + "원 적용)" : "");
+    var install = fee ? "설치비 " + fee.toLocaleString("ko-KR") + "원(부가세 별도)은 설치 완료 후 1회 청구" : "설치비 무료";
     var pay = $("n_pay").value.trim();
     return [first, install,
       "발주처의 고의·과실(임의 이설·분해, 충격·침수, 도난 등)로 인한 장비 분실·파손 시 수리비 또는 교체비(출장비 포함)는 발주처가 부담하며, 제품 결함·정상 사용 중 고장은 납품처가 무상 교체",
@@ -1574,7 +1582,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
     $("n_from").value = ymd(d); $("n_years").value = "3"; etcEdited = false; setTo();
     ["n_customer","n_contact","n_note","n_dnote","n_solnote"].forEach(function(id){ $(id).value = ""; });
     document.querySelectorAll("#n_prod input").forEach(function(c){ c.checked = false; });
-    $("n_qty").value = 1; $("n_unit").value = 30000; $("n_install").value = 0; $("n_region").value = "auto"; $("n_dtype").value = "none"; etcEdited = false; setDiscUi();
+    $("n_qty").value = 1; $("n_unit").value = 30000; $("n_install").value = 0; document.querySelector('input[name="n_region"][value="metro"]').checked = true; $("n_unit").readOnly = true; $("n_dtype").value = "none"; etcEdited = false; setDiscUi();
     $("n_out").hidden = true; $("n_make").hidden = false; $("n_err").hidden = true;
   }
   resetNew();
@@ -1604,6 +1612,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
     btn.disabled = true; btn.textContent = "만드는 중…";
     try{
       var j = await api("offer", {body: Object.assign({}, t, {
+        unit: t.region === "other" ? t.unit - REGION_ADD : t.unit,   // 서버 price() 가 그 외 지역에 1만 원을 다시 더한다
         products: prods("n_prod"), solNote: $("n_solnote").value.trim(), sol: solName(prods("n_prod"), $("n_solnote").value.trim()), discountNote:$("n_dnote").value.trim(),
         from:$("n_from").value, to:$("n_to").value, pay:$("n_pay").value.trim(), bank:$("n_bank").value.trim(), etc:$("n_etc").value,
         customer:$("n_customer").value.trim(), contact:$("n_contact").value.trim(), note:$("n_note").value.trim()
