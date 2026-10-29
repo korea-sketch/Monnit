@@ -92,7 +92,7 @@
           <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 20일"></div>
           <div class="f wide"><label for="n_bank">입금 계좌</label><input type="text" id="n_bank" value="하나은행 375-910030-09904 (예금주: 주식회사 모넷코리아)"></div>
           <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면·계약서에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea>
-            <p class="hint" id="n_etcWarn" hidden style="margin:6px 0 0;color:var(--warn,#B4541A)">기타 사항을 직접 고치셔서 위에서 바꾼 조건(설치비·지역 요금·이용료·지급일·기간)이 이 칸에는 반영되지 않았습니다. 계약서에는 이 칸의 문구가 그대로 들어갑니다.</p>
+            <p class="hint" id="n_etcWarn" hidden style="margin:6px 0 0" aria-live="polite"></p>
             <button type="button" class="btn quiet sm" id="n_etcReset" style="margin-top:6px">현재 조건으로 기본 문구 다시 채우기</button></div>
         </div>
       </fieldset>
@@ -190,6 +190,24 @@
   <div class="tablewrap"><table class="list" id="s_table"></table></div>
 </section>
 
+
+<div class="modal" id="cmodal" role="dialog" aria-modal="true" aria-labelledby="ctitle" hidden>
+  <div class="backdrop" data-cclose></div>
+  <div class="msheet" style="max-width:720px">
+    <div class="mhd">
+      <div><p class="kicker" style="margin:0 0 2px">보내기 전 확인</p><h2 id="ctitle">이 내용으로 계약 링크를 만듭니다</h2></div>
+      <span class="spacer"></span>
+      <button type="button" class="btn quiet" data-cclose>닫기</button>
+    </div>
+    <div class="mbody" id="cbody" tabindex="0"></div>
+    <div class="mfoot"><div class="mfootbar">
+      <p class="err" id="c_err" hidden></p>
+      <span class="spacer"></span>
+      <button type="button" class="btn quiet" data-cclose>수정하기</button>
+      <button type="button" class="btn" id="c_send">이 내용으로 보내기</button>
+    </div></div>
+  </div>
+</div>
 
 <div class="modal" id="dmodal" role="dialog" aria-modal="true" aria-labelledby="dtitle" hidden>
   <div class="backdrop" data-dclose></div>

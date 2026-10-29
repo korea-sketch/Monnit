@@ -165,14 +165,47 @@
   $("n_from").addEventListener("change", setTo);
   $("n_years").addEventListener("change", setTo);
   $("n_to").addEventListener("input", function(){ $("n_years").value = "0"; etcSync(); });
-  $("n_etc").addEventListener("input", function(){ etcEdited = $("n_etc").value !== etcTemplate(); etcSync(); });
+  /* 2026-10-29 직접 고치는 중에는 덮어쓰지 않고 어긋난 줄만 알려 준다 — 실제 교체는 조건을 바꿀 때와 「계약 링크 만들기」를 누를 때 */
+  $("n_etc").addEventListener("input", function(){
+    etcEdited = $("n_etc").value !== etcTemplate(); etcAuto = {};
+    var f = etcFix($("n_etc").value);
+    etcNote(f.changed.length ? "「" + f.changed.join("」「") + "」 줄이 현재 조건과 다릅니다. 계약 링크를 만들 때 현재 조건에 맞게 자동으로 바꿉니다." : "", "warn");
+  });
   $("n_pay").addEventListener("input", function(){ etcSync(); });
   /* 기타 사항: 직접 고치지 않았으면 조건이 바뀔 때마다 다시 채우고, 고쳤으면 조건과 어긋난다고 알린다 */
+  /* 2026-10-29 기타 사항 자동 맞춤 — 직접 고친 뒤에도 조건에서 나오는 줄(의무 이용기간·설치비·세금계산서 발행일)은
+     찾아서 현재 조건 문구로 바꾸고, 없으면 제자리에 넣는다. 그 밖에 직접 쓴 줄은 그대로 둔다 */
+  var ETC_RULES = [
+    {name:"의무 이용기간", idx:0, re:/^(최초 계약은|의무 이용기간)/},
+    {name:"설치비", idx:1, re:/설치비/},
+    {name:"세금계산서 발행일", idx:3, re:/세금계산서\s*발행/}
+  ];
+  var etcAuto = {};   // 마지막으로 직접 고친 뒤 자동으로 바꾼 줄 이름
+  function bareLine(l){ return String(l).replace(/^[-·\s]+/, "").trim(); }
+  function etcFix(text){
+    var tpl = etcTemplate().split("\n"), lines = String(text || "").trim() ? String(text).split("\n") : [], changed = [];
+    ETC_RULES.forEach(function(r){
+      var want = tpl[r.idx], i = -1;
+      for(var k = 0; k < lines.length; k++){ if(r.re.test(bareLine(lines[k]))){ i = k; break; } }
+      if(i < 0){ lines.splice(Math.min(r.idx, lines.length), 0, want); changed.push(r.name); }
+      else if(bareLine(lines[i]) !== want){ lines[i] = want; changed.push(r.name); }
+    });
+    return {text: lines.join("\n"), changed: changed};
+  }
+  function etcNote(msg, kind){
+    var w = $("n_etcWarn"); if(!w) return;
+    w.textContent = msg || ""; w.hidden = !msg;
+    w.style.color = kind === "warn" ? "var(--critical)" : "var(--accent)";
+  }
   function etcSync(){
     if(!$("n_etc")) return;
     var tpl = etcTemplate();
-    if(!etcEdited){ if($("n_etc").value !== tpl) $("n_etc").value = tpl; $("n_etcWarn").hidden = true; return; }
-    $("n_etcWarn").hidden = $("n_etc").value === tpl;
+    if(!etcEdited){ if($("n_etc").value !== tpl) $("n_etc").value = tpl; etcAuto = {}; etcNote(""); return; }
+    var f = etcFix($("n_etc").value);
+    if(f.text !== $("n_etc").value) $("n_etc").value = f.text;
+    f.changed.forEach(function(n){ etcAuto[n] = true; });
+    var names = Object.keys(etcAuto);
+    etcNote(names.length ? "직접 고치신 기타 사항에서 「" + names.join("」「") + "」 줄을 현재 조건에 맞게 자동으로 바꿨습니다. 나머지 줄은 그대로입니다." : "", "info");
   }
   $("n_etcReset").addEventListener("click", function(){ etcEdited = false; etcSync(); });
   function resetNew(){
@@ -202,12 +235,62 @@
       "계약서에 직인을 날인하신 뒤 사업자등록증 사본과 함께 링크 화면에서 올려 주시거나 1015@monnit.com 으로 회신해 주십시오.\n\n" +
       "궁금하신 점은 02-2088-1454로 연락 주세요. 감사합니다.";
   }
-  $("n_make").addEventListener("click", async function(){
-    var btn = this, t = calc();
+  /* 2026-10-29 보내기 전 확인 — 「계약 링크 만들기」는 확인 창만 연다. 기타 사항을 현재 조건에 맞춘 뒤
+     계약서에 들어갈 내용 그대로 보여 주고, 「이 내용으로 보내기」를 눌러야 링크가 만들어진다 */
+  var REGION_TXT = {metro:"서울·경기·인천", other:"그 외 지역", fixed:"수기로 기입 (지역 무관)"};
+  function confirmHtml(t, fixedNow){
+    var etc = $("n_etc").value.split("\n").map(bareLine).filter(Boolean), tpl = etcTemplate().split("\n");
+    var fee = t.installFee, pay = $("n_pay").value.trim(), y = Number($("n_years").value);
+    var checks = [
+      ["설치비", fee ? won(fee) + " (1회 · 부가세 별도)" : "무료", tpl[1]],
+      ["의무 이용기간", y ? y + "년" : "계약 기간과 같음", tpl[0]],
+      ["세금계산서 발행일", pay || "매월", tpl[3]]
+    ].map(function(c){
+      var ok = etc.indexOf(c[2]) >= 0, auto = fixedNow.indexOf(c[0]) >= 0 || etcAuto[c[0]];
+      return '<li style="padding:4px 0">' + (ok ? '<b style="color:var(--ok)">✓</b> ' : '<b style="color:var(--critical)">✗</b> ') +
+        "<b>" + c[0] + "</b> " + esc(c[1]) + " — 기타 사항 「" + esc(c[2]) + "」" +
+        (auto ? ' <span class="pill" style="color:var(--accent);border-color:var(--accent);margin-left:4px">자동으로 바꿈</span>' : "") + "</li>";
+    }).join("");
+    var managed = function(l){ return ETC_RULES.some(function(r){ return r.re.test(l); }); };
+    var sol = solName(prods("n_prod"), $("n_solnote").value.trim());
+    return dl([
+      ["고객사", esc($("n_customer").value.trim() || "— (고객이 직접 입력)")],
+      ["납품 솔루션", esc(sol)],
+      ["설치 개소", t.qty + "개소"],
+      ["1개소 월 이용료", won(t.unit) + ' <span class="muted">· ' + esc(REGION_TXT[t.region] || "") + "</span>"],
+      ["할인", t.discount ? "− " + won(t.discount) + ($("n_dnote").value.trim() ? " · " + esc($("n_dnote").value.trim()) : "") : "없음"],
+      ["월 청구액", "<b>" + won(t.monthly) + "</b> (부가세 별도) · 부가세 포함 " + won(Math.round(t.monthly * 1.1))],
+      ["설치비 (1회)", fee ? "<b>" + won(fee) + "</b> (부가세 별도) · 부가세 포함 " + won(Math.round(fee * 1.1)) : "무료"],
+      ["계약 기간", kdate($("n_from").value) + " ~ " + kdate($("n_to").value) + (y ? " (의무 " + y + "년)" : "")],
+      ["매월 지급일", esc(pay || "—")],
+      ["입금 계좌", esc($("n_bank").value.trim() || "—")]
+    ]) +
+    '<p class="kicker" style="margin:4px 0 6px">조건과 기타 사항 일치 확인</p><ul style="list-style:none;margin:0 0 16px;padding:0;font-size:13.5px">' + checks + "</ul>" +
+    '<p class="kicker" style="margin:4px 0 6px">기타 사항 — 고객 화면·계약서에 이대로 들어갑니다</p>' +
+    '<ol style="margin:0;padding-left:22px;font-size:13.5px;line-height:1.7">' + etc.map(function(l){
+      return "<li" + (managed(l) ? ' style="background:var(--accent-soft)"' : "") + ">" + esc(l) + "</li>"; }).join("") + "</ol>" +
+    '<p class="hint" style="margin-top:8px">색이 칠해진 줄은 위 조건에서 자동으로 만들어지는 줄입니다. 내용을 바꾸려면 「수정하기」를 누르고 위 입력 칸에서 고쳐 주십시오.</p>';
+  }
+  function openC(){ $("c_err").hidden = true; $("cmodal").hidden = false; document.body.style.overflow = "hidden"; $("cbody").scrollTop = 0; $("c_send").focus(); }
+  function closeC(){ $("cmodal").hidden = true; document.body.style.overflow = ""; }
+  document.querySelectorAll("[data-cclose]").forEach(function(b){ b.addEventListener("click", closeC); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && $("cmodal") && !$("cmodal").hidden) closeC(); });
+  $("n_make").addEventListener("click", function(){
+    var t = calc();
     $("n_err").hidden = true;
     if(!t.unit){ $("n_err").hidden = false; $("n_err").textContent = "월 이용료를 입력해 주십시오."; return; }
     if(!$("n_from").value || !$("n_to").value){ $("n_err").hidden = false; $("n_err").textContent = "계약 기간을 입력해 주십시오."; return; }
-    btn.disabled = true; btn.textContent = "만드는 중…";
+    var fixedNow = [];
+    if(etcEdited){
+      var f = etcFix($("n_etc").value);
+      if(f.text !== $("n_etc").value){ $("n_etc").value = f.text; fixedNow = f.changed; f.changed.forEach(function(n){ etcAuto[n] = true; }); etcSync(); }
+    }else etcSync();
+    $("cbody").innerHTML = confirmHtml(t, fixedNow);
+    openC();
+  });
+  $("c_send").addEventListener("click", async function(){
+    var btn = this, t = calc();
+    btn.disabled = true; btn.textContent = "만드는 중…"; $("c_err").hidden = true;
     try{
       var j = await api("offer", {body: Object.assign({}, t, {
         unit: t.region === "other" ? t.unit - REGION_ADD : t.unit,   // 서버 price() 가 그 외 지역에 1만 원을 다시 더한다
@@ -217,9 +300,9 @@
       })});
       lastOffer = j.offer; lastLink = offerUrl(j.offer.id);
       $("n_link").value = lastLink; $("n_open").href = lastLink; $("n_msg").value = offerMsg(j.offer);
-      $("n_out").hidden = false; btn.hidden = true;
-    }catch(e){ $("n_err").hidden = false; $("n_err").textContent = e.message; }
-    btn.disabled = false; btn.textContent = "계약 링크 만들기";
+      $("n_out").hidden = false; $("n_make").hidden = true; closeC();
+    }catch(e){ $("c_err").hidden = false; $("c_err").textContent = e.message; }
+    btn.disabled = false; btn.textContent = "이 내용으로 보내기";
   });
   $("n_copy").addEventListener("click", function(){ copy(lastLink, this); });
   $("n_copyMsg").addEventListener("click", function(){ if(lastOffer) copy($("n_msg").value || offerMsg(lastOffer), this); });
