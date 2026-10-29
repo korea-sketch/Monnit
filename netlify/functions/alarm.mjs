@@ -106,8 +106,11 @@ export default async (req) => {
    지역은 사람이 고르지 않는다 — 새 링크는 region "auto" 로 저장되고, 계약서 발급 때 고객이 입력한 설치 현장 주소로
    자동 판정해 금액을 확정한다(settleTerms). 예전 링크(region 없음)는 그대로. */
 export const REGION_ADD = 10000;   // 그 외 지역 1개소당 월 가산액 (30,000 → 40,000)
+/* 2026-10-29 「fixed」 = 담당자가 입력한 월 이용료를 지역과 무관하게 그대로 적용(지역 가산 없음 · 지역 문구 없음).
+   설치비(installFee) = 1회 청구 금액(부가세 별도). 0 이면 「설치비 무료」. 예전 링크·계약은 installFee 가 없어 0(무료)으로 본다. */
+export function installOf(t) { return Math.max(0, Math.round(Number(t && t.installFee) || 0)); }
 export function price(t) {
-  const region = t.region === "other" || t.region === "metro" ? t.region : "auto";
+  const region = t.region === "other" || t.region === "metro" || t.region === "fixed" ? t.region : "auto";
   const unit = Math.max(0, Math.round(Number(t.unit) || 0)) + (region === "other" ? REGION_ADD : 0);   // auto 는 발급 때 주소로 확정
   const qty = Math.max(1, Math.round(Number(t.qty) || 1));
   const regionFee = 0;
@@ -117,7 +120,7 @@ export function price(t) {
   let discount = 0;
   if (type === "percent") { value = Math.min(100, value); discount = Math.round(list * value / 100); }
   if (type === "amount") { value = Math.min(list, Math.round(value)); discount = value; }
-  return { unit, region, regionFee, qty, list, discountType: type, discountValue: type === "none" ? 0 : value, discount, monthly: list - discount };
+  return { unit, region, regionFee, qty, list, discountType: type, discountValue: type === "none" ? 0 : value, discount, monthly: list - discount, installFee: installOf(t) };
 }
 /* 설치 주소 → 지역. 주소 검색 결과는 「서울특별시·경기도·인천광역시 …」 또는 「(06000) 서울 …」 형태 */
 export function regionOf(addr) {
@@ -139,12 +142,17 @@ export function settleTerms(t, addr) {
 }
 const REGION_LABEL = { metro: "서울·경기·인천", other: "그 외 지역" };
 function regionText(t) {
-  if (!t || !t.region || t.region === "auto") return "";
+  if (!t || !t.region || t.region === "auto" || t.region === "fixed") return "";
+  const inst = installOf(t) > 0 ? "" : " · 설치비 무료";
   if (t.region === "other" && Number(t.regionFee) > 0)   // 2026-10-23 ~ 10-25 발급분 (정액 출장비 방식)
     return `${REGION_LABEL.other} · 지역 출장비 월 ${Number(t.regionFee).toLocaleString("ko-KR")}원 포함 (개소 수와 무관 · 설치비·출장비 별도 청구 없음)`;
   return t.region === "other"
-    ? `${REGION_LABEL.other} · 1개소 월 ${Number(t.unit ?? t.unitPrice ?? 0).toLocaleString("ko-KR")}원 · 설치비 무료`
-    : `${REGION_LABEL.metro} · 1개소 월 ${Number(t.unit ?? t.unitPrice ?? 0).toLocaleString("ko-KR")}원 · 설치비 무료`;
+    ? `${REGION_LABEL.other} · 1개소 월 ${Number(t.unit ?? t.unitPrice ?? 0).toLocaleString("ko-KR")}원${inst}`
+    : `${REGION_LABEL.metro} · 1개소 월 ${Number(t.unit ?? t.unitPrice ?? 0).toLocaleString("ko-KR")}원${inst}`;
+}
+function installText(t) {
+  const f = installOf(t);
+  return f > 0 ? `${f.toLocaleString("ko-KR")}원 (1회 · 부가세 별도)` : "무료";
 }
 
 /* ───────── 관리자 ───────── */
@@ -341,7 +349,7 @@ async function submitContract(req, b) {
     terms: { solution, products: prodList, productsChosenBy: prodFixed ? "staff" : "customer", solNote: t.solNote || "",
              unitPrice: t.unit, region: t.region || "", regionFee: t.regionFee || 0, sites: t.qty, listPrice: t.list,
              discountType: t.discountType, discountValue: t.discountValue, discount: t.discount, discountNote: t.discountNote,
-             monthly: t.monthly, from: t.from, to: t.to, payDay: t.pay, bank: t.bank, etc: t.etc },
+             monthly: t.monthly, installFee: installOf(t), from: t.from, to: t.to, payDay: t.pay, bank: t.bank, etc: t.etc },
     customer: {
       name: str(c.name, 120), bizNo: str(c.bizNo, 20), address: str(c.address, 200), ceo: str(c.ceo, 40),
       contractType: c.contractType === "B2C" ? "B2C" : "B2B", manager: str(c.manager, 40), phone: str(c.phone, 30),
@@ -366,12 +374,12 @@ async function submitContract(req, b) {
   const mailed = await alert({
     kind: "alarm_contract", label: "알리미 계약서 발급", interest: "긴급 경보 알리미 계약서 발급 (날인본 회신 대기)",
     company: rec.customer.name, name: rec.customer.manager, phone: rec.customer.phone, email: rec.customer.email,
-    memo: `${solution} · ${t.qty}개소 · 월 ${won(t.monthly)} (부가세 별도)${t.discount ? " · 할인 " + won(t.discount) : ""} · ${t.from} ~ ${t.to}`,
+    memo: `${solution} · ${t.qty}개소 · 월 ${won(t.monthly)} (부가세 별도)${t.discount ? " · 할인 " + won(t.discount) : ""}${installOf(t) ? " · 설치비 " + won(installOf(t)) : ""} · ${t.from} ~ ${t.to}`,
     ip: rec.client.ip, ref,
   }, {
     "계약번호": ref, "진행": "고객이 계약서를 내려받았습니다 — 직인 날인본·사업자등록증 회신 대기 (1015@monnit.com 또는 온라인 회신)",
     "설치 현장": rec.customer.site, "현장 주소": rec.customer.siteAddr, "대표자": rec.customer.ceo, "계약 구분": rec.customer.contractType,
-    "월 청구액": won(t.monthly) + " (부가세 별도)", ...(t.region ? { "설치 지역": regionText(t) } : {}), "계약 기간": `${t.from} ~ ${t.to}`,
+    "월 청구액": won(t.monthly) + " (부가세 별도)", "설치비": installText(t), ...(regionText(t) ? { "설치 지역": regionText(t) } : {}), "계약 기간": `${t.from} ~ ${t.to}`,
     "SLA": `${SLA_VERSION} 동의 ${rec.slaAgreedAt}`,
     "알림 수신자": rec.recipients.map((r) => `${r.name} ${r.phone}`).join(" / ") || "—",
     "관리 화면": SITE + "/contract-admin",
@@ -599,7 +607,8 @@ async function customerMail(rec, offerId) {
     `· 발주처: ${rec.customer.name} (대표 ${rec.customer.ceo})`, `· 설치 현장: ${rec.customer.site} (${rec.customer.siteAddr})`,
     `· 납품 솔루션: ${t.solution} · ${t.sites}개소`,
     `· 월 청구액: ${won(t.monthly)} (부가세 별도)${t.discount ? " — 정가 " + won(t.listPrice) + "에서 " + won(t.discount) + " 할인" : ""}`,
-    ...(t.region ? [`· 설치 지역: ${regionText(t)}`] : []),
+    `· 설치비: ${installText(t)}`,
+    ...(regionText(t) ? [`· 설치 지역: ${regionText(t)}`] : []),
     `· 계약 기간: ${t.from} ~ ${t.to}`, "",
     "[계약 체결 절차]",
     "1. 아래 링크에서 계약서(A4 양면: 앞면 계약서 · 뒷면 서비스수준협약)를 내려받아 인쇄합니다.",

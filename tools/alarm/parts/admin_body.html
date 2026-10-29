@@ -67,7 +67,10 @@
           <div class="f"><label for="n_qty">설치 개소 수</label>
             <div class="stepper"><button type="button" class="btn quiet" data-q="-1" aria-label="1개 줄이기">−</button><input type="number" id="n_qty" value="1" min="1" step="1"><button type="button" class="btn quiet" data-q="1" aria-label="1개 늘리기">＋</button></div>
           </div>
-          <div class="f wide" id="n_rhint"><p class="hint" style="margin:-4px 0 0"><span style="font-weight:600">지역 요금은 자동 적용</span> — 고객이 입력한 설치 현장 주소가 서울·경기·인천 외 지역이면 계약서 발급 때 1개소 월 이용료에 1만 원이 더해집니다(기본 3만 원 → 4만 원). 별도 출장비 항목은 없습니다.</p></div>
+          <div class="f"><label for="n_install">설치비 (1회 · 원, 부가세 별도)</label><input type="number" id="n_install" value="0" min="0" step="10000"></div>
+          <div class="f"><label for="n_region">지역 요금</label>
+            <select id="n_region"><option value="auto">자동 — 서울·경기·인천 외 지역이면 1개소 +1만 원</option><option value="fixed">입력한 월 이용료 그대로 (지역 가산 없음)</option></select></div>
+          <div class="f wide" id="n_rhint"><p class="hint" style="margin:-4px 0 0" id="n_rhintTxt"></p></div>
           <div class="f"><label for="n_dtype">할인</label>
             <select id="n_dtype"><option value="none">할인 없음</option><option value="percent">할인율 (%)</option><option value="amount">월 할인액 (원)</option></select>
           </div>
@@ -85,7 +88,9 @@
           <div class="f"><label for="n_to">계약 종료일</label><input type="date" id="n_to"></div>
           <div class="f"><label for="n_pay">매월 지급일</label><input type="text" id="n_pay" value="매달 20일"></div>
           <div class="f wide"><label for="n_bank">입금 계좌</label><input type="text" id="n_bank" value="하나은행 375-910030-09904 (예금주: 주식회사 모넷코리아)"></div>
-          <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea></div>
+          <div class="f wide"><label for="n_etc">기타 사항 (한 줄에 하나씩 · 고객 화면·계약서에 그대로 표시)</label><textarea id="n_etc" rows="7"></textarea>
+            <p class="hint" id="n_etcWarn" hidden style="margin:6px 0 0;color:var(--warn,#B4541A)">기타 사항을 직접 고치셔서 위에서 바꾼 조건(설치비·지역 요금·이용료·지급일·기간)이 이 칸에는 반영되지 않았습니다. 계약서에는 이 칸의 문구가 그대로 들어갑니다.</p>
+            <button type="button" class="btn quiet sm" id="n_etcReset" style="margin-top:6px">현재 조건으로 기본 문구 다시 채우기</button></div>
         </div>
       </fieldset>
     </div>

@@ -42,11 +42,14 @@
     o.monthly = o.list - o.discount;
     return o;
   }
+  /* 2026-10-29 설치비(1회) — 0 이면 무료. region "fixed" = 담당자가 정한 월 이용료 그대로(지역 가산·지역 문구 없음) */
+  function installOf(t){ return Math.max(0, Math.round(Number(t && (t.installFee != null ? t.installFee : 0)) || 0)); }
+  function installLine(t){ var f = installOf(t); return f > 0 ? "설치비 " + num(f) + "원 (금 " + hangul(f) + "원, 1회 · VAT 별도)" : ""; }
   function regionLine(t){
-    if(!t || !t.region || t.region === "auto") return "";
+    if(!t || !t.region || t.region === "auto" || t.region === "fixed") return "";
     if(t.region === "other" && Number(t.regionFee) > 0)   /* 10-23 ~ 10-25 발급분 */
       return "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 + 지역 출장비 월 " + num(t.regionFee) + "원 (" + REGION.other + " · 개소 수와 무관 · 설치비·출장비 별도 청구 없음)";
-    return "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 (" + (t.region === "other" ? REGION.other : REGION.metro) + " · 설치비 무료)";
+    return "1개소 월 이용료 " + num(t.unit) + "원 × " + num(t.qty) + "개소 (" + (t.region === "other" ? REGION.other : REGION.metro) + (installOf(t) > 0 ? "" : " · 설치비 무료") + ")";
   }
 
   function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
@@ -157,7 +160,7 @@
         products: t.products || [], solNote: t.solNote || "", solution: t.solution || t.sol || "",
         unit: t.unitPrice != null ? t.unitPrice : t.unit, region: t.region || "", regionFee: Number(t.regionFee) || 0, qty: t.sites != null ? t.sites : t.qty, list: t.listPrice != null ? t.listPrice : t.list,
         discount: t.discount || 0, discountType: t.discountType, discountValue: t.discountValue, discountNote: t.discountNote || "",
-        monthly: t.monthly, from: t.from, to: t.to, pay: t.payDay || t.pay || "", bank: t.bank || "", etc: t.etc || ""
+        monthly: t.monthly, installFee: installOf(t), from: t.from, to: t.to, pay: t.payDay || t.pay || "", bank: t.bank || "", etc: t.etc || ""
       }, u: u
     };
   }
@@ -169,6 +172,8 @@
     var price = "월 " + num(t.monthly) + "원 (금 " + hangul(t.monthly) + "원, VAT 별도) — " + num(t.qty) + "개소 기준" +
       (t.region ? '<br><span style="color:#5A6B7B">' + esc(regionLine(t)) + "</span>" : "") +
       (t.discount ? '<br><span style="color:#5A6B7B">정가 월 ' + num(t.list) + "원에서 " + (t.discountType === "percent" ? t.discountValue + "% " : "") + "할인 " + num(t.discount) + "원" + (t.discountNote ? " · " + esc(t.discountNote) : "") + "</span>" : "");
+    var inst = installLine(t);
+    if(inst) price += '<span style="display:block;margin-top:2px;color:#1E3A52;font-weight:700">' + esc(inst) + "</span>";
     var etc = String(t.etc || "").split("\n").map(function(l){ return l.replace(/^[-·\s]+/, "").trim(); }).filter(Boolean);
     var rows = [
       ["납품 솔루션", esc(sol)],
@@ -334,5 +339,5 @@
     } finally { m.frame.remove(); }
   }
 
-  window.MKPaper = { REGION: REGION, REGION_ADD: REGION_ADD, regionOf: regionOf, settle: settle, regionLine: function(t){ return regionLine(t); }, meta: meta, html: html, pdf: pdf, print: print, fileName: fileName, LABEL: (function(){ var o = {}; ORDER.forEach(function(k){ o[k] = P[k].name.replace(/^무선\s*/, ""); }); return o; })() };
+  window.MKPaper = { REGION: REGION, REGION_ADD: REGION_ADD, regionOf: regionOf, settle: settle, regionLine: function(t){ return regionLine(t); }, installOf: installOf, installLine: installLine, meta: meta, html: html, pdf: pdf, print: print, fileName: fileName, LABEL: (function(){ var o = {}; ORDER.forEach(function(k){ o[k] = P[k].name.replace(/^무선\s*/, ""); }); return o; })() };
 })();

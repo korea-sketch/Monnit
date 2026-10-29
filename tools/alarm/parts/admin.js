@@ -91,18 +91,20 @@
     var unit = Math.max(0, Math.round(Number($("n_unit").value) || 0));
     var qty = Math.max(1, Math.round(Number($("n_qty").value) || 1));
     /* 2026-10-26 설치 지역 — 그 외 지역은 1개소 단가에 1만 원을 더한다(3만 → 4만 원) · 별도 출장비 없음 (서버 price() 와 같은 규칙) */
-    var region = "auto", regionFee = 0;   // 지역은 계약서 발급 때 설치 주소로 자동 판정
+    /* 2026-10-29 지역 요금 「fixed」(입력한 월 이용료 그대로) 추가 · 설치비(1회) 입력 추가 */
+    var region = $("n_region").value === "fixed" ? "fixed" : "auto", regionFee = 0;   // auto 는 계약서 발급 때 설치 주소로 자동 판정
+    var installFee = Math.max(0, Math.round(Number($("n_install").value) || 0));
     var list = unit * qty + regionFee, type = $("n_dtype").value, val = Math.max(0, Number($("n_dval").value) || 0), disc = 0;
     if(type === "percent"){ val = Math.min(100, val); disc = Math.round(list * val / 100); }
     if(type === "amount"){ val = Math.min(list, Math.round(val)); disc = val; }
-    return {unit:unit, region:region, regionFee:regionFee, qty:qty, list:list, discountType:type, discountValue: type === "none" ? 0 : val, discount:disc, monthly:list - disc};
+    return {unit:unit, region:region, regionFee:regionFee, qty:qty, list:list, discountType:type, discountValue: type === "none" ? 0 : val, discount:disc, monthly:list - disc, installFee:installFee};
   }
   function renderPrice(){
     var t = calc(), note = $("n_dnote").value.trim();
     var rows = '<div class="row"><span>월 이용료 (1개소)</span><span class="money">' + won(t.unit) + '</span></div>' +
       '<div class="row"><span>설치 개소</span><span class="money">' + t.qty + '개소</span></div>' +
-      '<div class="row"><span>그 외 지역 1개소 <small>(서울·경기·인천 외 · 주소로 자동)</small></span><span class="money">' + won(t.unit + REGION_ADD) + '</span></div>' +
-      '<div class="row"><span>설치비</span><span class="money">무료</span></div>';
+      (t.region === "auto" ? '<div class="row"><span>그 외 지역 1개소 <small>(서울·경기·인천 외 · 주소로 자동)</small></span><span class="money">' + won(t.unit + REGION_ADD) + '</span></div>' : '') +
+      '<div class="row"><span>설치비 <small>(1회)</small></span><span class="money">' + (t.installFee ? won(t.installFee) : "무료") + '</span></div>';
     if(t.discount){
       rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(t.list) + '</span></div>' +
         '<div class="row disc"><span>' + (t.discountType === "percent" ? "할인 " + t.discountValue + "%" : "할인") + (note ? " · " + esc(note) : "") +
@@ -111,7 +113,12 @@
     rows += '<div class="row total"><span>월 청구액</span><span class="money">' + won(t.monthly) + '</span></div>';
     $("n_price").innerHTML = rows;
     var far = (t.unit + REGION_ADD) * t.qty, farDisc = t.discountType === "percent" ? Math.round(far * t.discountValue / 100) : t.discountType === "amount" ? Math.min(far, t.discountValue) : 0;
-    $("n_vat").textContent = "서울·경기·인천 기준 · 부가세 별도 (부가세 포함 " + won(Math.round(t.monthly * 1.1)) + ") · 그 외 지역이면 " + won(far - farDisc) + " / 월";
+    $("n_vat").textContent = (t.region === "auto" ? "서울·경기·인천 기준 · " : "지역과 무관하게 이 금액 · ") + "부가세 별도 (부가세 포함 " + won(Math.round(t.monthly * 1.1)) + ")" + (t.region === "auto" ? " · 그 외 지역이면 " + won(far - farDisc) + " / 월" : "") +
+      (t.installFee ? " · 설치비 " + won(t.installFee) + " 1회 별도 (부가세 포함 " + won(Math.round(t.installFee * 1.1)) + ")" : "");
+    $("n_rhintTxt").innerHTML = t.region === "auto"
+      ? '<span style="font-weight:600">지역 요금 자동</span> — 고객이 입력한 설치 현장 주소가 서울·경기·인천 외 지역이면 계약서 발급 때 1개소 월 이용료에 ' + REGION_ADD.toLocaleString("ko-KR") + '원이 더해집니다(' + won(t.unit) + ' → ' + won(t.unit + REGION_ADD) + '). 입력한 금액 그대로 계약하려면 「입력한 월 이용료 그대로」를 고르십시오.'
+      : '<span style="font-weight:600">입력한 월 이용료 그대로</span> — 설치 현장 주소와 무관하게 1개소 월 ' + won(t.unit) + '으로 계약서가 만들어집니다. 계약서에 지역 문구는 표시되지 않습니다.';
+    etcSync();
   }
   function setDiscUi(){
     var t = $("n_dtype").value;
@@ -124,17 +131,23 @@
     b.addEventListener("click", function(){ $("n_qty").value = Math.max(1, (Number($("n_qty").value) || 1) + Number(b.dataset.q)); renderPrice(); });
   });
   var REGION_ADD = (window.MKPaper && window.MKPaper.REGION_ADD) || 10000;
-  ["n_unit","n_qty","n_dval","n_dnote"].forEach(function(id){ $(id).addEventListener("input", renderPrice); });
+  ["n_unit","n_qty","n_dval","n_dnote","n_install"].forEach(function(id){ $(id).addEventListener("input", renderPrice); });
+  $("n_region").addEventListener("change", renderPrice);
   $("n_dtype").addEventListener("change", setDiscUi);
 
   var etcEdited = false;
   function etcTemplate(){
     var y = Number($("n_years").value);
     var first = y ? "최초 계약은 의무계약으로 " + y + "년, 이후 1년 단위 갱신" : "의무 이용기간은 계약 기간과 같음, 이후 1년 단위 갱신";
-    var install = "설치비 무료 (설치 현장이 서울·경기·인천 외 지역이면 1개소 월 이용료 4만 원 적용)";
+    /* 2026-10-29 화면에서 정한 조건(설치비·지역 요금·이용료·지급일)을 따라 문구를 만든다 — 예전에는 「설치비 무료 · 4만 원」「매달 20일」이 고정 문구였다 */
+    var unit = Math.max(0, Math.round(Number($("n_unit").value) || 0)), fee = Math.max(0, Math.round(Number($("n_install").value) || 0));
+    var auto = $("n_region").value !== "fixed";
+    var install = (fee ? "설치비 " + fee.toLocaleString("ko-KR") + "원(부가세 별도)은 설치 완료 후 1회 청구" : "설치비 무료") +
+      (auto ? " (설치 현장이 서울·경기·인천 외 지역이면 1개소 월 이용료 " + (unit + REGION_ADD).toLocaleString("ko-KR") + "원 적용)" : "");
+    var pay = $("n_pay").value.trim();
     return [first, install,
       "발주처의 고의·과실(임의 이설·분해, 충격·침수, 도난 등)로 인한 장비 분실·파손 시 수리비 또는 교체비(출장비 포함)는 발주처가 부담하며, 제품 결함·정상 사용 중 고장은 납품처가 무상 교체",
-      "매달 20일 세금계산서 발행",
+      (pay ? pay.replace(/\s*지급$/, "") + " 세금계산서 발행" : "매월 세금계산서 발행"),
       "계약 해지 시 하드웨어는 반납",
       "계약기간 만료 한 달 전까지 해지 의사를 표시하지 않으면 동일 조건으로 1년 자동 연장",
       "문자메시지·수신자 변경·문의 사항은 매뉴얼 참고 또는 02-2088-1454"].join("\n");
@@ -142,18 +155,27 @@
   function setTo(){
     var y = Number($("n_years").value), f = $("n_from").value;
     if(y && f){ var d = new Date(f + "T00:00:00"); d.setFullYear(d.getFullYear() + y); d.setDate(d.getDate() - 1); $("n_to").value = ymd(d); }
-    if(!etcEdited) $("n_etc").value = etcTemplate();
+    etcSync();
   }
   $("n_from").addEventListener("change", setTo);
   $("n_years").addEventListener("change", setTo);
-  $("n_to").addEventListener("input", function(){ $("n_years").value = "0"; if(!etcEdited) $("n_etc").value = etcTemplate(); });
-  $("n_etc").addEventListener("input", function(){ etcEdited = true; });
+  $("n_to").addEventListener("input", function(){ $("n_years").value = "0"; etcSync(); });
+  $("n_etc").addEventListener("input", function(){ etcEdited = $("n_etc").value !== etcTemplate(); etcSync(); });
+  $("n_pay").addEventListener("input", function(){ etcSync(); });
+  /* 기타 사항: 직접 고치지 않았으면 조건이 바뀔 때마다 다시 채우고, 고쳤으면 조건과 어긋난다고 알린다 */
+  function etcSync(){
+    if(!$("n_etc")) return;
+    var tpl = etcTemplate();
+    if(!etcEdited){ if($("n_etc").value !== tpl) $("n_etc").value = tpl; $("n_etcWarn").hidden = true; return; }
+    $("n_etcWarn").hidden = $("n_etc").value === tpl;
+  }
+  $("n_etcReset").addEventListener("click", function(){ etcEdited = false; etcSync(); });
   function resetNew(){
     var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + 1);
     $("n_from").value = ymd(d); $("n_years").value = "3"; etcEdited = false; setTo();
     ["n_customer","n_contact","n_note","n_dnote","n_solnote"].forEach(function(id){ $(id).value = ""; });
     document.querySelectorAll("#n_prod input").forEach(function(c){ c.checked = false; });
-    $("n_qty").value = 1; $("n_unit").value = 30000; $("n_dtype").value = "none"; setDiscUi(); if(!etcEdited) $("n_etc").value = etcTemplate();
+    $("n_qty").value = 1; $("n_unit").value = 30000; $("n_install").value = 0; $("n_region").value = "auto"; $("n_dtype").value = "none"; etcEdited = false; setDiscUi();
     $("n_out").hidden = true; $("n_make").hidden = false; $("n_err").hidden = true;
   }
   resetNew();
@@ -168,7 +190,8 @@
     return (o.memo.customer ? o.memo.customer + " 담당자님, 안녕하세요. 모넷코리아입니다.\n\n" : "안녕하세요. 모넷코리아입니다.\n\n") +
       "긴급 경보 알리미" + ((t.products || []).length ? "(" + t.products.map(function(k){ return PRODUCT_LABEL[k]; }).join(" · ") + (t.solNote ? " — " + t.solNote : "") + ")" : "") + " 구독 계약 링크를 보내 드립니다.\n" +
       "· " + t.qty + "개소 · 월 " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " — 할인 적용" : "") + "\n" +
-      (t.region ? "· 설치비는 따로 받지 않습니다. 설치 현장이 서울·경기·인천 외 지역이면 1개소 월 이용료가 " + (Number(t.unit) + (t.region === "auto" ? REGION_ADD : 0)).toLocaleString("ko-KR") + "원으로 적용됩니다.\n" : "") +
+      (Number(t.installFee) > 0 ? "· 설치비 " + Number(t.installFee).toLocaleString("ko-KR") + "원 (1회 · 부가세 별도)\n" : t.region ? "· 설치비는 따로 받지 않습니다.\n" : "") +
+      (t.region === "auto" ? "· 설치 현장이 서울·경기·인천 외 지역이면 1개소 월 이용료가 " + (Number(t.unit) + REGION_ADD).toLocaleString("ko-KR") + "원으로 적용됩니다.\n" : "") +
       "· 계약 기간 " + kdate(t.from) + " ~ " + kdate(t.to) + "\n\n" +
       "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하고 고객 정보를 입력하시면 계약서(A4 양면)를 내려받으실 수 있습니다." + ((t.products || []).length ? "" : " 도입하실 알리미는 화면에서 직접 선택하시면 됩니다.") + "\n" + offerUrl(o.id) + "\n\n" +
       "계약서에 직인을 날인하신 뒤 사업자등록증 사본과 함께 링크 화면에서 올려 주시거나 1015@monnit.com 으로 회신해 주십시오.\n\n" +
@@ -284,11 +307,11 @@
   });
   $("c_filter").addEventListener("change", renderContracts);
   $("c_csv").addEventListener("click", function(){
-    var H = ["계약번호","상태","발급일시","회신일시","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","현장주소","솔루션","개소","1개소 월이용료","설치지역","지역출장비(10/23~25 발급분)","할인","월청구액(VAT별도)","계약시작","계약종료","지급일","SLA동의","날인 계약서","사업자등록증","알림 수신자"];
+    var H = ["계약번호","상태","발급일시","회신일시","체결일시","고객사","사업자등록번호","대표자","주소","계약구분","담당자","연락처","이메일","설치현장","현장주소","솔루션","개소","1개소 월이용료","설치지역","지역출장비(10/23~25 발급분)","할인","월청구액(VAT별도)","설치비(1회·VAT별도)","계약시작","계약종료","지급일","SLA동의","날인 계약서","사업자등록증","알림 수신자"];
     var q = function(v){ v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     var lines = [H.join(",")].concat(DATA.contracts.map(function(c){ var t = c.terms, u = c.customer, fs = c.files || [];
       var has = function(k){ return fs.some(function(f){ return f.kind === k; }); };
-      return [c.ref, ST[c.status] || c.status, kdt(c.submittedAt), kdt(c.returnedAt), kdt(c.signedAt), u.name, u.bizNo, u.ceo, u.address, u.contractType, u.manager, u.phone, u.email, u.site, u.siteAddr || "", t.solution, t.sites, t.unitPrice, t.region === "other" ? "그 외 지역" : t.region === "metro" ? "서울·경기·인천" : "", t.regionFee || 0, t.discount || 0, t.monthly, t.from, t.to, t.payDay, kdt(c.slaAgreedAt),
+      return [c.ref, ST[c.status] || c.status, kdt(c.submittedAt), kdt(c.returnedAt), kdt(c.signedAt), u.name, u.bizNo, u.ceo, u.address, u.contractType, u.manager, u.phone, u.email, u.site, u.siteAddr || "", t.solution, t.sites, t.unitPrice, t.region === "other" ? "그 외 지역" : t.region === "metro" ? "서울·경기·인천" : t.region === "fixed" ? "지역 무관(고정)" : "", t.regionFee || 0, t.discount || 0, t.monthly, Number(t.installFee) || 0, t.from, t.to, t.payDay, kdt(c.slaAgreedAt),
         has("contract") ? "회신" : "없음", has("license") || c.hasLicense ? "회신" : "없음", (c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(" / ")].map(q).join(","); }));
     var blob = new Blob(["﻿" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "알리미_계약현황_" + ymd(new Date()) + ".csv"; a.click();
@@ -332,7 +355,7 @@
     return ["[긴급 경보 알리미 구독계약] " + c.ref + " · " + (ST[c.status] || c.status),
       "상호: " + u.name, "사업자등록번호: " + (u.bizNo || "-"), "대표자: " + u.ceo, "주소: " + u.address, "계약 구분: " + u.contractType,
       "담당자: " + u.manager + " / " + u.phone + " / " + u.email, "설치 현장: " + u.site, "현장 주소: " + (u.siteAddr || "-"),
-      "납품 솔루션: " + window.MKPaper.meta(t.products, t.solNote).solution, "개소: " + t.sites, (window.MKPaper.regionLine(t.region ? { region: t.region, regionFee: t.regionFee, unit: t.unitPrice, qty: t.sites } : null) || ""), "월 청구액: " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " · 할인 " + Number(t.discount).toLocaleString("ko-KR") + "원" : ""),
+      "납품 솔루션: " + window.MKPaper.meta(t.products, t.solNote).solution, "개소: " + t.sites, (window.MKPaper.regionLine(t.region ? { region: t.region, regionFee: t.regionFee, unit: t.unitPrice, qty: t.sites, installFee: t.installFee } : null) || ""), (Number(t.installFee) > 0 ? "설치비: " + Number(t.installFee).toLocaleString("ko-KR") + "원 (1회 · 부가세 별도)" : ""), "월 청구액: " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " · 할인 " + Number(t.discount).toLocaleString("ko-KR") + "원" : ""),
       "계약 기간: " + t.from + " ~ " + t.to, "지급일: " + t.payDay, "입금 계좌: " + t.bank,
       "알림 수신자: " + ((c.recipients || []).map(function(r){ return r.name + " " + r.phone; }).join(", ") || "-"),
       "SLA 동의: " + kdt(c.slaAgreedAt), "계약서 발급: " + kdt(c.submittedAt), c.returnedAt ? "회신: " + kdt(c.returnedAt) : "", c.signedAt ? "체결 완료: " + kdt(c.signedAt) : "",
@@ -395,7 +418,8 @@
         ["계약서 명칭", esc(m.title) + " 구독서비스 계약서"],
         ["납품 솔루션", esc(t.products && t.products.length ? m.solution : t.solution) + (t.productsChosenBy ? ' <span class="muted">(' + (t.productsChosenBy === "customer" ? "고객 선택" : "담당자 지정") + ")</span>" : "")],
         ["월 이용료", t.region === "other" && Number(t.regionFee) > 0 ? won(t.unitPrice) + " × " + t.sites + "개소 + 지역 출장비 " + won(t.regionFee) + " = " + won(t.listPrice) : won(t.unitPrice) + " × " + t.sites + "개소 = " + won(t.listPrice)],
-        ["설치 지역", t.region === "other" ? (Number(t.regionFee) > 0 ? "그 외 지역 · 설치비·출장비 별도 청구 없음 (지역 출장비 월 " + won(t.regionFee) + " 포함 · 개소 수와 무관)" : "그 외 지역 · 1개소 월 " + won(t.unitPrice) + " · 설치비 무료") : t.region === "metro" ? "서울·경기·인천 · 설치비 무료" : "—"],
+        ["설치 지역", t.region === "other" ? (Number(t.regionFee) > 0 ? "그 외 지역 · 설치비·출장비 별도 청구 없음 (지역 출장비 월 " + won(t.regionFee) + " 포함 · 개소 수와 무관)" : "그 외 지역 · 1개소 월 " + won(t.unitPrice)) : t.region === "metro" ? "서울·경기·인천" : t.region === "fixed" ? "지역 무관 (담당자가 정한 월 이용료 그대로)" : "—"],
+        ["설치비", Number(t.installFee) > 0 ? won(t.installFee) + " (1회 · 부가세 별도)" : "무료"],
         ["할인", t.discount ? "− " + won(t.discount) + (t.discountType === "percent" ? " (" + t.discountValue + "%)" : "") + (t.discountNote ? " · " + esc(t.discountNote) : "") : "없음"],
         ["월 청구액", "<b>" + won(t.monthly) + "</b> (부가세 별도)"], ["계약 기간", kdate(t.from) + " ~ " + kdate(t.to)],
         ["지급일", esc(t.payDay)], ["입금 계좌", esc(t.bank)], ["기타 사항", esc(t.etc).replace(/\n/g, "<br>")]]) +

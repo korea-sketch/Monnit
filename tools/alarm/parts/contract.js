@@ -68,7 +68,9 @@
     if(pending) rows += '<div class="row"><span>그 외 지역 <small style="color:var(--muted)">(서울·경기·인천 외 · 설치 주소로 자동 적용)</small></span><span class="money">1개소 ' + won((Number(E.unit) || 0) + ADD) + "</span></div>";
     rows += '<div class="row"><span>설치 개소</span><span class="money">' + E.qty + "개소</span></div>";
     if(E.region === "other" && Number(E.regionFee) > 0) rows += '<div class="row"><span>지역 출장비 (' + esc(R.other || "그 외 지역") + ' · 개소 수와 무관)</span><span class="money">+ ' + won(E.regionFee) + "</span></div>";
-    if(E.region) rows += '<div class="row"><span>설치비</span><span class="money">무료</span></div>';
+    var INST = P.installOf ? P.installOf(E) : 0;
+    if(INST) rows += '<div class="row"><span>설치비 <small style="color:var(--muted)">(1회 · 부가세 별도)</small></span><span class="money">' + won(INST) + "</span></div>";
+    else if(E.region) rows += '<div class="row"><span>설치비</span><span class="money">무료</span></div>';
     if(E.discount) rows += '<div class="row"><span>정가 합계</span><span class="money">' + won(E.list) + "</span></div>" +
       '<div class="row disc"><span>' + esc(discLabel()) + '</span><span class="money">− ' + won(E.discount) + "</span></div>";
     rows += '<div class="row total"><span>월 청구액 <small style="font-weight:400;color:var(--muted)">(부가세 별도' + (pending ? " · 서울·경기·인천 기준" : "") + ')</small></span><span class="money">' + won(E.monthly) + "</span></div>";
@@ -79,8 +81,10 @@
     $("o_bank").textContent = T.bank || "—";
     $("o_etc").innerHTML = etcHtml();
     $("v_price").textContent = "월 " + won(E.monthly);
+    var FREE = INST ? "" : " · 설치비 무료";
     $("v_sites").textContent = E.qty + "개소 기준" + (pending ? " · 설치 현장이 서울·경기·인천 외 지역이면 1개소 월 " + ((Number(E.unit) || 0) + ADD).toLocaleString("ko-KR") + "원 적용"
-      : E.region === "other" ? (Number(E.regionFee) > 0 ? " · 지역 출장비 월 " + Number(E.regionFee).toLocaleString("ko-KR") + "원 포함(개소 수와 무관)" : " · 그 외 지역 1개소 월 " + Number(E.unit || 0).toLocaleString("ko-KR") + "원 · 설치비 무료") : E.region === "metro" ? " · 설치비 무료" : "");
+      : E.region === "other" ? (Number(E.regionFee) > 0 ? " · 지역 출장비 월 " + Number(E.regionFee).toLocaleString("ko-KR") + "원 포함(개소 수와 무관)" : " · 그 외 지역 1개소 월 " + Number(E.unit || 0).toLocaleString("ko-KR") + "원" + FREE) : E.region === "metro" ? FREE : E.region === "fixed" ? FREE : "") +
+      (INST ? " · 설치비 " + INST.toLocaleString("ko-KR") + "원 (1회 · 부가세 별도)" : "");
     $("v_disc").textContent = E.discount ? " · 정가 " + won(E.list) + "에서 " + discLabel() + " 적용" : "";
     $("v_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
     $("v_pay").textContent = T.pay || "—";
@@ -283,7 +287,7 @@
     $("d_cust").textContent = u.name + " (대표 " + u.ceo + ")";
     $("d_site").textContent = u.site;
     $("d_siteAddr").textContent = u.siteAddr || "—";
-    $("d_price").textContent = won(t.monthly) + " / 월 (부가세 별도)";
+    $("d_price").textContent = won(t.monthly) + " / 월 (부가세 별도)" + (Number(t.installFee) > 0 ? " · 설치비 " + won(t.installFee) + " (1회 · 부가세 별도)" : "");
     $("d_term").textContent = kdate(t.from) + " ~ " + kdate(t.to);
     var st = REC.status || STATUS || "issued";
     $("d_state").textContent = STLABEL[st] || st; $("d_state").className = "pill " + st;
