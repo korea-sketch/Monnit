@@ -132,6 +132,31 @@
     return { ok: true, value: value };
   }
 
+  /* 가운데·끝 자리를 「1111-2222」「1234-5678」「0000-1234」처럼 채운 번호 (2026-10-29)
+     - 각 블록이 같은 숫자 반복(1111) 또는 연속 숫자(1234·4321)로만 되어 있으면 둘 다 그런 번호는 막는다.
+       한쪽만 그런 번호(010-2580-1111 등)와 가운데 3자리 국번(031-123-4567)은 실제로 흔하므로 통과.
+     - 010-0xxx 는 배정되지 않는 국번이라 막는다. */
+  function rep(x) { return x.length >= 3 && /^(\d)\1+$/.test(x); }
+  function seq(x) {
+    if (x.length < 3) return false;
+    var up = true, dn = true;
+    for (var i = 1; i < x.length; i++) {
+      var a = +x[i - 1], b = +x[i];
+      if (b !== a + 1) up = false;
+      if (b !== a - 1) dn = false;
+    }
+    return up || dn;
+  }
+  function fakeBlocks(parts, d) {
+    if (parts.length < 3) return false;
+    var mid = parts[1], last = parts[2];
+    if (rep(mid) && rep(last)) return true;
+    /* 연속 숫자 조합은 가운데가 4자리일 때만 — 031-123-4567 같은 3자리 국번 실번호 보호 */
+    if (mid.length === 4 && (rep(mid) || seq(mid)) && (rep(last) || seq(last))) return true;
+    if (/^010/.test(d) && mid[0] === "0") return true;
+    return false;
+  }
+
   /* ══════════════════ 전화번호 (대한민국) ══════════════════ */
   function phone(raw, opts) {
     var required = !opts || opts.required !== false;
@@ -176,8 +201,8 @@
     var tail = parts.slice(1).join("");
     var FILLER = ["01012345678", "01000000000", "01011111111", "01099999999",
                   "01000000000", "0212345678", "0211112222"];
-    if (/^(\d)\1+$/.test(tail) || /^(\d)\1+$/.test(d) || FILLER.indexOf(d) >= 0) {
-      return { ok: false, reason: "junk", message: "연락 가능한 번호를 입력해 주세요" };
+    if (/^(\d)\1+$/.test(tail) || /^(\d)\1+$/.test(d) || FILLER.indexOf(d) >= 0 || fakeBlocks(parts, d)) {
+      return { ok: false, reason: "junk", message: "연락 가능한 실제 번호를 입력해 주세요" };
     }
 
     return { ok: true, value: parts.join("-"), digits: d };

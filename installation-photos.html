@@ -814,7 +814,7 @@ window.addEventListener('resize',function(){if(window.innerWidth>900)set(false);
  function put(k,v){try{if(ls)ls.setItem(k,v);}catch(e){}}
  var q=(location.search.match(/[?&]lang=(en|ko)(?:&|$)/)||[])[1]; if(q){put('mlang',q);put('mlang_src','url');}
  var m=get('mlang');
- function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=120';s.defer=true;d.head.appendChild(s);}
+ function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=121';s.defer=true;d.head.appendChild(s);}
  function toEn(){if(w.MonnitI18N&&w.MonnitI18N.setLang){w.MonnitI18N.setLang('en','geo');}else{d.documentElement.lang='en';load();}}
  if(m==='en'){d.documentElement.lang='en';load();return;}
  

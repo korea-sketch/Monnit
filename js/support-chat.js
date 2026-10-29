@@ -22,7 +22,7 @@
   'use strict';
   if (w.MKSupport) return;
 
-  var KB_SRC = '/js/support-kb.js?v=1', LEAD_SRC = '/js/monnit-lead.js?v=6', API = '/api/support/chat';
+  var KB_SRC = '/js/support-kb.js?v=2', LEAD_SRC = '/js/monnit-lead.js?v=6', API = '/api/support/chat';
   var KEY = 'mk_support_v1';
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var track = function (e, o) { try { (w.dataLayer = w.dataLayer || []).push(Object.assign({ event: e }, o || {})); } catch (_) {} };
@@ -92,6 +92,19 @@
 
   /* ── 문서 카드 — 쉬운 단계부터, 단계마다 체크 ───────────────────── */
   function catOf(k) { var C = (w.MKSupportKB && w.MKSupportKB.CATS) || []; for (var i = 0; i < C.length; i++) if (C[i].key === k) return C[i]; return { icon: '💡', name: '' }; }
+  /* 2026-10-29 — 문서의 「자세히 보기」 링크(매뉴얼 PDF·영상·기술 문서). 영상(.mp4)은 누를 때만 불러오는 작은 플레이어로 보여 준다 */
+  function moreHtml(a, cls) {
+    if (!a.more || !a.more.length) return '';
+    var safe = function (h) { return /^(\/|https:\/\/)/.test(h) ? h : '#'; };
+    return '<div class="' + cls + '">' + a.more.map(function (m) {
+      var h = safe(m.href);
+      if (/\.mp4$/i.test(h)) {
+        var base = h.replace(/\.mp4$/i, '');
+        return '<figure class="sp-vid"><video controls playsinline preload="none" poster="' + esc(base) + '-poster.webp" width="1280" height="720"><source src="' + esc(base) + '.webm" type="video/webm"><source src="' + esc(h) + '" type="video/mp4"></video><figcaption>' + esc(m.label) + '</figcaption></figure>';
+      }
+      return '<a class="sp-more-a" href="' + esc(h) + '"' + (/\.pdf/i.test(h) || /^https/.test(h) ? ' target="_blank" rel="noopener"' : '') + '>' + esc(m.label) + '</a>';
+    }).join('') + '</div>';
+  }
   function cardNode(id, item) {
     var K = w.MKSupportKB, a = K && K.get(id); if (!a) return null;
     var c = catOf(a.cat), tried = S.tried[id] || [], n = (a.steps || []).length;
@@ -107,6 +120,7 @@
       (a.warn && a.warn.length ? '<div class="sp-warn">🛡️ ' + a.warn.map(esc).join('<br>') + '</div>' : '') +
       (a.note && a.note.length ? '<details class="sp-note"><summary>알아 두면 좋아요</summary><ul>' + a.note.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></details>' : '') +
       (a.cta ? '<button type="button" class="sp-cta">' + esc(a.cta.label) + '</button>' : '') +
+      moreHtml(a, 'sp-more') +
       (item.closed ? '' : '<div class="sp-fb"><p>확인해 보셨나요?</p><div><button type="button" class="sp-yes">👍 해결됐어요</button><button type="button" class="sp-no">아직 안 돼요</button></div></div>') +
       (a.src && a.src.length && /^https?:/.test(a.src[0]) ? '<p class="sp-src">근거: <a href="' + esc(a.src[0]) + '" target="_blank" rel="noopener">Monnit 기술 문서(영문)</a></p>' : '');
     box.querySelectorAll('.sp-steps input').forEach(function (cb) {
@@ -427,6 +441,7 @@
           (a.steps && a.steps.length ? '<ol>' + a.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' : '') +
           (a.warn && a.warn.length ? '<p class="sf-warn">🛡️ ' + a.warn.map(esc).join('<br>') + '</p>' : '') +
           (a.note && a.note.length ? '<ul class="sf-note">' + a.note.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+          moreHtml(a, 'sf-more') +
           '<div class="sf-fb"><span>이 안내로 해결되셨나요?</span><button type="button" data-fb="yes">👍 해결됐어요</button><button type="button" data-fb="no">아직 안 돼요</button></div>' +
           '</div></details>';
       }
@@ -485,6 +500,8 @@
       '.sp-fb{margin:12px 0 2px;padding-top:11px;border-top:1px dashed #e3e8ef}.sp-fb p{margin:0 0 7px;font-size:12.5px;color:#5a6472}.sp-fb div{display:flex;gap:7px}.sp-fb button{flex:1;min-height:40px;border-radius:11px;font:600 13.5px/1 inherit;cursor:pointer;border:1px solid #d6dee9;background:#fff;color:#2b3440}.sp-fb .sp-yes{background:#0868f2;border-color:#0868f2;color:#fff}.sp-fb button:hover{filter:brightness(.97)}',
       '.sp-cta{display:block;width:100%;min-height:44px;margin:12px 0 0;border:0;border-radius:12px;background:#20b26b;color:#fff;font:700 14px/1.3 inherit;cursor:pointer}.sp-cta:hover{filter:brightness(.96)}',
       '.sp-src{margin:9px 0 0;font-size:11px;color:#8a93a0}.sp-src a{color:#5a7fb3}',
+      '.sp-more,.sf-more{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}.sp-more-a{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;text-decoration:none;background:#eef3ff;color:#2552a8;border:1px solid #d6e2fb}.sf-more .sp-more-a{background:rgba(127,178,255,.12);color:#cfe0ff;border-color:rgba(127,178,255,.35)}',
+      '.sp-vid{margin:0;width:100%}.sp-vid video{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:10px;background:#0b1830}.sp-vid figcaption{font-size:11.5px;color:#6b7686;margin-top:5px}.sf-more .sp-vid{max-width:560px}.sf-more .sp-vid figcaption{color:#9fb3d6}',
       '.sp-choices{display:grid;gap:6px}.sp-choices-t{margin:2px 0 2px;font-size:12.5px;font-weight:700;color:#36404d}.sp-choice{display:flex;gap:9px;align-items:center;text-align:left;padding:11px 13px;border:1px solid #dfe5ee;border-radius:13px;background:#fff;font:500 13.5px/1.45 inherit;color:#1d2430;cursor:pointer;transition:border-color .15s}',
       '.sp-choice:hover{border-color:#0868f2}.sp-choice span{flex:none;font-size:16px}.sp-choice-none{background:transparent;border-style:dashed;color:#4a5462}.sp-choices.used .sp-choice{opacity:.5;pointer-events:none}.sp-choices.used .sp-choice.picked{opacity:1;border-color:#0868f2}',
       '.sp-next{display:flex;gap:7px}.sp-next button{flex:1;min-height:40px;border-radius:11px;border:1px solid #d6dee9;background:#fff;font:600 13px/1 inherit;color:#2b3440;cursor:pointer}',

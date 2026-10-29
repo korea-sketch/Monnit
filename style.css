@@ -1788,6 +1788,26 @@ button.kb-card{ width:100%; font:inherit; text-align:left; cursor:pointer; }
 .kb-art-body a{ color:var(--accent-dark); text-decoration:underline; word-break:break-all; }
 .kb-art-body img{ max-width:100%; height:auto; display:block; margin:16px 0; border-radius:10px; border:1px solid var(--line); }
 .kb-art-body figure{ margin:16px 0; } .kb-art-body figcaption{ font-size:12.5px; color:var(--ink-soft); margin-top:6px; text-align:center; }
+/* 2026-10-29 Scube 플랫폼 문서 (지식베이스 · 기술지원) — 영상·표·단계·모니 연결 */
+.kb-art-body .sc-vid{ margin:18px 0; }
+.kb-art-body .sc-vid video{ display:block; width:100%; height:auto; aspect-ratio:16/9; border-radius:12px; background:#0b1830; border:1px solid var(--line); }
+.kb-art-body .sc-vgrid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.kb-art-body .sc-vgrid .sc-vid{ margin:0; }
+.kb-art-body .sc-2col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+.kb-art-body .sc-tbl{ overflow-x:auto; margin:14px 0 18px; }
+.kb-art-body .sc-tbl table{ width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.6; }
+.kb-art-body .sc-tbl th{ text-align:left; padding:9px 12px; background:rgba(47,111,224,.14); color:var(--ink); font-weight:700; white-space:nowrap; }
+.kb-art-body .sc-tbl td{ padding:9px 12px; border-top:1px solid var(--line); vertical-align:top; }
+.kb-art-body .sc-steps{ counter-reset:sc; list-style:none; padding-left:0; }
+.kb-art-body .sc-steps li{ counter-increment:sc; position:relative; padding-left:36px; margin:10px 0; }
+.kb-art-body .sc-steps li::before{ content:counter(sc); position:absolute; left:0; top:2px; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font-size:12.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.kb-art-body .sc-note{ background:rgba(240,160,32,.10); border-left:3px solid #f0a020; padding:10px 14px; border-radius:6px; }
+.kb-art-body .sc-btn{ display:inline-flex; align-items:center; gap:6px; padding:10px 16px; border-radius:999px; background:var(--accent); color:#fff !important; text-decoration:none !important; font-weight:700; font-size:14px; word-break:keep-all; }
+.kb-art-body .sc-btn.ghost{ background:transparent; color:var(--ink) !important; border:1px solid var(--line); }
+.kb-art-body .sc-cta{ display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:28px 0 6px; padding:18px 20px; border:1px solid var(--line); border-radius:14px; background:rgba(47,111,224,.07); }
+.kb-art-body .sc-cta > div{ flex:1 1 260px; } .kb-art-body .sc-cta b{ display:block; color:var(--ink); } .kb-art-body .sc-cta span{ font-size:13px; color:var(--ink-soft); }
+@media (max-width:640px){ .kb-art-body .sc-vgrid, .kb-art-body .sc-2col{ grid-template-columns:1fr; } }
+
 @media (max-width:560px){ .kb-cat-grid{ grid-template-columns:1fr; } }
 
 .stories-hero {

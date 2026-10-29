@@ -98,7 +98,7 @@ function submit(){var a=$('pcAgree');if(!a||!a.checked){cardMsg(L('개인정보 
 /* 2026-10-20 — 「사용 중 문제 해결」(기술지원). 화면·흐름은 js/support-chat.js, 문서는 js/support-kb.js.
    모니 안에서 증상 확인 → 쉬운 점검 → 해결 여부 → 안 되면 접수(대화·조치 자동 첨부). 전화번호는 보여 주지 않는다. */
 var _spWait=null;
-function withSupport(cb){if(w.MKSupport)return cb(w.MKSupport);if(_spWait){_spWait.push(cb);return;}_spWait=[cb];var s=d.createElement('script');s.src='/js/support-chat.js?v=1';s.async=true;s.onload=s.onerror=function(){var q=_spWait;_spWait=null;q.forEach(function(f){try{f(w.MKSupport);}catch(e){console.warn('[support]',e);}});};d.head.appendChild(s);}
+function withSupport(cb){if(w.MKSupport)return cb(w.MKSupport);if(_spWait){_spWait.push(cb);return;}_spWait=[cb];var s=d.createElement('script');s.src='/js/support-chat.js?v=3';s.async=true;s.onload=s.onerror=function(){var q=_spWait;_spWait=null;q.forEach(function(f){try{f(w.MKSupport);}catch(e){console.warn('[support]',e);}});};d.head.appendChild(s);}
 var _spMounted=false;
 function renderSupport(o){var box=$('pcSupportPage');if(_spMounted&&!o)return;withSupport(function(M){if(!M){box.innerHTML='<p class="pc-empty">'+L('안내를 불러오지 못했어요. 잠시 후 다시 열어 주세요.','Could not load. Please try again.')+'</p>';return;}_spMounted=true;M.mount(box,Object.assign({onHome:function(){_spMounted=false;home();}},o||{}));});}
 function openSupport(o){S.open=true;$('ppChat').hidden=false;$('pcLauncher').classList.add('is-open');d.documentElement.classList.add('pc-chat-open');S.phase='support';S.proposalFlow=false;render();renderSupport(o||{});save();track('proposal_chat_home_choice',{choice:'support'});}

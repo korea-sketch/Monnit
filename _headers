@@ -155,3 +155,9 @@
 /alarm/sla-*.pdf
   Content-Type: application/pdf
   Cache-Control: public, max-age=300, must-revalidate
+
+# Scube 플랫폼 문서 이미지·사용법 영상 (2026-10-29) — 내용이 바뀌면 파일명을 바꾸므로 30일 캐시
+/images/scube/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
+/videos/scube/*
+  Cache-Control: public, max-age=2592000

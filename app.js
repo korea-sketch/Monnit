@@ -39,6 +39,9 @@ function rebuildKB(){
       if (m.length){
         var byTitle = {}; base.forEach(function(d){ byTitle[(d.title||'').trim()] = d; });
         window.KNOWLEDGEBASE = m.map(function(row,i){ var mt = byTitle[(row.title||'').trim()]; return Object.assign({ id:'kb'+i, body: mt?mt.body:'' }, row); });
+        /* 2026-10-29 — data.js 에서 pin:true 인 문서(Scube 플랫폼 등)는 시트에 행이 없어도 항상 보이게 덧붙인다 */
+        var have = {}; window.KNOWLEDGEBASE.forEach(function(d){ have[(d.title||'').trim()] = 1; });
+        base.forEach(function(d){ if (d.pin && !have[(d.title||'').trim()]) window.KNOWLEDGEBASE.push(d); });
         return;
       }
     }
@@ -53,7 +56,7 @@ function ensureDataJS(cb){
   if (window.__dataLoading) return;
   window.__dataLoading = true;
   var s = document.createElement('script');
-  s.src = '/data.js?v=110'; s.async = true;
+  s.src = '/data.js?v=111'; s.async = true;
   s.onload = function(){
     window.__DATA_READY = true;
     rebuildKB();                                   // 본문 병합
@@ -104,6 +107,40 @@ function ensureProposalChat(){
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureProposalChat);
 else ensureProposalChat();
+/* 2026-10-29 — 모니 바로 열기
+   · 주소: /?moni=support&q=질문  (문제 해결 화면 + 질문 검색) · ?moni=support&a=문서id · ?moni=ticket · ?moni=open
+     Scube 매뉴얼 PDF·QR·기술 문서에서 이 주소로 들어온다. 열고 나면 주소창에서 moni 파라미터를 지운다(새로고침 시 다시 열리지 않게).
+   · 페이지 안 링크: <a data-moni-q="질문"> 를 누르면 이동 없이 모니 문제 해결이 열린다. */
+function openMoniWith(o, tries){
+  if (window.MKPropChat && window.MKPropChat.openSupport){
+    if (o.mode === 'open') window.MKPropChat.open(); else window.MKPropChat.openSupport(o);
+    return;
+  }
+  ensureProposalChat();
+  if ((tries||0) < 40) setTimeout(function(){ openMoniWith(o, (tries||0)+1); }, 150);
+}
+(function moniDeepLink(){
+  try{
+    var p = new URLSearchParams(location.search), m = p.get('moni');
+    if (!m) return;
+    var o = { from: 'link-' + (p.get('src') || 'url').replace(/[^\w-]/g,'').slice(0,40) };
+    if (p.get('q')) o.q = p.get('q').slice(0, 200);
+    if (p.get('a')) o.article = p.get('a').replace(/[^\w-]/g,'').slice(0,60);
+    if (m === 'ticket') o.ticket = true;
+    if (m === 'open') o.mode = 'open';
+    ['moni','q','a','src'].forEach(function(k){ p.delete(k); });
+    var qs = p.toString();
+    try { history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash); } catch(e){}
+    var go = function(){ setTimeout(function(){ openMoniWith(o, 0); }, 400); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  }catch(e){ console.warn('[moni-link]', e); }
+})();
+document.addEventListener('click', function(e){
+  var a = e.target.closest && e.target.closest('[data-moni-q]');
+  if (!a) return;
+  e.preventDefault();
+  openMoniWith({ q: a.getAttribute('data-moni-q') || '', from: 'kb-link' }, 0);
+});
 function ensureSolutionTwin(){
   if (window.__twinLoaded || window.__twinLoading) return;
   var mount = document.getElementById('mhTwin');
@@ -4899,7 +4936,7 @@ function wireSupportFaq(){
     const go = () => { if (!window.MKSupport) return; if (host._faqs === FAQS) return; host._faqs = FAQS; window.MKSupport.renderFaq(host, FAQS); window.MKSupport.ensure(K => { if (K){ list.hidden = true; _faqSupportDone = true; } }); };
     if (window.MKSupport) return go();
     if (window.__spLoading) return; window.__spLoading = true;
-    const sc = document.createElement('script'); sc.src = '/js/support-chat.js?v=2'; sc.async = true;
+    const sc = document.createElement('script'); sc.src = '/js/support-chat.js?v=3'; sc.async = true;
     sc.onload = () => { window.__spLoading = false; go(); }; sc.onerror = () => { window.__spLoading = false; };
     document.head.appendChild(sc);
   };
@@ -4926,13 +4963,14 @@ const ICO = {
    예전에는 이 표가 build.js 에만 있어서, 카테고리 페이지를 추가해도 라우터는
    그 주소를 몰랐고 → 전부 홈으로 폴백하며 주소가 '/' 로 바뀌었습니다. */
 const CAT_SLUG_MAP = {
-  '센서': 'sensor', '게이트웨이': 'gateway', '소프트웨어': 'software', '액세서리': 'accessory',
+  'Scube 플랫폼': 'scube', '센서': 'sensor', '게이트웨이': 'gateway', '소프트웨어': 'software', '액세서리': 'accessory',
   '문서/가이드': 'docs', '온프라미스': 'onprem', 'iMonnit Online': 'imonnit-online',
   '온프레미스 소프트웨어': 'onprem-software', '애드온 기기': 'addon', '지원 동영상': 'videos', '기기 손상': 'damage'
 };
 const CAT_BY_SLUG = (function(){ const o={}; for (const k in CAT_SLUG_MAP) o[CAT_SLUG_MAP[k]] = k; return o; })();
 
 const KB_CATS = [
+  { name:'Scube 플랫폼',        ico:ICO.win,     color:'#22C55E' },
   { name:'센서',                ico:ICO.waves,   color:'#18D0E6' },
   { name:'게이트웨이',           ico:ICO.gateway, color:'#3B82F6' },
   { name:'iMonnit Online',      ico:ICO.cloud,   color:'#0EA5E9' },

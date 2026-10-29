@@ -461,7 +461,7 @@
     '누구에게나 같은 카탈로그 대신, 회사와 현장에 맞춘 제안서를 보내드립니다. 산업과 겪고 있는 문제를 알려주시면 모넷 설치 사례와 산업별 현장 플레이북을 함께 분석해 PDF로 정리하고, 몇 분 안에 메일로 보내드립니다.': 'Instead of a one-size-fits-all catalog, we send a proposal tailored to your company and site. Tell us your industry and challenges — we compare them with Monnit installations and industry playbooks and email you a PDF within minutes. (Proposals are provided in Korean.)',
     'Contact Us · 문의': 'Contact Us', 'FAQs · 자주 묻는 질문': 'FAQs',
     'Tech Support · 기술지원': 'Tech Support', 'Support / 기술지원': 'Support',
-    'Knowledgebase · 기술 문서': 'Knowledgebase', '상담 신청': 'Get a Consultation',
+    'Knowledgebase · 기술 문서': 'Knowledgebase', 'Scube 매뉴얼 · 플랫폼 사용법': 'Scube Platform Manual', 'Scube 매뉴얼': 'Scube Manual', '상담 신청': 'Get a Consultation',
     '회사 소개': 'About Us', '자료실': 'Resources', '고객 지원': 'Support',
     '맞춤 상담 신청': 'Request a Consultation', '맞춤 제안 받기': 'Get a Custom Proposal',
     '파트너 문의': 'Partner Inquiry', '상담 신청 보내기': 'Send Consultation Request',
@@ -3524,7 +3524,7 @@ Object.assign(DICT, {
   '감사합니다.': 'Thank you.',
   'Monnit Korea 대표이사': 'Chief Executive Officer, Monnit Korea',
   /* 내비게이션 · 푸터 표기 통일 */
-  'Award · 수상 내역': 'Awards', 'Knowledgebase · 기술 문서': 'Knowledge Base', 'Proposal · 산업별 제안서': 'Industry Proposals',
+  'Award · 수상 내역': 'Awards', 'Knowledgebase · 기술 문서': 'Knowledge Base', 'Scube 매뉴얼 · 플랫폼 사용법': 'Scube Platform Manual', 'Scube 매뉴얼': 'Scube Manual', 'Proposal · 산업별 제안서': 'Industry Proposals',
   'Who we are · 회사 소개': 'Who We Are', 'Our solution · 솔루션': 'Our Solution', 'What we do · 사업 영역': 'What We Do',
   '현장을 이해하는 전문가 그룹의 맞춤형 무선 IoT 통합 솔루션 파트너.': 'A specialist partner for tailored wireless IoT solutions, built on deep field expertise.',
   '개인정보처리방침': 'Privacy Policy', '쿠키 설정': 'Cookie Settings',
