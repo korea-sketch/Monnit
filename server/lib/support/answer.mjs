@@ -11,10 +11,11 @@ import { readGeminiModel } from '../proposal/chat.mjs';
 import { ARTICLES, SYN, CATS } from './kb.data.mjs';
 import { buildIndex, search, confidence, mood } from './engine.mjs';
 
-const INDEX = buildIndex(ARTICLES, SYN);
+/* 검색 색인은 처음 검색할 때 만든다 — 모든 요청(Worker 시작)이 색인 생성 비용을 떠안지 않게 */
+let INDEX = null;
 const BY = Object.fromEntries(ARTICLES.map(a => [a.id, a]));
 export const getArticle = id => BY[id] || null;
-export const find = (q, o = {}) => search(INDEX, q, { ...o, SYN });
+export const find = (q, o = {}) => search(INDEX || (INDEX = buildIndex(ARTICLES, SYN)), q, { ...o, SYN });
 export { confidence, mood, CATS };
 
 /* ── 고객에게 나가는 문장 규칙 ───────────────────────────────────── */

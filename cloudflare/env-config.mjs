@@ -21,15 +21,20 @@ async function load(env) {
   }
 }
 
+/* 합친 결과를 재사용 — env 객체와 설정값이 그대로면 요청마다 다시 합치지 않는다 */
+let LAST_ENV = null, LAST_VARS = null, LAST_MERGED = null;
+
 /** 요청마다: 저장된 설정값 + 대시보드 값(우선)을 합친 env */
 export async function withConfig(env) {
   if (!env || !env.BLOBS) return env;
   if (!CACHE || Date.now() - AT > TTL) { INFLIGHT = INFLIGHT || load(env).finally(() => { INFLIGHT = null; }); await INFLIGHT; }
   const vars = CACHE || {};
+  if (env === LAST_ENV && vars === LAST_VARS) return LAST_MERGED;
   const merged = { ...vars, ...env };
   for (const k in vars) {
     if (env[k] != null && env[k] !== '') continue;
     if (MINE.has(k) || process.env[k] == null || process.env[k] === '') { try { process.env[k] = vars[k]; MINE.add(k); } catch (e) { /* 무시 */ } }
   }
+  LAST_ENV = env; LAST_VARS = vars; LAST_MERGED = merged;
   return merged;
 }

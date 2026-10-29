@@ -695,6 +695,6 @@ function refNo(p) {
   return `${p}-${d}-${token(4).toUpperCase()}`;
 }
 function meta(req) {
-  return { ip: req.headers.get("x-mnk-client-ip") || req.headers.get("cf-connecting-ip") || "",
+  return { ip: req.headers.get("cf-connecting-ip") || req.headers.get("x-mnk-client-ip") || "",
            ua: str(req.headers.get("user-agent"), 300) };
 }

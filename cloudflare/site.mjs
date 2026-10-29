@@ -53,7 +53,18 @@ function compileHeaderFor(f) {
 }
 const HEADERS = SITE.headers.map(h => ({ re: compileHeaderFor(h.for), values: h.values }));
 
-export function headersFor(pathname) {
+/* 주소별 결과 캐시 — 규칙은 배포 사이에 바뀌지 않으므로 같은 주소는 다시 계산하지 않는다 (크기 제한) */
+const MEMO_MAX = 2000;
+function memo(map, key, fn) {
+  if (key.length > 512) return fn();          /* 아주 긴 주소(대부분 공격·오류)는 저장하지 않는다 — 메모리 보호 */
+  let v = map.get(key);
+  if (v === undefined) { if (map.size >= MEMO_MAX) map.clear(); v = fn(); map.set(key, v); }
+  return v;
+}
+const H_MEMO = new Map(), R_MEMO = new Map();
+
+export function headersFor(pathname) { return memo(H_MEMO, pathname, () => headersForRaw(pathname)); }
+function headersForRaw(pathname) {
   const out = {};
   const cands = new Set([pathname, safeDecode(pathname)]);
   for (const h of HEADERS) {
@@ -92,8 +103,9 @@ export function resolveStatic(pathname) {
   return null;
 }
 
-/** 리다이렉트 규칙 중 첫 일치 */
-export function matchRedirect(url) {
+/** 리다이렉트 규칙 중 첫 일치 (없으면 null) */
+export function matchRedirect(url) { return memo(R_MEMO, url.host + '|' + url.pathname, () => matchRedirectRaw(url)); }
+function matchRedirectRaw(url) {
   const raw = url.pathname, dec = safeDecode(raw);
   for (const r of REDIRECTS) {
     if (r.host && r.host !== url.host) continue;

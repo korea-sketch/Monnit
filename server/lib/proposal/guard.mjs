@@ -21,7 +21,7 @@ async function load() {
 
 export function ipOf(h) {
   const g = k => (h && typeof h.get === 'function') ? h.get(k) : '';
-  return String(g('x-mnk-client-ip') || g('x-forwarded-for') || g('client-ip') || '').split(',')[0].trim().slice(0, 45);
+  return String(g('cf-connecting-ip') || g('x-mnk-client-ip') || g('x-forwarded-for') || g('client-ip') || '').split(',')[0].trim().slice(0, 45);
 }
 
 /** 차단 대상이면 hit 객체, 아니면 null. 검사 오류는 null (정상 고객을 막지 않는다) */

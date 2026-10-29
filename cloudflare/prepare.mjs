@@ -39,6 +39,7 @@ function walk(dir, rel = '') {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     const r = rel ? rel + '/' + ent.name : ent.name;
     if (ent.name === '.DS_Store') continue;
+    if (ent.isSymbolicLink()) continue;                           /* 바로가기(심볼릭 링크)는 싣지 않는다 */
     if (ent.isDirectory()) {
       if (!rel && DENY_DIRS.has(ent.name)) continue;
       if (DENY_DIRS.has(ent.name) && ent.name.startsWith('.')) continue;

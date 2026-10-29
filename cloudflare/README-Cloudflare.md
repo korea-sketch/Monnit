@@ -14,6 +14,8 @@
 | 예약 작업 (adsync · health · proposal-dispatch) | Cron Trigger | 무료 |
 | 맞춤 제안서 PDF 생성 | GitHub Actions (`.github/workflows/proposal-build.yml`) | 무료 |
 
+> PDF 조판 라이브러리(pdf-lib·fontkit)는 Worker 묶음에서 빠져 있습니다(`wrangler.toml [alias]` → `cloudflare/pdf-stub.mjs`). 그래서 `PDF_BUILDER = "github"` 는 바꾸면 안 됩니다.
+
 ## 2. 설정값(환경변수)
 
 - 메일·AI·광고 키, 관제 계정 등은 R2 의 `__config/env.json` 에 저장돼 있습니다.
@@ -42,6 +44,7 @@ cloudflare/site.mjs                   리다이렉트·헤더·예쁜 주소 처
 cloudflare/site-rules.toml            리다이렉트·헤더 규칙 (_redirects · _headers 다음 순서)
 cloudflare/prepare.mjs                빌드 후 dist/ 와 규칙 파일 생성
 cloudflare/env-config.mjs             R2 설정값 + 대시보드 값 합치기
+cloudflare/pdf-stub.mjs               Worker 묶음용 PDF 라이브러리 빈 모듈
 cloudflare/blob-api.mjs               GitHub Actions 가 저장소를 읽고 쓰는 통로 (/api/__blobs)
 cloudflare/actions/build-proposal.mjs GitHub Actions 에서 제안서 PDF 를 만드는 스크립트
 server/functions/*                    서버 함수

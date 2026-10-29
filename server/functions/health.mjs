@@ -48,8 +48,9 @@ async function checkPage(p) {
     });
     r.status = res.status;
     r.ms = Date.now() - t0;
-    const html = await res.text();
-    r.missing = (p.must || []).filter(m => html.indexOf(m) === -1);
+    /* 이미지 등 binary 는 상태 코드만 본다 — 본문을 글자로 풀면 CPU 만 쓴다 */
+    if (p.binary || !(p.must && p.must.length)) { try { await res.body?.cancel(); } catch (e) { /* 무시 */ } r.missing = []; }
+    else { const html = await res.text(); r.missing = p.must.filter(m => html.indexOf(m) === -1); }
     r.ok = res.ok && r.missing.length === 0;
   } catch (e) {
     r.ms = Date.now() - t0;

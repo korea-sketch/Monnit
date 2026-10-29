@@ -93,8 +93,8 @@ const redirect = (to, extra) => new Response(null,
   { status: 303, headers: { ...H, location: to, ...(extra || {}) } });
 
 function ipOf(req) {
-  /* x-mnk-ip = 엣지 함수가 실어 준 진짜 방문자 IP (2026-09-18) */
-  return String(req.headers.get('x-mnk-ip') || req.headers.get('x-mnk-client-ip')
+  /* cf-connecting-ip = Cloudflare 가 넣어 주는 진짜 방문자 IP */
+  return String(req.headers.get('cf-connecting-ip') || req.headers.get('x-mnk-ip') || req.headers.get('x-mnk-client-ip')
     || req.headers.get('x-forwarded-for') || '?').split(',')[0].trim().slice(0, 45)
     .replace(/[^\w.:-]/g, '_');
 }

@@ -56,7 +56,7 @@ function sameSite(req) {
   if (!o) return true;
   try { return new URL(o).host === new URL(req.url).host; } catch (e) { return false; }
 }
-const ipOf = req => String(req.headers.get('x-mnk-client-ip') || req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
+const ipOf = req => String(req.headers.get('cf-connecting-ip') || req.headers.get('x-mnk-client-ip') || req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
 const FAIL_WIN = 15 * 60000, FAIL_MAX = 8;
 async function recentFails(ip) {
   const pre = 'adminfail/' + hashIp(ip) + '/';

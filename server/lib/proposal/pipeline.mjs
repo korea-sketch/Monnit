@@ -12,7 +12,10 @@ import * as S from './store.mjs';
 import { addLog, addNotice, hash, dueFor } from './jobs.mjs';
 import { modeOf } from './schedule.mjs';
 import { buildCopy, templateCopy } from './copy.mjs';
-import { renderPdf } from './pdf.mjs';
+/* PDF 조판 모듈(pdf-lib·fontkit)은 실제로 PDF 를 만들 때만 불러온다.
+   Worker 에서는 PDF 를 GitHub Actions 가 만들므로, 접수·발송 점검 요청이 무거운 글꼴 모듈 초기화를 떠안지 않게 한다 */
+let _pdfMod = null;
+const renderPdf = async (job, copy) => (_pdfMod || (_pdfMod = await import('./pdf.mjs'))).renderPdf(job, copy);
 import { insight } from './match.mjs';
 import * as Mail from './mail.mjs';
 import { recordSend, anonymize } from './archive.mjs';

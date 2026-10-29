@@ -77,7 +77,7 @@ const kday = d => { const t = d instanceof Date ? d.getTime() : new Date(d).getT
 const monthKey = d => kday(d).slice(0, 7) + '.jsonl';
 
 function ipOf(req) {
-  return String(req.headers.get('x-mnk-client-ip')
+  return String(req.headers.get('cf-connecting-ip') || req.headers.get('x-mnk-client-ip')
     || req.headers.get('x-forwarded-for') || '?').split(',')[0].trim().slice(0, 45)
     .replace(/[^\w.:-]/g, '_');
 }

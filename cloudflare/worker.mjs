@@ -144,16 +144,20 @@ function geoOf(req) {
     timezone: cf.timezone || '', latitude: Number(cf.latitude) || 0, longitude: Number(cf.longitude) || 0, postalCode: cf.postalCode || ''
   };
 }
+/* geo · cookies 등은 실제로 쓸 때만 계산한다(req.cf 읽기·쿠키 해석 비용 절약) */
 function makeContext(req, env, ctx, extra = {}) {
+  let geo, cookies, rid;
   return {
-    ip: req.headers.get('x-mnk-client-ip') || '',
-    geo: geoOf(req),
+    ip: req.headers.get('cf-connecting-ip') || '',
+    get geo() { return geo || (geo = geoOf(req)); },
     waitUntil: p => ctx.waitUntil(Promise.resolve(p).catch(e => console.error('[waitUntil]', e))),
-    params: {}, requestId: req.headers.get('cf-ray') || crypto.randomUUID(),
+    params: {},
+    get requestId() { return rid || (rid = req.headers.get('cf-ray') || crypto.randomUUID()); },
     site: { id: env.SITE_ID || '', name: 'monnit', url: env.URL || 'https://monnit.co.kr' },
     deploy: { context: 'production', id: '', published: true },
-    account: { id: '' }, server: { region: (req.cf && req.cf.colo) || '' },
-    cookies: cookieJar(req),
+    account: { id: '' },
+    get server() { return { region: (req.cf && req.cf.colo) || '' }; },
+    get cookies() { return cookies || (cookies = cookieJar(req)); },
     ...extra
   };
 }
@@ -163,14 +167,8 @@ function cookieJar(req) {
   return { get: k => map.get(k), set: () => {}, delete: () => {} };
 }
 
-/* 방문자 IP — Cloudflare 가 준 값(cf-connecting-ip)만 믿는다. 방문자가 보낸 같은 이름 헤더는 지운다. */
-function trustedRequest(request) {
-  const h = new Headers(request.headers);
-  for (const k of ['x-mnk-ip', 'x-mnk-client-ip', 'x-forwarded-for', 'client-ip', 'x-real-ip']) h.delete(k);
-  const ip = request.headers.get('cf-connecting-ip') || '';
-  if (ip) { h.set('x-mnk-client-ip', ip); h.set('x-forwarded-for', ip); }
-  return new Request(request.url, new Request(request, { headers: h }));
-}
+/* 방문자 IP — 모든 함수가 cf-connecting-ip(Cloudflare 가 넣고, 방문자가 위조할 수 없는 값)를 먼저 읽는다.
+   그래서 요청을 다시 만들어 헤더를 고치지 않는다 — Request 를 새로 만들 때마다 CPU 가 크게 든다. */
 
 /* ── 함수 실행 ───────────────────────────────────────────────── */
 async function runV1(mod, req) {
@@ -266,7 +264,11 @@ async function serveSite(req, env) {
       return applyHeaders(new Response('Redirecting to ' + rule.to, { status: rule.status, headers: { location: withQuery(rule.to, url.search), 'content-type': 'text/plain; charset=utf-8' } }), path);
     }
     if (/^https?:\/\//.test(rule.to)) {                       /* 외부 프록시(200) */
-      const pr = await realFetch(new Request(withQuery(rule.to, url.search), req));
+      /* 방문자 쿠키·위조 가능한 IP 헤더는 넘기지 않고, 실제 IP 만 x-forwarded-for 로 */
+      const h = new Headers(req.headers);
+      for (const k of ['cookie', 'x-mnk-ip', 'x-mnk-client-ip', 'x-forwarded-for', 'client-ip', 'x-real-ip']) h.delete(k);
+      const ip = req.headers.get('cf-connecting-ip'); if (ip) h.set('x-forwarded-for', ip);
+      const pr = await realFetch(new Request(withQuery(rule.to, url.search), { method: req.method, headers: h, body: ['GET', 'HEAD'].includes(req.method) ? undefined : req.body, redirect: 'manual' }));
       return new Response(pr.body, pr);
     }
     const target = rule.to.split('?')[0];
@@ -337,7 +339,7 @@ export default {
     bindBlobs(env.BLOBS);
     env = await withConfig(env);          /* R2 에 저장된 설정값 + 대시보드 값 */
     boot(env);
-    const req = trustedRequest(request);
+    const req = request;
     const u = new URL(req.url);
     /* http → https */
     if (u.protocol === 'http:' && selfHosts(env).has(u.host)) {
