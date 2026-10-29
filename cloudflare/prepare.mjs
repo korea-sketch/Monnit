@@ -22,11 +22,15 @@ const DIST = path.join(ROOT, 'dist');
 const GEN = path.join(ROOT, 'cloudflare', 'generated');
 
 /* ── 공개하지 않는 것 ─────────────────────────────────────────── */
-const DENY_DIRS = new Set(['.git', '.github', 'node_modules', 'dist', 'cloudflare', 'server', 'tools', 'scripts',
+const DENY_DIRS = new Set(['.git', '.github', 'node_modules', 'dist', 'cloudflare', 'server', 'netlify', '.netlify', 'tools', 'scripts',
   'ui', 'source', 'functions', '.wrangler', 'Claude outputs', 'claude-outputs', 'outputs']);
-const DENY_ROOT_FILES = new Set(['package.json', 'package-lock.json', 'wrangler.toml', 'wrangler.jsonc',
+const DENY_ROOT_FILES = new Set(['package.json', 'package-lock.json', 'wrangler.toml', 'netlify.toml', 'wrangler.jsonc',
   'build.js', 'gitignore.txt', '.gitignore', '.DS_Store', '.dev.vars']);
 const DENY_EXT_ROOT = ['.md', '.sh'];
+/* 어느 폴더에 있든 공개하지 않는 확장자 — 서버 코드·설정·문서·백업이 실수로 올라가도 주소로 열리지 않게 (2026-10-29)
+   (옛 netlify/ 폴더가 저장소에 남아 /netlify/functions/*.mjs 가 그대로 열렸던 일) */
+const DENY_EXT_ANY = ['.mjs', '.cjs', '.ts', '.py', '.sh', '.toml', '.yml', '.yaml', '.env', '.map', '.log', '.bak',
+  '.md', '.lock', '.pem', '.key', '.sql', '.zip', '.patch', '.diff'];
 
 /* ── 함수만 읽는 파일 (dist/__private 로) ─────────────────────── */
 const PRIVATE = ['proposals', 'assets/fonts', 'email/template.html', 'email/products.json', 'editor.html'];
@@ -35,6 +39,7 @@ function rmrf(p) { fs.rmSync(p, { recursive: true, force: true }); }
 function copyFile(src, dst) { fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.copyFileSync(src, dst); }
 
 const publicFiles = [];
+let skippedPrivate = 0;
 function walk(dir, rel = '') {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     const r = rel ? rel + '/' + ent.name : ent.name;
@@ -42,11 +47,13 @@ function walk(dir, rel = '') {
     if (ent.isSymbolicLink()) continue;                           /* 바로가기(심볼릭 링크)는 싣지 않는다 */
     if (ent.isDirectory()) {
       if (!rel && DENY_DIRS.has(ent.name)) continue;
-      if (DENY_DIRS.has(ent.name) && ent.name.startsWith('.')) continue;
+      if (ent.name.startsWith('.') && ent.name !== '.well-known') continue;   /* 숨김 폴더(.git·.wrangler 등) */
       walk(path.join(dir, ent.name), r);
       continue;
     }
     if (!rel && (DENY_ROOT_FILES.has(ent.name) || DENY_EXT_ROOT.some(x => ent.name.toLowerCase().endsWith(x)))) continue;
+    if (DENY_EXT_ANY.some(x => ent.name.toLowerCase().endsWith(x))) { skippedPrivate++; continue; }
+    if (ent.name.startsWith('.') && ent.name !== '.well-known') continue;   /* 숨김 파일(.env 등) */
     if (/#U[0-9a-fA-F]{4}/.test(ent.name)) continue;          /* 압축 해제로 깨진 이름 사본 */
     const st = fs.statSync(path.join(dir, ent.name));
     if (st.size > 25 * 1024 * 1024) { console.warn('[cf] 25MB 초과 — Cloudflare 정적 파일 한도로 제외:', r); continue; }
@@ -171,4 +178,5 @@ fs.writeFileSync(path.join(DIST, '_headers'), headers.map(h => {
 /* Cloudflare 정적 파일 업로드에서 제외할 목록 (없으면 생성) */
 fs.writeFileSync(path.join(DIST, '.assetsignore'), '.assetsignore\n');
 
+if (skippedPrivate) console.log(`[cf] 서버 코드·설정 등 비공개 확장자 ${skippedPrivate}개는 공개 폴더에서 제외`);
 console.log(`[cf] 준비 완료 — 공개 파일 ${publicFiles.length}개 · 비공개 ${privCount}개 · 리다이렉트 ${redirects.length}개 · 헤더 규칙 ${headers.length}개`);

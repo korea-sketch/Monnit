@@ -55,8 +55,8 @@
 1. **Netlify 사이트 먼저 정리** — app.netlify.com → monnit26 → Project configuration → Build & deploy → **Stop builds**.
    이번 변경부터 Cloudflare 예약 작업이 기본으로 돌기 때문에, Netlify 쪽 예약 작업이 아직 살아 있으면 알림 메일이 두 번 나갈 수 있습니다.
 2. 압축 파일 내용을 저장소에 덮어쓰기 (Finder 「대치」 가능 — `server/` · `cloudflare/` · `.github/` 는 통째로 들어 있음).
-3. 저장소 루트에서 `bash Netlify-파일-삭제.sh` — `netlify/` 폴더, `netlify.toml` 등 옛 파일을 지웁니다.
-   (GitHub 웹에서 올리는 경우: 위 파일·폴더를 직접 삭제)
+3. (선택) 저장소 루트에서 `bash Netlify-파일-삭제.sh` — `netlify/` 폴더, `netlify.toml` 등 옛 파일을 지웁니다.
+   지우지 않아도 이제 빌드가 자동으로 공개 대상에서 빼고 주소도 404 로 막습니다(정리 차원에서 지우는 것을 권장).
 4. 커밋·푸시 → Cloudflare 가 자동 배포.
 5. 확인
    - 메인 · 프로모션 랜딩 · `/ops` 로그인 · 맞춤 제안서 접수 1건(테스트)
