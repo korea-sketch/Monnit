@@ -92,7 +92,7 @@ export async function recordSend(job, { kind = 'proposal', bytes = null, via = '
 export async function listArchive(limit = 3000) {
   const keys = (await S.list('archive/', 20000)).slice(-limit);
   const recs = (await Promise.all(keys.map(k => S.getJSON(k).catch(() => null)))).filter(Boolean);
-  return recs.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  return recs.sort((a, b) => (String(b.at) < String(a.at) ? -1 : String(b.at) > String(a.at) ? 1 : 0));
 }
 
 /** 보관 기간 만료 — 받는 사람 정보와 PDF 사본 삭제, 분석 항목은 남긴다 */

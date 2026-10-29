@@ -49,8 +49,8 @@ async function data() {
     hits = hits.concat(await readLines('ops', 'blocked-' + m + '.jsonl'));
     leads = leads.concat(await readLines('leads', m + '.jsonl'));
   }
-  hits.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
-  leads.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+  hits.sort((a, b) => (String(b.ts) < String(a.ts) ? -1 : String(b.ts) > String(a.ts) ? 1 : 0));
+  leads.sort((a, b) => (String(b.ts) < String(a.ts) ? -1 : String(b.ts) > String(a.ts) ? 1 : 0));
   const env = k => String(process.env[k] || '').split(/[,\n]/).map(s => s.trim()).filter(Boolean);
   return {
     now: Date.now(),

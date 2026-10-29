@@ -276,7 +276,7 @@ async function adminList(type) {
   const { blobs } = await s.list({ prefix });
   const items = (await Promise.all(blobs.slice(0, 500).map((b) => s.get(b.key))))
     .filter(Boolean).map((x) => slim(type, x));
-  items.sort((a, b) => String(b.createdAt || b.submittedAt || "").localeCompare(String(a.createdAt || a.submittedAt || "")));
+  items.sort((a, b) => (String(b.createdAt || b.submittedAt || "") < String(a.createdAt || a.submittedAt || "") ? -1 : String(b.createdAt || b.submittedAt || "") > String(a.createdAt || a.submittedAt || "") ? 1 : 0));
   return json({ ok: true, items });
 }
 

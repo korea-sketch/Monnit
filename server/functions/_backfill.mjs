@@ -53,7 +53,7 @@ export async function runOnce() {
   for (const k of [...new Set(keys)]) rows = rows.concat(await readLines('leads', k));
   rows = rows.filter(r => r && r.ts && !/^__/.test(r.company || ''));
   rows = rows.filter(r => kday(new Date(r.ts)) >= FROM);
-  rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+  rows.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
 
   const already = new Set(state.sent || []);
   const todo = rows.filter(r => !already.has(idOf(r)));

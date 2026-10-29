@@ -1,6 +1,6 @@
 /** 리드 원장 — 사이트 모든 접점의 접수를 한 곳에 기록한다.
  *  · 기록이 실패해도 항상 성공(204)으로 응답한다. 메일 경로가 안전망이다. */
-import { append } from './_store.mjs';
+import { append, set } from './_store.mjs';
 import { notify } from './_notify.mjs';
 import * as _note from './_staffnote.mjs';   /* 메일 보낼 것 / 알림함에만 남길 것 (2026-09-30) */
 import { pushLead } from './_monday.mjs';
@@ -135,6 +135,8 @@ export default async (req) => {
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
     await append('leads', monthKey(safeTs(body.ts)), lead);
+    /* 관제 화면이 기억해 둔 집계를 버리게 한다 — 새 접수가 바로 보이도록 */
+    try { const _b = set('ops', 'cache/bust.txt', String(Date.now())); if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(_b); } catch (e) { /* 무시 */ }
 
     /* 메타 전환 API — 브라우저 픽셀이 못 본 접수도 메타가 알도록. 같은 이벤트 ID 라 중복되지 않는다.
        응답을 늦추지 않게 뒤에서 보낸다. 결과는 ops/capi-YYYY-MM 에 남는다. */

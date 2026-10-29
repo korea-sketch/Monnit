@@ -221,7 +221,7 @@ export default async (req) => {
         channel: r.channel || ''
       });
     }
-    list.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+    list.sort((a, b) => (String(b.ts) < String(a.ts) ? -1 : String(b.ts) > String(a.ts) ? 1 : 0));
     return json({ ok: true, now, list });
   }
 

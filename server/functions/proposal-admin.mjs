@@ -142,7 +142,7 @@ async function allJobs(limit = 600, withTest = false) {
   /* 테스트 접수는 기본으로 숨긴다 — 실제 문의와 섞이면 안 된다 (2026-09-18).
      확인이 필요하면 주소에 ?test=1 을 붙인다. */
   if (!withTest) jobs = jobs.filter(j => j.test !== true);
-  return jobs.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  return jobs.sort((a, b) => (String(b.createdAt) < String(a.createdAt) ? -1 : String(b.createdAt) > String(a.createdAt) ? 1 : 0));
 }
 
 const row = x => ({

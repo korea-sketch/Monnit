@@ -53,7 +53,7 @@ function months(n) {
 async function lines(store, fmt, n) {
   let all = [];
   for (const m of months(n)) all = all.concat(await readLines(store, fmt(m)));
-  return all.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+  return all.sort((a, b) => (String(b.ts) < String(a.ts) ? -1 : String(b.ts) > String(a.ts) ? 1 : 0));
 }
 const iso = ms => ms ? new Date(ms).toISOString() : null;
 

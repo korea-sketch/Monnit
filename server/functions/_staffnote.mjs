@@ -95,7 +95,7 @@ export async function read({ months = 2, month = '' } = {}) {
   let rows = [];
   for (const k of keys) rows = rows.concat(await readLines('ops', 'staffnote-' + k + '.jsonl').catch(() => []));
   rows = rows.filter(r => r && r.ts);
-  rows.sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+  rows.sort((a, b) => (String(b.ts) < String(a.ts) ? -1 : String(b.ts) > String(a.ts) ? 1 : 0));
   return { months: keys, rows };
 }
 

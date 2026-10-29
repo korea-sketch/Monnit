@@ -71,7 +71,7 @@ export async function syncOnce(opts = {}) {
     let created = 0, linked = 0;
     const failed = [];
     /* 오래된 것부터 — 그래야 그룹 맨 위에 최신이 남는다 */
-    missing.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+    missing.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
     for (const r of missing) {
       const day = kday(r.ts);
       const em = String(r.email || '').trim().toLowerCase();

@@ -102,7 +102,7 @@ function compute(rows, days, withInternal, nowMs, popupCfg, H) {
   const _dc = new Map(); const dk = ts => { let v = _dc.get(ts); if (v === undefined) { v = kday(new Date(ts)); _dc.set(ts, v); } return v; };
   const internalCount = rows.filter(r => r.in).length;
   rows = rows.filter(r => r && r.ts && r.sid && dk(r.ts) >= from && (withInternal || !r.in));
-  rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+  rows.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
 
   const sess = new Map();
   for (const r of rows) {
@@ -158,7 +158,7 @@ function compute(rows, days, withInternal, nowMs, popupCfg, H) {
   }
 
   const sessions = [...sess.values()].filter(s => s.pv.length);
-  const journeys = sessions.slice().sort((a, b) => String(b.last).localeCompare(String(a.last))).slice(0, 60).map(s => {
+  const journeys = sessions.slice().sort((a, b) => (String(b.last) < String(a.last) ? -1 : String(b.last) > String(a.last) ? 1 : 0)).slice(0, 60).map(s => {
     const steps = [];
     for (const r of s.ev) {
       if (steps.length >= 24) break;

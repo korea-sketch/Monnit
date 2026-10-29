@@ -169,14 +169,43 @@ const quarterOf = ym => {
    이번 달 파일은 새 리드가 계속 붙으므로 매번 새로 읽는다 —
    화면이 실시간으로 보여야 하는 건 결국 이번 달이다. */
 const _monthCache = new Map();
+/* 2026-10-29 — Cloudflare 무료 플랜(요청당 CPU 10ms)에서 /ops/data 가 「CPU 한도 초과」로 계속 실패했다.
+   원인은 매 요청 JSON 수백 KB 를 다시 해석하는 것(특히 adcreatives 월 파일 ~200KB).
+   · 이번 달 파일도 짧게(45초) 재사용한다 — 화면은 30초마다 갱신되므로 체감 차이는 없다.
+   · 지난달 파일은 1시간마다 새로 읽는다 — 광고 동기화가 월초에 지난달 마지막 며칠을 고쳐 쓰기 때문.
+   · 광고 소재(adcreatives)는 화면 기간에 걸친 달만 읽는다(예전에는 13개월 전부). */
+const CUR_TTL = 45 * 1000, PAST_TTL = 60 * 60 * 1000;
 
 async function readMonthly(store, key, currentKey) {
-  if (key === currentKey) return readLines(store, key);
-  const ck = store + '/' + key;
-  if (_monthCache.has(ck)) return _monthCache.get(ck);
+  const ck = store + '/' + key, ttl = key === currentKey ? CUR_TTL : PAST_TTL;
+  const hit = _monthCache.get(ck);
+  if (hit && Date.now() - hit.at < ttl) return hit.rows;
   const rows = await readLines(store, key);
-  _monthCache.set(ck, rows);
+  _monthCache.set(ck, { at: Date.now(), rows });
   return rows;
+}
+
+/* 같은 화면 요청(기간·구간)이 짧은 시간에 다시 오면 계산 결과를 그대로 준다 (관제 탭 여러 개·자동 갱신) */
+const _dataCache = new Map();
+const DATA_TTL = 20 * 1000;
+/* 관제에서 무언가를 바꾸면(응대 표시·딜·수동 접수·삭제·복구) 기억해 둔 결과를 버린다 — 바로 화면에 반영 */
+/* 저장소에도 결과를 남겨 둔다 — 새로 뜬 인스턴스(메모리가 빈 상태)가 무거운 계산부터 하지 않도록 */
+const R2_TTL = 90 * 1000;
+const r2Key = ck => 'cache/data-' + ck.replace(/[^\w.-]+/g, '_') + '.txt';
+async function r2Read(ck) {
+  try {
+    const [t, bust] = await Promise.all([get('ops', r2Key(ck)), get('ops', 'cache/bust.txt')]);
+    if (!t) return null;
+    const i = t.indexOf('\n'), at = Number(t.slice(0, i));
+    if (!(Date.now() - at < R2_TTL) || at <= Number(bust || 0)) return null;
+    return { at, body: t.slice(i + 1) };
+  } catch (e) { return null; }
+}
+function invalidate() {
+  try { const p = set('ops', 'cache/bust.txt', String(Date.now())); if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(p); } catch (e) { /* 무시 */ }
+  _dataCache.clear();
+  const cur = monthKey(new Date());
+  for (const k of [..._monthCache.keys()]) if (k.endsWith('/' + cur)) _monthCache.delete(k);
 }
 
 async function readConsult() {
@@ -221,8 +250,9 @@ async function build(pkey, custom) {
      리드로 잡혀 그 주 수치를 못 믿게 됐다.
      지우지는 않는다 — 원장에는 남기고 숫자에서만 뺀다. 몇 건을 뺐는지도
      화면에 알려서 「조용히 사라진 것」이 없게 한다. */
-  const testRows = rows.filter(isTestLead);
-  rows = rows.filter(r => !isTestLead(r));
+  const testRows = [], _keep = [];
+  for (const r of rows) (isTestLead(r) ? testRows : _keep).push(r);   /* 한 번만 판정 (CPU 절약) */
+  rows = _keep;
 
   /* 화면에서 지운 접수도 뺀다 (중복 접수·장난 접수·잘못 들어온 건) */
   const _del = await readDeleted();
@@ -232,7 +262,7 @@ async function build(pkey, custom) {
   /* 월 파일을 최신→과거 순으로 이어 붙였기 때문에 배열 순서가 시간순이 아니다.
      정렬하지 않으면 아래 slice(-200) 이 「가장 오래된 200건」을 남겨서
      새로 들어온 문의가 화면에 영영 안 나온다. */
-  rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+  rows.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
 
   const today = kday(now), ago = n => kday(new Date(now - n * 864e5));
   /* 직접 고른 구간이 있으면 그것을 쓴다 (from 초과 ~ to 이하) */
@@ -262,9 +292,16 @@ async function build(pkey, custom) {
   /* 일자별 막대 — 기간이 길면 촘촘해지므로 최대 30칸 */
   const barDays = Math.min(spanDays, 30);
   const daily = [];
+  /* 날짜별로 한 번만 센다 (예전: 30일 × 전체 접수를 매번 다시 훑음) */
+  const byDay = new Map();
+  for (const r of rows) {
+    const d = dayOf(r); let c = byDay.get(d);
+    if (!c) { c = { contact: 0, doc_request: 0, subscribe: 0 }; byDay.set(d, c); }
+    if (r.type in c) c[r.type]++;
+  }
   for (let i = barDays - 1; i >= 0; i--) {
-    const d = ago(i), day = rows.filter(r => dayOf(r) === d);
-    daily.push({ d: d.slice(5), c: cnt(day, 'contact'), r: cnt(day, 'doc_request'), s: cnt(day, 'subscribe') });
+    const d = ago(i), c = byDay.get(d) || { contact: 0, doc_request: 0, subscribe: 0 };
+    daily.push({ d: d.slice(5), c: c.contact, r: c.doc_request, s: c.subscribe });
   }
 
   let health = null;
@@ -276,8 +313,10 @@ async function build(pkey, custom) {
   adRows = adRows.filter(r => r?.date);
 
   /* 소재(광고) 단위 실적 — 없으면 빈 배열. 없다고 0으로 채우지 않는다. */
+  /* 소재 실적은 화면 기간(dCur 초과 ~ dTo)에만 쓰인다 → 그 기간에 걸친 달만 읽는다 */
   let adAds = [];
-  for (const k of [...new Set(monthKeys)]) adAds = adAds.concat(await readMonthly('adcreatives', k, curKey));
+  const adMonths = [...new Set(monthKeys)].filter(k => { const ym = k.slice(0, 7); return ym >= dCur.slice(0, 7) && ym <= dTo.slice(0, 7); });
+  for (const k of adMonths) adAds = adAds.concat(await readMonthly('adcreatives', k, curKey));
   adAds = adAds.filter(r => r?.date && r.ad_id);
 
   const sumBy = list => {
@@ -303,7 +342,7 @@ async function build(pkey, custom) {
     const a = touch(r.date.slice(0, 7));
     a.spend += r.spend || 0; a.clicks += r.clicks || 0;
   }
-  const monthly = Object.values(mAgg).sort((a, b) => a.m.localeCompare(b.m)).slice(-12)
+  const monthly = Object.values(mAgg).sort((a, b) => (a.m < b.m ? -1 : a.m > b.m ? 1 : 0)).slice(-12)
     .map(a => ({ ...a, total: a.contact + a.doc + a.sub,
                  cpl: a.contact ? Math.round(a.spend / a.contact) : 0 }));
 
@@ -314,7 +353,7 @@ async function build(pkey, custom) {
     const t = qAgg[q] || (qAgg[q] = { q, contact: 0, doc: 0, sub: 0, spend: 0, clicks: 0 });
     t.contact += a.contact; t.doc += a.doc; t.sub += a.sub; t.spend += a.spend; t.clicks += a.clicks;
   }
-  const quarterly = Object.values(qAgg).sort((a, b) => a.q.localeCompare(b.q)).slice(-6)
+  const quarterly = Object.values(qAgg).sort((a, b) => (a.q < b.q ? -1 : a.q > b.q ? 1 : 0)).slice(-6)
     .map(a => ({ ...a, total: a.contact + a.doc + a.sub,
                  cpl: a.contact ? Math.round(a.spend / a.contact) : 0 }));
 
@@ -328,8 +367,13 @@ async function build(pkey, custom) {
   const dealMap = await deals.readDeals();
   const idOf = r => (r.ts || '') + '|' + (r.email || r.phone || r.company || '');
 
-  /* 리드 + 딜 결합 (기간 무관 전체) → 기간별로 잘라 쓴다 */
-  const withId = rows.map(r => ({ ...r, id: idOf(r) }));
+  /* 리드 + 딜 결합 → 기간별로 잘라 쓴다.
+     결합 결과는 「화면 기간」과 「목록에 보이는 최근 400건」에만 쓰이므로 그 범위만 결합한다 (CPU 절약).
+     rows 는 시간순 정렬돼 있다. */
+  let _start = rows.length;
+  for (let i = 0; i < rows.length; i++) if (dayOf(rows[i]) > dCur) { _start = i; break; }
+  _start = Math.max(0, Math.min(_start, rows.length - 400));
+  const withId = rows.slice(_start).map(r => ({ ...r, id: idOf(r) }));
   const joined = deals.attach(withId, dealMap);
   const inPeriod = joined.filter(inCur);
 
@@ -433,6 +477,9 @@ export default async (req) => {
     return page(LOGIN.replace('__ERR__', ''));
   }
 
+  /* 바꾸는 요청이면 기억해 둔 화면 데이터를 버린다 */
+  if (['mark', 'deal', 'lead', 'consult', 'delete', 'restore', 'resend', 'automail'].includes(sub) && req.method !== 'GET') invalidate();
+
   /* ── CMS 편집기 (2026-09-18) ────────────────────────────────────────
      예전에는 /editor 로 누구나 열 수 있었고, 비밀번호 검사가 브라우저 안에서만
      돌아 개발자도구로 그냥 통과됐다(비밀번호는 소스 주석에도 적혀 있었다).
@@ -497,7 +544,7 @@ export default async (req) => {
     let rows = [];
     for (const k of keys) rows = rows.concat(await readLines('ops', 'automail-' + k).catch(() => []));
     rows = rows.filter(r => r && r.ts);
-    rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+    rows.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
 
     /* 담당자 알림이 실제로 나갔는지 (2026-09-09 추가)
        여기서 ok=false 가 쌓이면 접수는 들어오는데 아무도 못 받고 있다는 뜻이다.
@@ -505,7 +552,7 @@ export default async (req) => {
     let nrows = [];
     for (const k of keys) nrows = nrows.concat(await readLines('ops', 'notify-' + k).catch(() => []));
     nrows = nrows.filter(r => r && r.ts);
-    nrows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+    nrows.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
     const nOk = nrows.filter(r => r.ok);
     const byVia = {};
     for (const r of nOk) byVia[r.via || '미상'] = (byVia[r.via || '미상'] || 0) + 1;
@@ -568,7 +615,7 @@ export default async (req) => {
     for (const k of [...new Set(keys)]) rows = rows.concat(await readLines('leads', k));
     rows = rows.filter(r => r?.ts && !/^__/.test(r.company || ''));
     rows = rows.filter(r => { const d = kday(new Date(r.ts)); return d >= from && d <= to; });
-    rows.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
+    rows.sort((a, b) => (String(a.ts) < String(b.ts) ? -1 : String(a.ts) > String(b.ts) ? 1 : 0));
 
     const idOf = r => (r.ts || '') + '|' + (r.email || r.phone || r.company || '');
     const list = rows.map(r => ({
@@ -754,7 +801,16 @@ export default async (req) => {
   if (sub === 'data') {
     try {
       const q = new URL(req.url).searchParams;
-      return j(await build(q.get('p') || '7d', { from: q.get('from'), to: q.get('to') }));
+      const ck = [q.get('p') || '7d', q.get('from') || '', q.get('to') || ''].join('|');
+      let hit = _dataCache.get(ck);
+      if (!(hit && Date.now() - hit.at < DATA_TTL)) { hit = await r2Read(ck); if (hit) _dataCache.set(ck, hit); }
+      if (hit && Date.now() - hit.at < Math.max(DATA_TTL, R2_TTL)) return new Response(hit.body, { status: 200, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });
+      const body = JSON.stringify(await build(q.get('p') || '7d', { from: q.get('from'), to: q.get('to') }));
+      if (_dataCache.size > 20) _dataCache.clear();
+      const at = Date.now();
+      _dataCache.set(ck, { at, body });
+      try { const p = set('ops', r2Key(ck), at + '\n' + body); if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(p); } catch (e) { /* 무시 */ }
+      return new Response(body, { status: 200, headers: { ...H, 'content-type': 'application/json; charset=utf-8' } });
     } catch (e) { return j({ error: String(e?.message || e) }, 500); }
   }
   return page(APP);
