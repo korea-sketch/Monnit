@@ -2,7 +2,7 @@
 /** 맞춤 제안서 — 사례 데이터 동기화 (빌드 단계, 2026-09-17)
  *
  *  구글 시트 Cases 탭(사이트 CMS와 같은 시트)을 읽어 두 파일을 만든다.
- *    netlify/lib/proposal/cases.data.mjs   서버(매칭·PDF)용
+ *    server/lib/proposal/cases.data.mjs    서버(매칭·PDF)용
  *    js/proposal-data.js                   신청·현황 화면용 (사례 + 산업·과제 표)
  *
  *  시트를 못 읽으면 기존 cases.data.mjs(저장소에 커밋된 스냅샷)를 그대로 쓴다.
@@ -15,13 +15,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SHEET_ID = process.env.CONTENT_SHEET_ID || '1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
-const OUT_SERVER = path.join(ROOT, 'netlify/lib/proposal/cases.data.mjs');
+const OUT_SERVER = path.join(ROOT, 'server/lib/proposal/cases.data.mjs');
 const OUT_BROWSER = path.join(ROOT, 'js/proposal-data.js');
 
-const KB = await import(pathToFileURL(path.join(ROOT, 'netlify/lib/proposal/kb.mjs')).href);
+const KB = await import(pathToFileURL(path.join(ROOT, 'server/lib/proposal/kb.mjs')).href);
 const PB_DIR = path.join(ROOT, 'data/proposal/playbooks');
-const OUT_PB = path.join(ROOT, 'netlify/lib/proposal/playbooks.data.mjs');
-const OUT_BRAND = path.join(ROOT, 'netlify/lib/proposal/brand.data.mjs');
+const OUT_PB = path.join(ROOT, 'server/lib/proposal/playbooks.data.mjs');
+const OUT_BRAND = path.join(ROOT, 'server/lib/proposal/brand.data.mjs');
 const EN_FILE = path.join(ROOT, 'data/proposal/i18n/en.json');
 
 /* ── 브랜드 이미지 (제안서 PDF 표지 필수) ─────────────────────────────
@@ -232,7 +232,7 @@ async function main() {
   /* 서버용 영문 사전 — 진행 현황 API 가 ?lang=en 일 때 쓴다 */
   if (en) {
     const body = '/* 자동 생성 — scripts/proposal-sync.mjs · 원본 data/proposal/i18n/en.json */\nexport default ' + JSON.stringify(en) + ';\n';
-    const OUT_EN = path.join(ROOT, 'netlify/lib/proposal/en.data.mjs');
+    const OUT_EN = path.join(ROOT, 'server/lib/proposal/en.data.mjs');
     if (!fs.existsSync(OUT_EN) || fs.readFileSync(OUT_EN, 'utf8') !== body) fs.writeFileSync(OUT_EN, body);
   }
 

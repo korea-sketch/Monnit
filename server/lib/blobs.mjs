@@ -1,8 +1,7 @@
 /* ============================================================
-   @netlify/blobs 호환 모듈 — Cloudflare R2 위에서 동작
+   저장소 모듈 — Cloudflare R2
    ------------------------------------------------------------
-   wrangler.toml 의 [alias] 로 '@netlify/blobs' 를 이 파일로 바꿔 끼웁니다.
-   그래서 netlify/functions · netlify/lib 코드는 한 줄도 고치지 않고 그대로 씁니다.
+   server/functions · server/lib 코드가 이 파일의 getStore() 로 R2 를 읽고 씁니다.
 
    저장 위치:  R2 버킷(바인딩 BLOBS)  키 = "<저장소 이름>/<키>"
    메타데이터: R2 customMetadata.m 에 JSON 으로
@@ -68,7 +67,7 @@ class Store {
   async setJSON(key, value, opts = {}) { return this.set(key, JSON.stringify(value), opts); }
   async delete(key) { await bucket().delete(fullKey(this.name, key)); }
 
-  /* Netlify 와 같게: paginate 없으면 전부 모아서, paginate:true 면 페이지 단위 async iterator */
+  /* paginate 없으면 전부 모아서, paginate:true 면 페이지 단위 async iterator */
   async *_pages({ prefix = '', directories = false } = {}) {
     const base = this.name + '/';
     let cursor;

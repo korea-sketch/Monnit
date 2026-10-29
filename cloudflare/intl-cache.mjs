@@ -8,7 +8,7 @@
 
    같은 언어·옵션의 형식기는 결과가 똑같으므로 한 번 만든 것을 재사용한다.
    Date#toLocaleString / toLocaleDateString / toLocaleTimeString 도 같은 형식기를 쓰게 한다.
-   Netlify 코드는 그대로 두고, Worker 에서만 켠다. 결과(문자열)는 바뀌지 않는다.
+   Worker 에서만 켠다. 결과(문자열)는 바뀌지 않는다.
    ============================================================ */
 const MAX = 300;
 

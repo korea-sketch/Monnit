@@ -1,77 +1,80 @@
 /* ============================================================
    monnit.co.kr — Cloudflare Worker 진입점
    ------------------------------------------------------------
-   Netlify 에서 하던 일을 그대로 한 곳에서 처리합니다.
-     · 정적 파일·리다이렉트·헤더·404  → netlify-compat/site.mjs (dist/ 파일)
-     · 서버 함수(netlify/functions/*)  → 코드 수정 없이 그대로 불러 실행
-     · 엣지 함수(IP 차단·방문 기록)    → netlify/edge-functions/block-ip.js 그대로 실행
-     · 예약 함수(schedule)             → Cron Trigger
-     · 백그라운드 함수                  → Cloudflare Queue (없으면 waitUntil)
-     · Netlify Blobs                   → R2 (netlify-compat/blobs.mjs, wrangler.toml alias)
+   사이트 전체를 이 Worker 한 곳에서 처리합니다.
+     · 정적 파일·리다이렉트·헤더·404  → site.mjs (dist/ 파일)
+     · 서버 함수(server/functions/*)   → /api/fn/<이름> 또는 각 함수의 config.path
+     · 엣지 처리(IP 차단·방문 기록)    → server/edge/block-ip.js
+     · 예약 작업(schedule)             → Cron Trigger
+     · 백그라운드 작업                  → GitHub Actions / Cloudflare Queue (없으면 waitUntil)
+     · 저장소                          → R2 (server/lib/blobs.mjs)
    ============================================================ */
 import { installIntlCache } from './intl-cache.mjs';
 installIntlCache();   /* 날짜 형식기 재사용 — 무료 플랜 CPU 10ms (다른 모듈보다 먼저) */
 import { AsyncLocalStorage } from 'node:async_hooks';
 import crypto from 'node:crypto';
-import { bindBlobs } from './netlify-compat/blobs.mjs';
-import { resolveStatic, matchRedirect, applyHeaders, DEFAULT_HSTS } from './netlify-compat/site.mjs';
-import { migrateRoute } from './migrate.mjs';
+import { bindBlobs } from '../server/lib/blobs.mjs';
+import { resolveStatic, matchRedirect, applyHeaders, DEFAULT_HSTS } from './site.mjs';
 import { blobApi } from './blob-api.mjs';
 import { withConfig } from './env-config.mjs';
 import { sheetsRoute } from './sheets-cache.mjs';
 
-/* ── Netlify 함수들 (v2: default + config) ───────────────────── */
-import * as fn_blockadmin from '../netlify/functions/blockadmin.mjs';
-import * as fn_blockapi from '../netlify/functions/blockapi.mjs';
-import * as fn_flowadmin from '../netlify/functions/flowadmin.mjs';
-import * as fn_lead from '../netlify/functions/lead.mjs';
-import * as fn_mailpreview from '../netlify/functions/mailpreview.mjs';
-import * as fn_noticeadmin from '../netlify/functions/noticeadmin.mjs';
-import * as fn_ops from '../netlify/functions/ops.mjs';
-import * as fn_proposal_admin from '../netlify/functions/proposal-admin.mjs';
-import * as fn_proposal_api from '../netlify/functions/proposal-api.mjs';
-import * as fn_proposal_chat from '../netlify/functions/proposal-chat.mjs';
-import * as fn_support_chat from '../netlify/functions/support-chat.mjs';   /* 기술지원 대화 (2026-10-20) */
-import * as fn_track from '../netlify/functions/track.mjs';
-import * as fn_visitadmin from '../netlify/functions/visitadmin.mjs';
-import * as fn_blob_export from '../netlify/functions/blob-export.mjs';
+/* ── 서버 함수들 (v2: default + config) ───────────────────────── */
+import * as fn_blockadmin from '../server/functions/blockadmin.mjs';
+import * as fn_blockapi from '../server/functions/blockapi.mjs';
+import * as fn_flowadmin from '../server/functions/flowadmin.mjs';
+import * as fn_lead from '../server/functions/lead.mjs';
+import * as fn_mailpreview from '../server/functions/mailpreview.mjs';
+import * as fn_noticeadmin from '../server/functions/noticeadmin.mjs';
+import * as fn_ops from '../server/functions/ops.mjs';
+import * as fn_proposal_admin from '../server/functions/proposal-admin.mjs';
+import * as fn_proposal_api from '../server/functions/proposal-api.mjs';
+import * as fn_proposal_chat from '../server/functions/proposal-chat.mjs';
+import * as fn_support_chat from '../server/functions/support-chat.mjs';   /* 기술지원 대화 (2026-10-20) */
+import * as fn_track from '../server/functions/track.mjs';
+import * as fn_visitadmin from '../server/functions/visitadmin.mjs';
 /* 긴급 경보 알리미 계약·설문·SLA (2026-10-16) */
-import * as fn_alarm from '../netlify/functions/alarm.mjs';
-import * as fn_geo from '../netlify/functions/geo.mjs';   /* 접속 국가 → 영문 첫 화면 (2026-10-28) */
+import * as fn_alarm from '../server/functions/alarm.mjs';
+import * as fn_geo from '../server/functions/geo.mjs';   /* 접속 국가 → 영문 첫 화면 (2026-10-28) */
 /* 백그라운드 · 예약 */
-import * as fn_build_bg from '../netlify/functions/proposal-build-background.mjs';
-import * as fn_adsync from '../netlify/functions/adsync.mjs';
-import * as fn_health from '../netlify/functions/health.mjs';
-import * as fn_dispatch from '../netlify/functions/proposal-dispatch.mjs';
+import * as fn_build_bg from '../server/functions/proposal-build-background.mjs';
+import * as fn_adsync from '../server/functions/adsync.mjs';
+import * as fn_health from '../server/functions/health.mjs';
+import * as fn_dispatch from '../server/functions/proposal-dispatch.mjs';
 /* v1 (exports.handler) */
-import * as fn_getdoc from '../netlify/functions/getdoc.js';
-import * as fn_sendguide from '../netlify/functions/sendguide.js';
-import * as fn_sendpw from '../netlify/functions/sendpw.js';
+import * as fn_getdoc from '../server/functions/getdoc.js';
+import * as fn_sendguide from '../server/functions/sendguide.js';
+import * as fn_sendpw from '../server/functions/sendpw.js';
 /* 엣지 함수 */
-import * as edge_blockip from '../netlify/edge-functions/block-ip.js';
+import * as edge_blockip from '../server/edge/block-ip.js';
 /* 동적 import 로 불러오던 모듈 — 번들 안에서는 경로 계산 import 가 안 되므로 미리 꽂아 둔다 */
-import * as opsAuth from '../netlify/functions/_ops_auth.mjs';
-import * as guardMod from '../netlify/functions/_guard.js';
+import * as opsAuth from '../server/functions/_ops_auth.mjs';
+import * as guardMod from '../server/functions/_guard.js';
 
 const V2 = {
   blockadmin: fn_blockadmin, blockapi: fn_blockapi, flowadmin: fn_flowadmin, lead: fn_lead,
   mailpreview: fn_mailpreview, noticeadmin: fn_noticeadmin, ops: fn_ops, 'proposal-admin': fn_proposal_admin,
   'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, 'support-chat': fn_support_chat, track: fn_track, visitadmin: fn_visitadmin,
-  'blob-export': fn_blob_export, alarm: fn_alarm, geo: fn_geo
+  alarm: fn_alarm, geo: fn_geo
 };
 const BACKGROUND = { 'proposal-build-background': fn_build_bg };
 const SCHEDULED = { adsync: fn_adsync, health: fn_health, 'proposal-dispatch': fn_dispatch };
 const V1 = { getdoc: fn_getdoc, sendguide: fn_sendguide, sendpw: fn_sendpw };
 
-/* 경로 → 함수 */
+/* 경로 → 함수
+   기본 주소: /api/fn/<이름>
+   옛 주소(/.netlify/functions/<이름>)도 같은 함수로 받는다 — 이미 보낸 메일의 자료 받기 링크(getdoc)가 계속 열리도록 */
+const FN_PREFIX = '/api/fn/';
+const LEGACY_FN_PREFIX = '/.netlify/functions/';
 const ROUTES = new Map();
+const addFn = (name, entry) => { ROUTES.set(FN_PREFIX + name, entry); ROUTES.set(LEGACY_FN_PREFIX + name, entry); };
 for (const [name, mod] of Object.entries(V2)) {
   const p = mod.config && mod.config.path;
   for (const x of (Array.isArray(p) ? p : p ? [p] : [])) ROUTES.set(x, { name, kind: 'v2', mod });
-  ROUTES.set('/.netlify/functions/' + name, { name, kind: 'v2', mod });
+  addFn(name, { name, kind: 'v2', mod });
 }
-for (const [name, mod] of Object.entries(V1)) ROUTES.set('/.netlify/functions/' + name, { name, kind: 'v1', mod });
-for (const [name, mod] of Object.entries(BACKGROUND)) ROUTES.set('/.netlify/functions/' + name, { name, kind: 'bg', mod });
+for (const [name, mod] of Object.entries(V1)) addFn(name, { name, kind: 'v1', mod });
+for (const [name, mod] of Object.entries(BACKGROUND)) addFn(name, { name, kind: 'bg', mod });
 const CRON = new Map();
 for (const [name, mod] of Object.entries(SCHEDULED)) if (mod.config && mod.config.schedule) CRON.set(mod.config.schedule, { name, mod });
 
@@ -87,7 +90,8 @@ function boot(env) {
     BOOTED = true;
     /* 무료 플랜: PDF 조판은 GitHub Actions 에 맡긴다 (wrangler.toml PDF_BUILDER = "github") */
     globalThis.__MNK_PDF_OFFLOAD = String(env.PDF_BUILDER || '').toLowerCase() === 'github';
-    globalThis.Netlify = { env: { get: k => { const e = globalThis.__MNK_ENV || {}; return e[k] != null ? String(e[k]) : undefined; }, has: k => (globalThis.__MNK_ENV || {})[k] != null, toObject: () => ({ ...(globalThis.__MNK_ENV || {}) }) } };
+    /* 함수 코드가 설정값(환경변수)을 읽는 통로 — 대시보드 값 + R2 __config/env.json */
+    globalThis.__MNK_ENV_GET = k => { const e = globalThis.__MNK_ENV || {}; return e[k] != null ? String(e[k]) : undefined; };
     globalThis.__PROPOSAL_OPS_AUTH = opsAuth;
     globalThis.__PROPOSAL_GUARD = guardMod.default || guardMod;
     /* 함수가 읽는 비공개 파일(제안서 PDF·글꼴·메일 템플릿) — dist/__private 에서 */
@@ -102,8 +106,7 @@ function boot(env) {
 }
 const selfHosts = env => new Set(String(env.SELF_HOSTS || 'monnit.co.kr,www.monnit.co.kr').split(/[,\s]+/).filter(Boolean));
 
-/* 자기 자신 호출(/.netlify/functions/...)은 네트워크로 나가지 않고 안에서 처리
-   — DNS 이전 전(workers.dev)에도 Netlify 쪽으로 새지 않게 */
+/* 자기 자신 호출(/api/fn/... 등 자기 도메인)은 네트워크로 나가지 않고 안에서 처리 */
 const realFetch = globalThis.fetch.bind(globalThis);
 globalThis.__MNK_REAL_FETCH = realFetch;
 globalThis.fetch = async function (input, init) {
@@ -132,7 +135,7 @@ globalThis.fetch = async function (input, init) {
   return realFetch(input, init);
 };
 
-/* ── Netlify context 흉내 ───────────────────────────────────── */
+/* ── 함수에 넘기는 context ───────────────────────────────────── */
 function geoOf(req) {
   const cf = req.cf || {};
   return {
@@ -143,7 +146,7 @@ function geoOf(req) {
 }
 function makeContext(req, env, ctx, extra = {}) {
   return {
-    ip: req.headers.get('x-nf-client-connection-ip') || '',
+    ip: req.headers.get('x-mnk-client-ip') || '',
     geo: geoOf(req),
     waitUntil: p => ctx.waitUntil(Promise.resolve(p).catch(e => console.error('[waitUntil]', e))),
     params: {}, requestId: req.headers.get('cf-ray') || crypto.randomUUID(),
@@ -160,27 +163,13 @@ function cookieJar(req) {
   return { get: k => map.get(k), set: () => {}, delete: () => {} };
 }
 
-/* 방문자 IP — Cloudflare 가 준 값만 믿는다. 방문자가 보낸 같은 이름 헤더는 지운다.
-   예외: DNS 전파 기간에 Netlify 가 넘겨준 요청(netlify/edge-functions/a-relay-cf.js)은
-   MIGRATE_SECRET 서명이 맞을 때만 그 IP 를 믿고, 주소도 원래 도메인(monnit.co.kr)으로 되돌린다. */
-const RELAY_HDRS = ['x-mnk-relay-ip', 'x-mnk-relay-sig', 'x-mnk-relay-host'];
-function relaySecret(env) { return (env && (env.MIGRATE_SECRET || env.PROPOSAL_SECRET || env.DL_SECRET)) || ''; }
-function relayIp(request, env) {
-  const ip = request.headers.get('x-mnk-relay-ip') || '', sig = request.headers.get('x-mnk-relay-sig') || '', s = relaySecret(env);
-  if (!ip || !sig || !s) return '';
-  const want = crypto.createHmac('sha256', s).update('relay|' + ip).digest('hex');
-  try { return want.length === sig.length && crypto.timingSafeEqual(Buffer.from(want), Buffer.from(sig)) ? ip.slice(0, 45) : ''; } catch (e) { return ''; }
-}
-function trustedRequest(request, env) {
+/* 방문자 IP — Cloudflare 가 준 값(cf-connecting-ip)만 믿는다. 방문자가 보낸 같은 이름 헤더는 지운다. */
+function trustedRequest(request) {
   const h = new Headers(request.headers);
-  for (const k of ['x-mnk-ip', 'x-nf-client-connection-ip', 'x-forwarded-for', 'client-ip', 'x-real-ip']) h.delete(k);
-  const ip = relayIp(request, env) || request.headers.get('cf-connecting-ip') || '';
-  if (ip) { h.set('x-nf-client-connection-ip', ip); h.set('x-forwarded-for', ip); }
-  let url = request.url;
-  const host = (request.headers.get('x-mnk-relay-host') || '').toLowerCase();
-  if (host && selfHosts(env).has(host)) { const u = new URL(url); u.protocol = 'https:'; u.hostname = host; u.port = ''; url = u.toString(); }
-  for (const k of RELAY_HDRS) h.delete(k);
-  return new Request(url, new Request(request, { headers: h }));
+  for (const k of ['x-mnk-ip', 'x-mnk-client-ip', 'x-forwarded-for', 'client-ip', 'x-real-ip']) h.delete(k);
+  const ip = request.headers.get('cf-connecting-ip') || '';
+  if (ip) { h.set('x-mnk-client-ip', ip); h.set('x-forwarded-for', ip); }
+  return new Request(request.url, new Request(request, { headers: h }));
 }
 
 /* ── 함수 실행 ───────────────────────────────────────────────── */
@@ -209,7 +198,7 @@ async function runV1(mod, req) {
 async function runRoute(route, req, env, ctx) {
   if (route.kind === 'v1') return fnDefaults(await runV1(route.mod, req));
   if (route.kind === 'bg') {
-    /* Netlify 백그라운드 함수처럼: 바로 202, 실제 작업은 큐(최대 15분)에서 */
+    /* 백그라운드 작업: 바로 202, 실제 작업은 GitHub Actions 또는 큐(최대 15분)에서 */
     const body = ['GET', 'HEAD'].includes(req.method) ? '' : Buffer.from(await req.arrayBuffer()).toString('base64');
     const headers = {}; req.headers.forEach((v, k) => { headers[k] = v; });
     const msg = { name: route.name, url: req.url, method: req.method, headers, body };
@@ -221,7 +210,7 @@ async function runRoute(route, req, env, ctx) {
   const res = await route.mod.default(req, makeContext(req, env, ctx));
   return fnDefaults(res instanceof Response ? res : new Response(res == null ? null : String(res), { status: res == null ? 204 : 200 }));
 }
-/* Netlify 함수 응답 기본값 — cache-control 이 없으면 no-cache */
+/* 함수 응답 기본값 — cache-control 이 없으면 no-cache */
 function fnDefaults(res) {
   if (res.headers.has('cache-control')) return res;
   const r = new Response(res.body, res); r.headers.set('cache-control', 'no-cache'); return r;
@@ -247,7 +236,7 @@ async function runBackground(msg, env, ctx) {
   catch (e) { console.error('[background]', msg.name, e && e.stack || e); throw e; }
 }
 
-/* ── 정적 사이트 (Netlify 규칙 재현) ─────────────────────────── */
+/* ── 정적 사이트 (_redirects · _headers 규칙) ──────────────────── */
 function assetRequest(file, req) {
   const u = new URL(req.url);
   u.pathname = file.split('/').map(s => encodeURIComponent(s)).join('/');
@@ -320,8 +309,6 @@ async function dispatch(request, env, ctx, opts = {}) {
     const p = new URL(req.url).pathname;
     const bapi = await blobApi(req, env);
     if (bapi) return bapi;
-    const mig = await migrateRoute(req, env, ctx, { opsAuth, makeContext });
-    if (mig) return mig;
     const route = ROUTES.get(p);
     if (route) return runRoute(route, req, env, ctx);
     const res = await serveSite(req, env);
@@ -348,17 +335,17 @@ async function dispatch(request, env, ctx, opts = {}) {
 export default {
   async fetch(request, env, ctx) {
     bindBlobs(env.BLOBS);
-    env = await withConfig(env);          /* Netlify 에서 옮겨 온 설정값 + 대시보드 값 */
+    env = await withConfig(env);          /* R2 에 저장된 설정값 + 대시보드 값 */
     boot(env);
-    const req = trustedRequest(request, env);
+    const req = trustedRequest(request);
     const u = new URL(req.url);
-    /* http → https (Netlify 와 같은 동작) */
+    /* http → https */
     if (u.protocol === 'http:' && selfHosts(env).has(u.host)) {
       u.protocol = 'https:';
       if (env.PRIMARY_HOST && selfHosts(env).has(u.host)) u.host = env.PRIMARY_HOST;
       return Response.redirect(u.toString(), 301);
     }
-    /* www → 기본 도메인 (Netlify 의 도메인 별칭과 같은 동작) */
+    /* www → 기본 도메인 */
     if (env.PRIMARY_HOST && u.host !== env.PRIMARY_HOST && selfHosts(env).has(u.host)) {
       u.host = env.PRIMARY_HOST;
       return Response.redirect(u.toString(), 301);
@@ -368,7 +355,7 @@ export default {
         const t0 = env.DEBUG_TIMING ? Date.now() : 0;
         let res = await dispatch(req, env, ctx);
         if (t0) console.log('[timing]', req.method, u.pathname, res.status, (Date.now() - t0) + 'ms');
-        if (!res.headers.has('strict-transport-security')) {          /* Netlify 처럼 모든 응답에 HSTS */
+        if (!res.headers.has('strict-transport-security')) {          /* 모든 응답에 HSTS */
           res = new Response(res.body, res); res.headers.set('strict-transport-security', DEFAULT_HSTS);
         }
         /* 관제·방문 관리 화면에는 Cloudflare 방문 분석 스크립트를 끼워 넣지 않게(no-transform) —
@@ -386,18 +373,17 @@ export default {
     });
   },
 
-  /* 예약 함수 — Netlify schedule 과 같은 cron 식(UTC) */
+  /* 예약 함수 — 각 함수 config.schedule 과 같은 cron 식(UTC) */
   async scheduled(event, env, ctx) {
     bindBlobs(env.BLOBS);
     env = await withConfig(env);
     boot(env);
-    /* 전환 전(시험 기간)에는 예약 작업을 돌리지 않는다 — Netlify 와 메일·동기화가 겹치지 않게.
-       도메인을 옮긴 뒤 대시보드 변수 CRON_ENABLED = 1 을 넣으면 켜진다 */
-    if (String(env.CRON_ENABLED || '') !== '1') { console.log('[cron] CRON_ENABLED 아님 — 건너뜀:', event.cron); return; }
+    /* 예약 작업은 기본으로 켜져 있다. 잠시 멈추려면 대시보드 변수 CRON_ENABLED = 0 */
+    if (String(env.CRON_ENABLED || '') === '0') { console.log('[cron] CRON_ENABLED=0 — 건너뜀:', event.cron); return; }
     const job = CRON.get(event.cron);
     if (!job) { console.warn('[cron] 연결된 함수 없음:', event.cron); return; }
     const site = env.URL || 'https://monnit.co.kr';
-    const req = new Request(site + '/.netlify/functions/' + job.name, { method: 'POST', body: JSON.stringify({ next_run: new Date(event.scheduledTime).toISOString() }) });
+    const req = new Request(site + FN_PREFIX + job.name, { method: 'POST', body: JSON.stringify({ next_run: new Date(event.scheduledTime).toISOString() }) });
     const t0 = Date.now();
     await ALS.run({ env, ctx, host: new URL(site).host, hosts: selfHosts(env) }, () => job.mod.default(req, makeContext(req, env, ctx)));
     if (env.DEBUG_TIMING) console.log('[timing] cron', job.name, (Date.now() - t0) + 'ms');

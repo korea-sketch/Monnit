@@ -5,7 +5,7 @@ _gsdata_/
 images/_logo_orig/
 
 # SSG 로 생성되는 경로별 폴더 (/who-we-are/, /app/temp/ …)
-# Netlify 가 배포할 때마다 build.js 로 다시 만듭니다. 24MB 라 저장소에는 넣지 않습니다.
+# Cloudflare 가 배포할 때마다 build.js 로 다시 만듭니다. 24MB 라 저장소에는 넣지 않습니다.
 /who-we-are/
 /products/
 /applications/

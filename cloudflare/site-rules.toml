@@ -1,0 +1,326 @@
+# monnit.co.kr — 리다이렉트 · 헤더 규칙 (Cloudflare Worker 가 적용)
+# cloudflare/prepare.mjs 가 _redirects · _headers 다음 순서로 읽어 cloudflare/generated/site.json 에 넣습니다.
+# 위에서부터 첫 번째로 일치하는 리다이렉트가 적용됩니다 — 순서를 바꾸지 마세요.
+
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+# sitemap.xml — 크롤러가 파싱에 실패하면 URL 목록 확보가 불가능해집니다.
+# Content-Type 을 명시하고 캐시를 끄지 않으면 낡은 사본이 계속 전달될 수 있습니다.
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# 구 Wix 사이트 경로 정리 — 검색 색인에 남은 옛 블로그 URL을 네이버 블로그로 301
+[[redirects]]
+  from = "/monnitblog"
+  to = "https://blog.naver.com/monnitkorea"
+  status = 301
+
+[[redirects]]
+  from = "/monnitblog/*"
+  to = "https://blog.naver.com/monnitkorea"
+  status = 301
+
+# 교회 전단 QR 전용 랜딩 — 검색엔진 색인 차단
+[[headers]]
+  for = "/church/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[redirects]]
+  from = "/church"
+  to = "/church/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/church/"
+  to = "/church/index.html"
+  status = 200
+
+# ── 맞춤 제안서 (2026-09-17) ─────────────────────────────────────
+#   신청  /proposal          → SPA 화면 view-proposal (build.js 가 /proposal/index.html 생성)
+#   현황  /proposal/status   → SPA 화면 view-proposal-status (_redirects 폴백 → index.html · 색인 금지)
+#   API   /api/proposal/*    · 관리 /ops/proposals  → server/functions/proposal-*.mjs
+[[headers]]
+  for = "/proposal/status"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/proposal/status/"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-view.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-chat.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-addon.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/js/proposal-data.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# 프로모션 랜딩: 회전설비 AI 예지보전 1개월 무료 체험 (컨설팅)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다
+[[redirects]]
+  from = "/promo/consulting"
+  to = "/promo-consulting.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/consulting/"
+  to = "/promo-consulting.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo-consulting"
+  to = "/promo-consulting.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/predictive"
+  to = "/promo/consulting"
+  status = 301
+
+# 광고 전용 랜딩: 무선 IoT 설비 예지보전 제안 가이드 (검색 비노출)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다
+[[redirects]]
+  from = "/promo/proposal"
+  to = "/promo-proposal.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/proposal/"
+  to = "/promo-proposal.html"
+  status = 200
+
+[[headers]]
+  for = "/promo/proposal"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[headers]]
+  for = "/promo/proposal/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+# ── 광고 전용 랜딩: 무선 온도 감시 (2026-09-08) ──────────────────
+# 페이지 <head> 에도 noindex 가 들어 있지만, 헤더로 한 번 더 막습니다.
+# 메타 태그는 HTML 을 파싱해야 보이고 PDF·이미지에는 아예 못 넣습니다.
+[[headers]]
+  for = "/promo/temperature"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[headers]]
+  for = "/promo/temperature/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+# ── 광고 전용 랜딩: 무선센서 Modbus 연동 백서 (2026-09-09) ────────
+# /promo/modbus — 2026-09-15 부터 /promotions 목록·사이트맵에 올린 색인 대상입니다(build.js 참고).
+# 예전 광고 직링크 전용 시절의 noindex 헤더가 남아 사이트맵과 충돌하던 것을 뺐습니다(2026-09-17).
+
+# 랜딩 이미지 11장. 광고 소재라 자주 바뀌지 않고, 한 번 받으면 재방문에 그대로 씁니다.
+# 검색 이미지 탭에 랜딩 사진이 뜨면 광고 전용이라는 전제가 깨지므로 noindex 를 겁니다.
+[[headers]]
+  for = "/images/temp-packages/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+    X-Robots-Tag = "noindex"
+
+# 게이트 대체 경로 PDF (/files/*.pdf)
+# sendpw 가 실패했을 때만 쓰는 비상 경로입니다. 색인되면 검색 결과에서
+# 폼을 거치지 않고 바로 받아 가므로 리드 수집이 무의미해집니다.
+# 파일 자체는 열어 두되(대체 경로가 살아 있어야 하므로) 색인만 막습니다.
+[[headers]]
+  for = "/files/*.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, noarchive, nosnippet"
+    Cache-Control = "public, max-age=86400"
+
+# 프로모션 랜딩: 레지던스 객실 물 넘침 알람 (2026-08-25 ~ 09-24)
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다
+[[redirects]]
+  from = "/promo/residence"
+  to = "/promo-residence.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/residence/"
+  to = "/promo-residence.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo-residence"
+  to = "/promo-residence.html"
+  status = 200
+
+# 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소 유지)
+[[redirects]]
+  from = "/promo/alarm"
+  to = "/promo-alarm.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/alarm/"
+  to = "/promo-alarm.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo-alarm"
+  to = "/promo-alarm.html"
+  status = 200
+
+[[redirects]]
+  from = "/promo/*"
+  to = "/promo.html?id=:splat"
+  status = 200
+
+# 예전 소방 전용 페이지 → 범용 페이지로 통합 301
+[[redirects]]
+  from = "/promo-fire.html"
+  to = "/promo.html?id=fire"
+  status = 301
+
+# 구 슬러그(대소문자·한글) 케이스 페이지 → 정식 소문자 URL 301 (색인 중복·404 정리)
+# 구 슬러그(대문자·한글) → 새 경로로 한 번에 (연쇄 리다이렉트 방지)
+[[redirects]]
+  from = "/pages/case-Samsung.html"
+  to = "/case/samsung"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pages/case-Veolia.html"
+  to = "/case/veolia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pages/case-HDC랩스.html"
+  to = "/case/hdc-labs"
+  status = 301
+  force = true
+
+# 예지보전 현장 진단 예약
+#   고객 /visit · 관리 /visit/admin(로그인 필요)
+#   설정 읽기 /visit/config · 저장 /visit/admin/config
+#   → server/functions/visitadmin.mjs 가 처리합니다
+[[redirects]]
+  from = "/visit"
+  to = "/visit.html"
+  status = 200
+
+[[redirects]]
+  from = "/visit/"
+  to = "/visit.html"
+  status = 200
+
+# ── 관제 화면은 검색엔진에서 완전히 제외 (개인정보 포함) ──────────
+[[headers]]
+  for = "/ops/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/visit"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+
+[[headers]]
+  for = "/visit/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/visit.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/visit.css"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
+  for = "/visit-core.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+[[headers]]
+  for = "/valid.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+# ── 알리미 자동 응답 메일 이미지 ────────────────────────────────
+# 메일 본문이 https://monnit.co.kr/email/images/... 로 불러옵니다.
+# 한 번 보낸 메일은 몇 달 뒤에도 열리므로 오래 캐시해도 안전합니다.
+[[headers]]
+  for = "/email/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+    X-Robots-Tag = "noindex"
+
+# 알리미 메일 미리보기·테스트 발송 (검색 비노출)
+[[headers]]
+  for = "/api/mailpreview"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+# ── Cloudflare 이관 파일은 공개하지 않음 (2026-10) ──
+[[redirects]]
+  from = "/cloudflare/*"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/wrangler.toml"
+  to = "/404.html"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/dist/*"
+  to = "/404.html"
+  status = 404
+  force = true

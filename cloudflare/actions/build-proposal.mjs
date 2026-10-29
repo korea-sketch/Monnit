@@ -2,7 +2,7 @@
    맞춤 제안서 PDF 생성 — GitHub Actions 에서 실행 (Cloudflare 무료 운영)
    ------------------------------------------------------------
    Worker 가 GitHub 에 「proposal-build」 신호를 보내면 이 스크립트가
-   netlify/functions/proposal-build-background.mjs 를 그대로 실행합니다.
+   server/functions/proposal-build-background.mjs 를 그대로 실행합니다.
    저장소(R2)는 사이트의 /api/__blobs 를 통해 읽고 씁니다.
    발송은 하지 않습니다 — 사이트의 정기 점검(10분마다)이 예정 시각에 보냅니다.
 
@@ -11,7 +11,7 @@
      MIGRATE_SECRET    사이트(Cloudflare 대시보드)와 같은 값
      나머지(메일·AI 키·SITE_ID 등)는 사이트 저장소의 __config/env.json 에서 자동으로 읽습니다
    ============================================================ */
-import { bindBlobs } from '../netlify-compat/blobs.mjs';
+import { bindBlobs } from '../../server/lib/blobs.mjs';
 import { blobsToken } from '../blob-api.mjs';
 
 const SITE = String(process.env.SITE_URL || process.env.URL || 'https://monnit.co.kr').replace(/\/$/, '');
@@ -52,20 +52,20 @@ const bucket = {
   }
 };
 bindBlobs(bucket);
-/* 사이트가 Netlify 에서 옮겨 둔 설정값(메일·AI 키 등) — GitHub 비밀값에 없는 것만 채움 */
+/* 사이트 저장소(R2)의 설정값(메일·AI 키 등) — GitHub 비밀값에 없는 것만 채움 */
 try {
   const c = await bucket.get('__config/env.json');
   const vars = c ? (JSON.parse(await c.text()).vars || {}) : {};
   for (const [k, v] of Object.entries(vars)) if (!process.env[k]) process.env[k] = v;
   console.log('[build-proposal] 설정값', Object.keys(vars).length + '개');
 } catch (e) { console.warn('[build-proposal] 설정값 읽기 실패', e && e.message); }
-globalThis.Netlify = { env: { get: k => process.env[k], has: k => k in process.env, toObject: () => ({ ...process.env }) } };
+globalThis.__MNK_ENV_GET = k => process.env[k];
 globalThis.__MNK_BUILD_ONLY = true;
 
 const payload = JSON.parse(process.env.PAYLOAD || '{}');
 if (!payload.body) { console.error('PAYLOAD 가 비어 있습니다'); process.exit(1); }
-const { default: handler } = await import('../../netlify/functions/proposal-build-background.mjs');
-const req = new Request(SITE + '/.netlify/functions/proposal-build-background', {
+const { default: handler } = await import('../../server/functions/proposal-build-background.mjs');
+const req = new Request(SITE + '/api/fn/proposal-build-background', {
   method: 'POST',
   headers: { 'content-type': 'application/json', 'x-proposal-sig': payload.sig || '' },
   body: Buffer.from(payload.body, 'base64')

@@ -4,13 +4,13 @@
      node scripts/proposal-sync.mjs && node build.js && node cloudflare/prepare.mjs
    ------------------------------------------------------------
    하는 일
-   1) dist/            방문자에게 공개할 파일만 복사 (Netlify 의 publish="." 와 같은 내용에서
+   1) dist/            방문자에게 공개할 파일만 복사 (저장소 루트에서
                        함수·도구·문서·설정 파일을 뺀 것)
    2) dist/__private/  함수만 읽는 파일 (제안서 PDF·글꼴·메일 템플릿·편집기).
                        Worker 가 /__private/* 공개 요청은 항상 404 로 막습니다.
    3) cloudflare/generated/site.json
-                       _redirects · netlify.toml 리다이렉트/헤더 규칙 + 공개 파일 목록.
-                       Worker 가 Netlify 와 똑같은 순서로 규칙을 적용하는 데 씁니다.
+                       _redirects · _headers · cloudflare/site-rules.toml 규칙 + 공개 파일 목록.
+                       Worker 가 이 순서대로 규칙을 적용하는 데 씁니다.
    ============================================================ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,9 +22,9 @@ const DIST = path.join(ROOT, 'dist');
 const GEN = path.join(ROOT, 'cloudflare', 'generated');
 
 /* ── 공개하지 않는 것 ─────────────────────────────────────────── */
-const DENY_DIRS = new Set(['.git', '.github', 'node_modules', 'dist', 'cloudflare', 'netlify', 'tools', 'scripts',
-  'ui', 'source', 'functions', '.wrangler', '.netlify', 'Claude outputs', 'claude-outputs', 'outputs']);
-const DENY_ROOT_FILES = new Set(['package.json', 'package-lock.json', 'netlify.toml', 'wrangler.toml', 'wrangler.jsonc',
+const DENY_DIRS = new Set(['.git', '.github', 'node_modules', 'dist', 'cloudflare', 'server', 'tools', 'scripts',
+  'ui', 'source', 'functions', '.wrangler', 'Claude outputs', 'claude-outputs', 'outputs']);
+const DENY_ROOT_FILES = new Set(['package.json', 'package-lock.json', 'wrangler.toml', 'wrangler.jsonc',
   'build.js', 'gitignore.txt', '.gitignore', '.DS_Store', '.dev.vars']);
 const DENY_EXT_ROOT = ['.md', '.sh'];
 
@@ -71,7 +71,7 @@ for (const p of PRIVATE) {
 }
 
 /* ── 리다이렉트 규칙 ─────────────────────────────────────────────
-   Netlify 순서: _redirects 파일 → netlify.toml [[redirects]] (위에서부터 첫 일치) */
+   순서: _redirects 파일 → cloudflare/site-rules.toml [[redirects]] (위에서부터 첫 일치) */
 function parseRedirectsFile(txt) {
   const out = [];
   for (const raw of txt.split(/\r?\n/)) {
@@ -97,13 +97,13 @@ function parseRedirectsFile(txt) {
 const redirects = [];
 const rf = path.join(ROOT, '_redirects');
 if (fs.existsSync(rf)) redirects.push(...parseRedirectsFile(fs.readFileSync(rf, 'utf8')));
-const toml = parseToml(fs.readFileSync(path.join(ROOT, 'netlify.toml'), 'utf8'));
+const toml = parseToml(fs.readFileSync(path.join(ROOT, 'cloudflare', 'site-rules.toml'), 'utf8'));
 for (const r of toml.redirects || []) {
   if (r.conditions || r.query || r.signed) { console.warn('[cf] 조건부 리다이렉트 건너뜀:', r.from); continue; }
   redirects.push({ from: r.from, to: r.to, status: Number(r.status || 301), force: !!r.force });
 }
 
-/* ── 헤더 규칙 — _headers 파일 → netlify.toml [[headers]] 순으로 누적 ── */
+/* ── 헤더 규칙 — _headers 파일 → site-rules.toml [[headers]] 순으로 누적 ── */
 function parseHeadersFile(txt) {
   const out = []; let cur = null;
   for (const raw of txt.split(/\r?\n/)) {
@@ -154,9 +154,9 @@ const negs = [...wt.matchAll(/"!(\/[^"]*)"/g)].map(m => new RegExp('^' + m[1].sp
 const staticRules = redirects.filter(r => !/^https?:/.test(r.from) && negs.some(re => re.test(r.from.replace(/\*$/, 'x'))) && r.status !== 404);
 fs.writeFileSync(path.join(DIST, '_redirects'), staticRules.map(r => `${r.from} ${r.to} ${r.status}${r.force ? '!' : ''}`).join('\n') + '\n');
 if (staticRules.length) console.log(`[cf] 정적 경로 리다이렉트 ${staticRules.length}개 → dist/_redirects`);
-/* 헤더 — Worker 를 거치지 않고 바로 나가는 정적 파일(이미지·JS·CSS 등)용. 형식은 Netlify 와 같다 */
+/* 헤더 — Worker 를 거치지 않고 바로 나가는 정적 파일(이미지·JS·CSS 등)용 (Cloudflare _headers 형식) */
 /* Cloudflare 는 같은 헤더를 쉼표로 이어 붙이므로, 앞 규칙이 이미 정한 헤더는 「! 이름」으로 떼고 다시 정한다
-   (뒤에 오는 규칙이 이긴다 — Netlify 와 같은 결과) */
+   (뒤에 오는 규칙이 이긴다) */
 const seenH = new Set();
 fs.writeFileSync(path.join(DIST, '_headers'), headers.map(h => {
   const lines = [h.for];

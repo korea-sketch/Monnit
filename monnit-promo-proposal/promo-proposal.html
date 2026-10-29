@@ -230,7 +230,7 @@ footer p{margin:0 0 4px}
         <p class="err" id="err">필수 항목을 모두 입력해 주세요.</p>
 
         
-        <form id="leadForm" name="promo-proposal" method="POST" data-netlify="true" netlify-honeypot="company-url">
+        <form id="leadForm" name="promo-proposal" method="POST">
           <input type="hidden" name="form-name" value="promo-proposal" />
           <p style="display:none"><label>비워두세요 <input name="company-url" /></label></p>
 
@@ -319,16 +319,16 @@ footer p{margin:0 0 4px}
     // 1) 픽셀 Lead (CAPI와 중복 제거용 eventID 동봉)
     if(window.fbq){ fbq('track','Lead',{content_name:'예지보전 제안 가이드'},{eventID:eid}); }
 
-    // 2) 서버 전송 — Netlify Forms
+    // 2) 서버 전송
     fetch('/promo/proposal/', {
       method:'POST',
       headers:{'Content-Type':'application/x-www-form-urlencoded'},
       body:new URLSearchParams(fd).toString()
     }).catch(function(){ /* 전송 실패해도 다운로드는 막지 않음 */ })
       .finally(function(){
-        // 3) CAPI 함수로 서버 이벤트 (선택) — 기존 Netlify Function 경로에 맞게 수정
+        // 3) CAPI 함수로 서버 이벤트 (선택) — 서버 함수 경로(/api/fn/*)에 맞게 수정
         try{
-          fetch('/.netlify/functions/capi', {
+          fetch('/api/fn/capi', {
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({

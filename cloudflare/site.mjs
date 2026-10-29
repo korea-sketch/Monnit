@@ -1,17 +1,17 @@
 /* ============================================================
-   Netlify 정적 사이트 동작 재현 — 리다이렉트 · 예쁜 주소(.html 생략) · 헤더 · 404
+   정적 사이트 규칙 — 리다이렉트 · 예쁜 주소(.html 생략) · 헤더 · 404
    ------------------------------------------------------------
-   Netlify 와 같은 결과가 나오도록 맞춘 규칙
-   · 리다이렉트: _redirects → netlify.toml 순, 위에서부터 첫 일치
+   적용 규칙
+   · 리다이렉트: _redirects → cloudflare/site-rules.toml 순, 위에서부터 첫 일치
        - 강제(!) 가 아니면, 그 주소에 파일이 있을 때 규칙을 건너뜀(shadowing)
        - 200 = 주소는 그대로 두고 다른 파일을 보여 줌, 404 = 지정 파일을 404 로
    · 예쁜 주소
        /a       → a.html 이 있으면 그대로 보여 줌,  a/index.html 이 있으면 301 /a/
        /a/      → a/index.html 이 있으면 보여 줌,  a.html 만 있으면 301 /a
-   · 헤더: _headers → netlify.toml [[headers]] 의 일치 규칙을 모두 합침(같은 이름은 뒤 규칙)
-           함수 응답에는 붙이지 않음 (Netlify 와 동일)
+   · 헤더: _headers → site-rules.toml [[headers]] 의 일치 규칙을 모두 합침(같은 이름은 뒤 규칙)
+           함수 응답에는 붙이지 않음
    ============================================================ */
-import SITE from '../generated/site.json';
+import SITE from './generated/site.json';
 
 const FILES = new Set(SITE.files);
 
@@ -42,7 +42,7 @@ const REDIRECTS = SITE.redirects.map(r => {
   return { ...r, host, ...compileFrom(from) };
 });
 
-/* Netlify 와 같게: "/a/*" 는 "/a" 자체도 포함, 끝 슬래시는 있어도 없어도 같은 주소 */
+/* "/a/*" 는 "/a" 자체도 포함, 끝 슬래시는 있어도 없어도 같은 주소 */
 function compileHeaderFor(f) {
   let tail = '/?';
   let body = f;
@@ -63,7 +63,7 @@ export function headersFor(pathname) {
   }
   return out;
 }
-/* Netlify 가 기본으로 붙이는 값 (규칙이 없을 때) */
+/* 기본값 (규칙이 없을 때) */
 const DEFAULT_CACHE = 'public, max-age=0, must-revalidate';
 export const DEFAULT_HSTS = 'max-age=31536000';
 export function applyHeaders(res, pathname) {

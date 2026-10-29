@@ -174,7 +174,7 @@ def main() -> int:
 
     m = re.search(r'var\s+DOC_TITLE\s*=\s*"([^"]+)"', html)
     print(f"\n· 자료 게이트: sendpw → getdoc   DOC_TITLE = {m.group(1) if m else '(없음)'}")
-    print("  이 제목이 netlify/functions/_docmap.js 의 키와 한 글자라도 다르면 not_ready 로 떨어집니다.")
+    print("  이 제목이 server/functions/_docmap.js 의 키와 한 글자라도 다르면 not_ready 로 떨어집니다.")
     if 'name="robots"' in html:
         print("  ⚠ robots 메타가 남아 있습니다 — /promotions 노출이면 빼야 합니다.")
 

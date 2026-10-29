@@ -219,7 +219,7 @@ const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + encodeURIComponent(CONTACT
 
 /* 제안서 비밀번호 발송용 Apps Script 웹앱 (korea@monnit.com 명의 발신)
    — 배포 후 받은 웹 앱 URL을 아래에 붙여넣으면 자동 전환됩니다. 비어 있으면 FormSubmit 자동회신 사용 */
-const PW_MAIL_URL = "/.netlify/functions/sendpw"; /* 2026-09-17: 예전 CF Pages 경로(/sendpw)는 Netlify 에서 404 라 매번 두 번 호출됐다 → 바로 Netlify 경로 */
+const PW_MAIL_URL = "/api/fn/sendpw"; /* 2026-09-17: 서버 함수 경로(Cloudflare Worker /api/fn/*) */
 const PW_MAIL_TOKEN = "mnt-pw-2026-7f3k9";
 
 /* 폼 데이터를 실제로 전송하는 공통 함수 (AJAX — 페이지 이동 없음)
@@ -3427,8 +3427,8 @@ async function wpRequestRun(){
 
   let _res = null;
   try {
-    let r = await _post(PW_MAIL_URL || '/.netlify/functions/sendpw');
-    if ((r.status === 404 || r.status === 405) && PW_MAIL_URL !== '/.netlify/functions/sendpw') r = await _post('/.netlify/functions/sendpw');
+    let r = await _post(PW_MAIL_URL || '/api/fn/sendpw');
+    if ((r.status === 404 || r.status === 405) && PW_MAIL_URL !== '/api/fn/sendpw') r = await _post('/api/fn/sendpw');
     _res = await r.json().catch(() => null);
   } catch (e) { _res = null; }
 

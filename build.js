@@ -2,7 +2,7 @@
 /* ============================================================
    Monnit Korea — 정적 프리렌더 + AI/SEO 자산 빌드 스크립트
    실행:  node build.js
-   Netlify:  Build command = "node build.js"   Publish dir = "."
+   Cloudflare: wrangler.toml [build] command 에서 실행 (node build.js → cloudflare/prepare.mjs)
    ------------------------------------------------------------
    app.js 의 콘텐츠 데이터(APPS/PRODUCTS/CASE_DATA 등)를 읽어
    - robots.txt / sitemap.xml / llms.txt / llms-full.txt
@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 /* ---------- 배포 전 필수 파일 점검 (2026-09-17) ----------
-   폴더째 덮어쓰기(Finder 「대치」 등)로 js/·netlify/functions/ 안의 파일이 통째로 사라진 채
+   폴더째 덮어쓰기(Finder 「대치」 등)로 js/·server/functions/ 안의 파일이 통째로 사라진 채
    커밋된 적이 두 번 있었습니다(2026-09-16 · 09-17). 그러면 함수 묶기 단계에서 알아보기 어려운
    오류로 배포가 멈추고, 사이트는 예전 배포에 머뭅니다. 여기서 먼저 찾아 한국어로 알려 줍니다.
    · 함수 파일이 불러오는 상대 경로(import · require)가 실제로 있는지
@@ -21,7 +21,7 @@ const path = require('path');
 (function preflight() {
   const missing = [];
   const exists = f => fs.existsSync(f);
-  const FN = path.join(__dirname, 'netlify', 'functions');
+  const FN = path.join(__dirname, 'server', 'functions');
   const scan = (dir) => {
     if (!exists(dir)) return;
     for (const name of fs.readdirSync(dir)) {
@@ -38,8 +38,8 @@ const path = require('path');
     }
   };
   scan(FN);
-  scan(path.join(__dirname, 'netlify', 'lib'));
-  scan(path.join(__dirname, 'netlify', 'edge-functions'));
+  scan(path.join(__dirname, 'server', 'lib'));
+  scan(path.join(__dirname, 'server', 'edge'));
   const pages = ['index.html', 'promo-consulting.html', 'promo-modbus.html', 'promo-proposal.html', 'promo-alarm.html', 'promo-residence.html', 'promo.html', 'visit.html', 'promo/temperature/index.html'];
   for (const pg of pages) {
     const f = path.join(__dirname, pg);
@@ -78,7 +78,7 @@ const path = require('path');
 })();
 
 /* ═══ 배포 불가 파일명 정리 (2026-10-02) ═══
-   Netlify 는 이름에 # 또는 ? 가 들어간 파일이 하나라도 있으면 배포 전체를 거부합니다.
+   서버는 이름에 # 또는 ? 가 들어간 파일이 하나라도 있으면 배포 전체를 거부합니다.
      "Invalid filename '…#Uc9c1….md'. Deployed filenames cannot contain # or ? characters"
    맥에서 압축을 풀 때 한글 파일명이 「#Uc801#Uc6a9…」 처럼 깨진 사본이 생기고,
    그게 저장소에 함께 올라가 10/1 오후부터 배포가 전부 실패했습니다.
@@ -90,7 +90,7 @@ const path = require('path');
   let removed = 0, renamed = 0, left = [];
   const walk = d => {
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-      if (e.name === 'node_modules' || e.name === '.git' || e.name === '.netlify') continue;
+      if (e.name === 'node_modules' || e.name === '.git' || e.name === '.wrangler') continue;
       const p = path.join(d, e.name);
       if (e.isDirectory()) { walk(p); continue; }
       if (!/[#?]/.test(e.name)) continue;
@@ -963,7 +963,7 @@ const PROMO_SEO = {
 const promoPages = [];   // sitemap 용
 
 /* 전용 상담 랜딩도 일반 정적 서버에서 canonical 경로로 바로 열리게 합니다.
-   Netlify에서는 _redirects가 처리하지만, 로컬/단순 호스팅은 실제 index.html이 필요합니다. */
+   서버에서는 _redirects가 처리하지만, 로컬/단순 호스팅은 실제 index.html이 필요합니다. */
 (function buildConsultingPromoAlias() {
   const source = path.join(__dirname, 'promo-consulting.html');
   if (!fs.existsSync(source)) return;
@@ -972,7 +972,7 @@ const promoPages = [];   // sitemap 용
   fs.copyFileSync(source, path.join(targetDir, 'index.html'));
 })();
 
-/* /promo/residence 도 동일 — 실제 파일이 있으면 Netlify 가 어떤 리다이렉트 규칙보다
+/* /promo/residence 도 동일 — 실제 파일이 있으면 서버가 어떤 리다이렉트 규칙보다
    먼저 파일을 서빙하므로, /promo/* → promo.html 와일드카드에 잡히지 않습니다. */
 (function buildResidencePromoAlias() {
   const source = path.join(__dirname, 'promo-residence.html');
@@ -994,7 +994,7 @@ const promoPages = [];   // sitemap 용
 
 /* /promo/modbus — Modbus 구성 제안 랜딩.
    2026-09-09 에는 광고 직링크 전용(noindex)이었으나, /promotions 목록에 올리면서
-   색인 대상으로 바꿉니다. 실제 파일이 있어야 Netlify 가 /promo/* 와일드카드보다
+   색인 대상으로 바꿉니다. 실제 파일이 있어야 서버가 /promo/* 와일드카드보다
    먼저 서빙하므로 여기서 사본을 만듭니다. */
 (function buildModbusPromoAlias() {
   const source = path.join(__dirname, 'promo-modbus.html');
@@ -1392,7 +1392,7 @@ fs.writeFileSync(path.join(__dirname, 'robots.txt'), robots);
    리다이렉트가 없어 Google 색인 URL 대부분이 404 였다.
    아래 마커 사이 구간만 매 빌드마다 교체하므로, 마커 밖에 직접 적은 규칙은 보존된다.
 
-   ※ Netlify 는 "먼저 매칭되는 규칙"이 이기고 리다이렉트를 연쇄 적용하지 않는다.
+   ※ 서버는 "먼저 매칭되는 규칙"이 이기고 리다이렉트를 연쇄 적용하지 않는다.
       그래서 대문자·한글 구 슬러그와 허브 페이지 규칙을 와일드카드보다 위에 둔다. */
 const RD_BEGIN = '# >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>';
 const RD_END   = '# <<< AUTO-LEGACY-REDIRECTS <<<';
@@ -1452,11 +1452,11 @@ const LEGACY_RULES = (function(){
 
   /* ④ 마지막 안전망 — 미리 만들어 둔 파일이 없는 경로(준비 중 활용분야 등)는
         SPA 껍데기가 받아서 클라이언트에서 그립니다. 반드시 맨 아래에 둡니다.
-        실제 파일이 있으면 Netlify 가 파일을 먼저 주므로 SSG 페이지가 우선합니다. */
+        실제 파일이 있으면 서버가 파일을 먼저 주므로 SSG 페이지가 우선합니다. */
   /* ※ /our-solution · /what-we-do · /faqs · /whitepaper · /newsletter 는
         예전엔 여기서 index.html 을 그대로 내보내 canonical 이 홈으로 잡혔습니다.
         이제 위에서 고유 메타·본문을 가진 SSG 파일을 만드므로 폴백에서 제외합니다.
-        (규칙을 남겨두면 Netlify 가 파일보다 규칙을 먼저 볼 여지가 있어 지웁니다) */
+        (규칙을 남겨두면 서버가 파일보다 규칙을 먼저 볼 여지가 있어 지웁니다) */
   const fallback = `
 # --- 개인정보처리방침·설치사례 중복 URL 정리 (확장자 없는 주소 → 정본 1개)
 /privacy              /privacy.html                301
@@ -1484,11 +1484,11 @@ const LEGACY_RULES = (function(){
 
 /* ---------- 비공개 파일 차단 (_redirects 자동 관리, 2026-09-17) ----------
    publish 폴더가 저장소 루트(.)라서 문서·스크립트·함수 소스가 주소만 알면 열렸습니다.
-   (확인: /netlify/functions/lead.mjs · /tools/*.mjs · /ui/ops-app.html · /README-적용안내.md 가 200)
-   · 한글 파일명은 Netlify 가 퍼센트 인코딩 주소로 비교하므로 원문·인코딩 두 줄을 씁니다.
+   (확인: /server/functions/lead.mjs · /tools/*.mjs · /ui/ops-app.html · /README-적용안내.md 가 200)
+   · 한글 파일명은 서버가 퍼센트 인코딩 주소로 비교하므로 원문·인코딩 두 줄을 씁니다.
    · 루트의 문서(.md)·스크립트(.sh)·설정 파일은 빌드 때마다 목록을 새로 만듭니다 — 새 안내 문서를 올려도 자동으로 막힙니다. */
 const PRIVATE_RULES = (function () {
-  const DIRS = ['netlify', 'tools', 'scripts', 'ui', 'source', 'functions', 'node_modules', 'data/proposal',
+  const DIRS = ['server', 'cloudflare', 'tools', 'scripts', 'ui', 'source', 'functions', 'node_modules', 'data/proposal',
     /* 데스크톱 앱이 작업 결과를 저장하는 폴더 — 저장소에 섞여 올라가도 공개되지 않게 (2026-09-17 실서버에서 패치 파일이 열렸다) */
     'Claude outputs', 'claude-outputs', 'outputs'];
   const KEEP = new Set(['robots.txt', 'llms.txt', 'llms-full.txt', 'humans.txt', 'sitemap.xml', 'manifest.json']);
@@ -1528,7 +1528,7 @@ try {
   console.log(`[build] _redirects 갱신 — 구 URL 301 규칙 ${_n}개`);
 } catch (e) { console.warn('[build] _redirects 갱신 실패:', e.message); }
 
-/* ---------- 404.html (Netlify 가 미매칭 요청에 자동으로 사용) ---------- */
+/* ---------- 404.html (서버가 미매칭 요청에 자동으로 사용) ---------- */
 try {
   const NOTFOUND = `<!DOCTYPE html>
 <html lang="ko">
@@ -1773,7 +1773,7 @@ function verifyRoutes(){
 
 /* ════════════════════════════════════════════════════════════════
    대표 주소(canonical)·사이트맵을 실제로 200 이 나오는 주소로 (2026-10-02)
-   Netlify 는 폴더(…/index.html)로 된 페이지를 /who-we-are → /who-we-are/ 로 301 시킨다.
+   서버는 폴더(…/index.html)로 된 페이지를 /who-we-are → /who-we-are/ 로 301 시킨다.
    그런데 canonical·og:url·sitemap 은 슬래시 없는 주소를 적고 있어서
    사이트맵 131개 중 128개가 리다이렉트 주소였다(검색엔진이 대표 주소를 확정하지 못함).
    → 폴더형 페이지는 끝에 / 를 붙여 실제 응답 주소와 맞춘다. 내부 링크·SPA 주소는 그대로(301 로 정상 이동).
@@ -1788,7 +1788,7 @@ function slashCanonical(){
     try { if (fs.statSync(path.join(ROOT, p, 'index.html')).isFile()) return u + '/'; } catch (e) {}
     return u;
   };
-  const SKIP = new Set(['node_modules', '.git', 'netlify', 'source', 'ui', 'email', 'scripts', 'tools', 'data', 'pages']);
+  const SKIP = new Set(['node_modules', '.git', 'server', 'cloudflare', 'source', 'ui', 'email', 'scripts', 'tools', 'data', 'pages']);
   let files = 0, changed = 0;
   (function walk(dir){
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

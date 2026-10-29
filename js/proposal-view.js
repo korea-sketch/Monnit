@@ -9,7 +9,7 @@
  *                           /proposal/status?demo=1&co=회사&nm=이름&ind=datacenter  시연(서버 호출 없음)
  *
  *  데이터: window.MK_PROPOSAL_DATA (js/proposal-data.js, 빌드 때 scripts/proposal-sync.mjs 가 생성)
- *  서버:   /api/proposal · /status · /preview · /detect  (netlify/functions/proposal-api.mjs)
+ *  서버:   /api/proposal · /status · /preview · /detect  (server/functions/proposal-api.mjs)
  *  외부에서 쓰는 함수: MKProposal.enter(kind) · fromContact(body, btn) · goStatus(result) */
 (function (w, d) {
   'use strict';

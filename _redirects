@@ -61,7 +61,7 @@
 /email/products.json           /404.html    404!
 
 # 개발 문서·빌드 스크립트 공개 차단 (2026-08-28 검수)
-# Netlify 는 파일이 존재해도 404! 강제 규칙이 우선합니다.
+# 파일이 존재해도 404! 강제 규칙이 우선합니다.
 /2차작업-적용안내.md                     /404.html    404!
 /ABOUT-히어로-적용안내.md                  /404.html    404!
 /CMS-적용안내.md                           /404.html    404!
@@ -107,7 +107,7 @@
 
 # 광고 전용 랜딩 — 무선 온도 감시 (2026-09-08 · 검색·사이트 메뉴 비노출)
 # ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다.
-#   실제 파일(promo/temperature/index.html)이 있어 Netlify 가 먼저 서빙하지만,
+#   실제 파일(promo/temperature/index.html)이 있어 파일이 먼저 서빙되지만,
 #   슬래시 없는 주소까지 확실히 잡으려고 규칙을 함께 둡니다.
 /promo/temperature       /promo/temperature/index.html   200
 /promo/temperature/      /promo/temperature/index.html   200
@@ -139,7 +139,7 @@
 
 # >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>
 # --- 비공개 파일 차단 (문서·스크립트·함수 소스 — 빌드 때 목록 자동 갱신)
-/netlify/*                                     /404.html    404!
+/server/*                                      /404.html    404!
 /tools/*                                       /404.html    404!
 /scripts/*                                     /404.html    404!
 /ui/*                                          /404.html    404!
@@ -204,7 +204,6 @@
 /gitignore.txt                                 /404.html    404!
 /hero-fx-미리보기.html                             /404.html    404!
 /hero-fx-%EB%AF%B8%EB%A6%AC%EB%B3%B4%EA%B8%B0.html /404.html    404!
-/netlify.toml                                  /404.html    404!
 /package-lock.json                             /404.html    404!
 /package.json                                  /404.html    404!
 /promo-consulting-sheet-template.csv           /404.html    404!

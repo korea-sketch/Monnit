@@ -1178,9 +1178,9 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
 var CONFIG = {
   /* 자료는 공개 URL 이 없습니다. sendpw 가 이메일을 확인한 뒤
      10분짜리 서명 링크를 1건 발급하고, getdoc 이 파일을 보냅니다.
-     (다른 제안서 16종과 같은 방식 — netlify/functions/sendpw.js)    */
+     (다른 제안서 16종과 같은 방식 — server/functions/sendpw.js)    */
   DOC_TITLE : "무선 IoT 설비 예지보전 제안 가이드",   // _docmap.js 의 키와 반드시 일치
-  DOC_API   : "/.netlify/functions/sendpw",
+  DOC_API   : "/api/fn/sendpw",
   DOC_TOKEN : "mnt-pw-2026-7f3k9",
   // 서명 링크 발급이 실패했을 때만 쓰는 예비 경로
   /* 2026-09-16 공개 예비 경로 제거 — 폼·차단을 우회하는 통로였습니다.
@@ -1615,7 +1615,7 @@ function asText(d){
    ══════════════════════════════════════════════════════════════ */
 
 /* 관제 화면 칸에 값이 들어가도록 사이트 공통 키로 옮긴다
-   (netlify/functions/lead.mjs 가 읽는 키 기준) */
+   (server/functions/lead.mjs 가 읽는 키 기준) */
 function toStandard(d){
   var 행동 = ['체류 ' + d.체류시간초 + '초',
              '스크롤 ' + d.스크롤깊이 + '%',

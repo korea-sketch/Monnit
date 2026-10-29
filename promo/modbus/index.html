@@ -1330,9 +1330,9 @@ footer a{color:#6db3e8}
      PDF 에는 공개 주소가 없습니다(/proposals/* 는 404 로 막혀 있음).
      이메일을 받아 sendpw 가 10분짜리 서명 링크를 1건 발급하고, getdoc 이 전달합니다.
      다른 제안서 20종과 완전히 같은 경로입니다.
-     DOC_TITLE 은 서버 netlify/functions/_docmap.js 의 키와
+     DOC_TITLE 은 서버 server/functions/_docmap.js 의 키와
      한 글자도 달라선 안 됩니다. 다르면 not_ready 로 떨어집니다. */
-  var DOC_API   = "/.netlify/functions/sendpw";
+  var DOC_API   = "/api/fn/sendpw";
   var DOC_TOKEN = "mnt-pw-2026-7f3k9";
   var DOC_TITLE = "무선센서 Modbus 연동 백서";
   var LEAD_PAGE = "promo_modbus";

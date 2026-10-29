@@ -1,5 +1,5 @@
 /*! Monnit Korea — 기술지원 지식베이스 (자동 생성 · 직접 고치지 마세요)
- *  원본: netlify/lib/support/kb.data.mjs · engine.mjs  →  node scripts/support-sync.mjs
+ *  원본: server/lib/support/kb.data.mjs · engine.mjs  →  node scripts/support-sync.mjs
  *  생성: 2026-10-29 · 문서 76개
  */
 (function (w) {
