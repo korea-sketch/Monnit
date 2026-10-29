@@ -1283,8 +1283,9 @@ function leadScore(d){
 /* ── 전환 이벤트 전송 ── */
 function track(name, params){
   params = params || {};
-  var meta = (name === 'download' || name === 'form_submit') ? 'Lead' : 'Contact';
-  try { if (window.fbq)  fbq('track', meta, params); } catch(e){}
+  /* 표준 전환은 실제 행동만 — 신청 = Lead, 전화 클릭 = Contact. 폼 열기·필터 등은 맞춤 이벤트로 (2026-10-29) */
+  var meta = (name === 'download' || name === 'form_submit') ? 'Lead' : (name === 'contact' ? 'Contact' : '');
+  try { if (window.fbq) { if (meta) fbq('track', meta, params); else fbq('trackCustom', 'mk_' + name, params); } } catch(e){}
   try { if (window.gtag) gtag('event', name, params); } catch(e){}
   try { if (window.dataLayer) dataLayer.push(Object.assign({event:'monnit_'+name}, params)); } catch(e){}
 }

@@ -471,7 +471,9 @@ export default async (req) => {
     monday: await mondayPing(),
     notify: notifyConfigured(),
     /* 알리미 자동 응답이 켜져 있는지 · 어느 주소로 나가는지 (2026-09-08) */
-    alarmMail: alarmMailConfigured()
+    alarmMail: alarmMailConfigured(),
+    /* 메타 전환 API 토큰이 들어 있는지 (2026-10-29) */
+    metaCapi: !!(globalThis.__MNK_ENV_GET && globalThis.__MNK_ENV_GET('META_CAPI_TOKEN'))
   });
 
   /* ── 알리미 자동 응답 발송 내역 ────────────────────────────────────

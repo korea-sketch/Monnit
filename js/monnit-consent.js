@@ -118,6 +118,8 @@
     clarityConsent(!!state.analytics);  // GTM 이 올린 Clarity 까지 함께 막거나 푼다
     if (state.analytics) loadClarity(); // Clarity 는 동의했을 때만 로드
     w.MonnitConsent.state = { analytics: !!state.analytics, marketing: !!state.marketing };
+    /* 메타 픽셀이 이미 떠 있으면 동의 상태를 그대로 알린다 — 거부하면 더 이상 보내지 않는다 */
+    try { if (w.fbq) w.fbq('consent', state.marketing ? 'grant' : 'revoke'); } catch (e) {}
     try { w.dispatchEvent(new CustomEvent('monnit:consent', { detail: w.MonnitConsent.state })); } catch (e) {}
   }
 
@@ -190,7 +192,11 @@
     /* 모바일 — 두 버튼을 나란히 두어 배너 높이를 줄임 */
     '@media(max-width:640px){.mnk-cc-bar h2{font-size:16px;margin-bottom:6px}.mnk-cc-bar p{font-size:12.5px;line-height:1.6;margin-bottom:8px}',
     '.mnk-cc-bar .lnks{margin-bottom:12px}.mnk-cc-bar .acts{grid-template-columns:1fr 1fr;gap:8px}.mnk-cc-bar .acts button{padding:12px 8px;font-size:14px}',
-    '.mnk-cc.bar .mnk-cc-bar{padding:16px 16px calc(14px + env(safe-area-inset-bottom,0px))}}'
+    '.mnk-cc.bar .mnk-cc-bar{padding:16px 16px calc(14px + env(safe-area-inset-bottom,0px))}}',
+    /* 2026-10-29 모바일에도 배너를 띄우면서 문구를 짧게 — 첫 화면을 덜 가리게 */
+    '.mnk-cc-bar p.sm{display:none}',
+    '@media(max-width:640px){.mnk-cc-bar p.lg{display:none}.mnk-cc-bar p.sm{display:block}',
+    '.mnk-cc-bar h2{font-size:15px;margin-bottom:4px}.mnk-cc-bar .lnks{margin-bottom:10px}.mnk-cc-bar .acts button{padding:11px 8px}}'
   ].join('');
 
   function ensureCss() {
@@ -221,9 +227,11 @@
   function banner() {
     var el = shell(
       '<h2>귀하의 개인정보를 소중히 여깁니다</h2>' +
-      '<p>모든 쿠키 수락을 클릭하면 사이트 탐색 개선, 사이트 사용 분석, 마케팅 및 성능 향상을 위해 ' +
+      '<p class="sm">사이트 분석과 광고 성과 측정을 위해 쿠키를 사용합니다. 수락하시면 정보가 미국(Google · Microsoft · Meta)으로 이전될 수 있으며, ' +
+      '<b>환경설정 관리</b>에서 언제든 바꿀 수 있습니다.</p>' +
+      '<p class="lg">모든 쿠키 수락을 클릭하면 사이트 탐색 개선, 사이트 사용 분석, 마케팅 및 성능 향상을 위해 ' +
       '귀하의 기기에 쿠키를 저장하고 관련 데이터를 처리하는 데 동의하게 됩니다. ' +
-      '수집된 정보는 분석·광고 목적으로 미국(Google LLC · Microsoft Corporation)으로 이전될 수 있습니다. ' +
+      '수집된 정보는 분석·광고 목적으로 미국(Google LLC · Microsoft Corporation · Meta Platforms, Inc.)으로 이전될 수 있습니다. ' +
       '<b>환경설정 관리</b> 버튼을 통해 언제든지 동의를 철회할 수 있습니다.</p>' +
       '<div class="lnks">' +
         '<a href="' + PRIVACY_URL + '" target="_blank" rel="noopener">쿠키 공지</a>' +
@@ -234,6 +242,31 @@
         '<button type="button" data-act="all">모든 쿠키 수락</button>' +
       '</div>',
       true   /* 하단 배너 모드 */
+    );
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-act]'); if (!b) return;
+      var a = b.getAttribute('data-act');
+      if (a === 'settings') { settings(); return; }
+      apply({ analytics: a === 'all', marketing: a === 'all' });
+      close();
+    });
+  }
+
+  /* 안내형 배너 (CONSENT_KR_MODE=notice 일 때 국내 방문자) — 기본은 측정 켜짐, 「거부」로 끌 수 있다 */
+  function noticeBanner() {
+    var el = shell(
+      '<h2>쿠키 사용 안내</h2>' +
+      '<p>방문 분석과 광고 성과 측정을 위해 쿠키를 사용합니다. 정보는 Google · Microsoft · Meta(미국)로 전송될 수 있습니다. ' +
+      '원하지 않으시면 <b>거부</b>를 눌러 주세요. 언제든 <b>설정</b>에서 바꿀 수 있습니다.</p>' +
+      '<div class="lnks">' +
+        '<a href="' + PRIVACY_URL + '" target="_blank" rel="noopener">개인정보처리방침</a>' +
+        '<button type="button" data-act="settings">설정</button>' +
+      '</div>' +
+      '<div class="acts">' +
+        '<button type="button" data-act="necessary">거부</button>' +
+        '<button type="button" data-act="all">확인</button>' +
+      '</div>',
+      true
     );
     el.addEventListener('click', function (e) {
       var b = e.target.closest('[data-act]'); if (!b) return;
@@ -268,14 +301,14 @@
 
       '<div class="mnk-cc-grp"><div class="mnk-cc-gh">광고 · 마케팅</div>' +
         row('marketing', '광고 성과 측정', '어떤 광고를 통해 방문하셨는지 측정하고, 관련성 높은 광고를 노출합니다.', cur.marketing) +
-        '<ul class="mnk-cc-tools"><li>Google Tag Manager — 태그 관리</li><li>Google Ads — 전환 측정 및 리마케팅</li></ul>' +
+        '<ul class="mnk-cc-tools"><li>Google Tag Manager — 태그 관리</li><li>Google Ads — 전환 측정 및 리마케팅</li><li>Meta 픽셀(페이스북·인스타그램) — 광고 전환 측정</li></ul>' +
       '</div>' +
 
       '<div class="mnk-cc-btns">' +
         '<button class="mnk-cc-btn mnk-cc-btn-main" data-act="save">환경설정 저장</button>' +
         '<button class="mnk-cc-btn mnk-cc-btn-sub" data-act="all">모든 쿠키 수락</button>' +
       '</div>' +
-      '<p class="mnk-cc-note">국외 이전: Google LLC · Microsoft Corporation (미국) — 쿠키·이용기록·기기정보·IP / 웹 분석 및 광고 전환 측정 / 각 사업자 정책에 따름<br>' +
+      '<p class="mnk-cc-note">국외 이전: Google LLC · Microsoft Corporation · Meta Platforms, Inc. (미국) — 쿠키·이용기록·기기정보·IP / 웹 분석 및 광고 전환 측정 / 각 사업자 정책에 따름<br>' +
       '자세한 내용은 <a class="lnk" href="' + PRIVACY_URL + '" target="_blank" rel="noopener">개인정보처리방침</a>을 참조하세요.</p>'
     );
     var draft = { analytics: cur.analytics, marketing: cur.marketing };
@@ -295,10 +328,12 @@
 
   /* ── 공개 API ───────────────────────────────────────────────── */
   w.MonnitConsent = {
-    state: saved ? { analytics: !!saved.analytics, marketing: !!saved.marketing } : { analytics: false, marketing: false },
+    state: saved ? { analytics: !!saved.analytics, marketing: !!saved.marketing }
+         : (consentMode() === 'notice' ? { analytics: true, marketing: true } : { analytics: false, marketing: false }),
     open: settings,
     reset: function () { try { w.localStorage.removeItem(STORE_KEY); } catch (e) {} location.reload(); },
-    hasDecided: function () { return !!load(); }
+    hasDecided: function () { return !!load(); },
+    mode: function () { return MODE; }
   };
 
   /* ── 모바일 판별 ─────────────────────────────────────────────
@@ -316,12 +351,28 @@
     } catch (e) {}
     return false;
   }
-  var SHOW_BANNER_ON_MOBILE = CFG.mobileBanner === true;
+  /* 2026-10-29 — 모바일에서도 배너를 띄운다(작은 하단 배너).
+     예전에는 모바일에 배너가 없어 동의할 방법이 푸터 링크뿐이었고, 그래서 광고로 들어온 모바일 방문자
+     대부분이 끝까지 「동의 전」 상태였다 — 메타 광고 클릭 대비 랜딩 조회가 15~20%에 그친 원인.
+     끄려면 MONNIT_CONSENT_CONFIG.mobileBanner = false */
+  var SHOW_BANNER_ON_MOBILE = CFG.mobileBanner !== false;
+
+  /* 동의 방식 — 서버(Worker)가 정한다. 대시보드 변수 CONSENT_KR_MODE=notice 이고 국내 접속이면
+     mk_cmode=notice 쿠키를 내려 준다 → 안내형(기본 켜짐 + 거부 가능). 그 밖에는 지금처럼 사전 동의(옵트인). */
+  function consentMode() {
+    try { var m = /(?:^|;\s*)mk_cmode=([a-z]+)/.exec(d.cookie || ''); if (m && m[1] === 'notice') return 'notice'; } catch (e) {}
+    return 'optin';
+  }
+  var MODE = consentMode();
 
   function boot() {
     /* 무엇보다 먼저 「아직 동의 없음」을 선언한다 — 태그가 어디서 뜨든 이 값을 본다 */
     if (!saved || !saved.analytics) clarityConsent(false);
     if (saved) { apply(saved, false); }        // 기존 동의 재적용 (재저장 없음)
+    else if (MODE === 'notice') {              // 안내형: 측정은 켜 두고(저장하지 않음) 안내 배너로 거부 기회
+      apply({ analytics: true, marketing: true }, false);
+      noticeBanner();
+    }
     else if (isMobile() && !SHOW_BANNER_ON_MOBILE) {
       loadGoogle();                            // 모바일: 배너 없이 denied 상태로만 로드 (쿠키 미저장)
     }

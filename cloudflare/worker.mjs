@@ -360,6 +360,16 @@ export default {
         if (!res.headers.has('strict-transport-security')) {          /* 모든 응답에 HSTS */
           res = new Response(res.body, res); res.headers.set('strict-transport-security', DEFAULT_HSTS);
         }
+        /* 쿠키 동의 방식 — CONSENT_KR_MODE=notice 이고 국내 접속이면 안내형(mk_cmode=notice), 아니면 사전 동의.
+           js/monnit-consent.js 가 이 쿠키를 읽는다. 페이지(HTML) 응답에만, 바뀔 때만 내려 준다. */
+        if (req.method === 'GET' && /text\/html/.test(res.headers.get('content-type') || '')) {
+          const want = String(env.CONSENT_KR_MODE || '').toLowerCase() === 'notice' && ((req.cf && req.cf.country) || req.headers.get('cf-ipcountry')) === 'KR';
+          const has = /(?:^|;\s*)mk_cmode=notice/.test(req.headers.get('cookie') || '');
+          if (want !== has) {
+            res = new Response(res.body, res);
+            res.headers.append('set-cookie', want ? 'mk_cmode=notice; Path=/; Max-Age=2592000; SameSite=Lax; Secure' : 'mk_cmode=; Path=/; Max-Age=0; SameSite=Lax; Secure');
+          }
+        }
         /* 관제·방문 관리 화면에는 Cloudflare 방문 분석 스크립트를 끼워 넣지 않게(no-transform) —
            이 화면들은 보안상 외부 스크립트를 막아 두어 콘솔에 오류만 남는다 (2026-10-14) */
         if (/^\/(ops|visit)(\/|$)/.test(u.pathname) && /text\/html/.test(res.headers.get('content-type') || '')) {

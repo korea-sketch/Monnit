@@ -58,6 +58,8 @@
     if (!payload['접점'])         payload['접점'] = page || '';
     if (!payload['출처'])         payload['출처'] = source();
     if (!payload['유입 페이지'])   payload['유입 페이지'] = String(w.location.href).split('#')[0];
+    /* 메타 이벤트 ID — 브라우저 픽셀과 서버 전송(전환 API)이 같은 접수를 한 건으로 합치는 열쇠 (2026-10-29) */
+    if (!payload['메타 이벤트ID']) payload['메타 이벤트ID'] = eventId();
     _last = payload;
     _lastType = type;
     _submitted = false;
@@ -90,7 +92,9 @@
         page: String(w.location.pathname),
         ts: new Date().toISOString(),
         /* 이미 브라우저에서 알림이 나갔으면 서버는 보내지 않는다 (중복 방지) */
-        notified: !!_notified
+        notified: !!_notified,
+        /* 광고 측정 동의 상태 — 서버가 메타 전환 API 로 보낼지 정한다 */
+        meta_ok: marketingOk()
       });
       if (w.navigator && w.navigator.sendBeacon) {
         w.navigator.sendBeacon(LEAD_API, new Blob([body], { type: 'application/json' }));
@@ -110,7 +114,8 @@
       lead_type: _lastType || 'contact',
       payload: d,
       page: String(w.location.pathname),
-      ts: new Date().toISOString()
+      ts: new Date().toISOString(),
+      meta_ok: marketingOk()
     });
     if (!w.fetch) { record(_lastType, d); return Promise.resolve(false); }
     return w.fetch(LEAD_API, {
@@ -173,7 +178,7 @@
     }
     _metaBooted = true;
     try {
-      var n = w.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      var n = w.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(withEid(arguments)); };
       if (!w._fbq) w._fbq = n;
       n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
       var sc = d.createElement('script');
@@ -183,6 +188,22 @@
       w.fbq('track', 'PageView');
       hookMeta();
     } catch (e) {}
+  }
+
+  /* 픽셀 스크립트가 뜨기 전에 큐로 들어간 Lead 에도 이벤트 ID 를 붙인다 */
+  function withEid(args) {
+    try {
+      if (args[0] === 'track' && /^(Lead|CompleteRegistration)$/.test(args[1])) {
+        var eid = _last && _last['메타 이벤트ID'];
+        if (eid && !(args[3] && args[3].eventID)) {
+          var a = Array.prototype.slice.call(args);
+          a[2] = a[2] || {};
+          a[3] = Object.assign({}, a[3] || {}, { eventID: eid });
+          return a;
+        }
+      }
+    } catch (e) {}
+    return args;
   }
 
   /* ── 중복 방지 ──
@@ -199,10 +220,21 @@
       if (f.callMethod.__mk) return true;
       var orig = f.callMethod;
       var wrap = function () {
+        var args = arguments;
         try {
-          if (arguments[0] === 'track' && /^(Lead|CompleteRegistration)$/.test(arguments[1])) _metaFiredTs = Date.now();
+          if (args[0] === 'track' && /^(Lead|CompleteRegistration)$/.test(args[1])) {
+            _metaFiredTs = Date.now();
+            /* 랜딩이 직접 쏜 Lead 에 이벤트 ID 가 없으면 지금 접수의 ID 를 붙인다 — 서버 전송과 중복 제거 */
+            var eid = _last && _last['메타 이벤트ID'];
+            if (eid && !(args[3] && args[3].eventID)) {
+              args = Array.prototype.slice.call(args);
+              args[2] = args[2] || {};
+              args[3] = Object.assign({}, args[3] || {}, { eventID: eid });
+              _lastEventId = eid;
+            }
+          }
         } catch (e) {}
-        return orig.apply(this, arguments);
+        return orig.apply(this, args);
       };
       wrap.__mk = true;
       f.callMethod = wrap;
@@ -238,7 +270,7 @@
     if (!w.fbq || w.MK_META_SELF === true) return '';
     if (_metaFiredTs && (Date.now() - _metaFiredTs) < META_GAP) return '';   /* 페이지가 이미 쐈다 */
     if (queueHasLead()) return '';                                 /* 로드 전에 이미 쐈다 */
-    var eid = eventId();
+    var eid = (_last && _last['메타 이벤트ID']) || eventId();
     try {
       w.fbq('track', t.meta, {
         content_name    : (detail && detail.interest) || '',
@@ -307,6 +339,7 @@
 
   function setNotified(v) { _notified = !!v; }
 
-  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, submit: submit, track: track, record: record, recordPending: recordPending, setNotified: setNotified, meta: meta, bootMeta: bootMeta, lastEventId: function () { return _lastEventId; } };
+  w.MonnitLead = { TYPES: TYPES, source: source, subject: subject, build: build, submit: submit, track: track, record: record, recordPending: recordPending, setNotified: setNotified, meta: meta, bootMeta: bootMeta, lastEventId: function () { return _lastEventId; },
+    eventId: function () { return (_last && _last['메타 이벤트ID']) || ''; } };
   if (!w.MK_SOURCE) w.MK_SOURCE = source;
 })(window, document);

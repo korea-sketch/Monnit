@@ -793,7 +793,7 @@
       if (!x.ok) return fail(isEn() ? 'We could not submit your request. Please try again shortly or call +82-2-2088-1454.' : (x.message || '접수하지 못했습니다. 잠시 후 다시 시도해 주세요.'));
       clearDraft();
       push('proposal_submit', { lead_type: 'custom_proposal', proposal_grade: x.grade || '', proposal_mode: x.mode || '', proposal_entry: p.entry || 'proposal' });
-      try { if (w.fbq) w.fbq('track', 'Lead', { content_name: 'custom_proposal', content_category: p.industry || A.QF.fac }); } catch (e) {}
+      /* 메타 Lead 는 아래 ledger() → MonnitLead.track 이 이벤트 ID 와 함께 한 번 보낸다(서버 전환 API 와 중복 제거, 2026-10-29) */
       if (!x.silent) ledger(p, x.grade);
       A.st.sending = false; cta.disabled = false; cta.classList.remove('is-loading'); updateCta();
       if (x.token || x.dup) return goStatus(x);

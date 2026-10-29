@@ -12,6 +12,7 @@ import { routeLead } from './_route.mjs';   /* 담당자별 배분 — 일반 10
 import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
 import _docmap from './_docmap.js';   /* siteBase — 메일 링크 주소 검증 */
+import * as _capi from './_meta_capi.mjs';   /* 메타 전환 API — 서버에서 접수 알림 (2026-10-29) */
 const VALID = _valid.MonnitValid;
 
 export const config = { path: '/api/lead' };
@@ -134,6 +135,17 @@ export default async (req) => {
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
     await append('leads', monthKey(safeTs(body.ts)), lead);
+
+    /* 메타 전환 API — 브라우저 픽셀이 못 본 접수도 메타가 알도록. 같은 이벤트 ID 라 중복되지 않는다.
+       응답을 늦추지 않게 뒤에서 보낸다. 결과는 ops/capi-YYYY-MM 에 남는다. */
+    if (_capi.eligible(body, lead) && !isSupportLead(lead, p)) {   /* 기술지원(AS) 접수는 광고 전환이 아니다 */
+      const job = _capi.sendLead(req, {
+        type, eventId: p['메타 이벤트ID'] || '', url: lead.landing || '', source: src,
+        interest: lead.interest || '', point: lead.point || '', email: lead.email, phone: lead.phone
+      }).then(r => append('ops', 'capi-' + monthKey(safeTs(body.ts)), { ts: new Date().toISOString(), id: p['메타 이벤트ID'] || '', type, point: lead.point, ...r }))
+        .catch(() => {});
+      if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(job); else await job;
+    }
 
     const id = lead.ts + '|' + (lead.email || lead.phone || lead.company || '');
 
