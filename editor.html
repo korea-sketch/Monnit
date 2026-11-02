@@ -402,7 +402,7 @@ const SHOW={
    그 뒤부터는 시트 값이 사이트에 우선 적용됩니다. */
 const BUILTIN_PROMO_ROWS=[{
   id:'remote',
-  title:'여러 건물 주요 설비 원격 통합 관제',
+  title:'건물 주요 설비 통합 관제 솔루션',
   badge:'NEW',
   period:'무료 현장 진단 · 배선 공사 없는 무선 설치',
   desc:'제어반·기계실·EPS실·수변전실의 과열·화재·누수·정전을 실시간 감지해 담당자 휴대폰으로 즉시 알립니다. 여러 건물을 한 화면에서 관제하세요.',
@@ -574,8 +574,26 @@ $('#loadBtn').onclick=async()=>{
     $('#toolBar').style.display='flex';
     $('#loadStatus').textContent='로드 완료';
     fillRecords();
+    openFromHash();
   }catch(e){$('#loadStatus').textContent='실패: '+e.message+' (시트 공유가 "링크 있는 모든 사용자 뷰어"인지 확인)';}
 };
+/* 바로가기 링크 (2026-11-02) — /ops/editor#Promotions/remote 처럼 「탭/ID」를 붙이면
+   시트를 불러온 뒤 그 항목의 편집 화면을 바로 엽니다. ID 대신 제목 일부를 써도 됩니다. */
+function openFromHash(){
+  const h=decodeURIComponent((location.hash||'').replace(/^#/,'')); if(!h) return;
+  const i=h.indexOf('/'); const tab=i<0?h:h.slice(0,i), key=i<0?'':h.slice(i+1).trim();
+  if(!TABS[tab]||!DATA[tab]) return;
+  const ts=$('#tabSel'); ts.value=tab; $('#recSearch').value=''; fillRecords();
+  if(!key) return;
+  const cfg=TABS[tab], list=(DATA[tab]&&DATA[tab].list)||[];
+  const k=key.toLowerCase();
+  let idx=list.findIndex(o=>String(o[cfg.key||'id']||o.id||'').trim().toLowerCase()===k);
+  if(idx<0) idx=list.findIndex(o=>String(o[cfg.display]||o.title||'').toLowerCase().includes(k));
+  if(idx<0){ toast('「'+key+'」 항목을 찾지 못했습니다'); return; }
+  $('#recSel').value=String(idx); renderForm(false);
+  setTimeout(()=>{ const f=$('#form'); if(f) f.scrollIntoView({behavior:'smooth',block:'start'}); },50);
+}
+window.addEventListener('hashchange',()=>{ if(Object.keys(DATA||{}).length) openFromHash(); });
 $('#tabSel').onchange=fillRecords;
 $('#recSearch').oninput=fillRecords;
 $('#recSel').onchange=()=>renderForm($('#recSel').value==='__new');

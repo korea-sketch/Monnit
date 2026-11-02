@@ -32,6 +32,20 @@ t=t.replace('<a href="#zones">관제 대상</a><a href="#detect">위험 감지</
             '<a href="#zones">관제 대상</a><a href="#detect">위험 감지</a><a href="#alert">즉시 알림</a><a href="#platform">통합 관제</a>')
 
 t=t.replace('html{scroll-behavior:smooth}','html{scroll-behavior:smooth}\nsection[id],#top{scroll-margin-top:72px}\n[tabindex="-1"]:focus{outline:none}',1)
+# ---------- contact: tap-to-call + mailto, copy buttons kept ----------
+_tel_old='<dd><span class="mono" id="tel">02-2088-1454</span><button class="copybtn" type="button" data-copy="02-2088-1454">복사</button></dd>'
+assert _tel_old in t
+t=t.replace(_tel_old,'<dd><a class="mono tel-link" id="tel" href="tel:+82220881454" data-cta="tel-contact">02-2088-1454</a><button class="copybtn" type="button" data-copy="02-2088-1454">복사</button><a class="callbtn" href="tel:+82220881454" data-cta="tel-call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>전화 걸기</a></dd>',1)
+_mail_old='<dd><span id="mail">korea@monnit.com</span><button class="copybtn" type="button" data-copy="korea@monnit.com">복사</button></dd>'
+assert _mail_old in t
+t=t.replace(_mail_old,'<dd><a class="tel-link" id="mail" href="mailto:korea@monnit.com" data-cta="mail-contact">korea@monnit.com</a><button class="copybtn" type="button" data-copy="korea@monnit.com">복사</button></dd>',1)
+_css=('.copybtn:hover{color:var(--fg)}\n'
+ '.tel-link{color:var(--fg);text-decoration:none;border-bottom:1px dashed transparent;transition:border-color .2s,color .2s}\n'
+ '.tel-link:hover{color:var(--accent);border-bottom-color:var(--accent)}\n'
+ '.callbtn{display:none;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;font:700 13px var(--sans);color:#fff;text-decoration:none;background:linear-gradient(90deg,#2BB3FF,var(--accent-2));box-shadow:0 6px 18px -8px rgba(40,140,255,.8)}\n'
+ '.callbtn svg{width:15px;height:15px}\n'
+ '@media (max-width:760px),(hover:none){.callbtn{display:inline-flex}}')
+t=t.replace('.copybtn:hover{color:var(--fg)}',_css,1)
 # ---------- breadcrumb (SEO) ----------
 t=t.replace('<main id="top">','<main id="top">\n  <nav class="crumb wrap" aria-label="현재 위치"><a href="/">홈</a><span aria-hidden="true">›</span><a href="/promotions">프로모션</a><span aria-hidden="true">›</span><span aria-current="page">건물 원격 통합 관제</span></nav>')
 t=t.replace('/* hero */','.crumb{display:flex;gap:8px;align-items:center;padding-block:14px 0;font-size:12px;color:var(--dim)}\n.crumb a{text-decoration:none;color:var(--muted)}\n.crumb a:hover{color:var(--fg)}\n/* hero */',1)

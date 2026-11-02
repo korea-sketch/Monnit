@@ -2823,7 +2823,7 @@ Object.assign(DICT, {
  "무료 검증 후 핵심 설비에 센서를 무상 설치. 한 달 데이터를 보고 도입을 결정하세요.": "Following a free assessment, sensors are installed on critical equipment at no cost. Review one month of data before deciding on adoption.",
  "기술지원": "Technical Support",
  "PLC·BMS·SCADA 시스템 연동 기술지원": "Technical Support for PLC, BMS and SCADA Integration",
- "여러 건물 주요 설비 원격 통합 관제": "Remote Integrated Monitoring of Key Equipment Across Multiple Buildings",
+ "건물 주요 설비 통합 관제 솔루션": "Integrated Monitoring Solution for Key Building Equipment",
  "무료 현장 진단 · 배선 공사 없는 무선 설치": "Free Site Assessment · Wireless Installation with No Cabling Work",
  "제어반·기계실·EPS실·수변전실의 과열·화재·누수·정전을 실시간 감지해 담당자 휴대폰으로 즉시 알립니다. 여러 건물을 한 화면에서 관제하세요.": "Detect overheating, fire, leaks and power outages in control panels, mechanical rooms, EPS rooms and substations in real time, with instant alerts to the responsible staff member's phone. Monitor multiple buildings from a single screen.",
  "무료 현장 구성 검토 · 연동 자료 제공": "Free Site Configuration Review · Integration Documentation",

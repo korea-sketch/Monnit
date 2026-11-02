@@ -197,3 +197,31 @@ FAQ·본문의 사양 표기는 고정 사실만 썼습니다 — 940MHz · 게�
 
 Playwright 에 `ERR_ABORTED` 로 찍히는 collect 요청 3건은 응답(200/204)을 받은 뒤 본문을 버리는 비콘이라 오류가 아닙니다(기존 페이지도 같음).
 로컬 주소(127.0.0.1)에서는 메타 픽셀의 `tr` 전송이 나가지 않아 브라우저 Lead 는 실제 도메인에서 이벤트 관리자로 확인하십시오(서버 전환 API 는 /api/lead 가 보냄).
+
+## 11. 편집기 바로가기 링크 (2026-11-02)
+
+`/ops/editor` 주소 뒤에 `#탭/ID` 를 붙이면 시트를 불러온 뒤 그 항목 편집 화면이 바로 열립니다.
+
+- 원격 통합 관제 카드: https://monnit.co.kr/ops/editor#Promotions/remote
+- 다른 프로모션: `#Promotions/alarm` · `#Promotions/consulting` · `#Promotions/modbus` …
+- ID 대신 제목 일부도 됩니다: `#Promotions/원격`
+
+관제 로그인이 안 된 상태면 로그인 후 링크를 한 번 더 여십시오(로그인 화면은 # 를 넘기지 않습니다).
+시트 Promotions 탭에 `link · start · end` 열이 없으면 편집기가 자동으로 붙이고, 저장할 때 시트 머리글에도 기록합니다.
+
+## 12. 카드 이름 변경 · 편집기 연동 보강 · 전화 바로 걸기 (2026-11-02)
+
+- 카드 제목: 「여러 건물 주요 설비 원격 통합 관제」 → **「건물 주요 설비 통합 관제 솔루션」** (app.js · editor.html · i18n.js)
+  ※ 편집기로 이미 시트에 저장했다면 시트 값이 우선하므로 편집기에서도 같은 제목으로 고쳐 주십시오.
+- 편집기에서 카드의 모든 칸(제목·뱃지·기간·설명·썸네일·상세 이미지·HTML·링크·시작/종료일·순서·강제 종료)을 고칠 수 있습니다.
+  시트 행의 링크·썸네일 칸이 비어 있으면 같은 id 의 내장값을 쓰도록 app.js · build.js 를 보강했습니다(제목만 고쳐 저장해도 카드가 랜딩으로 감).
+- 랜딩 문의 영역: 전화번호·이메일을 누르면 바로 전화/메일 앱이 열리고 「복사」 버튼은 그대로 둠. 모바일(760px 이하·터치 기기)에는 「전화 걸기」 버튼 추가. 클릭은 dataLayer `monnit_contact` 로 잡힘.
+
+## 13. 모바일 프로모션 버튼 · 홈 팝업 교체 (v5)
+
+- **모바일 헤더**: 760px 이하에서도 「프로모션」 버튼 노출. 480px 이하는 아이콘형(주황 + 빨간 점)으로 바뀌고 헤더는 한 줄 유지. style.css?v=241
+- **사이트 팝업**: js/monnit-popup.js를 「건물 주요 설비 통합 관제 솔루션」 카드형으로 교체 (id `remote-promo-2026-11-02`)
+  - 링크: `/promo/remote/?utm_source=monnit.co.kr&utm_medium=popup&utm_campaign=remote_promo`
+  - 전 HTML의 참조를 `monnit-popup.js?v=5`로 올려 캐시 갱신
+  - 동작은 기존과 같음: 탭당 1회, 「오늘 하루 보지 않기」, 쿠키 배너 이후 노출, /promo/* 페이지 제외, ON/OFF는 /ops/flow 스위치
+  - 되돌리기: `source/remote-monitoring/monnit-popup.v4-proposal-backup.js`를 js/monnit-popup.js로 복사

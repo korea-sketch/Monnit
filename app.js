@@ -3715,7 +3715,7 @@ const BUILTIN_PROMOS = [{
      link 가 '/promo/' 로 시작하므로 /promotions/remote 는 만들지 않습니다(정본은 /promo/remote).
      접수는 /api/lead · 접점 promo_remote · 관심분야 「건물 원격 통합 관제」 로 들어갑니다. */
   id: 'remote',
-  title: '여러 건물 주요 설비 원격 통합 관제',
+  title: '건물 주요 설비 통합 관제 솔루션',
   html: '',
   period: '무료 현장 진단 · 배선 공사 없는 무선 설치',
   badge: 'NEW',
@@ -3961,6 +3961,11 @@ function mapPromotions(rows){
       order: (function(){ const n = parseInt(o.order, 10); return Number.isFinite(n) ? n : 999; })()
     }))
     .sort((a,b) => a.order - b.order);
+  /* 시트 행이 내장 프로모션과 같은 id 인데 link·image 칸이 비어 있으면 내장값을 씁니다 (2026-11-02).
+     편집기로 제목만 고쳐 저장했을 때 시트에 link 열이 없으면 카드가 랜딩 대신 빈 상세로 가던 것을 막습니다. */
+  out.forEach(p => { const b = BUILTIN_PROMOS.find(x => x.id === p.id); if (!b) return;
+    if (!p.link && b.link) p.link = b.link;
+    if (!p.image && b.image) p.image = b.image; });
   // 시트에 없는 내장 프로모션을 합칩니다 (시트 우선)
   BUILTIN_PROMOS.forEach(b => { if (!out.some(p => p.id === b.id)) out.push(Object.assign({}, b)); });
   out.forEach(applyPromoSchedule);

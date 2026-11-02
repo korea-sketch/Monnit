@@ -271,6 +271,8 @@ let PROMOS = __src ? __src.PROMOS : (extract('let PROMOS =') || []);
 /* app.js 의 내장 프로모션(시트에 없는 항목)을 정적 페이지에도 반영 */
 const BUILTIN_PROMOS = extract('const BUILTIN_PROMOS =') || [];
 BUILTIN_PROMOS.forEach(b => { if (!PROMOS.some(p => p.id === b.id)) PROMOS.push(b); });
+/* 시트 행의 link·image 가 비어 있으면 같은 id 내장값으로 채움 (app.js 와 같은 규칙, 2026-11-02) */
+PROMOS.forEach(p => { const b = BUILTIN_PROMOS.find(x => x.id === p.id); if (!b) return; if (!p.link && b.link) p.link = b.link; if (!p.image && b.image) p.image = b.image; });
 /* order 는 0 도 유효한 값입니다. parseInt()||999 로 쓰면 0 이 falsy 라
    맨 앞에 두려던 카드가 맨 뒤로 갑니다. 실제로 「긴급 경보 알리미」가
    화면에서는 첫 칸, 이 정적 스냅샷에서는 마지막 칸으로 어긋나 있었습니다.

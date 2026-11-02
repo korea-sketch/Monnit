@@ -11728,3 +11728,38 @@ html[lang="en"] .case-card .tag, html[lang="en"] .featured-card .tag { letter-sp
 @media (max-width:1380px) and (min-width:921px){ #langToggle.lang-switch{ margin-right:8px; } #langToggle.lang-switch button{ min-width:30px; height:26px; padding:0 7px; font-size:10.5px; } }
 @media (max-width:1080px) and (min-width:921px){ #langToggle.lang-switch button{ min-width:26px; padding:0 5px; letter-spacing:.04em; } }
 @media (max-width:920px){ #langToggle.lang-switch{ margin-right:8px; } #langToggle.lang-switch button{ min-width:32px; height:28px; padding:0 8px; font-size:11px; } }
+
+/* ═══════════════════════════════════════════════════════════════════
+   모바일 상단 바 「프로모션」 바로가기 (2026-11-02)
+   예전엔 760px 이하에서 .nav-promo-btn 을 숨기고 햄버거 메뉴 안에만 두어,
+   휴대폰 첫 화면에서 프로모션으로 바로 들어갈 길이 없었다.
+   검색 아이콘 옆에 선물 아이콘 + 「프로모션」 작은 버튼으로 노출한다.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 760px) {
+  .nav-promo-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 11px; margin: 0; font-size: 12.5px; line-height: 1.2;
+    white-space: nowrap; border-radius: 999px; flex-shrink: 0;
+  }
+  .nav-promo-btn svg { width: 15px; height: 15px; }
+}
+@media (max-width: 480px) {
+  /* 한 줄 유지: 로고·간격을 조금 줄이고 프로모션은 아이콘만 (이름은 aria-label) */
+  .topnav-inner { gap: 8px; padding-left: 16px; padding-right: 16px; flex-wrap: nowrap; }
+  .brand { flex-shrink: 1; min-width: 0; }
+  .brand-logo { width: 118px; height: auto; }
+  .nav-promo-btn { font-size: 0; gap: 0; padding: 8px 9px; }
+  .nav-promo-btn svg { width: 17px; height: 17px; }
+}
+@media (max-width: 480px) {
+  /* 아이콘만일 때도 눈에 띄도록 — 모바일 메뉴의 프로모션 항목과 같은 주황 강조 + 새 소식 점 */
+  .nav-promo-btn { position: relative; color: #F29A45; border-color: rgba(242,154,69,.55); background: rgba(242,154,69,.10); }
+  .nav-promo-btn::after { content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: #FF5A4E; box-shadow: 0 0 0 2px #060B1A; }
+}
+@media (max-width: 375px) {
+  .topnav-inner { gap: 6px; padding-left: 12px; padding-right: 12px; }
+  .brand-logo { width: 100px; }
+}
+@media (max-width: 340px) {
+  .brand-logo { width: 88px; }
+}
