@@ -3711,6 +3711,22 @@ document.addEventListener('error', function(e){
    시트에 같은 id(consulting) 행을 추가하면 시트 값이 우선 적용됩니다.
    내리고 싶으면 아래 배열을 [] 로 비우세요. */
 const BUILTIN_PROMOS = [{
+  /* 건물 원격 통합 관제 (2026-11-02) — 광고 영상 「원격 통합 관제」 클릭 후 도착하는 랜딩.
+     link 가 '/promo/' 로 시작하므로 /promotions/remote 는 만들지 않습니다(정본은 /promo/remote).
+     접수는 /api/lead · 접점 promo_remote · 관심분야 「건물 원격 통합 관제」 로 들어갑니다. */
+  id: 'remote',
+  title: '여러 건물 주요 설비 원격 통합 관제',
+  html: '',
+  period: '무료 현장 진단 · 배선 공사 없는 무선 설치',
+  badge: 'NEW',
+  desc: '제어반·기계실·EPS실·수변전실의 과열·화재·누수·정전을 실시간 감지해 담당자 휴대폰으로 즉시 알립니다. 여러 건물을 한 화면에서 관제하세요.',
+  image: '/images/promo-remote.webp?v=1',
+  images: [],
+  link: '/promo/remote',
+  start: '2026-11-02',   // 한국시간 이 날 00:00 부터 오픈
+  end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
+  order: 1
+}, {
   id: 'alarm',
   title: '긴급 경보 알리미 상시 프로모션',
   html: '',
@@ -3722,7 +3738,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/alarm',
   start: '2026-08-26',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 1
+  order: 2
 }, {
   id: 'consulting',
   title: '회전설비 AI 예지보전 1개월 무료 체험',
@@ -3735,7 +3751,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/consulting',
   start: '2026-08-01',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 비워두면 자동 종료 없음 — 내릴 때 forcedEnded:true 로 바꾸거나 이 배열을 비우세요
-  order: 2
+  order: 3
 }, {
   /* 시스템 연동 기술지원 — 할인 프로모션이 아니라 「기술지원을 무료로 붙여 드린다」는
      제안입니다. 그래서 period 자리에 기간 대신 제공 범위를 적었습니다. 할인 문구를
@@ -3753,7 +3769,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/modbus',
   start: '2026-09-15',   // 한국시간 이 날 00:00 부터 오픈
   end:   '',             // 상시 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 3
+  order: 4
 }, {
   id: 'flame-reservation',
   title: '사전 예약 프로모션',
@@ -3766,7 +3782,7 @@ const BUILTIN_PROMOS = [{
   link: '',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end: '',               // 마감일 없음 — 내릴 때 end 지정 또는 배열에서 제거
-  order: 5
+  order: 6
 }, {
   id: 'residence',
   title: '누수까지 놓치지 않는 레지던스 관리',
@@ -3779,7 +3795,7 @@ const BUILTIN_PROMOS = [{
   link: '/promo/residence',
   start: '2026-08-25',   // 한국시간 이 날 00:00 부터 오픈
   end:   '2026-09-24',   // 한국시간 이 날 자정까지 — 이후 자동 '종료' 표시
-  order: 4
+  order: 5
 }];
 /* PROMOS 초기값은 아래 applyPromoSchedule / sortPromos 정의 뒤에서 채웁니다.
    (여기서 바로 채우면 status 가 없어 첫 화면에서 모든 카드가 '진행 중이 아님'으로 보입니다) */

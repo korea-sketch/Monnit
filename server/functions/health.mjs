@@ -28,6 +28,10 @@ const PAGES = [
      이 페이지는 1MB 단일 HTML 이라 배포가 잘리면 폼만 조용히 사라진다. */
   { path: '/promo/modbus',     name: '광고 랜딩(Modbus백서)',
     must: ['wpForm-main', 'monnit-lead.js', 'GTM-T8H73VW', 'sendpw'] },  /* 2026-10-02 폼 id 는 wpForm-main (wpForm-hero 는 없어 늘 「깨짐」으로 잡히던 것) */
+  /* 2026-11-02 — 건물 원격 통합 관제 랜딩. 영상·폼·리드 스크립트 중 하나라도 빠지면 빨간불.
+     영상 경로를 함께 보는 이유: videos/ 를 안 올리면 페이지는 뜨는데 히어로가 빈 화면이 된다. */
+  { path: '/promo/remote/',    name: '광고 랜딩(원격 통합 관제)',
+    must: ['id="inq"', 'monnit-lead.js', 'GTM-T8H73VW', '/videos/promo-remote.mp4', 'promo_remote'] },
   /* 2026-10-02 추가 — 긴급 경보 알리미 광고 랜딩 · 맞춤 제안서 */
   { path: '/promo/alarm/',     name: '광고 랜딩(긴급 경보 알리미)', must: ['taBuilderForm', 'monnit-send.js', 'GTM-T8H73VW'] },
   { path: '/proposal/',        name: '맞춤 제안서',          must: ['id="ppRoot"', 'id="ppCta"', 'GTM-T8H73VW'] },

@@ -35,6 +35,12 @@
 /promo/consulting
   Cache-Control: no-cache, must-revalidate
 
+# 건물 원격 통합 관제 랜딩 (2026-11-02) — 광고 소재와 함께 고치므로 항상 최신본
+/promo/remote
+  Cache-Control: no-cache, must-revalidate
+/promo/remote/*
+  Cache-Control: no-cache, must-revalidate
+
 # 광고 전용 랜딩 — 소재를 자주 고치므로 항상 최신본이 나가야 합니다
 /promo-proposal.html
   Cache-Control: no-cache, must-revalidate

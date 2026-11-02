@@ -22,6 +22,7 @@ const escH = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g
 
 export function supportKind(interest) {
   const s = String(interest || '');
+  if (/원격\s*통합\s*관제/.test(s)) return 'remote';   /* 2026-11-02 /promo/remote 문의 접수 확인 — 기술지원 보드와 무관(isSupportLead 는 그대로) */
   if (/설치\s*확인/.test(s)) return 'install';
   if (/영업\s*문의\(모니\)/.test(s)) return 'sales';
   if (/기술지원/.test(s)) return 'support';
@@ -31,9 +32,12 @@ export function supportKind(interest) {
 function body(kind, { name, no, urgent }) {
   const who = String(name || '').trim() || '고객';
   const head = kind === 'install' ? '알리미 설치 확인 요청을 받았습니다'
+    : kind === 'remote' ? '건물 원격 통합 관제 문의를 받았습니다'
     : kind === 'sales' ? '문의를 받았습니다' : '기술지원 접수를 받았습니다';
   const next = kind === 'install'
     ? ['담당자가 게이트웨이·센서 연결 상태를 확인합니다.', '확인되면 이메일로 알려 드리고, 센서마다 한 번씩 시험을 함께 진행합니다.', '시험 문자가 오면 설치가 끝납니다.']
+    : kind === 'remote'
+      ? ['담당자가 남겨 주신 건물 수와 관제할 설비를 확인합니다.', '필요하면 현장 진단 일정을 함께 정합니다.', '현장 조건에 맞는 센서 구성과 견적을 안내드립니다.']
     : kind === 'sales'
       ? ['영업 담당자가 문의 내용을 확인합니다.', '필요한 제품·구성·일정을 이메일로 안내드립니다.']
       : ['담당 엔지니어가 접수 내용과 해 보신 조치를 확인합니다.', '원인과 다음 조치를 이메일로 안내드립니다.', '필요하면 원격 점검이나 AS 절차를 함께 진행합니다.'];
@@ -47,7 +51,7 @@ function body(kind, { name, no, urgent }) {
     '평일 업무시간에 접수 순서대로 확인합니다.' + (urgent ? ' 긴급으로 접수하신 건은 먼저 확인합니다.' : ''),
     '현장 사진이나 추가로 전하실 내용은 이 메일에 답장으로 보내 주시면 같은 건으로 이어서 확인합니다.',
     '',
-    '모넷코리아 기술지원'
+    kind === 'remote' ? '모넷코리아' : '모넷코리아 기술지원'
   ].filter(l => l !== null);
   const text = lines.join('\n');
   const html = `<div style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:14px;line-height:1.7;color:#111820;max-width:560px">
@@ -57,7 +61,7 @@ ${no ? `<p style="margin:0 0 14px;color:#0868f2;font-weight:700">접수번호 ${
 <ol style="margin:0 0 14px;padding-left:20px">${next.map(t => `<li>${escH(t)}</li>`).join('')}</ol>
 <p style="margin:0 0 6px;color:#36404d">평일 업무시간에 접수 순서대로 확인합니다.${urgent ? ' 긴급으로 접수하신 건은 먼저 확인합니다.' : ''}</p>
 <p style="margin:0 0 18px;color:#36404d">현장 사진이나 추가로 전하실 내용은 <b>이 메일에 답장</b>으로 보내 주시면 같은 건으로 이어서 확인합니다.</p>
-<p style="margin:0;color:#7a8492;font-size:12px">모넷코리아 기술지원 · monnit.co.kr</p></div>`;
+<p style="margin:0;color:#7a8492;font-size:12px">${kind === 'remote' ? '모넷코리아' : '모넷코리아 기술지원'} · monnit.co.kr</p></div>`;
   const subject = `[모넷코리아] ${head}${no ? ' · ' + no : ''}`;
   return { subject, html, text };
 }
@@ -75,7 +79,7 @@ export async function sendSupportAck({ interest, email, name, no, urgent }) {
     const { subject, html, text } = body(kind, { name, no, urgent });
     const r = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST', headers: { 'api-key': key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sender: SENDER, to: [{ email: to }], replyTo: REPLY_TO, subject, htmlContent: html, textContent: text, tags: ['support-ack', kind] }),
+      body: JSON.stringify({ sender: kind === 'remote' ? { ...SENDER, name: '모넷코리아' } : SENDER, to: [{ email: to }], replyTo: kind === 'remote' ? { ...REPLY_TO, name: '모넷코리아' } : REPLY_TO, subject, htmlContent: html, textContent: text, tags: ['support-ack', kind] }),
       signal: AbortSignal.timeout(8000)
     });
     if (r.status === 201) return { sent: true, kind };

@@ -124,6 +124,15 @@
 /promo-modbus            /promo/modbus/                   301
 /modbus                  /promo/modbus/                   301
 
+# 건물 원격 통합 관제 랜딩 (2026-11-02) — 광고 영상 클릭 후 도착 · /promotions 카드 · 색인 대상
+# ※ 반드시 아래 /promo/* 와일드카드보다 위에 있어야 합니다.
+/promo/remote            /promo/remote/index.html        200
+/promo/remote/           /promo/remote/index.html        200
+/promo-remote.html       /promo/remote/                   301!
+/promo-remote            /promo/remote/                   301
+/promotions/remote       /promo/remote/                   301
+/remote-monitoring       /promo/remote/                   301
+
 # 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소는 그대로 유지)
 /promo/*  /promo.html?id=:splat  200
 # 예전 소방 전용 페이지 → 범용 페이지로 통합 301

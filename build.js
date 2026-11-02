@@ -40,7 +40,7 @@ const path = require('path');
   scan(FN);
   scan(path.join(__dirname, 'server', 'lib'));
   scan(path.join(__dirname, 'server', 'edge'));
-  const pages = ['index.html', 'promo-consulting.html', 'promo-modbus.html', 'promo-proposal.html', 'promo-alarm.html', 'promo-residence.html', 'promo.html', 'visit.html', 'promo/temperature/index.html'];
+  const pages = ['index.html', 'promo-consulting.html', 'promo-modbus.html', 'promo-proposal.html', 'promo-alarm.html', 'promo-residence.html', 'promo-remote.html', 'promo.html', 'visit.html', 'promo/temperature/index.html'];
   for (const pg of pages) {
     const f = path.join(__dirname, pg);
     if (!exists(f)) { missing.push('(페이지 없음) ' + pg); continue; }
@@ -1004,6 +1004,17 @@ const promoPages = [];   // sitemap 용
   fs.copyFileSync(source, path.join(targetDir, 'index.html'));
 })();
 
+/* /promo/remote — 건물 원격 통합 관제 랜딩 (2026-11-02).
+   광고 영상 클릭 후 도착 · /promotions 카드 · 사이트맵 색인 대상.
+   원본은 promo-remote.html, 작업 원본은 source/remote-monitoring/. */
+(function buildRemotePromoAlias() {
+  const source = path.join(__dirname, 'promo-remote.html');
+  if (!fs.existsSync(source)) return;
+  const targetDir = path.join(__dirname, 'promo', 'remote');
+  fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(source, path.join(targetDir, 'index.html'));
+})();
+
 (function buildAlarmPromoAlias() {
   const source = path.join(__dirname, 'promo-alarm.html');
   if (!fs.existsSync(source)) return;
@@ -1589,6 +1600,7 @@ const urls = [
   { loc: SITE + '/promo/residence', pri: '0.9' },
   { loc: SITE + '/promo/alarm', pri: '0.9' },
   { loc: SITE + '/promo/modbus', pri: '0.9' },
+  { loc: SITE + '/promo/remote/', pri: '0.9' },
   { loc: SITE + '/privacy.html', pri: '0.3' },
   ...generated.map(g => ({ loc: g.loc, pri: '0.8' })),
   ...promoPages                                        // /promotions/{slug} 상세
@@ -1607,6 +1619,7 @@ CORE_SLUGS.forEach(s => { const g = generated.find(x => x.slug === s); if (g) ll
 /* 2026-10-02 — AI 검색이 신청 경로를 바로 안내할 수 있게 무료 서비스·신청 페이지를 함께 적는다 */
 llms += `\n## 무료 서비스·신청\n`
   + `- [맞춤 제안서 (무료)](${SITE}/proposal): 산업과 가장 고민되는 문제를 고르면 Monnit 글로벌 운영 데이터와 산업별 플레이북으로 현장 맞춤 제안서(PDF)를 메일로 보냅니다. 산업: 제조·제약바이오·식품·빌딩FM·주거호텔·병원요양복지·학교교육·공공·소상공인·에너지·건설·물류콜드체인·데이터센터\n`
+  + `- [건물 원격 통합 관제](${SITE}/promo/remote/): 제어반·기계실·EPS실·수변전실에 배터리형 무선 센서를 붙여 여러 건물의 과열·화재·누수·정전·진동 이상을 실시간 감지하고 문자메시지·이메일·대시보드로 담당자에게 알림. 배선 공사 없이 설치, 940MHz 무선, 게이트웨이 1대당 센서 250개, 정전 시 2~3일 작동, 무료 현장 진단\n`
   + `- [긴급 경보 알리미](${SITE}/promo/alarm): 화재·침수·정전·설비 이상을 담당자 휴대폰으로 즉시 알리는 월 구독형 서비스(배선 공사 없이 설치)\n`
   + `- [회전설비 AI 예지보전 1개월 무료 체험](${SITE}/promo/consulting): 모터·펌프·팬·컴프레서에 무선 진동·온도 센서를 무상 설치해 한 달간 실제 데이터로 검증\n`
   + `- [진행 중인 프로모션](${SITE}/promotions)\n`
