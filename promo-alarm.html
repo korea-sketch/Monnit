@@ -39,9 +39,8 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <link rel="stylesheet" href="/style.css?v=127">
@@ -68,7 +67,7 @@
       <figure class="ti-security__visual ti-reveal">
         <span class="ti-security__siren-glow" aria-hidden="true"></span>
         <span class="ti-security__siren-beam" aria-hidden="true"></span>
-        <img src="/images/alarm/ta-siren.webp" alt="빛을 내며 작동하는 3D 긴급 경보 사이렌" loading="lazy">
+        <img src="/images/alarm/ta-siren.webp" alt="빛을 내며 작동하는 3D 긴급 경보 사이렌" width="520" height="520" decoding="async" fetchpriority="high">
       </figure>
       <header class="ti-security__heading">
         <h3 id="tiSecurityTitle" class="ti-reveal">이상 발생 시<br>담당자님 휴대폰으로<br>즉시 알려 드려요!</h3>
@@ -100,25 +99,25 @@
       </h3>
       <div class="ta-alerts__cards">
         <article class="ta-alert-card" tabindex="0" data-alert-card="fire">
-          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-fire.webp" alt="연기를 감지하는 천장형 화재 감지기"></div>
+          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-fire.webp" alt="연기를 감지하는 천장형 화재 감지기" loading="lazy" decoding="async"></div>
           <h4>화재 알리미</h4>
           <p>화재 발생 시 즉시 알림</p>
           <a class="ta-alert-card__more" href="#" data-alert-open="fire">더 알아보기</a>
         </article>
         <article class="ta-alert-card" tabindex="0" data-alert-card="flood">
-          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-flood.webp" alt="물이 새는 배관과 천장 누수 현장"></div>
+          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-flood.webp" alt="물이 새는 배관과 천장 누수 현장" loading="lazy" decoding="async"></div>
           <h4>물감지 알리미</h4>
           <p>누수·침수·동파 사전 알림</p>
           <a class="ta-alert-card__more" href="#" data-alert-open="flood">더 알아보기</a>
         </article>
         <article class="ta-alert-card" tabindex="0" data-alert-card="outage">
-          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-outage.webp" alt="트립 상태를 감지하는 산업용 차단기"></div>
+          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-outage.webp" alt="트립 상태를 감지하는 산업용 차단기" loading="lazy" decoding="async"></div>
           <h4>정전 알리미</h4>
           <p>차단기 트립 발생 시 즉시 알림</p>
           <a class="ta-alert-card__more" href="#" data-alert-open="outage">더 알아보기</a>
         </article>
         <article class="ta-alert-card" tabindex="0" data-alert-card="equipment">
-          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-equipment.webp" alt="설비 이상을 알리는 적색 경광등"></div>
+          <div class="ta-alert-card__photo"><img src="/images/alarm/ta-alert-equipment.webp" alt="설비 이상을 알리는 적색 경광등" loading="lazy" decoding="async"></div>
           <h4>경보 알리미</h4>
           <p>설비 이상 감지 시 즉시 알림</p>
           <a class="ta-alert-card__more" href="#" data-alert-open="equipment">더 알아보기</a>
@@ -130,7 +129,7 @@
           <button class="ta-alert-modal__close" type="button" aria-label="팝업 닫기">×</button>
           <section class="ta-alert-modal__intro" aria-label="현장 이미지">
             <div class="ta-alert-modal__intro-media">
-              <img data-alert-modal-intro-image src="/images/alarm/ta-modal-intro-fire.webp" alt="화재 현장에서 대응 중인 소방관들">
+              <img data-alert-modal-intro-image src="/images/alarm/ta-modal-intro-fire.webp" alt="화재 현장에서 대응 중인 소방관들" loading="lazy" decoding="async">
               <span class="ta-alert-modal__swipe" aria-hidden="true"><small>스와이프</small><i></i></span>
             </div>
           </section>
@@ -360,7 +359,7 @@
             <div class="ta-builder__carousel-dots" id="taBuilderCarouselDots" aria-label="화재 알리미 설치 사진 선택"></div>
           </div>
         </div>
-        <div class="ta-builder__site-birds" id="taBuilderSiteBirds" aria-hidden="true"><img src="/images/alarm/ta-site-birds.webp" alt=""></div>
+        <div class="ta-builder__site-birds" id="taBuilderSiteBirds" aria-hidden="true"><img src="/images/alarm/ta-site-birds.webp" alt="" loading="lazy" decoding="async"></div>
       </aside>
       <form class="ta-builder__options" id="taBuilderForm">
         <span class="ta-builder__rail" aria-hidden="true"><i></i></span>
@@ -452,7 +451,7 @@
     <section class="ta-builder-result" id="taBuilderResult" aria-labelledby="taBuilderResultTitle">
       <div class="ta-builder-result__product">
         <h4 id="taBuilderResultTitle">선택한 알리미 구성입니다.<br><span>이제 안심하세요.</span></h4>
-        <img id="taBuilderResultImage" src="/images/alarm/ta-plan-fire.webp" alt="선택한 화재 알리미">
+        <img id="taBuilderResultImage" src="/images/alarm/ta-plan-fire.webp" alt="선택한 화재 알리미" loading="lazy" decoding="async">
       </div>
       <div class="ta-builder-result__summary" aria-live="polite">
         <p class="ta-builder-result__model" id="taBuilderResultModel">화재 알리미</p>
@@ -569,7 +568,7 @@ body:has(#mnk-cc.show) .mk-terms-foot{padding-bottom:130px}
 </script>
 
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
-<script src="/js/monnit-consent.js?v=112"></script>
+<script src="/js/monnit-consent.js?v=113"></script>
 <script src="/valid.js?v=2"></script>
 <script src="/js/monnit-lead.js?v=6"></script>
 <script src="/js/monnit-track.js?v=1" defer></script>

@@ -433,7 +433,7 @@ const OPS_NAV = `<nav class="opsnav" aria-label="관제 메뉴">
 function page(ok, keyLogin, nonce = '') {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><title>맞춤 제안서 · 관제</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>
 :root{--bg:#0A111F;--card:#111B2C;--card2:#0D1626;--line:#1F2D44;--ink:#E8EEF7;--mut:#8FA2BD;--blue:#2B84F5;--teal:#2DD4BF;--amber:#F59E0B;--red:#FF5A5F;--vio:#C4A5FF}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 'Pretendard Variable',Pretendard,system-ui,sans-serif}

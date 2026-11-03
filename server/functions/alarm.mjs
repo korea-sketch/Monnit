@@ -155,6 +155,33 @@ function installText(t) {
   return f > 0 ? `${f.toLocaleString("ko-KR")}원 (1회 · 부가세 별도)` : "무료";
 }
 
+/* ───────── 계약 기간 — 「고객이 제출하는 날」부터 (2026-11-03) ─────────
+   예전에는 담당자가 링크를 만들 때 시작일을 정해야 해서, 고객의 도입 시점을 모르면
+   날짜를 비워 둘 수 없고 나중에 다시 보내야 했다.
+   이제 fromMode = "submit" 이면 링크에는 「의무 이용기간(개월)」만 담고,
+   고객이 계약서를 제출(발급)하는 순간 한국 날짜로 시작일을 정한다.
+     종료일 = 시작일 + 기간 − 1일 (담당자 화면과 같은 계산)
+   같은 링크로 정보를 고쳐 다시 발급해도 처음 제출한 날은 바뀌지 않는다. */
+function offerDates(b) {
+  const months = Math.round(Number(b.termMonths) || 0);
+  if (b.fromMode === "submit" && months >= 1 && months <= 120) return { fromMode: "submit", termMonths: months, from: "", to: "" };
+  return { from: date(b.from), to: date(b.to) };
+}
+function kstToday() { return new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); }
+export function termEnd(from, months) {
+  const [y, m, d] = from.split("-").map(Number);
+  const e = new Date(Date.UTC(y, m - 1 + months, d));
+  /* 같은 날짜가 없는 달(2월 29일 시작 → 다음 해 2월)은 그달 말일에 끝난다 */
+  if (e.getUTCDate() !== d) return new Date(Date.UTC(y, m - 1 + months + 1, 0)).toISOString().slice(0, 10);
+  e.setUTCDate(e.getUTCDate() - 1);
+  return e.toISOString().slice(0, 10);
+}
+export function submitDates(t, prev) {
+  if (!t || t.fromMode !== "submit") return t;
+  const from = (prev && prev.terms && date(prev.terms.from)) || kstToday();
+  return { ...t, from, to: termEnd(from, Math.max(1, Math.round(Number(t.termMonths) || 12))) };
+}
+
 /* ───────── 관리자 ───────── */
 async function createOffer(b) {
   const p = price(b);
@@ -164,7 +191,7 @@ async function createOffer(b) {
     sol: str(b.sol, 160) || (prod.length ? prod.map((k) => PRODUCT_LABEL[k]).join(" · ") + (str(b.solNote, 120) ? " — " + str(b.solNote, 120) : "") : "긴급 경보 알리미"),
     ...p,
     discountNote: str(b.discountNote, 120),
-    from: date(b.from), to: date(b.to),
+    ...offerDates(b),
     pay: str(b.pay, 60), bank: str(b.bank, 120), etc: str(b.etc, 2000),
   };
   const id = token(10);
@@ -337,7 +364,7 @@ async function submitContract(req, b) {
 
   const prev = o.status === "issued" && o.contractRef ? await s.get(TYPES.contracts + o.contractRef) : null;
   const ref = prev ? prev.ref : refNo("MK");
-  const t = settleTerms(o.terms, c.siteAddr || c.address); // 조건은 언제나 서버에 저장된 값을 쓴다 (링크·화면 조작 방지) · 지역 요금(그 외 지역 1곳 월 4만 원)은 설치 주소로 자동 확정
+  const t = submitDates(settleTerms(o.terms, c.siteAddr || c.address), prev); // 시작일 「고객 제출일」 방식이면 여기서 날짜 확정 (2026-11-03) · 조건은 언제나 서버에 저장된 값을 쓴다 (링크·화면 조작 방지) · 지역 요금(그 외 지역 1곳 월 4만 원)은 설치 주소로 자동 확정
   const prodFixed = (t.products || []).length > 0;
   const prodList = prodFixed ? t.products : products(b.products);
   if (!prodList.length) return json({ ok: false, error: "products_required" }, 400);
@@ -349,7 +376,8 @@ async function submitContract(req, b) {
     terms: { solution, products: prodList, productsChosenBy: prodFixed ? "staff" : "customer", solNote: t.solNote || "",
              unitPrice: t.unit, region: t.region || "", regionFee: t.regionFee || 0, sites: t.qty, listPrice: t.list,
              discountType: t.discountType, discountValue: t.discountValue, discount: t.discount, discountNote: t.discountNote,
-             monthly: t.monthly, installFee: installOf(t), from: t.from, to: t.to, payDay: t.pay, bank: t.bank, etc: t.etc },
+             monthly: t.monthly, installFee: installOf(t), from: t.from, to: t.to, ...(t.fromMode ? { fromMode: t.fromMode, termMonths: t.termMonths } : {}),
+             payDay: t.pay, bank: t.bank, etc: t.etc },
     customer: {
       name: str(c.name, 120), bizNo: str(c.bizNo, 20), address: str(c.address, 200), ceo: str(c.ceo, 40),
       contractType: c.contractType === "B2C" ? "B2C" : "B2B", manager: str(c.manager, 40), phone: str(c.phone, 30),

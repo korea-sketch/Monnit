@@ -92,19 +92,32 @@ function ipMatch(ip, rule) {
   return false;
 }
 
+/* 2026-11-03 속도 — 저장소(R2)의 차단 목록 읽기를 따로 떼어, Worker 가 요청을 받자마자
+   설정값 읽기와 「동시에」 시작할 수 있게 했다(prefetch). 예전에는 설정값 → 차단 목록을
+   차례로 읽어, 새로 뜬 Worker 의 첫 페이지 응답이 그만큼 늦었다. 반영 주기(1분)는 같다. */
+let storedP = null, storedAt = 0;
+function storedRules() {
+  if (storedP && Date.now() - storedAt < CACHE_MS) return storedP;
+  storedAt = Date.now();
+  storedP = (async () => {
+    try {
+      const raw = await getStore("ops").get("blocklist.json", { type: "text" });
+      const o = raw ? JSON.parse(raw) : null;
+      const now = Date.now();
+      return ((o && Array.isArray(o.ips)) ? o.ips : [])
+        .filter((x) => x && x.v && (x.scope || "site") === "site" && (!x.until || x.until > now))
+        .map((x) => x.v);
+    } catch (e) { return []; }   /* 저장소를 못 읽으면 환경변수만 쓴다 */
+  })();
+  return storedP;
+}
+export function prefetch() { try { storedRules(); } catch (e) { /* 무시 */ } }
+
 async function siteRules() {
   if (cache && Date.now() - cacheAt < CACHE_MS) return cache;
   const env = String((globalThis.__MNK_ENV_GET && globalThis.__MNK_ENV_GET("BLOCK_IPS")) || "")
     .split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
-  let stored = [];
-  try {
-    const raw = await getStore("ops").get("blocklist.json", { type: "text" });
-    const o = raw ? JSON.parse(raw) : null;
-    const now = Date.now();
-    stored = ((o && Array.isArray(o.ips)) ? o.ips : [])
-      .filter((x) => x && x.v && (x.scope || "site") === "site" && (!x.until || x.until > now))
-      .map((x) => x.v);
-  } catch (e) { /* 저장소를 못 읽으면 환경변수만 쓴다 */ }
+  const stored = await storedRules();
   cache = [...env, ...stored];
   cacheAt = Date.now();
   return cache;

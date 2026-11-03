@@ -18,8 +18,14 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <script>/* 광고 랜딩 가속 — #promotions/{id} 해시로 직접 들어오면 무거운 SPA 대신 초경량 정적 랜딩(promo.html)으로 즉시 이동 (utm·fbclid 유지). SPA 내부 이동에는 영향 없음. */
 (function(){try{var m=(location.pathname||'').match(/^\/promotions\/([^/?&]+)\/?$/)||(location.hash||'').match(/^#promotions\/([^?&]+)/);if(m){var id=decodeURIComponent(m[1]);if(id==='flame-reservation')return;var q=location.search||'';location.replace('/promo.html?id='+encodeURIComponent(id)+(q?('&'+q.slice(1)):''));}}catch(e){}})();</script>
 
+<script>/* 2026-11-03 속도 — 본문 콘텐츠(구글 시트 묶음)를 HTML 을 받자마자 미리 요청한다.
+   예전에는 app.js(150KB)를 받고 실행한 뒤에야 요청해 사례·고객사·프로모션이 늦게 바뀌며 나타났다.
+   app.js 의 sheetBundle() 이 같은 주소면 이 응답을 그대로 이어 받는다(탭 목록이 바뀌면 자동으로 새로 받음). */
+(function(){try{if(/[?&](sheetId|fresh)=/.test(location.search)||/^\/(ops|editor)/.test(location.pathname))return;try{if(localStorage.getItem('monnit_sheetid'))return;}catch(e){}
+var u='/api/sheets?tabs='+encodeURIComponent('Customers,Awards,Partners,Cases,AppCategories,Applications,AppDetails,Blog,Whitepapers,NewsHighlights,FAQs,Knowledgebase,Photos,Products,homecases,SiteContent,Logos,Promotions');
+window.__mkSheetsPre={url:u,p:fetch(u).then(function(r){return r.ok?r.json():null}).catch(function(){return null})};}catch(e){}})();</script>
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html'};</script>
-<script src="/js/monnit-consent.js?v=112"></script>
+<script src="/js/monnit-consent.js?v=113"></script>
 <script src="/js/monnit-lead.js?v=6"></script>
 <script src="/js/monnit-track.js?v=1" defer></script>
 <script src="/js/monnit-popup.js?v=5" defer></script>
@@ -53,9 +59,8 @@ if(t&&/^[A-Za-z0-9_-]{20,40}$/.test(t)){sessionStorage.setItem('mk_prop_t',t);p.
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "센서 무선 통신 거리는 얼마나 되나요?", "acceptedAnswer": {"@type": "Answer", "text": "ALTA 무선 센서는 비가시선 기준 벽 12장을 관통해 1,200ft 이상, ALTA XL 게이트웨이 사용 시 벽 18장 관통 2,000ft 이상까지 통신합니다. 안테나 방향과 설치 환경에 따라 최적 성능이 달라집니다."}}, {"@type": "Question", "name": "센서 배터리는 얼마나 가나요?", "acceptedAnswer": {"@type": "Answer", "text": "사용 환경에 따라 다르지만 단일 AA 배터리로 최대 10년 이상 사용 가능합니다. 데이터 전송 주기, 통신 거리, 장애물 수가 수명에 영향을 주며, 배터리 잔량은 iMonnit에서 확인하고 임계값 이하 시 알림을 받을 수 있습니다."}}, {"@type": "Question", "name": "인터넷이 끊기면 데이터가 사라지나요?", "acceptedAnswer": {"@type": "Answer", "text": "아닙니다. 게이트웨이 연결이 끊겨도 센서가 자체적으로 최대 4,000건의 측정값을 저장하며, 연결이 복구되면 누락 없이 전송합니다. 게이트웨이 역시 내부 메모리에 다수의 메시지를 저장합니다."}}, {"@type": "Question", "name": "데이터 보안은 어떻게 보장되나요?", "acceptedAnswer": {"@type": "Answer", "text": "Encrypt-RF 기술로 256-bit ECDH 키 교환과 AES-128 암호화를 적용해 센서~게이트웨이 구간을 보안 터널로 보호하며, 패킷 변조 검증 루틴으로 위·변조 및 재전송 공격을 차단합니다."}}, {"@type": "Question", "name": "알림은 어떤 방식으로 받나요?", "acceptedAnswer": {"@type": "Answer", "text": "사용자가 설정한 조건을 초과하면 iMonnit이 SMS 문자, 이메일, 전화로 즉시 알림을 보냅니다. 임계값과 수신자는 자유롭게 설정할 수 있습니다."}}, {"@type": "Question", "name": "설치와 설정은 어렵지 않나요?", "acceptedAnswer": {"@type": "Answer", "text": "대부분의 ALTA 센서는 전원을 켜는 즉시 게이트웨이에 연결되는 플러그앤플레이 방식으로, 시스템 구성에 보통 15분이면 충분합니다. Monnit Korea가 현장 설치와 초기 설정을 지원합니다."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <link rel="stylesheet" href="/style.css?v=239">
@@ -263,7 +268,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 
 <div class="mkp-event-modal" id="ppEventModal" hidden role="dialog" aria-modal="true" aria-labelledby="ppEventTitle">
   <div class="mkp-event-dialog">
-    <img src="/assets/proposal/factory-event-prompt.png" alt="" aria-hidden="true">
+    <img src="/assets/proposal/factory-event-prompt.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="600" height="310">
     <h2 class="sr-only" id="ppEventTitle">맞춤형 설비 진단 EVENT도 필요하실 것 같아요!</h2>
     <button type="button" class="mkp-event-cancel" id="ppEventCancel" aria-label="이벤트 신청하지 않고 제안서 제작 계속하기">Cancel</button>
     <button type="button" class="mkp-event-apply" id="ppEventApply" aria-label="맞춤형 설비 진단 이벤트 신청하기">신청하기</button>

@@ -99,9 +99,15 @@ export function resolveStatic(pathname) {
   }
   if (FILES.has(p)) return { file: p };
   if (FILES.has(p + '.html')) return { file: p + '.html' };
-  if (FILES.has(p + '/index.html')) return { redirect: p + '/' };
+  /* 2026-11-03 속도 — 폴더 주소를 끝 슬래시 없이 열면(/promo/remote) 예전에는 301 로 /promo/remote/ 에 다시 보내
+     왕복이 한 번 더 생겼다(모바일에서 0.5~1초). 광고·공유 링크가 대부분 슬래시 없이 들어오므로 바로 내려 준다.
+     정본 주소(canonical)는 페이지 안에 슬래시 주소로 적혀 있어 검색엔진에는 영향이 없다.
+     단, 페이지 안에서 상대 경로(./img.png)를 쓰는 폴더는 기준 위치가 달라지므로 예전처럼 슬래시 주소로 보낸다. */
+  if (FILES.has(p + '/index.html')) return RELATIVE_DIRS.has(p) ? { redirect: p + '/' } : { file: p + '/index.html' };
   return null;
 }
+/* 상대 경로를 쓰는 폴더 — 새로 만들면 여기에 추가 (2026-11-03 기준 /church 만 해당) */
+const RELATIVE_DIRS = new Set(['/church']);
 
 /** 리다이렉트 규칙 중 첫 일치 (없으면 null) */
 export function matchRedirect(url) { return memo(R_MEMO, url.host + '|' + url.pathname, () => matchRedirectRaw(url)); }

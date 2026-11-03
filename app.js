@@ -918,8 +918,13 @@ function sheetBundle(){
   } catch(e){ direct = true; }
   if (direct) return (_SHEET_BUNDLE = Promise.resolve(null));
   var tabs = Object.keys(CONTENT_SHEET.tabs).filter(function(k){ return !CONTENT_SHEET.urls[k]; }).map(function(k){ return CONTENT_SHEET.tabs[k]; });
-  _SHEET_BUNDLE = fetch('/api/sheets?tabs=' + encodeURIComponent(tabs.join(',')))
-    .then(function(r){ return r.ok ? r.json() : null; })
+  var url = '/api/sheets?tabs=' + encodeURIComponent(tabs.join(','));
+  /* 2026-11-03 속도 — index.html <head> 가 HTML 을 받자마자 같은 주소를 미리 요청해 둔다(window.__mkSheetsPre).
+     주소가 같으면 그 응답을 그대로 쓰고, 다르거나 실패하면 여기서 새로 받는다. */
+  var pre = window.__mkSheetsPre;
+  var first = (pre && pre.url === url && pre.p) ? pre.p : Promise.resolve(null);
+  _SHEET_BUNDLE = first
+    .then(function(j){ return (j && j.ok && j.tabs) ? j : fetch(url).then(function(r){ return r.ok ? r.json() : null; }); })
     .then(function(j){ return (j && j.ok && j.tabs) ? j.tabs : null; })
     .catch(function(){ return null; });
   return _SHEET_BUNDLE;
@@ -5417,6 +5422,12 @@ async function alignSheetToWriter(){
     const params = new URLSearchParams(location.search);
     if (params.get('sheetId')) return;                 // URL로 직접 지정 시 존중
     if (!SITE_GAS_URL) return;
+    /* 2026-11-03 속도 — 공개 화면은 Apps Script 에 「연결된 시트」를 묻지 않는다.
+       예전에는 첫 방문자마다 Apps Script 응답(1~3초)을 기다린 뒤에야 시트를 받기 시작해
+       본문(사례·고객사·프로모션 등)이 늦게, 한 번 더 바뀌며 나타났다.
+       공개 화면은 사이트 서버 묶음(/api/sheets — Cloudflare 변수 CONTENT_SHEET_ID)을 그대로 쓰고,
+       시트 맞춤은 편집기(/ops/editor)에서만 한다. */
+    if (!/^\/(ops|editor)/.test(location.pathname)) return;
     const ask = () => fetch(SITE_GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'whoami'}) })
       .then(r=>r.json()).then(j=>{ if(j&&j.boundSheetId){ try{localStorage.setItem('monnit_writer_sheet', j.boundSheetId);}catch(e){} return j.boundSheetId; } return null; });
     let cached=null; try{ cached=localStorage.getItem('monnit_writer_sheet'); }catch(e){}
@@ -5460,6 +5471,23 @@ async function boot() {
       document.body.insertBefore(k, document.body.firstChild);
     }
     _ssg.remove(); } } catch(e){}
+  /* 2026-11-03 속도 — 시트 묶음(<head> 에서 미리 요청)이 곧 도착하면 기다렸다가 「한 번만」 그린다.
+     예전에는 기본 데이터로 한 번 그리고, 시트가 오면 전체를 다시 그려(화면 전체 재계산 2회)
+     사례·고객사·프로모션이 눈에 띄게 바뀌며 나타났다.
+     최대 0.4초만 기다리고, 그때까지 안 오면 예전처럼 기본 데이터로 먼저 그린 뒤 시트가 오면 다시 그린다.
+     홈(/)으로 들어올 때만 기다린다 — 다른 화면 주소로 바로 들어오면 기다리는 동안 홈이 잠깐 보일 수 있어서. */
+  let _sheetFirst = false;
+  try {
+    const _pre = window.__mkSheetsPre;
+    const _r0 = pathToRoute(location.pathname);
+    if (_pre && _pre.p && (!_r0 || _r0 === 'home') && !(location.hash || '').replace(/^#/, '').trim()) {
+      const _ok = await Promise.race([
+        _pre.p.then(j => !!(j && j.ok && j.tabs)),
+        new Promise(r => setTimeout(() => r(false), 400))
+      ]);
+      if (_ok) { await loadSheetData(); _sheetFirst = true; }
+    }
+  } catch (e) { _sheetFirst = false; }
   // 1) 기본 데이터로 즉시 렌더 + 초기 라우팅 (빠른 첫 화면 · 느린 망에서도 빈 화면/홈 고정 없음)
   renderAll();
   /* 주소에서 첫 화면을 정합니다.
@@ -5475,9 +5503,11 @@ async function boot() {
   try{ const uc=new URLSearchParams(location.search).get('usecase'); if(uc){ const t=uc.trim(); const cu=CUSTOMERS.find(c=>{const dn=(c.n||'').trim(); return dn && (t===dn||t.includes(dn)||dn.includes(t));}); if(cu && cu.key && CASE_DATA[cu.key]){ navigate('case/'+cu.key); } else { navigate('stories'); setTimeout(()=>focusCustomer(uc),500); } } }catch(e){}
   // 2) 구글 시트/에디터 데이터가 로드되면 최신 값으로 "다시 렌더 + 본문(SiteContent) 재적용"
   //    → 렌더 함수가 모두 멱등(idempotent)이라 중복 없이 시트 변경이 반드시 반영된다.
-  try { await alignSheetToWriter(); await loadSheetData(); }
-  catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
-  renderAll();
+  if (!_sheetFirst) {
+    try { await alignSheetToWriter(); await loadSheetData(); }
+    catch (e) { console.warn('[CONTENT_SHEET] 로드 중 오류 — 기본값 사용:', e); }
+    renderAll();
+  }
   /* 2026-10-28 시트에만 있는 사례·활용분야로 바로 들어오면(새로고침·외부 링크·검색) 첫 라우팅 때는
      기본 데이터에 없어 '준비 중' 화면이 떴고, 시트가 로드된 뒤에도 그대로 남았다.
      시트 반영 후 사례·활용분야 상세는 최신 데이터로 다시 그린다(스크롤 위치 유지). */

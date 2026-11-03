@@ -594,6 +594,8 @@ label.inl input{margin:0;accent-color:var(--accent)}
       <fieldset>
         <legend>기간 및 결제</legend>
         <div class="grid">
+          <div class="f wide"><label style="display:flex;gap:8px;align-items:center;font-weight:600;cursor:pointer"><input type="checkbox" id="n_fromSubmit" checked style="width:auto"> 계약 시작일 = 고객이 계약서를 제출하는 날 (자동)</label>
+            <p class="hint" id="n_fromHint" style="margin:4px 0 0">고객이 링크에서 정보를 입력해 계약서를 발급받는 날이 시작일이 되고, 종료일은 의무 이용기간에 맞춰 자동으로 정해집니다. 도입 시점을 미리 몰라도 링크를 한 번만 보내면 됩니다. 아래 날짜는 오늘 제출했을 때의 예시입니다.</p></div>
           <div class="f"><label for="n_from">계약 시작일</label><input type="date" id="n_from"></div>
           <div class="f"><label for="n_years">의무 이용기간</label>
             <select id="n_years"><option value="3">3년</option><option value="2">2년</option><option value="1">1년</option><option value="0">직접 입력</option></select></div>
@@ -1582,6 +1584,24 @@ label.inl input{margin:0;accent-color:var(--accent)}
     if(y && f){ var d = new Date(f + "T00:00:00"); d.setFullYear(d.getFullYear() + y); d.setDate(d.getDate() - 1); $("n_to").value = ymd(d); }
     etcSync();
   }
+  /* 2026-11-03 시작일 자동(고객 제출일) — 켜 두면 날짜 칸은 오늘 기준 예시로만 보여 주고 서버가 제출 순간 확정한다 */
+  function autoFrom(){ return !!($("n_fromSubmit") && $("n_fromSubmit").checked); }
+  function termLabel(t){
+    if(!t || t.fromMode !== "submit" || t.from) return "";
+    var m = Number(t.termMonths) || 0;
+    return "고객 제출일부터 " + (m % 12 === 0 ? (m / 12) + "년" : m + "개월");
+  }
+  function setAutoUi(){
+    var on = autoFrom();
+    if(on){
+      if($("n_years").value === "0") $("n_years").value = "3";
+      $("n_from").value = ymd(new Date()); setTo();
+    }
+    $("n_from").disabled = on; $("n_to").disabled = on;
+    var o0 = $("n_years").querySelector('option[value="0"]'); if(o0) o0.disabled = on;
+    $("n_fromHint").hidden = !on;
+  }
+  $("n_fromSubmit").addEventListener("change", setAutoUi);
   $("n_from").addEventListener("change", setTo);
   $("n_years").addEventListener("change", setTo);
   $("n_to").addEventListener("input", function(){ $("n_years").value = "0"; etcSync(); });
@@ -1631,6 +1651,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
   function resetNew(){
     var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + 1);
     $("n_from").value = ymd(d); $("n_years").value = "3"; etcEdited = false; setTo();
+    if($("n_fromSubmit")){ $("n_fromSubmit").checked = true; setAutoUi(); }
     ["n_customer","n_contact","n_note","n_dnote","n_solnote"].forEach(function(id){ $(id).value = ""; });
     document.querySelectorAll("#n_prod input").forEach(function(c){ c.checked = false; });
     $("n_qty").value = 1; $("n_unit").value = 30000; $("n_install").value = 0; document.querySelector('input[name="n_region"][value="metro"]').checked = true; $("n_unit").readOnly = true; $("n_dtype").value = "none"; etcEdited = false; setDiscUi();
@@ -1650,7 +1671,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
       "· " + t.qty + "개소 · 월 " + Number(t.monthly).toLocaleString("ko-KR") + "원 (부가세 별도)" + (t.discount ? " — 할인 적용" : "") + "\n" +
       (Number(t.installFee) > 0 ? "· 설치비 " + Number(t.installFee).toLocaleString("ko-KR") + "원 (1회 · 부가세 별도)\n" : t.region ? "· 설치비는 따로 받지 않습니다.\n" : "") +
       (t.region === "auto" ? "· 설치 현장이 서울·경기·인천 외 지역이면 1개소 월 이용료가 " + (Number(t.unit) + REGION_ADD).toLocaleString("ko-KR") + "원으로 적용됩니다.\n" : "") +
-      "· 계약 기간 " + kdate(t.from) + " ~ " + kdate(t.to) + "\n\n" +
+      "· 계약 기간 " + (termLabel(t) ? termLabel(t) + " (계약서를 제출하시는 날이 시작일입니다)" : kdate(t.from) + " ~ " + kdate(t.to)) + "\n\n" +
       "아래 링크에서 계약 조건과 서비스수준협약(SLA)을 확인하고 고객 정보를 입력하시면 계약서(A4 양면)를 내려받으실 수 있습니다." + ((t.products || []).length ? "" : " 도입하실 알리미는 화면에서 직접 선택하시면 됩니다.") + "\n" + offerUrl(o.id) + "\n\n" +
       "계약서에 직인을 날인하신 뒤 사업자등록증 사본과 함께 링크 화면에서 올려 주시거나 1015@monnit.com 으로 회신해 주십시오.\n\n" +
       "궁금하신 점은 02-2088-1454로 연락 주세요. 감사합니다.";
@@ -1681,7 +1702,8 @@ label.inl input{margin:0;accent-color:var(--accent)}
       ["할인", t.discount ? "− " + won(t.discount) + ($("n_dnote").value.trim() ? " · " + esc($("n_dnote").value.trim()) : "") : "없음"],
       ["월 청구액", "<b>" + won(t.monthly) + "</b> (부가세 별도) · 부가세 포함 " + won(Math.round(t.monthly * 1.1))],
       ["설치비 (1회)", fee ? "<b>" + won(fee) + "</b> (부가세 별도) · 부가세 포함 " + won(Math.round(fee * 1.1)) : "무료"],
-      ["계약 기간", kdate($("n_from").value) + " ~ " + kdate($("n_to").value) + (y ? " (의무 " + y + "년)" : "")],
+      ["계약 기간", autoFrom() ? "<b>고객 제출일부터 " + y + "년</b> · 시작일은 고객이 계약서를 제출하는 날로 자동 확정 <span class=\"muted\">(오늘 제출 시 " + kdate($("n_from").value) + " ~ " + kdate($("n_to").value) + ")</span>"
+        : kdate($("n_from").value) + " ~ " + kdate($("n_to").value) + (y ? " (의무 " + y + "년)" : "")],
       ["매월 지급일", esc(pay || "—")],
       ["입금 계좌", esc($("n_bank").value.trim() || "—")]
     ]) +
@@ -1715,7 +1737,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
       var j = await api("offer", {body: Object.assign({}, t, {
         unit: t.region === "other" ? t.unit - REGION_ADD : t.unit,   // 서버 price() 가 그 외 지역에 1만 원을 다시 더한다
         products: prods("n_prod"), solNote: $("n_solnote").value.trim(), sol: solName(prods("n_prod"), $("n_solnote").value.trim()), discountNote:$("n_dnote").value.trim(),
-        from:$("n_from").value, to:$("n_to").value, pay:$("n_pay").value.trim(), bank:$("n_bank").value.trim(), etc:$("n_etc").value,
+        from:$("n_from").value, to:$("n_to").value, fromMode: autoFrom() ? "submit" : "", termMonths: autoFrom() ? Number($("n_years").value) * 12 : 0, pay:$("n_pay").value.trim(), bank:$("n_bank").value.trim(), etc:$("n_etc").value,
         customer:$("n_customer").value.trim(), contact:$("n_contact").value.trim(), note:$("n_note").value.trim()
       })});
       lastOffer = j.offer; lastLink = offerUrl(j.offer.id);
@@ -1766,7 +1788,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
         "<td>" + esc(c ? c.terms.solution : t.sol) + "</td>" +
         '<td class="num">' + t.qty + "</td>" +
         '<td class="num">' + won(t.monthly) + (t.discount ? '<div class="muted">할인 −' + Number(t.discount).toLocaleString("ko-KR") + "</div>" : "") + "</td>" +
-        "<td>" + kdate(t.from) + " ~<br>" + kdate(t.to) + "</td>" +
+        "<td>" + (c && c.terms && c.terms.from ? kdate(c.terms.from) + " ~<br>" + kdate(c.terms.to) : termLabel(t) ? esc(termLabel(t)) : kdate(t.from) + " ~<br>" + kdate(t.to)) + "</td>" +
         "<td>" + (c ? kdt(c.returnedAt || c.submittedAt) + filesNote(c) : "—") + "</td>" +
         '<td style="white-space:nowrap">' +
           (c ? '<button class="btn quiet" data-c="' + c.ref + '">상세</button> <button class="btn quiet" data-pdf="' + c.ref + '">계약서 PDF</button> ' : "") +

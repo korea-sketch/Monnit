@@ -337,6 +337,8 @@ async function dispatch(request, env, ctx, opts = {}) {
 export default {
   async fetch(request, env, ctx) {
     bindBlobs(env.BLOBS);
+    /* 2026-11-03 속도 — 차단 목록(R2) 읽기를 설정값 읽기와 동시에 시작 (60초 보관, 이후엔 즉시) */
+    if (env.BLOBS && edge_blockip.prefetch) edge_blockip.prefetch();
     env = await withConfig(env);          /* R2 에 저장된 설정값 + 대시보드 값 */
     boot(env);
     const req = request;

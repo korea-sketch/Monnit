@@ -12,6 +12,8 @@
 const DEFAULT_SHEET = '1CoU6Mm3heJHCLnWGqKthP015CADdc-J73YMb_Bf8qsc';
 const FRESH_MS = 60 * 1000;
 const KEEP_S = 86400;
+const R2_EVERY_MS = 5 * 60 * 1000;
+let R2_SAVED_AT = 0;
 
 const json = (o, s = 200, extra = {}) => new Response(JSON.stringify(o), {
   status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'x-robots-tag': 'noindex', ...extra }
@@ -54,6 +56,7 @@ export async function sheetsRoute(req, env, ctx) {
 
   const cache = (typeof caches !== 'undefined' && caches.default) || null;
   const key = new Request('https://sheets-cache.monnit.internal/' + id + '/' + encodeURIComponent(tabs.slice().sort().join(',')));
+  const r2key = '__cache/sheets/' + id + '/' + encodeURIComponent(tabs.slice().sort().join(','));
   /* 보관본은 방문자에게 줄 JSON 그대로 — 꺼낼 때 다시 해석하지 않는다(무료 플랜 CPU 10ms) */
   const out = (text, at, state) => new Response(text, { headers: {
     'content-type': 'application/json; charset=utf-8', 'x-robots-tag': 'noindex',
@@ -79,11 +82,36 @@ export async function sheetsRoute(req, env, ctx) {
     if (Date.now() - Date.parse(at) < FRESH_MS) return out(hit.body, at, 'hit');
     /* 오래됨 — 지금은 보관본을 주고 뒤에서 새로 받는다 */
     const [a, b] = hit.body.tee();
-    ctx.waitUntil(new Response(b).text().then(build).then(r => r && save(r.text, r.at)).catch(() => {}));
+    ctx.waitUntil(new Response(b).text().then(build).then(r => r && saveAll(r.text, r.at)).catch(() => {}));
     return out(a, at, 'stale');
+  }
+  /* 2026-11-03 속도 — 이 지역(Cloudflare 가장자리) 보관본이 없을 때.
+     가장자리 보관은 지역마다 따로라, 방문이 드문 서울·도쿄 쪽은 자주 비어 있었다.
+     그때마다 방문자가 구글 시트 18개 탭을 받는 동안(0.6~2초) 기다렸다.
+     이제 R2 에 둔 마지막 정상본을 바로 주고(약 0.05초), 새 값은 뒤에서 받아 둔다. */
+  if (!fresh && env.BLOBS) {
+    let o = null;
+    try { o = await env.BLOBS.get(r2key); } catch (e) { o = null; }
+    if (o) {
+      const at = (o.customMetadata && o.customMetadata.at) || '';
+      const text = await o.text();
+      const old = !at || Date.now() - Date.parse(at) >= FRESH_MS;
+      ctx.waitUntil((old ? build(text).then(r => r && saveAll(r.text, r.at)) : save(text, at)).catch(() => {}));
+      return out(text, at, 'r2');
+    }
   }
   const r = await build(null);
   if (!r) return json({ ok: false, error: 'upstream' }, 502, { 'cache-control': 'no-store' });
-  ctx.waitUntil(save(r.text, r.at));
+  ctx.waitUntil(saveAll(r.text, r.at));
   return out(r.text, r.at, 'miss');
+
+  /* 가장자리 + R2 에 함께 보관 — R2 쓰기는 한 Worker 당 5분에 한 번까지(무료 한도 절약) */
+  function saveAll(text, at) {
+    const jobs = [save(text, at)];
+    if (env.BLOBS && Date.now() - R2_SAVED_AT > R2_EVERY_MS) {
+      R2_SAVED_AT = Date.now();
+      jobs.push(env.BLOBS.put(r2key, text, { httpMetadata: { contentType: 'application/json' }, customMetadata: { at } }).catch(() => {}));
+    }
+    return Promise.all(jobs);
+  }
 }

@@ -73,7 +73,15 @@
 
   /* ── 스크립트 로더 ──────────────────────────────────────────── */
   var loaded = { gtm: false, ga4: false, clarity: false };
+  /* 2026-11-03 속도 — 분석·광고 스크립트(GTM·GA4·광고·Clarity, 합계 약 700KB)를 페이지가 다 뜬 뒤(load)에 붙인다.
+     예전에는 <head> 에서 바로 받아 본문 스크립트·이미지와 회선·CPU 를 다퉜다(모바일에서 0.7~0.8초 멈춤).
+     · 동의 상태·이벤트(dataLayer·gtag 호출)는 그대로 쌓였다가 스크립트가 붙는 즉시 전송된다 — 누락 없음
+     · load 가 늦어지는 경우를 대비해 최대 3초 뒤에는 무조건 붙인다 */
+  var ready = d.readyState === 'complete', pending = [];
+  function flush() { if (ready) return; ready = true; var q = pending.splice(0); for (var i = 0; i < q.length; i++) inject(q[i][0], q[i][1]); }
+  if (!ready) { w.addEventListener('load', function () { setTimeout(flush, 0); }); setTimeout(flush, 3000); }
   function inject(src, attrs) {
+    if (!ready) { pending.push([src, attrs]); return; }
     var s = d.createElement('script'); s.async = true; s.src = src;
     if (attrs) for (var k in attrs) s.setAttribute(k, attrs[k]);
     (d.head || d.getElementsByTagName('script')[0].parentNode).appendChild(s);

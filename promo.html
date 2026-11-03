@@ -5,8 +5,7 @@
 <script>/* 2026-10-02 알리미 옛 주소(/promotions/alarm · /promotions/emergency-alert · #promotions/…) → 실제 알리미 랜딩 /promo/alarm (utm 등 쿼리 유지) */
 (function(){try{var q=new URLSearchParams(location.search),id=q.get('id')||'';var m=location.pathname.match(/^\/promotions\/([^/?#]+)/);if(!id&&m)id=decodeURIComponent(m[1]);
 if(id==='alarm'||id==='emergency-alert'){q.delete('id');var s=q.toString();location.replace('/promo/alarm'+(s?'?'+s:''));}}catch(e){}})();</script>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +22,7 @@ if(id==='alarm'||id==='emergency-alert'){q.delete('id');var s=q.toString();locat
 <link rel="preconnect" href="https://docs.google.com">
 
 <script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'x38egtft64',privacyUrl:'/privacy.html'};</script>
-<script src="/js/monnit-consent.js?v=112"></script>
+<script src="/js/monnit-consent.js?v=113"></script>
 <script src="/js/monnit-lead.js?v=6"></script>
 <script src="/js/monnit-track.js?v=1" defer></script>
 <script src="/js/monnit-popup.js?v=5" defer></script>

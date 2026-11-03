@@ -11,7 +11,7 @@ t=re.sub(r'@font-face\{font-family:"Pretendard";src:url\(data:font/woff2;base64,
 t=t.replace('--sans:"Pretendard",-apple-system','--sans:"Pretendard Variable","Pretendard",-apple-system')
 
 # ---------- assets ----------
-t=t.replace('src="data:video/mp4;base64,{{VIDEO}}"','src="/videos/promo-remote.mp4" poster="/images/remote/poster.jpg"')
+t=t.replace('src="data:video/mp4;base64,{{VIDEO}}"','src="/videos/promo-remote-480.mp4" poster="/images/remote/poster-480.jpg"')
 for k,v in {'bld':'zones','alert':'alert','worker':'worker','dash':'platform'}.items():
     W,H={'zones':(1000,950),'alert':(1000,950),'worker':(1000,1250),'platform':(1100,1273)}[v]
     t=t.replace('src="data:image/jpeg;base64,{{IMG_%s}}"'%k,'src="/images/remote/%s.jpg" width="%d" height="%d" decoding="async"'%(v,W,H))
@@ -268,7 +268,7 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';}});}}
 <!-- 측정: monnit-consent 가 GTM(GTM-T8H73VW)을 올리고 GA4·Clarity·메타 픽셀은 그 안에서 동의 후 발화합니다.
      이 페이지에 gtag('config')·fbq('init') 을 직접 넣지 마십시오 — 페이지뷰가 두 번 잡힙니다. -->
 <script>window.MONNIT_CONSENT_CONFIG={{gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true}};</script>
-<script src="/js/monnit-consent.js?v=112"></script>
+<script src="/js/monnit-consent.js?v=113"></script>
 <script src="/js/monnit-lead.js?v=6"></script>
 <script src="/js/monnit-track.js?v=1" defer></script>
 <script src="/valid.js?v=2" defer></script>
@@ -299,11 +299,11 @@ document.cookie=n+'=; path=/'+d+'; expires=Thu, 01 Jan 1970 00:00:00 GMT';}});}}
 <meta name="twitter:image" content="{OG}">
 <script type="application/ld+json">{json.dumps(graph,ensure_ascii=False,separators=(',',':'))}</script>
 
-<link rel="preload" as="image" href="/images/remote/poster.jpg">
+<link rel="preload" as="image" href="/images/remote/poster-480.jpg" fetchpriority="high">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!-- Pretendard 지연 로드 — 첫 렌더를 막지 않습니다 (promo-proposal 과 같은 방식) -->
-<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<noscript><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css"></noscript>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">

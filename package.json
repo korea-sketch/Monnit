@@ -3,6 +3,7 @@
   "private": true,
   "description": "Monnit Korea 웹사이트 — Cloudflare Workers(wrangler.toml · cloudflare/) + R2. 빌드(build.js)는 의존성이 없고, 맞춤 제안서 함수는 pdf-lib·fontkit 을 사용합니다.",
   "dependencies": {
+    "esbuild": "0.25.10",
     "fontkit": "^2.0.4",
     "pdf-lib": "^1.17.1",
     "smol-toml": "^1.9.1"

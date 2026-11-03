@@ -1719,6 +1719,20 @@ label.inl input{margin:0;accent-color:var(--accent)}
   var RETURN_MAIL = "1015@monnit.com";
   function esc(v){ return String(v == null ? "" : v).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
   function kdate(s){ if(!s) return "—"; var p = String(s).split("-"); return p.length === 3 ? (p[0] + "년 " + Number(p[1]) + "월 " + Number(p[2]) + "일") : s; }
+  /* 2026-11-03 계약 기간 — 「고객 제출일부터」 방식이면 오늘 제출 기준으로 보여 주고, 실제 날짜는 제출 순간 서버가 정한다 */
+  function todayKst(){ return new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10); }
+  function termEnd(from, months){
+    var a = from.split("-").map(Number), e = new Date(Date.UTC(a[0], a[1] - 1 + months, a[2]));
+    if(e.getUTCDate() !== a[2]) return new Date(Date.UTC(a[0], a[1] - 1 + months + 1, 0)).toISOString().slice(0, 10);
+    e.setUTCDate(e.getUTCDate() - 1); return e.toISOString().slice(0, 10);
+  }
+  function termText(t){
+    if(t && t.fromMode === "submit" && !t.from){
+      var m = Number(t.termMonths) || 12, f = todayKst();
+      return "계약서 제출일부터 " + (m % 12 === 0 ? (m / 12) + "년" : m + "개월") + " (오늘 제출 시 " + kdate(f) + " ~ " + kdate(termEnd(f, m)) + ")";
+    }
+    return kdate(t.from) + " ~ " + kdate(t.to);
+  }
   function won(n){ return "￦ " + Number(n || 0).toLocaleString("ko-KR"); }
   function size(n){ return n > 1048576 ? (n / 1048576).toFixed(1) + "MB" : Math.max(1, Math.round(n / 1024)) + "KB"; }
 
@@ -1783,7 +1797,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
     rows += '<div class="row total"><span>월 청구액 <small style="font-weight:400;color:var(--muted)">(부가세 별도' + (pending ? " · 서울·경기·인천 기준" : "") + ')</small></span><span class="money">' + won(E.monthly) + "</span></div>";
     $("priceBox").innerHTML = rows;
     $("o_sol").textContent = solText(T.products || []);
-    $("o_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
+    $("o_term").textContent = termText(T);
     $("o_pay").textContent = T.pay || "—";
     $("o_bank").textContent = T.bank || "—";
     $("o_etc").innerHTML = etcHtml();
@@ -1793,7 +1807,7 @@ label.inl input{margin:0;accent-color:var(--accent)}
       : E.region === "other" ? (Number(E.regionFee) > 0 ? " · 지역 출장비 월 " + Number(E.regionFee).toLocaleString("ko-KR") + "원 포함(개소 수와 무관)" : " · 그 외 지역 1개소 월 " + Number(E.unit || 0).toLocaleString("ko-KR") + "원" + FREE) : E.region === "metro" ? FREE : E.region === "fixed" ? FREE : "") +
       (INST ? " · 설치비 " + INST.toLocaleString("ko-KR") + "원 (1회 · 부가세 별도)" : "");
     $("v_disc").textContent = E.discount ? " · 정가 " + won(E.list) + "에서 " + discLabel() + " 적용" : "";
-    $("v_term").textContent = kdate(T.from) + " ~ " + kdate(T.to);
+    $("v_term").textContent = termText(T);
     $("v_pay").textContent = T.pay || "—";
     $("v_bank").textContent = T.bank || "—";
     $("v_etc").innerHTML = etcHtml();

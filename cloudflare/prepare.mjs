@@ -66,6 +66,31 @@ rmrf(DIST);
 fs.mkdirSync(DIST, { recursive: true });
 walk(ROOT);
 
+/* ── 공개 JS·CSS 압축 (2026-11-03 속도) ─────────────────────────
+   저장소 원본은 주석·들여쓰기 그대로 두고, 방문자에게 나가는 dist/ 사본만 압축한다(전송량·해석 시간 감소).
+   · 전역 이름(함수·변수)은 바꾸지 않는다 — 페이지 안 <script> 가 app.js 함수를 부르므로
+   · 문법 변환 없음(최신 문법 그대로) · 라이선스 주석(/*! 로 시작하는 주석)은 남긴다
+   · esbuild 가 없거나 어떤 파일에서 오류가 나면 그 파일은 원본 그대로 둔다 — 배포는 멈추지 않는다
+   · 끄려면 환경변수 MINIFY=0 */
+if (process.env.MINIFY !== '0') {
+  let esb = null;
+  try { esb = await import('esbuild'); } catch (e) { console.warn('[cf] esbuild 없음 — JS·CSS 압축 건너뜀'); }
+  if (esb) {
+    let n = 0, before = 0, after = 0, failed = 0;
+    for (const f of publicFiles) {
+      const ext = path.extname(f).toLowerCase();
+      if ((ext !== '.js' && ext !== '.css') || /\.min\.(js|css)$/i.test(f)) continue;
+      const fp = path.join(DIST, f);
+      try {
+        const src = fs.readFileSync(fp, 'utf8');
+        const out = esb.transformSync(src, { loader: ext === '.css' ? 'css' : 'js', minify: true, legalComments: 'inline', charset: 'utf8' }).code;
+        if (out && out.length < src.length) { fs.writeFileSync(fp, out); n++; before += Buffer.byteLength(src); after += Buffer.byteLength(out); }
+      } catch (e) { failed++; console.warn('[cf] 압축 건너뜀(원본 사용):', f, String(e && e.message || e).split('\n')[0]); }
+    }
+    console.log(`[cf] JS·CSS 압축 ${n}개 — ${Math.round(before / 1024)}KB → ${Math.round(after / 1024)}KB${failed ? ` (건너뜀 ${failed}개)` : ''}`);
+  }
+}
+
 /* 비공개 사본 */
 let privCount = 0;
 for (const p of PRIVATE) {
