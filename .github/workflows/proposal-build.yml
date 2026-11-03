@@ -19,7 +19,7 @@ jobs:
         with:
           sparse-checkout: |
             cloudflare
-            netlify
+            server
             assets/fonts
             package.json
             package-lock.json
@@ -31,7 +31,7 @@ jobs:
           cache: npm
       - run: npm ci --omit=dev --no-audit --no-fund
       - name: 제안서 생성
-        run: node --import ./cloudflare/actions/register.mjs cloudflare/actions/build-proposal.mjs
+        run: node cloudflare/actions/build-proposal.mjs
         env:
           PAYLOAD: ${{ toJSON(github.event.client_payload) }}
           SITE_URL: ${{ secrets.SITE_URL }}
