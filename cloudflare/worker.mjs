@@ -36,6 +36,9 @@ import * as fn_visitadmin from '../server/functions/visitadmin.mjs';
 /* 긴급 경보 알리미 계약·설문·SLA (2026-10-16) */
 import * as fn_alarm from '../server/functions/alarm.mjs';
 import * as fn_geo from '../server/functions/geo.mjs';   /* 접속 국가 → 영문 첫 화면 (2026-10-28) */
+/* 알리미 구독 결제 — 토스페이먼츠 자동결제 · 회원/비회원 · 나라빌 엑셀 (2026-11-03) */
+import * as fn_billing from '../server/functions/billing.mjs';
+import * as fn_billing_cron from '../server/functions/billing-cron.mjs';
 /* 백그라운드 · 예약 */
 import * as fn_build_bg from '../server/functions/proposal-build-background.mjs';
 import * as fn_adsync from '../server/functions/adsync.mjs';
@@ -55,10 +58,10 @@ const V2 = {
   blockadmin: fn_blockadmin, blockapi: fn_blockapi, flowadmin: fn_flowadmin, lead: fn_lead,
   mailpreview: fn_mailpreview, noticeadmin: fn_noticeadmin, ops: fn_ops, 'proposal-admin': fn_proposal_admin,
   'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, 'support-chat': fn_support_chat, track: fn_track, visitadmin: fn_visitadmin,
-  alarm: fn_alarm, geo: fn_geo
+  alarm: fn_alarm, geo: fn_geo, billing: fn_billing
 };
 const BACKGROUND = { 'proposal-build-background': fn_build_bg };
-const SCHEDULED = { adsync: fn_adsync, health: fn_health, 'proposal-dispatch': fn_dispatch };
+const SCHEDULED = { adsync: fn_adsync, health: fn_health, 'proposal-dispatch': fn_dispatch, 'billing-cron': fn_billing_cron };
 const V1 = { getdoc: fn_getdoc, sendguide: fn_sendguide, sendpw: fn_sendpw };
 
 /* 경로 → 함수

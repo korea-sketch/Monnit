@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>알리미 결제 관리 | 모넷코리아</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<link rel="stylesheet" href="/css/billing.css?v=1">
+<style>
+body{font-size:15px}
+.wrap{max-width:1320px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:28px 0 18px}
+.top h1{margin:0;font-size:32px;letter-spacing:-.03em}
+.mode{font-size:12px;font-weight:600;padding:4px 10px;border-radius:980px}
+.mode.test{background:var(--amber-soft);color:var(--amber)} .mode.live{background:var(--green-soft);color:var(--green)} .mode.off{background:var(--red-soft);color:var(--red)}
+.top .sp{flex:1}
+.seg{display:inline-flex;background:var(--line2);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:7px 16px;border-radius:8px;font-size:14px;cursor:pointer;color:var(--text2);font-weight:500}
+.seg button.is-on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.tools input[type=search],.tools input[type=month],.tools select{height:36px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--card);font-size:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--card);border-radius:980px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chips button.is-on{background:var(--text);color:var(--card);border-color:var(--text)}
+.chips b{font-weight:600;margin-left:4px;opacity:.7}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line2)}
+.tbl th{font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--fill);white-space:nowrap}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--line2);font-size:14px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr{cursor:pointer} .tbl tbody tr:hover td{background:var(--fill)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl small{display:block;color:var(--muted);font-size:12px}
+.st{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:980px;background:var(--fill);color:var(--text2);white-space:nowrap}
+.st.active,.st.paid{background:var(--green-soft);color:var(--green)} .st.past_due,.st.failed{background:var(--red-soft);color:var(--red)}
+.st.registered,.st.issued{background:var(--blue-soft);color:var(--blue)} .st.pending,.st.invoice_pending{background:var(--amber-soft);color:var(--amber)} .st.canceled{color:var(--faint)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:14px 16px}
+.kpi small{color:var(--muted);font-size:12px} .kpi b{display:block;font-size:24px;letter-spacing:-.02em;margin-top:2px}
+.drawer{position:fixed;inset:0 0 0 auto;width:min(620px,100%);background:var(--bg);box-shadow:-20px 0 60px rgba(0,0,0,.18);z-index:40;overflow:auto;transform:translateX(100%);transition:transform .25s ease}
+.drawer.is-on{transform:none}
+.drawer__in{padding:22px 24px 60px}
+.drawer h2{margin:0;font-size:24px;letter-spacing:-.02em}
+.drawer .card{margin-top:14px;padding:16px 18px}
+.drawer .card h4{margin:0 0 8px;font-size:14px;color:var(--muted);font-weight:600}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;word-break:break-all}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.row input,.row select,.row textarea{height:36px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:var(--card);font-size:14px}
+.row textarea{height:80px;width:100%;padding:8px 10px}
+.mini{width:100%;border-collapse:collapse;font-size:13px}
+.mini td{padding:7px 4px;border-bottom:1px solid var(--line2)}
+.mini .num{text-align:right}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:35;display:none} .scrim.is-on{display:block}
+.login{max-width:380px;margin:12vh auto;text-align:center}
+.login h1{font-size:30px;margin:0 0 18px}
+.sets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:820px}
+.sets .full{grid-column:1/-1}
+.sel{background:var(--blue-soft);border-radius:12px;padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:14px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+@media (max-width:820px){.tbl .hide-m{display:none}.sets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar__in">
+  <a class="bar__logo" href="/billing-admin"><img src="/logo.png" alt="Monnit"><span>알리미 결제 관리</span></a>
+  <div class="bar__right"><a href="/contract-admin">계약 관리</a><a href="/pay" target="_blank">결제 화면</a><a href="#" id="out">로그아웃</a></div>
+</div></header>
+
+<main class="wrap">
+  <section class="login" id="login" hidden>
+    <h1>관리자 로그인</h1>
+    <div class="field"><input id="key" type="password" placeholder=" " autocomplete="current-password"><label for="key">관리 키 (계약 관리와 같음)</label></div>
+    <button class="btn btn--dark btn--block" id="keyBtn" style="margin-top:12px">로그인</button>
+    <div class="err" id="keyErr"></div>
+  </section>
+
+  <section id="app" hidden>
+    <div class="top">
+      <h1>결제 관리</h1><span class="mode" id="mode"></span><span class="sp"></span>
+      <div class="seg" id="tabs"><button data-t="subs" class="is-on">구독</button><button data-t="pays">결제 내역</button><button data-t="quote">견적 · 결제 링크</button><button data-t="cash">현금 결제 문의<b id="cashBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="inv">세금계산서 · 나라빌</button><button data-t="set">설정</button></div>
+    </div>
+
+    <!-- 구독 -->
+    <div data-v="subs">
+      <div class="kpis" id="kpis"></div>
+      <div class="tools"><div class="chips" id="chips"></div><span class="sp" style="flex:1"></span><input type="search" id="q" placeholder="상호 · 구독번호 · 이메일 검색"><button class="btn btn--line btn--sm" id="runCron" title="오늘까지 도래한 정기결제를 지금 처리">정기결제 지금 실행</button><button class="btn btn--line btn--sm" id="csvSubs">CSV</button></div>
+      <table class="tbl"><thead><tr><th>구독</th><th>고객</th><th class="hide-m">구성</th><th class="num">월 결제액</th><th>수단</th><th>상태</th><th>다음 결제</th></tr></thead><tbody id="subRows"></tbody></table>
+    </div>
+
+    <!-- 결제 내역 -->
+    <div data-v="pays" hidden>
+      <div class="tools"><input type="month" id="month"><button class="btn btn--line btn--sm" id="csvPays">CSV 내려받기</button></div>
+      <div class="kpis" id="payKpis"></div>
+      <table class="tbl"><thead><tr><th>일시</th><th>주문번호</th><th>고객</th><th class="hide-m">기간</th><th>수단</th><th class="num">금액</th><th>상태</th></tr></thead><tbody id="payRows"></tbody></table>
+    </div>
+
+    <!-- 견적 → 결제 링크 -->
+    <div data-v="quote" hidden>
+      <p class="note note--blue" style="margin-top:0"><span><b>논스톱 결제</b> — 견적을 확정해 링크를 보내면 고객은 링크에서 정보 확인 → 약관·의무기간 동의 → 카드 등록까지 한 번에 끝냅니다. 현금을 원하면 같은 화면에서 「현금 결제」 상담으로 넘어옵니다.</span></p>
+      <div class="card" style="margin-bottom:18px">
+        <h4>새 견적</h4>
+        <div class="sets">
+          <div class="field"><input id="qt_company" placeholder=" "><label for="qt_company">상호</label></div>
+          <div class="field"><input id="qt_manager" placeholder=" "><label for="qt_manager">담당자</label></div>
+          <div class="field"><input id="qt_phone" placeholder=" "><label for="qt_phone">휴대전화</label></div>
+          <div class="field"><input id="qt_email" placeholder=" "><label for="qt_email">이메일 (링크 보낼 곳)</label></div>
+          <div class="field"><input id="qt_site" placeholder=" "><label for="qt_site">설치 현장</label></div>
+          <div class="field"><input id="qt_siteAddr" placeholder=" "><label for="qt_siteAddr">설치 주소</label></div>
+        </div>
+        <h4 style="margin-top:16px">구성</h4>
+        <div id="qtLines"></div>
+        <button class="btn btn--ghost btn--sm" id="qtAdd" type="button">+ 항목 추가</button>
+        <div class="sets" style="margin-top:12px">
+          <div class="field"><input id="qt_unit" type="number" step="1000" placeholder=" " value="30000"><label for="qt_unit">1개소 월 단가 (원, VAT 별도)</label></div>
+          <div class="field"><select id="qt_dtype"><option value="none">할인 없음</option><option value="amount">월 할인액(원)</option><option value="percent">할인율(%)</option></select><label for="qt_dtype" style="top:7px;font-size:12px">할인</label></div>
+          <div class="field"><input id="qt_dval" type="number" placeholder=" " value="0"><label for="qt_dval">할인 값</label></div>
+          <div class="field"><input id="qt_install" type="number" step="10000" placeholder=" " value="0"><label for="qt_install">설치비 (1회 · VAT 별도, 0=무료)</label></div>
+          <div class="field"><input id="qt_term" type="number" placeholder=" " value="36"><label for="qt_term">의무 사용기간 (개월)</label></div>
+          <div class="field"><input id="qt_days" type="number" placeholder=" " value="14"><label for="qt_days">견적 유효기간 (일)</label></div>
+          <div class="field full"><input id="qt_note" placeholder=" "><label for="qt_note">고객에게 보이는 안내 (예: 지하 집수정 2곳 · 기계실 분전반 1곳 기준)</label></div>
+          <input type="hidden" id="qt_inquiry">
+        </div>
+        <div class="row" style="justify-content:space-between;margin-top:12px"><b id="qtTotal" style="font-size:18px"></b><span><button class="btn btn--sm" id="qtCreate">견적 링크 만들기</button></span></div>
+        <div id="qtResult"></div>
+      </div>
+      <table class="tbl"><thead><tr><th>견적</th><th>고객</th><th class="hide-m">구성</th><th class="num">월 결제액</th><th>유효기간</th><th>상태</th><th></th></tr></thead><tbody id="qtRows"></tbody></table>
+    </div>
+
+    <!-- 현금 결제 문의 -->
+    <div data-v="cash" hidden>
+      <p class="note note--blue" style="margin-top:0"><span>결제 화면에서 「현금 결제」를 고른 고객의 상담 요청입니다. 담당자 메일(1015@·5959@)과 먼데이 리드 보드에도 함께 들어갑니다.
+        통화로 확정되면 <b>계약 링크(/contract-admin)</b>로 서면 계약을 받거나, 행을 눌러 <b>「세금계산서 구독으로 등록」</b> → 「구독」 탭에서 서비스 개시하세요.</span></p>
+      <div class="tools"><div class="chips" id="cqChips"></div></div>
+      <table class="tbl"><thead><tr><th>접수</th><th>고객</th><th>연락처</th><th class="hide-m">구성</th><th>결제 방식</th><th>연락 희망</th><th>상태</th></tr></thead><tbody id="cqRows"></tbody></table>
+    </div>
+
+    <!-- 세금계산서 -->
+    <div data-v="inv" hidden>
+      <p class="note note--blue" style="margin-top:0"><span><b>나라빌 대량발행</b> — 발행할 청구를 골라 「나라빌 엑셀」을 내려받은 뒤 나라빌 → 세금계산서 → 엑셀 대량발행에 올리세요. 올린 뒤 「발행 완료로 표시」를 누르면 목록이 정리됩니다.
+        카드 자동결제분은 카드 매출전표가 증빙이므로 세금계산서를 따로 발행하지 않습니다(부가가치세법 제33조②).</span></p>
+      <div class="tools"><div class="chips" id="invChips"></div><input type="month" id="invMonth"></div>
+      <div class="sel" id="invSel" hidden><b id="invCount"></b><button class="btn btn--sm" id="xlsx">나라빌 엑셀 내려받기</button><button class="btn btn--line btn--sm" data-inv="issued">발행 완료로 표시</button><button class="btn btn--line btn--sm" data-inv="paid">입금 확인</button><button class="btn btn--ghost btn--sm" data-inv="invoice_pending">발행 대기로 되돌리기</button></div>
+      <table class="tbl"><thead><tr><th><input type="checkbox" id="invAll"></th><th>작성일자</th><th>공급받는자</th><th>사업자번호</th><th class="hide-m">품목</th><th class="num">공급가액</th><th class="num">세액</th><th class="num">합계</th><th>상태</th></tr></thead><tbody id="invRows"></tbody></table>
+    </div>
+
+    <!-- 설정 -->
+    <div data-v="set" hidden>
+      <h3 style="margin:8px 0 4px">공급자 정보 (세금계산서)</h3><p style="color:var(--muted);margin:0 0 14px;font-size:14px">나라빌 엑셀의 공급자 칸에 들어갑니다.</p>
+      <div class="sets" id="sets"></div>
+      <h3 style="margin:28px 0 4px">의무 사용기간</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">홈페이지 직접 신청 구독에 적용 · 서비스 개시일부터. 바꾸면 이후 신청분부터 적용되고 기존 구독은 그대로입니다. 계약 링크 구독은 계약서 기간을 따릅니다.</p>
+      <div class="sets"><div class="field"><input id="s_term" type="number" min="0" max="60" placeholder=" "><label for="s_term">개월 (0 = 없음)</label></div></div>
+      <h3 style="margin:28px 0 4px">결제 방식</h3>
+      <div class="choices" style="max-width:820px;margin-top:10px">
+        <label class="choice" data-ca="activation"><input type="radio" name="ca"><b>설치 완료일에 첫 결제 (권장)</b><span>카드만 등록해 두고, 이 화면에서 「서비스 개시」를 누르는 날 첫 결제 · 이후 매달 같은 날</span></label>
+        <label class="choice" data-ca="signup"><input type="radio" name="ca"><b>카드 등록 즉시 첫 결제</b><span>신청과 동시에 첫 달 이용료 결제 · 이후 매달 같은 날</span></label>
+      </div>
+      <div class="submit"><button class="btn btn--dark" id="saveSet">저장</button><span class="err" id="setMsg" style="margin-left:12px"></span></div>
+    </div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="구독 상세"><div class="drawer__in" id="dIn"></div></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const wonK = (n) => Number(n || 0).toLocaleString("ko-KR") + "원";
+const num = (n) => Number(n || 0).toLocaleString("ko-KR");
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const dt = (s) => s ? new Date(s).toLocaleString("ko-KR", { timeZone: "Asia/Seoul", year: "2-digit", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+const today = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+const ST = { pending: "카드 등록 대기", registered: "설치 대기", active: "이용 중", past_due: "결제 실패", canceled: "해지" };
+const PST = { paid: "결제 완료", failed: "실패", canceled: "취소", partial_canceled: "부분 취소", invoice_pending: "발행 대기", issued: "발행 · 입금 대기", transfer_pending: "입금 대기", void: "청구 취소" };
+const needsStaff = (s) => s.status !== "canceled" && ((s.consult && !s.consult.done) || (s.cancel && s.cancel.pendingStaff));
+let KEY = sessionStorage.getItem("alarmAdminKey") || "", SUBS = [], PAYS = [], SET = null;
+function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("is-on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("is-on"), 3200); }
+async function api(path, body) {
+  const r = await fetch("/api/billing/admin/" + path, { method: body ? "POST" : "GET", headers: { "x-admin-key": KEY, ...(body ? { "content-type": "application/json" } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 401) { sessionStorage.removeItem("alarmAdminKey"); KEY = ""; showLogin(); throw new Error("unauthorized"); }
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  return j;
+}
+function showLogin() { $("#login").hidden = false; $("#app").hidden = true; }
+$("#keyBtn").addEventListener("click", login); $("#key").addEventListener("keydown", (e) => e.key === "Enter" && login());
+async function login() {
+  KEY = $("#key").value.trim();
+  try { const j = await api("ping"); if (j.ok) { sessionStorage.setItem("alarmAdminKey", KEY); start(); } } catch (e) { $("#keyErr").textContent = "관리 키가 맞지 않습니다."; }
+}
+$("#out").addEventListener("click", (e) => { e.preventDefault(); sessionStorage.removeItem("alarmAdminKey"); KEY = ""; showLogin(); });
+if (KEY) start(); else showLogin();
+
+async function start() {
+  $("#login").hidden = true; $("#app").hidden = false;
+  $("#month").value = $("#invMonth").value = today().slice(0, 7);
+  await loadSubs();
+  loadCash(true);
+}
+$$("#tabs button").forEach((b) => b.addEventListener("click", () => {
+  $$("#tabs button").forEach((x) => x.classList.toggle("is-on", x === b));
+  $$("[data-v]").forEach((v) => (v.hidden = v.dataset.v !== b.dataset.t));
+  if (b.dataset.t === "pays") loadPays();
+  if (b.dataset.t === "inv") loadInv();
+  if (b.dataset.t === "cash") loadCash();
+  if (b.dataset.t === "quote") loadQuotes();
+  if (b.dataset.t === "set") loadSet();
+}));
+
+/* ── 구독 ── */
+let FILTER = "all";
+async function loadSubs() {
+  const j = await api("list");
+  SUBS = j.subs || [];
+  const m = $("#mode");
+  m.className = "mode " + (!j.ready ? "off" : j.test ? "test" : "live");
+  m.textContent = !j.ready ? "토스 키 미설정 · 카드 결제 불가" : j.test ? "테스트 결제 모드" : "실결제 모드";
+  const live = SUBS.filter((s) => s.status === "active");
+  const mrr = live.reduce((a, s) => a + (s.plan.supply || 0), 0);
+  $("#kpis").innerHTML = [["이용 중", live.length + "건"], ["월 반복 매출 (공급가)", wonK(mrr)], ["설치 대기", SUBS.filter((s) => s.status === "registered").length + "건"], ["결제 실패", SUBS.filter((s) => s.status === "past_due").length + "건"], ["해지 상담 요청", SUBS.filter(needsStaff).length + "건"]]
+    .map(([a, b]) => `<div class="kpi"><small>${a}</small><b>${b}</b></div>`).join("");
+  const cnt = (k) => k === "all" ? SUBS.filter((s) => s.status !== "pending").length : k === "cancelreq" ? SUBS.filter(needsStaff).length : SUBS.filter((s) => s.status === k).length;
+  $("#chips").innerHTML = [["all", "전체"], ["registered", "설치 대기"], ["active", "이용 중"], ["past_due", "결제 실패"], ["cancelreq", "해지 상담"], ["canceled", "해지"], ["pending", "카드 등록 대기"]]
+    .map(([k, l]) => `<button data-f="${k}" class="${FILTER === k ? "is-on" : ""}">${l}<b>${cnt(k)}</b></button>`).join("");
+  $$("#chips button").forEach((b) => b.addEventListener("click", () => { FILTER = b.dataset.f; loadSubsRender(); $$("#chips button").forEach((x) => x.classList.toggle("is-on", x === b)); }));
+  loadSubsRender();
+}
+$("#q").addEventListener("input", loadSubsRender);
+function filtered() {
+  const q = $("#q").value.trim().toLowerCase();
+  return SUBS.filter((s) => FILTER === "all" ? s.status !== "pending" : FILTER === "cancelreq" ? needsStaff(s) : s.status === FILTER)
+    .filter((s) => !q || [s.id, s.customer.company, s.customer.email, s.customer.manager, s.contractRef].join(" ").toLowerCase().includes(q));
+}
+function loadSubsRender() {
+  const rows = filtered();
+  $("#subRows").innerHTML = rows.length ? rows.map((s) => `<tr data-id="${esc(s.id)}">
+    <td><b>${esc(s.id)}</b><small>${dt(s.createdAt)} · ${s.source === "contract" ? "계약 " + esc(s.contractRef) : "직접 신청"} · ${s.member ? "회원" : "비회원"}</small></td>
+    <td>${esc(s.customer.company)}<small>${esc(s.customer.manager)} · ${esc(s.customer.phone)}</small></td>
+    <td class="hide-m">${esc(s.plan.label)}<small>${s.plan.qty}개소 · ${esc(s.customer.siteAddr || "").slice(0, 24)}</small></td>
+    <td class="num">${wonK(s.plan.total)}<small>공급가 ${num(s.plan.supply)}</small></td>
+    <td>${s.method === "card" ? `카드<small>${esc(s.card ? s.card.company + " " + (s.card.last4 || "") : "미등록")}</small>` : "세금계산서"}</td>
+    <td><span class="st ${s.status}">${ST[s.status] || s.status}</span>${s.cancel && s.status !== "canceled" ? `<small>${s.cancel.pendingStaff ? "해지 요청" : (s.cancel.atTermEnd ? "만기 해지 " : "해지 예정 ") + esc(s.cancel.effective || "")}</small>` : ""}${s.consult && !s.consult.done && s.status !== "canceled" ? "<small style='color:var(--red)'>중도 해지 상담 요청</small>" : ""}${s.term ? `<small>약정 ~${esc(s.term.to)}</small>` : ""}${s.failCount ? `<small>실패 ${s.failCount}회</small>` : ""}</td>
+    <td>${esc(s.retryAt || s.nextChargeAt || "—")}${s.retryAt ? "<small>재시도</small>" : ""}</td></tr>`).join("") : `<tr><td colspan="7" class="empty">해당하는 구독이 없습니다.</td></tr>`;
+  $$("#subRows tr[data-id]").forEach((tr) => tr.addEventListener("click", () => openSub(tr.dataset.id)));
+}
+$("#runCron").addEventListener("click", async (e) => {
+  if (!confirm("오늘까지 결제일이 된 구독을 지금 결제(세금계산서는 청구 생성)할까요?")) return;
+  e.target.disabled = true; const j = await api("cron", {}); e.target.disabled = false;
+  toast(`처리 ${j.done ? j.done.length : 0}건 · 남은 ${j.left || 0}건`); loadSubs();
+});
+$("#csvSubs").addEventListener("click", () => csv("알리미_구독_" + today() + ".csv", [["구독번호", "상태", "경로", "계약번호", "회원", "상호", "사업자번호", "담당자", "휴대전화", "이메일", "설치 현장", "설치 주소", "구성", "개소", "월 공급가", "월 부가세", "월 결제액", "설치비", "결제 수단", "카드", "서비스 시작", "다음 결제일", "결제 회차", "신청일"],
+  ...filtered().map((s) => [s.id, ST[s.status], s.source === "contract" ? "계약" : "직접", s.contractRef, s.member ? "회원" : "비회원", s.customer.company, s.customer.bizNo, s.customer.manager, s.customer.phone, s.customer.email, s.customer.site, s.customer.siteAddr, s.plan.label, s.plan.qty, s.plan.supply, s.plan.vat, s.plan.total, s.plan.installFee || 0, s.method === "card" ? "카드" : "세금계산서", s.card ? s.card.company + " " + s.card.last4 : "", s.startedAt || "", s.nextChargeAt || "", s.cycle || 0, s.createdAt])]));
+
+/* 상세 */
+let CUR = null;
+async function openSub(id) {
+  const j = await api("sub?id=" + encodeURIComponent(id));
+  if (!j.ok) return toast("불러오지 못했습니다.");
+  CUR = j.sub; const s = j.sub, c = s.customer, p = s.plan;
+  $("#dIn").innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px"><h2>${esc(c.company)}</h2><span class="st ${s.status}">${ST[s.status]}</span><span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="dClose">닫기</button></div>
+    <p style="color:var(--muted);margin:4px 0 0">${esc(s.id)} · ${s.source === "contract" ? "계약 " + esc(s.contractRef) : "홈페이지 직접 신청"} · ${s.member ? "회원" : "비회원"}</p>
+    ${s.cancel && s.status !== "canceled" ? `<p class="note note--amber"><span><b>${s.cancel.pendingStaff ? "고객 해지 요청 — 계약 조건 확인 후 처리" : "해지 예정 " + esc(s.cancel.effective)}</b> ${esc(s.cancel.reason || "")}</span></p>` : ""}
+    ${s.consult && !s.consult.done && s.status !== "canceled" ? `<p class="note note--amber"><span><b>중도 해지 상담 요청 (${dt(s.consult.at)})</b> ${esc(s.consult.reason || "")} — 고객과 통화한 뒤 아래 「중도 해지 처리」 또는 「유지로 종결」을 눌러 주세요.</span></p>` : ""}
+    ${s.status === "past_due" ? `<p class="note note--amber"><span><b>자동 재시도가 끝났습니다.</b> 고객이 카드를 바꾸면 바로 결제됩니다. ${esc(s.lastPay && s.lastPay.error ? s.lastPay.error.code + " " + (s.lastPay.error.message || "") : "")}</span></p>` : ""}
+    <div class="card"><h4>할 일</h4>
+      ${s.status === "registered" ? `<div class="row"><b>서비스 개시 (첫 결제)</b><input type="date" id="actDate" value="${today()}"><button class="btn btn--sm" id="actBtn">${s.method === "card" ? "개시하고 결제" : "개시"}</button></div><p style="font-size:13px;color:var(--muted);margin:6px 0 0">설치 완료일을 넣으세요. 오늘 이전이면 바로 첫 결제(설치비 포함)가 진행되고, 이후로는 매달 같은 날 자동 결제됩니다.</p>` : ""}
+      ${["active", "past_due"].includes(s.status) ? `<div class="row"><button class="btn btn--line btn--sm" id="chargeBtn">지금 결제 ${s.method === "invoice" ? "(청구 생성)" : ""}</button><span style="font-size:13px;color:var(--muted)">다음 회차(${esc(s.nextChargeAt || "—")}) 금액 ${wonK(p.total)}</span></div>
+        <div class="row"><span style="width:110px">다음 결제일</span><input type="date" id="nextDate" value="${esc(s.nextChargeAt || "")}"><button class="btn btn--line btn--sm" id="nextBtn">변경</button></div>` : ""}
+      ${s.status !== "canceled" ? `
+        <div class="row"><span style="width:110px">해지 예약</span>${s.term ? `<button class="btn btn--line btn--sm" id="cxTerm">만기(${esc(s.term.to)}) 해지 예약</button>` : ""}<input type="date" id="cxDate" value="${esc(s.nextChargeAt || today())}"><button class="btn btn--line btn--sm" id="cxBtn">이 날부터 결제 중단</button>${s.cancel || (s.consult && !s.consult.done) ? `<button class="btn btn--ghost btn--sm" id="cxUndo">해지·상담 철회</button>` : ""}</div>
+        <div class="row"><span style="width:110px">${s.monthsLeft ? "중도 해지" : "즉시 해지"}</span>${s.monthsLeft ? `<input type="number" id="penalty" min="0" step="1000" value="0" style="width:140px" aria-label="위약금"><span style="font-size:13px">원 위약금</span>` : ""}<button class="btn btn--danger btn--sm" id="cxNow">${s.monthsLeft ? "중도 해지 처리" : "즉시 해지"}</button>${s.consult && !s.consult.done ? `<button class="btn btn--line btn--sm" id="cxKeep">유지로 종결</button>` : ""}</div>
+        ${s.monthsLeft ? `<p style="font-size:13px;color:var(--muted);margin:6px 0 0">의무 사용기간 남은 ${s.monthsLeft}개월 · 잔여 이용료 합계 ${wonK(s.remainingFees)}(공급가, 참고). 위약금은 약관·계약서 기준으로 정해 입력하세요(0이면 청구 없이 해지). 카드 고객은 등록 카드로 바로 결제되고, 세금계산서 고객은 「입금 대기」로 남습니다. 위약금은 부가세 없이 처리됩니다.</p>` : ""}` : ""}
+      <div class="row"><textarea id="memo" placeholder="내부 메모 (고객에게 보이지 않음)">${esc(s.staffMemo || "")}</textarea></div>
+      <div class="row"><button class="btn btn--line btn--sm" id="memoBtn">메모 저장</button><span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="delBtn" style="color:var(--red)">테스트 건 삭제</button></div>
+    </div>
+    <div class="card"><h4>구성 · 금액</h4><dl class="kv">
+      <dt>구성</dt><dd>${esc(p.label)} · ${p.qty}개소${p.lines && p.lines.length > 1 ? "<br><small>" + p.lines.map((l) => esc(l.label) + (l.qty ? " " + l.qty + "곳" : "")).join(" · ") + "</small>" : ""}</dd>
+      <dt>월 결제액</dt><dd>${wonK(p.total)} (공급가 ${wonK(p.supply)} + 부가세 ${wonK(p.vat)})${p.discount ? " · 할인 " + wonK(p.discount) : ""}</dd>
+      <dt>설치비</dt><dd>${p.installFee ? wonK(p.installFee) + " (VAT 별도) · " + (s.installPaid ? "결제됨" : "첫 결제에 포함") : "무료"}</dd>
+      <dt>결제 수단</dt><dd>${s.method === "card" ? `카드 자동결제 · ${esc(s.card ? s.card.company + " " + s.card.number : "카드 미등록")}${s.cardChanges ? ` (변경 ${s.cardChanges}회)` : ""}` : "세금계산서 · 계좌이체"}</dd>
+      <dt>서비스 시작</dt><dd>${esc(s.startedAt || "—")} · 기준일 매월 ${s.anchorDay || "—"}일</dd>
+      <dt>의무 사용기간</dt><dd>${s.term ? `${esc(s.term.from)} ~ ${esc(s.term.to)} ${s.monthsLeft ? `(남은 ${s.monthsLeft}개월 · 기간 중 고객 해지 불가)` : "(만료 · 매월 자동 연장)"}` : p.termMonths ? `개시일부터 ${p.termMonths}개월` : p.to ? `${esc(p.from)} ~ ${esc(p.to)} (계약서)` : "없음"}${s.renewNoticeAt ? `<br><small>만료 안내 메일 ${dt(s.renewNoticeAt)}</small>` : ""}</dd>
+      ${s.penalty ? `<dt>위약금</dt><dd>${wonK(s.penalty.amount)} · ${PST[s.penalty.status] || s.penalty.status || s.penalty.error}</dd>` : ""}
+      <dt>결제됨</dt><dd>${s.cycle || 0}회차 · ${esc(s.paidThrough || "—")}까지</dd>
+      <dt>정기결제 동의</dt><dd>${dt(s.agree && s.agree.at)} · ${esc(s.agree && s.agree.ip)}</dd>
+    </dl></div>
+    <div class="card"><h4>고객</h4><dl class="kv">
+      <dt>상호</dt><dd>${esc(c.company)}</dd><dt>사업자번호</dt><dd>${esc(c.bizNo || "—")}</dd><dt>대표자</dt><dd>${esc(c.ceo || "—")}</dd>
+      <dt>담당자</dt><dd>${esc(c.manager)} · <a href="tel:${esc(c.phone)}">${esc(c.phone)}</a></dd><dt>이메일</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>
+      <dt>설치 현장</dt><dd>${esc(c.site)}<br>${esc(c.siteAddr)}</dd><dt>사업장 주소</dt><dd>${esc(c.address || "—")}</dd><dt>업태 · 종목</dt><dd>${esc([c.bizType, c.bizItem].filter(Boolean).join(" · ") || "—")}</dd>
+    </dl></div>
+    <div class="card"><h4>결제 · 청구 내역</h4>${j.pays.length ? `<table class="mini">${j.pays.map((x) => `<tr><td>${x.cycle}회<br><small style="color:var(--muted)">${esc(x.orderId)}</small></td><td>${esc(x.period.from)}~${esc(x.period.to.slice(5))}<br><small style="color:var(--muted)">${dt(x.approvedAt || x.createdAt)}${x.error ? " · " + esc(x.error.code) : ""}</small></td><td class="num">${wonK(x.amount)}${x.canceledAmount ? `<br><small>취소 ${num(x.canceledAmount)}</small>` : ""}</td><td><span class="st ${x.status}">${PST[x.status] || x.status}</span></td><td>${x.receiptUrl ? `<a href="${esc(x.receiptUrl)}" target="_blank">전표</a>` : ""} ${["paid", "partial_canceled"].includes(x.status) && x.paymentKey ? `<button class="btn btn--ghost btn--sm" data-refund="${esc(x.orderId)}" data-amt="${x.amount - (x.canceledAmount || 0)}">취소</button>` : ""}${!x.paymentKey && ["invoice_pending", "issued", "transfer_pending"].includes(x.status) ? `<button class="btn btn--ghost btn--sm" data-void="${esc(x.orderId)}">청구 취소</button>` : ""}${x.status === "transfer_pending" || x.status === "issued" ? `<button class="btn btn--ghost btn--sm" data-paid="${esc(x.orderId)}">입금 확인</button>` : ""}${x.kind === "penalty" ? "<br><small>위약금</small>" : ""}</td></tr>`).join("")}</table>` : `<p style="color:var(--muted);margin:0">아직 없습니다.</p>`}</div>`;
+  $("#drawer").classList.add("is-on"); $("#scrim").classList.add("is-on");
+  const on = (id, fn) => { const el = $("#" + id); if (el) el.addEventListener("click", async () => { el.disabled = true; try { await fn(); } finally { el.disabled = false; } }); };
+  on("dClose", closeD);
+  on("actBtn", async () => { if (!confirm(`${$("#actDate").value} 서비스 개시${s.method === "card" ? " — 오늘 이전 날짜면 바로 첫 결제가 진행됩니다" : ""}. 진행할까요?`)) return; const r = await api("activate", { id: s.id, start: $("#actDate").value }); toast(r.ok ? (r.result && r.result.status ? `첫 결제: ${PST[r.result.status] || r.result.status} ${wonK(r.result.amount)}` : "개시 예약됨") : "실패: " + (r.error || "") + " " + (r.result && r.result.error ? r.result.error.message : "")); refresh(s.id); });
+  on("chargeBtn", async () => { if (!confirm("지금 결제할까요?")) return; const r = await api("charge", { id: s.id }); toast(r.ok ? `결제 완료 ${wonK(r.result.amount)}` : "결제 실패: " + (r.result && r.result.error ? r.result.error.message || r.result.error.code : r.error)); refresh(s.id); });
+  on("nextBtn", async () => { const r = await api("update", { id: s.id, nextChargeAt: $("#nextDate").value }); toast(r.ok ? "다음 결제일을 바꿨습니다." : r.error); refresh(s.id); });
+  on("cxBtn", async () => { if (!confirm(`${$("#cxDate").value}부터 결제를 멈추고 그날 해지로 마무리합니다.`)) return; const r = await api("cancel", { id: s.id, effective: $("#cxDate").value }); toast(r.ok ? "해지 예약됨" : r.error); refresh(s.id); });
+  on("cxNow", async () => {
+    const pen = $("#penalty") ? Number($("#penalty").value) || 0 : 0;
+    if (!confirm(s.monthsLeft ? `의무 사용기간 중 해지입니다.\n위약금 ${wonK(pen)}${pen ? (s.method === "card" ? "을 등록 카드로 바로 결제" : "을 입금 대기로 청구") : " (청구 없음)"}하고 지금 해지할까요?\n이미 결제된 이용료는 자동으로 환불되지 않습니다.` : "지금 바로 해지합니다. (이미 결제된 금액은 자동으로 환불되지 않습니다)")) return;
+    const r = await api("cancel", { id: s.id, mode: "now", penalty: pen });
+    toast(r.ok ? "해지됨" + (r.penalty ? ` · 위약금 ${PST[r.penalty.status] || r.penalty.status}` : "") : r.error === "penalty_failed" ? "위약금 결제 실패로 해지하지 않았습니다: " + (r.penalty && r.penalty.error ? r.penalty.error.message || r.penalty.error.code : "") : r.error); refresh(s.id); });
+  on("cxTerm", async () => { if (!confirm(`의무 사용기간 만료일(${s.term.to})까지 결제하고 다음 날부터 결제를 멈춥니다.`)) return; const r = await api("cancel", { id: s.id, mode: "term_end" }); toast(r.ok ? "만기 해지 예약" : r.error); refresh(s.id); });
+  on("cxKeep", async () => { const r = await api("cancel", { id: s.id, mode: "keep" }); toast(r.ok ? "상담 종결(유지)" : r.error); refresh(s.id); });
+  on("cxUndo", async () => { const r = await api("cancel", { id: s.id, mode: "undo" }); toast(r.ok ? "해지 철회" : r.error); refresh(s.id); });
+  $$("[data-void]").forEach((b) => b.addEventListener("click", async () => { const reason = prompt("청구 취소 사유 (세금계산서를 이미 발행했다면 나라빌에서 수정(취소)발행도 해 주세요)", ""); if (reason === null) return; const r = await api("invoice", { orderIds: [b.dataset.void], status: "void", reason }); toast(r.ok ? "청구 취소" : r.error); refresh(s.id); }));
+  $$("[data-paid]").forEach((b) => b.addEventListener("click", async () => { const r = await api("invoice", { orderIds: [b.dataset.paid], status: "paid" }); toast(r.ok ? "입금 확인" : r.error); refresh(s.id); }));
+  on("memoBtn", async () => { const r = await api("update", { id: s.id, staffMemo: $("#memo").value }); toast(r.ok ? "저장됨" : r.error); });
+  on("delBtn", async () => { if (!confirm("이 구독과 결제 기록을 모두 지웁니다(테스트 건 정리용). 되돌릴 수 없습니다.")) return; await api("delete", { ids: [s.id] }); closeD(); loadSubs(); });
+  $$("[data-refund]").forEach((b) => b.addEventListener("click", async () => {
+    const amt = prompt(`취소(환불)할 금액 — 최대 ${num(b.dataset.amt)}원, 비우면 남은 금액 전액.\n카드사 승인 취소로 처리되고 고객에게 취소 안내 메일이 갑니다.`, "");
+    if (amt === null) return;
+    const reason = prompt("취소 사유", "고객 요청") || "고객 요청";
+    const r = await api("refund", { orderId: b.dataset.refund, amount: amt ? Number(amt.replace(/\D/g, "")) : 0, reason });
+    toast(r.ok ? "결제를 취소했습니다 · 고객 메일 발송" : r.error === "over_amount" ? "남은 금액보다 큽니다." : "취소 실패: " + (r.message || r.error)); refresh(s.id);
+  }));
+}
+async function refresh(id) { await loadSubs(); openSub(id); }
+function closeD() { $("#drawer").classList.remove("is-on"); $("#scrim").classList.remove("is-on"); }
+$("#scrim").addEventListener("click", closeD);
+document.addEventListener("keydown", (e) => e.key === "Escape" && closeD());
+
+/* ── 견적 → 결제 링크 ── */
+const PRODS = { fire: "화재경보 연동 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
+let QT = [], QSITE = location.origin;
+function qtLine(l = { product: "fire", qty: 1, label: "" }) {
+  const d = document.createElement("div"); d.className = "row qt-line";
+  d.innerHTML = `<select class="ql-p">${Object.entries(PRODS).map(([k, v]) => `<option value="${k}" ${k === l.product ? "selected" : ""}>${v}</option>`).join("")}</select>
+    <input class="ql-l" placeholder="항목명 (커스텀일 때)" value="${esc(l.label || "")}" style="flex:1;min-width:140px"><input class="ql-q" type="number" min="1" value="${l.qty}" style="width:80px"><span>개소</span><button class="btn btn--ghost btn--sm ql-x" type="button">삭제</button>`;
+  d.querySelector(".ql-x").onclick = () => { d.remove(); qtCalc(); };
+  d.querySelectorAll("input,select").forEach((x) => x.addEventListener("input", qtCalc));
+  $("#qtLines").appendChild(d);
+}
+function qtBody() {
+  const lines = $$(".qt-line").map((d) => ({ product: d.querySelector(".ql-p").value, label: d.querySelector(".ql-l").value || (d.querySelector(".ql-p").value === "custom" ? "커스텀 알리미" : ""), qty: Number(d.querySelector(".ql-q").value) || 1 }));
+  const v = (k) => $("#qt_" + k).value.trim();
+  return { lines, unit: Number(v("unit")), discountType: v("dtype"), discountValue: Number(v("dval")) || 0, installFee: Number(v("install")) || 0, termMonths: v("term"), expiresDays: Number(v("days")) || 14, note: v("note"), inquiryId: v("inquiry"),
+    customer: { company: v("company"), manager: v("manager"), phone: v("phone"), email: v("email"), site: v("site"), siteAddr: v("siteAddr") } };
+}
+function qtCalc() {
+  const b = qtBody(), qty = b.lines.reduce((a, l) => a + l.qty, 0), list = b.unit * qty;
+  const disc = b.discountType === "percent" ? Math.round(list * Math.min(100, b.discountValue) / 100) : b.discountType === "amount" ? Math.min(list, b.discountValue) : 0;
+  const sup = list - disc, tot = sup + Math.floor(sup * 0.1);
+  $("#qtTotal").textContent = `${qty}개소 · 월 ${wonK(sup)} + 부가세 = 매월 ${wonK(tot)}${b.installFee ? ` · 설치비 ${wonK(b.installFee)}` : ""}`;
+}
+["unit", "dtype", "dval", "install"].forEach((k) => document.getElementById("qt_" + k).addEventListener("input", qtCalc));
+$("#qtAdd").onclick = () => { qtLine(); qtCalc(); };
+qtLine(); qtCalc();
+function qtPrefill(c, inquiryId, plan) {
+  ["company", "manager", "phone", "email", "site", "siteAddr"].forEach((k) => ($("#qt_" + k).value = (c && c[k]) || ""));
+  $("#qt_inquiry").value = inquiryId || "";
+  $("#qtLines").innerHTML = "";
+  if (plan && plan.lines && plan.lines.length) plan.lines.forEach((l) => qtLine({ product: l.product, qty: l.qty || 1, label: "" })); else qtLine();
+  if (plan && plan.unit) $("#qt_unit").value = plan.unit;
+  qtCalc();
+}
+$("#qtCreate").onclick = async () => {
+  const b = qtBody();
+  if (!b.lines.length || !b.unit) return toast("구성과 단가를 넣어 주세요.");
+  const r = await api("quote", b);
+  if (!r.ok) return toast(r.error);
+  showQtLink(r.quote.id, r.url, b.customer.email);
+  loadQuotes(true);
+};
+function showQtLink(id, url, email) {
+  $("#qtResult").innerHTML = `<div class="sel" style="margin-top:14px"><b>${esc(id)}</b><input readonly value="${esc(url)}" style="flex:1;min-width:200px;height:34px;border:1px solid var(--line);border-radius:8px;padding:0 10px" onclick="this.select()">
+    <button class="btn btn--line btn--sm" id="qtCopy">링크 복사</button><button class="btn btn--line btn--sm" id="qtCopyMsg">문자용 문구 복사</button><button class="btn btn--sm" id="qtMail">메일로 보내기</button><a class="btn btn--ghost btn--sm" href="${esc(url)}" target="_blank">미리보기</a></div>`;
+  const copy = (t) => navigator.clipboard.writeText(t).then(() => toast("복사했습니다"), () => toast("복사하지 못했습니다"));
+  $("#qtCopy").onclick = () => copy(url);
+  $("#qtCopyMsg").onclick = () => copy(`[모넷코리아] 요청하신 긴급 경보 알리미 견적입니다. 아래 링크에서 내용 확인 후 바로 구독 신청까지 하실 수 있습니다.\n${url}\n문의 02-2088-1454`);
+  $("#qtMail").onclick = async () => { const to = prompt("받는 이메일", email || ""); if (!to) return; const r = await api("quote", { action: "send", id, email: to }); toast(r.ok ? "메일을 보냈습니다" : "메일 발송 실패: " + (r.error || "")); loadQuotes(true); };
+}
+const QST = (q) => q.status === "used" ? ["구독 신청 완료", "active"] : q.status === "void" ? ["무효", "canceled"] : q.expired ? ["만료", "canceled"] : q.viewedAt ? ["고객 열람", "registered"] : q.sentAt ? ["발송", "pending"] : ["작성", ""];
+async function loadQuotes(silent) {
+  const j = await api("quotes"); QT = j.items || []; QSITE = j.site || QSITE;
+  $("#qtRows").innerHTML = QT.length ? QT.map((q) => { const [t, c] = QST(q); return `<tr data-qt="${esc(q.id)}"><td><b>${esc(q.id)}</b><small>${dt(q.createdAt)}${q.inquiryId ? " · " + esc(q.inquiryId) : ""}</small></td><td>${esc(q.customer.company || "—")}<small>${esc(q.customer.manager || "")} ${esc(q.customer.phone || "")}</small></td>
+    <td class="hide-m">${esc(q.plan.label)}<small>${q.plan.qty}개소 · 단가 ${num(q.plan.unit)}${q.plan.discount ? " · 할인 " + num(q.plan.discount) : ""}${q.plan.installFee ? " · 설치비 " + num(q.plan.installFee) : ""} · 약정 ${q.plan.termMonths}개월</small></td>
+    <td class="num">${wonK(q.plan.total)}</td><td>${esc(q.expiresAt)}</td><td><span class="st ${c}">${t}</span>${q.subId ? `<small>${esc(q.subId)}</small>` : ""}</td>
+    <td>${q.status === "open" ? `<button class="btn btn--ghost btn--sm" data-qlink="${esc(q.id)}">링크</button><button class="btn btn--ghost btn--sm" data-qvoid="${esc(q.id)}">무효</button>` : q.subId ? `<button class="btn btn--ghost btn--sm" data-qsub="${esc(q.subId)}">구독 보기</button>` : ""}</td></tr>`; }).join("")
+    : `<tr><td colspan="7" class="empty">아직 견적이 없습니다.</td></tr>`;
+  $$("[data-qlink]").forEach((b) => b.onclick = () => { const q = QT.find((x) => x.id === b.dataset.qlink); showQtLink(q.id, QSITE + "/pay?q=" + q.id, q.customer.email); scrollTo({ top: 0, behavior: "smooth" }); });
+  $$("[data-qvoid]").forEach((b) => b.onclick = async () => { if (!confirm("이 견적 링크를 무효로 합니다.")) return; await api("quote", { action: "void", id: b.dataset.qvoid }); loadQuotes(); });
+  $$("[data-qsub]").forEach((b) => b.onclick = () => openSub(b.dataset.qsub));
+}
+
+/* ── 현금 결제 문의 ── */
+const CQST = { new: "새 문의", contacted: "연락함", converted: "구독 등록", closed: "종결" };
+let CQ = [], CQF = "new";
+async function loadCash(badgeOnly) {
+  const j = await api("inquiries"); CQ = j.items || [];
+  const n = CQ.filter((q) => q.status === "new").length; $("#cashBadge").textContent = n ? n : "";
+  if (badgeOnly) return;
+  $("#cqChips").innerHTML = [["new", "새 문의"], ["contacted", "연락함"], ["converted", "구독 등록"], ["closed", "종결"], ["all", "전체"]].map(([k, l]) => `<button data-f="${k}" class="${CQF === k ? "is-on" : ""}">${l}<b>${CQ.filter((q) => k === "all" || q.status === k).length}</b></button>`).join("");
+  $$("#cqChips button").forEach((b) => b.addEventListener("click", () => { CQF = b.dataset.f; loadCash(); }));
+  const rows = CQ.filter((q) => CQF === "all" || q.status === CQF);
+  $("#cqRows").innerHTML = rows.length ? rows.map((q) => `<tr data-q="${esc(q.id)}"><td><b>${esc(q.id)}</b><small>${dt(q.createdAt)}</small></td><td>${esc(q.customer.company)}<small>${esc(q.customer.manager)}</small></td><td><a href="tel:${esc(q.customer.phone)}" onclick="event.stopPropagation()">${esc(q.customer.phone)}</a><small>${esc(q.customer.email || "")}</small></td>
+    <td class="hide-m">${q.plan ? esc(q.plan.label) + `<small>${q.plan.qty}개소 · 월 ${num(q.plan.supply)}원${q.contractRef ? " · 계약 " + esc(q.contractRef) : ""}</small>` : "—"}</td><td>${q.payType === "invoice" ? "세금계산서" : "계좌이체"}</td><td>${esc(q.when || "언제든")}</td><td><span class="st ${q.status === "new" ? "pending" : q.status === "converted" ? "active" : ""}">${CQST[q.status]}</span></td></tr>`).join("")
+    : `<tr><td colspan="7" class="empty">해당 문의가 없습니다.</td></tr>`;
+  $$("#cqRows tr[data-q]").forEach((tr) => tr.addEventListener("click", () => openCash(tr.dataset.q)));
+}
+function openCash(id) {
+  const q = CQ.find((x) => x.id === id); if (!q) return; const c = q.customer;
+  const f = (k, l, v) => `<div class="field"><input id="cv_${k}" placeholder=" " value="${esc(v || "")}"><label for="cv_${k}">${l}</label></div>`;
+  $("#dIn").innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px"><h2>${esc(c.company)}</h2><span class="st">${CQST[q.status]}</span><span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="dClose">닫기</button></div>
+    <p style="color:var(--muted);margin:4px 0 0">${esc(q.id)} · ${dt(q.createdAt)} · 현금 결제 상담</p>
+    <div class="card"><h4>요청 내용</h4><dl class="kv">
+      <dt>담당자</dt><dd>${esc(c.manager)} · <a href="tel:${esc(c.phone)}">${esc(c.phone)}</a></dd><dt>이메일</dt><dd>${esc(c.email || "—")}</dd>
+      <dt>설치 현장</dt><dd>${esc(c.site || "—")} ${esc(c.siteAddr || "")}</dd>
+      <dt>구성</dt><dd>${q.plan ? `${esc(q.plan.label)} · ${q.plan.qty}개소 · 월 ${wonK(q.plan.supply)} (VAT 별도)${q.plan.installFee ? " · 설치비 " + wonK(q.plan.installFee) : ""}` : "—"}${q.contractRef ? `<br><small>계약번호 ${esc(q.contractRef)}</small>` : ""}</dd>
+      <dt>결제 방식</dt><dd>${q.payType === "invoice" ? "세금계산서 발행 후 계좌이체" : "계좌이체"}</dd><dt>연락 희망</dt><dd>${esc(q.when || "언제든")}</dd><dt>메모</dt><dd>${esc(q.memo || "—")}</dd>
+      ${q.subId ? `<dt>등록된 구독</dt><dd><a href="#" id="goSub">${esc(q.subId)}</a></dd>` : ""}
+    </dl></div>
+    <div class="card"><h4>상담 기록</h4>
+      <div class="row"><textarea id="cqMemo" placeholder="통화 내용 (내부용)">${esc(q.staffMemo || "")}</textarea></div>
+      <div class="row"><button class="btn btn--sm" id="cqQuote">견적 결제 링크 만들기</button><span style="font-size:13px;color:var(--muted)">통화로 구성·금액을 확정했으면 링크를 보내 고객이 바로 결제(카드)하게 하세요.</span></div>
+      <div class="row"><button class="btn btn--line btn--sm" data-st="contacted">연락함으로 표시</button><button class="btn btn--line btn--sm" data-st="closed">종결 (진행 안 함)</button><button class="btn btn--line btn--sm" data-st="new">새 문의로 되돌리기</button><span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="cqDel" style="color:var(--red)">삭제</button></div>
+    </div>
+    ${q.status !== "converted" ? `<div class="card"><h4>세금계산서 구독으로 등록</h4>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 10px">의무 사용기간(3년)·이용약관 동의는 서면 계약서로 받아 두세요 — 계약 링크로 진행했다면 그 계약 조건이 그대로 들어갑니다. 등록 후 「구독」 탭에서 설치 완료일에 「서비스 개시」를 누르면 매월 세금계산서 청구가 생깁니다.</p>
+      <div class="sets">${f("company", "상호", c.company)}${f("bizNo", "사업자등록번호 (필수)", c.bizNo)}${f("ceo", "대표자", c.ceo)}${f("email", "세금계산서 받을 이메일 (필수)", c.email)}${f("address", "사업장 주소", c.address)}${f("siteAddr", "설치 주소", c.siteAddr)}${f("bizType", "업태", c.bizType)}${f("bizItem", "종목", c.bizItem)}</div>
+      <div class="row"><button class="btn btn--sm" id="cqConvert">구독으로 등록</button></div></div>` : ""}`;
+  $("#drawer").classList.add("is-on"); $("#scrim").classList.add("is-on");
+  $("#dClose").onclick = closeD;
+  $$("[data-st]").forEach((b) => b.onclick = async () => { const r = await api("inquiry", { id: q.id, action: "status", status: b.dataset.st, staffMemo: $("#cqMemo").value }); toast(r.ok ? "저장됨" : r.error); await loadCash(); openCash(q.id); });
+  $("#cqQuote").onclick = () => { closeD(); $$("#tabs button").find((x) => x.dataset.t === "quote").click(); qtPrefill(q.customer, q.id, q.plan); scrollTo({ top: 0, behavior: "smooth" }); toast("문의 내용을 견적에 채웠습니다 — 금액 확인 후 「견적 링크 만들기」"); };
+  $("#cqDel").onclick = async () => { if (!confirm("이 문의를 삭제할까요?")) return; await api("inquiry", { id: q.id, action: "delete" }); closeD(); loadCash(); };
+  const gs = $("#goSub"); if (gs) gs.onclick = (e) => { e.preventDefault(); openSub(q.subId); };
+  const cv = $("#cqConvert");
+  if (cv) cv.onclick = async () => {
+    const cust = {}; ["company", "bizNo", "ceo", "email", "address", "siteAddr", "bizType", "bizItem"].forEach((k) => (cust[k] = $("#cv_" + k).value.trim()));
+    if (!confirm("세금계산서 구독으로 등록하고 고객에게 신청 완료 메일을 보냅니다.")) return;
+    const r = await api("inquiry", { id: q.id, action: "convert", customer: cust });
+    if (!r.ok) return toast(r.error === "missing_bizNo" ? "사업자등록번호 10자리를 넣어 주세요." : r.error === "bad_email" ? "이메일을 확인해 주세요." : r.error === "no_plan" ? "구성 정보가 없습니다 — 계약 링크로 진행해 주세요." : r.error);
+    toast("구독 등록됨 " + r.subId); await loadCash(); loadSubs(); openSub(r.subId);
+  };
+}
+
+/* ── 결제 내역 ── */
+$("#month").addEventListener("change", loadPays);
+async function loadPays() {
+  const j = await api("pays?month=" + $("#month").value);
+  PAYS = j.pays || []; SET = j.settings;
+  const paid = PAYS.filter((p) => p.status === "paid" || p.status === "partial_canceled");
+  const sum = paid.reduce((a, p) => a + p.amount - (p.canceledAmount || 0), 0);
+  const inv = PAYS.filter((p) => p.method === "invoice");
+  $("#payKpis").innerHTML = [["카드 결제 (순액)", wonK(sum)], ["카드 결제 건수", paid.length + "건"], ["결제 실패", PAYS.filter((p) => p.status === "failed").length + "건"], ["세금계산서 청구", wonK(inv.reduce((a, p) => a + p.amount, 0))], ["입금 확인", inv.filter((p) => p.status === "paid").length + " / " + inv.length + "건"]]
+    .map(([a, b]) => `<div class="kpi"><small>${a}</small><b>${b}</b></div>`).join("");
+  $("#payRows").innerHTML = PAYS.length ? PAYS.map((p) => `<tr data-sub="${esc(p.subId)}"><td>${dt(p.approvedAt || p.createdAt)}</td><td>${esc(p.orderId)}<small>${p.by === "staff" ? "관리자" : p.by === "card_change" ? "카드 변경" : "자동"}</small></td><td>${esc(p.customer && p.customer.company)}</td><td class="hide-m">${esc(p.period.from)} ~ ${esc(p.period.to)}</td><td>${p.method === "card" ? "카드" + (p.card ? `<small>${esc(p.card.company)} ${esc(p.card.last4 || "")}</small>` : "") : "세금계산서"}</td><td class="num">${wonK(p.amount)}${p.canceledAmount ? `<small>취소 ${num(p.canceledAmount)}</small>` : ""}</td><td><span class="st ${p.status}">${PST[p.status] || p.status}</span>${p.error ? `<small>${esc(p.error.code)}</small>` : ""}</td></tr>`).join("")
+    : `<tr><td colspan="7" class="empty">이 달의 결제가 없습니다.</td></tr>`;
+  $$("#payRows tr[data-sub]").forEach((tr) => tr.addEventListener("click", () => openSub(tr.dataset.sub)));
+}
+$("#csvPays").addEventListener("click", () => csv("알리미_결제내역_" + $("#month").value + ".csv", [["일시", "주문번호", "구독번호", "회차", "상호", "사업자번호", "이용 시작", "이용 끝", "수단", "카드", "공급가액", "부가세", "합계", "취소액", "상태", "실패 사유", "매출전표"],
+  ...PAYS.map((p) => [p.approvedAt || p.createdAt, p.orderId, p.subId, p.cycle, p.customer && p.customer.company, p.customer && p.customer.bizNo, p.period.from, p.period.to, p.method === "card" ? "카드" : "세금계산서", p.card ? p.card.company + " " + (p.card.last4 || "") : "", p.supply, p.vat, p.amount, p.canceledAmount || 0, PST[p.status] || p.status, p.error ? p.error.code + " " + (p.error.message || "") : "", p.receiptUrl || ""])]));
+
+/* ── 세금계산서 · 나라빌 ── */
+let INV = [], IFILTER = "invoice_pending";
+$("#invMonth").addEventListener("change", loadInv);
+async function loadInv() {
+  const j = await api("pays?month=" + $("#invMonth").value);
+  SET = j.settings; INV = (j.pays || []).filter((p) => p.method === "invoice" && p.kind !== "penalty");
+  const cnt = (k) => INV.filter((p) => k === "all" || p.status === k).length;
+  $("#invChips").innerHTML = [["invoice_pending", "발행 대기"], ["issued", "발행 · 입금 대기"], ["paid", "입금 완료"], ["void", "청구 취소"], ["all", "전체"]].map(([k, l]) => `<button data-f="${k}" class="${IFILTER === k ? "is-on" : ""}">${l}<b>${cnt(k)}</b></button>`).join("");
+  $$("#invChips button").forEach((b) => b.addEventListener("click", () => { IFILTER = b.dataset.f; loadInv(); }));
+  const rows = INV.filter((p) => IFILTER === "all" || p.status === IFILTER);
+  $("#invRows").innerHTML = rows.length ? rows.map((p) => `<tr><td><input type="checkbox" class="ic" value="${esc(p.orderId)}"></td><td>${esc(p.issueDate || p.period.from)}</td><td>${esc(p.customer.company)}<small>${esc(p.customer.ceo || "")} · ${esc(p.customer.email || "")}</small></td><td>${esc(p.customer.bizNo || "⚠ 없음")}</td><td class="hide-m">${p.items.map((i) => esc(i.name)).join("<br>")}</td><td class="num">${num(p.supply)}</td><td class="num">${num(p.vat)}</td><td class="num"><b>${num(p.amount)}</b></td><td><span class="st ${p.status}">${PST[p.status]}</span>${p.narabillExportedAt ? "<small>엑셀 " + dt(p.narabillExportedAt) + "</small>" : ""}</td></tr>`).join("")
+    : `<tr><td colspan="9" class="empty">해당 청구가 없습니다.</td></tr>`;
+  $("#invAll").checked = false; selInv();
+  $$(".ic").forEach((c) => c.addEventListener("change", selInv));
+}
+$("#invAll").addEventListener("change", (e) => { $$(".ic").forEach((c) => (c.checked = e.target.checked)); selInv(); });
+const picked = () => $$(".ic").filter((c) => c.checked).map((c) => INV.find((p) => p.orderId === c.value)).filter(Boolean);
+function selInv() { const n = picked().length; $("#invSel").hidden = !n; $("#invCount").textContent = n + "건 선택"; }
+$$("[data-inv]").forEach((b) => b.addEventListener("click", async () => {
+  const ps = picked(); if (!ps.length) return;
+  const r = await api("invoice", { orderIds: ps.map((p) => p.orderId), status: b.dataset.inv });
+  toast(r.ok ? `${r.done.length}건 처리` : r.error); loadInv();
+}));
+$("#xlsx").addEventListener("click", async () => {
+  const ps = picked(); if (!ps.length) return;
+  const noBiz = ps.filter((p) => String(p.customer.bizNo || "").replace(/\D/g, "").length !== 10);
+  if (noBiz.length && !confirm(`사업자등록번호가 없는 건이 ${noBiz.length}건 있습니다. 그대로 내려받을까요?`)) return;
+  if (!SET.supplier.bizType || !SET.supplier.bizItem) toast("설정에서 공급자 업태·종목을 넣어 두면 엑셀에 함께 들어갑니다.");
+  try {
+    if (!window.XLSX) await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+  } catch (e) { return toast("엑셀 모듈을 불러오지 못했습니다. CSV 로 내려받습니다."), csv("나라빌_대량발행_" + today() + ".csv", narabillRows(ps)); }
+  const ws = XLSX.utils.aoa_to_sheet(narabillRows(ps));
+  ws["!cols"] = narabillRows([])[0].map((h) => ({ wch: Math.max(10, Math.min(28, String(h).length + 4)) }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "세금계산서");
+  XLSX.writeFile(wb, `나라빌_대량발행_${today()}_${ps.length}건.xlsx`);
+  if (confirm("나라빌에 올린 뒤 이 건들을 「발행 완료」로 표시할까요?\n(지금 표시하지 않아도 나중에 「발행 완료로 표시」를 누르면 됩니다)")) {
+    await api("invoice", { orderIds: ps.map((p) => p.orderId), status: "issued", exported: true }); loadInv();
+  }
+});
+/* 국세청(홈택스) 전자세금계산서 일괄발급 표준 양식 순서 — 나라빌 엑셀 대량발행이 받는 항목.
+   나라빌 양식의 열 순서가 다르면 이 함수의 머리글·값 순서만 맞추면 됩니다. */
+function narabillRows(ps) {
+  const H = ["전자(세금)계산서 종류(01:일반, 02:영세율)", "작성일자", "공급자 등록번호", "공급자 종사업장번호", "공급자 상호", "공급자 성명", "공급자 사업장주소", "공급자 업태", "공급자 종목", "공급자 이메일",
+    "공급받는자 등록번호", "공급받는자 종사업장번호", "공급받는자 상호", "공급받는자 성명", "공급받는자 사업장주소", "공급받는자 업태", "공급받는자 종목", "공급받는자 이메일1", "공급받는자 이메일2",
+    "공급가액 합계", "세액 합계", "비고"];
+  for (let i = 1; i <= 4; i++) H.push(`일자${i}`, `품목${i}`, `규격${i}`, `수량${i}`, `단가${i}`, `공급가액${i}`, `세액${i}`, `품목비고${i}`);
+  H.push("현금", "수표", "어음", "외상미수금", "영수(01), 청구(02)");
+  const sp = (SET && SET.supplier) || {};
+  const out = [H];
+  for (const p of ps) {
+    const d = (p.issueDate || p.period.from).replace(/-/g, "");
+    const c = p.customer;
+    const row = ["01", d, String(sp.bizNo || "").replace(/\D/g, ""), sp.subNo || "", sp.name || "", sp.ceo || "", sp.address || "", sp.bizType || "", sp.bizItem || "", sp.email || "",
+      String(c.bizNo || "").replace(/\D/g, ""), "", c.company || "", c.ceo || "", c.address || "", c.bizType || "", c.bizItem || "", c.email || "", "",
+      p.supply, p.vat, `${p.subId} · 이용기간 ${p.period.from}~${p.period.to}`];
+    for (let i = 0; i < 4; i++) {
+      const it = p.items[i];
+      if (!it) { row.push("", "", "", "", "", "", "", ""); continue; }
+      const isMonthly = i === 0, qty = isMonthly ? (SUBS.find((s) => s.id === p.subId) || { plan: {} }).plan.qty || 1 : 1;
+      row.push(d.slice(6, 8), i === 0 ? ((SET && SET.invoiceItem) || it.name) : it.name, isMonthly ? `${p.period.from.slice(5).replace("-", ".")}~${p.period.to.slice(5).replace("-", ".")}` : "", qty, Math.round(it.supply / qty), it.supply, it.vat, "");
+    }
+    row.push("", "", "", p.amount, "02");
+    out.push(row);
+  }
+  return out;
+}
+
+/* ── 설정 ── */
+async function loadSet() {
+  const j = await api("settings"); SET = j.settings;
+  const F = [["name", "상호"], ["bizNo", "사업자등록번호"], ["ceo", "대표자 성명"], ["subNo", "종사업장번호 (없으면 비움)"], ["address", "사업장 주소", 1], ["bizType", "업태"], ["bizItem", "종목"], ["email", "세금계산서 담당 이메일", 1]];
+  $("#sets").innerHTML = F.map(([k, l, full]) => `<div class="field${full ? " full" : ""}"><input id="s_${k}" placeholder=" " value="${esc(SET.supplier[k] || "")}"><label for="s_${k}">${l}</label></div>`).join("")
+    + `<div class="field full"><input id="s_item" placeholder=" " value="${esc(SET.invoiceItem || "")}"><label for="s_item">세금계산서 품목명</label></div>`
+    + `<div class="field full"><input id="s_bank" placeholder=" " value="${esc(SET.bank || "")}"><label for="s_bank">입금 계좌 (세금계산서 고객 안내용 · 예: 기업은행 000-000000-00-000 주식회사 모넷코리아)</label></div>`;
+  $("#s_term").value = SET.termMonths != null ? SET.termMonths : 36;
+  $$("[data-ca]").forEach((x) => { x.classList.toggle("is-on", x.dataset.ca === SET.chargeAt); x.onclick = (e) => { e.preventDefault(); SET.chargeAt = x.dataset.ca; $$("[data-ca]").forEach((y) => y.classList.toggle("is-on", y === x)); }; });
+}
+$("#saveSet").addEventListener("click", async () => {
+  const sup = {}; ["name", "bizNo", "ceo", "subNo", "address", "bizType", "bizItem", "email"].forEach((k) => (sup[k] = $("#s_" + k).value));
+  const r = await api("settings", { supplier: sup, invoiceItem: $("#s_item").value, bank: $("#s_bank").value, chargeAt: SET.chargeAt, termMonths: Number($("#s_term").value) });
+  $("#setMsg").textContent = r.ok ? "저장되었습니다." : "저장 실패"; SET = r.settings || SET;
+});
+
+function csv(name, rows) {
+  const t = "﻿" + rows.map((r) => r.map((v) => { const s = String(v == null ? "" : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(",")).join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([t], { type: "text/csv;charset=utf-8" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+})();
+</script>
+</body>
+</html>

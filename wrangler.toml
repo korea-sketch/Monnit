@@ -42,9 +42,9 @@ binding = "BLOBS"
 bucket_name = "monnit-blobs"
 
 # 예약 함수 (UTC) — 무료 플랜 5개까지. 기본으로 실행 (멈추려면 대시보드 변수 CRON_ENABLED=0). server/functions 의 config.schedule 과 같아야 합니다
-#   adsync 17 * * * * · health */15 · proposal-dispatch */10
+#   adsync 17 * * * * · health */15 · proposal-dispatch */10 · billing-cron 23 * * * * (알리미 정기결제, 2026-11-03)
 [triggers]
-crons = ["17 * * * *", "*/15 * * * *", "*/10 * * * *"]
+crons = ["17 * * * *", "*/15 * * * *", "*/10 * * * *", "23 * * * *"]
 
 [observability]
 enabled = true

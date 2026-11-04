@@ -980,3 +980,10 @@ body.emergency-review #view-promotions { display:block!important; }
 body.emergency-review #promoDetail { display:block!important; }
 body.emergency-review #promoDetail > .wrap.section-pad { width:100%;max-width:none;padding:0; }
 body.emergency-review #promoDetailBody { margin:0!important; }
+
+/* 2026-11-03 온라인 구독 결제(/pay) 바로가기 — 검은 버튼이 주 동작, 문의는 보조 */
+.ta-builder-result__action>a.ta-pay-link { background:#1d1d1f; border-radius:980px; }
+.ta-builder-result__action>a.ta-pay-link:hover { background:#000; }
+.ta-builder-result__action>a.ta-pay-link+a { margin-top:10px; border-radius:980px; color:#3182f6; background:#fff; border:1px solid #d2d2d7; }
+.ta-builder-result__action>a.ta-pay-link+a:hover { color:#1b64da; background:#f5f5f7; }
+.ta-builder-result__action>a.ta-pay-link[hidden]+a { margin-top:42px; color:#fff; background:#3182f6; border:0; }

@@ -1,0 +1,237 @@
+/* 알리미 구독 결제 · 구독 관리 (/pay · /account) — 2026-11-03
+   애플 결제 화면 문법: 밝은 회색 바탕 · 흰 카드 · 큰 제목 · 파란 링크 · 알약 버튼 · 얇은 구분선 */
+:root{
+  --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --text2:#424245; --muted:#6e6e73; --faint:#86868b;
+  --line:#d2d2d7; --line2:#e8e8ed; --fill:#f5f5f7; --blue:#0071e3; --blue-h:#0077ed; --blue-soft:#e8f2fd;
+  --green:#1a7f37; --green-soft:#e7f6ec; --red:#d70015; --red-soft:#fdeceb; --amber:#b25000; --amber-soft:#fff4e5;
+  --btn:#1d1d1f; --btn-text:#fff; --shadow:0 4px 24px rgba(0,0,0,.06); --ring:0 0 0 4px rgba(0,113,227,.18);
+  --r:18px; --r-s:12px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#000; --card:#1c1c1e; --text:#f5f5f7; --text2:#d1d1d6; --muted:#a1a1a6; --faint:#8e8e93; --line:#3a3a3c; --line2:#2c2c2e; --fill:#2c2c2e;
+    --blue:#2997ff; --blue-h:#47a6ff; --blue-soft:#0b2a4a; --green:#30d158; --green-soft:#0f2e19; --red:#ff453a; --red-soft:#3a1412; --amber:#ffb340; --amber-soft:#3a2a10;
+    --btn:#f5f5f7; --btn-text:#000; --shadow:none; --ring:0 0 0 4px rgba(41,151,255,.3); }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:17px;line-height:1.47;letter-spacing:-.022em;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none} a:hover{text-decoration:underline}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 상단 바 */
+.bar{position:sticky;top:0;z-index:20;background:rgba(245,245,247,.8);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
+@media (prefers-color-scheme:dark){.bar{background:rgba(0,0,0,.72);border-bottom-color:rgba(255,255,255,.1)}}
+.bar__in{max-width:1080px;margin:0 auto;height:52px;padding:0 22px;display:flex;align-items:center;gap:14px}
+.bar__logo{display:flex;align-items:center;gap:10px;color:var(--text);font-weight:600;font-size:15px}
+.bar__logo img{height:20px;width:auto}
+.bar__logo span{color:var(--muted);font-weight:500;padding-left:10px;border-left:1px solid var(--line)}
+.bar__right{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:13px;color:var(--muted)}
+.bar__lock{display:inline-flex;align-items:center;gap:6px}
+.bar__lock svg{width:12px;height:12px}
+.bar__logo span,.bar__right a,.bar__lock{white-space:nowrap}
+@media (max-width:600px){.bar__in{padding:0 16px;gap:10px}.bar__lock{display:none}.bar__logo span{font-size:14px}.bar__right{gap:10px}}
+.pill-test{white-space:nowrap;background:var(--amber-soft);color:var(--amber);font-size:12px;font-weight:600;padding:3px 10px;border-radius:980px}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px 120px}
+.hero{padding:48px 0 28px}
+.hero h1{margin:0;font-size:48px;line-height:1.08;font-weight:700;letter-spacing:-.035em}
+.hero p{margin:12px 0 0;color:var(--muted);font-size:19px;line-height:1.42}
+@media (max-width:734px){.hero{padding:30px 0 18px}.hero h1{font-size:32px}.hero p{font-size:17px}}
+
+/* 2단 — 왼쪽 단계 · 오른쪽 요약 */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:36px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr;gap:0}}
+
+.step{padding:34px 0;border-top:1px solid var(--line)}
+.step:first-child{border-top:0;padding-top:8px}
+.step h2{margin:0 0 6px;font-size:28px;line-height:1.14;font-weight:700;letter-spacing:-.03em}
+.step h2 small{display:block;font-size:14px;color:var(--muted);font-weight:500;letter-spacing:-.01em;margin-bottom:6px}
+.step .lead{margin:0 0 22px;color:var(--muted);font-size:15px}
+.step.is-locked{opacity:.45;pointer-events:none}
+@media (max-width:734px){.step h2{font-size:24px}}
+
+/* 제품 타일 */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{position:relative;display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 16px 12px;cursor:pointer;transition:border-color .2s,box-shadow .2s;min-height:112px}
+.tile:hover{border-color:var(--faint)}
+.tile.is-on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.tile input{position:absolute;opacity:0;pointer-events:none}
+.tile img{width:64px;height:80px;object-fit:contain;flex:none}
+.tile__body{flex:1;min-width:0}
+.tile__name{font-weight:600;font-size:17px;line-height:1.25}
+.tile__desc{font-size:13px;color:var(--muted);line-height:1.38;margin-top:3px}
+.tile__qty{margin-top:10px}
+.tile:not(.is-on) .tile__qty{display:none}
+.tile__check{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;transition:.2s}
+.tile.is-on .tile__check{background:var(--blue);border-color:var(--blue)}
+.tile__check svg{width:12px;height:12px;stroke:#fff;opacity:0}
+.tile.is-on .tile__check svg{opacity:1}
+@media (max-width:600px){.tiles{grid-template-columns:1fr}}
+
+.stepper{display:inline-flex;align-items:center;background:var(--fill);border-radius:980px;padding:3px}
+.stepper button{width:30px;height:30px;border:0;background:var(--card);border-radius:50%;font-size:18px;line-height:1;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);display:grid;place-items:center}
+.stepper button:disabled{opacity:.35;cursor:default}
+.stepper output{min-width:54px;text-align:center;font-size:15px;font-weight:600}
+
+/* 큰 선택 카드 (회원/비회원 · 결제 수단) */
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:600px){.choices{grid-template-columns:1fr}}
+.choice{position:relative;display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 18px 18px 54px;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.choice:hover{border-color:var(--faint)}
+.choice input{position:absolute;opacity:0}
+.choice::before{content:"";position:absolute;left:18px;top:20px;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);transition:.15s}
+.choice.is-on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.choice.is-on::before{border:6px solid var(--blue)}
+.choice.is-disabled{opacity:.5;cursor:not-allowed}
+.choice b{display:block;font-size:17px;font-weight:600}
+.choice span{display:block;font-size:14px;color:var(--muted);margin-top:3px;line-height:1.4}
+.choice .ic{position:absolute;right:16px;top:16px;width:34px;height:24px;border-radius:5px;opacity:.9}
+
+/* 입력 */
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fields .full{grid-column:1/-1}
+@media (max-width:600px){.fields{grid-template-columns:1fr}}
+.field{position:relative}
+.field input,.field select,.field textarea{width:100%;height:56px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);padding:22px 14px 6px;font-size:17px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+.field textarea{height:96px;padding-top:26px;resize:vertical}
+.field label{position:absolute;left:15px;top:17px;font-size:17px;color:var(--faint);pointer-events:none;transition:all .15s ease}
+.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:var(--ring)}
+.field input:focus+label,.field input:not(:placeholder-shown)+label,.field textarea:focus+label,.field textarea:not(:placeholder-shown)+label{top:7px;font-size:12px;color:var(--muted)}
+.field.is-bad input{border-color:var(--red);background:var(--red-soft)}
+.field .hint{font-size:12px;color:var(--red);margin:5px 2px 0}
+.field .opt{position:absolute;right:14px;top:18px;font-size:13px;color:var(--faint);pointer-events:none}
+
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--fill);border-radius:var(--r-s);padding:12px 14px;font-size:14px;color:var(--text2);line-height:1.45;margin-top:12px}
+.note b{color:var(--text)}
+.note--blue{background:var(--blue-soft)}
+.note--amber{background:var(--amber-soft);color:var(--amber)}
+.note--green{background:var(--green-soft);color:var(--green)}
+.region{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 11px;border-radius:980px;background:var(--fill);color:var(--text2)}
+.region.is-other{background:var(--amber-soft);color:var(--amber)}
+
+.more{margin-top:16px}
+.more summary{cursor:pointer;color:var(--blue);font-size:15px;list-style:none;display:inline-flex;align-items:center;gap:6px}
+.more summary::-webkit-details-marker{display:none}
+.more summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.more[open] summary::after{transform:rotate(225deg) translateY(-2px)}
+.more .fields{margin-top:14px}
+
+/* 이메일 인증 */
+.otp{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.otp .field{flex:1 1 240px}
+.otp-code{display:flex;gap:8px;margin-top:14px}
+.otp-code input{width:48px;height:58px;text-align:center;font-size:24px;font-weight:600;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);outline:none}
+.otp-code input:focus{border-color:var(--blue);box-shadow:var(--ring)}
+.signed{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.signed .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#5ac8fa,#0071e3);color:#fff;display:grid;place-items:center;font-weight:700}
+.signed div{flex:1;min-width:0;font-size:15px}
+.signed small{display:block;color:var(--muted);font-size:13px}
+
+/* 동의 */
+.agree{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.agree label{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;cursor:pointer;font-size:15px;line-height:1.4}
+.agree label+label{border-top:1px solid var(--line2)}
+.agree label.all{font-weight:600;font-size:16px;background:var(--fill)}
+.agree input{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);margin:0;display:grid;place-items:center;cursor:pointer;background:var(--card)}
+.agree input:checked{background:var(--blue);border-color:var(--blue)}
+.agree input:checked::after{content:"";width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.agree a{margin-left:auto;font-size:14px;white-space:nowrap}
+.agree .txt{flex:1}
+.agree .txt small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+
+/* 버튼 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 28px;border-radius:980px;border:0;background:var(--blue);color:#fff;font-size:17px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s,opacity .15s;text-decoration:none!important}
+.btn:hover{background:var(--blue-h)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn--dark{background:var(--btn);color:var(--btn-text)}
+.btn--dark:hover{background:var(--btn);opacity:.88}
+.btn--ghost{background:transparent;color:var(--blue);padding:0 12px}
+.btn--ghost:hover{background:var(--blue-soft)}
+.btn--line{background:var(--card);color:var(--text);border:1px solid var(--line)}
+.btn--line:hover{background:var(--fill)}
+.btn--sm{height:36px;padding:0 16px;font-size:14px}
+.btn--block{width:100%}
+.btn--danger{background:transparent;color:var(--red);border:1px solid var(--line)}
+.btn--danger:hover{background:var(--red-soft)}
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp .7s linear infinite}
+.btn--line .spin,.btn--ghost .spin{border-color:var(--line);border-top-color:var(--blue)}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* 요약 */
+.summary{position:sticky;top:76px;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:24px;border:1px solid var(--line2)}
+.summary h3{margin:0 0 14px;font-size:21px;font-weight:700}
+.summary__img{display:flex;justify-content:center;gap:4px;background:var(--fill);border-radius:var(--r-s);height:150px;align-items:center;margin-bottom:16px;overflow:hidden}
+.summary__img img{height:120px;width:auto;object-fit:contain;transition:opacity .3s}
+.rows{margin:0;padding:0}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:15px;border-bottom:1px solid var(--line2)}
+.rows div:last-child{border-bottom:0}
+.rows dt{color:var(--muted);margin:0}
+.rows dd{margin:0;text-align:right;font-weight:500}
+.total{margin-top:12px;padding-top:14px;border-top:1px solid var(--line)}
+.total__row{display:flex;justify-content:space-between;align-items:baseline}
+.total__row span{font-size:15px;font-weight:600}
+.total__row strong{font-size:28px;font-weight:700;letter-spacing:-.03em}
+.total__sub{font-size:13px;color:var(--muted);text-align:right;margin-top:2px}
+.today{margin-top:14px;background:var(--fill);border-radius:var(--r-s);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:15px}
+.today b{font-size:19px}
+.today small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.summary .fine{font-size:12px;color:var(--faint);line-height:1.5;margin:14px 0 0}
+@media (max-width:980px){.summary{position:static;margin-top:8px}}
+
+/* 결제 버튼 영역 */
+.submit{padding:30px 0 0}
+.submit .btn{min-width:280px}
+.submit .fine{font-size:13px;color:var(--muted);margin-top:14px;display:flex;gap:6px;align-items:center}
+.err{color:var(--red);font-size:15px;margin-top:12px;min-height:1px}
+
+/* 모바일 하단 고정 바 */
+.mbar{display:none}
+@media (max-width:980px){
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid rgba(0,0,0,.1);padding:10px 16px calc(10px + env(safe-area-inset-bottom));align-items:center;gap:12px}
+  .mbar div{flex:1;min-width:0;font-size:13px;color:var(--muted)}
+  .mbar b{display:block;font-size:18px;color:var(--text)}
+  .mbar .btn{height:44px;padding:0 20px;font-size:16px}
+}
+@media (max-width:980px) and (prefers-color-scheme:dark){.mbar{background:rgba(28,28,30,.88);border-top-color:rgba(255,255,255,.1)}}
+
+/* 완료 화면 */
+.done{max-width:620px;margin:0 auto;text-align:center;padding:70px 0 40px}
+.done__mark{width:84px;height:84px;margin:0 auto 22px;border-radius:50%;background:var(--green);display:grid;place-items:center;animation:pop .45s cubic-bezier(.2,.9,.3,1.3)}
+.done__mark svg{width:42px;height:42px;stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .5s .25s ease forwards}
+.done__mark.is-fail{background:var(--red)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done h1{font-size:40px;line-height:1.1;margin:0;letter-spacing:-.035em}
+.done > p{color:var(--muted);font-size:17px;margin:12px 0 0}
+.done .card{text-align:left;margin-top:30px}
+.done .acts{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+@media (max-width:734px){.done{padding-top:44px}.done h1{font-size:30px}}
+
+.card{background:var(--card);border-radius:var(--r);padding:22px 24px;border:1px solid var(--line2);box-shadow:var(--shadow)}
+
+/* 계약 조건 상자 */
+.contract{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px}
+.contract__top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.contract__top b{font-size:19px}
+.contract__top span{font-size:13px;color:var(--muted)}
+
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:rgba(29,29,31,.92);color:#fff;padding:12px 20px;border-radius:980px;font-size:15px;opacity:0;transition:.3s;z-index:50;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.skeleton{min-height:60vh;display:grid;place-items:center;color:var(--muted)}
+.foot{max-width:1080px;margin:0 auto;padding:24px 22px 40px;font-size:12px;color:var(--faint);line-height:1.6;border-top:1px solid var(--line)}
+.foot a{color:var(--muted)}
+
+/* 현금 결제 상담 창구 */
+.contact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.contact__item{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-s);padding:14px;color:var(--text);text-decoration:none!important;transition:border-color .15s}
+.contact__item:hover{border-color:var(--blue)}
+.contact__ic{width:30px;height:30px;border-radius:50%;background:var(--fill);display:grid;place-items:center;font-weight:700;margin-bottom:6px}
+.contact__item b{font-size:15px}
+.contact__item small{font-size:12px;color:var(--muted)}
+.field select{padding-top:20px}
+@media (max-width:600px){.contact{grid-template-columns:1fr}}

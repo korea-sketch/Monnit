@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>구독 신청 · 긴급 경보 알리미 | 모넷코리아</title>
+<meta name="description" content="긴급 경보 알리미 온라인 구독 신청 — 카드 자동결제 또는 세금계산서.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#f5f5f7">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<link rel="stylesheet" href="/css/billing.css?v=1">
+</head>
+<body>
+<header class="bar"><div class="bar__in">
+  <a class="bar__logo" href="/promo/alarm"><img src="/logo.png" alt="Monnit"><span>긴급 경보 알리미</span></a>
+  <div class="bar__right">
+    <span class="pill-test" id="testPill" hidden>테스트 모드</span>
+    <span class="bar__lock"><svg viewBox="0 0 12 14" fill="currentColor"><path d="M10 6V4a4 4 0 1 0-8 0v2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1ZM3.5 4a2.5 2.5 0 0 1 5 0v2h-5Z"/></svg>안전한 결제</span>
+    <a href="/account">구독 관리</a>
+  </div>
+</div></header>
+
+<main class="wrap" id="app">
+  <div class="skeleton" id="loading">불러오는 중…</div>
+
+  <!-- 신청 화면 -->
+  <div id="checkout" hidden>
+    <section class="hero">
+      <h1 id="heroTitle">긴급 경보 알리미,<br>지금 바로 시작하세요.</h1>
+      <p id="heroLead">설치비 무료 · 설치가 끝나는 날부터 결제 · 의무 사용기간 3년</p>
+    </section>
+
+    <div class="grid">
+      <div>
+        <!-- 1. 구성 -->
+        <section class="step" id="stepPlan">
+          <h2><small>1단계</small><span id="planTitle">어떤 알리미가 필요하신가요?</span></h2>
+          <p class="lead" id="planLead">여러 개를 고를 수 있어요. 한 번에 최대 9곳까지 신청하실 수 있고, 10곳 이상은 <a href="/promo/alarm#emergencyApply">별도 견적</a>으로 안내드려요.</p>
+          <div class="tiles" id="tiles"></div>
+          <div id="contractBox" hidden></div>
+        </section>
+
+        <!-- 2. 계정 -->
+        <section class="step" id="stepAccount">
+          <h2><small>2단계</small>어떻게 계속하시겠어요?</h2>
+          <p class="lead">회원은 정보가 저장돼 다음 신청이 빨라지고, 모든 구독을 한곳에서 관리합니다. 비회원도 구독번호로 언제든 조회할 수 있어요.</p>
+          <div id="accountChoose">
+            <div class="choices" role="radiogroup" aria-label="회원 또는 비회원">
+              <label class="choice" data-acc="member"><input type="radio" name="acc" value="member"><b>회원으로 계속</b><span>이메일 인증만으로 가입 · 로그인 (비밀번호 없음)</span></label>
+              <label class="choice is-on" data-acc="guest"><input type="radio" name="acc" value="guest" checked><b>비회원으로 계속</b><span>가입 없이 바로 신청 · 구독번호로 조회</span></label>
+            </div>
+            <div id="memberBox" hidden style="margin-top:16px">
+              <div class="otp">
+                <div class="field"><input id="loginEmail" type="email" placeholder=" " autocomplete="email" inputmode="email"><label for="loginEmail">이메일</label></div>
+                <button class="btn btn--dark" id="sendCode" type="button" style="height:56px">인증코드 받기</button>
+              </div>
+              <div id="codeBox" hidden>
+                <div class="otp-code" id="codeInputs" aria-label="인증코드 6자리"></div>
+                <p class="note" style="margin-top:12px"><span><b id="codeTo"></b>로 보낸 6자리 코드를 입력해 주세요. 메일이 보이지 않으면 스팸함을 확인하시거나 <a href="#" id="resend">다시 보내기</a>.</span></p>
+              </div>
+              <div class="err" id="loginErr"></div>
+            </div>
+          </div>
+          <div class="signed" id="signedBox" hidden>
+            <span class="av" id="signedAv">M</span>
+            <div><b id="signedEmail"></b><small id="signedNote">회원으로 로그인됨</small></div>
+            <button class="btn btn--ghost btn--sm" id="logoutBtn" type="button">로그아웃</button>
+          </div>
+        </section>
+
+        <!-- 3. 고객 정보 -->
+        <section class="step" id="stepInfo">
+          <h2><small>3단계</small>어디에 설치해 드릴까요?</h2>
+          <p class="lead">입력하신 연락처로 설치 일정을 안내드려요.</p>
+          <div class="fields">
+            <div class="field full"><input id="company" placeholder=" " autocomplete="organization"><label for="company">상호 (기관·업체명)</label></div>
+            <div class="field"><input id="manager" placeholder=" " autocomplete="name"><label for="manager">담당자 성함</label></div>
+            <div class="field"><input id="phone" type="tel" placeholder=" " autocomplete="tel" inputmode="tel"><label for="phone">휴대전화</label></div>
+            <div class="field full"><input id="email" type="email" placeholder=" " autocomplete="email" inputmode="email"><label for="email">이메일 (결제 안내 · 영수증)</label></div>
+            <div class="field full"><input id="site" placeholder=" "><label for="site">설치 현장 이름 (예: 본관 지하 전기실)</label></div>
+            <div class="field full"><input id="siteAddr" placeholder=" " autocomplete="street-address"><label for="siteAddr">설치 현장 주소</label></div>
+          </div>
+          <p class="note" id="regionNote"><span class="region" id="regionChip">서울·경기·인천</span><span id="regionText">1곳 월 30,000원 (부가세 별도) · 설치비 무료</span></p>
+          <details class="more" id="bizMore">
+            <summary>사업자 정보 (세금계산서용)</summary>
+            <div class="fields">
+              <div class="field"><input id="bizNo" placeholder=" " inputmode="numeric"><label for="bizNo">사업자등록번호</label></div>
+              <div class="field"><input id="ceo" placeholder=" "><label for="ceo">대표자 성명</label></div>
+              <div class="field full"><input id="address" placeholder=" "><label for="address">사업장 주소</label></div>
+              <div class="field"><input id="bizType" placeholder=" "><label for="bizType">업태</label><span class="opt">선택</span></div>
+              <div class="field"><input id="bizItem" placeholder=" "><label for="bizItem">종목</label><span class="opt">선택</span></div>
+            </div>
+          </details>
+        </section>
+
+        <!-- 4. 결제 수단 -->
+        <section class="step" id="stepPay">
+          <h2><small>4단계</small>결제 방법을 선택하세요.</h2>
+          <p class="lead">어느 쪽이든 언제든 바꾸실 수 있어요.</p>
+          <div class="choices" role="radiogroup" aria-label="결제 수단">
+            <label class="choice is-on" data-method="card"><input type="radio" name="method" value="card" checked>
+              <svg class="ic" viewBox="0 0 34 24"><rect width="34" height="24" rx="4" fill="#1d1d1f"/><rect y="6" width="34" height="4" fill="#6e6e73"/><rect x="4" y="15" width="10" height="3" rx="1" fill="#d2d2d7"/></svg>
+              <b>카드 자동결제</b><span>매달 같은 날 등록한 카드로 자동 결제 · 카드 매출전표 발행</span></label>
+            <label class="choice" data-method="cash"><input type="radio" name="method" value="cash">
+              <svg class="ic" viewBox="0 0 34 24"><rect x="5" width="24" height="24" rx="3" fill="#e8e8ed" stroke="#86868b"/><rect x="9" y="6" width="16" height="2" fill="#86868b"/><rect x="9" y="11" width="16" height="2" fill="#86868b"/><rect x="9" y="16" width="10" height="2" fill="#0071e3"/></svg>
+              <b>현금 결제</b><span>계좌이체 · 세금계산서 — 담당자가 직접 연락드려 계약과 입금 방법을 안내해요</span></label>
+          </div>
+          <div id="cashBox" hidden>
+            <div class="contact">
+              <a class="contact__item" href="tel:0220881454"><span class="contact__ic">☎</span><b>전화 상담</b><small>02-2088-1454 · 평일 업무시간</small></a>
+              <a class="contact__item" href="https://pf.kakao.com/_xfIMpj" target="_blank" rel="noopener"><span class="contact__ic" style="background:#fee500;color:#191919">K</span><b>카카오톡 상담</b><small>모넷코리아 채널</small></a>
+              <a class="contact__item" href="mailto:1015@monnit.com?subject=%5B%EC%95%8C%EB%A6%AC%EB%AF%B8%5D%20%ED%98%84%EA%B8%88%20%EA%B2%B0%EC%A0%9C%20%EB%AC%B8%EC%9D%98"><span class="contact__ic">@</span><b>이메일</b><small>1015@monnit.com</small></a>
+            </div>
+            <p class="note" style="margin-top:14px"><span>또는 아래에 상담 요청을 남겨 주시면 <b>영업일 기준 1일 안에</b> 담당자가 먼저 연락드립니다. 위 3단계에 적어 주신 정보가 함께 전달돼요.</span></p>
+            <div class="fields" style="margin-top:12px">
+              <div class="field"><select id="cashType"><option value="invoice">세금계산서 발행 후 계좌이체</option><option value="transfer">계좌이체 (세금계산서 불필요)</option></select><label for="cashType" style="top:7px;font-size:12px;color:var(--muted)">결제 방식</label></div>
+              <div class="field"><select id="cashWhen"><option value="">언제든 괜찮아요</option><option>오전 (9~12시)</option><option>오후 (13~18시)</option><option>문자·카카오톡으로 먼저</option></select><label for="cashWhen" style="top:7px;font-size:12px;color:var(--muted)">연락 희망 시간</label></div>
+              <div class="field full"><textarea id="cashMemo" placeholder=" "></textarea><label for="cashMemo">궁금한 점 (선택)</label></div>
+            </div>
+          </div>
+          <p class="note note--amber" id="pgNotReady" hidden>카드 자동결제는 준비 중입니다. 세금계산서 방식으로 신청해 주시면 담당자가 안내드립니다.</p>
+          <p class="note" id="methodNote"></p>
+        </section>
+
+        <!-- 5. 동의 -->
+        <section class="step" id="stepAgree">
+          <h2><small>5단계</small>확인해 주세요.</h2>
+          <div class="agree" id="agreeBox">
+            <label class="all"><input type="checkbox" id="agAll"><span class="txt">모두 동의합니다</span></label>
+            <label><input type="checkbox" class="ag" data-k="terms"><span class="txt">서비스 이용약관(SLA)에 동의합니다 <small>필수</small></span><a href="/alarm/terms" target="_blank" rel="noopener">보기</a></label>
+            <label><input type="checkbox" class="ag" data-k="privacy"><span class="txt">개인정보 수집·이용에 동의합니다 <small>필수 · 상호, 담당자, 연락처, 이메일, 설치 주소, 사업자 정보 · 계약 종료 후 5년 보관</small></span><a href="/privacy.html" target="_blank" rel="noopener">보기</a></label>
+            <label><input type="checkbox" class="ag" data-k="term"><span class="txt" id="termText">의무 사용기간에 동의합니다</span></label>
+            <label id="agAutopayRow"><input type="checkbox" class="ag" data-k="autopay"><span class="txt" id="autopayText">정기결제에 동의합니다</span></label>
+          </div>
+        </section>
+
+        <div class="submit">
+          <button class="btn btn--dark" id="submitBtn" type="button">구독 신청하기</button>
+          <div class="err" id="submitErr"></div>
+          <p class="fine"><svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><path d="M10 6V4a4 4 0 1 0-8 0v2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1ZM3.5 4a2.5 2.5 0 0 1 5 0v2h-5Z"/></svg>카드 정보는 토스페이먼츠가 처리하며 모넷코리아는 카드번호를 저장하지 않습니다.</p>
+        </div>
+      </div>
+
+      <!-- 요약 -->
+      <aside class="summary" id="summary" aria-label="주문 요약">
+        <h3>요약</h3>
+        <div class="summary__img" id="sumImg"></div>
+        <dl class="rows" id="sumRows"></dl>
+        <div class="total">
+          <div class="total__row"><span>매월 결제 금액</span><strong id="sumTotal">₩0</strong></div>
+          <div class="total__sub" id="sumTotalSub">부가세 포함</div>
+        </div>
+        <div class="today" id="sumToday"><div>오늘 결제 금액<small id="sumTodayNote">설치가 완료되는 날 첫 결제</small></div><b id="sumTodayAmt">₩0</b></div>
+        <p class="fine" id="sumFine"></p>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 완료 · 실패 -->
+  <div id="result" hidden></div>
+</main>
+
+<div class="mbar" id="mbar" hidden><div>매월 <b id="mbTotal">₩0</b></div><button class="btn btn--dark" id="mbBtn" type="button">구독 신청</button></div>
+<div class="toast" id="toast"></div>
+<footer class="foot">주식회사 모넷코리아 · 대표 염정훈 · 사업자등록번호 242-88-01218 · 서울특별시 서초구 효령로 380, 2층 · 02-2088-1454 · <a href="mailto:1015@monnit.com">1015@monnit.com</a> · <a href="/alarm/terms">이용약관</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const qs = new URLSearchParams(location.search);
+const won = (n) => "₩" + Number(n || 0).toLocaleString("ko-KR");
+const wonK = (n) => Number(n || 0).toLocaleString("ko-KR") + "원";
+const vat = (n) => Math.floor(n * 0.1);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/* 이미지 파일 이름과 실제 그림이 엇갈려 있어(water=차단기함, outage=경광등, alarm=집수정) 그림 기준으로 맞춘다 */
+const IMG = { fire: "/images/alarm/ta-plan-fire.webp", water: "/images/alarm/ta-plan-alarm.webp", power: "/images/alarm/ta-plan-water.webp", alarm: "/images/alarm/ta-plan-outage.webp" };
+const DESC = { fire: "기존 소방수신기의 화재경보 신호를 휴대폰으로", water: "누수·침수를 감지하면 바로 알림", power: "정전·차단기 트립을 원격으로 알림", alarm: "기존 설비의 경보 신호를 원격으로" };
+const ERR = {
+  missing_company: "상호를 입력해 주세요.", missing_manager: "담당자 성함을 입력해 주세요.", missing_phone: "휴대전화를 입력해 주세요.", bad_phone: "휴대전화 번호를 확인해 주세요.",
+  missing_email: "이메일을 입력해 주세요.", bad_email: "이메일 주소를 확인해 주세요.", missing_site: "설치 현장 이름을 입력해 주세요.", missing_siteAddr: "설치 현장 주소를 입력해 주세요.",
+  missing_bizNo: "세금계산서 발행을 위해 사업자등록번호 10자리를 입력해 주세요.", missing_ceo: "대표자 성명을 입력해 주세요.", missing_address: "사업장 주소를 입력해 주세요.",
+  missing_agree: "필수 항목(의무 사용기간 포함)에 동의해 주세요.", products_required: "알리미를 하나 이상 골라 주세요.", too_many_sites: "한 번에 9곳까지 신청할 수 있어요. 10곳 이상은 별도 견적으로 안내드려요.",
+  pg_not_ready: "카드 결제가 아직 준비되지 않았습니다. 세금계산서 방식을 선택해 주세요.", login_required: "회원 로그인이 필요합니다.", already_subscribed: "이미 결제가 등록된 계약입니다.",
+  offer_not_found: "계약 링크를 찾을 수 없습니다.", offer_void: "무효 처리된 계약 링크입니다. 담당자에게 문의해 주세요.", contract_not_issued: "먼저 계약 화면에서 계약서를 발급해 주세요.",
+  quote_not_found: "견적을 찾을 수 없어요. 받으신 링크를 다시 확인해 주세요.", quote_void: "취소된 견적입니다. 담당자에게 새 견적을 요청해 주세요.", quote_expired: "견적 유효기간이 지났어요. 담당자에게 다시 요청해 주세요.",
+  wrong_code: "인증코드가 맞지 않아요.", expired: "인증코드가 만료되었어요. 다시 받아 주세요.", too_soon: "잠시 후 다시 보내 주세요.", too_many: "요청이 많아요. 잠시 후 다시 시도해 주세요.", too_many_tries: "입력 횟수를 넘었어요. 코드를 다시 받아 주세요.",
+  mail_unavailable: "지금은 인증 메일을 보낼 수 없어요. 비회원으로 계속해 주세요.", issue_failed: "카드 등록을 완료하지 못했어요.", server: "일시적인 오류입니다. 잠시 뒤 다시 시도해 주세요.",
+};
+const errText = (j) => ERR[j && j.error] || (j && j.message) || "처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.";
+async function api(path, body) {
+  const r = await fetch("/api/billing/" + path, body ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : {});
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  if (!r.ok && j.ok !== false) j = { ok: false, error: "server" };
+  return j;
+}
+function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("is-on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("is-on"), 2800); }
+function busy(btn, on, label) { if (on) { btn.dataset.l = btn.innerHTML; btn.innerHTML = '<span class="spin"></span>' + (label || ""); btn.disabled = true; } else { btn.innerHTML = btn.dataset.l || btn.innerHTML; btn.disabled = false; } }
+
+const S = { cfg: null, me: null, mode: "landing", quote: null, lines: {}, account: "guest", method: "card", email: "" };
+const regionOf = (a) => { a = String(a || "").replace(/^\s*\(?\d{5}\)?\s*/, "").trim(); return !a ? null : /^(서울|경기|인천)/.test(a) ? "metro" : "other"; };
+
+/* ── 시작 ── */
+init();
+async function init() {
+  const [cfg, me] = await Promise.all([api("config"), api("me")]);
+  S.cfg = cfg.ok ? cfg : { ready: false, unit: { metro: 30000, other: 40000 }, maxSites: 9, chargeAt: "activation" };
+  S.me = me.ok ? me : { member: null };
+  $("#testPill").hidden = !S.cfg.test;
+  if (qs.get("sub") && qs.get("r")) return finishReturn();
+  if (qs.get("q")) {
+    const q = await api("quote?q=" + encodeURIComponent(qs.get("q")));
+    if (!q.ok) return showResult({ fail: true, title: "견적을 불러오지 못했어요.", lead: errText(q), acts: [["전화 문의", "tel:0220881454", "dark"], ["알리미 홈", "/promo/alarm", "line"]] });
+    if (q.existing) return showResult({ title: "이미 구독 신청이 완료된 견적입니다.", lead: `구독번호 ${q.existing.id} — 구독 관리에서 확인하실 수 있어요.`, acts: [["구독 관리", "/account?sub=" + q.existing.id, "dark"]] });
+    S.mode = "contract"; S.kind = "quote"; S.quote = q;
+  } else if (qs.get("offer")) {
+    const q = await api("quote?offer=" + encodeURIComponent(qs.get("offer")));
+    if (!q.ok) return showResult({ fail: true, title: "계약 정보를 불러오지 못했어요.", lead: errText(q), acts: [["알리미 홈", "/promo/alarm", "line"]] });
+    if (q.existing) return showResult({ title: "이미 결제가 등록된 계약입니다.", lead: `구독번호 ${q.existing.id} — 구독 관리에서 결제 내역과 카드를 확인하실 수 있어요.`, acts: [["구독 관리", "/account?sub=" + q.existing.id, "dark"]] });
+    S.mode = "contract"; S.kind = "offer"; S.quote = q;
+  } else {
+    const norm = (p) => ({ outage: "power" }[p] || p);
+    const qty = Math.max(1, Math.min(9, parseInt(qs.get("qty"), 10) || 1));
+    const many = (qs.get("plans") || "").split(",").map(norm).filter((p) => IMG[p]).slice(0, 4);
+    if (many.length) { S.lines = {}; many.forEach((p) => (S.lines[p] = 1)); }
+    else { const plan = norm(qs.get("plan")); S.lines = { [IMG[plan] ? plan : "fire"]: qty }; }
+    S.regionHint = qs.get("region") === "other" ? "other" : "metro";
+  }
+  /* 신청 폼에서 바로 넘어온 경우 — 입력했던 정보를 이어서 채운다 (주소창에는 개인정보를 싣지 않고 이 브라우저에만) */
+  S.via = qs.get("via") || "";
+  try { const pf = JSON.parse(sessionStorage.getItem("mnkPayPrefill") || "null"); if (pf && Date.now() - (pf.at || 0) < 3600e3) S.prefill = pf.customer || {}; } catch (e) {}
+  render();
+  $("#loading").hidden = true; $("#checkout").hidden = false; $("#mbar").hidden = false;
+}
+
+function render() {
+  renderPlan(); renderAccount(); prefill(); renderMethod(); renderAgree(); renderSummary();
+}
+
+/* ── 1. 구성 ── */
+function renderPlan() {
+  if (S.mode === "contract") {
+    const q = S.quote, p = q.plan, isQ = S.kind === "quote";
+    $("#planTitle").textContent = isQ ? "담당자가 확정한 견적입니다." : "계약하신 조건입니다.";
+    $("#planLead").textContent = isQ ? `견적 금액 그대로 결제됩니다. 유효기간 ${q.quote.expiresAt}까지.` : "계약서에 확정된 금액 그대로 결제됩니다.";
+    $("#heroTitle").innerHTML = isQ ? "견적이 준비되었어요.<br>확인하고 바로 시작하세요." : "계약하신 알리미,<br>결제만 등록하면 끝입니다.";
+    $("#heroLead").textContent = isQ ? "정보 확인 → 동의 → 카드 등록이면 끝. 설치가 끝나는 날부터 결제됩니다." : "카드를 등록해 두면 매달 자동으로 결제됩니다.";
+    $("#tiles").hidden = true;
+    const box = $("#contractBox"); box.hidden = false;
+    box.innerHTML = `<div class="contract"><div class="contract__top"><b>${esc(p.label)}</b><span>${isQ ? "견적번호 " + esc(q.quote.id) : "계약번호 " + esc(q.ref)}</span></div>
+      ${isQ && q.quote.note ? `<p class="note note--blue" style="margin:12px 0 0"><span>${esc(q.quote.note)}</span></p>` : ""}
+      <dl class="rows" style="margin-top:10px">
+        ${isQ && p.lines.length > 1 ? p.lines.map((l) => `<div><dt>${esc(l.label)}</dt><dd>${l.qty}개소</dd></div>`).join("") : `<div><dt>설치 개소</dt><dd>${p.qty}개소</dd></div>`}
+        ${isQ ? `<div><dt>1개소 월 단가</dt><dd>${wonK(p.unit)}</dd></div>` : ""}
+        <div><dt>월 이용료</dt><dd>${wonK(p.supply)} <span style="color:var(--muted)">(부가세 별도)</span></dd></div>
+        ${p.discount ? `<div><dt>할인</dt><dd>−${wonK(p.discount)} 적용</dd></div>` : ""}
+        <div><dt>설치비</dt><dd>${p.installFee ? wonK(p.installFee) + " (1회 · 부가세 별도)" : "무료"}</dd></div>
+        ${p.from ? `<div><dt>계약 기간</dt><dd>${esc(p.from)} ~ ${esc(p.to)}</dd></div>` : ""}
+        ${isQ && p.termMonths ? `<div><dt>의무 사용기간</dt><dd>설치 완료일부터 ${p.termMonths}개월</dd></div>` : ""}
+      </dl></div>`;
+    return;
+  }
+  const t = $("#tiles");
+  t.innerHTML = Object.entries(S.cfg.products || {}).map(([k, v]) => `
+    <label class="tile${S.lines[k] ? " is-on" : ""}" data-p="${k}">
+      <input type="checkbox" ${S.lines[k] ? "checked" : ""} aria-label="${esc(v.label)}">
+      <img src="${IMG[k]}" alt="" loading="lazy">
+      <div class="tile__body"><div class="tile__name">${esc(v.label)}</div><div class="tile__desc">${esc(DESC[k])}</div>
+        <div class="tile__qty"><span class="stepper"><button type="button" data-d="-1" aria-label="줄이기">−</button><output>${S.lines[k] || 1}곳</output><button type="button" data-d="1" aria-label="늘리기">＋</button></span></div></div>
+      <span class="tile__check"><svg viewBox="0 0 12 12" fill="none" stroke-width="2"><path d="M2.5 6.5l2.3 2.3L9.5 3.8"/></svg></span>
+    </label>`).join("");
+  $$(".tile", t).forEach((el) => {
+    const k = el.dataset.p;
+    el.addEventListener("click", (e) => {
+      const d = e.target.closest("[data-d]");
+      e.preventDefault();
+      if (d) {
+        const total = Object.values(S.lines).reduce((a, b) => a + b, 0);
+        const n = (S.lines[k] || 1) + Number(d.dataset.d);
+        if (n < 1) { delete S.lines[k]; }
+        else if (Number(d.dataset.d) > 0 && total >= S.cfg.maxSites) return toast("한 번에 9곳까지 신청할 수 있어요. 10곳 이상은 별도 견적으로 안내드려요.");
+        else S.lines[k] = n;
+      } else {
+        if (S.lines[k]) delete S.lines[k];
+        else { if (Object.values(S.lines).reduce((a, b) => a + b, 0) >= S.cfg.maxSites) return toast("한 번에 9곳까지 신청할 수 있어요."); S.lines[k] = 1; }
+      }
+      renderPlan(); renderSummary();
+    });
+  });
+}
+
+/* ── 2. 계정 ── */
+function renderAccount() {
+  const m = S.me && S.me.member;
+  $("#accountChoose").hidden = !!m; $("#signedBox").hidden = !m;
+  if (m) {
+    S.account = "member";
+    $("#signedEmail").textContent = m.email; $("#signedAv").textContent = (m.email[0] || "M").toUpperCase();
+    $("#signedNote").textContent = S.justJoined ? "회원 가입이 완료되었어요 · 로그인됨" : "회원으로 로그인됨";
+    const em = $("#email"); em.value = m.email; em.readOnly = true;
+  } else {
+    $("#email").readOnly = false;
+  }
+}
+$$("[data-acc]").forEach((el) => el.addEventListener("click", () => {
+  S.account = el.dataset.acc;
+  $$("[data-acc]").forEach((x) => x.classList.toggle("is-on", x === el));
+  $("#memberBox").hidden = S.account !== "member";
+  if (S.account === "member") setTimeout(() => $("#loginEmail").focus(), 50);
+}));
+$("#sendCode").addEventListener("click", sendCode);
+$("#resend").addEventListener("click", (e) => { e.preventDefault(); sendCode(); });
+$("#loginEmail").addEventListener("keydown", (e) => { if (e.key === "Enter") sendCode(); });
+async function sendCode() {
+  const email = $("#loginEmail").value.trim();
+  $("#loginErr").textContent = "";
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { $("#loginErr").textContent = ERR.bad_email; return; }
+  const b = $("#sendCode"); busy(b, true);
+  const j = await api("otp/send", { email, purpose: "login" });
+  busy(b, false);
+  if (!j.ok) { $("#loginErr").textContent = errText(j); return; }
+  S.email = email; $("#codeTo").textContent = email; $("#codeBox").hidden = false; b.textContent = "다시 받기";
+  buildCode(j.devCode);
+}
+function buildCode(dev) {
+  const box = $("#codeInputs");
+  box.innerHTML = Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" autocomplete="${i ? "off" : "one-time-code"}" aria-label="${i + 1}번째 숫자">`).join("");
+  const ins = $$("input", box);
+  ins.forEach((el, i) => {
+    el.addEventListener("input", () => {
+      const v = el.value.replace(/\D/g, "");
+      if (v.length > 1) { v.split("").slice(0, 6 - i).forEach((c, j) => { ins[i + j].value = c; }); }
+      else el.value = v;
+      const nx = ins.find((x) => !x.value); (nx || ins[5]).focus();
+      if (ins.every((x) => x.value)) verify(ins.map((x) => x.value).join(""));
+    });
+    el.addEventListener("keydown", (e) => { if (e.key === "Backspace" && !el.value && i) ins[i - 1].focus(); });
+  });
+  ins[0].focus();
+  if (dev) toast("개발용 인증코드: " + dev);
+}
+async function verify(code) {
+  $("#loginErr").textContent = "";
+  const j = await api("otp/verify", { email: S.email, code });
+  if (!j.ok) { $("#loginErr").textContent = errText(j) + (j.left != null ? ` (남은 횟수 ${j.left})` : ""); $$("#codeInputs input").forEach((x) => (x.value = "")); $("#codeInputs input").focus(); return; }
+  S.justJoined = j.isNew;
+  S.me = await api("me");
+  renderAccount(); prefill(true);
+  toast(j.isNew ? "회원 가입이 완료되었어요." : "로그인되었어요.");
+}
+$("#logoutBtn").addEventListener("click", async () => {
+  await api("logout", {}); S.me = { member: null }; S.account = "guest";
+  $$("[data-acc]").forEach((x) => x.classList.toggle("is-on", x.dataset.acc === "guest")); $("#memberBox").hidden = true; $("#codeBox").hidden = true;
+  renderAccount();
+});
+
+/* ── 3. 고객 정보 ── */
+const FIELDS = ["company", "manager", "phone", "email", "site", "siteAddr", "bizNo", "ceo", "address", "bizType", "bizItem"];
+function prefill(fromMember) {
+  const src = { ...(S.prefill || {}), ...(S.mode === "contract" ? S.quote.customer : (S.me && S.me.member && S.me.member.profile) || {}) };
+  FIELDS.forEach((k) => { const el = $("#" + k); if (el && src[k] && (!el.value || fromMember)) el.value = src[k]; });
+  if (S.me && S.me.member) $("#email").value = S.me.member.email;
+  if (src.bizNo) $("#bizMore").open = true;
+  updateRegion();
+}
+$("#siteAddr").addEventListener("input", () => { updateRegion(); renderSummary(); });
+$("#phone").addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, "").slice(0, 11); e.target.value = d.length < 4 ? d : d.length < 8 ? d.replace(/(\d{3})(\d+)/, "$1-$2") : d.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3"); });
+$("#bizNo").addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, "").slice(0, 10); e.target.value = d.length < 4 ? d : d.length < 6 ? d.replace(/(\d{3})(\d+)/, "$1-$2") : d.replace(/(\d{3})(\d{2})(\d+)/, "$1-$2-$3"); });
+FIELDS.forEach((k) => $("#" + k).addEventListener("input", () => { const f = $("#" + k).closest(".field"); f.classList.remove("is-bad"); const h = $(".hint", f); if (h) h.remove(); }));
+function region() { return regionOf($("#siteAddr").value) || S.regionHint || "metro"; }
+function updateRegion() {
+  if (S.mode === "contract") { $("#regionNote").hidden = true; return; }
+  const r = region(), u = S.cfg.unit[r];
+  $("#regionChip").textContent = r === "metro" ? "서울·경기·인천" : "그 외 지역";
+  $("#regionChip").classList.toggle("is-other", r === "other");
+  $("#regionText").textContent = `1곳 월 ${wonK(u)} (부가세 별도) · 설치비 무료${regionOf($("#siteAddr").value) ? "" : " — 주소를 입력하면 지역이 자동으로 정해져요"}`;
+}
+
+/* ── 4. 결제 수단 ── */
+function renderMethod() {
+  const ready = S.cfg.ready;
+  $("#pgNotReady").hidden = ready;
+  const cardEl = $('[data-method="card"]');
+  cardEl.classList.toggle("is-disabled", !ready);
+  if (!ready && S.method === "card") S.method = "cash";
+  const cash = S.method === "cash";
+  $("#cashBox").hidden = !cash;
+  $("#stepAccount").hidden = cash;
+  $$(".ag").forEach((x) => { if (x.dataset.k === "terms") x.closest("label").hidden = cash; });
+  $("#stepInfo .lead").textContent = cash ? "담당자가 연락드릴 정보예요. 상호·담당자·휴대전화만 꼭 적어 주세요." : "입력하신 연락처로 설치 일정을 안내드려요.";
+  $$("[data-method]").forEach((x) => x.classList.toggle("is-on", x.dataset.method === S.method));
+  const first = S.cfg.chargeAt === "signup" ? "카드를 등록하면 바로 첫 달 이용료가 결제되고" : "설치가 완료되는 날 첫 결제가 진행되고";
+  $("#methodNote").innerHTML = S.method === "card"
+    ? `<span>${first}, 이후 매달 같은 날 자동으로 결제됩니다. 결제할 때마다 메일로 영수증을 보내 드려요.</span>`
+    : `<span>현금 결제는 온라인으로 바로 가입되지 않고, 담당자가 계약서와 입금 계좌를 직접 안내드려요.</span>`;
+  $("#submitBtn").textContent = S.method === "card" ? "카드 등록하고 구독 신청" : "현금 결제 상담 요청";
+  $("#mbBtn").textContent = S.method === "card" ? "카드 등록" : "상담 요청";
+  $("#agAutopayRow").hidden = S.method !== "card";
+}
+$$("[data-method]").forEach((el) => el.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (el.classList.contains("is-disabled")) return;
+  S.method = el.dataset.method; renderMethod(); renderAgree(); renderSummary();
+}));
+
+/* ── 5. 동의 ── */
+function renderAgree() { setAutopayText(); syncAll(); }
+function termLabel() {
+  if (S.kind === "quote") { const m = S.quote.plan.termMonths || 0; return m ? `서비스 시작(설치 완료)일부터 ${m % 12 ? m + "개월" : m / 12 + "년"}` : ""; }
+  if (S.mode === "contract") { const p = S.quote.plan; return p.to ? `계약서의 계약 기간(${p.from} ~ ${p.to})` : "계약서의 계약 기간"; }
+  const m = S.cfg.termMonths || 0; return m ? `서비스 시작(설치 완료)일부터 ${m % 12 ? m + "개월" : m / 12 + "년"}` : "";
+}
+function setAutopayText() {
+  const t = total();
+  const tl = termLabel();
+  $("#termText").innerHTML = `의무 사용기간에 동의합니다 <small>필수 · ${esc(tl || "의무 사용기간 없음")} 동안은 해지할 수 없으며, 만료 후에는 같은 조건으로 매월 자동 연장되고 언제든 해지할 수 있습니다. 기간 중 부득이한 해지는 상담 후 약관에 따른 위약금이 청구될 수 있습니다.</small>`;
+  $("#termText").closest("label").hidden = !tl || S.method === "cash";
+  const first = S.cfg.chargeAt === "signup" ? "오늘" : "설치 완료일";
+  $("#autopayText").innerHTML = `정기결제에 동의합니다 <small>필수 · ${first}부터 매월 같은 날 ${wonK(t.monthly)}(부가세 포함)이 등록한 카드로 자동 결제됩니다. 의무 사용기간이 끝난 뒤에는 구독 관리에서 언제든 해지할 수 있고, 해지하면 다음 결제일부터 청구되지 않습니다.</small>`;
+}
+$("#agAll").addEventListener("change", (e) => { $$(".ag").forEach((x) => { if (!x.closest("label").hidden) x.checked = e.target.checked; }); });
+document.addEventListener("change", (e) => { if (e.target.classList && e.target.classList.contains("ag")) syncAll(); });
+function syncAll() { $("#agAll").checked = $$(".ag").filter((x) => !x.closest("label").hidden).every((x) => x.checked); }
+
+/* ── 요약 ── */
+function total() {
+  if (S.mode === "contract") {
+    const p = S.quote.plan;
+    return { supply: p.supply, vat: p.vat, monthly: p.total, qty: p.qty, install: p.installFee, installTotal: p.installFee ? p.installFee + vat(p.installFee) : 0, label: p.label, lines: p.lines };
+  }
+  const r = region(), u = S.cfg.unit[r];
+  const qty = Object.values(S.lines).reduce((a, b) => a + b, 0);
+  const supply = u * qty;
+  return { supply, vat: vat(supply), monthly: supply + vat(supply), qty, unit: u, install: 0, installTotal: 0, region: r, lines: Object.entries(S.lines).map(([k, q]) => ({ product: k, qty: q, label: S.cfg.products[k].label })) };
+}
+function renderSummary() {
+  const t = total();
+  const prods = (t.lines || []).map((l) => l.product).filter((k) => IMG[k]);
+  $("#sumImg").innerHTML = (prods.length ? prods : ["fire"]).slice(0, 4).map((k) => `<img src="${IMG[k]}" alt="">`).join("");
+  const rows = [];
+  if (S.mode === "contract") rows.push([t.label, `${t.qty}개소`]);
+  else t.lines.forEach((l) => rows.push([l.label, `${l.qty}곳 · ${wonK(t.unit * l.qty)}`]));
+  if (!t.lines.length && S.mode !== "contract") rows.push(["선택한 알리미", "없음"]);
+  rows.push(["월 이용료 (공급가액)", wonK(t.supply)], ["부가세 (10%)", wonK(t.vat)], ["설치비", t.install ? wonK(t.install) + " + VAT" : "무료"]);
+  if (S.mode !== "contract" && S.cfg.termMonths) rows.push(["의무 사용기간", S.cfg.termMonths % 12 ? S.cfg.termMonths + "개월" : S.cfg.termMonths / 12 + "년"]);
+  $("#sumRows").innerHTML = rows.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("");
+  $("#sumTotal").textContent = won(t.monthly); $("#mbTotal").textContent = won(t.monthly);
+  $("#sumTotalSub").textContent = `부가세 포함 · 월 ${wonK(t.supply)} + 부가세`;
+  const signup = S.cfg.chargeAt === "signup" && S.method === "card";
+  $("#sumTodayAmt").textContent = signup ? won(t.monthly + t.installTotal) : "₩0";
+  $("#sumTodayNote").textContent = S.method === "cash" ? "상담 후 계약·입금 안내" : signup ? "첫 달 이용료" : "설치가 완료되는 날 첫 결제";
+  $("#sumFine").textContent = S.kind === "quote"
+    ? `담당자 견적 그대로 결제됩니다.${t.install ? " 첫 결제에 설치비가 함께 청구됩니다." : ""} ${termLabel() ? "의무 사용기간 " + termLabel().replace("서비스 시작(설치 완료)일부터 ", "") + " 동안은 해지할 수 없고, 끝나면 매월 자동 연장돼요." : ""}`
+    : S.mode === "contract"
+    ? "계약서의 조건(계약 기간·해지)이 그대로 적용됩니다. 첫 결제에는 설치비가 함께 청구됩니다."
+    : `설치비 무료 · 의무 사용기간 ${termLabel().replace("서비스 시작(설치 완료)일부터 ", "")} (설치 완료일부터). 기간 중에는 해지할 수 없고, 끝나면 매월 자동 연장되며 언제든 해지할 수 있어요.`;
+  $("#submitBtn").disabled = $("#mbBtn").disabled = !t.qty;
+  setAutopayText();
+}
+
+/* ── 신청 ── */
+$("#submitBtn").addEventListener("click", submit);
+$("#mbBtn").addEventListener("click", submit);
+function bad(id, msg) {
+  const f = $("#" + id).closest(".field"); f.classList.add("is-bad");
+  if (!$(".hint", f)) f.insertAdjacentHTML("beforeend", `<p class="hint">${esc(msg)}</p>`);
+  if (f.closest("details")) f.closest("details").open = true;
+  return f;
+}
+async function submit() {
+  $("#submitErr").textContent = "";
+  if (S.method === "cash") return submitCash();
+  if (S.account === "member" && !(S.me && S.me.member)) { $("#stepAccount").scrollIntoView({ behavior: "smooth", block: "center" }); $("#loginErr").textContent = "이메일 인증을 마치거나 비회원으로 계속해 주세요."; return; }
+  const v = Object.fromEntries(FIELDS.map((k) => [k, $("#" + k).value.trim()]));
+  const req = ["company", "manager", "phone", "email", "site", "siteAddr"];
+  if (S.method === "invoice") req.push("bizNo", "ceo", "address");
+  let first = null;
+  for (const k of req) if (!v[k]) first = first || bad(k, "입력해 주세요.");
+  if (v.email && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.email)) first = first || bad("email", ERR.bad_email);
+  if (v.phone && !/^0\d{8,10}$/.test(v.phone.replace(/\D/g, ""))) first = first || bad("phone", ERR.bad_phone);
+  if (S.method === "invoice" && v.bizNo && v.bizNo.replace(/\D/g, "").length !== 10) first = first || bad("bizNo", "10자리를 확인해 주세요.");
+  if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  const ag = Object.fromEntries($$(".ag").map((x) => [x.dataset.k, x.checked || x.closest("label").hidden && x.dataset.k === "term"]));
+  if (!ag.terms || !ag.privacy || !ag.term || (S.method === "card" && !ag.autopay)) { $("#stepAgree").scrollIntoView({ behavior: "smooth", block: "center" }); $("#submitErr").textContent = ERR.missing_agree; return; }
+  const t = total();
+  const body = { method: S.method, customer: v, asMember: !!(S.me && S.me.member), agree: { ...ag, text: ($("#termText").textContent + " / " + $("#autopayText").textContent).trim() } };
+  if (S.kind === "quote") body.quote = S.quote.quote.id; else if (S.mode === "contract") body.offer = S.quote.offer; else body.lines = Object.entries(S.lines).map(([product, qty]) => ({ product, qty }));
+  if (S.via) body.via = S.via;
+  const btn = $("#submitBtn"); busy(btn, true, S.method === "card" ? " 카드 등록 화면 여는 중" : " 신청 중");
+  try {
+    const j = await api("checkout", body);
+    if (!j.ok) { $("#submitErr").textContent = errText(j); return; }
+    if (j.method === "invoice") return showDone(j.sub);
+    await openToss(j);
+  } finally { busy(btn, false); }
+}
+async function submitCash() {
+  const v = Object.fromEntries(FIELDS.map((k) => [k, $("#" + k).value.trim()]));
+  let first = null;
+  for (const k of ["company", "manager", "phone"]) if (!v[k]) first = first || bad(k, "입력해 주세요.");
+  if (v.phone && !/^0\d{8,10}$/.test(v.phone.replace(/\D/g, ""))) first = first || bad("phone", ERR.bad_phone);
+  if (v.email && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.email)) first = first || bad("email", ERR.bad_email);
+  if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  const priv = $$(".ag").find((x) => x.dataset.k === "privacy");
+  if (!priv.checked) { $("#stepAgree").scrollIntoView({ behavior: "smooth", block: "center" }); $("#submitErr").textContent = "개인정보 수집·이용에 동의해 주세요."; return; }
+  const body = { customer: v, region: region(), payType: $("#cashType").value, when: $("#cashWhen").value, memo: $("#cashMemo").value, agree: { privacy: true } };
+  if (S.kind === "quote") body.quote = S.quote.quote.id; else if (S.mode === "contract") body.offer = S.quote.offer; else body.lines = Object.entries(S.lines).map(([product, qty]) => ({ product, qty }));
+  if (S.via) body.via = S.via;
+  const btn = $("#submitBtn"); busy(btn, true, " 접수 중");
+  try {
+    const j = await api("cash-inquiry", body);
+    if (!j.ok) { $("#submitErr").textContent = errText(j); return; }
+    const t = total();
+    showResult({ title: "상담 요청이 접수되었어요.", lead: `영업일 기준 1일 안에 담당자가 ${v.phone}로 연락드려 계약과 입금 방법을 안내드립니다.`,
+      rows: [["접수번호", j.id], ["구성", S.mode === "contract" ? `${t.label} · ${t.qty}개소` : t.lines.map((l) => `${l.label} ${l.qty}곳`).join(", ")], ["월 이용료", `${wonK(t.supply)} (부가세 별도)`], ["결제 방식", $("#cashType").selectedOptions[0].textContent], ...(v.email ? [["접수 확인 메일", v.email]] : [])],
+      acts: [["바로 전화하기", "tel:0220881454", "dark"], ["카카오톡 상담", "https://pf.kakao.com/_xfIMpj", "line"]],
+      foot: "급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주세요." });
+  } finally { busy(btn, false); }
+}
+function loadToss() {
+  if (window.TossPayments) return Promise.resolve();
+  return new Promise((ok, no) => { const s = document.createElement("script"); s.src = "https://js.tosspayments.com/v2/standard"; s.onload = ok; s.onerror = () => no(new Error("load")); document.head.appendChild(s); });
+}
+async function openToss(j) {
+  try { await loadToss(); } catch (e) { $("#submitErr").textContent = "결제 모듈을 불러오지 못했어요. 네트워크를 확인해 주세요."; return; }
+  try {
+    const tp = window.TossPayments(S.cfg.clientKey);
+    const payment = tp.payment({ customerKey: j.customerKey });
+    await payment.requestBillingAuth({ method: "CARD", successUrl: j.successUrl, failUrl: j.failUrl, customerEmail: j.customerEmail, customerName: j.customerName });
+  } catch (e) {
+    if (e && e.code === "USER_CANCEL") toast("카드 등록을 취소했어요.");
+    else $("#submitErr").textContent = (e && e.message) || "카드 등록 화면을 열지 못했어요.";
+  }
+}
+
+/* ── 카드 등록 후 돌아왔을 때 ── */
+async function finishReturn() {
+  const sub = qs.get("sub");
+  if (qs.get("r") === "fail") {
+    const msg = qs.get("message") || "카드 등록이 완료되지 않았어요.";
+    const back = "/pay" + (qs.get("q") ? "?q=" + encodeURIComponent(qs.get("q")) : qs.get("offer") ? "?offer=" + encodeURIComponent(qs.get("offer")) : "");
+    return showResult({ fail: true, title: "카드 등록이 완료되지 않았어요.", lead: msg + (qs.get("code") === "PAY_PROCESS_CANCELED" ? "" : " 다른 카드로 다시 시도해 주세요."), acts: [["다시 시도", back, "dark"], ["문의하기", "tel:0220881454", "line"]] });
+  }
+  $("#loading").textContent = "카드를 등록하고 있어요…";
+  const j = await api("card/confirm", { subId: sub, authKey: qs.get("authKey"), customerKey: qs.get("customerKey") });
+  history.replaceState(null, "", "/pay?done=" + encodeURIComponent(sub));
+  if (!j.ok) return showResult({ fail: true, title: "카드 등록을 완료하지 못했어요.", lead: (j.message || errText(j)) + " 다시 시도하시거나 02-2088-1454로 연락해 주세요.", acts: [["다시 시도", "/pay", "dark"]] });
+  showDone(j.sub);
+}
+function showDone(sub) {
+  try { sessionStorage.removeItem("mnkPayPrefill"); } catch (e) {}
+  const p = sub.plan, card = sub.method === "card";
+  const rows = [["구독번호", sub.id], ["구성", `${p.label} · ${p.qty}개소`], ["매월 결제 금액", `${wonK(p.total)} (부가세 포함)`],
+    ...(p.installFee ? [["설치비 (1회)", `${wonK(p.installFee + vat(p.installFee))} (부가세 포함 · 첫 결제)`]] : []),
+    ["결제 수단", card ? `${(sub.card && sub.card.company) || "카드"}${sub.card && sub.card.last4 ? " •••• " + sub.card.last4 : ""} 자동결제` : "세금계산서 · 계좌이체"],
+    ["첫 결제", sub.status === "active" ? (sub.lastPay && sub.lastPay.status === "paid" ? `완료 · 다음 결제일 ${sub.nextChargeAt}` : "결제 진행 중") : card ? "설치가 완료되는 날" : "설치 완료 후 첫 결제일에 세금계산서 발행"],
+    ["의무 사용기간", sub.plan.source === "contract" && sub.plan.to ? `${sub.plan.from} ~ ${sub.plan.to}` : sub.plan.termMonths ? `설치 완료일부터 ${sub.plan.termMonths}개월` : "없음"],
+    ["안내 메일", sub.customer.email]];
+  showResult({ title: "구독 신청이 완료되었어요.", lead: "담당자가 설치 일정을 안내드리기 위해 곧 연락드립니다.", rows, acts: [["구독 관리", "/account?sub=" + encodeURIComponent(sub.id), "dark"], ["알리미 홈", "/promo/alarm", "line"]],
+    foot: sub.member ? "회원 계정에서 모든 구독을 관리할 수 있어요." : "비회원은 구독번호와 이메일로 언제든 조회할 수 있어요. 구독번호를 메일로도 보내 드렸어요." });
+}
+function showResult({ fail, title, lead, rows, acts = [], foot }) {
+  $("#loading").hidden = true; $("#checkout").hidden = true; $("#mbar").hidden = true;
+  const el = $("#result"); el.hidden = false;
+  el.innerHTML = `<div class="done">
+    <div class="done__mark${fail ? " is-fail" : ""}"><svg viewBox="0 0 42 42">${fail ? '<path d="M14 14l14 14M28 14L14 28"/>' : '<path d="M11 22l7 7 14-15"/>'}</svg></div>
+    <h1>${esc(title)}</h1><p>${esc(lead)}</p>
+    ${rows ? `<div class="card"><dl class="rows">${rows.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl></div>` : ""}
+    <div class="acts">${acts.map(([l, h, k]) => `<a class="btn ${k === "line" ? "btn--line" : "btn--dark"}" href="${esc(h)}">${esc(l)}</a>`).join("")}</div>
+    ${foot ? `<p style="color:var(--muted);font-size:14px;margin-top:22px">${esc(foot)}</p>` : ""}</div>`;
+  scrollTo(0, 0);
+}
+})();
+</script>
+</body>
+</html>

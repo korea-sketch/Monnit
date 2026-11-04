@@ -388,6 +388,9 @@ function initEmergencyHero(){
       const resultInstallEl = document.getElementById('taBuilderResultInstall');
       if(resultInstallEl) resultInstallEl.textContent = '설치비 무료';
 
+      /* 2026-11-03 온라인 구독 결제 — 고른 모델·현장 수·지역을 그대로 /pay 로 넘긴다 (10곳 이상은 견적이라 숨김) */
+      const payLink = document.getElementById('taBuilderPay');
+      if(payLink){ payLink.hidden = isQuote; payLink.href = `/pay?plan=${encodeURIComponent(plan.value)}&qty=${count}&region=${encodeURIComponent(region.value)}`; }
       if(resultSitesEl) resultSitesEl.textContent = `${count}곳`;
       if(resultRegionEl) resultRegionEl.textContent = region.dataset.label;
       if(resultConsultingEl) resultConsultingEl.textContent = consulting?.value==='installation-only' ? '설치만 진행' : '무료 현장 컨설팅 요청';
@@ -540,6 +543,9 @@ async function submitPromoApply(e){
     window.MonnitLead.track('contact', { page:'promo_apply', interest:promo });
   if (result === true){
     if (status){ status.textContent = '✓ 신청이 접수되었습니다. 담당자가 곧 연락드립니다.'; status.className = 'paf-status ok'; }
+    /* 2026-11-03 논스톱 — 접수에서 끝내지 않고 바로 구독 결제(/pay)로 이어 간다.
+       입력한 정보는 주소창이 아니라 이 브라우저(sessionStorage)에만 넘긴다. 커스텀은 담당자 견적 후 결제 링크로. */
+    try { showNonstop(form, { models, name, company, phone, email, region }); } catch(e){ console.warn('[alarm] nonstop', e); }
     form?.reset?.();
   } else if (result === 'mailto'){
     if (status){ status.textContent = '메일 앱으로 신청 내용을 작성합니다. 전송 버튼을 눌러 완료해 주세요.'; status.className = 'paf-status'; }
@@ -547,6 +553,30 @@ async function submitPromoApply(e){
     if (status){ status.textContent = '전송에 실패했습니다. 잠시 후 다시 시도하거나 korea@monnit.com 으로 연락 주세요.'; status.className = 'paf-status err'; }
   }
   return false;
+}
+
+function showNonstop(form, d){
+  const KEY = { '소방 알리미':'fire', '물감지 알리미':'water', '정전 알리미':'power', '경보 알리미':'alarm' };
+  const plans = d.models.map(m => KEY[m]).filter(Boolean);
+  const custom = d.models.some(m => !KEY[m]);
+  let box = form.parentNode.querySelector('.paf-nonstop');
+  if (!box){ box = document.createElement('div'); box.className = 'paf-nonstop'; form.insertAdjacentElement('afterend', box); }
+  box.style.cssText = 'margin-top:18px;padding:22px 24px;border-radius:18px;background:#f5f5f7;border:1px solid #e8e8ed;color:#1d1d1f;font-family:inherit';
+  if (!plans.length){
+    box.innerHTML = '<b style="display:block;font-size:18px">신청이 접수되었습니다.</b><span style="display:block;margin-top:6px;font-size:14px;color:#6e6e73;line-height:1.6">커스텀 알리미는 현장 확인 후 담당자가 <b>견적 링크</b>를 보내드립니다. 받으신 링크에서 내용 확인 후 바로 구독 신청까지 하실 수 있어요.</span>';
+  } else {
+    const name = String(d.name || '').replace(/\s+\S*(팀장|과장|부장|대리|주임|실장|소장|대표|사원|차장|이사|매니저)$/, '');
+    try { sessionStorage.setItem('mnkPayPrefill', JSON.stringify({ at: Date.now(), customer: { company: d.company, manager: name, phone: d.phone, email: d.email, siteAddr: d.region } })); } catch(e){}
+    const region = /^(서울|경기|인천)/.test(String(d.region || '').trim()) || !d.region ? 'metro' : 'other';
+    const href = '/pay?plans=' + plans.join(',') + '&region=' + region + '&via=apply';
+    box.innerHTML = '<b style="display:block;font-size:18px">✓ 신청이 접수되었습니다.</b>'
+      + '<span style="display:block;margin-top:6px;font-size:14px;color:#6e6e73;line-height:1.6">담당자 연락을 기다리지 않고 <b>지금 바로 구독 신청</b>까지 마칠 수 있어요. 입력하신 정보는 그대로 이어집니다. 오늘 결제 금액은 0원이고, 설치가 끝나는 날부터 결제됩니다.'
+      + (custom ? ' (커스텀 알리미는 담당자가 따로 견적을 보내드려요.)' : '') + '</span>'
+      + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><a href="' + href + '" style="display:inline-flex;align-items:center;height:48px;padding:0 26px;border-radius:980px;background:#1d1d1f;color:#fff;font-weight:600;text-decoration:none">바로 구독 신청하기</a>'
+      + '<button type="button" style="height:48px;padding:0 20px;border-radius:980px;border:1px solid #d2d2d7;background:#fff;color:#1d1d1f;font:inherit;cursor:pointer">담당자 연락을 기다릴게요</button></div>';
+    box.querySelector('button').onclick = () => { box.innerHTML = '<span style="font-size:15px">담당자가 1영업일 안에 연락드리겠습니다. 감사합니다.</span>'; };
+  }
+  box.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 
 (function(){
