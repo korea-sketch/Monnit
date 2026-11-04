@@ -35,6 +35,12 @@
 /promo/consulting
   Cache-Control: no-cache, must-revalidate
 
+# 제품몰 (2026-11-04) — 가격 없이 사양·견적 요청. 카탈로그를 자주 고치므로 항상 최신본
+/store
+  Cache-Control: no-cache, must-revalidate
+/store.html
+  Cache-Control: no-cache, must-revalidate
+
 # 건물 원격 통합 관제 랜딩 (2026-11-02) — 광고 소재와 함께 고치므로 항상 최신본
 /promo/remote
   Cache-Control: no-cache, must-revalidate

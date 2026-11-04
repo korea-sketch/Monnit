@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
-<link rel="stylesheet" href="/css/billing.css?v=1">
+<link rel="stylesheet" href="/css/billing.css?v=3">
 <style>
 .tabs{display:inline-flex;background:var(--line2);border-radius:10px;padding:3px;margin-bottom:22px}
 .tabs button{border:0;background:transparent;padding:8px 18px;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;color:var(--text2)}
@@ -102,6 +102,14 @@ const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": 
 const dot = (d) => String(d || "").slice(0, 10).replace(/-/g, ".");
 /* 이미지 파일 이름과 실제 그림이 엇갈려 있어(water=차단기함, outage=경광등, alarm=집수정) 그림 기준으로 맞춘다 */
 const IMG = { fire: "/images/alarm/ta-plan-fire.webp", water: "/images/alarm/ta-plan-alarm.webp", power: "/images/alarm/ta-plan-water.webp", alarm: "/images/alarm/ta-plan-outage.webp" };
+const SLOT = { am: "오전", pm: "오후", any: "시간 무관" };
+function installLine(s) {
+  const i = s.install; if (!i) return "";
+  const d = (x) => x ? x.replace(/-/g, ".") : "";
+  if (i.status === "done") return `${d(i.doneDate)} 설치 완료`;
+  if (i.status === "confirmed") return `${d(i.date)} ${SLOT[i.slot] || ""} 확정 · 현장 사정에 따라 변동될 수 있어요`;
+  return `희망 ${d(i.wish)}${i.alt ? ` · 2순위 ${d(i.alt)}` : ""} ${SLOT[i.slot] || ""} — 담당자 확정 전 (변동 가능)`;
+}
 const ST = { pending: "등록 대기", registered: "설치 대기", active: "이용 중", past_due: "결제 실패", canceled: "해지됨" };
 const PAYST = { paid: "결제 완료", failed: "실패", canceled: "취소됨", partial_canceled: "부분 취소", invoice_pending: "세금계산서 발행 예정", issued: "세금계산서 발행 · 입금 대기", };
 const ERR = { wrong_code: "인증코드가 맞지 않아요.", expired: "인증코드가 만료되었어요. 다시 받아 주세요.", too_soon: "잠시 후 다시 보내 주세요.", too_many: "요청이 많아요. 잠시 후 다시 시도해 주세요.", bad_email: "이메일 주소를 확인해 주세요.", too_many_tries: "입력 횟수를 넘었어요. 코드를 다시 받아 주세요.", mail_unavailable: "지금은 인증 메일을 보낼 수 없어요. 02-2088-1454로 연락해 주세요.", login_required: "다시 로그인해 주세요.", pg_not_ready: "카드 결제가 준비되지 않았어요." };
@@ -197,7 +205,7 @@ function card(s) {
   const stTxt = cancelPending ? (s.cancel.pendingStaff ? "해지 요청 접수" : s.cancel.atTermEnd ? `만기 해지 예약` : `해지 예정 ${dot(s.cancel.effective)}`) : consulting ? "해지 상담 요청됨" : ST[s.status] || s.status;
   let next = "";
   if (s.status === "canceled") next = `<div><small>상태</small><b>해지됨</b></div><div class="when">${s.paidThrough ? dot(s.paidThrough) + "까지 이용" : ""}</div>`;
-  else if (s.status === "registered") next = `<div><small>첫 결제 예정 금액</small><b>${wonK(p.total + (p.installFee ? p.installFee + Math.floor(p.installFee * .1) : 0))}</b></div><div class="when">설치 완료일에 결제<small>매월 ${wonK(p.total)}</small></div>`;
+  else if (s.status === "registered") next = `<div><small>첫 결제 예정 금액</small><b>${wonK(p.total + (p.installFee ? p.installFee + Math.floor(p.installFee * .1) : 0))}</b></div><div class="when">설치 완료·확정 뒤 결제<small>${s.payDay ? `매월 ${s.payDay}일 · ` : ""}월 ${wonK(p.total)}</small></div>`;
   else if (s.status === "past_due") next = `<div><small>결제가 필요해요</small><b style="color:var(--red)">${wonK(s.lastPay && s.lastPay.amount || p.total)}</b></div><div class="when">카드를 바꾸면 바로 결제돼요</div>`;
   else if (s.nextChargeAt) next = `<div><small>다음 결제</small><b>${wonK(p.total)}</b></div><div class="when">${dot(s.retryAt || s.nextChargeAt)}<small>${s.retryAt ? "재시도 예정" : "부가세 포함"}</small></div>`;
   else next = `<div><small>매월 결제 금액</small><b>${wonK(p.total)}</b></div><div class="when">${cancelPending ? dot(s.paidThrough) + "까지 이용" : ""}</div>`;
@@ -222,7 +230,8 @@ function card(s) {
       <div class="line"><span class="k">결제 수단</span><span class="v">${pm}</span>${canCard ? `<button class="btn btn--ghost btn--sm" data-act="card">변경</button>` : ""}</div>
       <div class="line"><span class="k">구독번호</span><span class="v">${esc(s.id)}</span></div>
       <div class="line"><span class="k">설치 주소</span><span class="v">${esc(s.customer.siteAddr)}</span></div>
-      ${s.startedAt ? `<div class="line"><span class="k">서비스 시작</span><span class="v">${dot(s.startedAt)}${s.paidThrough ? ` · ${dot(s.paidThrough)}까지 결제됨` : ""}</span></div>` : ""}
+      ${installLine(s) ? `<div class="line"><span class="k">설치 일정</span><span class="v">${esc(installLine(s))}</span></div>` : ""}
+      ${s.startedAt ? `<div class="line"><span class="k">구독 시작 (설치 완료)</span><span class="v">${dot(s.startedAt)}${s.paidThrough ? ` · ${dot(s.paidThrough)}까지 결제됨` : ""}</span></div>` : ""}
       ${termLine ? `<div class="line"><span class="k">의무 사용기간</span><span class="v">${esc(termLine)}</span></div>` : ""}
       ${s.contractRef ? `<div class="line"><span class="k">계약번호</span><span class="v">${esc(s.contractRef)}</span></div>` : ""}
       <details class="pays" data-pays><summary>결제 내역 보기</summary><div class="pays__list">불러오는 중…</div></details>

@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
-<link rel="stylesheet" href="/css/billing.css?v=1">
+<link rel="stylesheet" href="/css/billing.css?v=3">
 <style>
 body{font-size:15px}
 .wrap{max-width:1320px}
@@ -79,7 +79,7 @@ body{font-size:15px}
   <section id="app" hidden>
     <div class="top">
       <h1>결제 관리</h1><span class="mode" id="mode"></span><span class="sp"></span>
-      <div class="seg" id="tabs"><button data-t="subs" class="is-on">구독</button><button data-t="pays">결제 내역</button><button data-t="quote">견적 · 결제 링크</button><button data-t="cash">현금 결제 문의<b id="cashBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="inv">세금계산서 · 나라빌</button><button data-t="set">설정</button></div>
+      <div class="seg" id="tabs"><button data-t="subs" class="is-on">구독</button><button data-t="ins">설치 일정<b id="insBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="pays">결제 내역</button><button data-t="quote">견적 · 결제 링크</button><button data-t="cash">현금 결제 문의<b id="cashBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="inv">세금계산서 · 나라빌</button><button data-t="mem">회원 등급</button><button data-t="set">설정</button></div>
     </div>
 
     <!-- 구독 -->
@@ -87,6 +87,20 @@ body{font-size:15px}
       <div class="kpis" id="kpis"></div>
       <div class="tools"><div class="chips" id="chips"></div><span class="sp" style="flex:1"></span><input type="search" id="q" placeholder="상호 · 구독번호 · 이메일 검색"><button class="btn btn--line btn--sm" id="runCron" title="오늘까지 도래한 정기결제를 지금 처리">정기결제 지금 실행</button><button class="btn btn--line btn--sm" id="csvSubs">CSV</button></div>
       <table class="tbl"><thead><tr><th>구독</th><th>고객</th><th class="hide-m">구성</th><th class="num">월 결제액</th><th>수단</th><th>상태</th><th>다음 결제</th></tr></thead><tbody id="subRows"></tbody></table>
+    </div>
+
+    <!-- 설치 일정 -->
+    <div data-v="ins" hidden>
+      <p class="note note--blue" style="margin-top:0"><span>고객이 고른 <b>희망일</b>을 보고 설치일을 <b>확정</b>하면 고객에게 「설치 일정 확정 + 설치 준비 요령」 메일이 갑니다(설치 전날 오전에 한 번 더). 설치가 끝나면 <b>「설치 완료」</b>를 누르세요 — 그날이 구독 시작일이 되고, 「개통 · 플랫폼 사용 안내」 메일이 나가며(개통 n일 뒤 한 번 더), 결제는 그 뒤 매월 결제일에만 진행됩니다.</span></p>
+      <div class="tools"><div class="chips" id="insChips"></div></div>
+      <table class="tbl"><thead><tr><th>일정</th><th>고객 · 현장</th><th class="hide-m">구성</th><th>희망</th><th>상태</th><th style="min-width:330px">확정 · 완료</th></tr></thead><tbody id="insRows"></tbody></table>
+    </div>
+
+    <!-- 회원 등급 -->
+    <div data-v="mem" hidden>
+      <p class="note note--blue" style="margin-top:0"><span>제품몰(/store) 회원 등급입니다. 이메일 인증으로 가입한 회원이 보이며, 아직 가입하지 않은 거래처도 이메일로 미리 등급을 정해 둘 수 있습니다. 등급은 제품몰 상단과 견적 요청서에 표시되어 담당자에게 함께 전달됩니다.</span></p>
+      <div class="tools"><input type="search" id="memQ" placeholder="이메일 · 상호 검색"><span style="flex:1"></span><input id="memNewEmail" placeholder="이메일로 등급 지정" style="height:36px;border:1px solid var(--line);border-radius:10px;padding:0 12px"><select id="memNewGrade"></select><button class="btn btn--sm" id="memNewBtn">지정</button></div>
+      <table class="tbl"><thead><tr><th>이메일</th><th>상호 · 담당자</th><th>가입</th><th>등급</th><th>메모</th></tr></thead><tbody id="memRows"></tbody></table>
     </div>
 
     <!-- 결제 내역 -->
@@ -149,12 +163,25 @@ body{font-size:15px}
     <div data-v="set" hidden>
       <h3 style="margin:8px 0 4px">공급자 정보 (세금계산서)</h3><p style="color:var(--muted);margin:0 0 14px;font-size:14px">나라빌 엑셀의 공급자 칸에 들어갑니다.</p>
       <div class="sets" id="sets"></div>
-      <h3 style="margin:28px 0 4px">의무 사용기간</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">홈페이지 직접 신청 구독에 적용 · 서비스 개시일부터. 바꾸면 이후 신청분부터 적용되고 기존 구독은 그대로입니다. 계약 링크 구독은 계약서 기간을 따릅니다.</p>
+      <h3 style="margin:28px 0 4px">의무 사용기간</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">홈페이지 직접 신청 구독에 적용 · 설치 완료일부터. 바꾸면 이후 신청분부터 적용되고 기존 구독은 그대로입니다. 계약 링크 구독은 계약서 기간을 따릅니다.</p>
       <div class="sets"><div class="field"><input id="s_term" type="number" min="0" max="60" placeholder=" "><label for="s_term">개월 (0 = 없음)</label></div></div>
-      <h3 style="margin:28px 0 4px">결제 방식</h3>
-      <div class="choices" style="max-width:820px;margin-top:10px">
-        <label class="choice" data-ca="activation"><input type="radio" name="ca"><b>설치 완료일에 첫 결제 (권장)</b><span>카드만 등록해 두고, 이 화면에서 「서비스 개시」를 누르는 날 첫 결제 · 이후 매달 같은 날</span></label>
-        <label class="choice" data-ca="signup"><input type="radio" name="ca"><b>카드 등록 즉시 첫 결제</b><span>신청과 동시에 첫 달 이용료 결제 · 이후 매달 같은 날</span></label>
+      <h3 style="margin:28px 0 4px">결제일</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">결제는 <b>설치 완료 뒤에만</b> 진행됩니다(신청·카드 등록 때는 0원). 구독 시작일은 설치 완료일입니다. 결제일을 정해 두면 카드도 계좌 자동이체처럼 매월 같은 날 결제됩니다 — 설치 완료가 결제일 전이면 그달 결제일에 첫 결제, 결제일 뒤면 완료일에 첫 결제 후 다음 달부터 결제일. 일할 계산 없음. 세금계산서 청구도 같은 날 생깁니다. 바꾸면 이후 신청분부터 적용됩니다.</p>
+      <div class="sets"><div class="field"><input id="s_payDay" type="number" min="0" max="28" placeholder=" "><label for="s_payDay">매월 결제일 (1~28 · 0 = 설치 완료일과 같은 날)</label></div></div>
+      <h3 style="margin:28px 0 4px">설치 희망일 규칙</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">고객은 <b>다음 주 월요일부터</b> 고를 수 있습니다. 희망일은 확정이 아니며 담당자가 확정합니다.</p>
+      <div class="sets">
+        <div class="field"><input id="s_lastDay" type="number" min="0" max="31" placeholder=" "><label for="s_lastDay">매월 1~N일에만 설치 (0 = 제한 없음)</label></div>
+        <div class="field"><input id="s_horizon" type="number" min="14" max="180" placeholder=" "><label for="s_horizon">며칠 뒤까지 고를 수 있나 (일)</label></div>
+        <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="s_wdOnly"> 평일만 (토·일 제외)</label>
+        <div class="field full"><textarea id="s_blackout" placeholder=" " style="height:70px"></textarea><label for="s_blackout">고를 수 없는 날 (공휴일·회사 휴무 · YYYY-MM-DD, 줄바꿈이나 쉼표로 구분)</label></div>
+      </div>
+      <h3 style="margin:28px 0 4px">안내 메일 자동 발송</h3>
+      <div class="sets">
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="s_mConfirm"> 설치일 확정 · 변경 시 「설치 준비 요령」</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="s_mDayBefore"> 설치 전날 오전 「설치 준비 요령」 다시</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="s_mStart"> 설치 완료 시 「개통 · 플랫폼 사용 안내」</label>
+        <div class="field"><input id="s_mFollow" type="number" min="0" max="60" placeholder=" "><label for="s_mFollow">개통 며칠 뒤 「플랫폼 사용 안내」 다시 (0 = 안 보냄)</label></div>
+        <div class="field full"><textarea id="s_gInstall" placeholder=" " style="height:150px"></textarea><label for="s_gInstall">설치 준비 요령 (한 줄 = 한 항목)</label></div>
+        <div class="field full"><textarea id="s_gPlatform" placeholder=" " style="height:150px"></textarea><label for="s_gPlatform">플랫폼 사용 안내 (한 줄 = 한 항목 · 매뉴얼·영상·모니 링크는 자동으로 붙음)</label></div>
       </div>
       <div class="submit"><button class="btn btn--dark" id="saveSet">저장</button><span class="err" id="setMsg" style="margin-left:12px"></span></div>
     </div>
@@ -197,6 +224,7 @@ if (KEY) start(); else showLogin();
 async function start() {
   $("#login").hidden = true; $("#app").hidden = false;
   $("#month").value = $("#invMonth").value = today().slice(0, 7);
+  try { SET = (await api("settings")).settings || null; } catch (e) {}
   await loadSubs();
   loadCash(true);
 }
@@ -208,6 +236,8 @@ $$("#tabs button").forEach((b) => b.addEventListener("click", () => {
   if (b.dataset.t === "cash") loadCash();
   if (b.dataset.t === "quote") loadQuotes();
   if (b.dataset.t === "set") loadSet();
+  if (b.dataset.t === "ins") renderIns();
+  if (b.dataset.t === "mem") loadMem();
 }));
 
 /* ── 구독 ── */
@@ -220,13 +250,16 @@ async function loadSubs() {
   m.textContent = !j.ready ? "토스 키 확인 필요 · 카드 결제 불가" + (j.keyProblem ? " — " + j.keyProblem : "") : j.test ? "테스트 결제 모드" : "실결제 모드";
   const live = SUBS.filter((s) => s.status === "active");
   const mrr = live.reduce((a, s) => a + (s.plan.supply || 0), 0);
-  $("#kpis").innerHTML = [["이용 중", live.length + "건"], ["월 반복 매출 (공급가)", wonK(mrr)], ["설치 대기", SUBS.filter((s) => s.status === "registered").length + "건"], ["결제 실패", SUBS.filter((s) => s.status === "past_due").length + "건"], ["해지 상담 요청", SUBS.filter(needsStaff).length + "건"]]
+  $("#kpis").innerHTML = [["이용 중", live.length + "건"], ["월 반복 매출 (공급가)", wonK(mrr)], ["설치 대기", SUBS.filter((s) => s.status === "registered").length + "건 · 미확정 " + SUBS.filter((s) => s.status === "registered" && (!s.install || s.install.status !== "confirmed")).length], ["결제 실패", SUBS.filter((s) => s.status === "past_due").length + "건"], ["해지 상담 요청", SUBS.filter(needsStaff).length + "건"]]
     .map(([a, b]) => `<div class="kpi"><small>${a}</small><b>${b}</b></div>`).join("");
   const cnt = (k) => k === "all" ? SUBS.filter((s) => s.status !== "pending").length : k === "cancelreq" ? SUBS.filter(needsStaff).length : SUBS.filter((s) => s.status === k).length;
   $("#chips").innerHTML = [["all", "전체"], ["registered", "설치 대기"], ["active", "이용 중"], ["past_due", "결제 실패"], ["cancelreq", "해지 상담"], ["canceled", "해지"], ["pending", "카드 등록 대기"]]
     .map(([k, l]) => `<button data-f="${k}" class="${FILTER === k ? "is-on" : ""}">${l}<b>${cnt(k)}</b></button>`).join("");
   $$("#chips button").forEach((b) => b.addEventListener("click", () => { FILTER = b.dataset.f; loadSubsRender(); $$("#chips button").forEach((x) => x.classList.toggle("is-on", x === b)); }));
   loadSubsRender();
+  const nIns = SUBS.filter((s) => s.status === "registered" && (!s.install || s.install.status !== "confirmed")).length;
+  $("#insBadge").textContent = nIns || "";
+  if (!$('[data-v="ins"]').hidden) renderIns();
 }
 $("#q").addEventListener("input", loadSubsRender);
 function filtered() {
@@ -243,7 +276,7 @@ function loadSubsRender() {
     <td class="num">${wonK(s.plan.total)}<small>공급가 ${num(s.plan.supply)}</small></td>
     <td>${s.method === "card" ? `카드<small>${esc(s.card ? s.card.company + " " + (s.card.last4 || "") : "미등록")}</small>` : "세금계산서"}</td>
     <td><span class="st ${s.status}">${ST[s.status] || s.status}</span>${s.cancel && s.status !== "canceled" ? `<small>${s.cancel.pendingStaff ? "해지 요청" : (s.cancel.atTermEnd ? "만기 해지 " : "해지 예정 ") + esc(s.cancel.effective || "")}</small>` : ""}${s.consult && !s.consult.done && s.status !== "canceled" ? "<small style='color:var(--red)'>중도 해지 상담 요청</small>" : ""}${s.term ? `<small>약정 ~${esc(s.term.to)}</small>` : ""}${s.failCount ? `<small>실패 ${s.failCount}회</small>` : ""}</td>
-    <td>${esc(s.retryAt || s.nextChargeAt || "—")}${s.retryAt ? "<small>재시도</small>" : ""}</td></tr>`).join("") : `<tr><td colspan="7" class="empty">해당하는 구독이 없습니다.</td></tr>`;
+    <td>${esc(s.retryAt || s.nextChargeAt || "—")}${s.retryAt ? "<small>재시도</small>" : ""}${s.status === "registered" && s.install ? `<small>${esc(insShort(s))}</small>` : ""}</td></tr>`).join("") : `<tr><td colspan="7" class="empty">해당하는 구독이 없습니다.</td></tr>`;
   $$("#subRows tr[data-id]").forEach((tr) => tr.addEventListener("click", () => openSub(tr.dataset.id)));
 }
 $("#runCron").addEventListener("click", async (e) => {
@@ -267,7 +300,11 @@ async function openSub(id) {
     ${s.consult && !s.consult.done && s.status !== "canceled" ? `<p class="note note--amber"><span><b>중도 해지 상담 요청 (${dt(s.consult.at)})</b> ${esc(s.consult.reason || "")} — 고객과 통화한 뒤 아래 「중도 해지 처리」 또는 「유지로 종결」을 눌러 주세요.</span></p>` : ""}
     ${s.status === "past_due" ? `<p class="note note--amber"><span><b>자동 재시도가 끝났습니다.</b> 고객이 카드를 바꾸면 바로 결제됩니다. ${esc(s.lastPay && s.lastPay.error ? s.lastPay.error.code + " " + (s.lastPay.error.message || "") : "")}</span></p>` : ""}
     <div class="card"><h4>할 일</h4>
-      ${s.status === "registered" ? `<div class="row"><b>서비스 개시 (첫 결제)</b><input type="date" id="actDate" value="${today()}"><button class="btn btn--sm" id="actBtn">${s.method === "card" ? "개시하고 결제" : "개시"}</button></div><p style="font-size:13px;color:var(--muted);margin:6px 0 0">설치 완료일을 넣으세요. 오늘 이전이면 바로 첫 결제(설치비 포함)가 진행되고, 이후로는 매달 같은 날 자동 결제됩니다.</p>` : ""}
+      ${s.status === "registered" ? `${insBox(s)}
+        <div class="row" style="margin-top:14px"><b>설치 완료 · 서비스 개시</b><input type="date" id="actDate" value="${today()}" max="${today()}"><button class="btn btn--sm" id="actBtn">설치 완료</button></div><p style="font-size:13px;color:var(--muted);margin:6px 0 0">설치가 <b>실제로 끝난 날</b>(오늘 또는 이전)을 넣으세요. 그날이 구독 시작일(의무 사용기간 시작)이 되고, 첫 결제는 ${firstPayHint(s)}. 개통 · 플랫폼 사용 안내 메일이 자동으로 나갑니다.</p>` : ""}
+      ${s.status !== "registered" && s.install ? `<div class="row"><span style="width:110px">설치</span><span style="font-size:14px">${insText(s)}</span></div>` : ""}
+      ${s.status !== "pending" && s.status !== "canceled" ? `<div class="row"><span style="width:110px">안내 메일</span>${s.install && s.install.date ? `<button class="btn btn--ghost btn--sm" id="mailIns">설치 준비 요령 다시</button>` : ""}<button class="btn btn--ghost btn--sm" id="mailPlat">플랫폼 사용 안내 ${s.startedAt ? "다시" : "미리"}</button></div>
+        ${s.mailLog && s.mailLog.length ? `<p style="font-size:12px;color:var(--muted);margin:4px 0 0">${s.mailLog.slice(0, 6).map((m) => `${MAILK[m.kind] || m.kind} ${dt(m.at)}${m.ok ? "" : " (실패)"}`).join(" · ")}</p>` : ""}` : ""}
       ${["active", "past_due"].includes(s.status) ? `<div class="row"><button class="btn btn--line btn--sm" id="chargeBtn">지금 결제 ${s.method === "invoice" ? "(청구 생성)" : ""}</button><span style="font-size:13px;color:var(--muted)">다음 회차(${esc(s.nextChargeAt || "—")}) 금액 ${wonK(p.total)}</span></div>
         <div class="row"><span style="width:110px">다음 결제일</span><input type="date" id="nextDate" value="${esc(s.nextChargeAt || "")}"><button class="btn btn--line btn--sm" id="nextBtn">변경</button></div>` : ""}
       ${s.status !== "canceled" ? `
@@ -282,8 +319,8 @@ async function openSub(id) {
       <dt>월 결제액</dt><dd>${wonK(p.total)} (공급가 ${wonK(p.supply)} + 부가세 ${wonK(p.vat)})${p.discount ? " · 할인 " + wonK(p.discount) : ""}</dd>
       <dt>설치비</dt><dd>${p.installFee ? wonK(p.installFee) + " (VAT 별도) · " + (s.installPaid ? "결제됨" : "첫 결제에 포함") : "무료"}</dd>
       <dt>결제 수단</dt><dd>${s.method === "card" ? `카드 자동결제 · ${esc(s.card ? s.card.company + " " + s.card.number : "카드 미등록")}${s.cardChanges ? ` (변경 ${s.cardChanges}회)` : ""}` : "세금계산서 · 계좌이체"}</dd>
-      <dt>서비스 시작</dt><dd>${esc(s.startedAt || "—")} · 기준일 매월 ${s.anchorDay || "—"}일</dd>
-      <dt>의무 사용기간</dt><dd>${s.term ? `${esc(s.term.from)} ~ ${esc(s.term.to)} ${s.monthsLeft ? `(남은 ${s.monthsLeft}개월 · 기간 중 고객 해지 불가)` : "(만료 · 매월 자동 연장)"}` : p.termMonths ? `개시일부터 ${p.termMonths}개월` : p.to ? `${esc(p.from)} ~ ${esc(p.to)} (계약서)` : "없음"}${s.renewNoticeAt ? `<br><small>만료 안내 메일 ${dt(s.renewNoticeAt)}</small>` : ""}</dd>
+      <dt>구독 시작</dt><dd>${esc(s.startedAt || "—")} (설치 완료일) · 결제일 매월 ${s.anchorDay || (s.payDay != null ? s.payDay || "설치일" : "—")}일</dd>
+      <dt>의무 사용기간</dt><dd>${s.term ? `${esc(s.term.from)} ~ ${esc(s.term.to)} ${s.monthsLeft ? `(남은 ${s.monthsLeft}개월 · 기간 중 고객 해지 불가)` : "(만료 · 매월 자동 연장)"}` : p.termMonths ? `설치 완료일부터 ${p.termMonths}개월` : p.to ? `${esc(p.from)} ~ ${esc(p.to)} (계약서)` : "없음"}${s.renewNoticeAt ? `<br><small>만료 안내 메일 ${dt(s.renewNoticeAt)}</small>` : ""}</dd>
       ${s.penalty ? `<dt>위약금</dt><dd>${wonK(s.penalty.amount)} · ${PST[s.penalty.status] || s.penalty.status || s.penalty.error}</dd>` : ""}
       <dt>결제됨</dt><dd>${s.cycle || 0}회차 · ${esc(s.paidThrough || "—")}까지</dd>
       <dt>정기결제 동의</dt><dd>${dt(s.agree && s.agree.at)} · ${esc(s.agree && s.agree.ip)}</dd>
@@ -297,7 +334,10 @@ async function openSub(id) {
   $("#drawer").classList.add("is-on"); $("#scrim").classList.add("is-on");
   const on = (id, fn) => { const el = $("#" + id); if (el) el.addEventListener("click", async () => { el.disabled = true; try { await fn(); } finally { el.disabled = false; } }); };
   on("dClose", closeD);
-  on("actBtn", async () => { if (!confirm(`${$("#actDate").value} 서비스 개시${s.method === "card" ? " — 오늘 이전 날짜면 바로 첫 결제가 진행됩니다" : ""}. 진행할까요?`)) return; const r = await api("activate", { id: s.id, start: $("#actDate").value }); toast(r.ok ? (r.result && r.result.status ? `첫 결제: ${PST[r.result.status] || r.result.status} ${wonK(r.result.amount)}` : "개시 예약됨") : "실패: " + (r.error || "") + " " + (r.result && r.result.error ? r.result.error.message : "")); refresh(s.id); });
+  on("actBtn", async () => { await doActivate(s, $("#actDate").value); refresh(s.id); });
+  on("insBtn", async () => { await doConfirm(s, $("#insDate").value, $("#insSlot").value, $("#insNote").value); refresh(s.id); });
+  on("mailIns", async () => { const r = await api("mail", { id: s.id, kind: "install" }); toast(r.ok ? "설치 준비 요령을 보냈습니다" : "발송 실패 " + (r.error || "")); refresh(s.id); });
+  on("mailPlat", async () => { const r = await api("mail", { id: s.id, kind: "platform" }); toast(r.ok ? "플랫폼 사용 안내를 보냈습니다" : "발송 실패 " + (r.error || "")); refresh(s.id); });
   on("chargeBtn", async () => { if (!confirm("지금 결제할까요?")) return; const r = await api("charge", { id: s.id }); toast(r.ok ? `결제 완료 ${wonK(r.result.amount)}` : "결제 실패: " + (r.result && r.result.error ? r.result.error.message || r.result.error.code : r.error)); refresh(s.id); });
   on("nextBtn", async () => { const r = await api("update", { id: s.id, nextChargeAt: $("#nextDate").value }); toast(r.ok ? "다음 결제일을 바꿨습니다." : r.error); refresh(s.id); });
   on("cxBtn", async () => { if (!confirm(`${$("#cxDate").value}부터 결제를 멈추고 그날 해지로 마무리합니다.`)) return; const r = await api("cancel", { id: s.id, effective: $("#cxDate").value }); toast(r.ok ? "해지 예약됨" : r.error); refresh(s.id); });
@@ -325,6 +365,87 @@ async function refresh(id) { await loadSubs(); openSub(id); }
 function closeD() { $("#drawer").classList.remove("is-on"); $("#scrim").classList.remove("is-on"); }
 $("#scrim").addEventListener("click", closeD);
 document.addEventListener("keydown", (e) => e.key === "Escape" && closeD());
+
+/* ── 설치 일정 ── */
+const SLOT = { am: "오전", pm: "오후", any: "시간 무관" };
+const MAILK = { confirmed: "확정 안내", changed: "변경 안내", dayBefore: "전날 안내", start: "개통 안내", follow: "사용법 재안내", install_manual: "준비 요령(수동)", platform_manual: "사용법(수동)" };
+const WK = "일월화수목금토";
+const dl = (d) => d ? `${d.slice(5).replace("-", "/")}(${WK[new Date(d + "T00:00:00Z").getUTCDay()]})` : "";
+function insShort(s) { const i = s.install || {}; return i.status === "confirmed" ? `설치 확정 ${dl(i.date)} ${SLOT[i.slot] || ""}` : i.wish ? `희망 ${dl(i.wish)}${i.alt ? "·" + dl(i.alt) : ""}` : "희망일 없음"; }
+function insText(s) { const i = s.install || {}; return i.status === "done" ? `${esc(i.doneDate)} 설치 완료` : esc(insShort(s)); }
+function firstPayHint(s) {
+  const pd = s.payDay != null ? s.payDay : (SET && SET.payDay != null ? SET.payDay : 20);
+  return pd ? `설치 완료일이 ${pd}일 이전이면 그달 ${pd}일, 이후면 완료일에 바로 진행되고 이후 매월 ${pd}일` : "설치 완료일에 진행되고 이후 매달 같은 날";
+}
+function insBox(s) {
+  const i = s.install || {};
+  return `<div style="background:var(--fill);border-radius:12px;padding:12px 14px">
+    <div style="font-size:14px"><b>설치 일정</b> · ${i.status === "confirmed" ? `<span class="st active">확정 ${esc(dl(i.date))} ${SLOT[i.slot] || ""}</span>` : `<span class="st pending">확정 전</span>`}</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:6px">고객 희망: ${i.wish ? `1순위 <b>${esc(dl(i.wish))}</b>${i.alt ? ` · 2순위 ${esc(dl(i.alt))}` : ""} · ${SLOT[i.slot] || "시간 무관"}` : "없음 (전화로 협의)"}${i.memo ? `<br>요청: ${esc(i.memo)}` : ""}</div>
+    <div class="row"><input type="date" id="insDate" value="${esc(i.date || i.wish || "")}" min="${today()}"><select id="insSlot">${Object.entries(SLOT).map(([k, v]) => `<option value="${k}" ${(i.slot || "any") === k ? "selected" : ""}>${v}</option>`).join("")}</select><input id="insNote" placeholder="고객에게 보일 메모 (선택)" value="${esc(i.note || "")}" style="flex:1;min-width:140px"><button class="btn btn--sm" id="insBtn">${i.status === "confirmed" ? "일정 변경 · 안내" : "확정 · 안내 메일"}</button></div>
+    ${(i.history || []).length ? `<p style="font-size:12px;color:var(--muted);margin:6px 0 0">${i.history.slice(0, 4).map((h) => `${dt(h.at)} ${esc(h.from || "")}→${esc(h.to)}`).join(" · ")}</p>` : ""}
+  </div>`;
+}
+async function doConfirm(s, date, slot, note) {
+  if (!date) return toast("설치일을 넣어 주세요.");
+  if (!confirm(`${date} ${SLOT[slot] || ""} 설치로 ${s.install && s.install.status === "confirmed" ? "변경" : "확정"}하고 고객에게 「설치 일정 + 준비 요령」 메일을 보냅니다.`)) return;
+  const r = await api("install", { id: s.id, date, slot, note });
+  toast(r.ok ? `확정 · ${r.mailed ? "메일 발송" : "메일 미발송(설정·메일 키 확인)"}` : "실패 " + (r.error || ""));
+}
+async function doActivate(s, d) {
+  if (!d) return toast("설치 완료일을 넣어 주세요.");
+  if (!confirm(`${d} 설치 완료로 처리합니다.\n· 구독 시작일 = ${d}\n· 첫 결제: ${firstPayHint(s)}\n· 고객에게 개통 · 플랫폼 사용 안내 메일 발송\n진행할까요?`)) return;
+  const r = await api("activate", { id: s.id, start: d });
+  toast(r.ok ? (r.result && r.result.status ? `첫 결제: ${PST[r.result.status] || r.result.status} ${wonK(r.result.amount)}` : `설치 완료 · 첫 결제 예정 ${r.result && r.result.scheduled || ""}`) : r.error === "future_start" ? "설치가 끝난 날(오늘 이전)만 넣을 수 있습니다." : "실패: " + (r.error || "") + " " + (r.result && r.result.error ? r.result.error.message : ""));
+}
+let IF = "todo";
+function renderIns() {
+  const W = SUBS.filter((s) => s.status === "registered");
+  const key = (s) => (s.install && (s.install.date || s.install.wish)) || "9999";
+  const sets = { todo: W.filter((s) => !s.install || s.install.status !== "confirmed"), confirmed: W.filter((s) => s.install && s.install.status === "confirmed"),
+    done: SUBS.filter((s) => s.install && s.install.status === "done").sort((a, b) => (a.install.doneDate < b.install.doneDate ? 1 : -1)).slice(0, 50) };
+  $("#insChips").innerHTML = [["todo", "확정 필요"], ["confirmed", "확정 · 설치 대기"], ["done", "설치 완료 (최근)"]].map(([k, l]) => `<button data-f="${k}" class="${IF === k ? "is-on" : ""}">${l}<b>${sets[k].length}</b></button>`).join("");
+  $$("#insChips button").forEach((b) => b.onclick = () => { IF = b.dataset.f; renderIns(); });
+  const rows = IF === "done" ? sets.done : sets[IF].sort((a, b) => (key(a) < key(b) ? -1 : 1));
+  $("#insRows").innerHTML = rows.length ? rows.map((s) => { const i = s.install || {};
+    return `<tr data-id="${esc(s.id)}"><td><b>${esc(i.status === "done" ? dl(i.doneDate) : i.status === "confirmed" ? dl(i.date) : dl(i.wish) || "—")}</b><small>${i.status === "confirmed" ? SLOT[i.slot] || "" : i.status === "done" ? "완료" : "희망일"}</small></td>
+    <td>${esc(s.customer.company)}<small>${esc(s.customer.manager)} · <a href="tel:${esc(s.customer.phone)}" onclick="event.stopPropagation()">${esc(s.customer.phone)}</a><br>${esc(s.customer.siteAddr || "")}</small></td>
+    <td class="hide-m">${esc(s.plan.label)}<small>${s.plan.qty}개소 · ${s.method === "card" ? "카드" : "세금계산서"}</small></td>
+    <td>${i.wish ? `${esc(dl(i.wish))}${i.alt ? `<small>2순위 ${esc(dl(i.alt))}</small>` : ""}<small>${SLOT[i.slot] || ""}${i.memo ? " · " + esc(i.memo.slice(0, 30)) : ""}</small>` : "—"}</td>
+    <td><span class="st ${i.status === "done" ? "active" : i.status === "confirmed" ? "registered" : "pending"}">${i.status === "done" ? "설치 완료" : i.status === "confirmed" ? "확정" : "확정 필요"}</span></td>
+    <td onclick="event.stopPropagation()">${i.status === "done" ? `<small>시작 ${esc(s.startedAt || "")} · 다음 결제 ${esc(s.nextChargeAt || "—")}</small>` : `<div class="row" style="margin:0"><input type="date" class="iDate" value="${esc(i.date || i.wish || "")}" min="${today()}" style="width:140px"><select class="iSlot">${Object.entries(SLOT).map(([k, v]) => `<option value="${k}" ${(i.slot || "any") === k ? "selected" : ""}>${v}</option>`).join("")}</select><button class="btn btn--sm iOk">${i.status === "confirmed" ? "변경" : "확정"}</button>${i.status === "confirmed" ? `<button class="btn btn--line btn--sm iDone">설치 완료</button>` : ""}</div>`}</td></tr>`; }).join("")
+    : `<tr><td colspan="6" class="empty">${IF === "todo" ? "확정할 설치 일정이 없습니다." : "없습니다."}</td></tr>`;
+  $$("#insRows tr[data-id]").forEach((tr) => {
+    const s = SUBS.find((x) => x.id === tr.dataset.id);
+    tr.addEventListener("click", () => openSub(s.id));
+    const ok = $(".iOk", tr), dn = $(".iDone", tr);
+    if (ok) ok.onclick = async () => { ok.disabled = true; await doConfirm(s, $(".iDate", tr).value, $(".iSlot", tr).value, s.install && s.install.note || ""); await loadSubs(); };
+    if (dn) dn.onclick = async () => { const d = s.install.date <= today() ? s.install.date : today(); dn.disabled = true; await doActivate(s, d); await loadSubs(); };
+  });
+}
+
+/* ── 회원 등급 ── */
+const GR = { welcome: "웰컴", silver: "실버", gold: "골드", partner: "파트너" };
+let MEM = [];
+async function loadMem() {
+  const j = await api("members"); MEM = j.items || [];
+  $("#memNewGrade").innerHTML = Object.entries(GR).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+  renderMem();
+}
+$("#memQ").addEventListener("input", renderMem);
+function renderMem() {
+  const q = $("#memQ").value.trim().toLowerCase();
+  const rows = MEM.filter((m) => !q || [m.email, m.company, m.manager].join(" ").toLowerCase().includes(q));
+  $("#memRows").innerHTML = rows.length ? rows.map((m) => `<tr data-e="${esc(m.email)}"><td>${esc(m.email)}</td><td>${esc(m.company || "—")}<small>${esc(m.manager || "")} ${esc(m.phone || "")}</small></td><td>${dt(m.createdAt)}</td>
+    <td onclick="event.stopPropagation()"><select class="mg">${Object.entries(GR).map(([k, v]) => `<option value="${k}" ${m.grade === k ? "selected" : ""}>${v}</option>`).join("")}</select>${m.gradeAt ? `<small>${dt(m.gradeAt)}</small>` : ""}</td>
+    <td onclick="event.stopPropagation()"><input class="mn" value="${esc(m.gradeNote || "")}" placeholder="등급 사유" style="height:32px;border:1px solid var(--line);border-radius:8px;padding:0 8px;width:100%"></td></tr>`).join("")
+    : `<tr><td colspan="5" class="empty">회원이 없습니다.</td></tr>`;
+  $$("#memRows tr[data-e]").forEach((tr) => {
+    const save = async () => { const r = await api("member", { email: tr.dataset.e, grade: $(".mg", tr).value, note: $(".mn", tr).value }); toast(r.ok ? "등급 저장" : r.error); };
+    $(".mg", tr).onchange = save; $(".mn", tr).onchange = save;
+  });
+}
+$("#memNewBtn").onclick = async () => { const r = await api("member", { email: $("#memNewEmail").value.trim(), grade: $("#memNewGrade").value }); toast(r.ok ? "지정했습니다" : r.error === "bad_email" ? "이메일을 확인해 주세요" : r.error); if (r.ok) { $("#memNewEmail").value = ""; loadMem(); } };
 
 /* ── 견적 → 결제 링크 ── */
 const PRODS = { fire: "화재경보 연동 알리미", water: "물감지 알리미", power: "정전 알리미", alarm: "경보 알리미", custom: "커스텀 알리미" };
@@ -535,11 +656,20 @@ async function loadSet() {
     + `<div class="field full"><input id="s_item" placeholder=" " value="${esc(SET.invoiceItem || "")}"><label for="s_item">세금계산서 품목명</label></div>`
     + `<div class="field full"><input id="s_bank" placeholder=" " value="${esc(SET.bank || "")}"><label for="s_bank">입금 계좌 (세금계산서 고객 안내용 · 예: 기업은행 000-000000-00-000 주식회사 모넷코리아)</label></div>`;
   $("#s_term").value = SET.termMonths != null ? SET.termMonths : 36;
-  $$("[data-ca]").forEach((x) => { x.classList.toggle("is-on", x.dataset.ca === SET.chargeAt); x.onclick = (e) => { e.preventDefault(); SET.chargeAt = x.dataset.ca; $$("[data-ca]").forEach((y) => y.classList.toggle("is-on", y === x)); }; });
+  $("#s_payDay").value = SET.payDay != null ? SET.payDay : 20;
+  const I = SET.install || {}, M = SET.mail || {}, G = SET.guides || {};
+  $("#s_lastDay").value = I.lastDay != null ? I.lastDay : 20; $("#s_horizon").value = I.horizonDays || 60; $("#s_wdOnly").checked = I.weekdaysOnly !== false;
+  $("#s_blackout").value = (I.blackout || []).join("\n");
+  $("#s_mConfirm").checked = M.confirm !== false; $("#s_mDayBefore").checked = M.dayBefore !== false; $("#s_mStart").checked = M.start !== false; $("#s_mFollow").value = M.followDays != null ? M.followDays : 7;
+  $("#s_gInstall").value = (G.install || []).join("\n"); $("#s_gPlatform").value = (G.platform || []).join("\n");
 }
 $("#saveSet").addEventListener("click", async () => {
   const sup = {}; ["name", "bizNo", "ceo", "subNo", "address", "bizType", "bizItem", "email"].forEach((k) => (sup[k] = $("#s_" + k).value));
-  const r = await api("settings", { supplier: sup, invoiceItem: $("#s_item").value, bank: $("#s_bank").value, chargeAt: SET.chargeAt, termMonths: Number($("#s_term").value) });
+  const lines = (id) => $("#" + id).value.split("\n").map((x) => x.trim()).filter(Boolean);
+  const r = await api("settings", { supplier: sup, invoiceItem: $("#s_item").value, bank: $("#s_bank").value, termMonths: Number($("#s_term").value), payDay: $("#s_payDay").value,
+    install: { lastDay: $("#s_lastDay").value, horizonDays: $("#s_horizon").value, weekdaysOnly: $("#s_wdOnly").checked, blackout: $("#s_blackout").value.split(/[\s,]+/).filter(Boolean) },
+    mail: { confirm: $("#s_mConfirm").checked, dayBefore: $("#s_mDayBefore").checked, start: $("#s_mStart").checked, followDays: $("#s_mFollow").value },
+    guides: { install: lines("s_gInstall"), platform: lines("s_gPlatform") } });
   $("#setMsg").textContent = r.ok ? "저장되었습니다." : "저장 실패"; SET = r.settings || SET;
 });
 

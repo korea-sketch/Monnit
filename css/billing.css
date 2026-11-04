@@ -235,3 +235,22 @@ button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .contact__item small{font-size:12px;color:var(--muted)}
 .field select{padding-top:20px}
 @media (max-width:600px){.contact{grid-template-columns:1fr}}
+
+/* 설치 희망일 */
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.days__mon{grid-column:1/-1;font-size:15px;font-weight:700;margin:10px 0 2px}
+.days__mon:first-child{margin-top:0}
+.days__mon small{font-weight:500;color:var(--muted);font-size:13px}
+.day{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 0 9px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font:inherit;transition:border-color .15s,box-shadow .15s}
+.day b{font-size:18px;font-weight:600;line-height:1.1}
+.day span{font-size:12px;color:var(--muted)}
+.day:hover{border-color:var(--faint)}
+.day.is-on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.day.is-r1{background:var(--blue);color:#fff}
+.day.is-r1 span{color:rgba(255,255,255,.85)}
+.day i{position:absolute;top:-8px;right:-4px;font-style:normal;font-size:10px;font-weight:700;background:var(--text);color:var(--card);border-radius:980px;padding:1px 6px}
+.slots{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.slot{padding:9px 16px;border:1px solid var(--line);border-radius:980px;background:var(--card);color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.slot.is-on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue);color:var(--blue);font-weight:600}
+.rows--when{margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
+@media (max-width:520px){.days{grid-template-columns:repeat(5,1fr)}}
