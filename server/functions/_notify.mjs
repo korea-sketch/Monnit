@@ -44,7 +44,7 @@ import { withMust, isGuide, isGuideExp } from './_staffto.mjs';   /* 1015@ 필�
 
 const JSON_HEAD = { 'Content-Type': 'application/json', Accept: 'application/json' };
 /* 폼이 보낸 값 중 메일에 싣지 않는 것 — 긴 추적값은 알림함(/ops/notices)에 원문이 남는다 (2026-09-30) */
-const SKIP = ['_subject', '_url', '_captcha', '_template', '출처', '유입 페이지', '접수 유형', '접점', '메타 이벤트ID'];
+const SKIP = ['_subject', '_url', '_captcha', '_template', '출처', '유입 페이지', '접수 유형', '접점', '메타 이벤트ID', '_mall'];
 const SITE = String(process.env.URL || 'https://monnit.co.kr').replace(/\/$/, '');
 
 const when = ts => new Date(ts).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });

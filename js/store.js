@@ -13,7 +13,7 @@ const D = window.__STORE_DATA || { products: [], apps: [], cats: [], groups: [],
 const TIERS = [
   { id: "welcome", name: "웰컴", color: "#86868b", cond: "회원 가입 즉시", perks: ["견적 영업일 1일 내 회신", "데이터시트·설치 가이드 바로 받기", "신제품·기획전 소식"] },
   { id: "silver", name: "실버", color: "#9aa7b8", cond: "첫 거래 완료 후", perks: ["견적 우선 회신", "회원 전용 기획전 가격 안내", "설치 후 원격 점검 1회"] },
-  { id: "gold", name: "골드", color: "#c9a227", cond: "연간 거래 1,000만 원 이상", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
+  { id: "gold", name: "골드", color: "#c9a227", cond: "지속 거래 고객 · 담당자 안내", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
   { id: "partner", name: "파트너", color: "#2f7bff", cond: "SI·설치 파트너 계약", perks: ["파트너 단가", "기술 교육·인증", "공동 제안·영업 지원"] },
 ];
 const HUE = { temperature: "red", humid: "blue", humidity: "blue", water: "blue", vibration: "violet", electrical: "amber", power: "amber", motion: "cyan", door: "green", contact: "green", gas: "teal", air: "teal", pressure: "violet", soil: "green", vehicle: "blue", control: "cyan", button: "pink", light: "amber", tilt: "violet", resistance: "amber", pulse: "cyan", software: "violet", cloud: "cyan", server: "blue", signal: "cyan", alarm: "pink", battery: "green", gateway: "blue", edge: "violet", sensor: "cyan" };
@@ -229,7 +229,8 @@ async function submit(e) {
   const src = (() => { try { return new URLSearchParams(location.search).toString() || "direct"; } catch (e) { return "direct"; } })();
   const payload = { "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "제품 견적 및 납기 확인", "지역": v.rg || "(미기재)",
     "문의 사항": `[${no}] ${lines || "제품 미선택 — 구성 상담"} · 구매 유형: ${v.type} · 희망 납기: ${v.due}${v.budget ? " · 예산: " + v.budget : ""}${v.biz ? " · 사업자번호: " + v.biz : ""} · 요청 서류: ${v.docs.join(", ") || "없음"} · 회원: ${grade}${me ? " (" + me.email + ")" : ""}${v.memo ? " · 메모: " + v.memo : ""}`,
-    "접수번호": no, "접점": "/store 견적함", "유입 페이지": location.pathname, "출처": src };
+    "접수번호": no, "접점": "/store 견적함", "유입 페이지": location.pathname, "출처": src,
+    "_mall": JSON.stringify({ items: items.map((c) => ({ n: c.p.n, c: catName(c.p), q: c.qty })), type: v.type, due: v.due, budget: v.budget, biz: v.biz, docs: v.docs, memo: v.memo, grade }) };
   const btn = $("#fSend"); btn.disabled = true; btn.textContent = "보내는 중…";
   let ok = false;
   try { const r = await fetch("/api/lead", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ lead_type: "contact", page: "/store", ts: new Date().toISOString(), payload }) }); ok = r.ok || r.status === 204; } catch (err) { ok = false; }

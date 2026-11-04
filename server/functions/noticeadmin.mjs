@@ -84,7 +84,7 @@ input[type=search]{background:#0E1628;border:1px solid var(--line);border-radius
 </style></head><body><style>.opsnav{display:flex;gap:4px;padding:10px 16px 0;border-bottom:1px solid rgba(255,255,255,.11);background:rgba(8,12,22,.85);backdrop-filter:blur(10px);overflow-x:auto;position:sticky;top:0;z-index:50;font-family:inherit}
 .opsnav a{color:#A6B3CC;text-decoration:none;padding:9px 14px;border-radius:10px 10px 0 0;font-size:13.5px;font-weight:600;white-space:nowrap;border:1px solid transparent;border-bottom:0}
 .opsnav a:hover{color:#F2F5FA}.opsnav a.on{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}</style>
-<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/notices" class="on">알림함</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>
+<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/notices" class="on">알림함</a><a href="/ops/mall">IoT몰</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>
 <div class="wrap">
 <header>
  <h1>알림함<small>담당자 알림 전체 — 메일은 결정적인 순간에만, 나머지 단계는 여기에만 남습니다</small></h1>

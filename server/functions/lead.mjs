@@ -8,7 +8,8 @@ import { pushSupport, isSupportLead } from './_monday_support.mjs';   /* 기술�
 import * as _test from './_istest.mjs';
 import { sendAlarmReply } from './_alarmmail.mjs';
 import { sendSupportAck } from './_supportmail.mjs';   /* 모니 기술지원 접수 확인 메일 — 고객에게 (2026-10-20) */
-import { routeLead } from './_route.mjs';   /* 담당자별 배분 — 일반 1015@ · 예약 msk8206@ (2026-10-13) */
+import { routeLead } from './_route.mjs';
+import { recordQuote, sendMallAck } from './_mall.mjs';   /* IoT몰·제품몰 견적 — 몰 원장 · 고객 접수 확인 메일 (2026-11-04) */   /* 담당자별 배분 — 일반 1015@ · 예약 msk8206@ (2026-10-13) */
 import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
 import _docmap from './_docmap.js';   /* siteBase — 메일 링크 주소 검증 */
@@ -135,6 +136,8 @@ export default async (req) => {
 
     /* 원장 기록이 먼저다 — 뒤의 알림·연동이 실패해도 데이터는 남아야 한다 */
     await append('leads', monthKey(safeTs(body.ts)), lead);
+    /* IoT몰·제품몰 견적은 품목까지 구조화해 몰 원장(mall/q-YYYY-MM)에도 남긴다 — /ops/mall 에서 본다 */
+    await recordQuote(lead, p);
     /* 관제 화면이 기억해 둔 집계를 버리게 한다 — 새 접수가 바로 보이도록 */
     try { const _b = set('ops', 'cache/bust.txt', String(Date.now())); if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(_b); } catch (e) { /* 무시 */ }
 
@@ -211,7 +214,8 @@ export default async (req) => {
       _support ? Promise.allSettled([pushSupport(id, lead, p), pushLead(id, lead)]).then(a => a[0].status === 'fulfilled' ? a[0].value : { ok: false, error: String(a[0].reason) }) : pushLead(id, lead),
       sendAlarmReply({ product: lead.product || lead.interest, email: lead.email, name: lead.name, origin: _origin }),
       _routeP,
-      sendSupportAck({ interest: lead.interest, email: lead.email, name: lead.name, no: pick(p, ['접수번호']), urgent: /긴급/.test(pick(p, ['긴급도'])) })
+      sendSupportAck({ interest: lead.interest, email: lead.email, name: lead.name, no: pick(p, ['접수번호']), urgent: /긴급/.test(pick(p, ['긴급도'])) }),
+      sendMallAck(lead, p)
     ]);
     try {
       const bv = (_board && _board.status === 'fulfilled') ? _board.value : null;

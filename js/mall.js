@@ -43,7 +43,7 @@ const LOGOS = ["samsung", "lg-elec", "hyundai", "sk-hynix", "lotte", "naver", "k
 const TIERS = [
   { id: "welcome", name: "웰컴", color: "#86868b", cond: "회원 가입 즉시", perks: ["견적 영업일 1일 내 회신", "데이터시트·설치 가이드 바로 받기", "신제품·기획전 소식"] },
   { id: "silver", name: "실버", color: "#9aa7b8", cond: "첫 거래 완료 후", perks: ["견적 우선 회신", "회원 전용 기획전 가격 안내", "설치 후 원격 점검 1회"] },
-  { id: "gold", name: "골드", color: "#c9a227", cond: "연간 거래 1,000만 원 이상", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
+  { id: "gold", name: "골드", color: "#c9a227", cond: "지속 거래 고객 · 담당자 안내", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
   { id: "partner", name: "파트너", color: "#2f7bff", cond: "SI·설치 파트너 계약", perks: ["파트너 단가", "기술 교육·인증", "공동 제안·영업 지원"] },
 ];
 
@@ -98,6 +98,7 @@ function toast(t, p) {
 function add(id, qty = 1, quiet) {
   const it = CART.find((c) => c.id === id);
   if (it) it.qty = Math.min(9999, it.qty + qty); else CART.push({ id, qty: Math.max(1, Math.min(9999, qty)) });
+  { const pa = P.find((x) => x.id === id); if (pa) evc("a", pa.n, 1); }
   saveCart(); const b = $(".m-ic--cart"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
   try { navigator.vibrate && navigator.vibrate(12); } catch (e) {}
   if (!quiet) { const p = P.find((x) => x.id === id); toast(`${p ? p.n : "제품"} ${qty}개를 담았어요`, p); }
@@ -445,6 +446,7 @@ function route() {
   $("#q").value = seg[0] === "search" ? qs.get("q") || "" : "";
   $$(".m-gnb a").forEach((a) => { const h = a.getAttribute("href"); a.classList.toggle("is-on", h === path || (h.length > 6 && path.startsWith(h + "/"))); });
   badge(); cmpBar(); bind(seg); reveal(); tabbar(path);
+  EV.pg++; if (seg[0] === "product") { const pv = P.find((x) => x.id === seg[1]); if (pv) evc("v", pv.n); } if (seg[0] === "search" && qs.get("q")) evc("s", qs.get("q").trim().slice(0, 30));
   if (L().hash) { const t = document.getElementById(L().hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ behavior: "smooth", block: "start" }), 30); } else window.scrollTo(0, 0);
 }
 function go(href) { const cur = L(); if (href === cur.pathname + cur.search + cur.hash) return route(); if (HASHMODE) { CUR = href; try { history.pushState({ p: href }, "", "#" + href); } catch (err) { try { location.hash = href; } catch (er) {} } route(); return; } history.pushState({}, "", href); route(); }
@@ -539,7 +541,9 @@ async function submitQuote(e) {
   const src = (() => { try { return sessionStorage.getItem("mnkMallSrc") || "direct"; } catch (err) { return "direct"; } })();
   const payload = { "회사명": v.co, "담당자명": v.nm + (v.dept ? " / " + v.dept : ""), "전화번호": v.ph, "이메일": v.em, "문의항목": items.length ? "IoT몰 견적 요청" : "IoT몰 구성 상담", "지역": v.rg || "(미기재)",
     "문의 사항": `[${no}] ${lines || "제품 미선택 — 구성 상담"} · 구매 유형: ${v.type} · 희망 납기: ${v.due} · 설치: ${v.inst} · 지급: ${v.pay}${v.budget ? " · 예산: " + v.budget : ""}${v.biz ? " · 사업자번호: " + v.biz : ""} · 요청 서류: ${v.docs.join(", ") || "없음"} · 회원: ${grade}${v.memo ? " · 메모: " + v.memo : ""}`,
-    "접수번호": no, "접점": "/mall 견적 요청서", "유입 페이지": "/mall/quote", "출처": src };
+    "접수번호": no, "접점": "/mall 견적 요청서", "유입 페이지": "/mall/quote", "출처": src,
+    /* 서버 몰 원장(/ops/mall)용 구조화 데이터 — 담당자 메일에는 「견적 품목」으로 정리돼 들어간다 */
+    "_mall": JSON.stringify({ items: items.map((c) => ({ n: c.p.n, c: catLine(c.p), q: c.qty })), type: v.type, due: v.due, inst: v.inst, pay: v.pay, budget: v.budget, biz: v.biz, docs: v.docs, memo: v.memo, dept: v.dept, grade }) };
   const btn = $("#fSend"); btn.disabled = true; btn.textContent = "보내는 중…";
   const ok = await postLead(payload);
   if (!ok) {
@@ -550,7 +554,7 @@ async function submitQuote(e) {
   try { window.dataLayer && window.dataLayer.push({ event: "mall_quote", items: items.length }); } catch (err) {}
   HIST = [{ no, date: new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), email: v.em, summary: items.length ? `${items[0].p.n}${items.length > 1 ? ` 외 ${items.length - 1}종` : ""} · ${items.reduce((a, c) => a + c.qty, 0)}개` : "구성 상담", items: items.map((c) => ({ id: c.id, qty: c.qty })) }, ...HIST].slice(0, 50);
   LS.set("mnkMallQuotes", HIST); LS.set("mnkQuoteMiss", []);
-  CART = []; saveCart(); go("/mall/done/" + no);
+  EV.q = true; CART = []; saveCart(); go("/mall/done/" + no);
 }
 async function productQna(p) {
   const g = (id) => $("#" + id).value.trim();
@@ -558,7 +562,7 @@ async function productQna(p) {
   if (!v.co || !v.nm || !v.ph) return toast("회사 · 담당자 · 연락처를 입력해 주세요.");
   if (!$("#qaOk").checked) return toast("개인정보 수집 · 이용에 동의해 주세요.");
   const no = reqNo().replace("MQ", "PQ");
-  const ok = await postLead({ "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "IoT몰 제품 문의", "지역": "(미기재)", "문의 사항": `[${no}] ${p.n} — ${v.msg || "(내용 없음)"}`, "접수번호": no, "접점": "/mall 제품 문의", "유입 페이지": L().pathname, "출처": "direct" });
+  const ok = await postLead({ "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "IoT몰 제품 문의", "지역": "(미기재)", "문의 사항": `[${no}] ${p.n} — ${v.msg || "(내용 없음)"}`, "접수번호": no, "접점": "/mall 제품 문의", "유입 페이지": L().pathname, "출처": "direct", "_mall": JSON.stringify({ product: p.n, items: [{ n: p.n, c: catLine(p), q: 1 }], memo: v.msg || "" }) });
   if (ok) { $("#qnaForm").innerHTML = `<p class="m-note"><b>문의가 접수되었어요 (${no}).</b> 담당자가 영업일 1일 안에 연락드립니다.</p>`; } else toast("전송에 실패했어요. 02-2088-1454로 연락 주세요.");
 }
 function printQuote(v) {
@@ -582,7 +586,7 @@ document.addEventListener("click", (e) => {
   const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); fly(ad); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (L().pathname === "/mall/cart") route(); return; }
   const ind = e.target.closest("[data-ind]"); if (ind) { const k = INDS.find((x) => x.id === ind.dataset.ind), it = indItems(k);
     $$(".m-indrow .m-ph img").forEach((im, i) => setTimeout(() => fly(im, im), i * 70));
-    it.forEach((x) => add(x.p.id, x.q, true)); ind.classList.add("is-done"); ind.textContent = `✓ ${it.length}개 품목을 담았어요`;
+    evc("i", k.id); it.forEach((x) => add(x.p.id, x.q, true)); ind.classList.add("is-done"); ind.textContent = `✓ ${it.length}개 품목을 담았어요`;
     setTimeout(() => toast(`${k.name} 구성 ${it.length}개 품목을 견적함에 담았어요`, it[0].p), Math.min(it.length * 70, 500)); return; }
   const pk = e.target.closest("[data-pack]"); if (pk) { const k = PACKS.find((x) => x.id === pk.dataset.pack); k.items.forEach(([n, q]) => { const p = byName(n); if (p) add(p.id, q, true); }); toast(`${k.name}를 견적함에 담았어요`); return; }
   const sp = e.target.closest("[data-solpack]"); if (sp) { const ap = APPS.find((x) => x.id === sp.dataset.solpack); const ps = prodsOfApp(ap).slice(0, 3); [...ps, byName("이더넷 게이트웨이"), byName("iMonnit 클라우드 관리 SW")].filter(Boolean).forEach((p) => add(p.id, 1, true)); toast("추천 구성을 견적함에 담았어요 — 수량은 견적함에서 조정하세요"); return; }
@@ -606,6 +610,19 @@ function mega() {
 function closeMega() { $("#mega").hidden = true; $("#allBtn").setAttribute("aria-expanded", "false"); }
 $("#allBtn").onclick = (e) => { e.stopPropagation(); const m = $("#mega"); if (m.hidden) { m.innerHTML = mega(); m.hidden = false; $("#allBtn").setAttribute("aria-expanded", "true"); } else closeMega(); };
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMega(); });
+
+/* ───────── 이용 기록 (서버 /api/mall/ev — 방문 세션당 한 줄, 개인정보 없음) ─────────
+   본 제품 · 담은 제품 · 검색어 · 업종 구성 담기 횟수만 모아 화면을 떠날 때 한 번 보낸다. /ops/mall 「많이 본·담은 제품」 */
+const EV = { sid: Math.random().toString(36).slice(2, 10), v: {}, a: {}, s: {}, i: {}, pg: 0, q: false, dev: matchMedia("(max-width:700px)").matches ? "m" : "d", src: (() => { try { return sessionStorage.getItem("mnkMallSrc") || document.referrer.replace(/^https?:\/\//, "").split("/")[0] || "direct"; } catch (e) { return "direct"; } })() };
+const evc = (k, name, n = 1) => { if (name) EV[k][name] = (EV[k][name] || 0) + n; };
+function evFlush() {
+  if (HASHMODE || !navigator.sendBeacon) return;
+  if (!EV.pg && !Object.keys(EV.a).length && !Object.keys(EV.s).length) return;
+  try { navigator.sendBeacon("/api/mall/ev", new Blob([JSON.stringify(EV)], { type: "application/json" })); } catch (e) {}
+  EV.v = {}; EV.a = {}; EV.s = {}; EV.i = {}; EV.pg = 0; EV.q = false;
+}
+addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") evFlush(); });
+addEventListener("pagehide", evFlush);
 
 /* ───────── 인터랙션 ───────── */
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;

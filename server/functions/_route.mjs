@@ -28,7 +28,8 @@
  */
 import { get, set } from './_store.mjs';
 import { subjectOf, fieldsOf } from './_notify.mjs';
-import { withMust, isGuide, isGuideDoc } from './_staffto.mjs';   /* 1015@ 필수 수신 (2026-10-28) */
+import { withMust, isGuide, isGuideDoc } from './_staffto.mjs';
+import { isMallLead, mallTo, itemLines } from './_mall.mjs';   /* IoT몰·제품몰 견적 → 염정훈·장일호·황미경 (2026-11-04) */   /* 1015@ 필수 수신 (2026-10-28) */
 
 const env = (k, d = '') => {
   try { const v = globalThis.__MNK_ENV_GET && globalThis.__MNK_ENV_GET(k); if (v != null && v !== '') return v; } catch (e) { /* 무시 */ }
@@ -91,6 +92,7 @@ export function kindOf(lead, payload) {
   const p = payload || {};
   const hay = [lead.interest, lead.point, p['구분'], p['_subject'], p['관심분야']].map(v => String(v || '')).join(' ');
   if (/맞춤\s*제안/.test(hay)) return 'proposal';
+  if (isMallLead(p)) return 'mall';   /* IoT몰(/mall) · 제품몰(/store) 견적·제품 문의 */
   if (/현장진단 예약|visit_booking/.test(String(lead.point || '')) || /현장\s*진단\s*예약/.test(hay)) return 'visit';
   /* 알리미 — 알리미 모델을 고른 신청이거나, 알리미 랜딩(/promo/alarm)에서 들어온 접수 */
   if (String(p['알리미 모델'] || '').trim() || /알리미/.test(hay) || /promo[\/-]alarm/.test(String(lead.landing || p['유입 페이지'] || ''))) return 'alarm';
@@ -101,6 +103,7 @@ export function kindOf(lead, payload) {
 
 export async function recipientsFor(kind, opts) {
   if (kind === 'proposal') return [];
+  if (kind === 'mall') return withMust([...(await mallTo()), ...alwaysTo()]);   /* 몰 견적 — /ops/mall 「알림 받는 사람」 + 대표님 + 1015@ */
   const out = new Set(generalTo());
   if (kind === 'visit') for (const r of (await readVisitRecipients()).list) out.add(r.email);
   if (kind === 'alarm' || kind === 'alarm-support') for (const e of alarmTo()) out.add(e);
@@ -160,14 +163,16 @@ export async function routeLead(lead, payload, opts) {
       return { ...r, kind: 'doc', to };
     }
     const to = await recipientsFor(kind, { guide: isGuideLead(lead, payload), mustExempt: isGuide(lead, payload) });
-    const tag = kind === 'visit' ? '현장진단 예약' : kind === 'alarm' ? '알리미 문의' : '일반 문의';
+    const tag = kind === 'mall' ? (/제품 문의/.test(String(payload && payload['접점'] || '')) ? 'IoT몰 제품 문의' : /store/.test(String(payload && payload['접점'] || '')) ? '제품몰 견적' : 'IoT몰 견적') : kind === 'visit' ? '현장진단 예약' : kind === 'alarm' ? '알리미 문의' : '일반 문의';
     const subject = `[${tag}] ` + subjectOf(lead).replace(/^\[모넷·접수\]\s*/, '') + (lead.test ? ' (테스트 의심)' : '');
     const fields = fieldsOf(lead, payload);
+    if (kind === 'mall') { const il = itemLines(payload); if (il) fields['견적 품목'] = il; fields['몰 관리 화면'] = 'https://monnit.co.kr/ops/mall'; }
     /* 고객 메일 주소가 맞으면 「답장」 이 곧바로 고객에게 가도록 */
     const _rn = String(lead.name || lead.company || '').trim();
     const replyTo = okEmail(lead.email) ? (_rn ? { email: String(lead.email).trim(), name: _rn } : { email: String(lead.email).trim() }) : undefined;
     const r = await sendBrevo({ to, subject, fields, replyTo });
-    return { ...r, kind, to };
+    /* delivered — lead.mjs 가 「대표님께 이미 갔으면 예비 알림 생략」을 판단하는 값. 그동안 채우지 않아 대표님께 두 통 갈 수 있었다 (2026-11-04) */
+    return { ...r, kind, to, delivered: r.ok ? to : [] };
   } catch (e) {
     return { ok: false, error: String(e && e.message || e) };
   }
