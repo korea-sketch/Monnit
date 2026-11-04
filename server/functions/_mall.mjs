@@ -141,3 +141,68 @@ export async function recordEvents(body, meta) {
   await append(STORE, 'ev-' + kMonth(rec.ts), rec);
   return true;
 }
+
+/* ── 견적시스템(monnit-quote) 연동 (2026-11-04) ──────────────────────────
+   견적 요청이 들어오면 견적시스템에 「견적 대기」 견적서를 자동으로 만든다(단가표 판매가로 품목·단가 입력).
+   견적시스템에서 발송 → 수주 → 출고완료가 되면 ERP 판매서로 이어진다(견적시스템 · ERP 쪽 기존 흐름).
+   연결 정보: /ops/mall 「견적시스템 연결」 → mall/quote-link.json { url, key }  (환경변수 MALL_QUOTE_URL · MALL_QUOTE_KEY 도 가능)
+   결과: mall/qs.json { 몰접수번호: { id, no, status, total, at, err } } */
+export const QUOTE_DEFAULT_URL = 'https://monnit-quote.zilliondollarbabysound.workers.dev';
+export async function readQuoteLink() {
+  let o = {};
+  try { o = JSON.parse((await get(STORE, 'quote-link.json')) || '{}') || {}; } catch (e) { o = {}; }
+  const url = String(o.url || env('MALL_QUOTE_URL', QUOTE_DEFAULT_URL)).replace(/\/+$/, '');
+  const key = String(o.key || env('MALL_QUOTE_KEY', ''));
+  return { url, key, savedAt: o.savedAt || '', configured: !!key };
+}
+export async function saveQuoteLink({ url, key }) {
+  const cur = await readQuoteLink();
+  const u = String(url || cur.url || QUOTE_DEFAULT_URL).trim().replace(/\/+$/, '');
+  if (!/^https:\/\/[a-z0-9.-]+(\/[^\s]*)?$/i.test(u)) return { ok: false, error: '주소 형식' };
+  const k = key === undefined || key === '' ? cur.key : String(key).trim().slice(0, 200);
+  const savedAt = new Date().toISOString();
+  const ok = await set(STORE, 'quote-link.json', JSON.stringify({ url: u, key: k, savedAt }));
+  return { ok, url: u, configured: !!k, savedAt };
+}
+async function readQs() { try { return JSON.parse((await get(STORE, 'qs.json')) || '{}') || {}; } catch (e) { return {}; } }
+async function patchQs(patch) {
+  const all = await readQs();
+  for (const [k, v] of Object.entries(patch)) all[k] = { ...(all[k] || {}), ...v, at: new Date().toISOString() };
+  await set(STORE, 'qs.json', JSON.stringify(all));
+  return all;
+}
+export { readQs };
+async function qsFetch(path, body, link) {
+  const l = link || await readQuoteLink();
+  if (!l.key) return { ok: false, skipped: '연결 키 없음' };
+  const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const t = ac ? setTimeout(() => ac.abort(), 8000) : null;
+  try {
+    const r = await fetch(l.url + path, { method: 'POST', headers: { 'content-type': 'application/json', 'x-mall-key': l.key }, body: JSON.stringify(body), signal: ac ? ac.signal : undefined });
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j || !j.ok) return { ok: false, error: r.status === 404 ? '연결 키가 맞지 않음' : 'HTTP ' + r.status };
+    return j;
+  } catch (e) { return { ok: false, error: String(e && e.name === 'AbortError' ? '시간 초과' : (e && e.message) || e) }; }
+  finally { if (t) clearTimeout(t); }
+}
+/** 몰 원장 한 건 → 견적시스템 견적서. 같은 접수번호는 견적시스템이 한 번만 만든다(다시 보내도 안전). */
+export async function pushQuote(rec) {
+  try {
+    if (!rec || !rec.no || rec.test) return { ok: false, skipped: '대상 아님' };
+    const r = await qsFetch('/webhook/mall-quote', { no: rec.no, kind: rec.kind, shop: rec.shop, company: rec.company, name: rec.name, phone: rec.phone, email: rec.email, region: rec.region, items: rec.items, cond: rec.cond, memo: rec.memo });
+    if (r.skipped) return r;
+    await patchQs({ [rec.no]: r.ok ? { id: r.id, no: r.no, status: r.status, total: r.total, missing: r.missing || [], err: '' } : { err: r.error || '실패' } });
+    return r;
+  } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+}
+/** 견적서 진행 상태 새로 받기 — /ops/mall 을 열 때 */
+export async function refreshQs(nos) {
+  const list = [...new Set((nos || []).filter(Boolean))].slice(0, 100);
+  if (!list.length) return await readQs();
+  const r = await qsFetch('/webhook/mall-quote/status', { nos: list });
+  if (!r.ok) return await readQs();
+  const patch = {};
+  for (const [k, v] of Object.entries(r.quotes || {})) patch[k] = { id: v.id, no: v.no, status: v.status, total: v.total, err: '' };
+  return Object.keys(patch).length ? await patchQs(patch) : await readQs();
+}
+export async function testQuoteLink(link) { return qsFetch('/webhook/mall-quote/status', { nos: [] }, link); }

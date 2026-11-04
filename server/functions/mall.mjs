@@ -12,11 +12,11 @@
  *  저장 위치는 _mall.mjs 맨 위 설명 참고. */
 import * as auth from './_ops_auth.mjs';
 import { get, set, readLines } from './_store.mjs';
-import { STORE, readRecipients, saveRecipients, recordEvents, okEmail, DEFAULT_RECIPIENTS } from './_mall.mjs';
+import { STORE, readRecipients, saveRecipients, recordEvents, okEmail, DEFAULT_RECIPIENTS, readQuoteLink, saveQuoteLink, refreshQs, pushQuote, testQuoteLink } from './_mall.mjs';
 import { withMust } from './_staffto.mjs';
 import { sendBrevo, alwaysTo } from './_route.mjs';
 
-export const config = { path: ['/ops/mall', '/ops/mall/data', '/ops/mall/status', '/ops/mall/recipients', '/ops/mall/testmail', '/api/mall/ev'] };
+export const config = { path: ['/ops/mall', '/ops/mall/data', '/ops/mall/status', '/ops/mall/recipients', '/ops/mall/testmail', '/ops/mall/quote-link', '/ops/mall/quote-test', '/ops/mall/push', '/api/mall/ev'] };
 
 const H = {
   'cache-control': 'no-store, no-cache, must-revalidate', 'x-robots-tag': 'noindex, nofollow, noarchive', 'referrer-policy': 'no-referrer',
@@ -68,10 +68,18 @@ async function data(url) {
     for (const [k, v] of Object.entries(e.s || {})) addCount(searches, k, v);
     for (const [k, v] of Object.entries(e.i || {})) addCount(inds, k, v);
   }
+  /* 견적시스템 견적서 — 진행 상태 새로 받고, 아직 못 보낸 건은 최대 5건 다시 보낸다 */
+  const link = await readQuoteLink();
+  let qsMap = {};
+  if (link.configured) {
+    qsMap = await refreshQs(qs.filter((q) => !q.test).map((q) => q.no)).catch(() => ({}));
+    const pend = qs.filter((q) => !q.test && q.no && !(qsMap[q.no] && qsMap[q.no].id)).slice(0, 5);
+    for (const q of pend) { const r = await pushQuote(q); if (r && r.ok) qsMap[q.no] = { id: r.id, no: r.no, status: r.status, total: r.total, missing: r.missing || [] }; else if (r && r.error) qsMap[q.no] = { ...(qsMap[q.no] || {}), err: r.error }; }
+  }
   const stCount = {}; ST.forEach((s) => (stCount[s] = 0));
   qs.forEach((q) => { const s = (status[q.no] && status[q.no].st) || 'new'; stCount[s] = (stCount[s] || 0) + 1; });
   return {
-    month: m, quotes: qs.map((q) => ({ ...q, st: (status[q.no] && status[q.no].st) || 'new', note: (status[q.no] && status[q.no].memo) || '', stAt: (status[q.no] && status[q.no].at) || '' })),
+    month: m, link: { url: link.url, configured: link.configured, savedAt: link.savedAt }, quotes: qs.map((q) => ({ ...q, qsys: qsMap[q.no] || null, st: (status[q.no] && status[q.no].st) || 'new', note: (status[q.no] && status[q.no].memo) || '', stAt: (status[q.no] && status[q.no].at) || '' })),
     stats: { sessions, mobile, pages, quoteSess, reqItems: top(reqItems, 12), reqQty: top(reqQty, 12), views: top(views, 12), adds: top(adds, 12), searches: top(searches, 15), inds: top(inds, 6), byDay, stCount },
     recipients: rcp, always: alwaysTo(), must: withMust([]), defaults: DEFAULT_RECIPIENTS
   };
@@ -99,6 +107,15 @@ export default async (req) => {
     return j({ ok, item: all[no] });
   }
   if (path === '/ops/mall/recipients') { const r = await saveRecipients(body.list); return j(r); }
+  if (path === '/ops/mall/quote-link') return j(await saveQuoteLink({ url: body.url, key: body.key }));
+  if (path === '/ops/mall/quote-test') { const l = await readQuoteLink(); const r = await testQuoteLink(l); return j({ ok: !!r.ok, error: r.error || r.skipped || '', url: l.url }); }
+  if (path === '/ops/mall/push') {
+    const no = String(body.no || '').slice(0, 24); const mm = /^[A-Z]{2}-(\d{2})(\d{2})/.exec(no);
+    const month = mm ? '20' + mm[1] + '-' + mm[2] : kMonth();
+    const rec = (await readLines(STORE, 'q-' + month).catch(() => [])).find((q) => q.no === no);
+    if (!rec) return j({ ok: false, error: '접수 건을 찾지 못했습니다' }, 404);
+    return j(await pushQuote({ ...rec, test: false }));
+  }
   if (path === '/ops/mall/testmail') {
     const rcp = (await readRecipients()).list.map((r) => r.email).filter(okEmail);
     const to = withMust([...rcp, ...alwaysTo()]);
@@ -162,11 +179,17 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
  <div class="card"><h3>견적에 많이 들어간 제품<small>요청 건수 · 수량</small></h3><div class="bars" id="req"></div></div>
  <div class="card"><h3>많이 본 · 담은 제품<small>몰 이용 기록</small></h3><div class="bars" id="views"></div><div class="bars" id="adds" style="margin-top:10px"></div></div>
  <div class="card"><h3>검색어<small>몰 검색창</small></h3><div class="chips" id="srch"></div><h3 style="margin-top:14px">업종별 구성 담기</h3><div class="chips" id="inds"></div></div>
+ <div class="card"><h3>견적시스템 연결<small id="lsaved"></small></h3>
+  <p class="note">견적 요청이 들어오면 <b>MK+DC 견적시스템</b>에 단가표 판매가로 「견적 대기」 견적서가 자동으로 만들어지고, 견적시스템 목록의 <b>🛒 IoT몰 접수</b> 탭에 모입니다. 발송 → 수주 → 출고완료가 되면 ERP 판매서로 이어집니다.</p>
+  <div class="rcp" style="grid-template-columns:1fr"><input id="lurl" placeholder="견적시스템 주소"></div>
+  <div class="rcp" style="grid-template-columns:1fr"><input id="lkey" type="password" autocomplete="off" placeholder="연동 키"></div>
+  <div class="acts"><button class="btn pri" id="lsave">저장</button><button class="btn" id="ltest">연결 확인</button><a class="btn" id="lopen" target="_blank" rel="noopener" style="text-decoration:none">견적시스템 열기 ↗</a></div></div>
  <div class="card"><h3>견적 알림 받는 사람<small id="rsaved"></small></h3>
   <div id="rcp"></div><div class="acts"><button class="btn" id="radd">+ 사람 추가</button><button class="btn pri" id="rsave">저장</button><button class="btn" id="rtest">시험 메일 보내기</button></div>
   <p class="note" id="rnote"></p></div>
  <div class="card"><h3>데이터가 남는 곳</h3><p class="note">
   · <b>견적 요청</b> — R2 <code>mall/q-YYYY-MM</code>(품목·조건 구조화) + 리드 원장 <code>leads</code>(/ops 통합 관제) + 먼데이 리드 보드 + 알림함<br>
+  · <b>견적서</b> — MK+DC 견적시스템에 「견적 대기」로 자동 작성(🛒 IoT몰 접수 탭) → 수주·출고완료 시 ERP 판매서<br>
   · <b>처리 상태·메모</b> — <code>mall/status.json</code> (이 화면에서 저장)<br>
   · <b>몰 이용 기록</b> — <code>mall/ev-YYYY-MM</code> 방문 세션당 한 줄(본·담은 제품, 검색어, 업종 구성)<br>
   · <b>견적함·관심 제품</b> — 고객 브라우저에만 보관(서버로 보내지 않음). 견적 요청을 보내는 순간 서버에 남습니다.<br>
@@ -198,10 +221,13 @@ function render(){
   var sum=it.length?esc(it[0].n)+(it.length>1?' 외 '+(it.length-1)+'종':'')+' · '+it.reduce(function(a,b){return a+b.q},0)+'개':esc(q.product||KIND[q.kind]||'');
   var kv=[['접수번호',q.no],['전화',q.phone],['이메일',q.email],['부서',c.dept],['지역',q.region],['구매 유형',c.type],['희망 납기',c.due],['설치',c.inst],['지급',c.pay],['예산',c.budget],['사업자번호',c.biz],['요청 서류',(c.docs||[]).join(', ')],['회원',c.grade],['메모',q.memo],['유입',q.source]].filter(function(r){return r[1]});
   var mail='mailto:'+encodeURIComponent(q.email||'')+'?subject='+encodeURIComponent('[모넷코리아] 견적서 송부 · '+q.no)+'&body='+encodeURIComponent((q.name||'')+'님, 안녕하세요. 모넷코리아입니다.\\n\\n요청하신 견적('+q.no+')을 첨부해 드립니다.\\n\\n'+it.map(function(x,i){return (i+1)+'. '+x.n+' × '+x.q}).join('\\n')+'\\n\\n감사합니다.\\n모넷코리아 02-2088-1454');
-  return '<div class="q" data-no="'+esc(q.no)+'"><div class="t"><span class="when">'+esc(kt(q.ts))+'</span><span class="tag s-'+q.st+'">'+ST[q.st]+'</span><span class="tag">'+(KIND[q.kind]||'견적')+(q.shop==='store'?' · 제품몰':'')+'</span>'+(q.test?'<span class="tag">테스트</span>':'')+'<span class="who">'+esc(q.company||'(회사 미기재)')+'<small>'+esc(q.name||'')+'</small></span></div><div class="sum">'+sum+(q.note?' · 메모: '+esc(q.note.slice(0,40)):'')+'</div>'+
+  var qy=q.qsys, QS={draft:'견적 대기',sent:'견적 발송',won:'수주',shipped:'출고완료 · ERP 반영',lost:'실주',void:'취소'};
+  var qline=qy&&qy.id?'<span class="tag s-quoted">견적시스템 '+esc(qy.no)+' · '+(QS[qy.status]||esc(qy.status))+'</span>'+(qy.missing&&qy.missing.length?'<span class="tag s-new">단가 확인 '+qy.missing.length+'</span>':''):(D.link.configured&&!q.test?'<span class="tag s-lost">견적시스템 미전송'+(qy&&qy.err?' · '+esc(qy.err):'')+'</span>':'');
+  return '<div class="q" data-no="'+esc(q.no)+'"><div class="t"><span class="when">'+esc(kt(q.ts))+'</span><span class="tag s-'+q.st+'">'+ST[q.st]+'</span><span class="tag">'+(KIND[q.kind]||'견적')+(q.shop==='store'?' · 제품몰':'')+'</span>'+(q.test?'<span class="tag">테스트</span>':'')+qline+'<span class="who">'+esc(q.company||'(회사 미기재)')+'<small>'+esc(q.name||'')+'</small></span></div><div class="sum">'+sum+(q.note?' · 메모: '+esc(q.note.slice(0,40)):'')+'</div>'+
    '<div class="det">'+(it.length?'<table><thead><tr><th>No.</th><th>품목</th><th>분류</th><th style="text-align:right">수량</th></tr></thead><tbody>'+it.map(function(x,k){return '<tr><td>'+(k+1)+'</td><td>'+esc(x.n)+'</td><td>'+esc(x.c)+'</td><td class="n">'+x.q+'</td></tr>'}).join('')+'</tbody></table>':'')+
    '<dl class="kv">'+kv.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join('')+'</dl>'+
    '<div class="acts"><select data-st>'+Object.keys(ST).map(function(k){return '<option value="'+k+'"'+(k===q.st?' selected':'')+'>'+ST[k]+'</option>'}).join('')+'</select><input data-memo placeholder="처리 메모 (담당·견적 금액 등)" value="'+esc(q.note)+'" style="flex:1;min-width:160px"><button class="btn pri" data-save>저장</button>'+
+   (qy&&qy.id?'<a href="'+esc(D.link.url)+'/#/quote/'+esc(qy.id)+'" target="_blank" rel="noopener">견적서 열기 ↗</a>':(D.link.configured&&!q.test?'<button class="btn" data-push>견적시스템으로 보내기</button>':''))+
    (q.phone?'<a href="tel:'+esc(q.phone)+'">전화 걸기</a>':'')+(q.email?'<a href="'+mail+'">견적서 메일 쓰기</a>':'')+'</div>'+(q.stAt?'<div class="note">마지막 변경 '+esc(kt(q.stAt))+'</div>':'')+'</div></div>';
  }).join(''):'<div class="empty">이 달에 해당하는 견적 요청이 없습니다</div>';
  /* 오른쪽 */
@@ -214,6 +240,7 @@ function render(){
  $('#srch').innerHTML=s.searches.length?s.searches.map(function(x){return '<span>'+esc(x[0])+'<b>'+x[1]+'</b></span>'}).join(''):'<span class="note">아직 없음</span>';
  var IN={facility:'시설·빌딩',pharma:'제약·바이오',cold:'물류·콜드체인',pdm:'제조·예지보전',energy:'에너지·유틸리티',agri:'스마트팜·골프장'};
  $('#inds').innerHTML=s.inds.length?s.inds.map(function(x){return '<span>'+esc(IN[x[0]]||x[0])+'<b>'+x[1]+'</b></span>'}).join(''):'<span class="note">아직 없음</span>';
+ $('#lurl').value=D.link.url;$('#lopen').href=D.link.url+'/#/';$('#lsaved').textContent=D.link.configured?'연결됨'+(D.link.savedAt?' · '+kt(D.link.savedAt):''):'연동 키 필요';$('#lkey').placeholder=D.link.configured?'저장됨 — 바꿀 때만 입력':'연동 키 (바탕화면 「견적시스템_IoT몰_연동키.txt」 내용)';
  drawRcp(D.recipients.list);
  $('#rsaved').textContent=D.recipients.isDefault?'기본값':'저장 '+kt(D.recipients.savedAt);
  $('#rnote').innerHTML='함께 받는 주소: '+esc(D.always.concat(D.must).filter(function(v,i,a){return a.indexOf(v)===i}).join(', '))+' (대표님 · 1015@ 필수 규칙)<br>견적·제품 문의가 들어오면 위 사람 모두에게 같은 메일이 한 통씩 갑니다. 고객 메일 「답장」은 고객에게 바로 갑니다.'+(D.recipients.list.some(function(r){return !r.email})?'<br><b class="warn">이메일이 비어 있는 사람은 메일을 받지 못합니다 — 주소를 넣고 저장하세요.</b>':'');
@@ -223,10 +250,13 @@ function readRcp(){return Array.prototype.map.call(document.querySelectorAll('.r
 document.addEventListener('click',function(e){
  var f=e.target.closest('[data-f]');if(f){F=f.getAttribute('data-f');render();return}
  var sv=e.target.closest('[data-save]');if(sv){var q=sv.closest('.q'),no=q.getAttribute('data-no');post('/ops/mall/status',{no:no,st:q.querySelector('[data-st]').value,memo:q.querySelector('[data-memo]').value}).then(function(r){if(r.ok){var it=D.quotes.find(function(x){return x.no===no});it.st=r.item.st;it.note=r.item.memo;it.stAt=r.item.at;D.stats.stCount={};D.quotes.forEach(function(x){D.stats.stCount[x.st]=(D.stats.stCount[x.st]||0)+1});render();var el=document.querySelector('.q[data-no="'+no+'"]');if(el)el.classList.add('open');toast('저장했습니다')}else toast('저장 실패')});return}
+ var pu=e.target.closest('[data-push]');if(pu){pu.disabled=true;post('/ops/mall/push',{no:pu.closest('.q').getAttribute('data-no')}).then(function(r){toast(r.ok?'견적서를 만들었습니다 · '+r.no:'실패 · '+(r.error||r.skipped||''));load()});return}
  var del=e.target.closest('[data-rdel]');if(del){del.closest('.rcp').remove();return}
  if(e.target.closest('.det'))return;
  var q=e.target.closest('.q');if(q)q.classList.toggle('open');
 });
+$('#lsave').onclick=function(){post('/ops/mall/quote-link',{url:$('#lurl').value.trim(),key:$('#lkey').value.trim()}).then(function(r){if(r.ok){$('#lkey').value='';toast('견적시스템 연결을 저장했습니다');load()}else toast('저장 실패 '+(r.error||''))})};
+$('#ltest').onclick=function(){post('/ops/mall/quote-test',{}).then(function(r){toast(r.ok?'견적시스템과 연결되었습니다':'연결 실패 · '+(r.error||''))})};
 $('#radd').onclick=function(){var l=readRcp();l.push({name:'',email:''});drawRcp(l)};
 $('#rsave').onclick=function(){var l=readRcp().filter(function(r){return r.name||r.email});var bad=l.filter(function(r){return r.email&&!/^[^\\s@]+@[^\\s@]+\\.[a-z]{2,}$/i.test(r.email)});if(bad.length)return toast('이메일 형식을 확인하세요: '+bad[0].email);post('/ops/mall/recipients',{list:l}).then(function(r){if(r.ok){D.recipients={list:r.list,savedAt:r.savedAt,isDefault:false};render();toast('받는 사람을 저장했습니다')}else toast('저장 실패')})};
 $('#rtest').onclick=function(){this.disabled=true;var b=this;post('/ops/mall/testmail',{}).then(function(r){toast(r.ok?'시험 메일을 보냈습니다 · '+r.to.length+'명':'발송 실패 '+(r.error||r.skipped||''))}).finally(function(){b.disabled=false})};

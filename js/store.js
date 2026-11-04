@@ -11,10 +11,10 @@ const D = window.__STORE_DATA || { products: [], apps: [], cats: [], groups: [],
 
 /* ── 멤버십 등급 (문구는 여기서 고치면 됩니다) ── */
 const TIERS = [
-  { id: "welcome", name: "웰컴", color: "#86868b", cond: "회원 가입 즉시", perks: ["견적 영업일 1일 내 회신", "데이터시트·설치 가이드 바로 받기", "신제품·기획전 소식"] },
-  { id: "silver", name: "실버", color: "#9aa7b8", cond: "첫 거래 완료 후", perks: ["견적 우선 회신", "회원 전용 기획전 가격 안내", "설치 후 원격 점검 1회"] },
-  { id: "gold", name: "골드", color: "#c9a227", cond: "지속 거래 고객 · 담당자 안내", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
-  { id: "partner", name: "파트너", color: "#2f7bff", cond: "SI·설치 파트너 계약", perks: ["파트너 단가", "기술 교육·인증", "공동 제안·영업 지원"] },
+  { id: "welcome", name: "웰컴", color: "#86868b", cond: "가입하시는 즉시", perks: ["견적 영업일 1일 내 회신", "데이터시트·설치 가이드 바로 받기", "신제품·기획전 소식"] },
+  { id: "silver", name: "실버", color: "#9aa7b8", cond: "첫 거래를 마치신 고객사", perks: ["견적 우선 회신", "회원 전용 기획전 가격 안내", "설치 후 원격 점검 1회"] },
+  { id: "gold", name: "골드", color: "#c9a227", cond: "꾸준히 함께해 주시는 고객사", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
+  { id: "partner", name: "파트너", color: "#2f7bff", cond: "SI·설치 파트너사", perks: ["파트너 단가", "기술 교육·인증", "공동 제안·영업 지원"] },
 ];
 const HUE = { temperature: "red", humid: "blue", humidity: "blue", water: "blue", vibration: "violet", electrical: "amber", power: "amber", motion: "cyan", door: "green", contact: "green", gas: "teal", air: "teal", pressure: "violet", soil: "green", vehicle: "blue", control: "cyan", button: "pink", light: "amber", tilt: "violet", resistance: "amber", pulse: "cyan", software: "violet", cloud: "cyan", server: "blue", signal: "cyan", alarm: "pink", battery: "green", gateway: "blue", edge: "violet", sensor: "cyan" };
 /* 제품 → 적용 분야(APPS.sensors 코드) 연결 규칙 */

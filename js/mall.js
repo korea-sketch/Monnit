@@ -41,10 +41,10 @@ const BANNERS = [
 ];
 const LOGOS = ["samsung", "lg-elec", "hyundai", "sk-hynix", "lotte", "naver", "kakao", "samsung-bio", "gc", "pulmuone", "kaist", "etri", "hdc", "hanwha-energy", "veolia", "usfk"];
 const TIERS = [
-  { id: "welcome", name: "웰컴", color: "#86868b", cond: "회원 가입 즉시", perks: ["견적 영업일 1일 내 회신", "데이터시트·설치 가이드 바로 받기", "신제품·기획전 소식"] },
-  { id: "silver", name: "실버", color: "#9aa7b8", cond: "첫 거래 완료 후", perks: ["견적 우선 회신", "회원 전용 기획전 가격 안내", "설치 후 원격 점검 1회"] },
-  { id: "gold", name: "골드", color: "#c9a227", cond: "지속 거래 고객 · 담당자 안내", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
-  { id: "partner", name: "파트너", color: "#2f7bff", cond: "SI·설치 파트너 계약", perks: ["파트너 단가", "기술 교육·인증", "공동 제안·영업 지원"] },
+  { id: "welcome", name: "웰컴", color: "#86868b", cond: "가입하시는 즉시", perks: ["견적 영업일 1일 내 회신", "데이터시트·설치 가이드 바로 받기", "신제품·기획전 소식"] },
+  { id: "silver", name: "실버", color: "#9aa7b8", cond: "첫 거래를 마치신 고객사", perks: ["견적 우선 회신", "회원 전용 기획전 가격 안내", "설치 후 원격 점검 1회"] },
+  { id: "gold", name: "골드", color: "#c9a227", cond: "꾸준히 함께해 주시는 고객사", perks: ["전담 담당자 배정", "프로젝트 단가 협의", "데모 키트 대여 상담"] },
+  { id: "partner", name: "파트너", color: "#2f7bff", cond: "SI·설치 파트너사", perks: ["파트너 단가", "기술 교육·인증", "공동 제안·영업 지원"] },
 ];
 
 function slugOf(p, i) { return (p.c + "-" + (p.n || "").replace(/[^\w가-힣]+/g, "-").replace(/^-|-$/g, "")).toLowerCase() || "p" + i; }
@@ -378,7 +378,7 @@ function vMy() {
     ${sec("견적 요청 내역", "이 브라우저에서 요청한 건 · 공식 견적서는 이메일로 회신", HIST.length ? `<table class="m-carttbl"><thead><tr><th>요청번호</th><th>요청일</th><th>품목</th><th>상태</th><th></th></tr></thead><tbody>${HIST.map((h) => `<tr><td><b>${esc(h.no)}</b></td><td>${esc(h.date)}</td><td>${esc(h.summary)}</td><td><span class="m-tag m-tag--line">회신 대기 · 확인 중</span></td><td><button class="m-btn m-btn--sm m-btn--line" type="button" data-reorder="${esc(h.no)}">같은 구성 다시 담기</button></td></tr>`).join("")}</tbody></table>` : `<p class="m-muted">아직 요청한 견적이 없어요.</p>`)}
     <div id="fav">${sec("관심 상품", "", fav.length ? `<div class="m-grid m-grid--4">${fav.map((p) => card(p)).join("")}</div>` : `<p class="m-muted">♡를 눌러 관심 상품을 모아 보세요.</p>`)}</div>
     ${rec.length ? sec("최근 본 제품", "", `<div class="m-grid m-grid--4">${rec.map((p) => card(p)).join("")}</div>`) : ""}
-    ${sec("회원 등급 혜택", "등급은 거래 실적에 따라 담당자가 지정합니다", tiersHTML())}</div>`;
+    ${sec("회원 등급 혜택", "거래해 주시는 만큼 더 나은 혜택으로 모시겠습니다", tiersHTML())}</div>`;
 }
 function tiersHTML() { const my = ME && ME.member ? tierOf().id : ""; return `<div class="m-tiers">${TIERS.map((t) => `<div class="${t.id === my ? "is-me" : ""}">${t.id === my ? '<em>내 등급</em>' : ""}<b><i style="background:${t.color}"></i>${t.name}</b><small>${esc(t.cond)}</small><ul>${t.perks.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>`; }
 function vCompare() {
@@ -407,7 +407,7 @@ function vHelp() {
     ["센서만 사면 바로 쓸 수 있나요?", "센서는 게이트웨이를 거쳐 플랫폼으로 데이터를 보냅니다. 게이트웨이 1대가 반경 내 센서 250개까지 연결하니, 처음 도입이라면 게이트웨이와 플랫폼을 함께 견적받으세요."],
     ["설치도 해 주나요?", "네. 무선이라 배선 공사 없이 설치합니다. 설치 · 교육 범위와 일정은 현장 조건을 확인해 견적에 포함해 드려요."],
     ["사내 결재(품의)용 자료가 필요해요.", "견적함의 「견적 요청서 인쇄 · PDF」로 바로 출력하거나 「결재용 링크 복사」로 같은 구성을 공유할 수 있어요. 공식 견적서 · 사업자등록증 · 통장 사본 등 구매 서류는 요청서에서 체크하시면 함께 보내 드립니다."],
-    ["회원 등급은 어떻게 정해지나요?", "이메일 인증만으로 웰컴 회원이 되고, 이후 등급은 거래 실적에 따라 담당자가 지정합니다."]];
+    ["회원 등급은 어떻게 정해지나요?", "이메일 인증만으로 웰컴 회원으로 모시며, 이후에는 거래 이력을 살펴 담당자가 한 단계 높은 등급으로 안내해 드립니다."]];
   return `<div class="m-in">${crumbs([["고객센터", ""]])}<div class="m-catbanner"><div><h1>고객센터</h1><p>구매 상담 02-2088-1454 · 평일 업무시간 · 1015@monnit.com</p></div><a class="m-btn m-btn--w" href="/mall/quote" data-link>견적 · 구성 상담 요청</a></div>
     <div class="m-helpnav"><a href="#guide">구매 가이드</a><a href="#faq">자주 묻는 질문</a><a href="#policy">서비스 정책</a><a href="#member">회원 혜택</a><a href="/guides">기술지원</a></div>
     <section class="m-sec" id="guide"><div class="m-sec__hd"><h2>구매 가이드</h2></div>${stepsHTML()}</section>
