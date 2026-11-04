@@ -26,6 +26,8 @@ const S = { cat: "all", grp: "", q: "", sort: "rec", me: null };
 const LS = { get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let CART = LS.get("mnkQuoteCart", []);
 let RECENT = LS.get("mnkRecent", []);
+let FAV = LS.get("mnkFav", []);
+let CMP = [];                                        // 비교 (최대 3)
 
 function slugOf(p, i) { return (p.c + "-" + (p.n || "").replace(/[^\w가-힣]+/g, "-").replace(/^-|-$/g, "")).toLowerCase() || "p" + i; }
 function iconKey(p) { const hay = (p.n || "") + " " + (p.g || "") + " " + p.c; for (const [re, k] of RULES) if (re.test(hay)) return k; return p.c === "software" ? "software" : p.c === "gateways" ? "gateway" : p.c === "accessories" ? "control" : "sensor"; }
@@ -83,7 +85,9 @@ function card(p) {
   return `<article class="s-card" data-id="${esc(p.id)}" tabindex="0" aria-label="${esc(p.n)} 상세 보기">
     ${ico(p)}<div class="s-badges">${badges}</div>
     <div class="s-card__cat">${esc(catName(p))}</div><h3>${esc(p.n)}</h3><p>${esc(p.d)}</p>
-    <div class="s-card__ft"><span class="s-price">견적 문의<small>회원 등급별 견적가</small></span>
+    <div class="s-card__tools"><button type="button" class="s-fav${FAV.includes(p.id) ? " is-on" : ""}" data-fav="${esc(p.id)}" aria-label="관심 제품">${FAV.includes(p.id) ? "♥" : "♡"}</button>
+      <label class="s-cmp" data-cmpl><input type="checkbox" data-cmp="${esc(p.id)}" ${CMP.includes(p.id) ? "checked" : ""}> 비교</label></div>
+    <div class="s-card__ft"><span class="s-price">견적 문의<small>재고 · 납기 확인 후 회신</small></span>
       <button class="s-add${inCart ? " is-in" : ""}" data-add="${esc(p.id)}" type="button" aria-label="견적함에 담기">${inCart ? "✓" : "+"}</button></div></article>`;
 }
 function list() {
@@ -106,7 +110,9 @@ function render() {
   $("#popular").innerHTML = P.filter((p) => p.hot).map(card).join("");
   const rec = RECENT.map((id) => P.find((p) => p.id === id)).filter(Boolean);
   $("#recentRow").hidden = !rec.length; $("#recent").innerHTML = rec.map(card).join("");
-  renderTiers(); renderCount();
+  const fav = FAV.map((id) => P.find((p) => p.id === id)).filter(Boolean);
+  $("#favRow").hidden = !fav.length; $("#favs").innerHTML = fav.map(card).join("");
+  renderTiers(); renderCount(); renderCmp();
 }
 function renderTiers() {
   const my = S.me && S.me.member ? (S.me.member.grade || "welcome") : "";
@@ -179,7 +185,8 @@ function drawCart(done) {
   const hasSensor = items.some((c) => c.p.c === "sensors"), hasGw = items.some((c) => c.p.c === "gateways");
   const gw = P.find((x) => x.c === "gateways" && /이더넷/.test(x.n));
   const me = S.me && S.me.member, pf = (me && me.profile) || LS.get("mnkQuoteForm", {});
-  body.innerHTML = (items.length ? items.map((c) => `<div class="s-item">${ico(c.p)}<div><b>${esc(c.p.n)}</b><small>${esc(catName(c.p))}</small></div>
+  const tools = items.length ? `<div class="s-cart-tools"><span><b>${items.length}종 · ${items.reduce((a, c) => a + c.qty, 0)}개</b></span><button type="button" class="btn btn--ghost btn--sm" id="cPrint">견적 요청서 인쇄 · PDF</button><button type="button" class="btn btn--ghost btn--sm" id="cShare">결재용 링크 복사</button></div>` : "";
+  body.innerHTML = tools + (items.length ? items.map((c) => `<div class="s-item">${ico(c.p)}<div><b>${esc(c.p.n)}</b><small>${esc(catName(c.p))}</small></div>
       <span class="stepper"><button type="button" data-cq="${esc(c.id)}" data-d="-1">−</button><output>${c.qty}</output><button type="button" data-cq="${esc(c.id)}" data-d="1">＋</button></span><button class="x" data-rm="${esc(c.id)}" type="button" aria-label="빼기">×</button></div>`).join("")
     : `<p class="s-muted" style="padding:10px 0">아직 담은 제품이 없어요. 제품 없이 <b>구성 상담</b>만 요청하셔도 됩니다.</p>`)
     + (hasSensor && !hasGw && gw ? `<div class="s-upsell" style="margin-top:6px"><p>센서만 담겨 있어요. <b>게이트웨이</b>도 함께 견적받으시겠어요?</p><button class="btn btn--sm btn--dark" data-add="${esc(gw.id)}" type="button">담기</button></div>` : "")
@@ -190,6 +197,11 @@ function drawCart(done) {
       <div class="field"><input id="fEm" type="email" placeholder=" " value="${esc((me && me.email) || pf.email || "")}" autocomplete="email"><label for="fEm">이메일 (견적서 받을 곳)</label></div>
       <div class="row2"><div class="field"><select id="fDue"><option>1주 이내</option><option selected>2주 이내</option><option>1개월 이내</option><option>일정 미정 (검토 중)</option></select><label for="fDue" style="top:7px;font-size:12px">희망 납기</label></div>
         <div class="field"><input id="fRg" placeholder=" " value="${esc(pf.siteAddr || "")}"><label for="fRg">설치 지역</label></div></div>
+      <div class="row2"><div class="field"><select id="fType"><option>신규 도입</option><option>증설 · 추가 구매</option><option>교체 · 유지보수</option><option>예산 수립 · 검토용</option></select><label for="fType" style="top:7px;font-size:12px">구매 유형</label></div>
+        <div class="field"><select id="fBudget"><option value="">예산 (선택)</option><option>500만 원 미만</option><option>500만~2,000만 원</option><option>2,000만~5,000만 원</option><option>5,000만 원 이상</option></select><label for="fBudget" style="top:7px;font-size:12px">예산 범위</label></div></div>
+      <div class="field"><input id="fBiz" placeholder=" " value="${esc(pf.bizNo || "")}" inputmode="numeric"><label for="fBiz">사업자등록번호 (견적서 발행용 · 선택)</label></div>
+      <fieldset class="s-docs"><legend>함께 받을 서류</legend>
+        ${["공식 견적서", "사업자등록증 사본", "통장 사본", "제품 카탈로그 · 데이터시트", "납품확인서 양식"].map((d, i) => `<label><input type="checkbox" class="fDoc" value="${d}" ${i === 0 ? "checked" : ""}> ${d}</label>`).join("")}</fieldset>
       <div class="field"><textarea id="fMemo" placeholder=" "></textarea><label for="fMemo">현장 상황 · 요청 사항 (선택)</label></div>
       <label class="s-consent"><input type="checkbox" id="fOk"> <span>[필수] 견적 회신을 위한 개인정보(상호·담당자·연락처·이메일) 수집·이용에 동의합니다. <a href="/privacy.html" target="_blank">자세히</a></span></label>
       <button class="btn btn--dark btn--block" type="submit" id="fSend">${items.length ? `견적 및 납기 확인 요청 (${items.length}종)` : "구성 상담 요청"}</button>
@@ -198,22 +210,25 @@ function drawCart(done) {
   $$("[data-rm]", body).forEach((b) => b.onclick = () => { CART = CART.filter((c) => c.id !== b.dataset.rm); LS.set("mnkQuoteCart", CART); render(); drawCart(); });
   $("#fPh").addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, "").slice(0, 11); e.target.value = d.length < 4 ? d : d.length < 8 ? d.replace(/(\d{3})(\d+)/, "$1-$2") : d.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3"); });
   $("#qForm").onsubmit = submit;
+  const cp = $("#cPrint"); if (cp) cp.onclick = printQuote;
+  const cs = $("#cShare"); if (cs) cs.onclick = () => { const u = location.origin + "/store?cart=" + encodeURIComponent(CART.map((c) => c.id + "*" + c.qty).join(",")); (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast("결재용 링크를 복사했어요 — 같은 구성으로 열립니다"), () => prompt("아래 링크를 복사하세요", u)); };
 }
 async function submit(e) {
   e.preventDefault();
-  const v = { co: $("#fCo").value.trim(), nm: $("#fNm").value.trim(), ph: $("#fPh").value.trim(), em: $("#fEm").value.trim(), due: $("#fDue").value, rg: $("#fRg").value.trim(), memo: $("#fMemo").value.trim() };
+  const docs = $$(".fDoc").filter((x) => x.checked).map((x) => x.value);
+  const v = { type: $("#fType").value, budget: $("#fBudget").value, biz: $("#fBiz").value.trim(), docs, co: $("#fCo").value.trim(), nm: $("#fNm").value.trim(), ph: $("#fPh").value.trim(), em: $("#fEm").value.trim(), due: $("#fDue").value, rg: $("#fRg").value.trim(), memo: $("#fMemo").value.trim() };
   if (!v.co || !v.nm || !v.ph) return toast("상호·담당자·휴대전화를 입력해 주세요.");
   if (!/^0\d{8,10}$/.test(v.ph.replace(/\D/g, ""))) return toast("휴대전화 번호를 확인해 주세요.");
   if (v.em && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.em)) return toast("이메일 주소를 확인해 주세요.");
   if (!$("#fOk").checked) return toast("개인정보 수집·이용에 동의해 주세요.");
-  LS.set("mnkQuoteForm", { company: v.co, manager: v.nm, phone: v.ph, email: v.em, siteAddr: v.rg });
+  LS.set("mnkQuoteForm", { company: v.co, manager: v.nm, phone: v.ph, email: v.em, siteAddr: v.rg, bizNo: v.biz });
   const items = CART.map((c) => ({ ...c, p: P.find((x) => x.id === c.id) })).filter((c) => c.p);
   const no = "MQ-" + new Date(Date.now() + 9 * 3600e3).toISOString().slice(2, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
   const me = S.me && S.me.member, grade = me ? (TIERS.find((t) => t.id === (me.grade || "welcome")) || TIERS[0]).name : "비회원";
   const lines = items.map((c) => `${c.p.n}(${catName(c.p)}) × ${c.qty}`).join(" / ");
   const src = (() => { try { return new URLSearchParams(location.search).toString() || "direct"; } catch (e) { return "direct"; } })();
   const payload = { "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "제품 견적 및 납기 확인", "지역": v.rg || "(미기재)",
-    "문의 사항": `[${no}] ${lines || "제품 미선택 — 구성 상담"} · 희망 납기: ${v.due} · 회원: ${grade}${me ? " (" + me.email + ")" : ""}${v.memo ? " · 메모: " + v.memo : ""}`,
+    "문의 사항": `[${no}] ${lines || "제품 미선택 — 구성 상담"} · 구매 유형: ${v.type} · 희망 납기: ${v.due}${v.budget ? " · 예산: " + v.budget : ""}${v.biz ? " · 사업자번호: " + v.biz : ""} · 요청 서류: ${v.docs.join(", ") || "없음"} · 회원: ${grade}${me ? " (" + me.email + ")" : ""}${v.memo ? " · 메모: " + v.memo : ""}`,
     "접수번호": no, "접점": "/store 견적함", "유입 페이지": location.pathname, "출처": src };
   const btn = $("#fSend"); btn.disabled = true; btn.textContent = "보내는 중…";
   let ok = false;
@@ -227,17 +242,82 @@ async function submit(e) {
   CART = []; LS.set("mnkQuoteCart", CART); render(); drawCart(no);
 }
 
+/* ── 비교 ── */
+function renderCmp() {
+  const bar = $("#cmpBar"); bar.hidden = !CMP.length;
+  $("#cmpTxt").textContent = `비교할 제품 ${CMP.length}/3 — ` + CMP.map((id) => (P.find((p) => p.id === id) || {}).n).filter(Boolean).join(", ");
+  $("#cmpOpen").disabled = CMP.length < 2;
+}
+function openCmp() {
+  const ps = CMP.map((id) => P.find((p) => p.id === id)).filter(Boolean);
+  const rows = [["분류", (p) => esc(catName(p))], ["설명", (p) => esc(p.d)], ["주요 특징", (p) => (FACTS[p.c] || []).map(([a, b]) => `<b>${esc(a)}</b> ${esc(b)}`).join("<br>")],
+    ["주요 활용 분야", (p) => appsOf(p).slice(0, 5).map((a) => esc(a.name)).join(" · ") || "—"], ["사양 자료", (p) => p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener">${p.p ? "데이터시트(PDF)" : "제품 정보"} →</a>` : "견적 회신 시 제공"],
+    ["가격 · 납기", () => "견적 문의"], ["", (p) => `<button class="btn btn--sm" type="button" data-add="${esc(p.id)}">견적함에 담기</button>`]];
+  const el = $("#cmpSheet");
+  el.innerHTML = `<div class="s-cmp__hd"><h2>제품 비교</h2><button class="s-sheet__x" type="button" id="cmpX" aria-label="닫기">×</button></div>
+    <div class="s-cmp__wrap"><table class="s-cmp__tbl"><thead><tr><th></th>${ps.map((p) => `<th>${ico(p)}<div>${esc(p.n)}</div></th>`).join("")}</tr></thead>
+    <tbody>${rows.map(([k, f]) => `<tr><th>${k}</th>${ps.map((p) => `<td>${f(p)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  el.hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden";
+  $("#cmpX").onclick = closeCmp;
+}
+function closeCmp() { $("#cmpSheet").hidden = true; if ($("#detail").hidden && $("#cart").hidden) { $("#scrim").hidden = true; document.body.style.overflow = ""; } }
+
+/* ── 빠른 견적 (제품명, 수량 붙여넣기) ── */
+function quickAdd() {
+  const lines = $("#quickText").value.split(/\n/).map((x) => x.trim()).filter(Boolean);
+  const miss = []; let hit = 0;
+  for (const ln of lines) {
+    const m = ln.match(/^(.*?)[\s,\t×x*]+(\d{1,4})\s*(개|ea|EA|대)?$/);
+    const name = (m ? m[1] : ln).replace(/[,\t]+$/, "").trim(), qty = m ? Math.max(1, Math.min(999, Number(m[2]))) : 1;
+    const key = name.replace(/\s+/g, "").toLowerCase();
+    const p = key && (P.find((x) => x.n.replace(/\s+/g, "").toLowerCase() === key) || P.find((x) => x.n.replace(/\s+/g, "").toLowerCase().includes(key)) || P.find((x) => key.includes(x.n.replace(/\s+/g, "").toLowerCase())));
+    if (p) { add(p.id, qty, true); hit++; } else miss.push(ln);
+  }
+  if (miss.length) LS.set("mnkQuoteMiss", miss);
+  $("#quickMsg").innerHTML = `${hit}개 품목을 담았어요${miss.length ? ` · 못 찾은 ${miss.length}줄은 요청 메모로 보냅니다` : ""}`;
+  if (hit || miss.length) { openCart(); if (miss.length) setTimeout(() => { const m = $("#fMemo"); if (m) m.value = "[목록에 없는 품목] " + miss.join(" / "); }, 50); }
+}
+
+/* ── 견적 요청서 인쇄 ── */
+function printQuote() {
+  const items = CART.map((c) => ({ ...c, p: P.find((x) => x.id === c.id) })).filter((c) => c.p);
+  const v = (id) => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
+  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  $("#printArea").innerHTML = `<div class="pq"><div class="pq__hd"><img src="/logo.png" alt=""><div><h1>견적 요청서</h1><p>요청일 ${today}</p></div></div>
+    <table class="pq__info"><tr><th>요청 기관</th><td>${esc(v("fCo")) || "&nbsp;"}</td><th>담당자</th><td>${esc(v("fNm")) || "&nbsp;"}</td></tr>
+    <tr><th>연락처</th><td>${esc(v("fPh")) || "&nbsp;"}</td><th>이메일</th><td>${esc(v("fEm")) || "&nbsp;"}</td></tr>
+    <tr><th>구매 유형</th><td>${esc(v("fType"))}</td><th>희망 납기</th><td>${esc(v("fDue"))}</td></tr>
+    <tr><th>설치 지역</th><td colspan="3">${esc(v("fRg")) || "&nbsp;"}</td></tr></table>
+    <table class="pq__items"><thead><tr><th>No.</th><th>품목</th><th>분류</th><th>수량</th><th>단가</th><th>금액</th></tr></thead>
+    <tbody>${items.map((c, i) => `<tr><td>${i + 1}</td><td>${esc(c.p.n)}</td><td>${esc(catName(c.p))}</td><td>${c.qty}</td><td>견적</td><td>견적</td></tr>`).join("")}</tbody></table>
+    <p class="pq__memo">${esc(v("fMemo"))}</p>
+    <p class="pq__foot">공급 · 문의: 주식회사 모넷코리아 · 사업자등록번호 242-88-01218 · 서울특별시 서초구 효령로 380, 2층 · 02-2088-1454 · 1015@monnit.com<br>본 문서는 견적 요청 내역이며, 단가와 납기는 모넷코리아가 발행하는 공식 견적서로 확정됩니다.</p></div>`;
+  window.print();
+}
+
 /* ── 이벤트 ── */
 document.addEventListener("click", (e) => {
+  const fv = e.target.closest("[data-fav]"); if (fv) { e.stopPropagation(); const id = fv.dataset.fav; FAV = FAV.includes(id) ? FAV.filter((x) => x !== id) : [id, ...FAV].slice(0, 30); LS.set("mnkFav", FAV); render(); toast(FAV.includes(id) ? "관심 제품에 담았어요" : "관심 제품에서 뺐어요"); return; }
+  if (e.target.closest("[data-cmpl]")) { e.stopPropagation(); return; }
+  const oc = e.target.closest("[data-open-cart]"); if (oc) { openCart(); return; }
   const a = e.target.closest("[data-add]"); if (a) { e.stopPropagation(); add(a.dataset.add, 1); if (!$("#cart").hidden) drawCart(); return; }
   const c = e.target.closest(".s-card"); if (c) return openDetail(c.dataset.id);
   const cat = e.target.closest("[data-cat]"); if (cat) { S.cat = cat.dataset.cat; S.grp = cat.dataset.grp || ""; S.q = ""; $("#q").value = ""; render(); return; }
   const g = e.target.closest("#chips [data-grp]"); if (g) { S.grp = g.dataset.grp; render(); return; }
   const so = e.target.closest("[data-sort]"); if (so) { S.sort = so.dataset.sort; $$("[data-sort]").forEach((x) => x.classList.toggle("is-on", x === so)); render(); }
 });
-document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.classList && e.target.classList.contains("s-card")) openDetail(e.target.dataset.id); if (e.key === "Escape") { closeDetail(); closeCart(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.classList && e.target.classList.contains("s-card")) openDetail(e.target.dataset.id); if (e.key === "Escape") { closeDetail(); closeCart(); closeCmp(); } });
+document.addEventListener("change", (e) => {
+  const c = e.target.closest("[data-cmp]"); if (!c) return;
+  const id = c.dataset.cmp;
+  if (c.checked) { if (CMP.length >= 3) { c.checked = false; return toast("비교는 3개까지 할 수 있어요"); } CMP.push(id); } else CMP = CMP.filter((x) => x !== id);
+  render();
+});
+$("#cmpOpen").onclick = openCmp; $("#cmpClear").onclick = () => { CMP = []; render(); };
+$("#quickAdd").onclick = quickAdd;
+$$("[data-docs]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); openCart(); setTimeout(() => { const d = document.querySelector(".s-docs"); if (d) d.scrollIntoView({ behavior: "smooth", block: "center" }); }, 200); }));
 $("#q").addEventListener("input", (e) => { S.q = e.target.value.trim(); render(); if (S.q) $("#catalog").scrollIntoView({ behavior: "smooth", block: "start" }); });
-$("#scrim").onclick = () => { closeDetail(); closeCart(); };
+$("#scrim").onclick = () => { closeDetail(); closeCart(); closeCmp(); };
 $("#cartBtn").onclick = openCart; $("#mCart").onclick = openCart; $("#cartClose").onclick = closeCart;
 $("#helpQuote").onclick = $("#emptyQuote").onclick = (e) => { e.preventDefault(); openCart(); };
 $("#clearRecent").onclick = () => { RECENT = []; LS.set("mnkRecent", RECENT); render(); };
@@ -247,7 +327,9 @@ window.addEventListener("popstate", () => { const id = new URLSearchParams(locat
 prep(D.products || []);
 render();
 const first = new URLSearchParams(location.search).get("p"); if (first) openDetail(first, false);
-if (/[?&]cart=1/.test(location.search)) openCart();
+{ const cq = new URLSearchParams(location.search).get("cart");
+  if (cq && cq !== "1") { cq.split(",").forEach((t) => { const [id, n] = t.split("*"); if (P.find((p) => p.id === id)) { const it = CART.find((c) => c.id === id); if (it) it.qty = Math.max(it.qty, Number(n) || 1); else CART.push({ id, qty: Math.max(1, Math.min(999, Number(n) || 1)) }); } }); LS.set("mnkQuoteCart", CART); render(); history.replaceState({}, "", location.pathname); openCart(); toast("공유받은 구성을 견적함에 담았어요"); }
+  else if (cq === "1") openCart(); }
 fromSheets();
 fetch("/api/billing/me").then((r) => r.json()).then((j) => { if (j && j.ok) { S.me = j; renderTiers(); } }).catch(() => {});
 })();

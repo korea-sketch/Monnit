@@ -14,9 +14,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <link rel="stylesheet" href="/css/billing.css?v=4">
-<link rel="stylesheet" href="/css/store.css?v=3">
+<link rel="stylesheet" href="/css/store.css?v=4">
 </head>
 <body>
+<div class="s-util"><div class="s-util__in"><span><b>기업·기관 구매 전용</b> · 견적 회신 영업일 1일 · 세금계산서 발행 · 프로젝트 단가 협의</span><span class="s-util__r"><a href="#guide">구매 가이드</a><a href="#docs" data-docs>구매 서류 요청</a><a href="tel:0220881454">구매 상담 02-2088-1454</a></span></div></div>
 <header class="bar"><div class="bar__in">
   <a class="bar__logo" href="/"><img src="/logo.png" alt="Monnit"><span>제품몰</span></a>
   <label class="s-search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg><input id="q" type="search" placeholder="제품 검색 (예: 온도, 누수, 게이트웨이)" autocomplete="off"></label>
@@ -36,7 +37,7 @@
       <p class="s-hero__lead">센서 89여 종 · 게이트웨이 · 플랫폼의 사양과 활용 분야를 한곳에서 확인하세요. 가격은 구성과 수량에 맞춰 견적으로 안내드립니다.</p>
       <div class="s-hero__cta">
         <a class="btn" href="#catalog">제품 둘러보기</a>
-        <a class="btn s-btn-ghost" href="tel:0220881454">전화 상담 02-2088-1454</a>
+        <a class="btn s-btn-ghost" href="#quick">모델명으로 빠른 견적</a>
       </div>
     </div>
     <ul class="s-trust" aria-label="모넷 무선 센서 특징">
@@ -56,6 +57,28 @@
     <a class="s-promo" href="/promo/modbus"><img src="/images/promo-modbus.webp" alt="" loading="lazy"><span class="s-promo__tag">BMS 연동</span><b>Modbus 연동 무선 센서</b><small>기존 DDC·BEMS에 그대로 연결</small></a>
     <a class="s-promo" href="/promo/remote"><img src="/images/promo-remote.webp" alt="" loading="lazy"><span class="s-promo__tag">통합관제</span><b>원격 통합관제</b><small>여러 현장을 한 화면에서</small></a>
   </section>
+
+  <!-- 구매 프로세스 -->
+  <section class="s-flow" id="guide" aria-label="기업 구매 절차">
+    <div class="s-row__hd"><h2>기업 구매, 이렇게 진행돼요</h2><span>가격은 구성·수량·납기에 맞춰 공식 견적서로 안내드립니다</span></div>
+    <ol class="s-steps">
+      <li><i>1</i><b>제품 담기</b><span>필요한 센서·게이트웨이·플랫폼을 견적함에</span></li>
+      <li><i>2</i><b>견적 요청</b><span>수량·희망 납기·필요 서류를 한 번에</span></li>
+      <li><i>3</i><b>공식 견적서 회신</b><span>영업일 1일 안에 단가·납기 확인</span></li>
+      <li><i>4</i><b>발주 · 계약</b><span>세금계산서 발행 · 지급 조건 협의</span></li>
+      <li><i>5</i><b>납품 · 설치 · 교육</b><span>현장 설치부터 플랫폼 사용 교육까지</span></li>
+    </ol>
+  </section>
+
+  <!-- 빠른 견적 -->
+  <section class="s-quick" id="quick">
+    <div><h2>모델명으로 빠른 견적</h2><p>구매 목록을 그대로 붙여 넣으세요. 한 줄에 하나씩 <b>제품명, 수량</b>. 찾은 제품은 견적함에 담고, 못 찾은 항목은 요청 메모로 함께 보냅니다.</p></div>
+    <div class="s-quick__box"><textarea id="quickText" placeholder="예)&#10;온도, 20&#10;누수 로프, 8&#10;이더넷 게이트웨이, 2"></textarea>
+      <div class="s-quick__ft"><span id="quickMsg" class="s-muted"></span><button class="btn btn--sm btn--dark" id="quickAdd" type="button">견적함에 담기</button></div></div>
+  </section>
+
+  <!-- 관심 제품 -->
+  <section class="s-row" id="favRow" hidden><div class="s-row__hd"><h2>관심 제품</h2><span>♡ 표시한 제품 — 이 브라우저에 보관</span></div><div class="s-scroller" id="favs"></div></section>
 
   <!-- 많이 찾는 제품 · 최근 본 제품 -->
   <section class="s-row" id="popularRow"><div class="s-row__hd"><h2>많이 찾는 제품</h2><span>적용 분야 문의가 많은 순</span></div><div class="s-scroller" id="popular"></div></section>
@@ -81,11 +104,36 @@
     </div>
   </section>
 
+  <!-- 기업 구매 지원 -->
+  <section class="s-b2b" id="docs">
+    <div class="s-row__hd"><h2>기업 구매 지원</h2><span>구매·총무·시설 담당자가 품의와 발주를 바로 진행할 수 있도록</span></div>
+    <div class="s-b2b__grid">
+      <div><b>공식 견적서</b><p>품목·수량·단가·납기가 정리된 견적서를 이메일로 보내 드려요. 품의용 수정본도 요청하실 수 있어요.</p></div>
+      <div><b>결제 조건</b><p>세금계산서 발행 후 계좌이체가 기본이며, 지급 시기 등은 회사 구매 규정에 맞춰 협의합니다.</p></div>
+      <div><b>구매 서류</b><p>사업자등록증 사본 · 통장 사본 · 제품 카탈로그 · 데이터시트 · 납품확인서를 견적과 함께 요청하세요.</p></div>
+      <div><b>볼륨 · 프로젝트 단가</b><p>다수 현장, 연간 구매, 설치 파트너 물량은 프로젝트 단가로 따로 안내드려요.</p></div>
+      <div><b>구성 설계 · 현장 실사</b><p>센서 위치와 게이트웨이 수량까지 현장에 맞게 잡아 드립니다. 도면이나 사진만 보내 주셔도 돼요.</p></div>
+      <div><b>설치 · 교육 · 기술지원</b><p>설치 후 플랫폼 사용 교육과 기술지원 창구를 연결해 드리고, 기본 보증은 1년입니다.</p></div>
+    </div>
+    <div class="s-b2b__cta"><button class="btn btn--dark" type="button" data-open-cart>견적 요청서 작성</button><a class="btn btn--line" href="/stories">도입 사례 보기</a></div>
+  </section>
+
   <!-- 멤버십 -->
   <section class="s-member" id="membership">
     <div class="s-row__hd"><h2>모넷 멤버십</h2><span id="myGrade">회원이 되면 견적 회신이 빨라지고, 등급에 따라 혜택이 커집니다.</span></div>
     <div class="s-tiers" id="tiers"></div>
     <p class="s-muted s-small">회원 가입은 이메일 인증만으로 끝나요(비밀번호 없음). 등급은 거래 실적에 따라 담당자가 지정합니다.</p>
+  </section>
+
+  <!-- 구매 FAQ -->
+  <section class="s-faq" aria-label="구매 자주 묻는 질문">
+    <div class="s-row__hd"><h2>구매 자주 묻는 질문</h2></div>
+    <details><summary>왜 가격이 공개되어 있지 않나요?</summary><p>무선 센서는 게이트웨이·플랫폼 구성, 수량, 설치 여부에 따라 총액이 크게 달라집니다. 담은 구성 그대로 공식 견적서를 영업일 1일 안에 보내 드려요.</p></details>
+    <details><summary>세금계산서 발행과 결제는 어떻게 하나요?</summary><p>발주 후 세금계산서를 발행하고 계좌이체로 결제하는 방식이 기본이며, 지급 시기 등 회사 규정에 맞는 조건은 견적 단계에서 협의합니다.</p></details>
+    <details><summary>납기는 얼마나 걸리나요?</summary><p>제품과 수량에 따라 다릅니다. 견적 요청 시 희망 납기를 적어 주시면 재고와 일정을 확인해 견적서에 함께 적어 드려요.</p></details>
+    <details><summary>센서만 사면 바로 쓸 수 있나요?</summary><p>센서는 게이트웨이를 거쳐 플랫폼으로 데이터를 보냅니다. 게이트웨이 1대가 반경 내 센서 250개까지 연결하니, 처음 도입이라면 게이트웨이와 플랫폼을 함께 견적받으세요.</p></details>
+    <details><summary>설치도 해 주나요?</summary><p>네. 무선이라 배선 공사 없이 설치합니다. 설치 범위와 일정은 현장 조건을 확인해 견적에 포함해 드려요.</p></details>
+    <details><summary>사내 결재(품의)용 자료가 필요해요.</summary><p>견적함의 「견적 요청서 인쇄 · PDF」로 요청 내역을 바로 출력하거나, 「결재용 링크 복사」로 같은 구성을 동료에게 공유할 수 있어요. 공식 견적서와 구매 서류는 담당자가 보내 드립니다.</p></details>
   </section>
 
   <!-- 신뢰 -->
@@ -108,10 +156,13 @@
 </aside>
 
 <div class="s-mbar"><a href="tel:0220881454">전화 상담</a><button type="button" id="mCart">견적함 <b id="mCount">0</b></button></div>
+<div class="s-cmpbar" id="cmpBar" hidden><span id="cmpTxt"></span><button class="btn btn--sm" id="cmpOpen" type="button">비교하기</button><button class="btn btn--ghost btn--sm" id="cmpClear" type="button">비우기</button></div>
+<section class="s-sheet s-sheet--wide" id="cmpSheet" role="dialog" aria-modal="true" aria-label="제품 비교" hidden></section>
+<div class="s-print" id="printArea" aria-hidden="true"></div>
 <div class="toast" id="toast"></div>
 <footer class="foot">상호 주식회사 모넷코리아 · 대표자 염정훈 · 사업자등록번호 242-88-01218 · 주소 서울특별시 서초구 효령로 380, 2층 · 대표전화 02-2088-1454 · <a href="mailto:1015@monnit.com">1015@monnit.com</a> · <a href="/alarm/refund">결제·환불 정책</a> · <a href="/privacy.html">개인정보처리방침</a><br>Monnit®·ALTA®는 Monnit Corporation의 상표입니다. 표시된 내용은 제품군 기준이며 모델별 세부 사양은 데이터시트를 확인해 주세요.</footer>
 
 <script src="/js/store-data.js?v=1"></script>
-<script src="/js/store.js?v=2"></script>
+<script src="/js/store.js?v=3"></script>
 </body>
 </html>

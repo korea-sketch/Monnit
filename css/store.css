@@ -47,7 +47,7 @@
 .s-row__hd{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .s-row__hd h2{margin:0;font-size:24px;letter-spacing:-.025em}
 .s-row__hd span{color:var(--muted);font-size:14px}
-.s-scroller{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.s-scroller{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,calc((100% - 48px) / 5));gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
 .s-scroller .s-card{scroll-snap-align:start}
 
 /* 카탈로그 */
@@ -175,3 +175,79 @@
 .s-catalog>*,.s-main,.s-side,.s-row,.s-scroller{min-width:0}
 .bar__in{min-width:0}
 @media (max-width:820px){.bar__in{gap:8px}.bar__logo span{display:none}.bar__right{gap:8px;flex:none}.s-cartbtn{padding:0 10px}}
+
+/* ── 기업 구매 (2026-11-04 2차) ── */
+.s-util{background:var(--navy);color:#c7d2ec;font-size:12.5px}
+.s-util__in{max-width:1080px;margin:0 auto;padding:7px 22px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.s-util b{color:#fff}
+.s-util__r{margin-left:auto;display:flex;gap:16px}
+.s-util a{color:#c7d2ec;text-decoration:none}.s-util a:hover{color:#fff}
+@media (max-width:820px){.s-util__r a:not(:last-child){display:none}}
+.s-flow{margin-bottom:34px}
+.s-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:s}
+.s-steps li{position:relative;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 16px 18px}
+.s-steps li:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:8px;height:8px;border-top:2px solid var(--line);border-right:2px solid var(--line);transform:translateY(-50%) rotate(45deg);z-index:1}
+.s-steps i{font-style:normal;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:700;margin-bottom:10px}
+.s-steps b{display:block;font-size:16px;letter-spacing:-.01em}
+.s-steps span{display:block;font-size:13px;color:var(--muted);margin-top:4px;line-height:1.45}
+@media (max-width:900px){.s-steps{grid-template-columns:1fr 1fr}.s-steps li::after{display:none}}
+.s-quick{display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:center;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:22px;padding:26px 28px;margin-bottom:34px}
+.s-quick h2{margin:0 0 8px;font-size:24px;letter-spacing:-.025em}
+.s-quick p{margin:0;color:#c7d2ec;font-size:14px;line-height:1.6}
+.s-quick__box textarea{width:100%;height:112px;border:0;border-radius:14px;padding:12px 14px;font:inherit;font-size:14px;resize:vertical;background:#fff;color:#111}
+.s-quick__ft{display:flex;align-items:center;gap:10px;margin-top:10px}
+.s-quick__ft .s-muted{color:#c7d2ec;flex:1}
+.s-quick .btn--dark{background:#fff;color:var(--navy)}
+@media (max-width:820px){.s-quick{grid-template-columns:1fr;padding:20px}}
+.s-card__tools{position:absolute;right:12px;top:12px;display:flex;gap:6px;align-items:center}
+.s-fav{border:0;background:var(--fill);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;color:var(--muted)}
+.s-fav.is-on{color:#e5484d}
+.s-cmp{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);background:var(--fill);border-radius:980px;padding:5px 9px;cursor:pointer}
+.s-cmp input{margin:0}
+.s-card .s-badges{top:48px}
+.s-cmpbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:45;display:flex;gap:10px;align-items:center;background:var(--navy);color:#fff;border-radius:980px;padding:8px 10px 8px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-size:14px;max-width:calc(100% - 32px)}
+.s-cmpbar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-cmpbar .btn{background:#fff;color:var(--navy)}.s-cmpbar .btn--ghost{background:transparent;color:#c7d2ec}
+.s-sheet--wide{width:min(1000px,96vw)}
+.s-cmp__hd{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 6px}.s-cmp__hd h2{margin:0;font-size:24px}
+.s-cmp__hd .s-sheet__x{position:static}
+.s-cmp__wrap{overflow:auto;padding:0 24px 24px}
+.s-cmp__tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:600px}
+.s-cmp__tbl th,.s-cmp__tbl td{border-bottom:1px solid var(--line2);padding:12px 10px;text-align:left;vertical-align:top;line-height:1.55}
+.s-cmp__tbl thead th{font-size:15px}
+.s-cmp__tbl thead .s-ico{margin-bottom:8px}
+.s-cmp__tbl tbody th{color:var(--muted);font-weight:600;width:130px}
+.s-b2b{margin-bottom:40px}
+.s-b2b__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.s-b2b__grid div{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:18px}
+.s-b2b__grid b{font-size:16px}
+.s-b2b__grid p{margin:6px 0 0;font-size:14px;color:var(--muted);line-height:1.55}
+.s-b2b__cta{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+@media (max-width:900px){.s-b2b__grid{grid-template-columns:1fr}}
+.s-faq{margin-bottom:40px}
+.s-faq details{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:0 18px;margin-bottom:8px}
+.s-faq summary{cursor:pointer;padding:15px 0;font-weight:600;font-size:15px;list-style:none}
+.s-faq summary::after{content:"+";float:right;color:var(--muted)}
+.s-faq details[open] summary::after{content:"−"}
+.s-faq p{margin:0 0 16px;color:var(--text2);font-size:14px;line-height:1.65}
+.s-cart-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.s-cart-tools span{margin-right:auto;font-size:14px}
+.s-docs{border:1px solid var(--line2);border-radius:12px;padding:10px 14px;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:13px}
+.s-docs legend{font-size:12px;color:var(--muted);padding:0 4px}
+.s-docs label{display:flex;gap:6px;align-items:center}
+/* 견적 요청서 인쇄 */
+.s-print{display:none}
+@media print{
+  html,body{background:#fff!important}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block!important}
+  .pq{font-family:Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#111;padding:10mm}
+  .pq__hd{display:flex;align-items:center;gap:16px;border-bottom:2px solid #0b1530;padding-bottom:10px;margin-bottom:14px}
+  .pq__hd img{height:28px}.pq__hd h1{margin:0;font-size:24px}.pq__hd p{margin:2px 0 0;color:#555;font-size:12px}
+  .pq table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+  .pq th,.pq td{border:1px solid #bbb;padding:7px 8px;text-align:left}
+  .pq th{background:#f0f2f6;width:14%}
+  .pq__items th{width:auto}
+  .pq__memo{font-size:12px;white-space:pre-wrap}
+  .pq__foot{font-size:11px;color:#555;margin-top:20px;line-height:1.6}
+}
