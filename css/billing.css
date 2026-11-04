@@ -254,3 +254,8 @@ button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 .slot.is-on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue);color:var(--blue);font-weight:600}
 .rows--when{margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
 @media (max-width:520px){.days{grid-template-columns:repeat(5,1fr)}}
+/* 물감지 로프 연장 */
+.ext{margin-top:16px;background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:16px 18px}
+.ext__q b{display:block;font-size:16px}
+.ext__q small{display:block;color:var(--muted);font-size:13px;line-height:1.5;margin-top:4px}
+.ext .slots{margin-top:12px}

@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
-<link rel="stylesheet" href="/css/billing.css?v=3">
+<link rel="stylesheet" href="/css/billing.css?v=4">
 <style>
 body{font-size:15px}
 .wrap{max-width:1320px}
@@ -79,7 +79,7 @@ body{font-size:15px}
   <section id="app" hidden>
     <div class="top">
       <h1>결제 관리</h1><span class="mode" id="mode"></span><span class="sp"></span>
-      <div class="seg" id="tabs"><button data-t="subs" class="is-on">구독</button><button data-t="ins">설치 일정<b id="insBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="pays">결제 내역</button><button data-t="quote">견적 · 결제 링크</button><button data-t="cash">현금 결제 문의<b id="cashBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="inv">세금계산서 · 나라빌</button><button data-t="mem">회원 등급</button><button data-t="set">설정</button></div>
+      <div class="seg" id="tabs"><button data-t="subs" class="is-on">구독</button><button data-t="ins">설치 일정<b id="insBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="pays">결제 내역</button><button data-t="quote">견적 · 결제 링크</button><button data-t="cash">상담 요청 (현금·연장)<b id="cashBadge" style="margin-left:6px;color:var(--red)"></b></button><button data-t="inv">세금계산서 · 나라빌</button><button data-t="mem">회원 등급</button><button data-t="set">설정</button></div>
     </div>
 
     <!-- 구독 -->
@@ -130,7 +130,8 @@ body{font-size:15px}
           <div class="field"><input id="qt_unit" type="number" step="1000" placeholder=" " value="30000"><label for="qt_unit">1개소 월 단가 (원, VAT 별도)</label></div>
           <div class="field"><select id="qt_dtype"><option value="none">할인 없음</option><option value="amount">월 할인액(원)</option><option value="percent">할인율(%)</option></select><label for="qt_dtype" style="top:7px;font-size:12px">할인</label></div>
           <div class="field"><input id="qt_dval" type="number" placeholder=" " value="0"><label for="qt_dval">할인 값</label></div>
-          <div class="field"><input id="qt_install" type="number" step="10000" placeholder=" " value="0"><label for="qt_install">설치비 (1회 · VAT 별도, 0=무료)</label></div>
+          <div class="field"><input id="qt_install" type="number" step="10000" placeholder=" " value="0"><label for="qt_install">1회 비용 (VAT 별도, 0=없음 · 첫 결제에 포함)</label></div>
+          <div class="field"><input id="qt_installLabel" placeholder=" " value=""><label for="qt_installLabel">1회 비용 이름 (비우면 「설치비」 · 예: 물감지 로프 연장 20m)</label></div>
           <div class="field"><input id="qt_term" type="number" placeholder=" " value="36"><label for="qt_term">의무 사용기간 (개월)</label></div>
           <div class="field"><input id="qt_days" type="number" placeholder=" " value="14"><label for="qt_days">견적 유효기간 (일)</label></div>
           <div class="field full"><input id="qt_note" placeholder=" "><label for="qt_note">고객에게 보이는 안내 (예: 지하 집수정 2곳 · 기계실 분전반 1곳 기준)</label></div>
@@ -144,7 +145,7 @@ body{font-size:15px}
 
     <!-- 현금 결제 문의 -->
     <div data-v="cash" hidden>
-      <p class="note note--blue" style="margin-top:0"><span>결제 화면에서 「현금 결제」를 고른 고객의 상담 요청입니다. 담당자 메일(1015@·5959@)과 먼데이 리드 보드에도 함께 들어갑니다.
+      <p class="note note--blue" style="margin-top:0"><span>결제 화면에서 「현금 결제」를 고르거나 <b>물감지 로프 연장이 필요하다</b>고 한 고객의 상담 요청입니다. 연장 건은 길이·금액을 확인한 뒤 「견적 결제 링크 만들기」로 연장 금액(1회 비용)을 넣어 보내면 고객이 그 링크에서 바로 카드 등록합니다. 담당자 메일(1015@·5959@)과 먼데이 리드 보드에도 함께 들어갑니다.
         통화로 확정되면 <b>계약 링크(/contract-admin)</b>로 서면 계약을 받거나, 행을 눌러 <b>「세금계산서 구독으로 등록」</b> → 「구독」 탭에서 서비스 개시하세요.</span></p>
       <div class="tools"><div class="chips" id="cqChips"></div></div>
       <table class="tbl"><thead><tr><th>접수</th><th>고객</th><th>연락처</th><th class="hide-m">구성</th><th>결제 방식</th><th>연락 희망</th><th>상태</th></tr></thead><tbody id="cqRows"></tbody></table>
@@ -317,7 +318,7 @@ async function openSub(id) {
     <div class="card"><h4>구성 · 금액</h4><dl class="kv">
       <dt>구성</dt><dd>${esc(p.label)} · ${p.qty}개소${p.lines && p.lines.length > 1 ? "<br><small>" + p.lines.map((l) => esc(l.label) + (l.qty ? " " + l.qty + "곳" : "")).join(" · ") + "</small>" : ""}</dd>
       <dt>월 결제액</dt><dd>${wonK(p.total)} (공급가 ${wonK(p.supply)} + 부가세 ${wonK(p.vat)})${p.discount ? " · 할인 " + wonK(p.discount) : ""}</dd>
-      <dt>설치비</dt><dd>${p.installFee ? wonK(p.installFee) + " (VAT 별도) · " + (s.installPaid ? "결제됨" : "첫 결제에 포함") : "무료"}</dd>
+      <dt>${esc(p.installLabel || "설치비")}</dt><dd>${p.installFee ? wonK(p.installFee) + " (1회 · VAT 별도) · " + (s.installPaid ? "결제됨" : "첫 결제에 포함") : "무료"}</dd>
       <dt>결제 수단</dt><dd>${s.method === "card" ? `카드 자동결제 · ${esc(s.card ? s.card.company + " " + s.card.number : "카드 미등록")}${s.cardChanges ? ` (변경 ${s.cardChanges}회)` : ""}` : "세금계산서 · 계좌이체"}</dd>
       <dt>구독 시작</dt><dd>${esc(s.startedAt || "—")} (설치 완료일) · 결제일 매월 ${s.anchorDay || (s.payDay != null ? s.payDay || "설치일" : "—")}일</dd>
       <dt>의무 사용기간</dt><dd>${s.term ? `${esc(s.term.from)} ~ ${esc(s.term.to)} ${s.monthsLeft ? `(남은 ${s.monthsLeft}개월 · 기간 중 고객 해지 불가)` : "(만료 · 매월 자동 연장)"}` : p.termMonths ? `설치 완료일부터 ${p.termMonths}개월` : p.to ? `${esc(p.from)} ~ ${esc(p.to)} (계약서)` : "없음"}${s.renewNoticeAt ? `<br><small>만료 안내 메일 ${dt(s.renewNoticeAt)}</small>` : ""}</dd>
@@ -461,19 +462,22 @@ function qtLine(l = { product: "fire", qty: 1, label: "" }) {
 function qtBody() {
   const lines = $$(".qt-line").map((d) => ({ product: d.querySelector(".ql-p").value, label: d.querySelector(".ql-l").value || (d.querySelector(".ql-p").value === "custom" ? "커스텀 알리미" : ""), qty: Number(d.querySelector(".ql-q").value) || 1 }));
   const v = (k) => $("#qt_" + k).value.trim();
-  return { lines, unit: Number(v("unit")), discountType: v("dtype"), discountValue: Number(v("dval")) || 0, installFee: Number(v("install")) || 0, termMonths: v("term"), expiresDays: Number(v("days")) || 14, note: v("note"), inquiryId: v("inquiry"),
+  return { lines, unit: Number(v("unit")), discountType: v("dtype"), discountValue: Number(v("dval")) || 0, installFee: Number(v("install")) || 0, installLabel: v("installLabel"), termMonths: v("term"), expiresDays: Number(v("days")) || 14, note: v("note"), inquiryId: v("inquiry"),
     customer: { company: v("company"), manager: v("manager"), phone: v("phone"), email: v("email"), site: v("site"), siteAddr: v("siteAddr") } };
 }
 function qtCalc() {
   const b = qtBody(), qty = b.lines.reduce((a, l) => a + l.qty, 0), list = b.unit * qty;
   const disc = b.discountType === "percent" ? Math.round(list * Math.min(100, b.discountValue) / 100) : b.discountType === "amount" ? Math.min(list, b.discountValue) : 0;
   const sup = list - disc, tot = sup + Math.floor(sup * 0.1);
-  $("#qtTotal").textContent = `${qty}개소 · 월 ${wonK(sup)} + 부가세 = 매월 ${wonK(tot)}${b.installFee ? ` · 설치비 ${wonK(b.installFee)}` : ""}`;
+  $("#qtTotal").textContent = `${qty}개소 · 월 ${wonK(sup)} + 부가세 = 매월 ${wonK(tot)}${b.installFee ? ` · ${b.installLabel || "설치비"} ${wonK(b.installFee)} (1회)` : ""}`;
 }
 ["unit", "dtype", "dval", "install"].forEach((k) => document.getElementById("qt_" + k).addEventListener("input", qtCalc));
 $("#qtAdd").onclick = () => { qtLine(); qtCalc(); };
 qtLine(); qtCalc();
-function qtPrefill(c, inquiryId, plan) {
+function qtPrefill(c, inquiryId, plan, inq) {
+  $("#qt_installLabel").value = inq && inq.topic === "water_ext" ? `물감지 로프 연장${inq.ext && inq.ext.length ? " " + inq.ext.length : ""}` : "";
+  $("#qt_install").value = 0;
+  if (inq && inq.topic === "water_ext") $("#qt_note").value = `물감지 로프 연장 포함${inq.ext && inq.ext.spots ? " — " + inq.ext.spots : ""}`;
   ["company", "manager", "phone", "email", "site", "siteAddr"].forEach((k) => ($("#qt_" + k).value = (c && c[k]) || ""));
   $("#qt_inquiry").value = inquiryId || "";
   $("#qtLines").innerHTML = "";
@@ -521,7 +525,7 @@ async function loadCash(badgeOnly) {
   $$("#cqChips button").forEach((b) => b.addEventListener("click", () => { CQF = b.dataset.f; loadCash(); }));
   const rows = CQ.filter((q) => CQF === "all" || q.status === CQF);
   $("#cqRows").innerHTML = rows.length ? rows.map((q) => `<tr data-q="${esc(q.id)}"><td><b>${esc(q.id)}</b><small>${dt(q.createdAt)}</small></td><td>${esc(q.customer.company)}<small>${esc(q.customer.manager)}</small></td><td><a href="tel:${esc(q.customer.phone)}" onclick="event.stopPropagation()">${esc(q.customer.phone)}</a><small>${esc(q.customer.email || "")}</small></td>
-    <td class="hide-m">${q.plan ? esc(q.plan.label) + `<small>${q.plan.qty}개소 · 월 ${num(q.plan.supply)}원${q.contractRef ? " · 계약 " + esc(q.contractRef) : ""}</small>` : "—"}</td><td>${q.payType === "invoice" ? "세금계산서" : "계좌이체"}</td><td>${esc(q.when || "언제든")}</td><td><span class="st ${q.status === "new" ? "pending" : q.status === "converted" ? "active" : ""}">${CQST[q.status]}</span></td></tr>`).join("")
+    <td class="hide-m">${q.plan ? esc(q.plan.label) + `<small>${q.plan.qty}개소 · 월 ${num(q.plan.supply)}원${q.contractRef ? " · 계약 " + esc(q.contractRef) : ""}</small>` : "—"}</td><td>${q.topic === "water_ext" ? `<span class="st registered">물감지 연장</span><small>${esc(q.ext && q.ext.length || "길이 미정")}</small>` : q.payType === "invoice" ? "세금계산서" : "계좌이체"}</td><td>${q.topic === "water_ext" && q.install ? "설치 희망 " + esc(q.install.wish) : esc(q.when || "언제든")}</td><td><span class="st ${q.status === "new" ? "pending" : q.status === "converted" ? "active" : ""}">${CQST[q.status]}</span></td></tr>`).join("")
     : `<tr><td colspan="7" class="empty">해당 문의가 없습니다.</td></tr>`;
   $$("#cqRows tr[data-q]").forEach((tr) => tr.addEventListener("click", () => openCash(tr.dataset.q)));
 }
@@ -530,27 +534,28 @@ function openCash(id) {
   const f = (k, l, v) => `<div class="field"><input id="cv_${k}" placeholder=" " value="${esc(v || "")}"><label for="cv_${k}">${l}</label></div>`;
   $("#dIn").innerHTML = `
     <div style="display:flex;align-items:center;gap:10px"><h2>${esc(c.company)}</h2><span class="st">${CQST[q.status]}</span><span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="dClose">닫기</button></div>
-    <p style="color:var(--muted);margin:4px 0 0">${esc(q.id)} · ${dt(q.createdAt)} · 현금 결제 상담</p>
+    <p style="color:var(--muted);margin:4px 0 0">${esc(q.id)} · ${dt(q.createdAt)} · ${q.topic === "water_ext" ? "물감지 로프 연장 상담 → 금액 확정 후 견적 결제 링크" : "현금 결제 상담"}</p>
     <div class="card"><h4>요청 내용</h4><dl class="kv">
       <dt>담당자</dt><dd>${esc(c.manager)} · <a href="tel:${esc(c.phone)}">${esc(c.phone)}</a></dd><dt>이메일</dt><dd>${esc(c.email || "—")}</dd>
       <dt>설치 현장</dt><dd>${esc(c.site || "—")} ${esc(c.siteAddr || "")}</dd>
       <dt>구성</dt><dd>${q.plan ? `${esc(q.plan.label)} · ${q.plan.qty}개소 · 월 ${wonK(q.plan.supply)} (VAT 별도)${q.plan.installFee ? " · 설치비 " + wonK(q.plan.installFee) : ""}` : "—"}${q.contractRef ? `<br><small>계약번호 ${esc(q.contractRef)}</small>` : ""}</dd>
-      <dt>결제 방식</dt><dd>${q.payType === "invoice" ? "세금계산서 발행 후 계좌이체" : "계좌이체"}</dd><dt>연락 희망</dt><dd>${esc(q.when || "언제든")}</dd><dt>메모</dt><dd>${esc(q.memo || "—")}</dd>
+      ${q.topic === "water_ext" ? `<dt>연장 길이</dt><dd>${esc(q.ext && q.ext.length || "현장 확인")}</dd><dt>감지 위치</dt><dd>${esc(q.ext && q.ext.spots || "—")}</dd><dt>설치 희망일</dt><dd>${q.install ? esc(q.install.wish + (q.install.alt ? " · " + q.install.alt : "")) : "—"}</dd>`
+        : `<dt>결제 방식</dt><dd>${q.payType === "invoice" ? "세금계산서 발행 후 계좌이체" : "계좌이체"}</dd>`}<dt>연락 희망</dt><dd>${esc(q.when || "언제든")}</dd><dt>메모</dt><dd>${esc(q.memo || "—")}</dd>
       ${q.subId ? `<dt>등록된 구독</dt><dd><a href="#" id="goSub">${esc(q.subId)}</a></dd>` : ""}
     </dl></div>
     <div class="card"><h4>상담 기록</h4>
       <div class="row"><textarea id="cqMemo" placeholder="통화 내용 (내부용)">${esc(q.staffMemo || "")}</textarea></div>
-      <div class="row"><button class="btn btn--sm" id="cqQuote">견적 결제 링크 만들기</button><span style="font-size:13px;color:var(--muted)">통화로 구성·금액을 확정했으면 링크를 보내 고객이 바로 결제(카드)하게 하세요.</span></div>
+      <div class="row"><button class="btn btn--sm" id="cqQuote">견적 결제 링크 만들기</button><span style="font-size:13px;color:var(--muted)">${q.topic === "water_ext" ? "연장 길이·금액을 확인했으면 「1회 비용」에 연장 금액을 넣어 링크를 보내세요. 고객은 링크에서 바로 카드 등록 → 설치 완료 뒤 첫 결제에 함께 청구됩니다." : "통화로 구성·금액을 확정했으면 링크를 보내 고객이 바로 결제(카드)하게 하세요."}</span></div>
       <div class="row"><button class="btn btn--line btn--sm" data-st="contacted">연락함으로 표시</button><button class="btn btn--line btn--sm" data-st="closed">종결 (진행 안 함)</button><button class="btn btn--line btn--sm" data-st="new">새 문의로 되돌리기</button><span style="flex:1"></span><button class="btn btn--ghost btn--sm" id="cqDel" style="color:var(--red)">삭제</button></div>
     </div>
-    ${q.status !== "converted" ? `<div class="card"><h4>세금계산서 구독으로 등록</h4>
+    ${q.status !== "converted" && q.topic !== "water_ext" ? `<div class="card"><h4>세금계산서 구독으로 등록</h4>
       <p style="font-size:13px;color:var(--muted);margin:0 0 10px">의무 사용기간(3년)·이용약관 동의는 서면 계약서로 받아 두세요 — 계약 링크로 진행했다면 그 계약 조건이 그대로 들어갑니다. 등록 후 「구독」 탭에서 설치 완료일에 「서비스 개시」를 누르면 매월 세금계산서 청구가 생깁니다.</p>
       <div class="sets">${f("company", "상호", c.company)}${f("bizNo", "사업자등록번호 (필수)", c.bizNo)}${f("ceo", "대표자", c.ceo)}${f("email", "세금계산서 받을 이메일 (필수)", c.email)}${f("address", "사업장 주소", c.address)}${f("siteAddr", "설치 주소", c.siteAddr)}${f("bizType", "업태", c.bizType)}${f("bizItem", "종목", c.bizItem)}</div>
       <div class="row"><button class="btn btn--sm" id="cqConvert">구독으로 등록</button></div></div>` : ""}`;
   $("#drawer").classList.add("is-on"); $("#scrim").classList.add("is-on");
   $("#dClose").onclick = closeD;
   $$("[data-st]").forEach((b) => b.onclick = async () => { const r = await api("inquiry", { id: q.id, action: "status", status: b.dataset.st, staffMemo: $("#cqMemo").value }); toast(r.ok ? "저장됨" : r.error); await loadCash(); openCash(q.id); });
-  $("#cqQuote").onclick = () => { closeD(); $$("#tabs button").find((x) => x.dataset.t === "quote").click(); qtPrefill(q.customer, q.id, q.plan); scrollTo({ top: 0, behavior: "smooth" }); toast("문의 내용을 견적에 채웠습니다 — 금액 확인 후 「견적 링크 만들기」"); };
+  $("#cqQuote").onclick = () => { closeD(); $$("#tabs button").find((x) => x.dataset.t === "quote").click(); qtPrefill(q.customer, q.id, q.plan, q); if (q.topic === "water_ext") setTimeout(() => $("#qt_install").focus(), 300); scrollTo({ top: 0, behavior: "smooth" }); toast(q.topic === "water_ext" ? "문의 내용을 채웠습니다 — 연장 금액을 「1회 비용」에 넣고 「견적 링크 만들기」" : "문의 내용을 견적에 채웠습니다 — 금액 확인 후 「견적 링크 만들기」"); };
   $("#cqDel").onclick = async () => { if (!confirm("이 문의를 삭제할까요?")) return; await api("inquiry", { id: q.id, action: "delete" }); closeD(); loadCash(); };
   const gs = $("#goSub"); if (gs) gs.onclick = (e) => { e.preventDefault(); openSub(q.subId); };
   const cv = $("#cqConvert");
