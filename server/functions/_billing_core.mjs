@@ -455,6 +455,8 @@ export const DEFAULT_SETTINGS = {
   supplier: { bizNo: "2428801218", subNo: "", name: "주식회사 모넷코리아", ceo: "염정훈", address: "서울특별시 서초구 효령로 380, 2층", bizType: "", bizItem: "", email: "korea@monnit.com" },
   invoiceItem: "긴급 경보 알리미 구독 이용료", bank: "", chargeAt: "activation",
   termMonths: 36,            // 의무 사용기간(개월) — 설치 완료일부터. 신청 시점 값이 구독에 고정된다
+  salesOpen: "auto",         // 온라인 카드 신청 받기: auto = 라이브 키일 때만 · open = 항상 · closed = 막음 (도입 준비 중)
+  previewCode: "",           // 담당자 미리보기 코드 — /pay?preview=코드 로 열면 막혀 있어도 신청 가능(내부 테스트용)
   payDay: 20,                // 매월 결제일(1~28). 0 = 설치 완료일과 같은 날짜. 세금계산서 발행일과 같음
   install: {                 // 고객이 고르는 설치 희망일 규칙 (확정은 담당자)
     lastDay: 20,             //   매월 1~N일에만 설치 (0 = 제한 없음)

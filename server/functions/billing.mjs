@@ -67,7 +67,7 @@ export default async (req) => {
       return admin(req, url, r.slice(6), m);
     }
     if (m === "POST" && !sameOrigin(req)) return json({ ok: false, error: "bad_origin" }, 403);
-    if (m === "GET" && r === "config") return getConfig();
+    if (m === "GET" && r === "config") return getConfig(url);
     if (m === "GET" && r === "quote") return url.searchParams.get("q") ? quoteLink(url.searchParams.get("q")) : quote(url.searchParams.get("offer"));
     if (m === "POST" && r === "otp/send") return otpSend(req, await body(req));
     if (m === "POST" && r === "otp/verify") return otpVerify(req, await body(req));
@@ -89,9 +89,19 @@ export default async (req) => {
 };
 
 /* ───────── 설정 · 견적 ───────── */
-async function getConfig() {
+/** 온라인 카드 신청을 지금 받는가 — 테스트 키로는 실제 결제가 안 되므로 기본(auto)은 라이브 키일 때만 연다.
+ *  담당자는 /pay?preview=<미리보기 코드> 로 막혀 있어도 끝까지 시험해 볼 수 있다. */
+function salesOpen(s, preview) {
+  if (s.previewCode && preview && String(preview) === s.previewCode) return true;
+  if (s.salesOpen === "open") return true;
+  if (s.salesOpen === "closed") return false;
+  return tossReady() && !tossTestMode();
+}
+async function getConfig(url) {
   const s = await getSettings();
+  const pv = url && url.searchParams.get("preview");
   return json({ ok: true, ready: tossReady(), test: tossTestMode(), clientKey: tossClientKey(),
+    open: salesOpen(s, pv), preview: !!(pv && s.previewCode && pv === s.previewCode),
     unit: UNIT, maxSites: MAX_SELF_SITES, chargeAt: "activation", bank: s.bank || "", termMonths: s.termMonths, payDay: s.payDay,
     install: installRules(s), slots: SLOT_LABEL,
     products: Object.fromEntries(Object.entries(PRODUCTS).map(([k, v]) => [k, { label: v.label, note: v.note }])) });
@@ -277,6 +287,7 @@ async function checkout(req, b) {
   if (!ag.terms || !ag.privacy || !ag.term || (method === "card" && !ag.autopay)) return json({ ok: false, error: "missing_agree" }, 400);
   if (method === "card" && !tossReady()) return json({ ok: false, error: "pg_not_ready" }, 503);
   const settings0 = await getSettings();
+  if (!salesOpen(settings0, b.preview)) return json({ ok: false, error: "not_open" }, 403);   /* 도입 준비 중 — 상담으로만 */
   const ins = cleanInstall(b.install, installRules(settings0));     /* 설치 희망일 — 다음 주부터 · 확정은 담당자 */
   if (ins.error) return json({ ok: false, error: ins.error, rules: installRules(settings0) }, 400);
 
@@ -491,7 +502,7 @@ async function cashInquiry(req, b) {
   const ext = topic === "water_ext" ? { length: str(b.extLength, 40), spots: str(b.extSpots, 200) } : null;
   const wish = b.install && isDate(b.install.wish) ? { wish: b.install.wish, alt: isDate(b.install.alt) ? b.install.alt : "", slot: str(b.install.slot, 10) } : null;
   const inq = { id, createdAt: nowIso(), status: "new", topic, ext, install: wish, customer: c, plan, offerId, contractRef, quoteId,
-    payType: topic === "cash" ? (b.payType === "transfer" ? "transfer" : "invoice") : "card", when: str(b.when, 40), memo: str(b.memo, 1000), client: { ip: ip(req), ua: str(req.headers.get("user-agent"), 300) } };
+    payType: topic === "cash" ? (["transfer", "card"].includes(b.payType) ? b.payType : "invoice") : "card", when: str(b.when, 40), memo: str(b.memo, 1000), client: { ip: ip(req), ua: str(req.headers.get("user-agent"), 300) } };
   await db.set("inquiries/" + id, inq);
   const planText = plan ? `${plan.label} · ${plan.qty}개소 · 월 ${won(plan.supply)} (부가세 별도)${plan.installFee ? " · 설치비 " + won(plan.installFee) : ""}` : "구성 미정";
   /* 리드 원장으로 — 응답을 늦추지 않게 뒤에서 */
@@ -499,7 +510,7 @@ async function cashInquiry(req, b) {
   const payload = {
     "회사명": c.company, "담당자명": c.manager, "전화번호": c.phone, "이메일": c.email || "(미기재)",
     "문의항목": isExt ? "알리미 구독 — 물감지 로프 연장 상담" : "알리미 구독 — 현금 결제 상담", "지역": c.siteAddr,
-    "문의 사항": [isExt ? `[${id}] 물감지 로프 연장 상담 — 필요 길이: ${ext.length || "현장 확인"}${ext.spots ? " · 위치: " + ext.spots : ""} → 금액 확정 후 견적 결제 링크 발송` : `[${id}] 현금 결제 상담 (${inq.payType === "invoice" ? "세금계산서 발행 · 계좌이체" : "계좌이체"})`, planText,
+    "문의 사항": [isExt ? `[${id}] 물감지 로프 연장 상담 — 필요 길이: ${ext.length || "현장 확인"}${ext.spots ? " · 위치: " + ext.spots : ""} → 금액 확정 후 견적 결제 링크 발송` : `[${id}] ${inq.payType === "card" ? "구독 상담 (카드 결제 희망 — 온라인 결제 오픈 전)" : `현금 결제 상담 (${inq.payType === "invoice" ? "세금계산서 발행 · 계좌이체" : "계좌이체"})`}`, planText,
       wish ? `설치 희망 ${wish.wish}${wish.alt ? " / " + wish.alt : ""}` : "",
       contractRef ? `계약번호 ${contractRef}` : "", c.site ? `설치 현장: ${c.site} (${c.siteAddr})` : "", inq.when ? `연락 희망: ${inq.when}` : "", inq.memo].filter(Boolean).join(" / "),
     "접점": isExt ? "/pay 물감지 연장 상담" : "/pay 현금 결제 상담", "유입 페이지": "/pay", "출처": "direct",
@@ -586,13 +597,19 @@ async function admin(req, url, r, m) {
     return json({ ok: true, pays, settings: await getSettings() });
   }
   if (r === "settings") {
-    if (m === "GET") return json({ ok: true, settings: await getSettings(), defaults: DEFAULT_SETTINGS });
+    if (m === "GET") {
+      let st = await getSettings();
+      if (!st.previewCode) { const raw = (await db.get("settings")) || {}; raw.previewCode = token(9); await db.set("settings", raw); st = await getSettings(); }
+      return json({ ok: true, settings: st, defaults: DEFAULT_SETTINGS, open: salesOpen(st), test: tossTestMode(), ready: tossReady() });
+    }
     const b = await body(req), cur = await getSettings();
     const sp = b.supplier || {};
     const next = {
       supplier: Object.fromEntries(Object.keys(DEFAULT_SETTINGS.supplier).map((k) => [k, str(sp[k] != null ? sp[k] : cur.supplier[k], 200)])),
       invoiceItem: str(b.invoiceItem != null ? b.invoiceItem : cur.invoiceItem, 100) || DEFAULT_SETTINGS.invoiceItem,
       bank: str(b.bank != null ? b.bank : cur.bank, 200),
+      salesOpen: ["auto", "open", "closed"].includes(b.salesOpen) ? b.salesOpen : cur.salesOpen,
+      previewCode: b.newPreviewCode ? token(9) : cur.previewCode,
       chargeAt: "activation",            // 설치 완료 뒤에만 결제 (고정)
       termMonths: b.termMonths != null ? Math.max(0, Math.min(60, Math.round(Number(b.termMonths) || 0))) : cur.termMonths,
       payDay: b.payDay != null && b.payDay !== "" ? Math.max(0, Math.min(28, Math.round(Number(b.payDay) || 0))) : cur.payDay,

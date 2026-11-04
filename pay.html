@@ -30,6 +30,8 @@
     <section class="hero">
       <h1 id="heroTitle">긴급 경보 알리미,<br>지금 바로 시작하세요.</h1>
       <p id="heroLead">설치비 무료 · 구독은 설치 완료일부터 · 결제는 설치 확정 뒤부터 · 의무 사용기간 3년</p>
+      <p class="note note--blue soon" id="soonBanner" hidden><span><b>온라인 결제 서비스 도입 준비 중입니다.</b> 지금은 카드 결제 대신 <b>상담 신청</b>으로 접수해 주세요. 담당자가 영업일 1일 안에 연락드려 구성·계약·설치 일정을 안내드립니다. 급하시면 02-2088-1454</span></p>
+      <p class="note note--amber soon" id="previewBanner" hidden><span><b>담당자 미리보기</b> — 고객에게는 막혀 있는 화면입니다. 테스트 키라 실제 결제는 되지 않습니다.</span></p>
     </section>
 
     <div class="grid">
@@ -130,7 +132,7 @@
               <b>카드 자동결제</b><span id="cardDesc">설치 완료 뒤 매월 정해진 날 자동 결제 · 카드 매출전표 발행</span></label>
             <label class="choice" data-method="cash"><input type="radio" name="method" value="cash">
               <svg class="ic" viewBox="0 0 34 24"><rect x="5" width="24" height="24" rx="3" fill="#e8e8ed" stroke="#86868b"/><rect x="9" y="6" width="16" height="2" fill="#86868b"/><rect x="9" y="11" width="16" height="2" fill="#86868b"/><rect x="9" y="16" width="10" height="2" fill="#0071e3"/></svg>
-              <b>현금 결제</b><span>계좌이체 · 세금계산서 — 담당자가 직접 연락드려 계약과 입금 방법을 안내해요</span></label>
+              <b id="cashTitle">현금 결제</b><span id="cashDesc">계좌이체 · 세금계산서 — 담당자가 직접 연락드려 계약과 입금 방법을 안내해요</span></label>
           </div>
           <div id="cashBox" hidden>
             <div class="contact">
@@ -140,7 +142,7 @@
             </div>
             <p class="note" style="margin-top:14px"><span>또는 아래에 상담 요청을 남겨 주시면 <b>영업일 기준 1일 안에</b> 담당자가 먼저 연락드립니다. 위 3단계에 적어 주신 정보가 함께 전달돼요.</span></p>
             <div class="fields" style="margin-top:12px">
-              <div class="field"><select id="cashType"><option value="invoice">세금계산서 발행 후 계좌이체</option><option value="transfer">계좌이체 (세금계산서 불필요)</option></select><label for="cashType" style="top:7px;font-size:12px;color:var(--muted)">결제 방식</label></div>
+              <div class="field"><select id="cashType"><option value="invoice">세금계산서 발행 후 계좌이체</option><option value="transfer">계좌이체 (세금계산서 불필요)</option><option value="card" id="cashCardOpt" hidden>카드 결제 희망 (서비스 오픈 후 안내)</option></select><label for="cashType" style="top:7px;font-size:12px;color:var(--muted)">결제 방식</label></div>
               <div class="field"><select id="cashWhen"><option value="">언제든 괜찮아요</option><option>오전 (9~12시)</option><option>오후 (13~18시)</option><option>문자·카카오톡으로 먼저</option></select><label for="cashWhen" style="top:7px;font-size:12px;color:var(--muted)">연락 희망 시간</label></div>
               <div class="field full"><textarea id="cashMemo" placeholder=" "></textarea><label for="cashMemo">궁금한 점 (선택)</label></div>
             </div>
@@ -210,7 +212,7 @@ const ERR = {
   missing_email: "이메일을 입력해 주세요.", bad_email: "이메일 주소를 확인해 주세요.", missing_site: "설치 현장 이름을 입력해 주세요.", missing_siteAddr: "설치 현장 주소를 입력해 주세요.",
   missing_bizNo: "세금계산서 발행을 위해 사업자등록번호 10자리를 입력해 주세요.", missing_ceo: "대표자 성명을 입력해 주세요.", missing_address: "사업장 주소를 입력해 주세요.",
   missing_agree: "필수 항목(의무 사용기간 · 설치 일정 안내 포함)에 동의해 주세요.", bad_install_date: "설치 희망일을 다시 골라 주세요. (다음 주부터 · 평일)", bad_install_alt: "2순위 희망일을 다시 골라 주세요.", products_required: "알리미를 하나 이상 골라 주세요.", too_many_sites: "한 번에 9곳까지 신청할 수 있어요. 10곳 이상은 별도 견적으로 안내드려요.",
-  pg_not_ready: "카드 결제가 아직 준비되지 않았습니다. 세금계산서 방식을 선택해 주세요.", login_required: "회원 로그인이 필요합니다.", already_subscribed: "이미 결제가 등록된 계약입니다.",
+  pg_not_ready: "카드 결제가 아직 준비되지 않았습니다. 상담 신청으로 남겨 주세요.", not_open: "온라인 결제 서비스 도입 준비 중입니다. 상담 신청으로 남겨 주시면 담당자가 연락드립니다.", login_required: "회원 로그인이 필요합니다.", already_subscribed: "이미 결제가 등록된 계약입니다.",
   offer_not_found: "계약 링크를 찾을 수 없습니다.", offer_void: "무효 처리된 계약 링크입니다. 담당자에게 문의해 주세요.", contract_not_issued: "먼저 계약 화면에서 계약서를 발급해 주세요.",
   quote_not_found: "견적을 찾을 수 없어요. 받으신 링크를 다시 확인해 주세요.", quote_void: "취소된 견적입니다. 담당자에게 새 견적을 요청해 주세요.", quote_expired: "견적 유효기간이 지났어요. 담당자에게 다시 요청해 주세요.",
   wrong_code: "인증코드가 맞지 않아요.", expired: "인증코드가 만료되었어요. 다시 받아 주세요.", too_soon: "잠시 후 다시 보내 주세요.", too_many: "요청이 많아요. 잠시 후 다시 시도해 주세요.", too_many_tries: "입력 횟수를 넘었어요. 코드를 다시 받아 주세요.",
@@ -234,10 +236,15 @@ const regionOf = (a) => { a = String(a || "").replace(/^\s*\(?\d{5}\)?\s*/, "").
 /* ── 시작 ── */
 init();
 async function init() {
-  const [cfg, me] = await Promise.all([api("config"), api("me")]);
+  S.preview = qs.get("preview") || "";
+  const [cfg, me] = await Promise.all([api("config" + (S.preview ? "?preview=" + encodeURIComponent(S.preview) : "")), api("me")]);
   S.cfg = cfg.ok ? cfg : { ready: false, unit: { metro: 30000, other: 40000 }, maxSites: 9, chargeAt: "activation" };
   S.me = me.ok ? me : { member: null };
   $("#testPill").hidden = !S.cfg.test;
+  if (S.cfg.open === undefined) S.cfg.open = true;
+  $("#soonBanner").hidden = !!S.cfg.open;
+  $("#previewBanner").hidden = !S.cfg.preview;
+  if (!S.cfg.open) S.method = "cash";
   if (qs.get("sub") && qs.get("r")) return finishReturn();
   if (qs.get("q")) {
     const q = await api("quote?q=" + encodeURIComponent(qs.get("q")));
@@ -426,8 +433,14 @@ $("#extBox").addEventListener("click", (e) => {
 /* ── 4. 결제 수단 ── */
 function renderMethod() {
   renderExt();
-  const ready = S.cfg.ready;
+  const ready = S.cfg.ready && S.cfg.open;
   $("#pgNotReady").hidden = ready;
+  if (!S.cfg.open) {
+    $("#pgNotReady").innerHTML = "<span><b>온라인 카드 결제는 도입 준비 중입니다.</b> 지금은 「상담 신청」으로 남겨 주시면 담당자가 연락드려 계약과 설치 일정을 안내드립니다.</span>";
+    $("#cashTitle").textContent = "상담 신청";
+    if ($("#cashCardOpt").hidden) { $("#cashCardOpt").hidden = false; $("#cashType").value = "card"; }
+    $("#cashDesc").textContent = "담당자가 직접 연락드려 구성·계약·결제 방법(카드·계좌이체·세금계산서)과 설치 일정을 안내해요";
+  }
   const cardEl = $('[data-method="card"]');
   cardEl.classList.toggle("is-disabled", !ready);
   if (!ready && S.method === "card") S.method = "cash";
@@ -441,8 +454,9 @@ function renderMethod() {
   $("#stepWhen").hidden = cash;
   $("#methodNote").innerHTML = S.method === "card"
     ? `<span>오늘은 카드만 등록되고 <b>0원</b>이에요. ${payDayText()} 결제할 때마다 메일로 영수증을 보내 드려요.</span>`
+    : !S.cfg.open ? `<span>온라인 결제는 도입 준비 중이에요. 상담 신청을 남겨 주시면 담당자가 연락드려 계약·결제 방법과 설치 일정을 안내드려요.</span>`
     : `<span>현금 결제는 온라인으로 바로 가입되지 않고, 담당자가 계약서와 입금 계좌를 직접 안내드려요.</span>`;
-  $("#submitBtn").textContent = ext ? "연장 상담 요청 (금액 확인 후 결제)" : S.method === "card" ? "카드 등록하고 구독 신청" : "현금 결제 상담 요청";
+  $("#submitBtn").textContent = ext ? "연장 상담 요청 (금액 확인 후 결제)" : S.method === "card" ? "카드 등록하고 구독 신청" : S.cfg.open ? "현금 결제 상담 요청" : "상담 신청하기";
   $("#mbBtn").textContent = ext ? "연장 상담" : S.method === "card" ? "카드 등록" : "상담 요청";
   $("#agAutopayRow").hidden = S.method !== "card" || ext;
 }
@@ -590,7 +604,7 @@ async function submit() {
   if (!S.ins || !S.ins.wish) { $("#stepWhen").scrollIntoView({ behavior: "smooth", block: "center" }); $("#insErr").textContent = "설치 희망일을 골라 주세요."; return; }
   if (!ag.terms || !ag.privacy || !ag.term || !ag.schedule || (S.method === "card" && !ag.autopay)) { $("#stepAgree").scrollIntoView({ behavior: "smooth", block: "center" }); $("#submitErr").textContent = ERR.missing_agree; return; }
   const t = total();
-  const body = { method: S.method, customer: v, asMember: !!(S.me && S.me.member), agree: { ...ag, text: ($("#termText").textContent + " / " + $("#schedText").textContent + " / " + $("#autopayText").textContent).trim() },
+  const body = { preview: S.preview || undefined, method: S.method, customer: v, asMember: !!(S.me && S.me.member), agree: { ...ag, text: ($("#termText").textContent + " / " + $("#schedText").textContent + " / " + $("#autopayText").textContent).trim() },
     install: { wish: S.ins.wish, alt: S.ins.alt || "", slot: S.ins.slot || "any", memo: $("#insMemo").value.trim() } };
   if (S.kind === "quote") body.quote = S.quote.quote.id; else if (S.mode === "contract") body.offer = S.quote.offer; else body.lines = Object.entries(S.lines).map(([product, qty]) => ({ product, qty }));
   if (S.via) body.via = S.via;

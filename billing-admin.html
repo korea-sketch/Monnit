@@ -65,7 +65,7 @@ body{font-size:15px}
 <body>
 <header class="bar"><div class="bar__in">
   <a class="bar__logo" href="/billing-admin"><img src="/logo.png" alt="Monnit"><span>알리미 결제 관리</span></a>
-  <div class="bar__right"><a href="/contract-admin">계약 관리</a><a href="/pay" target="_blank">결제 화면</a><a href="#" id="out">로그아웃</a></div>
+  <div class="bar__right"><a href="/contract-admin">계약 관리</a><a href="/pay" target="_blank" id="payLink">결제 화면</a><a href="#" id="out">로그아웃</a></div>
 </div></header>
 
 <main class="wrap">
@@ -166,6 +166,13 @@ body{font-size:15px}
       <div class="sets" id="sets"></div>
       <h3 style="margin:28px 0 4px">의무 사용기간</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">홈페이지 직접 신청 구독에 적용 · 설치 완료일부터. 바꾸면 이후 신청분부터 적용되고 기존 구독은 그대로입니다. 계약 링크 구독은 계약서 기간을 따릅니다.</p>
       <div class="sets"><div class="field"><input id="s_term" type="number" min="0" max="60" placeholder=" "><label for="s_term">개월 (0 = 없음)</label></div></div>
+      <h3 style="margin:28px 0 4px">온라인 카드 신청 받기</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">테스트 키로는 실제 돈이 빠지지 않으므로, 기본(자동)은 <b>라이브 키를 넣었을 때만</b> 고객 카드 신청을 엽니다. 닫혀 있는 동안 고객 화면에는 「온라인 결제 서비스 도입 준비 중」이 뜨고 <b>상담 신청</b>만 받습니다(물감지 연장 상담 포함). <span id="openNow"></span></p>
+      <div class="choices" style="max-width:820px">
+        <label class="choice" data-so="auto"><input type="radio" name="so"><b>자동 (권장)</b><span>테스트 키 = 닫힘 · 라이브 키 = 열림. 키만 바꾸면 저절로 열립니다.</span></label>
+        <label class="choice" data-so="closed"><input type="radio" name="so"><b>닫기</b><span>라이브 키여도 상담 신청만 받습니다.</span></label>
+        <label class="choice" data-so="open"><input type="radio" name="so"><b>열기</b><span>테스트 키여도 열어 둡니다 — 실제 결제가 안 되므로 쓰지 마세요.</span></label>
+      </div>
+      <div class="row" style="max-width:820px"><span style="font-size:14px">담당자 미리보기 링크 (막혀 있어도 끝까지 시험)</span><input id="pvLink" readonly style="flex:1;min-width:240px" onclick="this.select()"><button class="btn btn--line btn--sm" id="pvCopy" type="button">복사</button><button class="btn btn--ghost btn--sm" id="pvNew" type="button">코드 새로 만들기</button></div>
       <h3 style="margin:28px 0 4px">결제일</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">결제는 <b>설치 완료 뒤에만</b> 진행됩니다(신청·카드 등록 때는 0원). 구독 시작일은 설치 완료일입니다. 결제일을 정해 두면 카드도 계좌 자동이체처럼 매월 같은 날 결제됩니다 — 설치 완료가 결제일 전이면 그달 결제일에 첫 결제, 결제일 뒤면 완료일에 첫 결제 후 다음 달부터 결제일. 일할 계산 없음. 세금계산서 청구도 같은 날 생깁니다. 바꾸면 이후 신청분부터 적용됩니다.</p>
       <div class="sets"><div class="field"><input id="s_payDay" type="number" min="0" max="28" placeholder=" "><label for="s_payDay">매월 결제일 (1~28 · 0 = 설치 완료일과 같은 날)</label></div></div>
       <h3 style="margin:28px 0 4px">설치 희망일 규칙</h3><p style="color:var(--muted);margin:0 0 10px;font-size:14px">고객은 <b>다음 주 월요일부터</b> 고를 수 있습니다. 희망일은 확정이 아니며 담당자가 확정합니다.</p>
@@ -225,7 +232,7 @@ if (KEY) start(); else showLogin();
 async function start() {
   $("#login").hidden = true; $("#app").hidden = false;
   $("#month").value = $("#invMonth").value = today().slice(0, 7);
-  try { SET = (await api("settings")).settings || null; } catch (e) {}
+  try { SET = (await api("settings")).settings || null; if (SET && SET.previewCode) $("#payLink").href = "/pay?preview=" + SET.previewCode; } catch (e) {}
   await loadSubs();
   loadCash(true);
 }
@@ -525,7 +532,7 @@ async function loadCash(badgeOnly) {
   $$("#cqChips button").forEach((b) => b.addEventListener("click", () => { CQF = b.dataset.f; loadCash(); }));
   const rows = CQ.filter((q) => CQF === "all" || q.status === CQF);
   $("#cqRows").innerHTML = rows.length ? rows.map((q) => `<tr data-q="${esc(q.id)}"><td><b>${esc(q.id)}</b><small>${dt(q.createdAt)}</small></td><td>${esc(q.customer.company)}<small>${esc(q.customer.manager)}</small></td><td><a href="tel:${esc(q.customer.phone)}" onclick="event.stopPropagation()">${esc(q.customer.phone)}</a><small>${esc(q.customer.email || "")}</small></td>
-    <td class="hide-m">${q.plan ? esc(q.plan.label) + `<small>${q.plan.qty}개소 · 월 ${num(q.plan.supply)}원${q.contractRef ? " · 계약 " + esc(q.contractRef) : ""}</small>` : "—"}</td><td>${q.topic === "water_ext" ? `<span class="st registered">물감지 연장</span><small>${esc(q.ext && q.ext.length || "길이 미정")}</small>` : q.payType === "invoice" ? "세금계산서" : "계좌이체"}</td><td>${q.topic === "water_ext" && q.install ? "설치 희망 " + esc(q.install.wish) : esc(q.when || "언제든")}</td><td><span class="st ${q.status === "new" ? "pending" : q.status === "converted" ? "active" : ""}">${CQST[q.status]}</span></td></tr>`).join("")
+    <td class="hide-m">${q.plan ? esc(q.plan.label) + `<small>${q.plan.qty}개소 · 월 ${num(q.plan.supply)}원${q.contractRef ? " · 계약 " + esc(q.contractRef) : ""}</small>` : "—"}</td><td>${q.topic === "water_ext" ? `<span class="st registered">물감지 연장</span><small>${esc(q.ext && q.ext.length || "길이 미정")}</small>` : q.payType === "card" ? "카드 희망" : q.payType === "invoice" ? "세금계산서" : "계좌이체"}</td><td>${q.topic === "water_ext" && q.install ? "설치 희망 " + esc(q.install.wish) : esc(q.when || "언제든")}</td><td><span class="st ${q.status === "new" ? "pending" : q.status === "converted" ? "active" : ""}">${CQST[q.status]}</span></td></tr>`).join("")
     : `<tr><td colspan="7" class="empty">해당 문의가 없습니다.</td></tr>`;
   $$("#cqRows tr[data-q]").forEach((tr) => tr.addEventListener("click", () => openCash(tr.dataset.q)));
 }
@@ -540,7 +547,7 @@ function openCash(id) {
       <dt>설치 현장</dt><dd>${esc(c.site || "—")} ${esc(c.siteAddr || "")}</dd>
       <dt>구성</dt><dd>${q.plan ? `${esc(q.plan.label)} · ${q.plan.qty}개소 · 월 ${wonK(q.plan.supply)} (VAT 별도)${q.plan.installFee ? " · 설치비 " + wonK(q.plan.installFee) : ""}` : "—"}${q.contractRef ? `<br><small>계약번호 ${esc(q.contractRef)}</small>` : ""}</dd>
       ${q.topic === "water_ext" ? `<dt>연장 길이</dt><dd>${esc(q.ext && q.ext.length || "현장 확인")}</dd><dt>감지 위치</dt><dd>${esc(q.ext && q.ext.spots || "—")}</dd><dt>설치 희망일</dt><dd>${q.install ? esc(q.install.wish + (q.install.alt ? " · " + q.install.alt : "")) : "—"}</dd>`
-        : `<dt>결제 방식</dt><dd>${q.payType === "invoice" ? "세금계산서 발행 후 계좌이체" : "계좌이체"}</dd>`}<dt>연락 희망</dt><dd>${esc(q.when || "언제든")}</dd><dt>메모</dt><dd>${esc(q.memo || "—")}</dd>
+        : `<dt>결제 방식</dt><dd>${q.payType === "card" ? "카드 자동결제 희망 (온라인 결제 오픈 전 접수 → 오픈 후 견적 링크로)" : q.payType === "invoice" ? "세금계산서 발행 후 계좌이체" : "계좌이체"}</dd>`}<dt>연락 희망</dt><dd>${esc(q.when || "언제든")}</dd><dt>메모</dt><dd>${esc(q.memo || "—")}</dd>
       ${q.subId ? `<dt>등록된 구독</dt><dd><a href="#" id="goSub">${esc(q.subId)}</a></dd>` : ""}
     </dl></div>
     <div class="card"><h4>상담 기록</h4>
@@ -662,6 +669,11 @@ async function loadSet() {
     + `<div class="field full"><input id="s_bank" placeholder=" " value="${esc(SET.bank || "")}"><label for="s_bank">입금 계좌 (세금계산서 고객 안내용 · 예: 기업은행 000-000000-00-000 주식회사 모넷코리아)</label></div>`;
   $("#s_term").value = SET.termMonths != null ? SET.termMonths : 36;
   $("#s_payDay").value = SET.payDay != null ? SET.payDay : 20;
+  $("#openNow").innerHTML = `지금 상태: <b style="color:${j.open ? "var(--green)" : "var(--amber)"}">${j.open ? "열림 — 고객이 카드로 신청할 수 있음" : "닫힘 — 도입 준비 중 · 상담만 접수"}</b>${j.test ? " (테스트 키)" : ""}`;
+  $$("[data-so]").forEach((x) => { x.classList.toggle("is-on", x.dataset.so === (SET.salesOpen || "auto")); x.onclick = (e) => { e.preventDefault(); SET.salesOpen = x.dataset.so; $$("[data-so]").forEach((y) => y.classList.toggle("is-on", y === x)); }; });
+  $("#pvLink").value = location.origin + "/pay?preview=" + (SET.previewCode || "");
+  $("#pvCopy").onclick = () => navigator.clipboard.writeText($("#pvLink").value).then(() => toast("복사했습니다"));
+  $("#pvNew").onclick = async () => { if (!confirm("미리보기 코드를 새로 만들면 예전 링크는 막힙니다.")) return; await api("settings", { newPreviewCode: true }); loadSet(); };
   const I = SET.install || {}, M = SET.mail || {}, G = SET.guides || {};
   $("#s_lastDay").value = I.lastDay != null ? I.lastDay : 20; $("#s_horizon").value = I.horizonDays || 60; $("#s_wdOnly").checked = I.weekdaysOnly !== false;
   $("#s_blackout").value = (I.blackout || []).join("\n");
@@ -671,7 +683,7 @@ async function loadSet() {
 $("#saveSet").addEventListener("click", async () => {
   const sup = {}; ["name", "bizNo", "ceo", "subNo", "address", "bizType", "bizItem", "email"].forEach((k) => (sup[k] = $("#s_" + k).value));
   const lines = (id) => $("#" + id).value.split("\n").map((x) => x.trim()).filter(Boolean);
-  const r = await api("settings", { supplier: sup, invoiceItem: $("#s_item").value, bank: $("#s_bank").value, termMonths: Number($("#s_term").value), payDay: $("#s_payDay").value,
+  const r = await api("settings", { salesOpen: SET.salesOpen || "auto", supplier: sup, invoiceItem: $("#s_item").value, bank: $("#s_bank").value, termMonths: Number($("#s_term").value), payDay: $("#s_payDay").value,
     install: { lastDay: $("#s_lastDay").value, horizonDays: $("#s_horizon").value, weekdaysOnly: $("#s_wdOnly").checked, blackout: $("#s_blackout").value.split(/[\s,]+/).filter(Boolean) },
     mail: { confirm: $("#s_mConfirm").checked, dayBefore: $("#s_mDayBefore").checked, start: $("#s_mStart").checked, followDays: $("#s_mFollow").value },
     guides: { install: lines("s_gInstall"), platform: lines("s_gPlatform") } });
