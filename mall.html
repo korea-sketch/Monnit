@@ -13,7 +13,7 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
-<link rel="stylesheet" href="/css/mall.css?v=1">
+<link rel="stylesheet" href="/css/mall.css?v=2">
 </head>
 <body>
 <div class="m-util"><div class="m-in">
@@ -51,10 +51,19 @@
 </footer>
 
 <div class="m-cmpbar" id="cmpBar" hidden><span id="cmpTxt"></span><a class="m-btn m-btn--sm m-btn--w" href="/mall/compare" data-link>비교하기</a><button class="m-btn m-btn--sm m-btn--ghostw" id="cmpClear" type="button">비우기</button></div>
+<nav class="m-tabbar" id="tabbar" aria-label="하단 메뉴">
+  <a href="/mall" data-link><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></svg>홈</a>
+  <a href="/mall/category" data-link><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>카테고리</a>
+  <a href="/mall/packages" data-link><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/><path d="M12 12v8"/></svg>패키지</a>
+  <a href="/mall/cart" data-link id="tabCart"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>견적함<b id="tabCartN" hidden>0</b></a>
+  <a href="/mall/my" data-link><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>마이</a>
+</nav>
+<button class="m-totop" id="toTop" type="button" aria-label="맨 위로"><svg viewBox="0 0 24 24"><path d="M6 14l6-6 6 6"/></svg></button>
+<div class="m-scrim" id="scrim" hidden></div>
 <div class="m-toast" id="toast" role="status"></div>
 <div id="printArea" class="m-print" aria-hidden="true"></div>
 
 <script src="/js/store-data.js?v=1"></script>
-<script src="/js/mall.js?v=1"></script>
+<script src="/js/mall.js?v=2"></script>
 </body>
 </html>

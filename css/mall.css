@@ -427,3 +427,77 @@ img{max-width:100%;display:block}
 .m-form label.m-consent{flex-direction:row;font-weight:500}
 .m-form .m-consent input{height:auto;width:auto;flex:none;padding:0;border:0}
 @media (max-width:700px){.m-all>button{padding:0 12px;font-size:14px}}
+
+/* ───────── 제품 사진 (2026-11-04) ───────── */
+.m-ph{display:inline-grid;place-items:center;width:44px;height:44px;flex:none;position:relative}
+.m-ph img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(16,24,40,.14));transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.m-ph--sm{width:46px;height:46px} .m-ph--md{width:76px;height:76px} .m-ph--lg{width:150px;height:140px} .m-ph--xl{width:280px;height:280px}
+.m-ph--shot img{object-fit:cover;border-radius:10px;filter:none;box-shadow:0 4px 14px rgba(16,24,40,.14)}
+.m-ph--shot.m-ph--lg{width:190px;height:124px}
+.m-ph.is-err img{display:none}
+.m-quickcats .m-ph{width:52px;height:52px}
+.m-quickcats a{transition:transform .2s,box-shadow .2s,color .2s}
+.m-quickcats a:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(16,24,40,.12)}
+.m-quickcats a:hover .m-ph img{transform:scale(1.1) rotate(-3deg)}
+.m-card:hover .m-ph img{transform:scale(1.08) translateY(-3px)}
+.m-card__img{height:190px;overflow:hidden}
+.m-card__img::after{content:"";position:absolute;left:50%;bottom:18px;width:46%;height:10px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(16,24,40,.13),transparent);pointer-events:none}
+.m-card:active{transform:scale(.985)}
+@media (max-width:520px){.m-card__img{height:138px}.m-ph--lg{width:104px;height:100px}.m-ph--shot.m-ph--lg{width:130px;height:86px}}
+/* 상세 — 확대 갤러리 */
+.m-zoom{position:relative;width:min(100%,420px);aspect-ratio:1;overflow:hidden;border-radius:var(--r);cursor:zoom-in}
+.m-zoom img{width:100%;height:100%;object-fit:contain;transition:transform .25s ease;filter:drop-shadow(0 18px 24px rgba(16,24,40,.16))}
+.m-zoom.is-on img{transform:scale(2)}
+.m-zoom--shot{aspect-ratio:4/3} .m-zoom--shot img{object-fit:cover;filter:none}
+.m-zoom__hint{position:absolute;right:10px;bottom:10px;font-size:11.5px;color:var(--muted);background:rgba(255,255,255,.85);padding:4px 9px;border-radius:999px;transition:opacity .2s}
+.m-zoom.is-on .m-zoom__hint{opacity:0}
+@media (hover:none){.m-zoom{cursor:default}.m-zoom__hint{display:none}}
+@media (max-width:900px){.m-zoom{width:min(100%,300px)}}
+/* 담기 애니메이션 */
+.m-fly{position:fixed;z-index:80;pointer-events:none;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(16,24,40,.25))}
+.m-add{transition:transform .15s,background .2s}
+.m-add:active{transform:scale(.88)}
+.m-add.is-in{animation:pop .35s ease}
+@keyframes pop{40%{transform:scale(1.25)}}
+/* 스크롤 등장 */
+.rv{opacity:0;transform:translateY(18px)}
+.rv.is-in{opacity:1;transform:none;transition:opacity .55s ease var(--d,0ms),transform .55s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+/* 헤더 축소 */
+.m-hd__in{transition:height .2s}
+body.is-scrolled .m-hd{box-shadow:0 6px 18px rgba(16,24,40,.08)}
+@media (min-width:901px){body.is-scrolled .m-hd__in{height:58px}}
+/* 맨 위로 */
+.m-totop{position:fixed;right:20px;bottom:24px;z-index:40;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow);display:grid;place-items:center;cursor:pointer;opacity:0;transform:translateY(12px);pointer-events:none;transition:.25s}
+.m-totop svg{width:20px;height:20px;fill:none;stroke:var(--navy);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.m-totop.is-on{opacity:1;transform:none;pointer-events:auto}
+.m-totop:hover{background:var(--navy)} .m-totop:hover svg{stroke:#fff}
+/* 모바일 하단 탭바 */
+.m-tabbar{display:none}
+@media (max-width:700px){
+  .m-tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line2);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .m-tabbar a{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted);padding:4px 0}
+  .m-tabbar svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .m-tabbar a.is-on{color:var(--navy)} .m-tabbar a.is-on svg{stroke:var(--blue)}
+  .m-tabbar b{position:absolute;top:0;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--red);color:#fff;font-size:10.5px;display:grid;place-items:center}
+  body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .m-totop{bottom:calc(78px + env(safe-area-inset-bottom));right:14px;width:42px;height:42px}
+  .m-toast{bottom:calc(90px + env(safe-area-inset-bottom))}
+  .m-cmpbar{bottom:calc(64px + env(safe-area-inset-bottom))}
+  .m-hd__acts .m-ic:not(.m-ic--cart){display:none}
+}
+/* 목록 — 모바일 필터 시트 */
+.m-filterbtn{display:none}
+.m-filter__hd{display:none}
+.m-scrim{position:fixed;inset:0;z-index:55;background:rgba(11,21,48,.45);animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+body.no-scroll{overflow:hidden}
+@media (max-width:900px){
+  .m-filterbtn{display:inline-flex;margin:0 0 12px}
+  .m-filter{position:fixed!important;left:0;right:0;bottom:0;top:auto;z-index:60;max-height:82vh;overflow:auto;border-radius:20px 20px 0 0;padding:6px 18px calc(24px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.7,.2,1);box-shadow:0 -10px 30px rgba(16,24,40,.2)}
+  .m-filter.is-open{transform:none}
+  .m-filter__hd{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;padding:12px 0 8px;z-index:1}
+  .m-filter__hd::before{content:"";position:absolute;left:50%;top:4px;width:40px;height:4px;border-radius:9px;background:var(--line);transform:translateX(-50%)}
+  .m-filter__hd b{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.rv{opacity:1;transform:none}}
+.m-pd__gal:has(.m-zoom){background:#fff;border:1px solid var(--line2)}

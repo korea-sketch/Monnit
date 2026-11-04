@@ -49,7 +49,14 @@ const TIERS = [
 
 function slugOf(p, i) { return (p.c + "-" + (p.n || "").replace(/[^\w가-힣]+/g, "-").replace(/^-|-$/g, "")).toLowerCase() || "p" + i; }
 function iconKey(p) { const hay = (p.n || "") + " " + (p.g || "") + " " + p.c; for (const [re, k] of RULES) if (re.test(hay)) return k; return p.c === "software" ? "software" : p.c === "gateways" ? "gateway" : p.c === "accessories" ? "control" : "sensor"; }
-function ico(p, cls = "") { const k = iconKey(p); return `<span class="m-ico h-${HUE[k] || "cyan"} ${cls}"><svg viewBox="0 0 24 24">${(D.icons || {})[k] || (D.icons || {}).sensor || ""}</svg></span>`; }
+/* 제품 사진 (Monnit 공식 이미지 → 배경 제거 PNG, /images/mall/products) — 이름이 없으면 아이콘으로 */
+const IMG = {"온도":"p00","습도":"p01","공기질":"p02","풍속":"p03","차압":"p04","토양 수분":"p05","조도 (Lux)":"p06","조도 (PAR·광합성)":"p07","AC 전류계":"p08","3상 전류계":"p09","200VDC 미터":"p10","200VDC 감지":"p11","500VAC 미터":"p12","500VAC 감지":"p13","모션·점유":"p14","개폐(도어)":"p15","버튼":"p16","차량 감지":"p17","가속도·진동계":"p18","열전대":"p19","저항":"p20","누수 — 로프형":"p21","누수 — 프로브형(Detect+)":"p22","누수 — 퍽형(디스크)":"p23","누수 — 전선형(Detect)":"p24","압력계":"p25","초음파 거리":"p26","프로판 탱크":"p27","일산화탄소(CO)":"p28","이산화탄소(CO2)":"p29","황화수소(H2S)":"p30","드라이컨택":"p31","5채널 드라이컨택":"p32","0-5VDC":"p33","0-10VDC":"p34","0-20mA":"p35","저항 브리지":"p36","펄스 카운터 — 싱글":"p37","펄스 카운터 — 듀얼":"p38","북미 IoT 셀룰러 게이트웨이":"p39","인터내셔널 셀룰러 게이트웨이":"p40","이더넷 게이트웨이":"p41","시리얼 Modbus 게이트웨이":"p42","센서 어댑터 (USB)":"p43","iMonnit 클라우드 관리 SW":"p44","iMonnit Express 독립형 SW":"p45","온프레미스 엔터프라이즈":"p46","Monnit Mine":"p47","사이트 서베이 툴":"p48","컨트롤 유닛":"p49","로컬 경보기":"p50"};
+const imgOf = (p) => IMG[p.n] ? `/images/mall/products/${IMG[p.n]}.png?v=1` : "";
+function svgIco(p, cls = "") { const k = iconKey(p); return `<span class="m-ico h-${HUE[k] || "cyan"} ${cls}"><svg viewBox="0 0 24 24">${(D.icons || {})[k] || (D.icons || {}).sensor || ""}</svg></span>`; }
+function ico(p, cls = "") {
+  const src = imgOf(p); if (!src) return svgIco(p, cls);
+  return `<span class="m-ph ${cls.replace(/m-ico--/g, "m-ph--")}${p.c === "software" ? " m-ph--shot" : ""}"><img src="${src}" alt="${esc(p.n)}" loading="lazy" decoding="async" onerror="this.parentNode.classList.add('is-err')"></span>`;
+}
 function appsOf(p) {
   if (p.c === "gateways" || p.c === "software") return APPS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 8);
   const codes = []; for (const [re, cs] of CODE_RULES) if (re.test(p.n)) codes.push(...cs);
@@ -72,7 +79,7 @@ let FAV = LS.get("mnkFav", []), RECENT = LS.get("mnkRecent", []), CMP = LS.get("
 let HIST = LS.get("mnkMallQuotes", []);
 let ME = null;
 const saveCart = () => { LS.set("mnkQuoteCart", CART); badge(); };
-function badge() { const n = CART.reduce((a, c) => a + c.qty, 0); $("#cartN").hidden = !n; $("#cartN").textContent = n; }
+function badge() { const n = CART.reduce((a, c) => a + c.qty, 0); $("#cartN").hidden = !n; $("#cartN").textContent = n; const t = $("#tabCartN"); if (t) { t.hidden = !n; t.textContent = n > 99 ? "99+" : n; } }
 function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("is-on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("is-on"), 2600); }
 function add(id, qty = 1, quiet) {
   const it = CART.find((c) => c.id === id);
@@ -128,7 +135,7 @@ function vHome() {
         <a class="m-sidebox m-sidebox--navy" href="/mall/quote" data-link><b>구성 상담 요청</b><span>무엇이 필요한지 몰라도 현장만 알려 주세요 ›</span></a></aside>
     </div></section>
     <div class="m-in">
-      <section class="m-quickcats">${[["sensors", "무선 센서", "temperature"], ["gateways", "게이트웨이", "gateway"], ["software", "플랫폼·SW", "software"], ["accessories", "액세서리", "control"]].map(([c, t, k]) => `<a href="/mall/category/${c}" data-link><span class="m-ico h-${HUE[k]}"><svg viewBox="0 0 24 24">${D.icons[k] || D.icons.sensor}</svg></span>${t}<small>${P.filter((p) => p.c === c).length}종</small></a>`).join("")}
+      <section class="m-quickcats">${[["sensors", "무선 센서", "온도"], ["gateways", "게이트웨이", "이더넷 게이트웨이"], ["software", "플랫폼·SW", "iMonnit 클라우드 관리 SW"], ["accessories", "액세서리", "로컬 경보기"]].map(([c, t, n]) => { const f = byName(n) || P.find((p) => p.c === c); return `<a href="/mall/category/${c}" data-link>${f ? ico(f) : ""}${t}<small>${P.filter((p) => p.c === c).length}종</small></a>`; }).join("")}
         ${GROUPS.slice(0, 6).map((g) => { const f = P.find((p) => p.g === g.id); return `<a href="/mall/category/sensors?g=${g.id}" data-link>${f ? ico(f) : ""}${esc(g.ko)}<small>${P.filter((p) => p.g === g.id).length}종</small></a>`; }).join("")}</section>
       <ul class="m-benefits"><li><b>공식 견적서</b>영업일 1일 회신</li><li><b>세금계산서</b>발행 · 지급 조건 협의</li><li><b>무선 940MHz</b>배선 공사 없이 설치</li><li><b>기본 보증 1년</b>설치 후 기술지원</li></ul>
       ${sec("많이 찾는 제품", "적용 분야 문의가 많은 순", `<div class="m-grid m-grid--4">${best.map((p) => card(p)).join("")}</div>`, "/mall/category/sensors")}
@@ -163,8 +170,9 @@ function vList(cat, qs) {
   const topApps = APPS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 14);
   return `<div class="m-in">${crumbs(q ? [["검색", ""]] : [[CAT_KO[cat] || "전체 제품", g ? "/mall/category/" + cat : ""], ...(g ? [[grpName(g), ""]] : [])])}
     <div class="m-catbanner"><div><h1>${esc(title)}</h1><p>${esc(q ? `${list.length}개 제품을 찾았어요` : CAT_DESC[cat] || "Monnit ALTA 무선 IoT 전 제품")}</p></div><a class="m-btn m-btn--w" href="/mall/quote" data-link>구성 상담 요청</a></div>
+    <button class="m-btn m-btn--line m-filterbtn" type="button" id="fltBtn"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M6 10h8M8.5 15h3"/></svg>필터 · 카테고리</button>
     <div class="m-listwrap">
-      <aside class="m-filter">
+      <aside class="m-filter" id="flt"><div class="m-filter__hd"><b>필터</b><button type="button" class="m-x" id="fltX" aria-label="닫기">×</button></div>
         <h4>카테고리</h4>
         <a href="/mall/category/all" data-link class="${cat === "all" && !q ? "is-on" : ""}">전체 제품<small>${P.length}</small></a>
         ${CATS.map((c) => `<a href="/mall/category/${c.id}" data-link class="${cat === c.id && !g ? "is-on" : ""}">${esc(CAT_KO[c.id])}<small>${P.filter((p) => p.c === c.id).length}</small></a>` +
@@ -195,7 +203,7 @@ function vProduct(id) {
   const together = p.c === "sensors" ? [gw, sw].filter(Boolean) : p.c === "gateways" ? [sw, ...P.filter((x) => x.hot).slice(0, 2)].filter(Boolean) : P.filter((x) => x.hot).slice(0, 3);
   return `<div class="m-in">${crumbs([[CAT_KO[p.c], "/mall/category/" + p.c], ...(p.g ? [[grpName(p.g), "/mall/category/sensors?g=" + p.g]] : []), [p.n, ""]])}
     <section class="m-pd">
-      <div class="m-pd__gal">${ico(p, "m-ico--xl")}<div class="m-pd__note">무선 · 배터리 · 940MHz</div></div>
+      <div class="m-pd__gal">${imgOf(p) ? `<div class="m-zoom${p.c === "software" ? " m-zoom--shot" : ""}" id="pdZoom"><img src="${imgOf(p)}" alt="${esc(p.n)}"><span class="m-zoom__hint">마우스를 올리면 확대</span></div>` : ico(p, "m-ico--xl")}<div class="m-pd__note">${p.c === "sensors" ? "무선 · 배터리 · 940MHz" : p.c === "gateways" ? "센서 최대 250개 연결" : p.c === "software" ? "웹 · 모바일 대시보드" : "ALTA 무선 연동"}</div></div>
       <div class="m-pd__info">
         <div class="m-pd__tags">${p.hot ? '<span class="m-tag m-tag--blue">BEST</span>' : ""}<span class="m-tag m-tag--line">${esc(catLine(p))}</span></div>
         <h1>${esc(p.n)}</h1><p class="m-pd__desc">${esc(p.d)}</p>
@@ -390,7 +398,7 @@ function route() {
   view.innerHTML = html;
   $("#q").value = seg[0] === "search" ? qs.get("q") || "" : "";
   $$(".m-gnb a").forEach((a) => a.classList.toggle("is-on", a.getAttribute("href") === path));
-  badge(); cmpBar(); bind(seg);
+  badge(); cmpBar(); bind(seg); reveal(); tabbar(path);
   if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ behavior: "smooth", block: "start" }), 30); } else window.scrollTo(0, 0);
 }
 function go(href) { if (href === location.pathname + location.search + location.hash) return route(); history.pushState({}, "", href); route(); }
@@ -402,15 +410,22 @@ function bind(seg) {
   if (sl) {
     let i = 0; const show = (n) => { i = (n + BANNERS.length) % BANNERS.length; $$(".m-slide", sl).forEach((s, k) => s.classList.toggle("is-on", k === i)); $$(".m-dots button", sl).forEach((d, k) => d.classList.toggle("is-on", k === i)); };
     $$(".m-dots button", sl).forEach((d) => d.onclick = (e) => { e.preventDefault(); show(Number(d.dataset.slide)); });
-    clearInterval(bind.t); bind.t = setInterval(() => { if (document.body.contains(sl)) show(i + 1); else clearInterval(bind.t); }, 5000);
+    let hold = false; sl.onmouseenter = () => (hold = true); sl.onmouseleave = () => (hold = false);
+    let sx = 0; sl.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; hold = true; }, { passive: true });
+    sl.addEventListener("touchend", (e) => { const dx = e.changedTouches[0].clientX - sx; hold = false; if (Math.abs(dx) > 40) { show(i + (dx < 0 ? 1 : -1)); sl.dataset.swiped = "1"; setTimeout(() => delete sl.dataset.swiped, 300); } }, { passive: true });
+    sl.addEventListener("click", (e) => { if (sl.dataset.swiped) e.preventDefault(); }, true);
+    clearInterval(bind.t); bind.t = setInterval(() => { if (!document.body.contains(sl)) return clearInterval(bind.t); if (!hold && !document.hidden) show(i + 1); }, 5000);
   }
   /* 목록 보기 방식 */
   $$("[data-mode]").forEach((b) => b.onclick = () => { LS.set("mnkMallView", b.dataset.mode); route(); });
   /* 상세 */
   if (seg[0] === "product") {
     const qi = $("#pdQty"), id = seg[1];
+    const z = $("#pdZoom"); if (z && matchMedia("(hover:hover)").matches) { const im = $("img", z);
+      z.onmousemove = (e) => { const r = z.getBoundingClientRect(); im.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`; z.classList.add("is-on"); };
+      z.onmouseleave = () => z.classList.remove("is-on"); }
     $$("[data-pq]").forEach((b) => b.onclick = () => { qi.value = Math.max(1, Math.min(9999, (Number(qi.value) || 1) + Number(b.dataset.pq))); });
-    $("#pdAdd").onclick = () => add(id, Number(qi.value) || 1);
+    $("#pdAdd").onclick = (e) => { fly(e.currentTarget, $("#pdZoom img")); add(id, Number(qi.value) || 1); };
     $("#pdNow").onclick = () => { add(id, Number(qi.value) || 1, true); go("/mall/quote"); };
     $("#qnaForm").onsubmit = (e) => { e.preventDefault(); productQna(P.find((p) => p.id === id)); };
     $$("#pdTabs a").forEach((a) => a.onclick = (e) => { e.preventDefault(); const t = $(a.getAttribute("href")); if (t) window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 120, behavior: "smooth" }); });
@@ -515,7 +530,7 @@ document.addEventListener("click", (e) => {
   if (a && !e.metaKey && !e.ctrlKey && !e.shiftKey && a.target !== "_blank") { e.preventDefault(); closeMega(); return go(a.getAttribute("href")); }
   if (e.target.closest("[data-stop]")) return;
   const fv = e.target.closest("[data-fav]"); if (fv) { e.preventDefault(); e.stopPropagation(); toggleFav(fv.dataset.fav); const y = scrollY; route(); window.scrollTo(0, y); return; }
-  const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (location.pathname === "/mall/cart") route(); return; }
+  const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); fly(ad); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (location.pathname === "/mall/cart") route(); return; }
   const pk = e.target.closest("[data-pack]"); if (pk) { const k = PACKS.find((x) => x.id === pk.dataset.pack); k.items.forEach(([n, q]) => { const p = byName(n); if (p) add(p.id, q, true); }); toast(`${k.name}를 견적함에 담았어요`); return; }
   const sp = e.target.closest("[data-solpack]"); if (sp) { const ap = APPS.find((x) => x.id === sp.dataset.solpack); const ps = prodsOfApp(ap).slice(0, 3); [...ps, byName("이더넷 게이트웨이"), byName("iMonnit 클라우드 관리 SW")].filter(Boolean).forEach((p) => add(p.id, 1, true)); toast("추천 구성을 견적함에 담았어요 — 수량은 견적함에서 조정하세요"); return; }
   const uc = e.target.closest("[data-uncmp]"); if (uc) { toggleCmp(uc.dataset.uncmp, false); route(); return; }
@@ -536,6 +551,46 @@ function mega() {
 function closeMega() { $("#mega").hidden = true; $("#allBtn").setAttribute("aria-expanded", "false"); }
 $("#allBtn").onclick = (e) => { e.stopPropagation(); const m = $("#mega"); if (m.hidden) { m.innerHTML = mega(); m.hidden = false; $("#allBtn").setAttribute("aria-expanded", "true"); } else closeMega(); };
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMega(); });
+
+/* ───────── 인터랙션 ───────── */
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* 담기 → 제품 사진이 견적함 아이콘으로 날아감 */
+function fly(from, imgEl) {
+  if (RM) return;
+  const card = from.closest(".m-card,.m-rowitem,.m-pd");
+  const src = imgEl || (card && card.querySelector(".m-ph img"));
+  const cart = matchMedia("(max-width:700px)").matches ? $("#tabCart") || $(".m-ic--cart") : $(".m-ic--cart");
+  if (!src || !cart || !src.complete) return;
+  const a = src.getBoundingClientRect(), b = cart.getBoundingClientRect();
+  const g = src.cloneNode(); g.className = "m-fly"; g.removeAttribute("loading");
+  const sz = Math.min(a.width, 120);
+  Object.assign(g.style, { left: a.left + a.width / 2 - sz / 2 + "px", top: a.top + a.height / 2 - sz / 2 + "px", width: sz + "px", height: sz + "px" });
+  document.body.appendChild(g);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const an = g.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: `translate(${dx * 0.5}px,${dy * 0.5 - 80}px) scale(.6)`, opacity: 1, offset: 0.55 }, { transform: `translate(${dx}px,${dy}px) scale(.12)`, opacity: 0.4 }], { duration: 720, easing: "cubic-bezier(.5,0,.3,1)" });
+  an.onfinish = () => g.remove();
+}
+/* 스크롤하면 카드·섹션이 차례로 떠오름 */
+let IO = null;
+function reveal() {
+  if (RM || !("IntersectionObserver" in window)) return;
+  if (!IO) IO = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); IO.unobserve(en.target); } }), { rootMargin: "0px 0px -6% 0px" });
+  const els = $$("#view .m-card, #view .m-sec, #view .m-pack, #view .m-rowitem, #view .m-sol, #view .m-step, #view .m-events a");
+  els.forEach((el, k) => { if (el.getBoundingClientRect().top < innerHeight) return; el.classList.add("rv"); el.style.setProperty("--d", (k % 4) * 60 + "ms"); IO.observe(el); });
+}
+/* 모바일 하단 탭바 */
+function tabbar(path) {
+  $$("#tabbar a").forEach((a) => { const h = a.getAttribute("href"); a.classList.toggle("is-on", h === "/mall" ? path === "/mall" || path === "/mall/" : path.startsWith(h)); });
+  /* 목록 화면 — 모바일 필터 시트 */
+  const fb = $("#fltBtn"), fl = $("#flt");
+  if (fb && fl) { const close = () => { fl.classList.remove("is-open"); document.body.classList.remove("no-scroll"); $("#scrim").hidden = true; };
+    fb.onclick = () => { fl.classList.add("is-open"); document.body.classList.add("no-scroll"); $("#scrim").hidden = false; $("#scrim").onclick = close; };
+    $("#fltX").onclick = close; $$("a", fl).forEach((a) => a.addEventListener("click", close)); }
+}
+/* 스크롤 — 헤더 축소 · 맨 위로 버튼 */
+{ let tk = false; const on = () => { tk = false; const y = scrollY; document.body.classList.toggle("is-scrolled", y > 60); $("#toTop").classList.toggle("is-on", y > 700); };
+  addEventListener("scroll", () => { if (!tk) { tk = true; requestAnimationFrame(on); } }, { passive: true }); }
+$("#toTop").onclick = () => window.scrollTo({ top: 0, behavior: RM ? "auto" : "smooth" });
 
 /* ───────── 시작 ───────── */
 prep(D.products || []);
