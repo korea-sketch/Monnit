@@ -39,3 +39,4 @@ Claude outputs/
 /cloudflare/generated/
 .wrangler/
 .dev.vars
+dist-mall/

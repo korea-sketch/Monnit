@@ -51,7 +51,7 @@ function slugOf(p, i) { return (p.c + "-" + (p.n || "").replace(/[^\w가-힣]+/g
 function iconKey(p) { const hay = (p.n || "") + " " + (p.g || "") + " " + p.c; for (const [re, k] of RULES) if (re.test(hay)) return k; return p.c === "software" ? "software" : p.c === "gateways" ? "gateway" : p.c === "accessories" ? "control" : "sensor"; }
 /* 제품 사진 (Monnit 공식 이미지 → 배경 제거 PNG, /images/mall/products) — 이름이 없으면 아이콘으로 */
 const IMG = {"온도":"p00","습도":"p01","공기질":"p02","풍속":"p03","차압":"p04","토양 수분":"p05","조도 (Lux)":"p06","조도 (PAR·광합성)":"p07","AC 전류계":"p08","3상 전류계":"p09","200VDC 미터":"p10","200VDC 감지":"p11","500VAC 미터":"p12","500VAC 감지":"p13","모션·점유":"p14","개폐(도어)":"p15","버튼":"p16","차량 감지":"p17","가속도·진동계":"p18","열전대":"p19","저항":"p20","누수 — 로프형":"p21","누수 — 프로브형(Detect+)":"p22","누수 — 퍽형(디스크)":"p23","누수 — 전선형(Detect)":"p24","압력계":"p25","초음파 거리":"p26","프로판 탱크":"p27","일산화탄소(CO)":"p28","이산화탄소(CO2)":"p29","황화수소(H2S)":"p30","드라이컨택":"p31","5채널 드라이컨택":"p32","0-5VDC":"p33","0-10VDC":"p34","0-20mA":"p35","저항 브리지":"p36","펄스 카운터 — 싱글":"p37","펄스 카운터 — 듀얼":"p38","북미 IoT 셀룰러 게이트웨이":"p39","인터내셔널 셀룰러 게이트웨이":"p40","이더넷 게이트웨이":"p41","시리얼 Modbus 게이트웨이":"p42","센서 어댑터 (USB)":"p43","iMonnit 클라우드 관리 SW":"p44","iMonnit Express 독립형 SW":"p45","온프레미스 엔터프라이즈":"p46","Monnit Mine":"p47","사이트 서베이 툴":"p48","컨트롤 유닛":"p49","로컬 경보기":"p50"};
-const imgOf = (p) => IMG[p.n] ? `/images/mall/products/${IMG[p.n]}.png?v=1` : "";
+const imgOf = (p) => IMG[p.n] ? ASSET(`/images/mall/products/${IMG[p.n]}.png`) : "";
 function svgIco(p, cls = "") { const k = iconKey(p); return `<span class="m-ico h-${HUE[k] || "cyan"} ${cls}"><svg viewBox="0 0 24 24">${(D.icons || {})[k] || (D.icons || {}).sensor || ""}</svg></span>`; }
 function ico(p, cls = "") {
   const src = imgOf(p); if (!src) return svgIco(p, cls);
@@ -73,6 +73,16 @@ function prep(list) {
   P.forEach((p) => { p.hot = top.includes(p.id); });
 }
 
+/* 주소 — 서버(/mall/...)에서는 실제 경로, 파일로 열거나 미리보기에서는 #/mall/... 해시 경로로 동작 */
+const HASHMODE = !!window.__MALL_STANDALONE || !/^https?:$/.test(location.protocol);
+const BASE = window.__MALL_BASE || "";
+const ASSET = (u) => (window.__MALL_ASSETS && window.__MALL_ASSETS[u]) || BASE + u;
+let CUR = "";   /* 해시를 바꿀 수 없는 미리보기 창(샌드박스)에서도 화면 이동이 되게 메모리에 현재 주소를 둔다 */
+function L() {
+  if (!HASHMODE) return { pathname: location.pathname, search: location.search, hash: location.hash };
+  const h = CUR || location.hash.replace(/^#/, "") || "/mall"; const m = /^([^?#]*)(\?[^#]*)?(#.*)?$/.exec(h) || [];
+  return { pathname: m[1] || "/mall", search: m[2] || "", hash: m[3] || "" };
+}
 /* ───────── 상태 ───────── */
 let CART = LS.get("mnkQuoteCart", []);           // 제품몰(/store)과 같은 견적함
 let FAV = LS.get("mnkFav", []), RECENT = LS.get("mnkRecent", []), CMP = LS.get("mnkCmp", []);
@@ -93,7 +103,7 @@ function toggleCmp(id, on) {
   if (!on) CMP = CMP.filter((x) => x !== id);
   LS.set("mnkCmp", CMP); cmpBar(); return true;
 }
-function cmpBar() { const n = CMP.length; $("#cmpBar").hidden = !n || location.pathname === "/mall/compare"; $("#cmpTxt").textContent = `비교함 ${n}/4 · ` + CMP.map((id) => (P.find((p) => p.id === id) || {}).n).filter(Boolean).join(", "); }
+function cmpBar() { const n = CMP.length; $("#cmpBar").hidden = !n || L().pathname === "/mall/compare"; $("#cmpTxt").textContent = `비교함 ${n}/4 · ` + CMP.map((id) => (P.find((p) => p.id === id) || {}).n).filter(Boolean).join(", "); }
 
 /* ───────── 공통 조각 ───────── */
 function card(p, opt = {}) {
@@ -126,7 +136,7 @@ function vHome() {
   const best = P.filter((p) => p.hot);
   const rec = RECENT.map((id) => P.find((p) => p.id === id)).filter(Boolean).slice(0, 6);
   return `<section class="m-hero"><div class="m-in m-hero__in">
-      <div class="m-hero__main" id="slider">${BANNERS.map((b, i) => `<a class="m-slide${i ? "" : " is-on"}" href="${b.href}"><img src="${b.img}" alt="" ${i ? 'loading="lazy"' : ""}><div><span class="m-tag m-tag--w">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}
+      <div class="m-hero__main" id="slider">${BANNERS.map((b, i) => `<a class="m-slide${i ? "" : " is-on"}" href="${b.href}"><img src="${ASSET(b.img)}" alt="" ${i ? 'loading="lazy"' : ""}><div><span class="m-tag m-tag--w">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}
         <div class="m-dots">${BANNERS.map((_, i) => `<button type="button" data-slide="${i}" class="${i ? "" : "is-on"}" aria-label="${i + 1}번 배너"></button>`).join("")}</div></div>
       <aside class="m-hero__side"><div class="m-hello"><b>${ME && ME.member ? esc(ME.member.email) + " 님" : "기업 구매 회원이신가요?"}</b>
           <p>${ME && ME.member ? `<span class="m-grade" style="--g:${tierOf().color}">${tierOf().name}</span> 등급 혜택이 적용돼요.` : "로그인하면 견적 정보가 자동으로 채워지고 등급 혜택이 적용돼요."}</p>
@@ -140,11 +150,11 @@ function vHome() {
       <ul class="m-benefits"><li><b>공식 견적서</b>영업일 1일 회신</li><li><b>세금계산서</b>발행 · 지급 조건 협의</li><li><b>무선 940MHz</b>배선 공사 없이 설치</li><li><b>기본 보증 1년</b>설치 후 기술지원</li></ul>
       ${sec("많이 찾는 제품", "적용 분야 문의가 많은 순", `<div class="m-grid m-grid--4">${best.map((p) => card(p)).join("")}</div>`, "/mall/category/sensors")}
       ${sec("현장별 추천 패키지", "자주 쓰는 구성을 한 번에 견적 — 수량은 견적 때 현장에 맞춰 조정", `<div class="m-packs">${PACKS.slice(0, 3).map(packCard).join("")}</div>`, "/mall/packages")}
-      <section class="m-sec" id="events"><div class="m-sec__hd"><h2>기획전</h2><span>지금 문의가 많은 솔루션</span></div><div class="m-events">${BANNERS.map((b) => `<a href="${b.href}"><img src="${b.img}" alt="" loading="lazy"><div><span class="m-tag">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}</div></section>
+      <section class="m-sec" id="events"><div class="m-sec__hd"><h2>기획전</h2><span>지금 문의가 많은 솔루션</span></div><div class="m-events">${BANNERS.map((b) => `<a href="${b.href}"><img src="${ASSET(b.img)}" alt="" loading="lazy"><div><span class="m-tag">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}</div></section>
       ${sec("산업별 솔루션", "현장에 맞는 센서를 용도로 찾기", `<div class="m-apps">${APPS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 12).map((a) => `<a href="/mall/solution/${esc(a.id)}" data-link><b>${esc(a.name)}</b><small>${esc(a.desc || "")}</small></a>`).join("")}</div>`, "/mall/solutions")}
       ${sec("기업 구매, 이렇게 진행돼요", "", stepsHTML())}
       ${rec.length ? sec("최근 본 제품", "", `<div class="m-grid m-grid--6">${rec.map((p) => card(p)).join("")}</div>`) : ""}
-      <section class="m-sec"><div class="m-sec__hd"><h2>함께하는 고객사</h2><span>공공 · 제조 · 바이오 · 유통 · 연구 기관</span><a href="/stories" class="m-more">도입 사례 ›</a></div><div class="m-logos">${LOGOS.map((l) => `<img src="/images/clogo-${l}.png" alt="" onerror="this.remove()">`).join("")}</div></section>
+      <section class="m-sec"><div class="m-sec__hd"><h2>함께하는 고객사</h2><span>공공 · 제조 · 바이오 · 유통 · 연구 기관</span><a href="/stories" class="m-more">도입 사례 ›</a></div><div class="m-logos">${LOGOS.map((l) => `<img src="${ASSET(`/images/clogo-${l}.png`)}" alt="" onerror="this.remove()">`).join("")}</div></section>
     </div>`;
 }
 function stepsHTML() {
@@ -152,7 +162,7 @@ function stepsHTML() {
 }
 function packCard(k) {
   const its = k.items.map(([n, q]) => [byName(n), q]).filter(([p]) => p);
-  return `<article class="m-pack"><img src="${k.img}" alt="" loading="lazy"><div class="m-pack__body"><small>${esc(k.for)}</small><h3>${esc(k.name)}</h3><p>${esc(k.desc)}</p>
+  return `<article class="m-pack"><img src="${ASSET(k.img)}" alt="" loading="lazy"><div class="m-pack__body"><small>${esc(k.for)}</small><h3>${esc(k.name)}</h3><p>${esc(k.desc)}</p>
     <ul>${its.map(([p, q]) => `<li><a href="/mall/product/${esc(p.id)}" data-link>${esc(p.n)}</a><span>× ${q}</span></li>`).join("")}</ul>
     <div class="m-pack__ft"><div class="m-price">패키지 견적가<small>현장 규모에 맞춰 조정</small></div><button class="m-btn m-btn--sm" type="button" data-pack="${k.id}">패키지 담기</button></div></div></article>`;
 }
@@ -166,7 +176,7 @@ function vList(cat, qs) {
   list = sort === "name" ? list.slice().sort((a, b) => a.n.localeCompare(b.n, "ko")) : list.slice().sort((a, b) => b.score - a.score);
   const title = q ? `'${q}' 검색 결과` : g ? grpName(g) + " 센서" : CAT_KO[cat] || "전체 제품";
   setTitle(title);
-  const link = (o) => { const u = new URLSearchParams(qs); Object.entries(o).forEach(([k, v]) => (v ? u.set(k, v) : u.delete(k))); const s = u.toString(); return location.pathname + (s ? "?" + s : ""); };
+  const link = (o) => { const u = new URLSearchParams(qs); Object.entries(o).forEach(([k, v]) => (v ? u.set(k, v) : u.delete(k))); const s = u.toString(); return L().pathname + (s ? "?" + s : ""); };
   const topApps = APPS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 14);
   return `<div class="m-in">${crumbs(q ? [["검색", ""]] : [[CAT_KO[cat] || "전체 제품", g ? "/mall/category/" + cat : ""], ...(g ? [[grpName(g), ""]] : [])])}
     <div class="m-catbanner"><div><h1>${esc(title)}</h1><p>${esc(q ? `${list.length}개 제품을 찾았어요` : CAT_DESC[cat] || "Monnit ALTA 무선 IoT 전 제품")}</p></div><a class="m-btn m-btn--w" href="/mall/quote" data-link>구성 상담 요청</a></div>
@@ -378,7 +388,7 @@ function vNotFound() { setTitle("페이지를 찾을 수 없음"); return `<div 
 
 /* ───────── 라우터 ───────── */
 function route() {
-  const path = location.pathname.replace(/\/+$/, "") || "/mall", qs = new URLSearchParams(location.search), seg = path.split("/").slice(2).map(decodeURIComponent);
+  const path = L().pathname.replace(/\/+$/, "") || "/mall", qs = new URLSearchParams(L().search), seg = path.split("/").slice(2).map(decodeURIComponent);
   let html;
   if (!seg.length) html = vHome();
   else if (seg[0] === "category") html = vList(seg[1] || "all", qs);
@@ -399,9 +409,9 @@ function route() {
   $("#q").value = seg[0] === "search" ? qs.get("q") || "" : "";
   $$(".m-gnb a").forEach((a) => a.classList.toggle("is-on", a.getAttribute("href") === path));
   badge(); cmpBar(); bind(seg); reveal(); tabbar(path);
-  if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ behavior: "smooth", block: "start" }), 30); } else window.scrollTo(0, 0);
+  if (L().hash) { const t = document.getElementById(L().hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ behavior: "smooth", block: "start" }), 30); } else window.scrollTo(0, 0);
 }
-function go(href) { if (href === location.pathname + location.search + location.hash) return route(); history.pushState({}, "", href); route(); }
+function go(href) { const cur = L(); if (href === cur.pathname + cur.search + cur.hash) return route(); if (HASHMODE) { CUR = href; try { history.pushState({ p: href }, "", "#" + href); } catch (err) { try { location.hash = href; } catch (er) {} } route(); return; } history.pushState({}, "", href); route(); }
 
 /* ───────── 화면별 이벤트 ───────── */
 function bind(seg) {
@@ -466,7 +476,7 @@ function quickAdd() {
   if (hit || miss.length) setTimeout(() => go("/mall/cart"), 700);
 }
 function shareCart() {
-  const u = location.origin + "/mall/cart?items=" + encodeURIComponent(CART.map((c) => c.id + "*" + c.qty).join(","));
+  const u = (HASHMODE ? "https://monnit.co.kr" : location.origin) + "/mall/cart?items=" + encodeURIComponent(CART.map((c) => c.id + "*" + c.qty).join(","));
   (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast("결재용 링크를 복사했어요 — 같은 구성으로 열립니다"), () => prompt("아래 링크를 복사하세요", u));
 }
 function readForm() {
@@ -475,7 +485,8 @@ function readForm() {
     docs: $$(".fDoc").filter((x) => x.checked).map((x) => x.value) };
 }
 async function postLead(payload) {
-  try { const r = await fetch("/api/lead", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ lead_type: "contact", page: "/mall", ts: new Date().toISOString(), payload }) }); return r.ok || r.status === 204; } catch (e) { return false; }
+  if (HASHMODE && !window.__MALL_API) return false; const API = window.__MALL_API || BASE;
+  try { const r = await fetch(API + "/api/lead", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ lead_type: "contact", page: "/mall", ts: new Date().toISOString(), payload }) }); return r.ok || r.status === 204; } catch (e) { return false; }
 }
 const reqNo = () => "MQ-" + new Date(Date.now() + 9 * 3600e3).toISOString().slice(2, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
 async function submitQuote(e) {
@@ -511,12 +522,12 @@ async function productQna(p) {
   if (!v.co || !v.nm || !v.ph) return toast("회사 · 담당자 · 연락처를 입력해 주세요.");
   if (!$("#qaOk").checked) return toast("개인정보 수집 · 이용에 동의해 주세요.");
   const no = reqNo().replace("MQ", "PQ");
-  const ok = await postLead({ "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "IoT몰 제품 문의", "지역": "(미기재)", "문의 사항": `[${no}] ${p.n} — ${v.msg || "(내용 없음)"}`, "접수번호": no, "접점": "/mall 제품 문의", "유입 페이지": location.pathname, "출처": "direct" });
+  const ok = await postLead({ "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "IoT몰 제품 문의", "지역": "(미기재)", "문의 사항": `[${no}] ${p.n} — ${v.msg || "(내용 없음)"}`, "접수번호": no, "접점": "/mall 제품 문의", "유입 페이지": L().pathname, "출처": "direct" });
   if (ok) { $("#qnaForm").innerHTML = `<p class="m-note"><b>문의가 접수되었어요 (${no}).</b> 담당자가 영업일 1일 안에 연락드립니다.</p>`; } else toast("전송에 실패했어요. 02-2088-1454로 연락 주세요.");
 }
 function printQuote(v) {
   const items = cartItems(), today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), x = (s) => esc(s || "") || "&nbsp;";
-  $("#printArea").innerHTML = `<div class="pq"><div class="pq__hd"><img src="/logo.png" alt=""><div><h1>견적 요청서</h1><p>요청일 ${today} · 모넷 IoT몰</p></div></div>
+  $("#printArea").innerHTML = `<div class="pq"><div class="pq__hd"><img src="${ASSET("/logo.png")}" alt=""><div><h1>견적 요청서</h1><p>요청일 ${today} · 모넷 IoT몰</p></div></div>
     <table><tr><th>요청 기관</th><td>${x(v.co)}</td><th>사업자번호</th><td>${x(v.biz)}</td></tr><tr><th>담당자</th><td>${x(v.nm)} ${v.dept ? "/ " + esc(v.dept) : ""}</td><th>연락처</th><td>${x(v.ph)}</td></tr>
     <tr><th>이메일</th><td>${x(v.em)}</td><th>희망 납기</th><td>${x(v.due)}</td></tr><tr><th>납품 지역</th><td>${x(v.rg)}</td><th>구매 유형</th><td>${x(v.type)}</td></tr></table>
     <table class="pq__items"><thead><tr><th>No.</th><th>품목</th><th>분류</th><th>수량</th><th>단가</th><th>금액</th></tr></thead><tbody>${items.map((c, i) => `<tr><td>${i + 1}</td><td>${esc(c.p.n)}</td><td>${esc(catLine(c.p))}</td><td>${c.qty}</td><td>견적</td><td>견적</td></tr>`).join("") || `<tr><td colspan="6">구성 상담 요청</td></tr>`}</tbody></table>
@@ -526,11 +537,13 @@ function printQuote(v) {
 
 /* ───────── 전역 이벤트 ───────── */
 document.addEventListener("click", (e) => {
+  const ext = HASHMODE && e.target.closest('a[href^="/"]:not([data-link])');
+  if (ext) { e.preventDefault(); window.open("https://monnit.co.kr" + ext.getAttribute("href"), "_blank", "noopener"); return; }
   const a = e.target.closest("a[data-link]");
   if (a && !e.metaKey && !e.ctrlKey && !e.shiftKey && a.target !== "_blank") { e.preventDefault(); closeMega(); return go(a.getAttribute("href")); }
   if (e.target.closest("[data-stop]")) return;
   const fv = e.target.closest("[data-fav]"); if (fv) { e.preventDefault(); e.stopPropagation(); toggleFav(fv.dataset.fav); const y = scrollY; route(); window.scrollTo(0, y); return; }
-  const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); fly(ad); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (location.pathname === "/mall/cart") route(); return; }
+  const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); fly(ad); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (L().pathname === "/mall/cart") route(); return; }
   const pk = e.target.closest("[data-pack]"); if (pk) { const k = PACKS.find((x) => x.id === pk.dataset.pack); k.items.forEach(([n, q]) => { const p = byName(n); if (p) add(p.id, q, true); }); toast(`${k.name}를 견적함에 담았어요`); return; }
   const sp = e.target.closest("[data-solpack]"); if (sp) { const ap = APPS.find((x) => x.id === sp.dataset.solpack); const ps = prodsOfApp(ap).slice(0, 3); [...ps, byName("이더넷 게이트웨이"), byName("iMonnit 클라우드 관리 SW")].filter(Boolean).forEach((p) => add(p.id, 1, true)); toast("추천 구성을 견적함에 담았어요 — 수량은 견적함에서 조정하세요"); return; }
   const uc = e.target.closest("[data-uncmp]"); if (uc) { toggleCmp(uc.dataset.uncmp, false); route(); return; }
@@ -539,7 +552,8 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".m-all")) closeMega();
 });
 document.addEventListener("change", (e) => { const c = e.target.closest("[data-cmp]"); if (!c) return; if (!toggleCmp(c.dataset.cmp, c.checked)) c.checked = false; });
-window.addEventListener("popstate", route);
+window.addEventListener("popstate", (e) => { if (HASHMODE) CUR = (e.state && e.state.p) || location.hash.replace(/^#/, ""); route(); });
+if (HASHMODE) window.addEventListener("hashchange", () => { const h = location.hash.replace(/^#/, ""); if (h && h !== CUR) { CUR = h; route(); } });
 $("#searchForm").onsubmit = (e) => { e.preventDefault(); const q = $("#q").value.trim(); go(q ? "/mall/search?q=" + encodeURIComponent(q) : "/mall/category/all"); };
 $("#cmpClear").onclick = () => { CMP = []; LS.set("mnkCmp", CMP); route(); };
 /* 전체 카테고리 메가메뉴 */
@@ -594,10 +608,10 @@ $("#toTop").onclick = () => window.scrollTo({ top: 0, behavior: RM ? "auto" : "s
 
 /* ───────── 시작 ───────── */
 prep(D.products || []);
-try { const s = new URLSearchParams(location.search); const src = ["utm_source", "utm_campaign", "gclid", "n_keyword"].filter((k) => s.get(k)).map((k) => k + "=" + s.get(k)).join("&"); if (src) sessionStorage.setItem("mnkMallSrc", src); } catch (e) {}
+try { const s = new URLSearchParams(L().search); const src = ["utm_source", "utm_campaign", "gclid", "n_keyword"].filter((k) => s.get(k)).map((k) => k + "=" + s.get(k)).join("&"); if (src) sessionStorage.setItem("mnkMallSrc", src); } catch (e) {}
 /* 결재용 링크(/mall/cart?items=id*qty,...) — 같은 구성으로 견적함 채우기 */
-{ const it = new URLSearchParams(location.search).get("items");
-  if (it) { it.split(",").forEach((t) => { const [id, n] = t.split("*"); if (P.find((p) => p.id === id) && !CART.some((c) => c.id === id)) CART.push({ id, qty: Math.max(1, Math.min(9999, Number(n) || 1)) }); }); saveCart(); history.replaceState({}, "", "/mall/cart"); setTimeout(() => toast("공유받은 구성을 견적함에 담았어요"), 300); } }
+{ const it = new URLSearchParams(L().search).get("items");
+  if (it) { it.split(",").forEach((t) => { const [id, n] = t.split("*"); if (P.find((p) => p.id === id) && !CART.some((c) => c.id === id)) CART.push({ id, qty: Math.max(1, Math.min(9999, Number(n) || 1)) }); }); saveCart(); if (HASHMODE) CUR = "/mall/cart"; else history.replaceState({}, "", "/mall/cart"); setTimeout(() => toast("공유받은 구성을 견적함에 담았어요"), 300); } }
 route();
-fetch("/api/billing/me").then((r) => r.json()).then((j) => { if (j && j.ok && j.member) { ME = j; $("#uLogin").textContent = tierOf().name + " 회원"; if (["", "my", "quote"].includes((location.pathname.split("/")[2] || ""))) route(); } }).catch(() => {});
+(HASHMODE ? Promise.reject() : fetch("/api/billing/me")).then((r) => r.json()).then((j) => { if (j && j.ok && j.member) { ME = j; $("#uLogin").textContent = tierOf().name + " 회원"; if (["", "my", "quote"].includes((L().pathname.split("/")[2] || ""))) route(); } }).catch(() => {});
 })();
