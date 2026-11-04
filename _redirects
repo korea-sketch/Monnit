@@ -418,6 +418,7 @@
 /installation-photos/ /installation-photos.html    301
 
 # --- SPA 폴백 (미리 만든 파일이 없는 상세 경로 · 준비 중 화면이 받습니다)
+/mall/*               /mall.html           200
 /app/*                /index.html          200
 /case/*               /index.html          200
 /kb/*                 /index.html          200

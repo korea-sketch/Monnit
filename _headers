@@ -35,6 +35,14 @@
 /promo/consulting
   Cache-Control: no-cache, must-revalidate
 
+# IoT몰 (2026-11-04) — 견적형 기업 구매몰
+/mall
+  Cache-Control: no-cache, must-revalidate
+/mall/*
+  Cache-Control: no-cache, must-revalidate
+/mall.html
+  Cache-Control: no-cache, must-revalidate
+
 # 제품몰 (2026-11-04) — 가격 없이 사양·견적 요청. 카탈로그를 자주 고치므로 항상 최신본
 /store
   Cache-Control: no-cache, must-revalidate
