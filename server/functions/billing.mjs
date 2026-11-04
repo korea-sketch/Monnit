@@ -12,13 +12,15 @@
  *             다른 기기에서는 구독번호 + 이메일 인증코드로 조회한다.
  *
  *  결제 수단
- *    card    토스페이먼츠 카드 자동결제(빌링). 카드 등록 → 설치 완료(관리자 「서비스 개시」) 날 첫 결제 → 매달 같은 날 자동 결제.
- *            (설정 chargeAt = "signup" 이면 카드 등록 즉시 첫 결제)
+ *    card    토스페이먼츠 카드 자동결제(빌링). 카드 등록(0원) → 설치 완료(관리자 「설치 완료 · 서비스 개시」) → 매월 결제일(기본 20일) 자동 결제.
+ *            (결제는 설치 완료 뒤에만 — 카드 등록 시점에는 청구하지 않는다. 첫 결제는 설치 완료 후 매월 결제일(payDay))
  *    invoice 세금계산서 발행 · 계좌이체 (법인). 매달 결제일에 청구 기록이 생기고, 관리 화면에서 나라빌 대량발행 엑셀로 내려받는다.
  *
  *  공개                                       관리자 (헤더 x-admin-key)
  *    GET  config        결제 설정·키           GET  admin/list · admin/sub?id · admin/pays?month=YYYY-MM · admin/settings
- *    GET  quote?offer=  계약 조건 불러오기      POST admin/activate {id,start}    서비스 개시(첫 결제)
+ *    GET  quote?offer=  계약 조건 불러오기      POST admin/activate {id,start}    설치 완료 · 서비스 개시
+ *                                               POST admin/install {id,date,slot,note} 설치일 확정·변경(+안내 메일)
+ *                                               POST admin/mail {id,kind}  안내 메일 다시 · GET admin/members · POST admin/member {email,grade}
  *    POST otp/send      인증코드 보내기          POST admin/charge {id}            지금 결제(재시도)
  *    POST otp/verify    인증 → 로그인            POST admin/refund {orderId,amount?,reason}
  *    POST logout                                 POST admin/cancel {id,mode}       해지(예약·즉시·철회)
@@ -36,15 +38,16 @@ import {
   SITE, db, PRODUCTS, UNIT, MAX_SELF_SITES, landingPlan, contractPlan, vatOf, won, kstToday, isDate, addDays,
   token, subId, hashOf, normEmail, isEmail, str, nowIso, seal, unseal, getSub, saveSub, indexEmail, subsOfEmail, setDue,
   quotePlan, pubSub, runCycle, STATUS_LABEL, later, sendMail, mailHtml, welcomeMail, staffAlert, getSettings, DEFAULT_SETTINGS, manageUrl, closeIfDue,
-  makeTerm, inTerm, monthsLeft, oneTimeCharge, refundMail,
+  makeTerm, inTerm, monthsLeft, oneTimeCharge, refundMail, firstChargeDate,
 } from "./_billing_core.mjs";
+import { installRules, cleanInstall, confirmInstall, afterInstalled, installGuideMail, platformMail, SLOT_LABEL } from "./_billing_install.mjs";
 import { runDue } from "./billing-cron.mjs";
 import leadFn from "./lead.mjs";   /* 현금 결제 상담 — 사이트의 다른 문의와 같은 리드 원장·담당자 배분(1015@·5959@)·먼데이로 */
 
 const P = "/api/billing/";
 const ROUTES = ["config", "quote", "otp/send", "otp/verify", "logout", "me", "checkout", "card/confirm", "card/change", "pays", "cancel", "profile",
   "admin/ping", "admin/list", "admin/sub", "admin/pays", "admin/settings", "admin/activate", "admin/charge", "admin/refund", "admin/cancel",
-  "admin/update", "admin/invoice", "admin/delete", "admin/cron",
+  "admin/update", "admin/invoice", "admin/delete", "admin/cron", "admin/install", "admin/mail", "admin/members", "admin/member",
   "cash-inquiry", "admin/inquiries", "admin/inquiry", "admin/quotes", "admin/quote"];
 export const config = { path: ROUTES.map((r) => P + r) };
 
@@ -88,7 +91,8 @@ export default async (req) => {
 async function getConfig() {
   const s = await getSettings();
   return json({ ok: true, ready: tossReady(), test: tossTestMode(), clientKey: tossClientKey(),
-    unit: UNIT, maxSites: MAX_SELF_SITES, chargeAt: s.chargeAt, bank: s.bank || "", termMonths: s.termMonths,
+    unit: UNIT, maxSites: MAX_SELF_SITES, chargeAt: "activation", bank: s.bank || "", termMonths: s.termMonths, payDay: s.payDay,
+    install: installRules(s), slots: SLOT_LABEL,
     products: Object.fromEntries(Object.entries(PRODUCTS).map(([k, v]) => [k, { label: v.label, note: v.note }])) });
 }
 
@@ -219,6 +223,7 @@ function canAccess(sess, sub) {
   if (sess.scope === "member") return normEmail(sub.customer.email) === sess.email || normEmail(sub.memberEmail) === sess.email;
   return false;
 }
+const GRADES = ["welcome", "silver", "gold", "partner"];   /* 제품몰 회원 등급 — 담당자가 관리 화면에서 지정 */
 async function me(req) {
   const sess = await session(req);
   if (!sess) return json({ ok: true, member: null, subs: [] });
@@ -226,7 +231,7 @@ async function me(req) {
   let member = null;
   if (sess.scope === "member") {
     const mem = await db.get("members/" + hashOf(sess.email));
-    member = { email: sess.email, profile: mem && mem.profile || {} };
+    member = { email: sess.email, profile: mem && mem.profile || {}, grade: mem && GRADES.includes(mem.grade) ? mem.grade : "welcome" };
     ids = await subsOfEmail(sess.email);
   } else ids = [sess.subId, ...(sess.subs || [])].filter(Boolean);
   const subs = (await Promise.all([...new Set(ids)].slice(0, 30).map(getSub))).filter((s) => s && s.status !== "pending" && canAccess(sess, s));
@@ -273,6 +278,9 @@ async function checkout(req, b) {
   const ag = b.agree || {};
   if (!ag.terms || !ag.privacy || !ag.term || (method === "card" && !ag.autopay)) return json({ ok: false, error: "missing_agree" }, 400);
   if (method === "card" && !tossReady()) return json({ ok: false, error: "pg_not_ready" }, 503);
+  const settings0 = await getSettings();
+  const ins = cleanInstall(b.install, installRules(settings0));     /* 설치 희망일 — 다음 주부터 · 확정은 담당자 */
+  if (ins.error) return json({ ok: false, error: ins.error, rules: installRules(settings0) }, 400);
 
   /* 구성·금액 — 언제나 서버가 정한다 */
   let plan, offerId = "", contractRef = "", quoteId = "";
@@ -302,8 +310,8 @@ async function checkout(req, b) {
     id, createdAt: nowIso(), status: method === "card" ? "pending" : "registered", method, source: plan.source,
     offerId, contractRef, quoteId, member: asMember, memberEmail: asMember ? sess.email : "",
     customer: cust, plan, customerKey: "ck_" + token(24), cycle: 0, failCount: 0, payments: [],
-    via: str(b.via, 20),
-    agree: { terms: true, privacy: true, term: true, termMonths: plan.termMonths || 0, autopay: method === "card", at: nowIso(), ip: ip(req), text: str(ag.text, 600) },
+    via: str(b.via, 20), install: ins.install, payDay: settings0.payDay,
+    agree: { terms: true, privacy: true, term: true, termMonths: plan.termMonths || 0, autopay: method === "card", schedule: !!ag.schedule, at: nowIso(), ip: ip(req), text: str(ag.text, 600) },
     client: { ip: ip(req), ua: str(req.headers.get("user-agent"), 300) },
   };
   await saveSub(sub);
@@ -360,8 +368,7 @@ async function cardConfirm(req, b) {
   }
   sub.status = "registered";
   await saveSub(sub);
-  const s = await getSettings();
-  if (s.chargeAt === "signup") await activate(sub, kstToday(), "signup");
+  /* 결제는 설치 완료(서비스 개시) 뒤에만 — 카드 등록 시점에는 0원 */
   await afterRegistered(await getSub(sub.id));
   return json({ ok: true, subId: sub.id, sub: pubSub(await getSub(sub.id)) });
 }
@@ -502,17 +509,25 @@ async function cashInquiry(req, b) {
 }
 
 /* ───────── 서비스 개시 (첫 결제) ───────── */
+/** 설치 완료 = 서비스 개시. 구독 시작일(의무 사용기간 시작)은 설치 완료일, 결제는 그 뒤 매월 결제일.
+ *  설치가 끝나지 않은 날짜(미래)로는 개시할 수 없다 — 「설치가 완벽히 된 뒤에만 결제」 */
 async function activate(sub, start, by) {
   const d = isDate(start) ? start : kstToday();
+  if (d > kstToday()) return { ok: false, error: "future_start" };
+  const s = await getSettings();
+  const payDay = sub.payDay != null ? sub.payDay : s.payDay;
+  const fc = firstChargeDate(d, payDay);
   sub.startedAt = d;
-  sub.term = makeTerm(sub, d);                       // 의무 사용기간은 서비스 시작일부터
-  sub.anchorDay = Number(d.slice(8, 10));
-  sub.nextChargeAt = d;
+  sub.term = makeTerm(sub, d);                       // 의무 사용기간 = 설치 완료일부터
+  sub.anchorDay = fc.anchorDay;
+  sub.nextChargeAt = fc.date;
   if (sub.status === "registered") sub.status = "active";
   await saveSub(sub);
-  if (d <= kstToday()) return runCycle(sub, { by, date: d });
-  await setDue(sub, d); await saveSub(sub);
-  return { ok: true, scheduled: d };
+  await afterInstalled(sub, d);                      // 설치 완료 표시 · 개통/플랫폼 안내 메일 · n일 뒤 다시 안내 예약
+  sub = await getSub(sub.id);
+  if (fc.date <= kstToday()) return runCycle(sub, { by, date: fc.date });
+  await setDue(sub, fc.date); await saveSub(sub);
+  return { ok: true, scheduled: fc.date };
 }
 
 /* ───────── 관리자 ───────── */
@@ -525,6 +540,13 @@ async function admin(req, url, r, m) {
       .map(({ billingKeyEnc, customerKey, client, ...s }) => s);
     subs.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
     return json({ ok: true, subs, labels: STATUS_LABEL, ready: tossReady(), test: tossTestMode(), keyProblem: tossKeyProblem() });
+  }
+  if (m === "GET" && r === "members") {
+    const keys = await db.list("members/");
+    const items = (await Promise.all(keys.slice(0, 2000).map((k) => db.get(k.key)))).filter(Boolean)
+      .map((x) => ({ email: x.email, grade: GRADES.includes(x.grade) ? x.grade : "welcome", company: x.profile && x.profile.company || "", manager: x.profile && x.profile.manager || "", phone: x.profile && x.profile.phone || "", createdAt: x.createdAt, gradeAt: x.gradeAt || "", gradeNote: x.gradeNote || "" }));
+    items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    return json({ ok: true, items, grades: GRADES });
   }
   if (m === "GET" && r === "quotes") {
     const keys = await db.list("quotes/");
@@ -562,8 +584,19 @@ async function admin(req, url, r, m) {
       supplier: Object.fromEntries(Object.keys(DEFAULT_SETTINGS.supplier).map((k) => [k, str(sp[k] != null ? sp[k] : cur.supplier[k], 200)])),
       invoiceItem: str(b.invoiceItem != null ? b.invoiceItem : cur.invoiceItem, 100) || DEFAULT_SETTINGS.invoiceItem,
       bank: str(b.bank != null ? b.bank : cur.bank, 200),
-      chargeAt: b.chargeAt === "signup" ? "signup" : b.chargeAt === "activation" ? "activation" : cur.chargeAt,
+      chargeAt: "activation",            // 설치 완료 뒤에만 결제 (고정)
       termMonths: b.termMonths != null ? Math.max(0, Math.min(60, Math.round(Number(b.termMonths) || 0))) : cur.termMonths,
+      payDay: b.payDay != null && b.payDay !== "" ? Math.max(0, Math.min(28, Math.round(Number(b.payDay) || 0))) : cur.payDay,
+      install: (() => { const i = b.install || {}, c = cur.install; return {
+        lastDay: i.lastDay != null && i.lastDay !== "" ? Math.max(0, Math.min(31, Math.round(Number(i.lastDay) || 0))) : c.lastDay,
+        horizonDays: i.horizonDays ? Math.max(14, Math.min(180, Math.round(Number(i.horizonDays) || 60))) : c.horizonDays,
+        weekdaysOnly: i.weekdaysOnly != null ? !!i.weekdaysOnly : c.weekdaysOnly,
+        blackout: Array.isArray(i.blackout) ? [...new Set(i.blackout.map(String).filter(isDate))].sort().slice(0, 200) : c.blackout }; })(),
+      mail: (() => { const x = b.mail || {}, c = cur.mail; return {
+        confirm: x.confirm != null ? !!x.confirm : c.confirm, dayBefore: x.dayBefore != null ? !!x.dayBefore : c.dayBefore,
+        start: x.start != null ? !!x.start : c.start, followDays: x.followDays != null ? Math.max(0, Math.min(60, Math.round(Number(x.followDays) || 0))) : c.followDays }; })(),
+      guides: (() => { const g = b.guides || {}, c = cur.guides, ln = (v, d) => Array.isArray(v) ? v.map((t) => str(t, 300)).filter(Boolean).slice(0, 15) : d; return {
+        install: ln(g.install, c.install), platform: ln(g.platform, c.platform) }; })(),
     };
     await db.set("settings", next);
     return json({ ok: true, settings: next });
@@ -668,12 +701,37 @@ async function admin(req, url, r, m) {
     if (s && b.notify !== false) later(refundMail(s, p, this_, str(b.reason, 200)));
     return json({ ok: true, pay: p });
   }
+  if (r === "member") {
+    const email = normEmail(b.email);
+    if (!isEmail(email)) return json({ ok: false, error: "bad_email" }, 400);
+    if (!GRADES.includes(b.grade)) return json({ ok: false, error: "bad_grade" }, 400);
+    const mk = "members/" + hashOf(email);
+    const mem = (await db.get(mk)) || { email, createdAt: nowIso(), byStaff: true };   // 아직 가입 전이어도 미리 등급을 정해 둘 수 있다
+    Object.assign(mem, { grade: b.grade, gradeAt: nowIso(), gradeNote: str(b.note, 200) });
+    await db.set(mk, mem);
+    return json({ ok: true, member: { email, grade: mem.grade } });
+  }
   const sub = await getSub(b.id);
   if (!sub && r !== "delete") return json({ ok: false, error: "not_found" }, 404);
+  if (r === "install") {
+    if (sub.status === "canceled" || sub.status === "pending") return json({ ok: false, error: "not_schedulable" }, 409);
+    if (sub.install && sub.install.status === "done") return json({ ok: false, error: "already_installed" }, 409);
+    const x = await confirmInstall(sub, { date: b.date, slot: b.slot, note: b.note, notify: b.notify !== false });
+    return json({ ...x, sub: await getSub(sub.id) }, x.ok ? 200 : 400);
+  }
+  if (r === "mail") {      /* 안내 메일 다시 보내기 */
+    let ok = false;
+    if (b.kind === "install") { if (!sub.install || !sub.install.date) return json({ ok: false, error: "no_install_date" }, 409); ok = await installGuideMail(sub, "confirmed"); }
+    else if (b.kind === "platform") ok = await platformMail(sub, sub.startedAt ? "follow" : "start");
+    else return json({ ok: false, error: "bad_kind" }, 400);
+    sub.mailLog = [{ kind: b.kind + "_manual", at: nowIso(), ok }, ...(sub.mailLog || [])].slice(0, 30); await saveSub(sub);
+    return json({ ok, sub });
+  }
   if (r === "activate") {
     if (!["registered", "active"].includes(sub.status) || sub.cycle) return json({ ok: false, error: "not_activatable" }, 409);
     if (sub.method === "card" && !sub.billingKeyEnc) return json({ ok: false, error: "no_card" }, 409);
     const x = await activate(sub, b.start, "staff");
+    if (x.error) return json({ ok: false, error: x.error }, 400);
     return json({ ok: x.ok !== false, result: x.pay ? { status: x.pay.status, amount: x.pay.amount, error: x.pay.error } : x, sub: await getSub(sub.id) });
   }
   if (r === "charge") {

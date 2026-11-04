@@ -188,7 +188,7 @@ export async function setDue(sub, date) {
 /** 고객에게 보여 줄 구독 — 빌링키·고객키·접속 정보는 뺀다 */
 export function pubSub(s) {
   if (!s) return null;
-  const { billingKeyEnc, customerKey, client, dueKey, staffMemo, ...rest } = s;
+  const { billingKeyEnc, customerKey, client, dueKey, staffMemo, mailq, ...rest } = s;
   return rest;
 }
 
@@ -204,12 +204,23 @@ function periodOf(sub, from) {
   return { from, to: addDays(next, -1), next };
 }
 
+/** 첫 결제일 — 구독(이용 기간)은 설치 완료일부터 시작하고, 결제는 매월 정해진 결제일(payDay)에 한다.
+ *  payDay=20 이고 설치 완료가 5일이면 → 그달 20일 첫 결제, 이후 매월 20일. 결제일이 지나 완료되면 완료일에 바로 첫 결제.
+ *  payDay=0 이면 설치 완료일과 같은 날짜로 매월 결제. 일할 계산은 하지 않는다. */
+export function firstChargeDate(start, payDay) {
+  const pd = Math.max(0, Math.min(28, Math.round(Number(payDay) || 0)));
+  if (!pd) return { date: start, anchorDay: Number(start.slice(8, 10)) };
+  const day = Number(start.slice(8, 10));
+  return { date: day <= pd ? start.slice(0, 8) + String(pd).padStart(2, "0") : start, anchorDay: pd };
+}
+
 /** 주기 1회 청구 — 카드는 승인, 세금계산서는 청구 기록 생성. 성공하면 다음 결제일로 넘어간다.
  *  opts.date: 이번 주기 시작일(기본 sub.nextChargeAt) */
 export async function runCycle(sub, opts = {}) {
   const date = opts.date || sub.nextChargeAt || kstToday();
   const cycle = (sub.cycle || 0) + 1;
   const per = periodOf(sub, date);
+  if (cycle === 1 && isDate(sub.startedAt) && sub.startedAt < per.from) per.from = sub.startedAt;   // 첫 회차 이용 기간은 설치 완료일부터
   const items = [{ name: `${sub.plan.label} 월 이용료 (${sub.plan.qty}개소)`, supply: sub.plan.supply, vat: sub.plan.vat }];
   /* 설치비는 첫 결제에 한 번만 (계약 링크에서 정한 경우) */
   if (cycle === 1 && sub.plan.installFee > 0 && !sub.installPaid) items.push({ name: `${sub.plan.label} 설치비 (1회)`, supply: sub.plan.installFee, vat: vatOf(sub.plan.installFee) });
@@ -368,7 +379,9 @@ export async function sendMail({ to, name, subject, text, html, tag }) {
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 /** 애플 영수증 느낌의 간단한 HTML 메일 */
-export function mailHtml({ title, lead, rows = [], button, foot }) {
+export function mailHtml({ title, lead, rows = [], button, foot, blocks = [] }) {
+  /* blocks: [{ h: "제목", items: ["문장", …], links: [{ label, href }] }] — 설치 요령 · 플랫폼 안내 같은 단계형 본문 */
+  const bl = blocks.map((b) => `<tr><td style="padding-top:24px"><div style="font-size:16px;font-weight:700;color:#1d1d1f">${esc(b.h || "")}</div>${(b.items || []).length ? `<ol style="margin:10px 0 0;padding-left:20px;font-size:14px;line-height:1.7;color:#424245">${b.items.map((x) => `<li style="margin:2px 0">${esc(x)}</li>`).join("")}</ol>` : ""}${(b.links || []).length ? `<div style="margin-top:10px;font-size:14px;line-height:1.9">${b.links.map((l) => `<a href="${esc(l.href)}" style="color:#0071e3;text-decoration:none">${esc(l.label)} ›</a>`).join("<br>")}</div>` : ""}</td></tr>`).join("");
   const tr = rows.map(([k, v, strong]) => `<tr><td style="padding:10px 0;color:#6e6e73;font-size:14px;border-bottom:1px solid #e8e8ed">${esc(k)}</td><td style="padding:10px 0;text-align:right;font-size:14px;border-bottom:1px solid #e8e8ed;${strong ? "font-weight:700;color:#1d1d1f" : "color:#1d1d1f"}">${esc(v)}</td></tr>`).join("");
   return `<!doctype html><html><body style="margin:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Malgun Gothic',sans-serif;color:#1d1d1f">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;padding:32px 12px"><tr><td align="center">
@@ -376,7 +389,8 @@ export function mailHtml({ title, lead, rows = [], button, foot }) {
 <tr><td style="font-size:13px;color:#6e6e73;letter-spacing:.02em">MONNIT KOREA · 긴급 경보 알리미</td></tr>
 <tr><td style="padding-top:10px;font-size:26px;font-weight:700;letter-spacing:-.02em">${esc(title)}</td></tr>
 <tr><td style="padding-top:12px;font-size:15px;line-height:1.6;color:#424245">${esc(lead)}</td></tr>
-<tr><td style="padding-top:22px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tr}</table></td></tr>
+${tr ? `<tr><td style="padding-top:22px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tr}</table></td></tr>` : ""}
+${bl}
 ${button ? `<tr><td style="padding-top:26px"><a href="${esc(button.href)}" style="display:inline-block;background:#0071e3;color:#fff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 22px;border-radius:980px">${esc(button.label)}</a></td></tr>` : ""}
 <tr><td style="padding-top:28px;font-size:12px;line-height:1.6;color:#86868b">${esc(foot || "")}${foot ? "<br>" : ""}주식회사 모넷코리아 · 사업자등록번호 242-88-01218 · 서울 서초구 효령로 380, 2층 · 02-2088-1454 · 1015@monnit.com</td></tr>
 </table></td></tr></table></body></html>`;
@@ -384,18 +398,24 @@ ${button ? `<tr><td style="padding-top:26px"><a href="${esc(button.href)}" style
 
 export function manageUrl(sub) { return `${SITE()}/account?sub=${encodeURIComponent(sub.id)}`; }
 
+const SLOT_TXT = { am: "오전", pm: "오후", any: "시간 무관" };
+const wdTxt = (d) => (isDate(d) ? `${d} (${"일월화수목금토"[new Date(d + "T00:00:00Z").getUTCDay()]})` : "");
 export async function welcomeMail(sub) {
-  const c = sub.customer, card = sub.method === "card";
-  const first = sub.status === "active" ? `첫 결제 완료 · 다음 결제일 ${sub.nextChargeAt}` : "설치가 완료되는 날 첫 결제가 진행됩니다";
+  const c = sub.customer, card = sub.method === "card", ins = sub.install || {};
+  const pd = sub.payDay != null ? sub.payDay : (await getSettings()).payDay;
+  const payTxt = `설치 완료 확정 뒤부터 청구${pd ? ` · 매월 ${pd}일 ${card ? "자동결제" : "세금계산서 발행"}` : ""} (오늘 결제 0원)`;
   const rows = [["구독번호", sub.id], ["구성", `${sub.plan.label} · ${sub.plan.qty}개소`], ["월 이용료", `${won(sub.plan.total)} (부가세 포함)`],
     ...(sub.plan.installFee ? [["설치비 (1회)", `${won(sub.plan.installFee + vatOf(sub.plan.installFee))} (부가세 포함 · 첫 결제에 포함)`]] : []),
-    ["결제 수단", card ? `${sub.card && sub.card.company || "카드"} ${sub.card && sub.card.last4 ? "•••• " + sub.card.last4 : ""} 자동결제` : "세금계산서 발행 · 계좌이체"], ["결제", first],
-    ["의무 사용기간", sub.plan.source === "contract" && sub.plan.to ? `${sub.plan.from} ~ ${sub.plan.to} (계약서 기준)` : sub.plan.termMonths ? `서비스 시작일부터 ${sub.plan.termMonths}개월 (기간 중 해지 불가 · 만료 후 매월 자동 연장)` : "없음"]];
-  const text = [`${c.manager || c.company}님, 긴급 경보 알리미 구독 신청이 완료되었습니다.`, "", ...rows.map(([k, v]) => `· ${k}: ${v}`), "",
-    "구독 관리(결제 내역·카드 변경·해지): " + manageUrl(sub), "", "담당자가 설치 일정을 안내드리기 위해 곧 연락드립니다.", "", "문의 02-2088-1454 · 1015@monnit.com"].join("\n");
+    ...(ins.wish ? [["설치 희망일", `${wdTxt(ins.wish)} ${SLOT_TXT[ins.slot] || ""}${ins.alt ? ` · 대안 ${wdTxt(ins.alt)}` : ""} — 확정 전`]] : []),
+    ["결제 수단", card ? `${sub.card && sub.card.company || "카드"} ${sub.card && sub.card.last4 ? "•••• " + sub.card.last4 : ""} 자동결제` : "세금계산서 발행 · 계좌이체"],
+    ["구독 시작일", "설치 완료일 (설치 일시부터)"], ["결제", payTxt],
+    ["의무 사용기간", sub.plan.source === "contract" && sub.plan.to ? `${sub.plan.from} ~ ${sub.plan.to} (계약서 기준)` : sub.plan.termMonths ? `설치 완료일부터 ${sub.plan.termMonths}개월 (기간 중 해지 불가 · 만료 후 매월 자동 연장)` : "없음"]];
+  const lead = `${c.manager || c.company}님, 감사합니다. 희망하신 설치일은 확정이 아니며, 담당자가 현장·자재 일정을 확인해 확정 일정을 연락드립니다. 일정은 변동될 수 있습니다.`;
+  const text = [`${c.manager || c.company}님, 긴급 경보 알리미 구독 신청이 완료되었습니다.`, "", ...rows.map(([k, v]) => `· ${k}: ${v}`), "", lead, "",
+    "구독 관리(결제 내역·카드 변경): " + manageUrl(sub), "", "문의 02-2088-1454 · 1015@monnit.com"].join("\n");
   return sendMail({ to: c.email, name: c.manager, subject: `[모넷코리아] 긴급 경보 알리미 구독 신청 완료 (${sub.id})`, text,
-    html: mailHtml({ title: "구독 신청이 완료되었습니다.", lead: `${c.manager || c.company}님, 감사합니다. 담당자가 설치 일정을 안내드리기 위해 곧 연락드립니다.`, rows, button: { label: "구독 관리", href: manageUrl(sub) },
-      foot: card ? "정기결제는 구독 관리 화면에서 언제든 해지할 수 있으며, 해지하면 다음 결제일부터 청구되지 않습니다." : "세금계산서는 매월 결제일에 발행되며, 안내드린 계좌로 입금해 주시면 됩니다." }) });
+    html: mailHtml({ title: "구독 신청이 완료되었습니다.", lead, rows, button: { label: "구독 관리", href: manageUrl(sub) },
+      foot: "구독은 설치 완료일부터 시작되고, 결제도 설치가 완료된 뒤에만 진행됩니다. 설치 일정이 확정되면 설치 준비 요령을 메일로 보내드립니다." }) });
 }
 
 async function paidMail(sub, pay) {
@@ -433,9 +453,37 @@ export async function staffAlert(sub, label, fields) {
 export const DEFAULT_SETTINGS = {
   supplier: { bizNo: "2428801218", subNo: "", name: "주식회사 모넷코리아", ceo: "염정훈", address: "서울특별시 서초구 효령로 380, 2층", bizType: "", bizItem: "", email: "korea@monnit.com" },
   invoiceItem: "긴급 경보 알리미 구독 이용료", bank: "", chargeAt: "activation",
-  termMonths: 36,            // 의무 사용기간(개월) — 서비스 시작일부터. 신청 시점 값이 구독에 고정된다
+  termMonths: 36,            // 의무 사용기간(개월) — 설치 완료일부터. 신청 시점 값이 구독에 고정된다
+  payDay: 20,                // 매월 결제일(1~28). 0 = 설치 완료일과 같은 날짜. 세금계산서 발행일과 같음
+  install: {                 // 고객이 고르는 설치 희망일 규칙 (확정은 담당자)
+    lastDay: 20,             //   매월 1~N일에만 설치 (0 = 제한 없음)
+    horizonDays: 60,         //   오늘부터 며칠 뒤까지 고를 수 있나
+    weekdaysOnly: true,      //   평일만
+    blackout: [],            //   고를 수 없는 날 (공휴일·회사 휴무) "YYYY-MM-DD"
+  },
+  mail: { confirm: true, dayBefore: true, start: true, followDays: 7 },   // 안내 메일 자동 발송 (설치 확정 · 설치 전날 · 개통 · 개통 n일 뒤 다시)
+  guides: {
+    install: [
+      "설치 당일 현장 출입과 위치 안내를 도와주실 담당자 한 분이 계시면 됩니다.",
+      "게이트웨이를 둘 자리 가까이에 220V 콘센트 1구를 비워 두세요. 무선이라 배선 공사는 없습니다.",
+      "감시할 위치(누수 우려 지점, 정전을 감시할 전원, 경보 신호를 받을 설비)에 손이 닿도록 물건을 치워 두세요.",
+      "알림(문자·이메일)을 받을 분들의 이름·휴대폰·이메일을 미리 정리해 두시면 설치 당일 바로 등록해 드립니다.",
+      "방문증·주차·출입 절차가 있으면 회신 메일이나 전화로 미리 알려 주세요.",
+      "일정 변경이 필요하시면 02-2088-1454 또는 이 메일에 회신해 주세요.",
+    ],
+    platform: [
+      "플랫폼 접속 계정(아이디·임시 비밀번호)은 설치 담당자가 따로 안내드립니다. 처음 로그인하면 비밀번호를 바꿔 주세요.",
+      "로그인하면 통합대시보드에서 위험·주의·정상·무응답 현황을 한눈에 봅니다. 왼쪽 사업장목록에서 현장을 고르면 현장 화면으로 들어갑니다.",
+      "알람이 오면 현장을 먼저 확인한 뒤 [조치하기]를 눌러 주세요. 그래야 문자 발송이 리셋되고 이력이 남습니다.",
+      "알림 받을 사람을 늘리거나 바꾸려면 [사용자 추가]에서 등록하시면 됩니다.",
+      "휴대폰에서도 같은 주소로 접속해 확인·조치할 수 있습니다.",
+      "문자가 안 오거나 센서가 무응답이면 아래 기술지원(모니)으로 바로 물어보세요.",
+    ],
+  },
 };
 export async function getSettings() {
   const s = (await db.get("settings")) || {};
-  return { ...DEFAULT_SETTINGS, ...s, supplier: { ...DEFAULT_SETTINGS.supplier, ...(s.supplier || {}) } };
+  const D = DEFAULT_SETTINGS;
+  return { ...D, ...s, supplier: { ...D.supplier, ...(s.supplier || {}) }, install: { ...D.install, ...(s.install || {}) },
+    mail: { ...D.mail, ...(s.mail || {}) }, guides: { ...D.guides, ...(s.guides || {}) } };
 }

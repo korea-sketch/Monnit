@@ -6,9 +6,11 @@
  *    · 해지 예약일이 된 구독은 해지로 마무리
  *  결제는 한국 시간 09~20시에만 한다(밤중 승인 문자 방지). 한 번에 최대 25건 — 남으면 다음 시간에 이어서.
  *  무료 플랜 CPU 한도(10ms): 카드 승인은 네트워크 대기라 CPU 를 거의 쓰지 않는다.
+ *  같은 시간에 안내 메일 예약분(billing/mailq/…)도 보낸다 — 설치 전날 준비 요령, 개통 7일 뒤 플랫폼 사용법.
  *  멈추려면 대시보드 변수 BILLING_CRON_OFF = 1 (다른 예약 작업은 그대로).
  */
 import { db, getSub, runCycle, closeIfDue, kstToday, kstHour, setDue, saveSub } from "./_billing_core.mjs";
+import { runMailQueue } from "./_billing_install.mjs";
 
 export const config = { schedule: "23 * * * *" };
 
@@ -36,11 +38,13 @@ export async function runDue({ force = false, limit = 25 } = {}) {
     }
   }
   out.left = Math.max(0, keys.length - out.done.length);
+  /* 안내 메일 (설치 전날 준비 요령 · 개통 n일 뒤 플랫폼 사용법 다시) */
+  try { out.mails = await runMailQueue(); } catch (e) { out.mails = [{ error: String(e && e.message || e) }]; }
   return out;
 }
 
 export default async () => {
   const r = await runDue();
-  if (r.done && r.done.length) console.log("[billing-cron]", JSON.stringify(r));
+  if ((r.done && r.done.length) || (r.mails && r.mails.length)) console.log("[billing-cron]", JSON.stringify(r));
   return new Response(JSON.stringify(r), { headers: { "content-type": "application/json" } });
 };
