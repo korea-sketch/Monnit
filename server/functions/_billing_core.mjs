@@ -92,6 +92,7 @@ export function quotePlan(q) {
   const short = (l) => (PRODUCTS[l.product] ? PRODUCTS[l.product].short : l.label.replace(/\s*알리미$/, ""));
   return {
     source: "quote", quoteId: q.id, region: q.region || "", unit, lines, qty, discount, installFee, installVat: vatOf(installFee),
+    installLabel: String(q.installLabel || "").trim().slice(0, 40) || "설치비",          // 1회 비용 이름 (예: 물감지 로프 연장 20m)
     label: lines.length > 1 ? "긴급 경보 알리미 (" + lines.map(short).join("·") + ")" : (lines[0] ? lines[0].label : "긴급 경보 알리미"),
     supply, vat: vatOf(supply), total: supply + vatOf(supply), termMonths: Math.max(0, Math.round(Number(q.termMonths) || 0)), list,
   };
@@ -223,7 +224,7 @@ export async function runCycle(sub, opts = {}) {
   if (cycle === 1 && isDate(sub.startedAt) && sub.startedAt < per.from) per.from = sub.startedAt;   // 첫 회차 이용 기간은 설치 완료일부터
   const items = [{ name: `${sub.plan.label} 월 이용료 (${sub.plan.qty}개소)`, supply: sub.plan.supply, vat: sub.plan.vat }];
   /* 설치비는 첫 결제에 한 번만 (계약 링크에서 정한 경우) */
-  if (cycle === 1 && sub.plan.installFee > 0 && !sub.installPaid) items.push({ name: `${sub.plan.label} 설치비 (1회)`, supply: sub.plan.installFee, vat: vatOf(sub.plan.installFee) });
+  if (cycle === 1 && sub.plan.installFee > 0 && !sub.installPaid) items.push({ name: `${sub.plan.label} ${sub.plan.installLabel || "설치비"} (1회)`, supply: sub.plan.installFee, vat: vatOf(sub.plan.installFee) });
   const supply = items.reduce((a, x) => a + x.supply, 0), vat = items.reduce((a, x) => a + x.vat, 0), amount = supply + vat;
   const orderName = `긴급 경보 알리미 ${cycle}회차 (${per.from.slice(5).replace("-", ".")}~${per.to.slice(5).replace("-", ".")})`;
   const attempt = (sub.failCount || 0) + 1;
@@ -405,7 +406,7 @@ export async function welcomeMail(sub) {
   const pd = sub.payDay != null ? sub.payDay : (await getSettings()).payDay;
   const payTxt = `설치 완료 확정 뒤부터 청구${pd ? ` · 매월 ${pd}일 ${card ? "자동결제" : "세금계산서 발행"}` : ""} (오늘 결제 0원)`;
   const rows = [["구독번호", sub.id], ["구성", `${sub.plan.label} · ${sub.plan.qty}개소`], ["월 이용료", `${won(sub.plan.total)} (부가세 포함)`],
-    ...(sub.plan.installFee ? [["설치비 (1회)", `${won(sub.plan.installFee + vatOf(sub.plan.installFee))} (부가세 포함 · 첫 결제에 포함)`]] : []),
+    ...(sub.plan.installFee ? [[`${sub.plan.installLabel || "설치비"} (1회)`, `${won(sub.plan.installFee + vatOf(sub.plan.installFee))} (부가세 포함 · 첫 결제에 포함)`]] : []),
     ...(ins.wish ? [["설치 희망일", `${wdTxt(ins.wish)} ${SLOT_TXT[ins.slot] || ""}${ins.alt ? ` · 대안 ${wdTxt(ins.alt)}` : ""} — 확정 전`]] : []),
     ["결제 수단", card ? `${sub.card && sub.card.company || "카드"} ${sub.card && sub.card.last4 ? "•••• " + sub.card.last4 : ""} 자동결제` : "세금계산서 발행 · 계좌이체"],
     ["구독 시작일", "설치 완료일 (설치 일시부터)"], ["결제", payTxt],

@@ -123,11 +123,8 @@ export function price(t) {
   return { unit, region, regionFee, qty, list, discountType: type, discountValue: type === "none" ? 0 : value, discount, monthly: list - discount, installFee: installOf(t) };
 }
 /* 설치 주소 → 지역. 주소 검색 결과는 「서울특별시·경기도·인천광역시 …」 또는 「(06000) 서울 …」 형태 */
-export function regionOf(addr) {
-  const a = String(addr || "").replace(/^\s*\(?\d{5}\)?\s*/, "").trim();
-  if (!a) return "metro";
-  return /^(서울|경기|인천)/.test(a) ? "metro" : "other";
-}
+import { regionOf as regionRule } from "./_region.mjs";
+export function regionOf(addr) { return regionRule(addr) || "metro"; }   /* 규칙은 _region.mjs (결제 화면과 같음) */
 /* 발급 시점 금액 확정 — region "auto" 링크만 주소로 판정한다. 지역 정보가 없는 예전 링크는 그대로 */
 export function settleTerms(t, addr) {
   if (!t || t.region !== "auto") return t;

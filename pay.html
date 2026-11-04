@@ -10,7 +10,7 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
-<link rel="stylesheet" href="/css/billing.css?v=3">
+<link rel="stylesheet" href="/css/billing.css?v=4">
 </head>
 <body>
 <header class="bar"><div class="bar__in">
@@ -39,6 +39,20 @@
           <h2><small>1단계</small><span id="planTitle">어떤 알리미가 필요하신가요?</span></h2>
           <p class="lead" id="planLead">여러 개를 고를 수 있어요. 한 번에 최대 9곳까지 신청하실 수 있고, 10곳 이상은 <a href="/promo/alarm#emergencyApply">별도 견적</a>으로 안내드려요.</p>
           <div class="tiles" id="tiles"></div>
+          <div class="ext" id="extBox" hidden>
+            <div class="ext__q"><b>물감지 감지 로프, 기본 길이로 충분한가요?</b><small>배관·바닥을 길게 둘러야 하면 로프 연장이 필요해요. 연장은 길이에 따라 금액이 달라져 담당자가 확인한 뒤 결제로 이어집니다.</small></div>
+            <div class="slots" role="radiogroup" aria-label="물감지 로프 연장">
+              <button type="button" class="slot is-on" data-ext="0" role="radio">기본 길이로 충분해요</button>
+              <button type="button" class="slot" data-ext="1" role="radio">연장이 필요해요</button>
+            </div>
+            <div id="extMore" hidden>
+              <div class="fields" style="margin-top:12px">
+                <div class="field"><input id="extLength" placeholder=" " maxlength="40"><label for="extLength">필요한 길이 (대략 · 예: 20m, 모르겠음)</label></div>
+                <div class="field"><input id="extSpots" placeholder=" " maxlength="200"><label for="extSpots">감지할 위치 (예: 지하 기계실 배관 둘레)</label></div>
+              </div>
+              <p class="note note--blue"><span><b>연장은 상담 후 결제예요.</b> 아래 정보를 남기시면 담당자가 길이·금액을 확인해 <b>확정 금액의 결제 링크</b>를 보내드리고, 그 링크에서 바로 카드 등록까지 끝나요. 결제는 지금처럼 설치가 완료된 뒤부터 진행됩니다.</span></p>
+            </div>
+          </div>
           <div id="contractBox" hidden></div>
         </section>
 
@@ -213,7 +227,9 @@ function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add
 function busy(btn, on, label) { if (on) { btn.dataset.l = btn.innerHTML; btn.innerHTML = '<span class="spin"></span>' + (label || ""); btn.disabled = true; } else { btn.innerHTML = btn.dataset.l || btn.innerHTML; btn.disabled = false; } }
 
 const S = { cfg: null, me: null, mode: "landing", quote: null, lines: {}, account: "guest", method: "card", email: "" };
-const regionOf = (a) => { a = String(a || "").replace(/^\s*\(?\d{5}\)?\s*/, "").trim(); return !a ? null : /^(서울|경기|인천)/.test(a) ? "metro" : "other"; };
+/* 요금 지역 — server/functions/_region.mjs 와 같은 규칙 (금액은 서버가 같은 규칙으로 다시 정한다) */
+const METRO_PLACE = /^(강남구|서초구|송파구|강동구|마포구|용산구|성동구|광진구|동대문구|중랑구|성북구|강북구|도봉구|노원구|은평구|서대문구|종로구|양천구|구로구|금천구|영등포구|동작구|관악구|수원|성남|고양|용인|부천|안산|안양|남양주|화성|평택|의정부|시흥|파주|광명|김포|군포|이천|양주|오산|구리|안성|포천|의왕|하남|여주|동두천|과천|가평|양평|연천|미추홀구|연수구|남동구|부평구|계양구|강화|옹진)/;
+const regionOf = (a) => { a = String(a || "").replace(/^\s*\(?\d{5}\)?\s*/, "").replace(/^대한민국\s*/, "").trim(); return !a ? null : /^(서울|경기|인천)/.test(a) || METRO_PLACE.test(a) ? "metro" : "other"; };
 
 /* ── 시작 ── */
 init();
@@ -260,7 +276,7 @@ function renderPlan() {
     $("#planLead").textContent = isQ ? `견적 금액 그대로 결제됩니다. 유효기간 ${q.quote.expiresAt}까지.` : "계약서에 확정된 금액 그대로 결제됩니다.";
     $("#heroTitle").innerHTML = isQ ? "견적이 준비되었어요.<br>확인하고 바로 시작하세요." : "계약하신 알리미,<br>결제만 등록하면 끝입니다.";
     $("#heroLead").textContent = isQ ? "정보 확인 → 설치 희망일 → 카드 등록이면 끝. 결제는 설치가 완료·확정된 뒤부터입니다." : "카드를 등록해 두면 설치 완료 뒤 매달 자동으로 결제됩니다.";
-    $("#tiles").hidden = true;
+    $("#tiles").hidden = true; $("#extBox").hidden = true;
     const box = $("#contractBox"); box.hidden = false;
     box.innerHTML = `<div class="contract"><div class="contract__top"><b>${esc(p.label)}</b><span>${isQ ? "견적번호 " + esc(q.quote.id) : "계약번호 " + esc(q.ref)}</span></div>
       ${isQ && q.quote.note ? `<p class="note note--blue" style="margin:12px 0 0"><span>${esc(q.quote.note)}</span></p>` : ""}
@@ -269,7 +285,7 @@ function renderPlan() {
         ${isQ ? `<div><dt>1개소 월 단가</dt><dd>${wonK(p.unit)}</dd></div>` : ""}
         <div><dt>월 이용료</dt><dd>${wonK(p.supply)} <span style="color:var(--muted)">(부가세 별도)</span></dd></div>
         ${p.discount ? `<div><dt>할인</dt><dd>−${wonK(p.discount)} 적용</dd></div>` : ""}
-        <div><dt>설치비</dt><dd>${p.installFee ? wonK(p.installFee) + " (1회 · 부가세 별도)" : "무료"}</dd></div>
+        <div><dt>${esc(p.installLabel && p.installLabel !== "설치비" ? p.installLabel : "설치비")}</dt><dd>${p.installFee ? wonK(p.installFee) + " (1회 · 부가세 별도 · 첫 결제)" : "무료"}</dd></div>
         ${p.from ? `<div><dt>계약 기간</dt><dd>${esc(p.from)} ~ ${esc(p.to)}</dd></div>` : ""}
         ${isQ && p.termMonths ? `<div><dt>의무 사용기간</dt><dd>설치 완료일부터 ${p.termMonths}개월</dd></div>` : ""}
       </dl></div>`;
@@ -299,7 +315,7 @@ function renderPlan() {
         if (S.lines[k]) delete S.lines[k];
         else { if (Object.values(S.lines).reduce((a, b) => a + b, 0) >= S.cfg.maxSites) return toast("한 번에 9곳까지 신청할 수 있어요."); S.lines[k] = 1; }
       }
-      renderPlan(); renderSummary();
+      renderPlan(); renderMethod(); renderAgree(); renderSummary();
     });
   });
 }
@@ -386,31 +402,49 @@ function region() { return regionOf($("#siteAddr").value) || S.regionHint || "me
 function updateRegion() {
   if (S.mode === "contract") { $("#regionNote").hidden = true; return; }
   const r = region(), u = S.cfg.unit[r];
-  $("#regionChip").textContent = r === "metro" ? "서울·경기·인천" : "그 외 지역";
+  const typed = regionOf($("#siteAddr").value);
+  $("#regionChip").textContent = r === "metro" ? "서울·경기·인천" : "서울·경기·인천 외";
   $("#regionChip").classList.toggle("is-other", r === "other");
-  $("#regionText").textContent = `1곳 월 ${wonK(u)} (부가세 별도) · 설치비 무료${regionOf($("#siteAddr").value) ? "" : " — 주소를 입력하면 지역이 자동으로 정해져요"}`;
+  $("#regionText").textContent = !typed ? `1곳 월 ${wonK(u)} (부가세 별도) · 설치비 무료 — 설치 주소를 넣으면 지역 요금이 자동으로 정해져요`
+    : r === "metro" ? `수도권 요금 · 1곳 월 ${wonK(u)} (부가세 별도) · 설치비 무료`
+    : `지방 요금 · 1곳 월 ${wonK(u)} (부가세 별도) · 설치비 무료 — 서울·경기·인천인데 이렇게 보이면 주소를 시·도부터 적어 주세요 (예: 서울 중구 …)`;
 }
+
+/* 물감지 로프 연장 — 상담 후 결제 */
+const isExt = () => S.mode !== "contract" && !!S.lines.water && S.ext === true;
+function renderExt() {
+  const show = S.mode !== "contract" && !!S.lines.water;
+  $("#extBox").hidden = !show;
+  $$("[data-ext]").forEach((b) => b.classList.toggle("is-on", (b.dataset.ext === "1") === !!S.ext));
+  $("#extMore").hidden = !S.ext;
+}
+$("#extBox").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-ext]"); if (!b) return;
+  S.ext = b.dataset.ext === "1"; renderExt(); renderMethod(); renderAgree(); renderSummary();
+});
 
 /* ── 4. 결제 수단 ── */
 function renderMethod() {
+  renderExt();
   const ready = S.cfg.ready;
   $("#pgNotReady").hidden = ready;
   const cardEl = $('[data-method="card"]');
   cardEl.classList.toggle("is-disabled", !ready);
   if (!ready && S.method === "card") S.method = "cash";
-  const cash = S.method === "cash";
+  const cash = S.method === "cash", ext = isExt();
   $("#cashBox").hidden = !cash;
-  $("#stepAccount").hidden = cash;
-  $$(".ag").forEach((x) => { if (x.dataset.k === "terms") x.closest("label").hidden = cash; });
+  $("#stepAccount").hidden = cash || ext;
+  $("#stepPay").hidden = ext;
+  $$(".ag").forEach((x) => { if (x.dataset.k === "terms") x.closest("label").hidden = cash || ext; });
   $("#stepInfo .lead").textContent = cash ? "담당자가 연락드릴 정보예요. 상호·담당자·휴대전화만 꼭 적어 주세요." : "입력하신 연락처로 설치 일정을 안내드려요.";
   $$("[data-method]").forEach((x) => x.classList.toggle("is-on", x.dataset.method === S.method));
   $("#stepWhen").hidden = cash;
   $("#methodNote").innerHTML = S.method === "card"
     ? `<span>오늘은 카드만 등록되고 <b>0원</b>이에요. ${payDayText()} 결제할 때마다 메일로 영수증을 보내 드려요.</span>`
     : `<span>현금 결제는 온라인으로 바로 가입되지 않고, 담당자가 계약서와 입금 계좌를 직접 안내드려요.</span>`;
-  $("#submitBtn").textContent = S.method === "card" ? "카드 등록하고 구독 신청" : "현금 결제 상담 요청";
-  $("#mbBtn").textContent = S.method === "card" ? "카드 등록" : "상담 요청";
-  $("#agAutopayRow").hidden = S.method !== "card";
+  $("#submitBtn").textContent = ext ? "연장 상담 요청 (금액 확인 후 결제)" : S.method === "card" ? "카드 등록하고 구독 신청" : "현금 결제 상담 요청";
+  $("#mbBtn").textContent = ext ? "연장 상담" : S.method === "card" ? "카드 등록" : "상담 요청";
+  $("#agAutopayRow").hidden = S.method !== "card" || ext;
 }
 $$("[data-method]").forEach((el) => el.addEventListener("click", (e) => {
   e.preventDefault();
@@ -481,11 +515,11 @@ function setAutopayText() {
   const t = total();
   const tl = termLabel();
   $("#termText").innerHTML = `의무 사용기간에 동의합니다 <small>필수 · ${esc(tl || "의무 사용기간 없음")} 동안은 해지할 수 없으며, 만료 후에는 같은 조건으로 매월 자동 연장되고 언제든 해지할 수 있습니다. 기간 중 부득이한 해지는 상담 후 약관에 따른 위약금이 청구될 수 있습니다.</small>`;
-  $("#termText").closest("label").hidden = !tl || S.method === "cash";
+  $("#termText").closest("label").hidden = !tl || S.method === "cash" || isExt();
   const pd = S.cfg.payDay;
   $("#autopayText").innerHTML = `정기결제에 동의합니다 <small>필수 · 설치가 완료·확정된 뒤부터 ${pd ? `매월 ${pd}일` : "매월 설치 완료일과 같은 날"} ${wonK(t.monthly)}(부가세 포함)이 등록한 카드로 자동 결제됩니다. 오늘은 결제되지 않습니다. 의무 사용기간이 끝난 뒤에는 구독 관리에서 언제든 해지할 수 있고, 해지하면 다음 결제일부터 청구되지 않습니다.</small>`;
   $("#schedText").innerHTML = `설치 일정과 결제 시작 안내를 확인했습니다 <small>필수 · 희망일은 확정이 아니며 담당자 확인 후 변동될 수 있습니다. 구독(이용 기간)은 설치 완료일(설치 일시)부터 시작되고, 결제는 설치가 완료·확정된 뒤부터 진행됩니다.</small>`;
-  $("#schedText").closest("label").hidden = S.method === "cash";
+  $("#schedText").closest("label").hidden = S.method === "cash" || isExt();
 }
 $("#agAll").addEventListener("change", (e) => { $$(".ag").forEach((x) => { if (!x.closest("label").hidden) x.checked = e.target.checked; }); });
 document.addEventListener("change", (e) => { if (e.target.classList && e.target.classList.contains("ag")) syncAll(); });
@@ -510,18 +544,18 @@ function renderSummary() {
   if (S.mode === "contract") rows.push([t.label, `${t.qty}개소`]);
   else t.lines.forEach((l) => rows.push([l.label, `${l.qty}곳 · ${wonK(t.unit * l.qty)}`]));
   if (!t.lines.length && S.mode !== "contract") rows.push(["선택한 알리미", "없음"]);
-  rows.push(["월 이용료 (공급가액)", wonK(t.supply)], ["부가세 (10%)", wonK(t.vat)], ["설치비", t.install ? wonK(t.install) + " + VAT" : "무료"]);
+  rows.push(["월 이용료 (공급가액)", wonK(t.supply)], ["부가세 (10%)", wonK(t.vat)], [(S.mode === "contract" && S.quote.plan.installLabel) || "설치비", t.install ? wonK(t.install) + " + VAT (1회)" : "무료"]);
   if (S.mode !== "contract" && S.cfg.termMonths) rows.push(["의무 사용기간", S.cfg.termMonths % 12 ? S.cfg.termMonths + "개월" : S.cfg.termMonths / 12 + "년"]);
   $("#sumRows").innerHTML = rows.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("");
   $("#sumTotal").textContent = won(t.monthly); $("#mbTotal").textContent = won(t.monthly);
   $("#sumTotalSub").textContent = `부가세 포함 · 월 ${wonK(t.supply)} + 부가세`;
   $("#sumTodayAmt").textContent = "₩0";
-  $("#sumTodayNote").textContent = S.method === "cash" ? "상담 후 계약·입금 안내" : "설치 완료 확정 뒤부터 결제";
+  $("#sumTodayNote").textContent = isExt() ? "연장 금액 확인 후 결제 링크로 결제" : S.method === "cash" ? "상담 후 계약·입금 안내" : "설치 완료 확정 뒤부터 결제";
   const w = S.ins || {};
   $("#sumWhen").innerHTML = S.method === "cash" ? "" : [["설치 희망일", w.wish ? dLabel(w.wish) + (w.alt ? ` · 2순위 ${dLabel(w.alt)}` : "") : "선택 전"], ["구독 시작", "설치 완료일부터"], ["결제", S.cfg.payDay ? `설치 확정 뒤 매월 ${S.cfg.payDay}일` : "설치 확정 뒤 매월"]]
     .map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("");
   $("#sumFine").textContent = S.kind === "quote"
-    ? `담당자 견적 그대로 결제됩니다.${t.install ? " 첫 결제에 설치비가 함께 청구됩니다." : ""} ${termLabel() ? "의무 사용기간 " + termLabel().replace("설치 완료일부터 ", "") + " 동안은 해지할 수 없고, 끝나면 매월 자동 연장돼요." : ""}`
+    ? `담당자 견적 그대로 결제됩니다.${t.install ? ` 첫 결제에 ${S.quote.plan.installLabel || "설치비"}(1회)가 함께 청구됩니다.` : ""} ${termLabel() ? "의무 사용기간 " + termLabel().replace("설치 완료일부터 ", "") + " 동안은 해지할 수 없고, 끝나면 매월 자동 연장돼요." : ""}`
     : S.mode === "contract"
     ? "계약서의 조건(계약 기간·해지)이 그대로 적용됩니다. 첫 결제에는 설치비가 함께 청구됩니다."
     : `설치비 무료 · 의무 사용기간 ${termLabel().replace("설치 완료일부터 ", "")} (설치 완료일부터). 기간 중에는 해지할 수 없고, 끝나면 매월 자동 연장되며 언제든 해지할 수 있어요.`;
@@ -540,6 +574,7 @@ function bad(id, msg) {
 }
 async function submit() {
   $("#submitErr").textContent = "";
+  if (isExt()) return submitExt();
   if (S.method === "cash") return submitCash();
   if (S.account === "member" && !(S.me && S.me.member)) { $("#stepAccount").scrollIntoView({ behavior: "smooth", block: "center" }); $("#loginErr").textContent = "이메일 인증을 마치거나 비회원으로 계속해 주세요."; return; }
   const v = Object.fromEntries(FIELDS.map((k) => [k, $("#" + k).value.trim()]));
@@ -565,6 +600,31 @@ async function submit() {
     if (!j.ok) { $("#submitErr").textContent = errText(j); return; }
     if (j.method === "invoice") return showDone(j.sub);
     await openToss(j);
+  } finally { busy(btn, false); }
+}
+async function submitExt() {
+  const v = Object.fromEntries(FIELDS.map((k) => [k, $("#" + k).value.trim()]));
+  let first = null;
+  for (const k of ["company", "manager", "phone", "email", "siteAddr"]) if (!v[k]) first = first || bad(k, k === "email" ? "결제 링크를 받을 이메일을 입력해 주세요." : "입력해 주세요.");
+  if (v.phone && !/^0\d{8,10}$/.test(v.phone.replace(/\D/g, ""))) first = first || bad("phone", ERR.bad_phone);
+  if (v.email && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.email)) first = first || bad("email", ERR.bad_email);
+  if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  const priv = $$(".ag").find((x) => x.dataset.k === "privacy");
+  if (!priv.checked) { $("#stepAgree").scrollIntoView({ behavior: "smooth", block: "center" }); $("#submitErr").textContent = "개인정보 수집·이용에 동의해 주세요."; return; }
+  const body = { topic: "water_ext", customer: v, region: region(), extLength: $("#extLength").value.trim(), extSpots: $("#extSpots").value.trim(),
+    memo: $("#insMemo").value.trim(), install: S.ins && S.ins.wish ? { wish: S.ins.wish, alt: S.ins.alt || "", slot: S.ins.slot } : null,
+    lines: Object.entries(S.lines).map(([product, qty]) => ({ product, qty })), agree: { privacy: true } };
+  if (S.via) body.via = S.via;
+  const btn = $("#submitBtn"); busy(btn, true, " 접수 중");
+  try {
+    const j = await api("cash-inquiry", body);
+    if (!j.ok) { $("#submitErr").textContent = errText(j); return; }
+    const t = total();
+    showResult({ title: "연장 상담이 접수되었어요.", lead: `영업일 기준 1일 안에 담당자가 ${v.phone}로 연락드려 연장 길이와 금액을 확인한 뒤, 확정 금액으로 바로 결제하실 수 있는 링크를 ${v.email}로 보내드려요.`,
+      rows: [["접수번호", j.id], ["구성", t.lines.map((l) => `${l.label} ${l.qty}곳`).join(", ")], ["기본 월 이용료", `${wonK(t.supply)} (부가세 별도 · 연장 비용 별도)`], ["필요 길이", body.extLength || "현장 확인"],
+        ...(body.install ? [["설치 희망일", `${dLabel(body.install.wish)}${body.install.alt ? " · " + dLabel(body.install.alt) : ""} (확정 전)`]] : []), ["결제", "견적 링크에서 카드 등록 · 설치 완료 뒤부터 결제"]],
+      acts: [["바로 전화하기", "tel:0220881454", "dark"], ["카카오톡 상담", "https://pf.kakao.com/_xfIMpj", "line"]],
+      foot: "급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주세요." });
   } finally { busy(btn, false); }
 }
 async function submitCash() {
@@ -624,7 +684,7 @@ function showDone(sub) {
   try { sessionStorage.removeItem("mnkPayPrefill"); } catch (e) {}
   const p = sub.plan, card = sub.method === "card";
   const rows = [["구독번호", sub.id], ["구성", `${p.label} · ${p.qty}개소`], ["매월 결제 금액", `${wonK(p.total)} (부가세 포함)`],
-    ...(p.installFee ? [["설치비 (1회)", `${wonK(p.installFee + vat(p.installFee))} (부가세 포함 · 첫 결제)`]] : []),
+    ...(p.installFee ? [[`${p.installLabel || "설치비"} (1회)`, `${wonK(p.installFee + vat(p.installFee))} (부가세 포함 · 첫 결제)`]] : []),
     ["결제 수단", card ? `${(sub.card && sub.card.company) || "카드"}${sub.card && sub.card.last4 ? " •••• " + sub.card.last4 : ""} 자동결제` : "세금계산서 · 계좌이체"],
     ...(sub.install && sub.install.wish ? [["설치 희망일", `${dLabel(sub.install.wish)}${sub.install.alt ? ` · 2순위 ${dLabel(sub.install.alt)}` : ""} — 담당자 확정 전`]] : []),
     ["구독 시작", "설치 완료일(설치 일시)부터"],

@@ -40,6 +40,7 @@ import {
   quotePlan, pubSub, runCycle, STATUS_LABEL, later, sendMail, mailHtml, welcomeMail, staffAlert, getSettings, DEFAULT_SETTINGS, manageUrl, closeIfDue,
   makeTerm, inTerm, monthsLeft, oneTimeCharge, refundMail, firstChargeDate,
 } from "./_billing_core.mjs";
+import { regionOf as regionRule } from "./_region.mjs";
 import { installRules, cleanInstall, confirmInstall, afterInstalled, installGuideMail, platformMail, SLOT_LABEL } from "./_billing_install.mjs";
 import { runDue } from "./billing-cron.mjs";
 import leadFn from "./lead.mjs";   /* 현금 결제 상담 — 사이트의 다른 문의와 같은 리드 원장·담당자 배분(1015@·5959@)·먼데이로 */
@@ -255,11 +256,8 @@ function cleanCustomer(c, forceEmail) {
     bizType: str(c.bizType, 60), bizItem: str(c.bizItem, 60), site: str(c.site, 160), siteAddr: str(c.siteAddr, 200),
   };
 }
-/* 설치 주소 → 지역 (alarm.mjs regionOf 와 같은 규칙) */
-const regionOf = (addr) => {
-  const a = String(addr || "").replace(/^\s*\(?\d{5}\)?\s*/, "").trim();
-  return !a || /^(서울|경기|인천)/.test(a) ? "metro" : "other";
-};
+/* 설치 주소 → 지역 — 규칙은 _region.mjs (alarm.mjs · 결제 화면과 같음). 주소가 없으면 수도권 */
+const regionOf = (addr) => regionRule(addr) || "metro";
 
 async function checkout(req, b) {
   const sess = await session(req);
@@ -387,7 +385,7 @@ async function afterRegistered(sub) {
   later(staffAlert(sub, sub.method === "card" ? "알리미 구독 결제 등록" : "알리미 구독 신청(세금계산서)", {
     "구독번호": sub.id, "경로": sub.source === "contract" ? `계약 ${sub.contractRef}` : sub.source === "quote" ? `담당자 견적 ${sub.quoteId} → 고객 바로 결제` : sub.via === "apply" ? "신청 폼 → 바로 결제" : "홈페이지 직접 신청", "회원": sub.member ? "회원" : "비회원",
     "구성": `${sub.plan.label} · ${sub.plan.qty}개소`, "월 결제액": `${won(sub.plan.total)} (공급가 ${won(sub.plan.supply)} + 부가세 ${won(sub.plan.vat)})`,
-    ...(sub.plan.installFee ? { "설치비": won(sub.plan.installFee) + " (VAT 별도 · 첫 결제)" } : {}),
+    ...(sub.plan.installFee ? { [sub.plan.installLabel || "설치비"]: won(sub.plan.installFee) + " (VAT 별도 · 첫 결제)" } : {}),
     "결제 수단": sub.method === "card" ? `카드 자동결제 ${sub.card ? sub.card.company + " •••• " + sub.card.last4 : ""}` : "세금계산서 · 계좌이체",
     "설치 현장": `${sub.customer.site} (${sub.customer.siteAddr})`, "첫 결제": sub.status === "active" ? "완료" : "관리 화면에서 「서비스 개시」 누르는 날",
     "관리 화면": SITE() + "/billing-admin",
@@ -488,21 +486,32 @@ async function cashInquiry(req, b) {
     if (!lp.error) plan = lp;
   }
   const id = "CQ-" + kstToday().replace(/-/g, "").slice(2) + "-" + token(4).toUpperCase();
-  const inq = { id, createdAt: nowIso(), status: "new", customer: c, plan, offerId, contractRef, quoteId,
-    payType: b.payType === "transfer" ? "transfer" : "invoice", when: str(b.when, 40), memo: str(b.memo, 1000), client: { ip: ip(req), ua: str(req.headers.get("user-agent"), 300) } };
+  /* topic: cash = 현금 결제 상담 · water_ext = 물감지 로프 연장 상담(길이·금액 확인 후 견적 결제 링크) */
+  const topic = b.topic === "water_ext" ? "water_ext" : "cash";
+  const ext = topic === "water_ext" ? { length: str(b.extLength, 40), spots: str(b.extSpots, 200) } : null;
+  const wish = b.install && isDate(b.install.wish) ? { wish: b.install.wish, alt: isDate(b.install.alt) ? b.install.alt : "", slot: str(b.install.slot, 10) } : null;
+  const inq = { id, createdAt: nowIso(), status: "new", topic, ext, install: wish, customer: c, plan, offerId, contractRef, quoteId,
+    payType: topic === "cash" ? (b.payType === "transfer" ? "transfer" : "invoice") : "card", when: str(b.when, 40), memo: str(b.memo, 1000), client: { ip: ip(req), ua: str(req.headers.get("user-agent"), 300) } };
   await db.set("inquiries/" + id, inq);
   const planText = plan ? `${plan.label} · ${plan.qty}개소 · 월 ${won(plan.supply)} (부가세 별도)${plan.installFee ? " · 설치비 " + won(plan.installFee) : ""}` : "구성 미정";
   /* 리드 원장으로 — 응답을 늦추지 않게 뒤에서 */
+  const isExt = topic === "water_ext";
   const payload = {
     "회사명": c.company, "담당자명": c.manager, "전화번호": c.phone, "이메일": c.email || "(미기재)",
-    "문의항목": "알리미 구독 — 현금 결제 상담", "지역": c.siteAddr,
-    "문의 사항": [`[${id}] 현금 결제 상담 (${inq.payType === "invoice" ? "세금계산서 발행 · 계좌이체" : "계좌이체"})`, planText,
+    "문의항목": isExt ? "알리미 구독 — 물감지 로프 연장 상담" : "알리미 구독 — 현금 결제 상담", "지역": c.siteAddr,
+    "문의 사항": [isExt ? `[${id}] 물감지 로프 연장 상담 — 필요 길이: ${ext.length || "현장 확인"}${ext.spots ? " · 위치: " + ext.spots : ""} → 금액 확정 후 견적 결제 링크 발송` : `[${id}] 현금 결제 상담 (${inq.payType === "invoice" ? "세금계산서 발행 · 계좌이체" : "계좌이체"})`, planText,
+      wish ? `설치 희망 ${wish.wish}${wish.alt ? " / " + wish.alt : ""}` : "",
       contractRef ? `계약번호 ${contractRef}` : "", c.site ? `설치 현장: ${c.site} (${c.siteAddr})` : "", inq.when ? `연락 희망: ${inq.when}` : "", inq.memo].filter(Boolean).join(" / "),
-    "접점": "/pay 현금 결제 상담", "유입 페이지": "/pay", "출처": "direct",
+    "접점": isExt ? "/pay 물감지 연장 상담" : "/pay 현금 결제 상담", "유입 페이지": "/pay", "출처": "direct",
   };
   later(leadFn(new Request(SITE() + "/api/lead", { method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": ip(req), "user-agent": str(req.headers.get("user-agent"), 300), origin: SITE() },
     body: JSON.stringify({ lead_type: "contact", page: "/pay", ts: inq.createdAt, payload }) })).catch((e) => console.error("[billing] lead", e)));
-  if (c.email) later(sendMail({ to: c.email, name: c.manager, subject: `[모넷코리아] 긴급 경보 알리미 현금 결제 상담 접수 (${id})`,
+  if (c.email && isExt) later(sendMail({ to: c.email, name: c.manager, subject: `[모넷코리아] 긴급 경보 알리미 물감지 연장 상담 접수 (${id})`,
+    text: `${c.manager}님, 물감지 로프 연장 상담 요청이 접수되었습니다.\n· 접수번호: ${id}\n· 구성: ${planText}\n· 필요 길이: ${ext.length || "현장 확인"}\n\n담당자가 영업일 기준 1일 안에 ${c.phone}로 연락드려 연장 길이와 금액을 확인한 뒤, 확정된 금액으로 바로 결제(카드 등록)하실 수 있는 견적 링크를 보내드립니다. 결제는 지금처럼 설치가 완료된 뒤부터 진행됩니다.\n급하시면 02-2088-1454 · 1015@monnit.com`,
+    html: mailHtml({ title: "연장 상담이 접수되었습니다.", lead: `담당자가 영업일 기준 1일 안에 ${c.phone}로 연락드려 연장 길이와 금액을 확인한 뒤, 확정 금액으로 바로 결제하실 수 있는 견적 링크를 보내드립니다.`,
+      rows: [["접수번호", id], ["구성", planText], ["필요 길이", ext.length || "현장 확인"], ...(wish ? [["설치 희망일", wish.wish + (wish.alt ? " · " + wish.alt : "") + " (확정 전)"]] : [])],
+      foot: "결제는 설치가 완료된 뒤부터 진행됩니다. 급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주십시오." }) }));
+  if (c.email && !isExt) later(sendMail({ to: c.email, name: c.manager, subject: `[모넷코리아] 긴급 경보 알리미 현금 결제 상담 접수 (${id})`,
     text: `${c.manager}님, 현금 결제 상담 요청이 접수되었습니다.\n· 접수번호: ${id}\n· 구성: ${planText}\n\n담당자가 영업일 기준 1일 안에 ${c.phone}로 연락드려 계약과 입금 방법을 안내드립니다.\n급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주십시오.`,
     html: mailHtml({ title: "상담 요청이 접수되었습니다.", lead: `담당자가 영업일 기준 1일 안에 ${c.phone}로 연락드려 계약과 입금 방법을 안내드립니다.`, rows: [["접수번호", id], ["구성", planText], ["결제 방식", inq.payType === "invoice" ? "세금계산서 발행 · 계좌이체" : "계좌이체"], ...(inq.when ? [["연락 희망", inq.when]] : [])], foot: "급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주십시오." }) }));
   return json({ ok: true, id });
@@ -612,7 +621,7 @@ async function admin(req, url, r, m) {
       if (!isEmail(to)) return json({ ok: false, error: "bad_email" }, 400);
       const p = quotePlan(q), link = `${SITE()}/pay?q=${q.id}`, c = q.customer || {};
       const rows = [["견적번호", q.id], ["구성", `${p.label} · ${p.qty}개소`], ["매월 결제 금액", `${won(p.total)} (공급가 ${won(p.supply)} + 부가세)`], ...(p.discount ? [["할인", `월 ${won(p.discount)} 적용`]] : []),
-        ["설치비", p.installFee ? `${won(p.installFee)} (부가세 별도 · 첫 결제)` : "무료"], ["의무 사용기간", p.termMonths ? `설치 완료일부터 ${p.termMonths}개월` : "없음"], ["견적 유효기간", `${q.expiresAt}까지`]];
+        [p.installLabel && p.installLabel !== "설치비" ? `${p.installLabel} (1회)` : "설치비", p.installFee ? `${won(p.installFee)} (부가세 별도 · 첫 결제)` : "무료"], ["의무 사용기간", p.termMonths ? `설치 완료일부터 ${p.termMonths}개월` : "없음"], ["견적 유효기간", `${q.expiresAt}까지`]];
       const okm = await sendMail({ to, name: c.manager, subject: `[모넷코리아] 긴급 경보 알리미 견적 및 구독 신청 링크 (${q.id})`, tag: "alarm-quote",
         text: [`${c.manager || c.company || "고객"}님, 요청하신 긴급 경보 알리미 견적입니다.`, "", ...rows.map(([k, v]) => `· ${k}: ${v}`), q.note ? `\n${q.note}` : "", "", "▶ 아래 링크에서 내용 확인 후 바로 구독 신청(카드 자동결제)까지 하실 수 있습니다.", link, "", "문의 02-2088-1454 · 1015@monnit.com"].join("\n"),
         html: mailHtml({ title: "견적이 준비되었습니다.", lead: (q.note ? q.note + " " : "") + "아래 버튼에서 내용을 확인하고 바로 구독 신청까지 하실 수 있습니다.", rows, button: { label: "견적 확인하고 구독 신청", href: link }, foot: "카드 자동결제 또는 현금 결제(담당자 안내) 중 선택하실 수 있습니다." }) });
@@ -630,7 +639,7 @@ async function admin(req, url, r, m) {
       id: "Q-" + kstToday().replace(/-/g, "").slice(2) + "-" + token(4).toUpperCase(), createdAt: nowIso(), status: "open",
       expiresAt: addDays(kstToday(), days), lines, unit, region: ["metro", "other", "fixed"].includes(b.region) ? b.region : "fixed",
       discountType: ["percent", "amount"].includes(b.discountType) ? b.discountType : "none", discountValue: Math.max(0, Number(b.discountValue) || 0),
-      installFee: Math.max(0, Math.round(Number(b.installFee) || 0)), termMonths: b.termMonths != null && b.termMonths !== "" ? Math.max(0, Math.min(120, Math.round(Number(b.termMonths) || 0))) : settings.termMonths,
+      installFee: Math.max(0, Math.round(Number(b.installFee) || 0)), installLabel: str(b.installLabel, 40), termMonths: b.termMonths != null && b.termMonths !== "" ? Math.max(0, Math.min(120, Math.round(Number(b.termMonths) || 0))) : settings.termMonths,
       note: str(b.note, 500), staffMemo: str(b.staffMemo, 1000), inquiryId: str(b.inquiryId, 40),
       customer: cleanCustomer(b.customer || {}),
     };
