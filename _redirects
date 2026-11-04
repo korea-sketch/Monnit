@@ -146,6 +146,9 @@
 
 /알리미-계약·설문·SLA-적용안내-2026-10-16.md   /404.html    404!
 
+# --- IoT몰 (2026-11-04) — /mall/* 상세 주소는 mall.html 이 받습니다 (자동 구간 밖에 둬야 빌드 때 지워지지 않음)
+/mall/*               /mall.html           200
+
 # >>> AUTO-LEGACY-REDIRECTS (build.js 가 관리 — 직접 수정하지 마세요) >>>
 # --- 비공개 파일 차단 (문서·스크립트·함수 소스 — 빌드 때 목록 자동 갱신)
 /server/*                                      /404.html    404!
@@ -418,7 +421,6 @@
 /installation-photos/ /installation-photos.html    301
 
 # --- SPA 폴백 (미리 만든 파일이 없는 상세 경로 · 준비 중 화면이 받습니다)
-/mall/*               /mall.html           200
 /app/*                /index.html          200
 /case/*               /index.html          200
 /kb/*                 /index.html          200
