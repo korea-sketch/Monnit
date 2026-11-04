@@ -153,7 +153,39 @@ export async function readQuoteLink() {
   try { o = JSON.parse((await get(STORE, 'quote-link.json')) || '{}') || {}; } catch (e) { o = {}; }
   const url = String(o.url || env('MALL_QUOTE_URL', QUOTE_DEFAULT_URL)).replace(/\/+$/, '');
   const key = String(o.key || env('MALL_QUOTE_KEY', ''));
-  return { url, key, savedAt: o.savedAt || '', configured: !!key };
+  /* 연동 키가 없어도 서명(아래 signer)으로 자동 연결된다 — 끄려면 MALL_QUOTE_OFF=1 */
+  return { url, key, savedAt: o.savedAt || '', configured: env('MALL_QUOTE_OFF', '') !== '1', mode: key ? 'key' : 'sign' };
+}
+
+/* ── 서명 연결 (2026-11-04) ─────────────────────────────────────────
+   사이트가 처음 쓸 때 ECDSA P-256 열쇠쌍을 스스로 만들어 R2(mall/sign-key.json)에 두고,
+   견적시스템에 보내는 요청마다 「시각.경로.본문」에 서명한다. 공개키는 GET /api/mall/pubkey 로 공개되고,
+   견적시스템은 monnit.co.kr 에서 그 공개키를 받아 서명을 확인한다. 비밀키는 사이트 R2 밖으로 나가지 않는다.
+   → 사람이 키를 옮겨 적을 필요가 없다. */
+const b64u = (buf) => { let s = ''; const a = new Uint8Array(buf); for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+let SIGNER = null;
+async function signer() {
+  if (SIGNER) return SIGNER;
+  let o = null;
+  try { o = JSON.parse((await get(STORE, 'sign-key.json')) || 'null'); } catch (e) { o = null; }
+  if (!o || !o.priv || !o.pub) {
+    const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+    const priv = await crypto.subtle.exportKey('jwk', kp.privateKey), pub = await crypto.subtle.exportKey('jwk', kp.publicKey);
+    o = { priv, pub: { kty: pub.kty, crv: pub.crv, x: pub.x, y: pub.y }, kid: 'mall-' + Date.now().toString(36), at: new Date().toISOString() };
+    /* 동시에 두 곳에서 만들었으면 먼저 저장된 것을 쓴다 */
+    const again = await get(STORE, 'sign-key.json').catch(() => null);
+    if (again) { try { const a = JSON.parse(again); if (a && a.priv) o = a; } catch (e) { /* 새로 만든 것 */ } }
+    else await set(STORE, 'sign-key.json', JSON.stringify(o));
+  }
+  const key = await crypto.subtle.importKey('jwk', o.priv, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+  SIGNER = { key, pub: o.pub, kid: o.kid };
+  return SIGNER;
+}
+export async function publicKey() { const s = await signer(); return { ...s.pub, kid: s.kid, alg: 'ES256', use: 'sig' }; }
+async function signHeaders(path, body) {
+  const s = await signer(), ts = String(Date.now());
+  const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, s.key, new TextEncoder().encode(ts + '.' + path + '.' + body));
+  return { 'x-mall-ts': ts, 'x-mall-sig': b64u(sig), 'x-mall-kid': s.kid };
 }
 export async function saveQuoteLink({ url, key }) {
   const cur = await readQuoteLink();
@@ -174,13 +206,15 @@ async function patchQs(patch) {
 export { readQs };
 async function qsFetch(path, body, link) {
   const l = link || await readQuoteLink();
-  if (!l.key) return { ok: false, skipped: '연결 키 없음' };
+  if (!l.configured) return { ok: false, skipped: '연동 꺼짐' };
   const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const t = ac ? setTimeout(() => ac.abort(), 8000) : null;
   try {
-    const r = await fetch(l.url + path, { method: 'POST', headers: { 'content-type': 'application/json', 'x-mall-key': l.key }, body: JSON.stringify(body), signal: ac ? ac.signal : undefined });
+    const raw = JSON.stringify(body);
+    const headers = { 'content-type': 'application/json', ...(l.key ? { 'x-mall-key': l.key } : {}), ...(await signHeaders(path, raw)) };
+    const r = await fetch(l.url + path, { method: 'POST', headers, body: raw, signal: ac ? ac.signal : undefined });
     const j = await r.json().catch(() => null);
-    if (!r.ok || !j || !j.ok) return { ok: false, error: r.status === 404 ? '연결 키가 맞지 않음' : 'HTTP ' + r.status };
+    if (!r.ok || !j || !j.ok) return { ok: false, error: r.status === 404 ? '견적시스템이 서명을 확인하지 못함' : 'HTTP ' + r.status };
     return j;
   } catch (e) { return { ok: false, error: String(e && e.name === 'AbortError' ? '시간 초과' : (e && e.message) || e) }; }
   finally { if (t) clearTimeout(t); }

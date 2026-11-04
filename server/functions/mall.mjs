@@ -12,11 +12,11 @@
  *  저장 위치는 _mall.mjs 맨 위 설명 참고. */
 import * as auth from './_ops_auth.mjs';
 import { get, set, readLines } from './_store.mjs';
-import { STORE, readRecipients, saveRecipients, recordEvents, okEmail, DEFAULT_RECIPIENTS, readQuoteLink, saveQuoteLink, refreshQs, pushQuote, testQuoteLink } from './_mall.mjs';
+import { STORE, readRecipients, saveRecipients, recordEvents, okEmail, DEFAULT_RECIPIENTS, readQuoteLink, saveQuoteLink, refreshQs, pushQuote, testQuoteLink, publicKey } from './_mall.mjs';
 import { withMust } from './_staffto.mjs';
 import { sendBrevo, alwaysTo } from './_route.mjs';
 
-export const config = { path: ['/ops/mall', '/ops/mall/data', '/ops/mall/status', '/ops/mall/recipients', '/ops/mall/testmail', '/ops/mall/quote-link', '/ops/mall/quote-test', '/ops/mall/push', '/api/mall/ev'] };
+export const config = { path: ['/ops/mall', '/ops/mall/data', '/ops/mall/status', '/ops/mall/recipients', '/ops/mall/testmail', '/ops/mall/quote-link', '/ops/mall/quote-test', '/ops/mall/push', '/api/mall/ev', '/api/mall/pubkey'] };
 
 const H = {
   'cache-control': 'no-store, no-cache, must-revalidate', 'x-robots-tag': 'noindex, nofollow, noarchive', 'referrer-policy': 'no-referrer',
@@ -89,6 +89,8 @@ export default async (req) => {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, '');
   if (path === '/api/mall/ev') return ev(req);
+  /* 견적시스템이 서명을 확인할 공개키 — 공개해도 되는 값 */
+  if (path === '/api/mall/pubkey') return new Response(JSON.stringify(await publicKey()), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=300' } });
   const authed = auth.configured() && auth.valid(auth.cookieFrom({ cookie: req.headers.get('cookie') || '' }));
   if (!authed) return path === '/ops/mall' ? new Response(null, { status: 302, headers: { ...H, location: '/ops' } }) : j({ error: 'unauthorized' }, 401);
   if (path === '/ops/mall') return new Response(PAGE, { headers: { ...H, 'content-type': 'text/html; charset=utf-8' } });
@@ -182,7 +184,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
  <div class="card"><h3>견적시스템 연결<small id="lsaved"></small></h3>
   <p class="note">견적 요청이 들어오면 <b>MK+DC 견적시스템</b>에 단가표 판매가로 「견적 대기」 견적서가 자동으로 만들어지고, 견적시스템 목록의 <b>🛒 IoT몰 접수</b> 탭에 모입니다. 발송 → 수주 → 출고완료가 되면 ERP 판매서로 이어집니다.</p>
   <div class="rcp" style="grid-template-columns:1fr"><input id="lurl" placeholder="견적시스템 주소"></div>
-  <div class="rcp" style="grid-template-columns:1fr"><input id="lkey" type="password" autocomplete="off" placeholder="연동 키"></div>
+  <div class="rcp" style="grid-template-columns:1fr"><input id="lkey" type="password" autocomplete="off" placeholder="연동 키 (선택 — 비워 두면 자동 서명으로 연결)"></div>
   <div class="acts"><button class="btn pri" id="lsave">저장</button><button class="btn" id="ltest">연결 확인</button><a class="btn" id="lopen" target="_blank" rel="noopener" style="text-decoration:none">견적시스템 열기 ↗</a></div></div>
  <div class="card"><h3>견적 알림 받는 사람<small id="rsaved"></small></h3>
   <div id="rcp"></div><div class="acts"><button class="btn" id="radd">+ 사람 추가</button><button class="btn pri" id="rsave">저장</button><button class="btn" id="rtest">시험 메일 보내기</button></div>
@@ -240,7 +242,7 @@ function render(){
  $('#srch').innerHTML=s.searches.length?s.searches.map(function(x){return '<span>'+esc(x[0])+'<b>'+x[1]+'</b></span>'}).join(''):'<span class="note">아직 없음</span>';
  var IN={facility:'시설·빌딩',pharma:'제약·바이오',cold:'물류·콜드체인',pdm:'제조·예지보전',energy:'에너지·유틸리티',agri:'스마트팜·골프장'};
  $('#inds').innerHTML=s.inds.length?s.inds.map(function(x){return '<span>'+esc(IN[x[0]]||x[0])+'<b>'+x[1]+'</b></span>'}).join(''):'<span class="note">아직 없음</span>';
- $('#lurl').value=D.link.url;$('#lopen').href=D.link.url+'/#/';$('#lsaved').textContent=D.link.configured?'연결됨'+(D.link.savedAt?' · '+kt(D.link.savedAt):''):'연동 키 필요';$('#lkey').placeholder=D.link.configured?'저장됨 — 바꿀 때만 입력':'연동 키 (바탕화면 「견적시스템_IoT몰_연동키.txt」 내용)';
+ $('#lurl').value=D.link.url;$('#lopen').href=D.link.url+'/#/';$('#lsaved').textContent=D.link.configured?'자동 연결 (서명)':'꺼짐';
  drawRcp(D.recipients.list);
  $('#rsaved').textContent=D.recipients.isDefault?'기본값':'저장 '+kt(D.recipients.savedAt);
  $('#rnote').innerHTML='함께 받는 주소: '+esc(D.always.concat(D.must).filter(function(v,i,a){return a.indexOf(v)===i}).join(', '))+' (대표님 · 1015@ 필수 규칙)<br>견적·제품 문의가 들어오면 위 사람 모두에게 같은 메일이 한 통씩 갑니다. 고객 메일 「답장」은 고객에게 바로 갑니다.'+(D.recipients.list.some(function(r){return !r.email})?'<br><b class="warn">이메일이 비어 있는 사람은 메일을 받지 못합니다 — 주소를 넣고 저장하세요.</b>':'');
