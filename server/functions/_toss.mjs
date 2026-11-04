@@ -15,9 +15,26 @@
  */
 
 const BASE = () => String(process.env.TOSS_API_BASE || "https://api.tosspayments.com").replace(/\/$/, "");
-export const tossClientKey = () => String(process.env.TOSS_CLIENT_KEY || "").trim();
-const secret = () => String(process.env.TOSS_SECRET_KEY || "").trim();
+/* 안전장치 (2026-11-04) — 화면에 내려가는 클라이언트 키 자리에 시크릿 키(sk·gsk)가 잘못 들어가면 절대 내보내지 않는다.
+   자동결제는 「API 개별 연동 키」만 쓴다: 클라이언트 test_ck_/live_ck_ · 시크릿 test_sk_/live_sk_ (결제위젯 gck/gsk 는 빌링 불가) */
+const rawClient = () => String(process.env.TOSS_CLIENT_KEY || "").trim();
+export const tossClientKey = () => (/^(test|live)_ck_/.test(rawClient()) ? rawClient() : "");
+const secret = () => { const v = String(process.env.TOSS_SECRET_KEY || "").trim(); return /^(test|live)_sk_/.test(v) ? v : ""; };
 export const tossReady = () => !!(tossClientKey() && secret());
+/** 설정 점검 — 관리 화면에 원인을 보여 주기 위한 것 (키 값 자체는 내보내지 않는다) */
+export function tossKeyProblem() {
+  const c = rawClient(), k = String(process.env.TOSS_SECRET_KEY || "").trim();
+  if (!c) return "TOSS_CLIENT_KEY 가 비어 있습니다";
+  if (/_g?sk_/.test(c)) return "TOSS_CLIENT_KEY 자리에 시크릿 키가 들어가 있습니다 — 두 값을 바꿔 넣으세요";
+  if (/_gck_/.test(c)) return "TOSS_CLIENT_KEY 가 결제위젯 키(gck)입니다 — API 개별 연동 키(ck)를 넣으세요";
+  if (!/^(test|live)_ck_/.test(c)) return "TOSS_CLIENT_KEY 형식이 맞지 않습니다 (test_ck_ / live_ck_)";
+  if (!k) return "TOSS_SECRET_KEY 가 비어 있습니다";
+  if (/_g?ck_/.test(k)) return "TOSS_SECRET_KEY 자리에 클라이언트 키가 들어가 있습니다";
+  if (/_gsk_/.test(k)) return "TOSS_SECRET_KEY 가 결제위젯 키(gsk)입니다 — API 개별 연동 키(sk)를 넣으세요";
+  if (!/^(test|live)_sk_/.test(k)) return "TOSS_SECRET_KEY 형식이 맞지 않습니다 (test_sk_ / live_sk_)";
+  if (c.slice(0, 4) !== k.slice(0, 4)) return "클라이언트 키와 시크릿 키의 테스트/라이브가 다릅니다";
+  return "";
+}
 export const tossTestMode = () => /^test_/.test(tossClientKey()) || /^test_/.test(secret());
 
 async function call(path, body, { idem, method = "POST" } = {}) {

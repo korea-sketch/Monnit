@@ -217,7 +217,7 @@ async function loadSubs() {
   SUBS = j.subs || [];
   const m = $("#mode");
   m.className = "mode " + (!j.ready ? "off" : j.test ? "test" : "live");
-  m.textContent = !j.ready ? "토스 키 미설정 · 카드 결제 불가" : j.test ? "테스트 결제 모드" : "실결제 모드";
+  m.textContent = !j.ready ? "토스 키 확인 필요 · 카드 결제 불가" + (j.keyProblem ? " — " + j.keyProblem : "") : j.test ? "테스트 결제 모드" : "실결제 모드";
   const live = SUBS.filter((s) => s.status === "active");
   const mrr = live.reduce((a, s) => a + (s.plan.supply || 0), 0);
   $("#kpis").innerHTML = [["이용 중", live.length + "건"], ["월 반복 매출 (공급가)", wonK(mrr)], ["설치 대기", SUBS.filter((s) => s.status === "registered").length + "건"], ["결제 실패", SUBS.filter((s) => s.status === "past_due").length + "건"], ["해지 상담 요청", SUBS.filter(needsStaff).length + "건"]]

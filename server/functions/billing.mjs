@@ -31,7 +31,7 @@
  */
 import { getStore } from "../lib/blobs.mjs";
 import { randomBytes, timingSafeEqual, createHash } from "node:crypto";
-import { tossClientKey, tossReady, tossTestMode, issueBillingKey, cardLabel, cancelPayment, deleteBillingKey } from "./_toss.mjs";
+import { tossClientKey, tossReady, tossTestMode, tossKeyProblem, issueBillingKey, cardLabel, cancelPayment, deleteBillingKey } from "./_toss.mjs";
 import {
   SITE, db, PRODUCTS, UNIT, MAX_SELF_SITES, landingPlan, contractPlan, vatOf, won, kstToday, isDate, addDays,
   token, subId, hashOf, normEmail, isEmail, str, nowIso, seal, unseal, getSub, saveSub, indexEmail, subsOfEmail, setDue,
@@ -518,13 +518,13 @@ async function activate(sub, start, by) {
 /* ───────── 관리자 ───────── */
 async function admin(req, url, r, m) {
   const q = (k) => url.searchParams.get(k);
-  if (r === "ping") return json({ ok: true, ready: tossReady(), test: tossTestMode() });
+  if (r === "ping") return json({ ok: true, ready: tossReady(), test: tossTestMode(), keyProblem: tossKeyProblem() });
   if (m === "GET" && r === "list") {
     const keys = await db.list("subs/");
     const subs = (await Promise.all(keys.slice(0, 1000).map((k) => db.get(k.key)))).filter(Boolean)
       .map(({ billingKeyEnc, customerKey, client, ...s }) => s);
     subs.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-    return json({ ok: true, subs, labels: STATUS_LABEL, ready: tossReady(), test: tossTestMode() });
+    return json({ ok: true, subs, labels: STATUS_LABEL, ready: tossReady(), test: tossTestMode(), keyProblem: tossKeyProblem() });
   }
   if (m === "GET" && r === "quotes") {
     const keys = await db.list("quotes/");
