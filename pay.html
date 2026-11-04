@@ -156,7 +156,7 @@
           <h2><small>6단계</small>확인해 주세요.</h2>
           <div class="agree" id="agreeBox">
             <label class="all"><input type="checkbox" id="agAll"><span class="txt">모두 동의합니다</span></label>
-            <label><input type="checkbox" class="ag" data-k="terms"><span class="txt">서비스 이용약관(SLA)에 동의합니다 <small>필수</small></span><a href="/alarm/terms" target="_blank" rel="noopener">보기</a></label>
+            <label><input type="checkbox" class="ag" data-k="terms"><span class="txt">서비스 이용약관(SLA)에 동의합니다 <small>필수</small></span><a href="/alarm/terms" target="_blank" rel="noopener">약관</a><a href="/alarm/refund" target="_blank" rel="noopener" style="margin-left:8px">환불정책</a></label>
             <label><input type="checkbox" class="ag" data-k="privacy"><span class="txt">개인정보 수집·이용에 동의합니다 <small>필수 · 상호, 담당자, 연락처, 이메일, 설치 주소, 사업자 정보 · 계약 종료 후 5년 보관</small></span><a href="/privacy.html" target="_blank" rel="noopener">보기</a></label>
             <label><input type="checkbox" class="ag" data-k="term"><span class="txt" id="termText">의무 사용기간에 동의합니다</span></label>
             <label><input type="checkbox" class="ag" data-k="schedule"><span class="txt" id="schedText">설치 일정·결제 시작 안내를 확인했습니다</span></label>
@@ -193,7 +193,7 @@
 
 <div class="mbar" id="mbar" hidden><div>매월 <b id="mbTotal">₩0</b></div><button class="btn btn--dark" id="mbBtn" type="button">구독 신청</button></div>
 <div class="toast" id="toast"></div>
-<footer class="foot">주식회사 모넷코리아 · 대표 염정훈 · 사업자등록번호 242-88-01218 · 서울특별시 서초구 효령로 380, 2층 · 02-2088-1454 · <a href="mailto:1015@monnit.com">1015@monnit.com</a> · <a href="/alarm/terms">이용약관</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
+<footer class="foot">상호 주식회사 모넷코리아 · 대표자 염정훈 · 사업자등록번호 242-88-01218 · 주소 서울특별시 서초구 효령로 380, 2층 · 대표전화 02-2088-1454 · 이메일 <a href="mailto:1015@monnit.com">1015@monnit.com</a><br><a href="/alarm/terms">이용약관</a> · <a href="/alarm/refund">결제·환불 정책</a> · <a href="/privacy.html">개인정보처리방침</a></footer>
 
 <script>
 (() => {
@@ -560,6 +560,7 @@ function renderSummary() {
   else t.lines.forEach((l) => rows.push([l.label, `${l.qty}곳 · ${wonK(t.unit * l.qty)}`]));
   if (!t.lines.length && S.mode !== "contract") rows.push(["선택한 알리미", "없음"]);
   rows.push(["월 이용료 (공급가액)", wonK(t.supply)], ["부가세 (10%)", wonK(t.vat)], [(S.mode === "contract" && S.quote.plan.installLabel) || "설치비", t.install ? wonK(t.install) + " + VAT (1회)" : "무료"]);
+  rows.push(["결제 주기", "매월 자동결제 · 1회 결제 = 1개월 이용"]);
   if (S.mode !== "contract" && S.cfg.termMonths) rows.push(["의무 사용기간", S.cfg.termMonths % 12 ? S.cfg.termMonths + "개월" : S.cfg.termMonths / 12 + "년"]);
   $("#sumRows").innerHTML = rows.map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("");
   $("#sumTotal").textContent = won(t.monthly); $("#mbTotal").textContent = won(t.monthly);

@@ -155,6 +155,10 @@
 /sla-consent.html
   X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
   Cache-Control: no-cache, must-revalidate
+/alarm/refund
+  Cache-Control: no-cache, must-revalidate
+/alarm/refund.html
+  Cache-Control: no-cache, must-revalidate
 /alarm/terms
   Cache-Control: no-cache, must-revalidate
 /alarm/terms.html
