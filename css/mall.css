@@ -69,7 +69,7 @@ img{max-width:100%;display:block}
 .m-all>button i::before,.m-all>button i::after{content:"";position:absolute;left:0}
 .m-all>button i::before{top:-5px} .m-all>button i::after{top:5px}
 .m-mega{position:fixed;left:0;right:0;top:auto;margin-top:0;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 20px 40px rgba(16,24,40,.12);z-index:40}
-.m-mega__in{max-width:1240px;margin:0 auto;padding:24px 20px 28px;display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1fr;gap:24px}
+.m-mega__in{max-width:1240px;margin:0 auto;padding:24px 20px 28px;display:grid;grid-template-columns:1.1fr repeat(5,1fr);gap:24px}
 .m-mega h5{margin:0 0 10px;font-size:13px;color:var(--muted)}
 .m-mega a{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px;font-weight:500;height:auto;border:0}
 .m-mega a:hover{color:var(--blue)}
@@ -501,3 +501,110 @@ body.no-scroll{overflow:hidden}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.rv{opacity:1;transform:none}}
 .m-pd__gal:has(.m-zoom){background:#fff;border:1px solid var(--line2)}
+
+/* ───────── 업종별 구성 (2026-11-04) ───────── */
+:root{--accent:#f5a524;--ink:#0f1726}
+.m-gnb a.m-gnb__hl{color:var(--accent);font-weight:700}
+.m-gnb a.m-gnb__hl:hover,.m-gnb a.m-gnb__hl.is-on{color:#d98a06;border-bottom-color:var(--accent)}
+.m-inds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.m-ind{display:flex;flex-direction:column;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:26px 26px 28px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.m-ind::after{content:"";position:absolute;right:-80px;top:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(closest-side,rgba(47,111,237,.28),transparent);transition:transform .4s}
+.m-ind:hover{transform:translateY(-4px);box-shadow:0 18px 36px rgba(11,21,48,.28)}
+.m-ind:hover::after{transform:scale(1.25)}
+.m-ind__hd{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.m-ind__hd span{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.14em;color:var(--accent)}
+.m-ind__hd em{font-style:normal;font-size:14px;color:#b8c1d4;transition:color .2s,transform .2s}
+.m-ind:hover .m-ind__hd em{color:#fff;transform:translateX(3px)}
+.m-ind>b{font-size:24px;letter-spacing:-.02em}
+.m-ind>p{margin:0;color:#a9b3c7;font-size:15px;line-height:1.65;min-height:3.3em}
+.m-ind__th{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;position:relative;z-index:1}
+.m-ind__th i{width:58px;height:58px;border-radius:8px;background:#fff;display:grid;place-items:center;transition:transform .25s}
+.m-ind__th i .m-ph{width:50px;height:50px}
+.m-ind__th i .m-ph--shot img{border-radius:4px}
+.m-ind:hover .m-ind__th i{transform:translateY(-2px)}
+.m-ind:hover .m-ind__th i:nth-child(2){transition-delay:.03s}.m-ind:hover .m-ind__th i:nth-child(3){transition-delay:.06s}.m-ind:hover .m-ind__th i:nth-child(4){transition-delay:.09s}.m-ind:hover .m-ind__th i:nth-child(5){transition-delay:.12s}.m-ind:hover .m-ind__th i:nth-child(6){transition-delay:.15s}
+.m-catbanner--plain{background:#fff;color:var(--text);border:1px solid var(--line2)}
+.m-catbanner--plain p{color:var(--text2)}
+.m-indhero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:14px;padding:34px 34px;margin:6px 0 18px;position:relative;overflow:hidden}
+.m-indhero::after{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(closest-side,rgba(47,111,237,.3),transparent)}
+.m-indhero>*{position:relative;z-index:1}
+.m-indhero span{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.14em;color:var(--accent)}
+.m-indhero h1{margin:8px 0 8px;font-size:32px;letter-spacing:-.03em}
+.m-indhero p{margin:0;color:#a9b3c7;max-width:620px;line-height:1.65}
+.m-indhero__act{display:flex;gap:10px;flex-wrap:wrap}
+.m-btn--accent{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.m-btn--accent:hover{background:#ffb53c}
+.m-indlist{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.m-indrow{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:18px;padding:14px 22px;border-bottom:1px solid var(--line2);cursor:pointer;transition:background .15s}
+.m-indrow:last-child{border-bottom:0}
+.m-indrow:hover{background:#f8fafc}
+.m-indrow:hover .m-ph img{transform:scale(1.08)}
+.m-indrow div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.m-indrow small{font-size:12px;color:var(--faint)} .m-indrow b{font-size:16px} .m-indrow div span{font-size:13.5px;color:var(--muted)}
+.m-indrow em{font-style:normal;font-weight:700;color:var(--navy);font-size:14px;white-space:nowrap}
+.m-inds--more{margin-top:28px}
+@media (max-width:1000px){.m-inds{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){
+  .m-inds{grid-template-columns:1fr;gap:12px}.m-ind{padding:20px}.m-ind>b{font-size:21px}.m-ind>p{min-height:0;font-size:14px}
+  .m-ind__th i{width:48px;height:48px}.m-ind__th i .m-ph{width:42px;height:42px}
+  .m-indhero{padding:24px 20px}.m-indhero h1{font-size:25px}.m-indhero__act,.m-indhero__act .m-btn{width:100%}
+  .m-indrow{grid-template-columns:auto 1fr auto;padding:12px 14px;gap:12px}.m-indrow em{grid-column:2;grid-row:2;font-size:13px}.m-indrow .m-btn{grid-row:1/3;grid-column:3}
+}
+
+/* ───────── 재미 요소 · 기기 최적화 (2026-11-04) ───────── */
+/* 업종 카드 썸네일 — 한 줄 6칸 고정 */
+.m-ind__th{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.m-ind__th i{width:auto;height:auto;aspect-ratio:1}
+.m-ind__th i .m-ph{width:86%;height:86%}
+/* 커서 따라가는 빛 */
+.m-ind{will-change:transform;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+.m-ind::before{content:"";position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(245,165,36,.16),transparent 45%);opacity:0;transition:opacity .3s;pointer-events:none}
+@media (hover:hover){.m-ind:hover::before{opacity:1}}
+.m-ind>*{position:relative;z-index:1}
+/* 썸네일 이름 말풍선 */
+@media (hover:hover){
+  .m-ind__th i{position:relative}
+  .m-ind__th i::after{content:attr(title);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,4px);white-space:nowrap;background:#fff;color:var(--ink);font-size:11.5px;font-weight:600;font-style:normal;padding:4px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .m-ind__th i:hover::after{opacity:1;transform:translate(-50%,0)}
+  .m-ind__th i:hover{transform:translateY(-4px) scale(1.06)!important}
+}
+/* 휴대폰 홈 — 업종 카드 좌우 스와이프 */
+@media (max-width:640px){
+  .m-inds--snap{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .m-inds--snap::-webkit-scrollbar{display:none}
+  .m-inds--snap .m-ind{flex:0 0 84%;scroll-snap-align:center}
+}
+/* 업종 상세 — 담기 완료 · 휴대폰 하단 고정 버튼 */
+.m-btn.is-done{background:#18a058;border-color:#18a058;color:#fff;animation:pop .4s ease}
+.m-indbar{display:none}
+@media (max-width:700px){
+  .m-indbar{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;bottom:calc(68px + env(safe-area-inset-bottom));z-index:20;margin-top:14px;background:var(--ink);color:#fff;border-radius:14px;padding:10px 10px 10px 16px;box-shadow:0 12px 28px rgba(11,21,48,.3)}
+  .m-indbar span{font-size:13.5px;color:#b8c1d4} .m-indbar b{color:#fff}
+  .m-indhero__act .m-btn--accent{display:none}
+}
+/* 검색 추천 */
+.m-sugg{position:fixed;z-index:70;background:#fff;border-radius:14px;box-shadow:0 18px 44px rgba(16,24,40,.18);border:1px solid var(--line2);padding:6px;max-height:min(70vh,460px);overflow:auto;animation:sugg .16s ease}
+@keyframes sugg{from{opacity:0;transform:translateY(-4px)}}
+.m-sugg a{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:10px}
+.m-sugg a:hover,.m-sugg a.is-sel{background:var(--blue-soft)}
+.m-sugg a>span:not(.m-ph){display:flex;flex-direction:column;min-width:0;flex:1} .m-sugg b{font-size:14.5px} .m-sugg small{font-size:12px;color:var(--muted)}
+.m-sugg i{font-style:normal;color:var(--faint)}
+.m-sugg p{margin:0;padding:12px;font-size:13.5px;color:var(--muted)}
+.m-sugg__ind{border-top:1px solid var(--line2);margin-top:4px}
+.m-sugg__ind em{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink);background:var(--accent);padding:4px 6px;border-radius:6px;min-width:46px;text-align:center}
+/* 사진 토스트 */
+.m-toast{display:flex;align-items:center;gap:10px}
+.m-toast img{width:34px;height:34px;object-fit:contain;background:#fff;border-radius:8px;padding:2px}
+.m-toast a{color:var(--accent);font-weight:700;white-space:nowrap;margin-left:6px}
+.m-toast.has-act{pointer-events:auto;padding:8px 18px 8px 8px}
+/* 휴대폰 최적화 — iOS 입력 확대 방지 · 터치 하이라이트 · 가로 넘침 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+a,button{-webkit-tap-highlight-color:transparent}
+@media (max-width:900px){.m-search input,.m-form input,.m-form select,.m-form textarea,.m-form--inline input,.m-form--inline textarea,#pdQty{font-size:16px}}
+@media (hover:none){.m-card:hover{transform:none;box-shadow:var(--shadow)}.m-card:hover .m-ph img{transform:none}.m-ind:hover{transform:none}}
+.m-gnb .m-in{-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+body{overflow-x:clip}
+.m-sugg .m-ph{width:44px;height:44px}
+.m-toast{width:max-content;max-width:min(520px,calc(100% - 32px))}
+.m-toast span{flex:1;min-width:0}
+@media (max-width:700px){.m-toast{top:calc(12px + env(safe-area-inset-top));bottom:auto;transform:translate(-50%,-20px);border-radius:16px;font-size:13.5px}.m-toast.is-on{transform:translate(-50%,0)}}
