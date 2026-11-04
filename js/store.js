@@ -143,13 +143,14 @@ function openDetail(id, push = true) {
       <div class="s-sec"><h4>주요 특징</h4><div class="s-facts">${(FACTS[p.c] || []).map(([a, b]) => `<div><b>${esc(a)}</b>${esc(b)}</div>`).join("")}</div></div>
       ${apps.length ? `<div class="s-sec"><h4>이렇게 활용해요</h4><div class="s-apps">${apps.map((a) => `<a href="/app/${esc(a.id)}">${esc(a.name)}</a>`).join("")}</div></div>` : ""}
       <div class="s-sec"><h4>사양 · 자료</h4><div class="s-files">${p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener"><i>${p.p ? "PDF" : "WEB"}</i>${esc(p.n)} ${p.p ? "데이터시트 (상세 사양)" : "제품 정보"}<span style="margin-left:auto;color:var(--blue)">열기 →</span></a>` : `<span class="s-muted">자료는 견적 회신 때 함께 보내 드려요.</span>`}</div></div>
-      <div class="s-sec"><h4>상담</h4><div class="s-buy" style="margin-top:0"><a class="btn btn--line btn--sm" href="tel:0220881454">전화 02-2088-1454</a><a class="btn btn--line btn--sm" href="https://pf.kakao.com/_xfIMpj" target="_blank" rel="noopener">카카오톡 상담</a></div></div>
+      <div class="s-sec"><h4>상담</h4><div class="s-buy" style="margin-top:0"><a class="btn btn--line btn--sm" href="tel:0220881454">전화 02-2088-1454</a><button class="btn btn--line btn--sm" type="button" id="dAsk">홈페이지로 문의 남기기</button></div></div>
     </div>`;
   el.hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden";
   let qty = 1;
   $$("[data-q]", el).forEach((b) => b.onclick = () => { qty = Math.max(1, Math.min(999, qty + Number(b.dataset.q))); $("#dQty").textContent = qty + "개"; });
   $("#dAdd").onclick = () => { add(p.id, qty); closeDetail(); };
   $("#dNow").onclick = () => { add(p.id, qty, true); closeDetail(); openCart(); };
+  $("#dAsk").onclick = () => { closeDetail(); openCart(); setTimeout(() => { const m = document.getElementById("fMemo"); if (m) { m.value = m.value || `[${p.n}] 문의: `; m.focus(); } }, 300); };
   $("#dX").onclick = closeDetail;
   if (push) history.pushState({ p: p.id }, "", "?p=" + encodeURIComponent(p.id));
   render();

@@ -137,13 +137,13 @@
           <div id="cashBox" hidden>
             <div class="contact">
               <a class="contact__item" href="tel:0220881454"><span class="contact__ic">☎</span><b>전화 상담</b><small>02-2088-1454 · 평일 업무시간</small></a>
-              <a class="contact__item" href="https://pf.kakao.com/_xfIMpj" target="_blank" rel="noopener"><span class="contact__ic" style="background:#fee500;color:#191919">K</span><b>카카오톡 상담</b><small>모넷코리아 채널</small></a>
+              <a class="contact__item" href="#cashMemo" id="cashFormLink"><span class="contact__ic">✎</span><b>홈페이지 문의</b><small>아래에 남기면 담당자에게 바로 알림</small></a>
               <a class="contact__item" href="mailto:1015@monnit.com?subject=%5B%EC%95%8C%EB%A6%AC%EB%AF%B8%5D%20%ED%98%84%EA%B8%88%20%EA%B2%B0%EC%A0%9C%20%EB%AC%B8%EC%9D%98"><span class="contact__ic">@</span><b>이메일</b><small>1015@monnit.com</small></a>
             </div>
             <p class="note" style="margin-top:14px"><span>또는 아래에 상담 요청을 남겨 주시면 <b>영업일 기준 1일 안에</b> 담당자가 먼저 연락드립니다. 위 3단계에 적어 주신 정보가 함께 전달돼요.</span></p>
             <div class="fields" style="margin-top:12px">
               <div class="field"><select id="cashType"><option value="invoice">세금계산서 발행 후 계좌이체</option><option value="transfer">계좌이체 (세금계산서 불필요)</option><option value="card" id="cashCardOpt" hidden>카드 결제 희망 (서비스 오픈 후 안내)</option></select><label for="cashType" style="top:7px;font-size:12px;color:var(--muted)">결제 방식</label></div>
-              <div class="field"><select id="cashWhen"><option value="">언제든 괜찮아요</option><option>오전 (9~12시)</option><option>오후 (13~18시)</option><option>문자·카카오톡으로 먼저</option></select><label for="cashWhen" style="top:7px;font-size:12px;color:var(--muted)">연락 희망 시간</label></div>
+              <div class="field"><select id="cashWhen"><option value="">언제든 괜찮아요</option><option>오전 (9~12시)</option><option>오후 (13~18시)</option><option>문자로 먼저</option></select><label for="cashWhen" style="top:7px;font-size:12px;color:var(--muted)">연락 희망 시간</label></div>
               <div class="field full"><textarea id="cashMemo" placeholder=" "></textarea><label for="cashMemo">궁금한 점 (선택)</label></div>
             </div>
           </div>
@@ -425,6 +425,7 @@ function renderExt() {
   $$("[data-ext]").forEach((b) => b.classList.toggle("is-on", (b.dataset.ext === "1") === !!S.ext));
   $("#extMore").hidden = !S.ext;
 }
+$("#cashFormLink").addEventListener("click", (e) => { e.preventDefault(); $("#cashMemo").scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => $("#cashMemo").focus(), 350); });
 $("#extBox").addEventListener("click", (e) => {
   const b = e.target.closest("[data-ext]"); if (!b) return;
   S.ext = b.dataset.ext === "1"; renderExt(); renderMethod(); renderAgree(); renderSummary();
@@ -637,7 +638,7 @@ async function submitExt() {
     showResult({ title: "연장 상담이 접수되었어요.", lead: `영업일 기준 1일 안에 담당자가 ${v.phone}로 연락드려 연장 길이와 금액을 확인한 뒤, 확정 금액으로 바로 결제하실 수 있는 링크를 ${v.email}로 보내드려요.`,
       rows: [["접수번호", j.id], ["구성", t.lines.map((l) => `${l.label} ${l.qty}곳`).join(", ")], ["기본 월 이용료", `${wonK(t.supply)} (부가세 별도 · 연장 비용 별도)`], ["필요 길이", body.extLength || "현장 확인"],
         ...(body.install ? [["설치 희망일", `${dLabel(body.install.wish)}${body.install.alt ? " · " + dLabel(body.install.alt) : ""} (확정 전)`]] : []), ["결제", "견적 링크에서 카드 등록 · 설치 완료 뒤부터 결제"]],
-      acts: [["바로 전화하기", "tel:0220881454", "dark"], ["카카오톡 상담", "https://pf.kakao.com/_xfIMpj", "line"]],
+      acts: [["바로 전화하기", "tel:0220881454", "dark"], ["알리미 홈", "/promo/alarm", "line"]],
       foot: "급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주세요." });
   } finally { busy(btn, false); }
 }
@@ -660,7 +661,7 @@ async function submitCash() {
     const t = total();
     showResult({ title: "상담 요청이 접수되었어요.", lead: `영업일 기준 1일 안에 담당자가 ${v.phone}로 연락드려 계약과 입금 방법을 안내드립니다.`,
       rows: [["접수번호", j.id], ["구성", S.mode === "contract" ? `${t.label} · ${t.qty}개소` : t.lines.map((l) => `${l.label} ${l.qty}곳`).join(", ")], ["월 이용료", `${wonK(t.supply)} (부가세 별도)`], ["결제 방식", $("#cashType").selectedOptions[0].textContent], ...(v.email ? [["접수 확인 메일", v.email]] : [])],
-      acts: [["바로 전화하기", "tel:0220881454", "dark"], ["카카오톡 상담", "https://pf.kakao.com/_xfIMpj", "line"]],
+      acts: [["바로 전화하기", "tel:0220881454", "dark"], ["알리미 홈", "/promo/alarm", "line"]],
       foot: "급하시면 02-2088-1454 · 1015@monnit.com 으로 연락 주세요." });
   } finally { busy(btn, false); }
 }
