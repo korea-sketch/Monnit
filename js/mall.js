@@ -69,8 +69,86 @@ const byName = (n) => P.find((p) => p.n === n);
 function prep(list) {
   P = list.map((p, i) => ({ ...p, id: slugOf(p, i) }));
   P.forEach((p) => { const a = appsOf(p); p.score = p.c === "sensors" ? (a[0] ? a[0].popularity : 0) + a.length * 3 : p.c === "gateways" ? 95 : 40; });
-  const top = P.filter((p) => p.c === "sensors").sort((a, b) => b.score - a.score).slice(0, 8).map((p) => p.id);
-  P.forEach((p) => { p.hot = top.includes(p.id); });
+  /* 베스트셀러 — 모넷코리아 실제 판매 상위 5종 (2026-11-05 지시). 나머지는 BEST 표시 없음 */
+  P.forEach((p) => { const r = BEST.findIndex((b) => b.n === p.n); p.hot = r >= 0; p.rank = r >= 0 ? r + 1 : 0; if (r >= 0) p.score += 1000 - r * 10; });
+}
+const BEST = [
+  { n: "온도", label: "온도 센서", why: "냉장·냉동 · 서버실 · 공정 온도" },
+  { n: "누수 — 전선형(Detect)", label: "물감지 센서", why: "기계실 · 배관 · 공조기 누수" },
+  { n: "드라이컨택", label: "드라이컨택 센서", why: "기존 설비 경보 접점 · 정전 · 펌프" },
+  { n: "가속도·진동계", label: "정밀 진동 센서", why: "모터 · 펌프 · 팬 예지보전" },
+  { n: "습도", label: "습도 센서", why: "보관실 · 클린룸 · 데이터센터" },
+];
+/* ── 필수 구성 (2026-11-05 지시) ─────────────────────────────────────
+   ALTA 센서는 ALTA 게이트웨이와만 통신하고, 데이터는 플랫폼(라이선스)으로 본다.
+   센서를 담으면 게이트웨이 1종 + 플랫폼 라이선스 1종이 반드시 함께 들어가고, 견적함·요청서에서 항상 맨 위에 보인다. */
+const REQ_GW = [
+  { n: "이더넷 게이트웨이", label: "이더넷 게이트웨이", sub: "사내 인터넷(LAN)에 연결 · 가장 많이 선택" },
+  { n: "북미 IoT 셀룰러 게이트웨이", label: "IoT 게이트웨이 (LTE + 이더넷)", sub: "인터넷선이 없는 현장 · LTE 통신 겸용" },
+];
+const REQ_SW = [
+  { n: "iMonnit 클라우드 관리 SW", label: "iMonnit 클라우드 라이선스", sub: "웹·모바일 대시보드 · 문자·이메일 알림 · 가장 많이 선택" },
+  { n: "iMonnit Express 독립형 SW", label: "iMonnit Express (PC 설치형)", sub: "외부 인터넷 없이 사내 PC에서 운영" },
+  { n: "온프레미스 엔터프라이즈", label: "엔터프라이즈 (자체 서버)", sub: "자체 서버 · 대규모 · 보안 정책 현장" },
+];
+const needsReq = () => CART.some((c) => { const p = P.find((x) => x.id === c.id); return p && p.c === "sensors"; });
+const cartHas = (cat) => CART.some((c) => { const p = P.find((x) => x.id === c.id); return p && p.c === cat; });
+const isReqItem = (p) => p && (p.c === "gateways" || p.c === "software");
+/** 센서가 있는데 게이트웨이·라이선스가 없으면 기본값을 넣는다. 넣었으면 true */
+function ensureReq() {
+  if (!needsReq()) return false;
+  let added = false;
+  if (!cartHas("gateways")) { const g = byName(REQ_GW[0].n); if (g) { CART.unshift({ id: g.id, qty: 1 }); added = true; } }
+  if (!cartHas("software")) { const w = byName(REQ_SW[0].n); if (w) { CART.splice(1, 0, { id: w.id, qty: 1 }); added = true; } }
+  if (added) saveCart();
+  return added;
+}
+/** 필수 구성 종류 바꾸기 (같은 칸 안에서 하나만) */
+function swapReq(list, n) {
+  const want = byName(n); if (!want) return;
+  const names = list.map((x) => x.n);
+  const cur = CART.find((c) => { const p = P.find((x) => x.id === c.id); return p && names.includes(p.n); });
+  const qty = cur ? cur.qty : 1;
+  CART = CART.filter((c) => { const p = P.find((x) => x.id === c.id); return !(p && names.includes(p.n)); });
+  CART.unshift({ id: want.id, qty });
+  saveCart();
+}
+/* 시스템 구성 안내 — 홈 · 상세 · 견적함 공용 */
+function sysHTML(mode) {
+  const s = byName("온도"), g = byName("이더넷 게이트웨이"), w = byName("iMonnit 클라우드 관리 SW");
+  return `<section class="m-sys${mode === "mini" ? " m-sys--mini" : ""}">
+    <div class="m-sys__hd"><span>꼭 알아 두세요</span><h2>모넷 무선 시스템은 <b>센서 + 게이트웨이 + 플랫폼 라이선스</b>가 한 세트입니다</h2></div>
+    <ol class="m-sys__flow">
+      <li>${s ? ico(s, "m-ico--md") : ""}<b>① ALTA 무선 센서</b><span>현장 값을 측정해 무선(940MHz)으로 보냅니다</span></li>
+      <li>${g ? ico(g, "m-ico--md") : ""}<b>② ALTA 게이트웨이 <em>필수</em></b><span>센서 신호를 받아 인터넷으로 올립니다 · 1대에 센서 최대 250개</span></li>
+      <li>${w ? ico(w, "m-ico--md") : ""}<b>③ 플랫폼 라이선스 <em>필수</em></b><span>대시보드에서 데이터를 보고 문자·이메일 알림을 받습니다</span></li>
+    </ol>
+    ${mode === "mini" ? "" : `<ul class="m-sys__faq">
+      <li><b>우리 회사 게이트웨이(타사 제품)에 센서만 붙일 수 있나요?</b><span>아니요. ALTA 센서는 전용 무선 방식이라 <b>ALTA 게이트웨이와만 통신</b>합니다. 타사 게이트웨이·Wi-Fi 공유기와는 직접 연결되지 않습니다.</span></li>
+      <li><b>ALTA 게이트웨이에 다른 회사 센서를 연결할 수 있나요?</b><span>아니요. ALTA 게이트웨이는 <b>ALTA 센서 전용</b>입니다. 기존 BMS·SCADA와 데이터를 주고받는 것은 Modbus 게이트웨이나 API 연동으로 따로 구성합니다.</span></li>
+      <li><b>라이선스는 왜 필요한가요?</b><span>게이트웨이가 올린 데이터를 보고, 기준을 넘으면 알림을 받는 곳이 플랫폼입니다. <b>라이선스가 없으면 측정값을 확인할 수 없습니다.</b> 클라우드 · PC 설치형 · 자체 서버 중 고르시면 됩니다.</span></li>
+    </ul>`}
+    <p class="m-sys__note">센서를 견적함에 담으면 게이트웨이와 플랫폼 라이선스가 <b>자동으로 함께 담깁니다.</b> 종류는 견적함에서 바꿀 수 있어요.</p>
+  </section>`;
+}
+/* 센서를 처음 담았을 때 뜨는 필수 구성 안내 시트 */
+function reqSheet() {
+  let el = $("#reqSheet");
+  if (!el) { el = document.createElement("div"); el.id = "reqSheet"; el.className = "m-req"; document.body.appendChild(el); }
+  const curName = (list) => { const names = list.map((x) => x.n); const c = CART.find((c) => { const p = P.find((x) => x.id === c.id); return p && names.includes(p.n); }); const p = c && P.find((x) => x.id === c.id); return p ? p.n : list[0].n; };
+  const opts = (list, key) => list.map((o) => { const p = byName(o.n); if (!p) return ""; return `<label class="m-req__opt"><input type="radio" name="${key}" value="${esc(o.n)}" ${curName(list) === o.n ? "checked" : ""}>${ico(p, "m-ico--sm")}<span><b>${esc(o.label)}</b><small>${esc(o.sub)}</small></span></label>`; }).join("");
+  el.innerHTML = `<div class="m-req__scrim" data-reqclose></div><div class="m-req__box" role="dialog" aria-modal="true" aria-labelledby="reqT">
+    <button class="m-x m-req__x" type="button" data-reqclose aria-label="닫기">×</button>
+    <span class="m-req__eye">필수 구성이 함께 담겼어요</span>
+    <h3 id="reqT">센서만으로는 데이터를 볼 수 없어요</h3>
+    <p>ALTA 센서는 <b>ALTA 게이트웨이</b>와만 통신하고, 측정값은 <b>플랫폼 라이선스</b>로 확인합니다. 아래에서 현장에 맞는 종류를 골라 주세요.</p>
+    <div class="m-req__grp"><h4>① 게이트웨이 <em>필수 · 1종</em></h4>${opts(REQ_GW, "rgw")}</div>
+    <div class="m-req__grp"><h4>② 플랫폼 라이선스 <em>필수 · 1종</em></h4>${opts(REQ_SW, "rsw")}</div>
+    <p class="m-req__warn">타사 게이트웨이에 ALTA 센서를 붙이거나, ALTA 게이트웨이에 타사 센서를 붙이는 것은 지원되지 않습니다.</p>
+    <div class="m-req__btns"><button class="m-btn m-btn--line" type="button" data-reqclose>계속 둘러보기</button><a class="m-btn" href="/mall/cart" data-link data-reqgo>견적함 보기</a></div></div>`;
+  el.hidden = false; requestAnimationFrame(() => el.classList.add("is-on"));
+  el.onchange = (e) => { const r = e.target.closest("input[type=radio]"); if (!r) return; swapReq(r.name === "rgw" ? REQ_GW : REQ_SW, r.value); badge(); if (L().pathname === "/mall/cart") route(); };
+  el.onclick = (e) => { if (e.target.closest("[data-reqclose],[data-reqgo]")) { el.classList.remove("is-on"); setTimeout(() => (el.hidden = true), 250); } };
 }
 
 /* 주소 — 서버(/mall/...)에서는 실제 경로, 파일로 열거나 미리보기에서는 #/mall/... 해시 경로로 동작 */
@@ -99,7 +177,10 @@ function add(id, qty = 1, quiet) {
   const it = CART.find((c) => c.id === id);
   if (it) it.qty = Math.min(9999, it.qty + qty); else CART.push({ id, qty: Math.max(1, Math.min(9999, qty)) });
   { const pa = P.find((x) => x.id === id); if (pa) evc("a", pa.n, 1); }
-  saveCart(); const b = $(".m-ic--cart"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
+  saveCart();
+  const reqAdded = ensureReq();
+  if (reqAdded && !quiet) setTimeout(reqSheet, 350);
+  const b = $(".m-ic--cart"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
   try { navigator.vibrate && navigator.vibrate(12); } catch (e) {}
   if (!quiet) { const p = P.find((x) => x.id === id); toast(`${p ? p.n : "제품"} ${qty}개를 담았어요`, p); }
 }
@@ -141,7 +222,18 @@ function vHome() {
   setTitle("");
   const best = P.filter((p) => p.hot);
   const rec = RECENT.map((id) => P.find((p) => p.id === id)).filter(Boolean).slice(0, 6);
-  return `<section class="m-hero"><div class="m-in m-hero__in">
+  const bests = BEST.map((b) => ({ ...b, p: byName(b.n) })).filter((b) => b.p);
+  return `<section class="m-bestband"><div class="m-in">
+      <div class="m-bestband__hd"><span>MONNIT KOREA BEST SELLER</span><h1>현장에서 가장 많이 선택하는 센서</h1><p>모넷코리아 판매 상위 5종 — 담으시면 게이트웨이와 플랫폼 라이선스가 함께 담깁니다.</p></div>
+      <div class="m-best5">${bests.map((b, i) => `<article class="m-best" data-go="/mall/product/${esc(b.p.id)}"><i class="m-best__rk">${i + 1}</i>${ico(b.p, "m-ico--lg")}<b>${esc(b.label)}</b><small>${esc(b.why)}</small>
+        <button class="m-btn m-btn--sm m-btn--accent" type="button" data-add="${esc(b.p.id)}">견적함 담기</button></article>`).join("")}</div>
+    </div></section>
+    <div class="m-in">
+      ${sec("업종별 추천 구성", "우리 현장과 비슷한 업종을 고르면 필요한 구성이 한 번에 — 게이트웨이·라이선스 포함", `<div class="m-inds m-inds--snap">${INDS.map(indCard).join("")}</div>`, "/mall/industry")}
+      ${sysHTML()}
+      <div class="m-quick3"><a href="/mall/quick" data-link><b>모델명으로 빠른 견적</b><span>구매 목록을 붙여 넣으면 한 번에 담아요 ›</span></a><a href="/mall/quote" data-link><b>구성 상담 요청</b><span>무엇이 필요한지 몰라도 현장만 알려 주세요 ›</span></a><a href="${ME && ME.member ? "/mall/my" : "/account?next=/mall"}" ${ME && ME.member ? "data-link" : ""}><b>${ME && ME.member ? esc(ME.member.email) + " 님" : "기업 구매 회원"}</b><span>${ME && ME.member ? tierOf().name + " 등급 혜택 보기 ›" : "로그인하면 견적 정보가 자동으로 채워져요 ›"}</span></a></div>
+    </div>
+    <section class="m-hero" hidden><div class="m-in m-hero__in">
       <div class="m-hero__main" id="slider">${BANNERS.map((b, i) => `<a class="m-slide${i ? "" : " is-on"}" href="${b.href}"><img src="${ASSET(b.img)}" alt="" ${i ? 'loading="lazy"' : ""}><div><span class="m-tag m-tag--w">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}
         <div class="m-dots">${BANNERS.map((_, i) => `<button type="button" data-slide="${i}" class="${i ? "" : "is-on"}" aria-label="${i + 1}번 배너"></button>`).join("")}</div></div>
       <aside class="m-hero__side"><div class="m-hello"><b>${ME && ME.member ? esc(ME.member.email) + " 님" : "기업 구매 회원이신가요?"}</b>
@@ -154,8 +246,6 @@ function vHome() {
       <section class="m-quickcats">${[["sensors", "무선 센서", "온도"], ["gateways", "게이트웨이", "이더넷 게이트웨이"], ["software", "플랫폼·SW", "iMonnit 클라우드 관리 SW"], ["accessories", "액세서리", "로컬 경보기"]].map(([c, t, n]) => { const f = byName(n) || P.find((p) => p.c === c); return `<a href="/mall/category/${c}" data-link>${f ? ico(f) : ""}${t}<small>${P.filter((p) => p.c === c).length}종</small></a>`; }).join("")}
         ${GROUPS.slice(0, 6).map((g) => { const f = P.find((p) => p.g === g.id); return `<a href="/mall/category/sensors?g=${g.id}" data-link>${f ? ico(f) : ""}${esc(g.ko)}<small>${P.filter((p) => p.g === g.id).length}종</small></a>`; }).join("")}</section>
       <ul class="m-benefits"><li><b>공식 견적서</b>영업일 1일 회신</li><li><b>세금계산서</b>발행 · 지급 조건 협의</li><li><b>무선 940MHz</b>배선 공사 없이 설치</li><li><b>기본 보증 1년</b>설치 후 기술지원</li></ul>
-      ${sec("많이 찾는 제품", "적용 분야 문의가 많은 순", `<div class="m-grid m-grid--4">${best.map((p) => card(p)).join("")}</div>`, "/mall/category/sensors")}
-      ${sec("업종별 추천 구성", "현장 유형별로 자주 함께 쓰는 센서·게이트웨이·플랫폼 조합", `<div class="m-inds m-inds--snap">${INDS.map(indCard).join("")}</div>`, "/mall/industry")}
       ${sec("현장별 추천 패키지", "자주 쓰는 구성을 한 번에 견적 — 수량은 견적 때 현장에 맞춰 조정", `<div class="m-packs">${PACKS.slice(0, 3).map(packCard).join("")}</div>`, "/mall/packages")}
       <section class="m-sec" id="events"><div class="m-sec__hd"><h2>기획전</h2><span>지금 문의가 많은 솔루션</span></div><div class="m-events">${BANNERS.map((b) => `<a href="${b.href}"><img src="${ASSET(b.img)}" alt="" loading="lazy"><div><span class="m-tag">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}</div></section>
       ${sec("산업별 솔루션", "현장에 맞는 센서를 용도로 찾기", `<div class="m-apps">${APPS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 12).map((a) => `<a href="/mall/solution/${esc(a.id)}" data-link><b>${esc(a.name)}</b><small>${esc(a.desc || "")}</small></a>`).join("")}</div>`, "/mall/solutions")}
@@ -236,7 +326,9 @@ function vProduct(id) {
         <div class="m-pd__btns"><button class="m-btn m-btn--lg m-btn--line" type="button" id="pdAdd">견적함 담기</button><button class="m-btn m-btn--lg" type="button" id="pdNow">바로 견적 요청</button>
           <button class="m-btn m-btn--lg m-btn--icon${FAV.includes(p.id) ? " is-on" : ""}" type="button" data-fav="${esc(p.id)}" aria-label="관심 상품">${FAV.includes(p.id) ? "♥" : "♡"}</button></div>
         <div class="m-pd__sub"><label class="m-chk"><input type="checkbox" data-cmp="${esc(p.id)}" ${CMP.includes(p.id) ? "checked" : ""}>비교함에 담기</label>${p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener">${p.p ? "데이터시트 PDF" : "제품 정보"} 받기 ›</a>` : ""}<a href="tel:0220881454">전화 상담 02-2088-1454</a></div>
-        ${p.c === "sensors" && !CART.some((c) => (P.find((x) => x.id === c.id) || {}).c === "gateways") && gw ? `<div class="m-upsell"><b>센서는 게이트웨이와 함께 써야 해요.</b> 게이트웨이 1대가 반경 내 센서 250개까지 연결합니다.<button class="m-btn m-btn--sm m-btn--navy" type="button" data-add="${esc(gw.id)}">${esc(gw.n)} 담기</button></div>` : ""}
+        ${p.c === "sensors" ? `<div class="m-upsell m-upsell--req"><b>이 센서는 ALTA 게이트웨이 + 플랫폼 라이선스가 꼭 필요합니다.</b> 담으시면 두 가지가 자동으로 함께 담기고, 종류는 견적함에서 고를 수 있어요. 타사 게이트웨이와는 연결되지 않습니다.</div>`
+          : p.c === "gateways" ? `<div class="m-upsell m-upsell--req"><b>ALTA 게이트웨이는 ALTA 센서 전용입니다.</b> 타사 센서는 연결되지 않으며, 측정값을 보려면 플랫폼 라이선스가 필요합니다.</div>`
+          : p.c === "software" ? `<div class="m-upsell m-upsell--req"><b>플랫폼 라이선스는 ALTA 게이트웨이를 통해 들어온 ALTA 센서 데이터를 보는 용도입니다.</b> 센서 수에 맞는 등급으로 견적드립니다.</div>` : ""}
       </div>
     </section>
     <nav class="m-tabs" id="pdTabs"><a href="#t-over">상품 개요</a><a href="#t-spec">사양 · 자료</a><a href="#t-apps">활용 분야</a><a href="#t-buy">구매 · 납품 안내</a><a href="#t-qna">제품 문의</a></nav>
@@ -311,21 +403,39 @@ function vSolution(id) {
 }
 
 /* ───────── 화면: 견적함 · 견적 요청서 · 완료 ───────── */
-function cartItems() { return CART.map((c) => ({ ...c, p: P.find((x) => x.id === c.id) })).filter((c) => c.p); }
+function cartItems() {
+  const l = CART.map((c) => ({ ...c, p: P.find((x) => x.id === c.id) })).filter((c) => c.p);
+  const rank = (c) => (c.p.c === "gateways" ? 0 : c.p.c === "software" ? 1 : 2);   /* 필수 구성(게이트웨이 · 라이선스)이 항상 맨 위 */
+  return l.sort((a, b) => rank(a) - rank(b));
+}
+function reqBlock() {
+  if (!needsReq()) return "";
+  const block = (title, list, key) => {
+    const names = list.map((x) => x.n);
+    const cur = CART.find((c) => { const p = P.find((x) => x.id === c.id); return p && names.includes(p.n); });
+    return `<div class="m-reqbox__grp"><h4>${title} <em>필수</em></h4><div class="m-reqbox__opts">${list.map((o) => { const p = byName(o.n); if (!p) return ""; const on = cur && cur.id === p.id;
+      return `<label class="m-req__opt${on ? " is-on" : ""}"><input type="radio" name="${key}" value="${esc(o.n)}" ${on ? "checked" : ""}>${ico(p, "m-ico--sm")}<span><b>${esc(o.label)}</b><small>${esc(o.sub)}</small></span>${on ? `<div class="m-stepper m-stepper--sm"><button type="button" data-cq="${esc(p.id)}" data-d="-1">−</button><input type="number" min="1" max="9999" value="${cur.qty}" data-cqi="${esc(p.id)}"><button type="button" data-cq="${esc(p.id)}" data-d="1">+</button></div>` : ""}</label>`; }).join("")}</div></div>`;
+  };
+  return `<section class="m-reqbox"><div class="m-reqbox__hd"><b>필수 구성</b><span>센서 데이터를 받으려면 게이트웨이와 플랫폼 라이선스가 꼭 필요합니다 · 종류만 골라 주세요</span></div>
+    ${block("① 게이트웨이", REQ_GW, "cgw")}${block("② 플랫폼 라이선스", REQ_SW, "csw")}
+    <p class="m-reqbox__warn">ALTA 센서는 ALTA 게이트웨이와만 통신합니다 — 타사 게이트웨이 · 타사 센서와는 연결되지 않습니다.</p></section>`;
+}
 function vCart() {
   setTitle("견적함");
+  ensureReq();
   const items = cartItems();
   const hasSensor = items.some((c) => c.p.c === "sensors"), hasGw = items.some((c) => c.p.c === "gateways"), hasSw = items.some((c) => c.p.c === "software");
   const gw = byName("이더넷 게이트웨이"), sw = byName("iMonnit 클라우드 관리 SW");
   return `<div class="m-in">${flow(1)}<div class="m-cartwrap"><div>
     <div class="m-cartbar"><label class="m-chk"><input type="checkbox" id="selAll" checked>전체 선택</label><button class="m-btn m-btn--sm m-btn--line" type="button" id="delSel">선택 삭제</button><span class="m-sp"></span>
       ${items.length ? `<button class="m-btn m-btn--sm m-btn--line" type="button" id="cPrint">견적 요청서 인쇄 · PDF</button><button class="m-btn m-btn--sm m-btn--line" type="button" id="cShare">결재용 링크 복사</button>` : ""}</div>
+    ${reqBlock()}
     ${items.length ? `<table class="m-carttbl"><thead><tr><th></th><th>품목</th><th>수량</th><th>단가</th><th>금액</th><th></th></tr></thead><tbody>
-      ${items.map((c) => `<tr><td><input type="checkbox" class="selOne" value="${esc(c.id)}" checked></td><td><a class="m-cartitem" href="/mall/product/${esc(c.id)}" data-link>${ico(c.p, "m-ico--sm")}<span><b>${esc(c.p.n)}</b><small>${esc(catLine(c.p))}</small></span></a></td>
+      ${items.filter((c) => !(needsReq() && isReqItem(c.p) && [...REQ_GW, ...REQ_SW].some((o) => o.n === c.p.n))).map((c) => `<tr><td><input type="checkbox" class="selOne" value="${esc(c.id)}" checked></td><td><a class="m-cartitem" href="/mall/product/${esc(c.id)}" data-link>${ico(c.p, "m-ico--sm")}<span><b>${esc(c.p.n)}</b><small>${esc(catLine(c.p))}</small></span></a></td>
         <td><div class="m-stepper m-stepper--sm"><button type="button" data-cq="${esc(c.id)}" data-d="-1">−</button><input type="number" min="1" max="9999" value="${c.qty}" data-cqi="${esc(c.id)}"><button type="button" data-cq="${esc(c.id)}" data-d="1">＋</button></div></td>
         <td class="m-muted">견적</td><td class="m-muted">견적</td><td><button class="m-x" type="button" data-rm="${esc(c.id)}" aria-label="삭제">×</button></td></tr>`).join("")}</tbody></table>`
       : `<div class="m-empty"><b>견적함이 비어 있어요.</b><p>제품을 담거나, 제품 없이 구성 상담만 요청하셔도 됩니다.</p><div class="m-empty__btns"><a class="m-btn m-btn--line" href="/mall/category/sensors" data-link>제품 둘러보기</a><a class="m-btn m-btn--line" href="/mall/quick" data-link>모델명으로 담기</a><a class="m-btn" href="/mall/quote" data-link>구성 상담 요청</a></div></div>`}
-    ${hasSensor && (!hasGw || !hasSw) ? `<div class="m-upsell"><b>센서만으로는 데이터를 볼 수 없어요.</b> ${!hasGw ? "게이트웨이" : ""}${!hasGw && !hasSw ? "와 " : ""}${!hasSw ? "플랫폼" : ""}도 함께 견적받으시겠어요?
+    ${hasSensor && (!hasGw || !hasSw) && false ? `<div class="m-upsell"><b>센서만으로는 데이터를 볼 수 없어요.</b> ${!hasGw ? "게이트웨이" : ""}${!hasGw && !hasSw ? "와 " : ""}${!hasSw ? "플랫폼" : ""}도 함께 견적받으시겠어요?
       ${!hasGw && gw ? `<button class="m-btn m-btn--sm m-btn--navy" type="button" data-add="${esc(gw.id)}">${esc(gw.n)} 담기</button>` : ""}${!hasSw && sw ? `<button class="m-btn m-btn--sm m-btn--navy" type="button" data-add="${esc(sw.id)}">${esc(sw.n)} 담기</button>` : ""}</div>` : ""}
     </div>
     <aside class="m-sum"><h3>견적 요약</h3><dl><div><dt>품목</dt><dd>${items.length}종</dd></div><div><dt>총 수량</dt><dd>${items.reduce((a, c) => a + c.qty, 0)}개</dd></div><div><dt>예상 금액</dt><dd>공식 견적서로 안내</dd></div><div><dt>회신</dt><dd>영업일 1일 이내</dd></div></dl>
@@ -338,7 +448,7 @@ function vQuote(qs) {
   const topic = qs.get("topic") || "", miss = LS.get("mnkQuoteMiss", []);
   const v = (k) => esc(pf[k] || "");
   return `<div class="m-in">${flow(2)}<form class="m-quote" id="quoteForm" novalidate><div>
-    <section class="m-box"><h3>요청 품목 <a href="/mall/cart" data-link class="m-more">견적함 수정 ›</a></h3>${items.length ? `<table class="m-carttbl m-carttbl--ro"><tbody>${items.map((c, i) => `<tr><td>${i + 1}</td><td><b>${esc(c.p.n)}</b><small>${esc(catLine(c.p))}</small></td><td>${c.qty}개</td></tr>`).join("")}</tbody></table>` : `<p class="m-muted">담은 제품 없이 <b>구성 상담</b>으로 요청합니다. 아래 메모에 현장 상황을 적어 주세요.</p>`}</section>
+    <section class="m-box"><h3>요청 품목 <a href="/mall/cart" data-link class="m-more">견적함 수정 ›</a></h3>${items.length ? `<table class="m-carttbl m-carttbl--ro"><tbody>${items.map((c, i) => `<tr><td>${i + 1}</td><td><b>${esc(c.p.n)}${isReqItem(c.p) && needsReq() ? ' <em class="m-reqtag">필수</em>' : ""}</b><small>${esc(catLine(c.p))}</small></td><td>${c.qty}개</td></tr>`).join("")}</tbody></table>` : `<p class="m-muted">담은 제품 없이 <b>구성 상담</b>으로 요청합니다. 아래 메모에 현장 상황을 적어 주세요.</p>`}</section>
     <section class="m-box"><h3>요청 기관 · 담당자</h3>${me ? `<p class="m-note">${esc(me.email)} · <b>${tierOf().name}</b> 회원으로 요청합니다.</p>` : `<p class="m-note"><a href="/account?next=/mall/quote">로그인</a>하면 정보가 자동으로 채워지고 등급 혜택이 적용돼요.</p>`}
       <div class="m-form m-form--2">
         <label>회사 · 기관명 <em>*</em><input id="fCo" value="${v("company")}" autocomplete="organization"></label><label>사업자등록번호 <span>견적서 발행용 · 선택</span><input id="fBiz" value="${v("bizNo")}" inputmode="numeric"></label>
@@ -485,6 +595,7 @@ function bind(seg) {
     $$("[data-rm]").forEach((b) => b.onclick = () => { CART = CART.filter((c) => c.id !== b.dataset.rm); saveCart(); route(); });
     const all = $("#selAll"); if (all) all.onchange = () => $$(".selOne").forEach((x) => (x.checked = all.checked));
     const del = $("#delSel"); if (del) del.onclick = () => { const ids = $$(".selOne").filter((x) => x.checked).map((x) => x.value); if (!ids.length) return toast("삭제할 품목을 선택해 주세요."); CART = CART.filter((c) => !ids.includes(c.id)); saveCart(); route(); };
+    $$(".m-reqbox input[type=radio]").forEach((r) => r.onchange = () => { swapReq(r.name === "cgw" ? REQ_GW : REQ_SW, r.value); route(); });
     const cp = $("#cPrint"); if (cp) cp.onclick = () => printQuote({});
     const cs = $("#cShare"); if (cs) cs.onclick = shareCart;
   }
@@ -534,6 +645,7 @@ async function submitQuote(e) {
   if (!/^0\d{8,10}$/.test(v.ph.replace(/\D/g, ""))) return toast("휴대전화 번호를 확인해 주세요.");
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.em)) return toast("이메일 주소를 확인해 주세요.");
   if (!$("#fOk").checked) return toast("개인정보 수집 · 이용에 동의해 주세요.");
+  if (ensureReq()) { toast("게이트웨이와 플랫폼 라이선스를 함께 담았어요. 확인 후 다시 요청해 주세요."); return go("/mall/cart"); }
   LS.set("mnkQuoteForm", { company: v.co, bizNo: v.biz, manager: v.nm, dept: v.dept, phone: v.ph, email: v.em, siteAddr: v.rg });
   const items = cartItems(), no = reqNo();
   const lines = items.map((c) => `${c.p.n}(${catLine(c.p)}) × ${c.qty}`).join(" / ");
