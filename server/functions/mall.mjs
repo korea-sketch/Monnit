@@ -203,7 +203,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 var D=null, F='all';
 var $=function(s){return document.querySelector(s)};
 var ST={new:'신규',contact:'연락함',quoted:'견적 발송',won:'수주',hold:'보류',lost:'종료'};
-var KIND={quote:'견적',consult:'구성 상담',qna:'제품 문의'};
+var KIND={quote:'견적',consult:'구성 상담',qna:'제품 문의',doc:'자료 신청'};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function kt(ts){try{return new Date(ts).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return ts}}
 function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2200)}

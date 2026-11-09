@@ -163,7 +163,7 @@ export async function routeLead(lead, payload, opts) {
       return { ...r, kind: 'doc', to };
     }
     const to = await recipientsFor(kind, { guide: isGuideLead(lead, payload), mustExempt: isGuide(lead, payload) });
-    const tag = kind === 'mall' ? (/제품 문의/.test(String(payload && payload['접점'] || '')) ? 'IoT몰 제품 문의' : /store/.test(String(payload && payload['접점'] || '')) ? '제품몰 견적' : 'IoT몰 견적') : kind === 'visit' ? '현장진단 예약' : kind === 'alarm' ? '알리미 문의' : '일반 문의';
+    const tag = kind === 'mall' ? (/자료실/.test(String(payload && payload['접점'] || '')) ? '리소스 센터 자료 신청' : /제품 문의/.test(String(payload && payload['접점'] || '')) ? 'IoT몰 제품 문의' : /store/.test(String(payload && payload['접점'] || '')) ? '제품몰 견적' : 'IoT몰 견적') : kind === 'visit' ? '현장진단 예약' : kind === 'alarm' ? '알리미 문의' : '일반 문의';
     const subject = `[${tag}] ` + subjectOf(lead).replace(/^\[모넷·접수\]\s*/, '') + (lead.test ? ' (테스트 의심)' : '');
     const fields = fieldsOf(lead, payload);
     if (kind === 'mall') { const il = itemLines(payload); if (il) fields['견적 품목'] = il; fields['몰 관리 화면'] = 'https://monnit.co.kr/ops/mall'; }

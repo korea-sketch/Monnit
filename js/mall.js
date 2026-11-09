@@ -153,6 +153,148 @@ function reqSheet() {
 
 /* 주소 — 서버(/mall/...)에서는 실제 경로, 파일로 열거나 미리보기에서는 #/mall/... 해시 경로로 동작 */
 const HASHMODE = !!window.__MALL_STANDALONE || !/^https?:$/.test(location.protocol);
+/* ───────── 리소스 센터 (2026-11-09 · 대표님 의견) ─────────
+   「몰·마켓보다 고급 리소스를 제공하는 느낌으로」 「다 유상으로 해놓고 일부 창구를 통해 무상으로 받게」
+   · 모든 자료에 정가를 붙여 둔다(유상 자료).
+   · 무상 창구 3곳 — ① 회사 이메일 인증(즉시) ② 견적 요청 고객(견적서와 함께) ③ SI·설치 파트너(전 자료)
+   · 즉시 발급은 사이트의 기존 자료 게이트(/api/fn/sendpw → 10분 서명 링크 + 안내 메일)를 그대로 쓴다.
+     t 는 서버 _docmap.js 의 제목과 한 글자도 달라선 안 된다.
+   · 개인 메일(gmail·naver 등)은 바로 내려주지 않고 담당자 확인 후 발송 — 리드로만 남긴다. */
+const RES_TYPES = { WP: { ko: "기술 백서", price: 290000 }, DG: { ko: "설계 · 제안 가이드", price: 190000 }, IP: { ko: "산업 적용 제안서", price: 120000 } };
+const RES = [
+  { code: "WP-01", k: "WP", cat: "연동 · 기술", t: "무선센서 Modbus 연동 백서", f: "modbus-integration-whitepaper", pg: 43, d: "PLC · BMS · SCADA 에 무선 센서를 붙이는 Modbus TCP · RTU 구성 4종과 콜드 데이터 보존, 센서 자기진단 설계.", hot: 1 },
+  { code: "DG-01", k: "DG", cat: "산업 · 제조", t: "무선 IoT 설비 예지보전 제안 가이드", f: "predictive-maintenance-guide", pg: 20, d: "진동 · 전류 · 온도로 고장을 7~30일 전에 잡는 예지보전 — 실제 제안서가 만들어지는 과정 그대로.", hot: 1 },
+  { code: "DG-02", k: "DG", cat: "의료 · 바이오", t: "의약품·백신 냉장 및 초저온 보관 온도 감시 제안서", f: "temp-pharma-ultracold", pg: 25, d: "2~8℃ 냉장고부터 -80℃ 초저온 프리저까지 — 센서 배치 · 교정 · 기록 보관 기준.", hot: 1 },
+  { code: "DG-03", k: "DG", cat: "산업 · 제조", t: "방폭 구역 온도 감시 IECEx Zone 1 제안서", f: "temp-hazardous-iecex", pg: 24, d: "IECEx Zone 1 인증 센서로 위험 구역의 온도를 배선 없이 감시하는 설계와 인증 요건." },
+  { code: "DG-04", k: "DG", cat: "콜드체인 · 유통", t: "콜드체인·냉동물류창고 온도 감시 제안서", f: "temp-coldchain-warehouse", pg: 24, d: "냉동 · 냉장 창고와 도크의 온도 이력을 끊김 없이 — HACCP · GDP 대응 기록 설계.", hot: 1 },
+  { code: "IP-01", k: "IP", cat: "산업 · 제조", t: "데이터센터 · IDC 모니터링", f: "data-center-monitoring", pg: 16, d: "랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법." },
+  { code: "IP-02", k: "IP", cat: "산업 · 제조", t: "공장 설비 예지보전", f: "factory-predictive-maintenance", pg: 16, d: "모터 · 펌프 · 감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계." },
+  { code: "IP-03", k: "IP", cat: "산업 · 제조", t: "진동 · 구조안전 계측", f: "vibration-structural-safety", pg: 16, d: "배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다." },
+  { code: "IP-04", k: "IP", cat: "산업 · 제조", t: "건설 · 토목 구조물 모니터링", f: "construction-shm", pg: 16, d: "전원도 통신도 없는 초기 현장부터 사면 · 흙막이 · 양생 구간을 24시간 계측합니다." },
+  { code: "IP-05", k: "IP", cat: "산업 · 제조", t: "UPS · ESS · 전력 설비 모니터링", f: "energy-ups-ess", pg: 16, d: "배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다." },
+  { code: "IP-06", k: "IP", cat: "시설 · 안전", t: "무선 화재경보 · 소방 안전", f: "fire-safety-wireless-alarm", pg: 16, d: "기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다." },
+  { code: "IP-07", k: "IP", cat: "시설 · 안전", t: "스마트 FM · 시설관리", f: "smart-facility-management", pg: 16, d: "민원이 들어오기 전에 먼저 아는 예지형 FM — 관리 성과가 리포트로 남습니다." },
+  { code: "IP-08", k: "IP", cat: "시설 · 안전", t: "공공 · 국방 시설 안전관리", f: "public-defense-facility", pg: 16, d: "배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다." },
+  { code: "IP-09", k: "IP", cat: "시설 · 안전", t: "호텔 · 리조트 시설 모니터링", f: "hotel-resort-monitoring", pg: 16, d: "객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인 전에 잡아냅니다." },
+  { code: "IP-10", k: "IP", cat: "시설 · 안전", t: "학교 · 교회 · 공공시설 모니터링", f: "school-church-public", pg: 16, d: "방학 · 주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다." },
+  { code: "IP-11", k: "IP", cat: "온도 · 환경", t: "온도 · 누수 · 동파 · HVAC 통합", f: "hvac-leak-freeze-monitoring", pg: 16, d: "배관이 얼기 전에, 물이 차기 전에 — 전기실 · 기계실 · 공조 · 저온창고 통합 감시." },
+  { code: "IP-12", k: "IP", cat: "온도 · 환경", t: "농업 · 골프장 토양 수분", f: "agriculture-golf-soil", pg: 16, d: "물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다." },
+  { code: "IP-13", k: "IP", cat: "의료 · 바이오", t: "바이오 · 제약 유틸리티 모니터링", f: "bio-pharma-utility-monitoring", pg: 16, d: "GMP 환경의 온습도 · 차압 · 유틸리티를 자동 기록해 감사 대응 근거를 남깁니다." },
+  { code: "IP-14", k: "IP", cat: "의료 · 바이오", t: "실버타운 · 시니어 안전", f: "senior-care-monitoring", pg: 16, d: "몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다." },
+  { code: "IP-15", k: "IP", cat: "콜드체인 · 유통", t: "콜드체인 · 물류 온도 관리", f: "cold-chain-logistics", pg: 16, d: "창고에서 차량까지 온도 이력이 끊기지 않게 — HACCP 기록을 자동으로 남깁니다." },
+  { code: "IP-16", k: "IP", cat: "콜드체인 · 유통", t: "리테일 · 매장 · 외식 온도 관리", f: "retail-store-foodservice", pg: 16, d: "여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다." },
+];
+const RES_COVER = (r) => ASSET("/images/mall/res/" + r.f + ".png");
+const won = (n) => "₩" + Number(n).toLocaleString("ko-KR");
+const PERSONAL_MAIL = /@(gmail|naver|daum|hanmail|kakao|nate|hotmail|outlook|live|yahoo|icloud|me|msn|aol|proton|protonmail)\.[a-z.]+$/i;
+let RESQ = LS.get("mnkResQ", []);   /* 견적과 함께 받을 자료 */
+function resCard(r, mini) {
+  const T = RES_TYPES[r.k];
+  return `<article class="m-res${mini ? " m-res--mini" : ""}">
+    <div class="m-res__cv"><img src="${RES_COVER(r)}" alt="" loading="lazy"><span class="m-res__code">MK-${esc(r.code)}</span></div>
+    <div class="m-res__body"><small>${esc(T.ko)}${mini ? "" : " · " + esc(r.cat)} · ${r.pg}쪽 PDF</small><h3>${esc(r.t)}</h3>${mini ? "" : `<p>${esc(r.d)}</p>`}
+      <div class="m-res__price"><s>정가 ${won(T.price)}</s><b>기업 회원 무상</b></div>
+      <div class="m-res__btns"><button class="m-btn m-btn--sm m-btn--navy" type="button" data-res="${esc(r.code)}">무상으로 받기</button>${mini ? "" : `<button class="m-btn m-btn--sm m-btn--line" type="button" data-resq="${esc(r.code)}">${RESQ.includes(r.code) ? "✓ 견적과 함께" : "견적과 함께 받기"}</button>`}</div></div></article>`;
+}
+function resChannels() {
+  return `<ol class="m-chan">
+    <li><i>01</i><b>회사 이메일 인증</b><span>회사 도메인 메일로 신청하시면 즉시 무상 발급 — 서명 링크가 메일로 함께 전달됩니다.</span><em>즉시 · 무상</em></li>
+    <li><i>02</i><b>견적 · 프로젝트 고객</b><span>견적 요청 시 「견적과 함께 받기」로 고른 자료를 공식 견적서와 함께 보내 드립니다.</span><em>견적 회신 시 · 무상</em></li>
+    <li><i>03</i><b>SI · 설치 파트너사</b><span>파트너사에는 전 자료와 편집 가능한 원본, 신규 자료 선공개를 제공합니다.</span><em>상시 · 무상 · <a href="/mall/help#member" data-link>파트너 등급 안내 ›</a></em></li>
+  </ol>`;
+}
+function resBand() {
+  const pick = RES.filter((r) => r.hot).slice(0, 4);
+  return `<section class="m-resband"><div class="m-resband__hd"><span>MONNIT KOREA RESOURCE CENTER</span><h2>현장 설계 · 제안 자료 라이브러리</h2>
+      <p>모넷코리아 엔지니어가 실제 프로젝트에서 쓰는 기술 백서 · 설계 가이드 · 산업 적용 제안서 ${RES.length}종. 모든 자료는 유상 자료이며, 기업 회원과 견적 고객께는 무상으로 제공합니다.</p>
+      <div class="m-resband__stats"><b>${RES.length}<small>종</small></b><b>${RES.reduce((a, r) => a + r.pg, 0)}<small>쪽</small></b><b>${new Set(RES.map((r) => r.cat)).size}<small>개 분야</small></b></div>
+      <a class="m-btn m-btn--accent" href="/mall/resources" data-link>자료실 전체 보기 ›</a></div>
+    <div class="m-resgrid m-resgrid--band">${pick.map((r) => resCard(r, true)).join("")}</div></section>`;
+}
+function vResources(qs) {
+  setTitle("리소스 센터 · 기술 자료실");
+  const cats = [...new Set(RES.map((r) => r.cat))], cur = qs.get("cat") || "", k = qs.get("type") || "";
+  const list = RES.filter((r) => (!cur || r.cat === cur) && (!k || r.k === k));
+  const chip = (label, href, on) => `<a class="m-chipf${on ? " is-on" : ""}" href="${href}" data-link>${esc(label)}</a>`;
+  const q = (c, t) => { const u = new URLSearchParams(); if (c) u.set("cat", c); if (t) u.set("type", t); const s = u.toString(); return "/mall/resources" + (s ? "?" + s : ""); };
+  return `<section class="m-reshero"><div class="m-in">
+      ${crumbs([["리소스 센터"]])}
+      <span class="m-reshero__eye">GUIDANCE · DESIGN · PROPOSAL</span>
+      <h1>무선 IoT 모니터링, 설계부터 제안까지 <br>검증된 자료로 시작하세요</h1>
+      <p>모넷코리아가 공공 · 제조 · 바이오 · 유통 현장에서 쌓은 설계 기준과 제안 방식을 자료로 정리했습니다. 각 자료는 정가가 매겨진 유상 자료이며, 아래 창구를 통하면 무상으로 받으실 수 있습니다.</p>
+    </div></section>
+    <div class="m-in">
+      <section class="m-sec"><div class="m-sec__hd"><h2>무상으로 받는 방법</h2><span>세 가지 창구 중 해당하시는 곳으로</span></div>${resChannels()}</section>
+      <section class="m-sec"><div class="m-sec__hd"><h2>자료 목록</h2><span>${list.length}종${RESQ.length ? ` · 견적과 함께 받을 자료 ${RESQ.length}종 <a href="/mall/quote" data-link>요청서로 ›</a>` : ""}</span></div>
+        <div class="m-chips">${chip("전체 유형", q(cur, ""), !k)}${Object.entries(RES_TYPES).map(([id, T]) => chip(`${T.ko} · ${won(T.price)}`, q(cur, id), k === id)).join("")}</div>
+        <div class="m-chips">${chip("전체 분야", q("", k), !cur)}${cats.map((c) => chip(c, q(c, k), cur === c)).join("")}</div>
+        <div class="m-resgrid">${list.map((r) => resCard(r)).join("") || `<div class="m-empty"><b>해당하는 자료가 없어요.</b></div>`}</div>
+        <p class="m-note">정가는 기관 · 개인 구매(세금계산서 발행) 기준입니다. 표시된 자료는 PDF 이며 편집은 보호됩니다. 자료 내용의 무단 전재 · 재배포를 금합니다.</p></section>
+    </div>`;
+}
+function resSheet(code) {
+  const r = RES.find((x) => x.code === code); if (!r) return;
+  const F = LS.get("mnkQuoteForm", {}), T = RES_TYPES[r.k];
+  let el = $("#resSheet");
+  if (!el) { el = document.createElement("div"); el.id = "resSheet"; el.className = "m-req"; document.body.appendChild(el); }
+  el.innerHTML = `<div class="m-req__scrim" data-reqclose></div><form class="m-req__box m-resform" role="dialog" aria-modal="true" aria-labelledby="resT" novalidate>
+    <button class="m-x m-req__x" type="button" data-reqclose aria-label="닫기">×</button>
+    <span class="m-req__eye">MK-${esc(r.code)} · ${esc(T.ko)} · ${r.pg}쪽</span>
+    <h3 id="resT">${esc(r.t)}</h3>
+    <div class="m-resform__price"><s>정가 ${won(T.price)}</s><b>회사 이메일 인증 시 무상</b></div>
+    <div class="m-resform__grid">
+      <label>회사 · 기관명<input id="rCo" required autocomplete="organization" value="${esc(F.company || "")}"></label>
+      <label>담당자명<input id="rNm" required autocomplete="name" value="${esc(F.manager || "")}"></label>
+      <label class="is-wide">회사 이메일<input id="rEm" type="email" required autocomplete="email" placeholder="name@company.co.kr" value="${esc(F.email || "")}"></label>
+      <label class="is-wide">휴대전화<input id="rPh" inputmode="tel" required autocomplete="tel" value="${esc(F.phone || "")}"></label>
+    </div>
+    <label class="m-resform__ok"><input type="checkbox" id="rOk"><span>자료 발송 · 상담 안내 목적의 개인정보 수집 · 이용에 동의합니다 (<a href="/privacy.html" target="_blank" rel="noopener">처리방침</a>)</span></label>
+    <p class="m-resform__msg" id="rMsg">회사 도메인 메일은 즉시 발급, 개인 메일(gmail · naver 등)은 담당자 확인 후 영업일 1일 안에 보내 드립니다.</p>
+    <div class="m-req__btns"><button class="m-btn m-btn--line" type="button" data-reqclose>닫기</button><button class="m-btn" id="rSend" type="submit">무상으로 받기</button></div></form>`;
+  el.hidden = false; requestAnimationFrame(() => el.classList.add("is-on"));
+  const close = () => { el.classList.remove("is-on"); setTimeout(() => (el.hidden = true), 250); };
+  el.onclick = (e) => { if (e.target.closest("[data-reqclose]")) close(); };
+  $("#rPh", el).addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, "").slice(0, 11); e.target.value = d.length < 4 ? d : d.length < 8 ? d.replace(/(\d{3})(\d+)/, "$1-$2") : d.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3"); });
+  $("form", el).onsubmit = async (e) => {
+    e.preventDefault();
+    const g = (id) => $("#" + id, el).value.trim(), v = { co: g("rCo"), nm: g("rNm"), em: g("rEm"), ph: g("rPh") }, msg = $("#rMsg", el), btn = $("#rSend", el);
+    if (!v.co || !v.nm || !v.em || !v.ph) return toast("회사 · 담당자 · 이메일 · 휴대전화를 입력해 주세요.");
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.em)) return toast("이메일 주소를 확인해 주세요.");
+    if (!/^0\d{8,10}$/.test(v.ph.replace(/\D/g, ""))) return toast("휴대전화 번호를 확인해 주세요.");
+    if (!$("#rOk", el).checked) return toast("개인정보 수집 · 이용에 동의해 주세요.");
+    LS.set("mnkQuoteForm", { ...F, company: v.co, manager: v.nm, email: v.em, phone: v.ph });
+    btn.disabled = true; btn.textContent = "확인 중…";
+    const personal = PERSONAL_MAIL.test(v.em), no = reqNo().replace("MQ", "RD");
+    let issued = false, url = "";
+    if (!personal) {
+      try {
+        const API = window.__MALL_API || BASE;
+        const rs = await fetch(API + "/api/fn/sendpw", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: "mnt-pw-2026-7f3k9", email: v.em, title: r.t, company: v.co, name: v.nm, phone: v.ph }) });
+        const j = await rs.json().catch(() => ({}));
+        if (j && j.ok && (j.url || (j.items && j.items[0]))) { issued = true; url = j.url || j.items[0].url; }
+        else if (j && j.error === "bad_email") { btn.disabled = false; btn.textContent = "무상으로 받기"; msg.textContent = j.message || "이메일 주소를 확인해 주세요."; return; }
+        else if (j && j.error === "too_many") { btn.disabled = false; btn.textContent = "무상으로 받기"; msg.textContent = j.message; return; }
+      } catch (err) {}
+    }
+    /* 어느 경우든 리드로 남긴다 — 담당자 메일 · /ops/mall 「자료 신청」 */
+    await postLead({ "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, "이메일": v.em, "문의항목": "리소스 센터 자료 신청", "지역": "(미기재)",
+      "문의 사항": `[${no}] MK-${r.code} ${r.t} (${T.ko} · 정가 ${won(T.price)}) — ${issued ? "회사 메일 인증 · 즉시 무상 발급" : personal ? "개인 메일 — 담당자 확인 후 발송 필요" : "자동 발급 실패 — 담당자 발송 필요"}`,
+      "접수번호": no, "접점": "/mall 자료실", "유입 페이지": "/mall/resources", "구분": "제안서 신청", "백서명": r.t, "관심분야": r.cat,
+      "_mall": JSON.stringify({ items: [], memo: `자료 MK-${r.code} ${r.t} · ${issued ? "즉시 발급" : "확인 후 발송"}` }) });
+    try { window.dataLayer && window.dataLayer.push({ event: "mall_resource", code: r.code, issued }); } catch (err) {}
+    const box = $(".m-req__box", el);
+    if (issued) {
+      const a = document.createElement("a"); a.href = (HASHMODE ? "https://monnit.co.kr" : "") + url; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+      box.innerHTML = `<button class="m-x m-req__x" type="button" data-reqclose aria-label="닫기">×</button><span class="m-req__eye">무상 발급 완료 · ${no}</span><h3>다운로드가 시작되었어요</h3><p><b>${esc(v.em)}</b> 로도 다운로드 링크를 보내 드렸습니다 (10분 유효). 현장에 맞춘 구성 · 견적이 필요하시면 언제든 말씀해 주세요.</p><div class="m-req__btns"><button class="m-btn m-btn--line" type="button" data-reqclose>자료 더 보기</button><a class="m-btn" href="/mall/quote" data-link data-reqclose>구성 상담 요청</a></div>`;
+    } else {
+      box.innerHTML = `<button class="m-x m-req__x" type="button" data-reqclose aria-label="닫기">×</button><span class="m-req__eye">신청 접수 · ${no}</span><h3>담당자가 확인 후 보내 드릴게요</h3><p>${personal ? "개인 메일로 신청해 주셔서 담당자가 회사 정보를 확인한 뒤" : "자료를 준비해"} 영업일 1일 안에 <b>${esc(v.em)}</b> 로 보내 드립니다. 급하시면 02-2088-1454 로 연락 주세요.</p><div class="m-req__btns"><button class="m-btn" type="button" data-reqclose>확인</button></div>`;
+    }
+  };
+}
+function toggleResQ(code) {
+  RESQ = RESQ.includes(code) ? RESQ.filter((c) => c !== code) : [...RESQ, code].slice(0, 5); LS.set("mnkResQ", RESQ);
+  toast(RESQ.includes(code) ? "견적 요청 시 이 자료를 견적서와 함께 보내 드려요" : "견적과 함께 받기를 취소했어요");
+}
 const BASE = window.__MALL_BASE || "";
 const ASSET = (u) => (window.__MALL_ASSETS && window.__MALL_ASSETS[u]) || BASE + u;
 let CUR = "";   /* 해시를 바꿀 수 없는 미리보기 창(샌드박스)에서도 화면 이동이 되게 메모리에 현재 주소를 둔다 */
@@ -215,7 +357,7 @@ function row(p) {
 }
 const crumbs = (list) => `<nav class="m-crumb" aria-label="현재 위치"><a href="/mall" data-link>홈</a>${list.map(([t, h]) => h ? ` › <a href="${h}" data-link>${esc(t)}</a>` : ` › <b>${esc(t)}</b>`).join("")}</nav>`;
 const sec = (title, sub, inner, more) => `<section class="m-sec"><div class="m-sec__hd"><h2>${title}</h2>${sub ? `<span>${sub}</span>` : ""}${more ? `<a href="${more}" data-link class="m-more">전체 보기 ›</a>` : ""}</div>${inner}</section>`;
-function setTitle(t) { document.title = (t ? t + " | " : "") + "모넷 IoT몰 · 모넷코리아"; }
+function setTitle(t) { document.title = (t ? t + " | " : "") + "모넷 리소스 센터 · 모넷코리아"; }
 
 /* ───────── 화면: 홈 ───────── */
 function vHome() {
@@ -230,6 +372,7 @@ function vHome() {
     </div></section>
     <div class="m-in">
       ${sec("업종별 추천 구성", "우리 현장과 비슷한 업종을 고르면 필요한 구성이 한 번에 — 게이트웨이·라이선스 포함", `<div class="m-inds m-inds--snap">${INDS.map(indCard).join("")}</div>`, "/mall/industry")}
+      ${resBand()}
       ${sysHTML()}
       <div class="m-quick3"><a href="/mall/quick" data-link><b>모델명으로 빠른 견적</b><span>구매 목록을 붙여 넣으면 한 번에 담아요 ›</span></a><a href="/mall/quote" data-link><b>구성 상담 요청</b><span>무엇이 필요한지 몰라도 현장만 알려 주세요 ›</span></a><a href="${ME && ME.member ? "/mall/my" : "/account?next=/mall"}" ${ME && ME.member ? "data-link" : ""}><b>${ME && ME.member ? esc(ME.member.email) + " 님" : "기업 구매 회원"}</b><span>${ME && ME.member ? tierOf().name + " 등급 혜택 보기 ›" : "로그인하면 견적 정보가 자동으로 채워져요 ›"}</span></a></div>
     </div>
@@ -462,6 +605,7 @@ function vQuote(qs) {
         <label>설치 · 교육<select id="fInst"><option>설치 · 교육 포함 견적</option><option>제품만 (자체 설치)</option><option>상담 후 결정</option></select></label>
         <label>지급 조건 희망<select id="fPay"><option>세금계산서 후 계좌이체</option><option>회사 구매 규정에 따름 (협의)</option></select></label></div>
       <fieldset class="m-docs"><legend>함께 받을 서류</legend>${["공식 견적서", "사업자등록증 사본", "통장 사본", "제품 카탈로그 · 데이터시트", "납품확인서 양식"].map((d, i) => `<label><input type="checkbox" class="fDoc" value="${d}" ${i === 0 ? "checked" : ""}>${d}</label>`).join("")}</fieldset>
+      <p class="m-note m-note--res">${RESQ.length ? `<b>리소스 센터 자료 ${RESQ.length}종</b>을 견적서와 함께 무상으로 보내 드립니다 — ${RESQ.map((c) => { const x = RES.find((y) => y.code === c); return x ? esc(x.t) : ""; }).filter(Boolean).join(" · ")}` : `견적 고객께는 <a href="/mall/resources" data-link>리소스 센터</a>의 설계 · 제안 자료를 무상으로 함께 보내 드립니다. 「견적과 함께 받기」로 골라 주세요.`}</p>
       <label class="m-form__full">요청 사항<textarea id="fMemo" placeholder="현장 상황 · 수량 근거 · 호환 장비 · 품의 일정 등">${esc([topic && `[${topic}] 구성 상담`, miss.length && "[목록에 없는 품목] " + miss.join(" / ")].filter(Boolean).join("\n"))}</textarea></label></section>
     </div>
     <aside class="m-sum"><h3>요청 확인</h3><dl><div><dt>품목</dt><dd>${items.length ? items.length + "종 · " + items.reduce((a, c) => a + c.qty, 0) + "개" : "구성 상담"}</dd></div><div><dt>회신</dt><dd>영업일 1일 이내</dd></div><div><dt>받는 곳</dt><dd>입력하신 이메일</dd></div></dl>
@@ -511,7 +655,7 @@ function vQuick() {
 function vHelp() {
   setTitle("고객센터");
   const faq = [["왜 가격이 공개되어 있지 않나요?", "무선 센서는 게이트웨이 · 플랫폼 구성, 수량, 설치 여부에 따라 총액이 크게 달라집니다. 담은 구성 그대로 공식 견적서를 영업일 1일 안에 보내 드려요."],
-    ["온라인으로 결제할 수 있나요?", "모넷 IoT몰은 기업 구매용 견적몰이라 온라인 결제를 받지 않습니다. 공식 견적서 확인 후 발주하시면 세금계산서를 발행하고 계좌이체로 결제합니다."],
+    ["온라인으로 결제할 수 있나요?", "모넷 리소스 센터는 기업 · 기관 전용 공식 견적 방식이라 온라인 결제를 받지 않습니다. 공식 견적서 확인 후 발주하시면 세금계산서를 발행하고 계좌이체로 결제합니다."],
     ["세금계산서는 언제 발행되나요?", "발주 · 납품 일정에 맞춰 발행하며, 지급 시기는 회사 구매 규정에 맞춰 협의합니다."],
     ["납기는 얼마나 걸리나요?", "제품과 수량에 따라 다릅니다. 요청서에 희망 납기를 적어 주시면 재고와 일정을 확인해 견적서에 기재합니다."],
     ["센서만 사면 바로 쓸 수 있나요?", "센서는 게이트웨이를 거쳐 플랫폼으로 데이터를 보냅니다. 게이트웨이 1대가 반경 내 센서 250개까지 연결하니, 처음 도입이라면 게이트웨이와 플랫폼을 함께 견적받으세요."],
@@ -530,7 +674,7 @@ function vHelp() {
       <tr><th>개인정보</th><td>견적 회신 목적으로만 이용 · <a href="/privacy.html">개인정보처리방침</a></td></tr></tbody></table></section>
     <section class="m-sec" id="member"><div class="m-sec__hd"><h2>회원 혜택</h2><span>이메일 인증만으로 가입 (비밀번호 없음)</span></div>${tiersHTML()}</section></div>`;
 }
-function vNotFound() { setTitle("페이지를 찾을 수 없음"); return `<div class="m-in"><div class="m-empty"><b>페이지를 찾을 수 없어요.</b><p>주소를 확인하시거나 홈에서 다시 찾아 주세요.</p><a class="m-btn" href="/mall" data-link>몰 홈으로</a></div></div>`; }
+function vNotFound() { setTitle("페이지를 찾을 수 없음"); return `<div class="m-in"><div class="m-empty"><b>페이지를 찾을 수 없어요.</b><p>주소를 확인하시거나 홈에서 다시 찾아 주세요.</p><a class="m-btn" href="/mall" data-link>홈으로</a></div></div>`; }
 
 /* ───────── 라우터 ───────── */
 function route() {
@@ -551,6 +695,7 @@ function route() {
   else if (seg[0] === "compare") html = vCompare();
   else if (seg[0] === "quick") html = vQuick();
   else if (seg[0] === "help") html = vHelp();
+  else if (seg[0] === "resources") html = vResources(qs);
   else html = vNotFound();
   view.innerHTML = html;
   $("#q").value = seg[0] === "search" ? qs.get("q") || "" : "";
@@ -646,6 +791,8 @@ async function submitQuote(e) {
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v.em)) return toast("이메일 주소를 확인해 주세요.");
   if (!$("#fOk").checked) return toast("개인정보 수집 · 이용에 동의해 주세요.");
   if (ensureReq()) { toast("게이트웨이와 플랫폼 라이선스를 함께 담았어요. 확인 후 다시 요청해 주세요."); return go("/mall/cart"); }
+  /* 리소스 센터에서 「견적과 함께 받기」로 고른 자료 — 견적 회신 때 무상 제공 (무상 창구 ②) */
+  v.docs = v.docs.concat(RESQ.map((c) => RES.find((x) => x.code === c)).filter(Boolean).map((x) => `자료 MK-${x.code} ${x.t}`));
   LS.set("mnkQuoteForm", { company: v.co, bizNo: v.biz, manager: v.nm, dept: v.dept, phone: v.ph, email: v.em, siteAddr: v.rg });
   const items = cartItems(), no = reqNo();
   const lines = items.map((c) => `${c.p.n}(${catLine(c.p)}) × ${c.qty}`).join(" / ");
@@ -665,7 +812,7 @@ async function submitQuote(e) {
   }
   try { window.dataLayer && window.dataLayer.push({ event: "mall_quote", items: items.length }); } catch (err) {}
   HIST = [{ no, date: new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), email: v.em, summary: items.length ? `${items[0].p.n}${items.length > 1 ? ` 외 ${items.length - 1}종` : ""} · ${items.reduce((a, c) => a + c.qty, 0)}개` : "구성 상담", items: items.map((c) => ({ id: c.id, qty: c.qty })) }, ...HIST].slice(0, 50);
-  LS.set("mnkMallQuotes", HIST); LS.set("mnkQuoteMiss", []);
+  LS.set("mnkMallQuotes", HIST); LS.set("mnkQuoteMiss", []); RESQ = []; LS.set("mnkResQ", []);
   EV.q = true; CART = []; saveCart(); go("/mall/done/" + no);
 }
 async function productQna(p) {
@@ -679,7 +826,7 @@ async function productQna(p) {
 }
 function printQuote(v) {
   const items = cartItems(), today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), x = (s) => esc(s || "") || "&nbsp;";
-  $("#printArea").innerHTML = `<div class="pq"><div class="pq__hd"><img src="${ASSET("/logo.png")}" alt=""><div><h1>견적 요청서</h1><p>요청일 ${today} · 모넷 IoT몰</p></div></div>
+  $("#printArea").innerHTML = `<div class="pq"><div class="pq__hd"><img src="${ASSET("/logo.png")}" alt=""><div><h1>견적 요청서</h1><p>요청일 ${today} · 모넷 리소스 센터</p></div></div>
     <table><tr><th>요청 기관</th><td>${x(v.co)}</td><th>사업자번호</th><td>${x(v.biz)}</td></tr><tr><th>담당자</th><td>${x(v.nm)} ${v.dept ? "/ " + esc(v.dept) : ""}</td><th>연락처</th><td>${x(v.ph)}</td></tr>
     <tr><th>이메일</th><td>${x(v.em)}</td><th>희망 납기</th><td>${x(v.due)}</td></tr><tr><th>납품 지역</th><td>${x(v.rg)}</td><th>구매 유형</th><td>${x(v.type)}</td></tr></table>
     <table class="pq__items"><thead><tr><th>No.</th><th>품목</th><th>분류</th><th>수량</th><th>단가</th><th>금액</th></tr></thead><tbody>${items.map((c, i) => `<tr><td>${i + 1}</td><td>${esc(c.p.n)}</td><td>${esc(catLine(c.p))}</td><td>${c.qty}</td><td>견적</td><td>견적</td></tr>`).join("") || `<tr><td colspan="6">구성 상담 요청</td></tr>`}</tbody></table>
@@ -695,6 +842,8 @@ document.addEventListener("click", (e) => {
   if (a && !e.metaKey && !e.ctrlKey && !e.shiftKey && a.target !== "_blank") { e.preventDefault(); closeMega(); return go(a.getAttribute("href")); }
   if (e.target.closest("[data-stop]")) return;
   const fv = e.target.closest("[data-fav]"); if (fv) { e.preventDefault(); e.stopPropagation(); toggleFav(fv.dataset.fav); const y = scrollY; route(); window.scrollTo(0, y); return; }
+  const rs = e.target.closest("[data-res]"); if (rs) { e.preventDefault(); e.stopPropagation(); return resSheet(rs.dataset.res); }
+  const rq = e.target.closest("[data-resq]"); if (rq) { e.preventDefault(); toggleResQ(rq.dataset.resq); rq.textContent = RESQ.includes(rq.dataset.resq) ? "✓ 견적과 함께" : "견적과 함께 받기"; return; }
   const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); fly(ad); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (L().pathname === "/mall/cart") route(); return; }
   const ind = e.target.closest("[data-ind]"); if (ind) { const k = INDS.find((x) => x.id === ind.dataset.ind), it = indItems(k);
     $$(".m-indrow .m-ph img").forEach((im, i) => setTimeout(() => fly(im, im), i * 70));

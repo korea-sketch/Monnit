@@ -17,6 +17,7 @@ for (const m of js.matchAll(/["'`](\/images\/[^"'`$]+\.(?:png|webp|jpe?g))["'`]/
 const logos = (js.match(/LOGOS = \[([^\]]*)\]/) || [, ""])[1].match(/"([^"]+)"/g) || [];
 logos.forEach((l) => want.add(`/images/clogo-${l.replace(/"/g, "")}.png`));
 fs.readdirSync(path.join(ROOT, "images/mall/products")).filter((f) => f.endsWith(".png")).forEach((f) => want.add("/images/mall/products/" + f));
+fs.readdirSync(path.join(ROOT, "images/mall/res")).filter((f) => f.endsWith(".png")).forEach((f) => want.add("/images/mall/res/" + f));
 for (const u of want) { const d = dataUri(u); if (d) assets[u] = d; }
 
 let html = rd("mall.html");

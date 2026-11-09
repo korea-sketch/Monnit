@@ -74,7 +74,7 @@ export async function recordQuote(lead, p) {
     const rec = {
       ts: lead.ts || new Date().toISOString(),
       no: clip(p['접수번호'], 24),
-      kind: /제품 문의/.test(p['접점'] || '') ? 'qna' : /구성 상담/.test(p['문의항목'] || '') ? 'consult' : 'quote',
+      kind: /자료실/.test(p['접점'] || '') ? 'doc' : /제품 문의/.test(p['접점'] || '') ? 'qna' : /구성 상담/.test(p['문의항목'] || '') ? 'consult' : 'quote',
       shop: /^\/store/.test(p['접점'] || '') ? 'store' : 'mall',
       company: lead.company || '', name: lead.name || '', phone: lead.phone || '', email: lead.email || '',
       region: clip(p['지역'], 60), memo: clip(m.memo != null ? m.memo : lead.memo, 1000),
@@ -98,6 +98,7 @@ const escH = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/<
 export async function sendMallAck(lead, p) {
   try {
     if (!isMallLead(p) || !okEmail(lead.email) || lead.test) return { ok: false, skipped: '대상 아님' };
+    if (/자료실/.test(p['접점'] || '')) return { ok: false, skipped: '자료 신청 — 안내 메일은 sendpw 가 보낸다' };
     const key = env('BREVO_API_KEY', ''); if (!key) return { ok: false, skipped: 'BREVO_API_KEY 없음' };
     const m = parseMall(p) || {}, items = cleanItems(m.items), no = clip(p['접수번호'], 24);
     const qna = /제품 문의/.test(p['접점'] || '');
@@ -223,6 +224,7 @@ async function qsFetch(path, body, link) {
 export async function pushQuote(rec) {
   try {
     if (!rec || !rec.no || rec.test) return { ok: false, skipped: '대상 아님' };
+    if (rec.kind === 'doc') return { ok: false, skipped: '자료 신청은 견적서를 만들지 않는다' };
     const r = await qsFetch('/webhook/mall-quote', { no: rec.no, kind: rec.kind, shop: rec.shop, company: rec.company, name: rec.name, phone: rec.phone, email: rec.email, region: rec.region, items: rec.items, cond: rec.cond, memo: rec.memo });
     if (r.skipped) return r;
     await patchQs({ [rec.no]: r.ok ? { id: r.id, no: r.no, status: r.status, total: r.total, missing: r.missing || [], err: '' } : { err: r.error || '실패' } });
