@@ -365,7 +365,8 @@ function vHome() {
   const best = P.filter((p) => p.hot);
   const rec = RECENT.map((id) => P.find((p) => p.id === id)).filter(Boolean).slice(0, 6);
   const bests = BEST.map((b) => ({ ...b, p: byName(b.n) })).filter((b) => b.p);
-  return `<section class="m-bestband"><div class="m-in">
+  return `<section class="m-rcbar"><div class="m-in m-rcbar__in"><span class="m-rcbar__eye">MONNIT KOREA RESOURCE CENTER</span><b>설계 · 제안 자료 ${RES.length}종과 검증된 센서 구성, 공식 견적까지 한곳에서</b><a href="/mall/resources" data-link>기술 자료실 ›</a></div></section>
+    <section class="m-bestband"><div class="m-in">
       <div class="m-bestband__hd"><span>MONNIT KOREA BEST SELLER</span><h1>현장에서 가장 많이 선택하는 센서</h1><p>모넷코리아 판매 상위 5종 — 담으시면 게이트웨이와 플랫폼 라이선스가 함께 담깁니다.</p></div>
       <div class="m-best5">${bests.map((b, i) => `<article class="m-best" data-go="/mall/product/${esc(b.p.id)}"><i class="m-best__rk">${i + 1}</i>${ico(b.p, "m-ico--lg")}<b>${esc(b.label)}</b><small>${esc(b.why)}</small>
         <button class="m-btn m-btn--sm m-btn--accent" type="button" data-add="${esc(b.p.id)}">견적함 담기</button></article>`).join("")}</div>

@@ -735,3 +735,9 @@ body{overflow-x:clip}
   .m-resform__grid{grid-template-columns:minmax(0,1fr)}}
 .m-resform__ok a{text-decoration:underline}
 .m-resform__msg{margin:0 0 12px!important;font-size:12.5px!important;line-height:1.55;color:var(--muted)!important;background:var(--bg);border-radius:10px;padding:10px 12px}
+.m-rcbar{background:linear-gradient(90deg,#f7f0e3,#fbf8f2);border-bottom:1px solid #e9dfcb}
+.m-rcbar__in{display:flex;align-items:center;gap:14px;min-height:46px;font-size:14px}
+.m-rcbar__eye{font-size:11px;letter-spacing:.16em;font-weight:800;color:var(--gold);white-space:nowrap}
+.m-rcbar b{color:var(--navy);font-weight:700;flex:1;min-width:0}
+.m-rcbar a{color:var(--navy);font-weight:800;white-space:nowrap}
+@media (max-width:700px){.m-rcbar__in{flex-wrap:wrap;gap:2px 10px;padding:9px 0}.m-rcbar__eye{width:100%;font-size:10px}.m-rcbar b{font-size:13px}.m-rcbar a{font-size:13px}}
