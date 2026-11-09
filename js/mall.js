@@ -296,6 +296,43 @@ function toggleResQ(code) {
   RESQ = RESQ.includes(code) ? RESQ.filter((c) => c !== code) : [...RESQ, code].slice(0, 5); LS.set("mnkResQ", RESQ);
   toast(RESQ.includes(code) ? "견적 요청 시 이 자료를 견적서와 함께 보내 드려요" : "견적과 함께 받기를 취소했어요");
 }
+/* 진행 중인 프로모션 — 메인 홈(index.html #hpPromoBar)과 같은 4개 (2026-11-09). 바꿀 때는 두 곳을 함께 고친다 */
+const PROMOS = [
+  { id: "remote", tag: "기간 한정", title: "건물 주요 설비 통합 관제, 무료 현장 진단", cta: "혜택 보기", href: "/promo/remote/?utm_source=monnit.co.kr&utm_medium=mall_banner&utm_campaign=remote" },
+  { id: "alarm", tag: "설치비 무료", title: "긴급 경보 알리미", cta: "혜택 보기", href: "/promo/alarm/?utm_source=monnit.co.kr&utm_medium=mall_banner&utm_campaign=alarm" },
+  { id: "consulting", tag: "1개월 무료", title: "회전설비 예지보전, 한 달 무료 체험", cta: "체험 안내", href: "/promo/consulting/?utm_source=monnit.co.kr&utm_medium=mall_banner&utm_campaign=consulting" },
+  { id: "modbus", tag: "기술지원", title: "PLC·BMS·SCADA 연동, 현장 구성 무료 검토", cta: "지원 안내", href: "/promo/modbus/?utm_source=monnit.co.kr&utm_medium=mall_banner&utm_campaign=modbus" },
+];
+const ARW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+function promoBarHTML() {
+  if (!PROMOS.length) return "";
+  return `<div class="hp-promo-bar" id="mPromo" role="region" aria-label="진행 중인 프로모션" aria-roledescription="carousel"><div class="hpb-glass">
+    <div class="hpb-track" aria-live="off">${PROMOS.map((p, i) => `<a class="hpb-slide${i ? "" : " is-on"}" href="${esc(p.href)}" data-promo="${esc(p.id)}"${i ? ' aria-hidden="true" tabindex="-1"' : ""}><span class="hpb-tag">${esc(p.tag)}</span><span class="hpb-title">${esc(p.title)}</span><span class="hpb-cta"><span class="hpb-cta-t">${esc(p.cta)}</span>${ARW}</span></a>`).join("")}</div>
+    <span class="hpb-dots" aria-hidden="true">${PROMOS.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</span>
+    <button class="hpb-more" type="button" aria-expanded="false" aria-controls="mPromoPanel" aria-label="진행 중인 프로모션 전체 보기"><span class="hpb-more-t">전체</span><b class="hpb-more-n">${PROMOS.length}</b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
+    <div class="hpb-panel" id="mPromoPanel" role="region" aria-label="진행 중인 프로모션 목록" hidden><div class="hpb-panel-hd"><span>진행 중인 혜택</span><b>${PROMOS.length}</b></div>${PROMOS.map((p, i) => `<a class="hpb-row" style="--i:${i}" href="${esc(p.href)}" data-promo="${esc(p.id)}"><span class="hpb-row-tag">${esc(p.tag)}</span><span class="hpb-row-title">${esc(p.title)}</span><span class="hpb-row-cta">${esc(p.cta)}${ARW}</span></a>`).join("")}<a class="hpb-panel-all" href="/promotions">전체 프로모션 보기</a></div></div>`;
+}
+let PB = null;
+function promoBar() {
+  if (PB) { clearInterval(PB.t); document.removeEventListener("click", PB.out); document.removeEventListener("keydown", PB.key); PB = null; }
+  const bar = $("#mPromo"); if (!bar) return;
+  const slides = $$(".hpb-slide", bar), dots = $$(".hpb-dots i", bar), more = $(".hpb-more", bar), panel = $(".hpb-panel", bar), n = slides.length;
+  let cur = 0, paused = false, open = false;
+  const show = (i) => { const prev = slides[cur]; cur = (i + n) % n; const next = slides[cur]; if (prev === next) return;
+    prev.classList.remove("is-on"); prev.classList.add("is-out"); prev.setAttribute("aria-hidden", "true"); prev.setAttribute("tabindex", "-1"); setTimeout(() => prev.classList.remove("is-out"), 600);
+    next.classList.add("is-on"); next.removeAttribute("aria-hidden"); next.removeAttribute("tabindex"); dots.forEach((d, k) => (d.className = k === cur ? "on" : "")); };
+  PB = { t: setInterval(() => { if (!paused && !open && !document.hidden && document.body.contains(bar)) show(cur + 1); }, 4000) };
+  bar.addEventListener("mouseenter", () => (paused = true)); bar.addEventListener("mouseleave", () => (paused = false));
+  bar.addEventListener("focusin", () => (paused = true)); bar.addEventListener("focusout", () => (paused = false));
+  const setOpen = (v) => { open = v; bar.classList.toggle("is-open", v); more.setAttribute("aria-expanded", v ? "true" : "false");
+    if (v) { panel.hidden = false; requestAnimationFrame(() => panel.classList.add("on")); } else { panel.classList.remove("on"); setTimeout(() => { if (!open) panel.hidden = true; }, 220); } };
+  more.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open); });
+  PB.out = (e) => { if (open && !bar.contains(e.target)) setOpen(false); };
+  PB.key = (e) => { if (open && e.key === "Escape") { setOpen(false); more.focus(); } };
+  document.addEventListener("click", PB.out); document.addEventListener("keydown", PB.key);
+  bar.addEventListener("click", (e) => { const a = e.target.closest(".hpb-slide,.hpb-row"); if (a) { try { window.dataLayer && window.dataLayer.push({ event: "mall_promo_click", promo: a.dataset.promo }); } catch (err) {} } });
+  if (n < 2) bar.classList.add("is-single");
+}
 const BASE = window.__MALL_BASE || "";
 const ASSET = (u) => (window.__MALL_ASSETS && window.__MALL_ASSETS[u]) || BASE + u;
 let CUR = "";   /* 해시를 바꿀 수 없는 미리보기 창(샌드박스)에서도 화면 이동이 되게 메모리에 현재 주소를 둔다 */
@@ -368,6 +405,7 @@ function vHome() {
   const bests = BEST.map((b) => ({ ...b, p: byName(b.n) })).filter((b) => b.p);
   return `<section class="m-rcbar"><div class="m-in m-rcbar__in"><span class="m-rcbar__eye">MONNIT KOREA RESOURCE CENTER</span><b>설계 · 제안 자료 ${RES.length}종과 검증된 센서 구성, 공식 견적까지 한곳에서</b><a href="/mall/resources" data-link>기술 자료실 ›</a></div></section>
     <section class="m-bestband"><div class="m-in">
+      ${promoBarHTML()}
       <div class="m-bestband__hd"><span>MONNIT KOREA BEST SELLER</span><h1>현장에서 가장 많이 선택하는 센서</h1><p>모넷코리아에서 가장 많이 판매되는 5종입니다. 담으시면 게이트웨이와 플랫폼 라이선스가 함께 담깁니다.</p></div>
       <div class="m-best5">${bests.map((b, i) => `<article class="m-best" data-go="/mall/product/${esc(b.p.id)}"><i class="m-best__rk">${i + 1}</i>${ico(b.p, "m-ico--lg")}<b>${esc(b.label)}</b><small>${esc(b.why)}</small>
         <button class="m-btn m-btn--sm m-btn--accent" type="button" data-add="${esc(b.p.id)}">견적함 담기</button></article>`).join("")}</div>
@@ -514,7 +552,7 @@ const indItems = (k) => k.items.map(([n, q, r]) => ({ p: byName(n), q, r })).fil
 function indCard(k) {
   const it = indItems(k);
   return `<a class="m-ind" href="/mall/industry/${k.id}" data-link><div class="m-ind__hd"><span>${esc(k.en)}</span><em>${it.length}개 품목 →</em></div>
-    <b>${esc(k.name)}</b><p>${esc(k.desc)}</p><div class="m-ind__th">${it.slice(0, 6).map((x) => `<i title="${esc(x.p.n)}">${ico(x.p)}</i>`).join("")}</div></a>`;
+    <b>${esc(k.name)}</b><p>${esc(k.desc)}</p><div class="m-ind__th">${it.slice(0, 6).map((x) => `<i data-tip="${esc(x.p.n)}" aria-label="${esc(x.p.n)}">${ico(x.p)}</i>`).join("")}</div></a>`;
 }
 function vInds() { setTitle("업종별 구성"); return `<div class="m-in">${crumbs([["업종별 구성", ""]])}<div class="m-catbanner m-catbanner--plain"><div><h1>업종별 추천 구성</h1><p>현장 유형별로 자주 함께 구성하는 센서·게이트웨이·플랫폼 조합입니다. 구성 전체를 담은 뒤 견적함에서 수량을 조정하세요.</p></div></div><div class="m-inds">${INDS.map(indCard).join("")}</div></div>`; }
 function vInd(id) {
@@ -704,7 +742,7 @@ function route() {
   view.innerHTML = html;
   $("#q").value = seg[0] === "search" ? qs.get("q") || "" : "";
   $$(".m-gnb a").forEach((a) => { const h = a.getAttribute("href"); a.classList.toggle("is-on", h === path || (h.length > 6 && path.startsWith(h + "/"))); });
-  badge(); cmpBar(); bind(seg); reveal(); tabbar(path); fx();
+  badge(); cmpBar(); bind(seg); reveal(); tabbar(path); fx(); promoBar();
   EV.pg++; if (seg[0] === "product") { const pv = P.find((x) => x.id === seg[1]); if (pv) evc("v", pv.n); } if (seg[0] === "search" && qs.get("q")) evc("s", qs.get("q").trim().slice(0, 30));
   if (L().hash) { const t = document.getElementById(L().hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ behavior: "smooth", block: "start" }), 30); } else window.scrollTo(0, 0);
 }

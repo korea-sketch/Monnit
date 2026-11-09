@@ -8,7 +8,7 @@
   var EN = L === "en"; window.MALL_LANG = EN ? "en" : "ko";
   if (!EN) return;
   document.documentElement.lang = "en";
-  if (!window.MALL_EN) document.write('<script src="/js/mall-en.js?v=3"><\/script>');
+  if (!window.MALL_EN) document.write('<script src="/js/mall-en.js?v=4"><\/script>');
   var HAN = /[가-힣]/, NUM = /\d+(?:[.,]\d+)*/g, miss = (window.__mallMiss = {});
   function rx(t) { /* 틀 문구 — 「X에 대해 궁금한 점」 등. X 는 사전에서 다시 찾는다 */
     var RX = window.MALL_EN_RX || [];

@@ -565,7 +565,7 @@ body.no-scroll{overflow:hidden}
 /* 썸네일 이름 말풍선 */
 @media (hover:hover){
   .m-ind__th i{position:relative}
-  .m-ind__th i::after{content:attr(title);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,4px);white-space:nowrap;background:var(--card);color:var(--ink);font-size:11.5px;font-weight:600;font-style:normal;padding:4px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .m-ind__th i::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,4px);white-space:nowrap;background:#fff;color:#0b1530;font-size:11.5px;font-weight:600;font-style:normal;padding:4px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.25)}
   .m-ind__th i:hover::after{opacity:1;transform:translate(-50%,0)}
   .m-ind__th i:hover{transform:translateY(-4px) scale(1.06)!important}
 }
@@ -873,3 +873,109 @@ html[lang=en] .m-gnb a,html[lang=en] .m-tabbar a{white-space:nowrap}
 @media (max-width:700px){.pc-launcher-tip{animation:mTipOut .4s ease 5s forwards}}
 @keyframes mTipOut{to{opacity:0;visibility:hidden}}
 @media (prefers-color-scheme: dark){.m-ind__th i{background:var(--tile1)}.m-zoom{background:linear-gradient(180deg,var(--tile1),var(--tile2))}.m-zoom__hint{background:rgba(255,255,255,.85);color:#3c4250}}
+
+/* ===== 리소스 센터 홈 프로모션 배너 (2026-11-09) — 메인 홈 배너(style.css .hp-promo-bar)와 같은 디자인, 베스트셀러 띠 맨 위 =====
+   히어로 위에 떠 있는 유리 알약. 4개를 4초마다 순환하고, 오른쪽 「전체」를 누르면 유리 패널로 전부 펼친다. */
+.hp-promo-bar{ position:relative; z-index:6; margin:0 0 26px; }
+.hpb-glass{ position:relative; max-width:860px; height:54px; margin:0 auto; display:flex; align-items:center; gap:10px; padding:0 7px 0 9px;
+  border-radius:999px; overflow:hidden; isolation:isolate;
+  background:linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.035));
+  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.04), 0 14px 40px rgba(2,8,24,.45), 0 0 0 1px rgba(10,20,45,.25);
+  transition:border-color .3s ease, box-shadow .3s ease; }
+/* 유리 위를 천천히 지나가는 빛 */
+.hpb-glass::before{ content:""; position:absolute; inset:-1px; z-index:-1; pointer-events:none;
+  background:linear-gradient(105deg, transparent 30%, rgba(170,205,255,.16) 46%, rgba(255,255,255,.08) 50%, transparent 64%);
+  background-size:260% 100%; background-position:130% 0; animation:hpbSheen 7s ease-in-out infinite; }
+.hpb-glass::after{ content:""; position:absolute; left:18px; right:18px; bottom:0; height:1px; pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(127,180,242,.55), transparent); }
+@keyframes hpbSheen{ 0%,55%{ background-position:130% 0; } 85%,100%{ background-position:-30% 0; } }
+.hp-promo-bar:hover .hpb-glass, .hp-promo-bar.is-open .hpb-glass{ border-color:rgba(160,200,255,.32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26), 0 18px 46px rgba(2,8,24,.5), 0 0 0 4px rgba(95,150,240,.08); }
+
+.hpb-track{ position:relative; flex:1 1 auto; min-width:0; height:100%; max-width:none; margin:0; padding:0; }
+.hpb-slide{ position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-start; gap:12px; padding:0 4px 0 2px;
+  color:#fff; text-decoration:none; opacity:0; visibility:hidden; transform:translateY(70%); filter:blur(3px);
+  transition:transform .6s cubic-bezier(.22,.8,.24,1), opacity .45s ease, filter .45s ease, visibility 0s linear .6s; }
+.hpb-slide.is-on{ opacity:1; visibility:visible; transform:none; filter:none; transition-delay:0s; }
+.hpb-slide.is-out{ visibility:visible; opacity:0; transform:translateY(-70%); filter:blur(3px); transition-delay:0s; }
+.hpb-tag{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 13px; border-radius:999px;
+  background:linear-gradient(180deg, rgba(95,227,196,.22), rgba(95,227,196,.10)); color:#8ff3da;
+  border:1px solid rgba(95,227,196,.38); font-size:13px; font-weight:800; letter-spacing:-.01em; white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 0 18px rgba(95,227,196,.18); }
+.hpb-tag::before{ content:""; width:6px; height:6px; border-radius:50%; background:#5fe3c4; box-shadow:0 0 0 0 rgba(95,227,196,.6); animation:hpbPulse 2.4s ease-out infinite; }
+@keyframes hpbPulse{ 0%{ box-shadow:0 0 0 0 rgba(95,227,196,.55); } 70%,100%{ box-shadow:0 0 0 7px rgba(95,227,196,0); } }
+.hpb-title{ min-width:0; font-size:16px; font-weight:700; letter-spacing:-.025em; line-height:1.3; color:#f1f5fc;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hpb-cta{ flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; margin-left:auto; padding-left:12px;
+  color:#9cc4ff; font-size:14px; font-weight:700; white-space:nowrap; transition:color .2s ease, gap .2s ease; }
+.hpb-cta svg{ width:16px; height:16px; transition:transform .2s ease; }
+@media (hover:hover){
+  .hpb-slide:hover .hpb-cta{ color:#d2e4ff; gap:7px; }
+  .hpb-slide:hover .hpb-cta svg{ transform:translateX(2px); }
+}
+.hpb-slide:focus-visible, .hpb-more:focus-visible, .hpb-row:focus-visible, .hpb-panel-all:focus-visible{ outline:2px solid #8fbaff; outline-offset:-3px; border-radius:999px; }
+.hpb-dots{ flex:0 0 auto; display:flex; gap:5px; pointer-events:none; }
+.hpb-dots i{ width:5px; height:5px; border-radius:999px; background:rgba(255,255,255,.26); transition:width .35s ease, background .35s ease; }
+.hpb-dots i.on{ width:16px; background:linear-gradient(90deg,#7fb4f2,#5fe3c4); }
+.hp-promo-bar.is-single .hpb-dots{ display:none; }
+.hpb-more{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; height:40px; padding:0 12px 0 14px; border-radius:999px; cursor:pointer;
+  font-family:inherit; font-size:13px; font-weight:700; line-height:1; color:#e3ecfa; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  transition:background .2s ease, border-color .2s ease; }
+.hpb-more:hover{ background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.22); }
+.hpb-more-n{ display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px; border-radius:999px; font-size:11.5px; background:rgba(127,180,242,.22); color:#cfe2ff; }
+.hpb-more svg{ width:16px; height:16px; transition:transform .25s ease; }
+.hp-promo-bar.is-open .hpb-more svg{ transform:rotate(180deg); }
+
+/* 전체 보기 패널 */
+.hpb-panel{ position:absolute; left:0; right:0; top:calc(100% + 10px); max-width:860px; margin:0 auto; padding:8px; border-radius:20px;
+  background:linear-gradient(180deg, rgba(22,34,66,.72), rgba(12,20,42,.78));
+  -webkit-backdrop-filter:blur(24px) saturate(150%); backdrop-filter:blur(24px) saturate(150%);
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 24px 60px rgba(2,8,24,.55);
+  opacity:0; transform:translateY(-8px) scale(.985); transform-origin:top center; transition:opacity .22s ease, transform .22s ease; }
+.hpb-panel.on{ opacity:1; transform:none; }
+.hpb-panel-hd{ display:flex; align-items:center; gap:8px; padding:10px 14px 8px; font-size:12.5px; font-weight:700; letter-spacing:.02em; color:#8ea3c8; }
+.hpb-panel-hd b{ font-size:11px; letter-spacing:0; color:#cfe2ff; background:rgba(127,180,242,.2); border-radius:999px; padding:1px 7px; }
+.hpb-row{ display:grid; grid-template-columns:118px minmax(0,1fr) auto; align-items:center; gap:16px; padding:14px 14px; border-radius:14px;
+  color:#eef3fb; text-decoration:none; opacity:0; transform:translateY(6px); transition:background .2s ease, opacity .3s ease, transform .3s ease; }
+.hpb-panel.on .hpb-row{ opacity:1; transform:none; transition-delay:calc(var(--i) * 45ms); }
+.hpb-row + .hpb-row{ box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+.hpb-row:hover{ background:rgba(255,255,255,.07); box-shadow:none; }
+.hpb-row:hover + .hpb-row{ box-shadow:none; }
+.hpb-row-tag{ font-size:14px; font-weight:800; color:#8ff3da; letter-spacing:-.01em; }
+.hpb-row-title{ font-size:16px; font-weight:700; letter-spacing:-.025em; line-height:1.4; word-break:keep-all; }
+.hpb-row-cta{ display:inline-flex; align-items:center; gap:5px; font-size:14px; font-weight:700; color:#9cc4ff; white-space:nowrap; }
+.hpb-row-cta svg{ width:16px; height:16px; transition:transform .2s ease; }
+.hpb-row:hover .hpb-row-cta svg{ transform:translateX(3px); }
+.hpb-panel-all{ display:block; margin:4px 6px 4px; padding:11px 14px; border-radius:12px; text-align:center; font-size:13.5px; font-weight:700; color:#cfe2ff; text-decoration:none;
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); transition:background .2s ease; }
+.hpb-panel-all:hover{ background:rgba(255,255,255,.1); }
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .hpb-glass{ background:rgba(20,32,62,.92); } .hpb-panel{ background:rgba(14,22,44,.97); }
+}
+@media (max-width: 1100px){ .hpb-dots{ display:none; } }
+@media (max-width: 768px){
+  .hp-promo-bar{ margin-bottom:18px; }
+  .hpb-glass{ height:58px; border-radius:18px; padding:0 6px 0 8px; gap:8px; }
+  .hpb-slide{ gap:9px; }
+  .hpb-tag{ height:26px; padding:0 9px; font-size:11.5px; gap:5px; box-shadow:inset 0 1px 0 rgba(255,255,255,.18); }
+  .hpb-tag::before{ width:5px; height:5px; }
+  .hpb-title{ flex:1 1 auto; font-size:13.5px; line-height:1.35; white-space:normal;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:keep-all; }
+  .hpb-cta{ display:none; }
+  .hpb-more{ height:42px; padding:0 10px; gap:5px; border-radius:12px; }
+  .hpb-more-t{ display:none; }
+  .hpb-panel{ border-radius:18px; padding:6px; }
+  .hpb-row{ grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"tag cta" "title cta"; gap:3px 12px; padding:12px; }
+  .hpb-row-tag{ grid-area:tag; font-size:12px; }
+  .hpb-row-title{ grid-area:title; font-size:14.5px; }
+  .hpb-row-cta{ grid-area:cta; font-size:12.5px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .hpb-slide, .hpb-slide.is-on, .hpb-slide.is-out{ transform:none; filter:none; transition:opacity .2s linear, visibility 0s; }
+  .hpb-glass::before, .hpb-tag::before{ animation:none; }
+  .hpb-panel, .hpb-row{ transition:opacity .15s linear; transform:none; }
+}
