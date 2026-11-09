@@ -11763,3 +11763,52 @@ html[lang="en"] .case-card .tag, html[lang="en"] .featured-card .tag { letter-sp
 @media (max-width: 340px) {
   .brand-logo { width: 88px; }
 }
+
+/* ===== 홈 상단 프로모션 배너 (2026-11-09) — index.html #hpPromoBar ===== */
+.hp-promo-bar{ position:relative; z-index:3; height:54px; overflow:hidden;
+  background:linear-gradient(90deg, #0f2147 0%, #16305e 50%, #0f2147 100%);
+  border-bottom:1px solid rgba(120,160,225,.22); }
+.hp-promo-bar::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:1px; pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(110,168,236,.55) 30%, rgba(110,168,236,.55) 70%, transparent); }
+.hpb-track{ position:relative; height:100%; max-width:1240px; margin:0 auto; padding:0 32px; }
+.hpb-slide{ position:absolute; inset:0 32px; display:flex; align-items:center; justify-content:center; gap:16px;
+  color:#fff; text-decoration:none; opacity:0; visibility:hidden; transform:translateY(100%);
+  transition:transform .55s cubic-bezier(.22,.8,.24,1), opacity .45s ease, visibility 0s linear .55s; }
+.hpb-slide.is-on{ opacity:1; visibility:visible; transform:translateY(0); transition-delay:0s; }
+.hpb-slide.is-out{ visibility:visible; opacity:0; transform:translateY(-100%); transition-delay:0s; }
+.hpb-tag{ flex:0 0 auto; display:inline-flex; align-items:center; height:28px; padding:0 14px; border-radius:999px;
+  background:#5fe3c4; color:#06233a; font-size:13.5px; font-weight:800; letter-spacing:-.01em; white-space:nowrap;
+  box-shadow:0 0 0 3px rgba(95,227,196,.14); }
+.hpb-title{ min-width:0; font-size:18px; font-weight:800; letter-spacing:-.03em; line-height:1.3;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hpb-cta{ flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; margin-left:12px;
+  color:#7fb4f2; font-size:15.5px; font-weight:700; white-space:nowrap; transition:color .2s ease, gap .2s ease; }
+.hpb-cta svg{ width:17px; height:17px; }
+@media (hover:hover){
+.hpb-slide:hover .hpb-cta{ color:#a9cdf8; gap:8px; }
+.hpb-slide:hover .hpb-title{ text-decoration:underline; text-underline-offset:4px; text-decoration-color:rgba(255,255,255,.35); }
+}
+.hpb-slide:focus-visible{ outline:2px solid #7fb0ea; outline-offset:-4px; border-radius:8px; }
+.hpb-dots{ position:absolute; right:max(24px, calc((100% - 1240px)/2 + 32px)); top:50%; transform:translateY(-50%);
+  display:flex; gap:6px; pointer-events:none; }
+.hpb-dots i{ width:6px; height:6px; border-radius:999px; background:rgba(255,255,255,.28); transition:width .3s ease, background .3s ease; }
+.hpb-dots i.on{ width:16px; background:#7fb4f2; }
+.hp-promo-bar.is-single .hpb-dots{ display:none; }
+@media (max-width: 1100px){ .hpb-dots{ display:none; } }
+@media (max-width: 768px){
+  .hp-promo-bar{ height:60px; }
+  .hpb-track{ padding:0 16px; }
+  .hpb-slide{ inset:0 16px; justify-content:flex-start; gap:10px; }
+  .hpb-tag{ height:24px; padding:0 10px; font-size:11.5px; box-shadow:none; }
+  .hpb-title{ flex:1 1 auto; font-size:14px; line-height:1.35; white-space:normal;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:keep-all; }
+  .hpb-cta{ margin-left:0; font-size:12.5px; gap:3px; }
+  .hpb-cta svg{ width:15px; height:15px; }
+}
+@media (max-width: 420px){
+  .hpb-cta-t{ display:none; }
+  .hpb-cta{ width:28px; height:28px; justify-content:center; border-radius:999px; background:rgba(127,180,242,.14); }
+}
+@media (prefers-reduced-motion: reduce){
+  .hpb-slide, .hpb-slide.is-on, .hpb-slide.is-out{ transform:none; transition:opacity .2s linear, visibility 0s; }
+}

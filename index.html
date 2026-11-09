@@ -63,7 +63,7 @@ window.__mkSheetsPre={url:u,p:fetch(u).then(function(r){return r.ok?r.json():nul
 <noscript><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css"></noscript>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="/style.css?v=241">
+<link rel="stylesheet" href="/style.css?v=242">
 <style>:where(a[data-nav]){color:inherit}a[data-nav]{text-decoration:none;cursor:pointer}</style>
 
 
@@ -256,6 +256,48 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
 
 
 <section class="view active" id="view-home">
+  <!-- 홈 상단 프로모션 배너 (2026-11-09) — 진행 중인 프로모션 4개를 4초마다 순환. 마우스 올림·포커스·탭 숨김 시 일시정지.
+       문구·순서·링크는 아래 <a> 4개만 고치면 됩니다. 프로모션을 내리면 해당 <a> 줄을 지우세요(1개만 남으면 자동으로 멈춤). -->
+  <div class="hp-promo-bar" id="hpPromoBar" role="region" aria-label="진행 중인 프로모션" aria-roledescription="carousel">
+    <div class="hpb-track" aria-live="off">
+      <a class="hpb-slide is-on" href="/promo/remote/?utm_source=monnit.co.kr&amp;utm_medium=home_banner&amp;utm_campaign=remote" data-promo="remote"><span class="hpb-tag">기간 한정</span><span class="hpb-title">건물 주요 설비 통합 관제, 무료 현장 진단</span><span class="hpb-cta"><span class="hpb-cta-t">혜택 보기</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="hpb-slide" href="/promo/alarm/?utm_source=monnit.co.kr&amp;utm_medium=home_banner&amp;utm_campaign=alarm" data-promo="alarm" aria-hidden="true" tabindex="-1"><span class="hpb-tag">설치비 무료</span><span class="hpb-title">긴급 경보 알리미</span><span class="hpb-cta"><span class="hpb-cta-t">혜택 보기</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="hpb-slide" href="/promo/consulting/?utm_source=monnit.co.kr&amp;utm_medium=home_banner&amp;utm_campaign=consulting" data-promo="consulting" aria-hidden="true" tabindex="-1"><span class="hpb-tag">1개월 무료</span><span class="hpb-title">회전설비 예지보전, 한 달 무료 체험</span><span class="hpb-cta"><span class="hpb-cta-t">체험 안내</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="hpb-slide" href="/promo/modbus/?utm_source=monnit.co.kr&amp;utm_medium=home_banner&amp;utm_campaign=modbus" data-promo="modbus" aria-hidden="true" tabindex="-1"><span class="hpb-tag">기술지원</span><span class="hpb-title">PLC·BMS·SCADA 연동, 현장 구성 무료 검토</span><span class="hpb-cta"><span class="hpb-cta-t">지원 안내</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+    </div>
+    <span class="hpb-dots" aria-hidden="true"></span>
+  </div>
+  <script>
+  (function(){
+    var bar=document.getElementById('hpPromoBar'); if(!bar) return;
+    var slides=bar.querySelectorAll('.hpb-slide'), n=slides.length, cur=0, timer=null, paused=false, DELAY=4000;
+    var dots=bar.querySelector('.hpb-dots');
+    for(var k=0;k<n;k++){ var b=document.createElement('i'); if(k===0) b.className='on'; dots.appendChild(b); }
+    function show(i){
+      var prev=slides[cur]; cur=(i+n)%n; var next=slides[cur];
+      if(prev===next) return;
+      prev.classList.remove('is-on'); prev.classList.add('is-out'); prev.setAttribute('aria-hidden','true'); prev.setAttribute('tabindex','-1');
+      setTimeout(function(){ prev.classList.remove('is-out'); }, 600);
+      next.classList.add('is-on'); next.removeAttribute('aria-hidden'); next.removeAttribute('tabindex');
+      var ds=dots.children; for(var j=0;j<ds.length;j++) ds[j].className=(j===cur?'on':'');
+    }
+    function visible(){ return !document.hidden && bar.offsetParent!==null; }
+    function tick(){ if(!paused && visible()) show(cur+1); }
+    function start(){ if(n>1 && !timer) timer=setInterval(tick, DELAY); }
+    function stop(){ clearInterval(timer); timer=null; }
+    function pause(){ paused=true; }
+    function resume(){ paused=false; stop(); start(); }
+    bar.addEventListener('mouseenter', pause); bar.addEventListener('mouseleave', resume);
+    bar.addEventListener('focusin', pause); bar.addEventListener('focusout', resume);
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) resume(); });
+    bar.addEventListener('click', function(e){
+      var a=e.target.closest && e.target.closest('.hpb-slide'); if(!a) return;
+      try{ window.MonnitTrack && window.MonnitTrack.event('home_banner_click', { promo:a.getAttribute('data-promo'), pos:cur+1 }); }catch(x){}
+    });
+    if(n<2) bar.classList.add('is-single');
+    start();
+  })();
+  </script>
 
   
   <header class="nh-hero nh-hero-plain">
@@ -2263,7 +2305,7 @@ window.addEventListener('popstate', function(){ setTimeout(window.MK_TRACK_PAGEV
  function put(k,v){try{if(ls)ls.setItem(k,v);}catch(e){}}
  var q=(location.search.match(/[?&]lang=(en|ko)(?:&|$)/)||[])[1]; if(q){put('mlang',q);put('mlang_src','url');}
  var m=get('mlang');
- function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=121';s.defer=true;d.head.appendChild(s);}
+ function load(){if(w.__mkI18nLoad)return;w.__mkI18nLoad=1;var s=d.createElement('script');s.src='/i18n.js?v=122';s.defer=true;d.head.appendChild(s);}
  function toEn(){if(w.MonnitI18N&&w.MonnitI18N.setLang){w.MonnitI18N.setLang('en','geo');}else{d.documentElement.lang='en';load();}}
  if(m==='en'){d.documentElement.lang='en';load();return;}
  (w.requestIdleCallback||function(f){setTimeout(f,1500);})(load);
