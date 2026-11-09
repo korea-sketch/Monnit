@@ -1,5 +1,6 @@
-/* 모니 챗봇 스타일 — style.css 에서 자동 추출 (tools/mall/moni-css.py). 몰·리소스 센터처럼 style.css 를 쓰지 않는 페이지용 */
-:root{--fd: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;--fb: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;--fm: 'IBM Plex Mono', ui-monospace, monospace;--bg: #0C1220;--surface: #141C2E;--surface-2: #1D2739;--ink: #EEF1F6;--ink-mid: #B7BECD;--ink-soft: #838C9E;--ink-faint: #8A93A5;--line: #26304A;--line-strong: #384358;--accent: #4A82C4;--accent-dark: #6B9FD6;--accent-soft: rgba(74,130,196,0.14);--btn-bg: #2E5C9A;--btn-bg-h: #244B80}
+/* 모니 챗봇 스타일 — style.css 에서 자동 추출 (tools/mall/moni-css.py). 몰·리소스 센터처럼 style.css 를 쓰지 않는 페이지용
+   변수는 모니 안에서만 쓴다 — :root 에 두면 몰의 --bg·--ink·--accent 를 덮어써 화면이 깨진다 (2026-11-09) */
+#ppChat,#pcLauncher,.pc-launcher,.pc-panel,.mkp-chat{--fd: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;--fb: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;--fm: 'IBM Plex Mono', ui-monospace, monospace;--bg: #0C1220;--surface: #141C2E;--surface-2: #1D2739;--ink: #EEF1F6;--ink-mid: #B7BECD;--ink-soft: #838C9E;--ink-faint: #8A93A5;--line: #26304A;--line-strong: #384358;--accent: #4A82C4;--accent-dark: #6B9FD6;--accent-soft: rgba(74,130,196,0.14);--btn-bg: #2E5C9A;--btn-bg-h: #244B80}
 @keyframes mkp-orb-morph{
   0% { border-radius:44% 56% 61% 39% / 48% 41% 59% 52%; transform:rotate(-5deg) scale(.98); }
   100% { border-radius:58% 42% 45% 55% / 40% 57% 43% 60%; transform:rotate(7deg) scale(1.04); }

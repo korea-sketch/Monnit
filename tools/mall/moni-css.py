@@ -41,6 +41,6 @@ decl=[]
 for r in root:
     for d in r.split(';'):
         if ':' in d and d.split(':')[0].strip() in vars_used: decl.append(d.strip())
-out='/* 모니 챗봇 스타일 — style.css 에서 자동 추출 (tools/mall/moni-css.py). 몰·리소스 센터처럼 style.css 를 쓰지 않는 페이지용 */\n:root{'+';'.join(dict.fromkeys(decl))+'}\n'+'\n'.join(kf)+'\n'+txt
+out='/* 모니 챗봇 스타일 — style.css 에서 자동 추출 (tools/mall/moni-css.py). 몰·리소스 센터처럼 style.css 를 쓰지 않는 페이지용\n   변수는 모니 안에서만 쓴다 — :root 에 두면 몰의 --bg·--ink·--accent 를 덮어써 화면이 깨진다 (2026-11-09) */\n#ppChat,#pcLauncher,.pc-launcher,.pc-panel,.mkp-chat{'+';'.join(dict.fromkeys(decl))+'}\n'+'\n'.join(kf)+'\n'+txt
 open('css/moni.css','w').write(out)
 print(len(out), 'vars',len(vars_used),'kf',len(kf),'used anim',used)
