@@ -565,7 +565,7 @@ body.no-scroll{overflow:hidden}
 /* 썸네일 이름 말풍선 */
 @media (hover:hover){
   .m-ind__th i{position:relative}
-  .m-ind__th i::after{content:attr(title);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,4px);white-space:nowrap;background:var(--card);color:var(--ink);font-size:11.5px;font-weight:600;font-style:normal;padding:4px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .m-ind__th i::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,4px);white-space:nowrap;background:#fff;color:#0b1530;font-size:11.5px;font-weight:600;font-style:normal;padding:4px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.18s;box-shadow:0 6px 16px rgba(0,0,0,.25)}
   .m-ind__th i:hover::after{opacity:1;transform:translate(-50%,0)}
   .m-ind__th i:hover{transform:translateY(-4px) scale(1.06)!important}
 }

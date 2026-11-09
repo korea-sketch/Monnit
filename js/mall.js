@@ -514,7 +514,7 @@ const indItems = (k) => k.items.map(([n, q, r]) => ({ p: byName(n), q, r })).fil
 function indCard(k) {
   const it = indItems(k);
   return `<a class="m-ind" href="/mall/industry/${k.id}" data-link><div class="m-ind__hd"><span>${esc(k.en)}</span><em>${it.length}개 품목 →</em></div>
-    <b>${esc(k.name)}</b><p>${esc(k.desc)}</p><div class="m-ind__th">${it.slice(0, 6).map((x) => `<i title="${esc(x.p.n)}">${ico(x.p)}</i>`).join("")}</div></a>`;
+    <b>${esc(k.name)}</b><p>${esc(k.desc)}</p><div class="m-ind__th">${it.slice(0, 6).map((x) => `<i data-tip="${esc(x.p.n)}" aria-label="${esc(x.p.n)}">${ico(x.p)}</i>`).join("")}</div></a>`;
 }
 function vInds() { setTitle("업종별 구성"); return `<div class="m-in">${crumbs([["업종별 구성", ""]])}<div class="m-catbanner m-catbanner--plain"><div><h1>업종별 추천 구성</h1><p>현장 유형별로 자주 함께 구성하는 센서·게이트웨이·플랫폼 조합입니다. 구성 전체를 담은 뒤 견적함에서 수량을 조정하세요.</p></div></div><div class="m-inds">${INDS.map(indCard).join("")}</div></div>`; }
 function vInd(id) {
