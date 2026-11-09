@@ -8,9 +8,15 @@
   var EN = L === "en"; window.MALL_LANG = EN ? "en" : "ko";
   if (!EN) return;
   document.documentElement.lang = "en";
-  if (!window.MALL_EN) document.write('<script src="/js/mall-en.js?v=2"><\/script>');
+  if (!window.MALL_EN) document.write('<script src="/js/mall-en.js?v=3"><\/script>');
   var HAN = /[가-힣]/, NUM = /\d+(?:[.,]\d+)*/g, miss = (window.__mallMiss = {});
-  function look(t) {
+  function rx(t) { /* 틀 문구 — 「X에 대해 궁금한 점」 등. X 는 사전에서 다시 찾는다 */
+    var RX = window.MALL_EN_RX || [];
+    for (var r = 0; r < RX.length; r++) { var m = t.match(RX[r][0]); if (m) { var inner = look0(m[1].trim()); return RX[r][1].replace("$1", inner != null ? inner : m[1]); } }
+    return null;
+  }
+  function look(t) { var v = look0(t); return v != null ? v : rx(t); }
+  function look0(t) {
     var D = window.MALL_EN || {}, nums = [], key = t.replace(NUM, function (m) { nums.push(m); return "#"; }), v = D[key];
     if (v == null) return null; var j = 0; return v.replace(/#/g, function () { return nums[j++] || ""; });
   }
@@ -32,8 +38,9 @@
   function walk(root) {
     if (!root) return;
     if (root.nodeType === 3) { var v = tr(root.nodeValue); if (v != null && v !== root.nodeValue) root.nodeValue = v; return; }
-    if (root.nodeType !== 1 || /^(SCRIPT|STYLE|TEXTAREA)$/.test(root.nodeName) || root.hasAttribute("data-noi18n")) return;
+    if (root.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(root.nodeName) || root.hasAttribute("data-noi18n") || root.id === "ppChat" || root.id === "pcLauncher") return;
     for (var a = 0; a < ATTR.length; a++) { var x = root.getAttribute(ATTR[a]); if (x && HAN.test(x)) { var y = tr(x); if (y != null) root.setAttribute(ATTR[a], y); } }
+    if (root.nodeName === "TEXTAREA") return;  /* 입력 내용은 건드리지 않는다 */
     for (var c = root.firstChild; c; c = c.nextSibling) walk(c);
   }
   function run(muts) {

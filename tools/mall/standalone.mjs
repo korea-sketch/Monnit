@@ -24,6 +24,9 @@ let html = rd("mall.html");
 const css = rd("css/mall.css");
 html = html
   .replace(/<link rel="canonical"[^>]*>\n?/, "")
+  /* 모니 챗봇은 사이트 API 가 있어야 동작한다 — 단일 파일에서는 뺀다 */
+  .replace(/<link rel="stylesheet" href="\/css\/moni\.css[^"]*">\n?/, "")
+  .replace(/<!-- 모니 챗봇[\s\S]*?<\/script>\n<script>addEventListener\("load"[\s\S]*?<\/script>\n?/, "")
   .replace(/<link rel="(?:icon|apple-touch-icon)"[^>]*>\n?/g, "")
   .replace(/<link rel="stylesheet" href="\/fonts\/[^"]*">/, '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">')
   .replace(/<link rel="stylesheet" href="\/css\/mall\.css[^"]*">/, () => `<style>\n${css}\n</style>`)

@@ -6,7 +6,8 @@
 (() => {
 "use strict";
 const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/* 화면에는 줄표(—)를 쓰지 않는다 (2026-11-09) — 제품명 「누수 — 로프형」은 「누수 로프형」으로 보인다. 데이터 이름(견적 매핑 키)은 그대로 */
+const esc = (s) => String(s == null ? "" : s).replace(/\s*—\s*/g, " ").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const D = window.__STORE_DATA || { products: [], apps: [], cats: [], groups: [], icons: {}, rules: [] };
 const LS = { get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 const view = $("#view");
@@ -15,14 +16,14 @@ const view = $("#view");
 let P = [], APPS = D.apps || [];
 const CATS = D.cats || [], GROUPS = D.groups || [];
 const CAT_KO = { sensors: "무선 센서", gateways: "게이트웨이", software: "플랫폼·소프트웨어", accessories: "액세서리" };
-const CAT_DESC = { sensors: "온도·습도·누수·진동·전력·가스 등 80여 종 — 배터리 무선, 배선 공사 없이 설치", gateways: "센서 데이터를 플랫폼으로 — 이더넷·셀룰러·Modbus", software: "알림·대시보드·데이터 관리 — 클라우드·온프레미스", accessories: "설치 진단·현장 경보·원격 제어" };
+const CAT_DESC = { sensors: "온도·습도·누수·진동·전력·가스 등 80여 종. 배터리 무선이라 배선 공사 없이 설치합니다", gateways: "센서 데이터를 플랫폼으로 올리는 장비 (이더넷·셀룰러·Modbus)", software: "알림·대시보드·데이터 관리 — 클라우드·온프레미스", accessories: "설치 진단·현장 경보·원격 제어" };
 const HUE = { temperature: "red", humid: "blue", humidity: "blue", water: "blue", vibration: "violet", electrical: "amber", power: "amber", motion: "cyan", door: "green", contact: "green", gas: "teal", air: "teal", pressure: "violet", soil: "green", vehicle: "blue", control: "cyan", button: "pink", light: "amber", tilt: "violet", resistance: "amber", pulse: "cyan", software: "violet", cloud: "cyan", server: "blue", signal: "cyan", alarm: "pink", battery: "green", gateway: "blue", edge: "violet", sensor: "cyan" };
 const CODE_RULES = [[/온도|열전대/, ["TEMP", "ULT TEMP"]], [/습도/, ["HUMID"]], [/누수/, ["WATER"]], [/차압/, ["DP"]], [/이산화탄소|CO2/, ["CO₂"]], [/공기질/, ["AIR", "VOC"]], [/진동|가속도/, ["VIB"]], [/전류/, ["CURRENT"]], [/모션|점유/, ["MOTION", "OCC"]], [/개폐|도어/, ["DOOR"]], [/압력계/, ["PRESSURE"]], [/VDC|VAC|전압/, ["VOLTAGE"]], [/조도/, ["LIGHT"]]];
 const RULES = (D.rules || []).map(([s, f, k]) => [new RegExp(s, f), k]);
 const FACTS = {
   sensors: [["무선 940MHz", "국내 주파수 · 배선 공사 없이 설치"], ["내구연한 15년", "산업 현장 장기 운용"], ["알림", "문자·이메일·웹/모바일 대시보드"], ["구성", "센서 → IoT 게이트웨이 → 플랫폼"]],
   gateways: [["센서 250개", "게이트웨이 1대 반경 내 매핑"], ["정전 시 2~3일", "내장 배터리로 자립 작동"], ["내구연한 15년", "산업 현장 장기 운용"], ["플랫폼 연동", "iMonnit · iMonnit Scube 전용 플랫폼"]],
-  software: [["알림", "문자·이메일·웹/모바일 대시보드"], ["Open API", "Webhook API · MQTT (iMonnit)"], ["전용 플랫폼", "iMonnit Scube 전용 플랫폼"], ["구독", "연 단위 구독 — 견적 안내"]],
+  software: [["알림", "문자·이메일·웹/모바일 대시보드"], ["Open API", "Webhook API · MQTT (iMonnit)"], ["전용 플랫폼", "iMonnit Scube 전용 플랫폼"], ["구독", "연 단위 구독, 견적 시 안내"]],
   accessories: [["ALTA 호환", "모넷 무선 센서·게이트웨이와 함께 사용"], ["설치 상담", "현장 조건에 맞춰 구성 안내"]],
 };
 /* 추천 패키지 — 기본 수량은 예시이며 견적 때 현장에 맞춰 조정한다 */
@@ -35,9 +36,9 @@ const PACKS = [
   { id: "bms", name: "BMS·DDC 연동 패키지", for: "기존 BMS · BEMS · SCADA", desc: "무선 센서 값을 Modbus로 기존 관제 시스템에 그대로 연결합니다.", img: "/images/promo-modbus.webp", items: [["온도", 6], ["습도", 2], ["시리얼 Modbus 게이트웨이", 1]] },
 ];
 const BANNERS = [
-  { href: "/promo/alarm", img: "/images/promo-alarm.webp", tag: "구독형 · 설치비 무료", title: "긴급 경보 알리미", sub: "화재·누수·정전·설비 경보를 휴대폰으로 — 월 구독" },
+  { href: "/promo/alarm", img: "/images/promo-alarm.webp", tag: "구독형 · 설치비 무료", title: "긴급 경보 알리미", sub: "화재·누수·정전·설비 경보를 휴대폰으로 받는 월 구독" },
   { href: "/promo/modbus", img: "/images/promo-modbus.webp", tag: "BMS 연동", title: "Modbus 연동 무선 센서", sub: "기존 DDC·BEMS에 무선 센서를 그대로" },
-  { href: "/promo/remote", img: "/images/promo-remote.webp", tag: "통합관제", title: "여러 현장을 한 화면에서", sub: "원격 통합관제 — 다현장 운영 조직용" },
+  { href: "/promo/remote", img: "/images/promo-remote.webp", tag: "통합관제", title: "여러 현장을 한 화면에서", sub: "여러 현장을 운영하는 조직을 위한 원격 통합관제" },
 ];
 const LOGOS = ["samsung", "lg-elec", "hyundai", "sk-hynix", "lotte", "naver", "kakao", "samsung-bio", "gc", "pulmuone", "kaist", "etri", "hdc", "hanwha-energy", "veolia", "usfk"];
 const TIERS = [
@@ -67,7 +68,7 @@ const grpName = (id) => (GROUPS.find((g) => g.id === id) || {}).ko || "";
 const catLine = (p) => CAT_KO[p.c] + (p.g ? " · " + grpName(p.g) : "");
 const byName = (n) => P.find((p) => p.n === n);
 function prep(list) {
-  P = list.map((p, i) => ({ ...p, id: slugOf(p, i) }));
+  P = list.map((p, i) => ({ ...p, d: String(p.d || "").replace(/\s+—\s+/g, ", "), id: slugOf(p, i) }));
   P.forEach((p) => { const a = appsOf(p); p.score = p.c === "sensors" ? (a[0] ? a[0].popularity : 0) + a.length * 3 : p.c === "gateways" ? 95 : 40; });
   /* 베스트셀러 — 모넷코리아 실제 판매 상위 5종 (2026-11-05 지시). 나머지는 BEST 표시 없음 */
   P.forEach((p) => { const r = BEST.findIndex((b) => b.n === p.n); p.hot = r >= 0; p.rank = r >= 0 ? r + 1 : 0; if (r >= 0) p.score += 1000 - r * 10; });
@@ -163,25 +164,25 @@ const HASHMODE = !!window.__MALL_STANDALONE || !/^https?:$/.test(location.protoc
 const RES_TYPES = { WP: { ko: "기술 백서", price: 290000 }, DG: { ko: "설계 · 제안 가이드", price: 190000 }, IP: { ko: "산업 적용 제안서", price: 120000 } };
 const RES = [
   { code: "WP-01", k: "WP", cat: "연동 · 기술", t: "무선센서 Modbus 연동 백서", f: "modbus-integration-whitepaper", pg: 43, d: "PLC · BMS · SCADA 에 무선 센서를 붙이는 Modbus TCP · RTU 구성 4종과 콜드 데이터 보존, 센서 자기진단 설계.", hot: 1 },
-  { code: "DG-01", k: "DG", cat: "산업 · 제조", t: "무선 IoT 설비 예지보전 제안 가이드", f: "predictive-maintenance-guide", pg: 20, d: "진동 · 전류 · 온도로 고장을 7~30일 전에 잡는 예지보전 — 실제 제안서가 만들어지는 과정 그대로.", hot: 1 },
-  { code: "DG-02", k: "DG", cat: "의료 · 바이오", t: "의약품·백신 냉장 및 초저온 보관 온도 감시 제안서", f: "temp-pharma-ultracold", pg: 25, d: "2~8℃ 냉장고부터 -80℃ 초저온 프리저까지 — 센서 배치 · 교정 · 기록 보관 기준.", hot: 1 },
+  { code: "DG-01", k: "DG", cat: "산업 · 제조", t: "무선 IoT 설비 예지보전 제안 가이드", f: "predictive-maintenance-guide", pg: 20, d: "진동 · 전류 · 온도로 고장을 7~30일 전에 잡는 예지보전. 실제 제안서가 만들어지는 과정을 그대로 담았습니다.", hot: 1 },
+  { code: "DG-02", k: "DG", cat: "의료 · 바이오", t: "의약품·백신 냉장 및 초저온 보관 온도 감시 제안서", f: "temp-pharma-ultracold", pg: 25, d: "2~8℃ 냉장고부터 -80℃ 초저온 프리저까지, 센서 배치와 교정, 기록 보관 기준을 정리했습니다.", hot: 1 },
   { code: "DG-03", k: "DG", cat: "산업 · 제조", t: "방폭 구역 온도 감시 IECEx Zone 1 제안서", f: "temp-hazardous-iecex", pg: 24, d: "IECEx Zone 1 인증 센서로 위험 구역의 온도를 배선 없이 감시하는 설계와 인증 요건." },
-  { code: "DG-04", k: "DG", cat: "콜드체인 · 유통", t: "콜드체인·냉동물류창고 온도 감시 제안서", f: "temp-coldchain-warehouse", pg: 24, d: "냉동 · 냉장 창고와 도크의 온도 이력을 끊김 없이 — HACCP · GDP 대응 기록 설계.", hot: 1 },
+  { code: "DG-04", k: "DG", cat: "콜드체인 · 유통", t: "콜드체인·냉동물류창고 온도 감시 제안서", f: "temp-coldchain-warehouse", pg: 24, d: "냉동 · 냉장 창고와 도크의 온도 이력을 끊김 없이 남기는 HACCP · GDP 대응 기록 설계.", hot: 1 },
   { code: "IP-01", k: "IP", cat: "산업 · 제조", t: "데이터센터 · IDC 모니터링", f: "data-center-monitoring", pg: 16, d: "랙 단위 열편차와 과냉각을 실측해, 더 차갑게가 아니라 정확하게 냉방하는 방법." },
   { code: "IP-02", k: "IP", cat: "산업 · 제조", t: "공장 설비 예지보전", f: "factory-predictive-maintenance", pg: 16, d: "모터 · 펌프 · 감속기의 진동과 전류로 고장을 7~30일 전에 잡아내는 예지보전 설계." },
   { code: "IP-03", k: "IP", cat: "산업 · 제조", t: "진동 · 구조안전 계측", f: "vibration-structural-safety", pg: 16, d: "배관 피로, 구조 부재 변형, 회전설비 진동을 24bit 정밀도로 무선 계측합니다." },
   { code: "IP-04", k: "IP", cat: "산업 · 제조", t: "건설 · 토목 구조물 모니터링", f: "construction-shm", pg: 16, d: "전원도 통신도 없는 초기 현장부터 사면 · 흙막이 · 양생 구간을 24시간 계측합니다." },
   { code: "IP-05", k: "IP", cat: "산업 · 제조", t: "UPS · ESS · 전력 설비 모니터링", f: "energy-ups-ess", pg: 16, d: "배터리 열화와 수배전반 과열을 활선 상태에서 비접촉으로 감시합니다." },
   { code: "IP-06", k: "IP", cat: "시설 · 안전", t: "무선 화재경보 · 소방 안전", f: "fire-safety-wireless-alarm", pg: 16, d: "기존 수신반은 그대로 두고 경보만 담당자 휴대폰으로 직접 전달합니다." },
-  { code: "IP-07", k: "IP", cat: "시설 · 안전", t: "스마트 FM · 시설관리", f: "smart-facility-management", pg: 16, d: "민원이 들어오기 전에 먼저 아는 예지형 FM — 관리 성과가 리포트로 남습니다." },
+  { code: "IP-07", k: "IP", cat: "시설 · 안전", t: "스마트 FM · 시설관리", f: "smart-facility-management", pg: 16, d: "민원이 들어오기 전에 먼저 아는 예지형 FM. 관리 성과가 리포트로 남습니다." },
   { code: "IP-08", k: "IP", cat: "시설 · 안전", t: "공공 · 국방 시설 안전관리", f: "public-defense-facility", pg: 16, d: "배선 공사 승인 없이, 보안 요건을 충족하는 암호화 무선 계측으로 시작합니다." },
   { code: "IP-09", k: "IP", cat: "시설 · 안전", t: "호텔 · 리조트 시설 모니터링", f: "hotel-resort-monitoring", pg: 16, d: "객실 누수와 빈 객실 냉난방, 비수기 동파를 컴플레인 전에 잡아냅니다." },
   { code: "IP-10", k: "IP", cat: "시설 · 안전", t: "학교 · 교회 · 공공시설 모니터링", f: "school-church-public", pg: 16, d: "방학 · 주말 무인 기간의 동파와 누수를 감시하고 급식실 온도 기록을 자동으로 남깁니다." },
-  { code: "IP-11", k: "IP", cat: "온도 · 환경", t: "온도 · 누수 · 동파 · HVAC 통합", f: "hvac-leak-freeze-monitoring", pg: 16, d: "배관이 얼기 전에, 물이 차기 전에 — 전기실 · 기계실 · 공조 · 저온창고 통합 감시." },
+  { code: "IP-11", k: "IP", cat: "온도 · 환경", t: "온도 · 누수 · 동파 · HVAC 통합", f: "hvac-leak-freeze-monitoring", pg: 16, d: "배관이 얼기 전에, 물이 차기 전에. 전기실 · 기계실 · 공조 · 저온창고를 한 번에 감시합니다." },
   { code: "IP-12", k: "IP", cat: "온도 · 환경", t: "농업 · 골프장 토양 수분", f: "agriculture-golf-soil", pg: 16, d: "물을 얼마나 줄지 감이 아니라 수분 포텐셜(kPa) 수치로 결정합니다." },
   { code: "IP-13", k: "IP", cat: "의료 · 바이오", t: "바이오 · 제약 유틸리티 모니터링", f: "bio-pharma-utility-monitoring", pg: 16, d: "GMP 환경의 온습도 · 차압 · 유틸리티를 자동 기록해 감사 대응 근거를 남깁니다." },
   { code: "IP-14", k: "IP", cat: "의료 · 바이오", t: "실버타운 · 시니어 안전", f: "senior-care-monitoring", pg: 16, d: "몸에 아무것도 차지 않아도 되는 비접촉 센서로 어르신의 일상을 살핍니다." },
-  { code: "IP-15", k: "IP", cat: "콜드체인 · 유통", t: "콜드체인 · 물류 온도 관리", f: "cold-chain-logistics", pg: 16, d: "창고에서 차량까지 온도 이력이 끊기지 않게 — HACCP 기록을 자동으로 남깁니다." },
+  { code: "IP-15", k: "IP", cat: "콜드체인 · 유통", t: "콜드체인 · 물류 온도 관리", f: "cold-chain-logistics", pg: 16, d: "창고에서 차량까지 온도 이력이 끊기지 않게, HACCP 기록을 자동으로 남깁니다." },
   { code: "IP-16", k: "IP", cat: "콜드체인 · 유통", t: "리테일 · 매장 · 외식 온도 관리", f: "retail-store-foodservice", pg: 16, d: "여러 점포의 냉장 진열대와 주방 냉동고를 본사 한 화면에서 보고 HACCP 기록을 자동화합니다." },
 ];
 const RES_COVER = (r) => ASSET("/images/mall/res/" + r.f + ".png");
@@ -198,7 +199,7 @@ function resCard(r, mini) {
 }
 function resChannels() {
   return `<ol class="m-chan">
-    <li><i>01</i><b>회사 이메일 인증</b><span>회사 도메인 메일로 신청하시면 즉시 무상 발급 — 서명 링크가 메일로 함께 전달됩니다.</span><em>즉시 · 무상</em></li>
+    <li><i>01</i><b>회사 이메일 인증</b><span>회사 도메인 메일로 신청하시면 바로 무상으로 받으실 수 있고, 다운로드 링크도 메일로 보내 드립니다.</span><em>즉시 · 무상</em></li>
     <li><i>02</i><b>견적 · 프로젝트 고객</b><span>견적 요청 시 「견적과 함께 받기」로 고른 자료를 공식 견적서와 함께 보내 드립니다.</span><em>견적 회신 시 · 무상</em></li>
     <li><i>03</i><b>SI · 설치 파트너사</b><span>파트너사에는 전 자료와 편집 가능한 원본, 신규 자료 선공개를 제공합니다.</span><em>상시 · 무상 · <a href="/mall/help#member" data-link>파트너 등급 안내 ›</a></em></li>
   </ol>`;
@@ -357,7 +358,7 @@ function row(p) {
 }
 const crumbs = (list) => `<nav class="m-crumb" aria-label="현재 위치"><a href="/mall" data-link>홈</a>${list.map(([t, h]) => h ? ` › <a href="${h}" data-link>${esc(t)}</a>` : ` › <b>${esc(t)}</b>`).join("")}</nav>`;
 const sec = (title, sub, inner, more) => `<section class="m-sec"><div class="m-sec__hd"><h2>${title}</h2>${sub ? `<span>${sub}</span>` : ""}${more ? `<a href="${more}" data-link class="m-more">전체 보기 ›</a>` : ""}</div>${inner}</section>`;
-function setTitle(t) { document.title = (t ? t + " | " : "") + "모넷 리소스 센터 · 모넷코리아"; }
+function setTitle(t) { t = String(t || "").replace(/\s*—\s*/g, " "); document.title = (t ? t + " | " : "") + "모넷 리소스 센터 · 모넷코리아"; }
 
 /* ───────── 화면: 홈 ───────── */
 function vHome() {
@@ -367,12 +368,12 @@ function vHome() {
   const bests = BEST.map((b) => ({ ...b, p: byName(b.n) })).filter((b) => b.p);
   return `<section class="m-rcbar"><div class="m-in m-rcbar__in"><span class="m-rcbar__eye">MONNIT KOREA RESOURCE CENTER</span><b>설계 · 제안 자료 ${RES.length}종과 검증된 센서 구성, 공식 견적까지 한곳에서</b><a href="/mall/resources" data-link>기술 자료실 ›</a></div></section>
     <section class="m-bestband"><div class="m-in">
-      <div class="m-bestband__hd"><span>MONNIT KOREA BEST SELLER</span><h1>현장에서 가장 많이 선택하는 센서</h1><p>모넷코리아 판매 상위 5종 — 담으시면 게이트웨이와 플랫폼 라이선스가 함께 담깁니다.</p></div>
+      <div class="m-bestband__hd"><span>MONNIT KOREA BEST SELLER</span><h1>현장에서 가장 많이 선택하는 센서</h1><p>모넷코리아에서 가장 많이 판매되는 5종입니다. 담으시면 게이트웨이와 플랫폼 라이선스가 함께 담깁니다.</p></div>
       <div class="m-best5">${bests.map((b, i) => `<article class="m-best" data-go="/mall/product/${esc(b.p.id)}"><i class="m-best__rk">${i + 1}</i>${ico(b.p, "m-ico--lg")}<b>${esc(b.label)}</b><small>${esc(b.why)}</small>
         <button class="m-btn m-btn--sm m-btn--accent" type="button" data-add="${esc(b.p.id)}">견적함 담기</button></article>`).join("")}</div>
     </div></section>
     <div class="m-in">
-      ${sec("업종별 추천 구성", "우리 현장과 비슷한 업종을 고르면 필요한 구성이 한 번에 — 게이트웨이·라이선스 포함", `<div class="m-inds m-inds--snap">${INDS.map(indCard).join("")}</div>`, "/mall/industry")}
+      ${sec("업종별 추천 구성", "비슷한 업종을 고르시면 게이트웨이와 라이선스까지 필요한 구성을 한 번에 담을 수 있습니다", `<div class="m-inds m-inds--snap">${INDS.map(indCard).join("")}</div>`, "/mall/industry")}
       ${resBand()}
       <div class="m-quick3"><a href="/mall/quick" data-link><b>모델명으로 빠른 견적</b><span>구매 목록을 붙여 넣으면 한 번에 담아요 ›</span></a><a href="/mall/quote" data-link><b>구성 상담 요청</b><span>무엇이 필요한지 몰라도 현장만 알려 주세요 ›</span></a><a href="${ME && ME.member ? "/mall/my" : "/account?next=/mall"}" ${ME && ME.member ? "data-link" : ""}><b>${ME && ME.member ? esc(ME.member.email) + " 님" : "기업 구매 회원"}</b><span>${ME && ME.member ? tierOf().name + " 등급 혜택 보기 ›" : "로그인하면 견적 정보가 자동으로 채워져요 ›"}</span></a></div>
     </div>
@@ -389,7 +390,7 @@ function vHome() {
       <section class="m-quickcats">${[["sensors", "무선 센서", "온도"], ["gateways", "게이트웨이", "이더넷 게이트웨이"], ["software", "플랫폼·SW", "iMonnit 클라우드 관리 SW"], ["accessories", "액세서리", "로컬 경보기"]].map(([c, t, n]) => { const f = byName(n) || P.find((p) => p.c === c); return `<a href="/mall/category/${c}" data-link>${f ? ico(f) : ""}${t}<small>${P.filter((p) => p.c === c).length}종</small></a>`; }).join("")}
         ${GROUPS.slice(0, 6).map((g) => { const f = P.find((p) => p.g === g.id); return `<a href="/mall/category/sensors?g=${g.id}" data-link>${f ? ico(f) : ""}${esc(g.ko)}<small>${P.filter((p) => p.g === g.id).length}종</small></a>`; }).join("")}</section>
       <ul class="m-benefits"><li><b>공식 견적서</b>영업일 1일 회신</li><li><b>세금계산서</b>발행 · 지급 조건 협의</li><li><b>무선 940MHz</b>배선 공사 없이 설치</li><li><b>기본 보증 1년</b>설치 후 기술지원</li></ul>
-      ${sec("현장별 추천 패키지", "자주 쓰는 구성을 한 번에 견적 — 수량은 견적 때 현장에 맞춰 조정", `<div class="m-packs">${PACKS.slice(0, 3).map(packCard).join("")}</div>`, "/mall/packages")}
+      ${sec("현장별 추천 패키지", "자주 찾으시는 구성입니다. 수량은 견적 단계에서 현장에 맞춰 조정합니다", `<div class="m-packs">${PACKS.slice(0, 3).map(packCard).join("")}</div>`, "/mall/packages")}
       <section class="m-sec" id="events"><div class="m-sec__hd"><h2>기획전</h2><span>지금 문의가 많은 솔루션</span></div><div class="m-events">${BANNERS.map((b) => `<a href="${b.href}"><img src="${ASSET(b.img)}" alt="" loading="lazy"><div><span class="m-tag">${esc(b.tag)}</span><b>${esc(b.title)}</b><small>${esc(b.sub)}</small></div></a>`).join("")}</div></section>
       ${sec("산업별 솔루션", "현장에 맞는 센서를 용도로 찾기", `<div class="m-apps">${APPS.slice().sort((a, b) => b.popularity - a.popularity).slice(0, 12).map((a) => `<a href="/mall/solution/${esc(a.id)}" data-link><b>${esc(a.name)}</b><small>${esc(a.desc || "")}</small></a>`).join("")}</div>`, "/mall/solutions")}
       ${sec("기업 구매, 이렇게 진행돼요", "", stepsHTML())}
@@ -479,7 +480,7 @@ function vProduct(id) {
       ${p.c === "sensors" ? `<div class="m-diagram"><div><b>${esc(p.n)} 센서</b><small>현장에 부착 · 무선 송신</small></div><i>→</i><div><b>IoT 게이트웨이</b><small>반경 내 센서 250개</small></div><i>→</i><div><b>플랫폼</b><small>iMonnit · Scube</small></div><i>→</i><div><b>담당자 알림</b><small>문자 · 이메일 · 대시보드</small></div></div>` : ""}</section>
     <section class="m-tab" id="t-spec"><h2>사양 · 자료</h2><table class="m-spec"><tbody>
       <tr><th>제품군</th><td>${esc(catLine(p))}</td></tr><tr><th>통신</th><td>${p.c === "software" ? "클라우드 · 온프레미스 (제품별 상이)" : "Monnit ALTA 무선 · 940MHz (국내)"}</td></tr>
-      <tr><th>용도</th><td>${esc(p.d)}</td></tr><tr><th>상세 사양</th><td>${p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener">${p.p ? "데이터시트(PDF)" : "제품 정보 페이지"} 열기 ›</a>` : "견적 회신 때 데이터시트를 함께 보내 드립니다."} <span class="m-muted">— 측정 범위 · 정확도 · 배터리 · 인증은 모델별 데이터시트 기준</span></td></tr></tbody></table>
+      <tr><th>용도</th><td>${esc(p.d)}</td></tr><tr><th>상세 사양</th><td>${p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener">${p.p ? "데이터시트(PDF)" : "제품 정보 페이지"} 열기 ›</a>` : "견적 회신 때 데이터시트를 함께 보내 드립니다."} <span class="m-muted">(측정 범위 · 정확도 · 배터리 · 인증은 모델별 데이터시트 기준)</span></td></tr></tbody></table>
       <div class="m-files">${p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener"><i>${p.p ? "PDF" : "WEB"}</i>${esc(p.n)} ${p.p ? "데이터시트" : "제품 정보"}<span>받기 ›</span></a>` : ""}<a href="/guides"><i>DOC</i>설치 · 기술지원 가이드<span>보기 ›</span></a><a href="/kb/scube"><i>DOC</i>Scube 플랫폼 매뉴얼<span>보기 ›</span></a></div></section>
     <section class="m-tab" id="t-apps"><h2>활용 분야</h2>${apps.length ? `<div class="m-apps m-apps--sm">${apps.map((a) => `<a href="/mall/solution/${esc(a.id)}" data-link><b>${esc(a.name)}</b><small>${esc(a.desc || "")}</small></a>`).join("")}</div>` : `<p class="m-muted">현장 조건에 맞춰 활용 방법을 안내드려요.</p>`}</section>
     <section class="m-tab" id="t-buy"><h2>구매 · 납품 안내</h2>${stepsHTML()}
@@ -562,7 +563,7 @@ function reqBlock() {
   };
   return `<section class="m-reqbox"><div class="m-reqbox__hd"><b>필수 구성</b><span>센서 데이터를 받으려면 게이트웨이와 플랫폼 라이선스가 꼭 필요합니다 · 종류만 골라 주세요</span></div>
     ${block("① 게이트웨이", REQ_GW, "cgw")}${block("② 플랫폼 라이선스", REQ_SW, "csw")}
-    <p class="m-reqbox__warn">ALTA 센서는 ALTA 게이트웨이와만 통신합니다 — 타사 게이트웨이 · 타사 센서와는 연결되지 않습니다.</p></section>`;
+    <p class="m-reqbox__warn">ALTA 센서는 ALTA 게이트웨이와만 통신합니다. 타사 게이트웨이나 타사 센서와는 연결되지 않습니다.</p></section>`;
 }
 function vCart() {
   setTitle("견적함");
@@ -607,7 +608,7 @@ function vQuote(qs) {
         <label>설치 · 교육<select id="fInst"><option>설치 · 교육 포함 견적</option><option>제품만 (자체 설치)</option><option>상담 후 결정</option></select></label>
         <label>지급 조건 희망<select id="fPay"><option>세금계산서 후 계좌이체</option><option>회사 구매 규정에 따름 (협의)</option></select></label></div>
       <fieldset class="m-docs"><legend>함께 받을 서류</legend>${["공식 견적서", "사업자등록증 사본", "통장 사본", "제품 카탈로그 · 데이터시트", "납품확인서 양식"].map((d, i) => `<label><input type="checkbox" class="fDoc" value="${d}" ${i === 0 ? "checked" : ""}>${d}</label>`).join("")}</fieldset>
-      <p class="m-note m-note--res">${RESQ.length ? `<b>리소스 센터 자료 ${RESQ.length}종</b>을 견적서와 함께 무상으로 보내 드립니다 — ${RESQ.map((c) => { const x = RES.find((y) => y.code === c); return x ? esc(x.t) : ""; }).filter(Boolean).join(" · ")}` : `견적 고객께는 <a href="/mall/resources" data-link>리소스 센터</a>의 설계 · 제안 자료를 무상으로 함께 보내 드립니다. 「견적과 함께 받기」로 골라 주세요.`}</p>
+      <p class="m-note m-note--res">${RESQ.length ? `<b>리소스 센터 자료 ${RESQ.length}종</b>을 견적서와 함께 무상으로 보내 드립니다: ${RESQ.map((c) => { const x = RES.find((y) => y.code === c); return x ? esc(x.t) : ""; }).filter(Boolean).join(" · ")}` : `견적 고객께는 <a href="/mall/resources" data-link>리소스 센터</a>의 설계 · 제안 자료를 무상으로 함께 보내 드립니다. 「견적과 함께 받기」로 골라 주세요.`}</p>
       <label class="m-form__full">요청 사항<textarea id="fMemo" placeholder="현장 상황 · 수량 근거 · 호환 장비 · 품의 일정 등">${esc([topic && `[${topic}] 구성 상담`, miss.length && "[목록에 없는 품목] " + miss.join(" / ")].filter(Boolean).join("\n"))}</textarea></label></section>
     </div>
     <aside class="m-sum"><h3>요청 확인</h3><dl><div><dt>품목</dt><dd>${items.length ? items.length + "종 · " + items.reduce((a, c) => a + c.qty, 0) + "개" : "구성 상담"}</dd></div><div><dt>회신</dt><dd>영업일 1일 이내</dd></div><div><dt>받는 곳</dt><dd>입력하신 이메일</dd></div></dl>
@@ -642,7 +643,7 @@ function vCompare() {
   const ps = CMP.map((id) => P.find((p) => p.id === id)).filter(Boolean);
   if (!ps.length) return `<div class="m-in">${crumbs([["제품 비교", ""]])}<div class="m-empty"><b>비교함이 비어 있어요.</b><p>제품 카드의 「비교」를 체크해 최대 4개까지 비교하세요.</p><a class="m-btn" href="/mall/category/sensors" data-link>제품 보러 가기</a></div></div>`;
   const rows = [["분류", (p) => esc(catLine(p))], ["설명", (p) => esc(p.d)], ["주요 특징", (p) => (FACTS[p.c] || []).map(([a, b]) => `<b>${esc(a)}</b> ${esc(b)}`).join("<br>")],
-    ["주요 활용 분야", (p) => appsOf(p).slice(0, 5).map((a) => esc(a.name)).join(" · ") || "—"], ["사양 자료", (p) => p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener">${p.p ? "데이터시트(PDF)" : "제품 정보"} ›</a>` : "견적 회신 시 제공"], ["판매가 · 납기", () => "견적 문의"]];
+    ["주요 활용 분야", (p) => appsOf(p).slice(0, 5).map((a) => esc(a.name)).join(" · ") || "-"], ["사양 자료", (p) => p.u ? `<a href="${esc(p.u)}" target="_blank" rel="noopener">${p.p ? "데이터시트(PDF)" : "제품 정보"} ›</a>` : "견적 회신 시 제공"], ["판매가 · 납기", () => "견적 문의"]];
   return `<div class="m-in">${crumbs([["제품 비교", ""]])}<div class="m-catbanner"><div><h1>제품 비교</h1><p>${ps.length}개 제품</p></div><button class="m-btn m-btn--w" type="button" id="cmpAll">모두 견적함 담기</button></div>
     <div class="m-cmpwrap"><table class="m-cmptbl"><thead><tr><th></th>${ps.map((p) => `<th><button class="m-x" type="button" data-uncmp="${esc(p.id)}" aria-label="빼기">×</button>${ico(p, "m-ico--md")}<a href="/mall/product/${esc(p.id)}" data-link>${esc(p.n)}</a></th>`).join("")}</tr></thead>
     <tbody>${rows.map(([k, f]) => `<tr><th>${k}</th>${ps.map((p) => `<td>${f(p)}</td>`).join("")}</tr>`).join("")}<tr><th></th>${ps.map((p) => `<td><button class="m-btn m-btn--sm" type="button" data-add="${esc(p.id)}">견적함 담기</button></td>`).join("")}</tr></tbody></table></div></div>`;
@@ -774,7 +775,7 @@ function quickAdd() {
 }
 function shareCart() {
   const u = (HASHMODE ? "https://monnit.co.kr" : location.origin) + "/mall/cart?items=" + encodeURIComponent(CART.map((c) => c.id + "*" + c.qty).join(","));
-  (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast("결재용 링크를 복사했어요 — 같은 구성으로 열립니다"), () => prompt("아래 링크를 복사하세요", u));
+  (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast("결재용 링크를 복사했어요. 같은 구성으로 열립니다"), () => prompt("아래 링크를 복사하세요", u));
 }
 function readForm() {
   const g = (id) => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
@@ -853,7 +854,7 @@ document.addEventListener("click", (e) => {
     evc("i", k.id); it.forEach((x) => add(x.p.id, x.q, true)); ind.classList.add("is-done"); ind.textContent = `✓ ${it.length}개 품목을 담았어요`;
     setTimeout(() => toast(`${k.name} 구성 ${it.length}개 품목을 견적함에 담았어요`, it[0].p), Math.min(it.length * 70, 500)); return; }
   const pk = e.target.closest("[data-pack]"); if (pk) { const k = PACKS.find((x) => x.id === pk.dataset.pack); k.items.forEach(([n, q]) => { const p = byName(n); if (p) add(p.id, q, true); }); toast(`${k.name}를 견적함에 담았어요`); return; }
-  const sp = e.target.closest("[data-solpack]"); if (sp) { const ap = APPS.find((x) => x.id === sp.dataset.solpack); const ps = prodsOfApp(ap).slice(0, 3); [...ps, byName("이더넷 게이트웨이"), byName("iMonnit 클라우드 관리 SW")].filter(Boolean).forEach((p) => add(p.id, 1, true)); toast("추천 구성을 견적함에 담았어요 — 수량은 견적함에서 조정하세요"); return; }
+  const sp = e.target.closest("[data-solpack]"); if (sp) { const ap = APPS.find((x) => x.id === sp.dataset.solpack); const ps = prodsOfApp(ap).slice(0, 3); [...ps, byName("이더넷 게이트웨이"), byName("iMonnit 클라우드 관리 SW")].filter(Boolean).forEach((p) => add(p.id, 1, true)); toast("추천 구성을 견적함에 담았어요. 수량은 견적함에서 조정하세요"); return; }
   const uc = e.target.closest("[data-uncmp]"); if (uc) { toggleCmp(uc.dataset.uncmp, false); route(); return; }
   const ro = e.target.closest("[data-reorder]"); if (ro) { const h = HIST.find((x) => x.no === ro.dataset.reorder); (h.items || []).forEach((it) => add(it.id, it.qty, true)); go("/mall/cart"); return; }
   const card = e.target.closest("[data-go]"); if (card && !e.target.closest("a,button,input,label")) { go(card.dataset.go); return; }

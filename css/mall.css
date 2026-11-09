@@ -797,3 +797,10 @@ html[lang=en] .m-gnb a,html[lang=en] .m-tabbar a{white-space:nowrap}
 .m-pd #pdTabs,.m-tabs{overflow-x:auto;scrollbar-width:none}
 .m-util nav a{white-space:nowrap}
 @media (max-width:700px){.m-util nav{gap:12px;overflow-x:auto;scrollbar-width:none;max-width:100%}.m-util nav::-webkit-scrollbar{display:none}html[lang=en] .m-util nav a[href^="tel"]{display:none}}
+/* 모니 챗봇과 겹치지 않게 (2026-11-09) */
+.m-totop{bottom:110px}
+@media (max-width:700px){
+  .pc-launcher{bottom:calc(74px + env(safe-area-inset-bottom))!important;right:10px!important}
+  .m-totop{right:auto;left:14px;bottom:calc(78px + env(safe-area-inset-bottom))}
+  html.pc-chat-open .m-tabbar{display:none}
+}
