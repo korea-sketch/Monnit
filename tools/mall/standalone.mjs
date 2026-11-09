@@ -29,6 +29,7 @@ html = html
   .replace(/<link rel="stylesheet" href="\/css\/mall\.css[^"]*">/, () => `<style>\n${css}\n</style>`)
   .replace(/<img src="\/logo\.png"/g, () => `<img src="${assets["/logo.png"] || ""}"`)
   .replace(/<script src="\/js\/store-data\.js[^"]*"><\/script>/, () => `<script>window.__MALL_STANDALONE = true; window.__MALL_API = "https://monnit.co.kr"; window.__MALL_ASSETS = ${JSON.stringify(assets)};</script>\n<script>\n${rd("js/store-data.js")}\n</script>`)
+  .replace(/<script src="\/js\/mall-i18n\.js[^"]*"><\/script>/, () => `<script>\n${rd("js/mall-en.js")}\n${rd("js/mall-i18n.js").replace(/<\/script/gi, "<\\/script")}\n</script>`)
   .replace(/<script src="\/js\/mall\.js[^"]*"><\/script>/, () => `<script>\n${js.replace(/<\/script/gi, "<\\/script")}\n</script>`);
 /* 머리·꼬리의 사이트 링크(/who-we-are 등)는 mall.js 가 monnit.co.kr 새 창으로 연다 */
 const out = path.join(ROOT, "dist-mall");

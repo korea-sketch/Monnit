@@ -146,7 +146,7 @@ function reqSheet() {
     <div class="m-req__grp"><h4>② 플랫폼 라이선스 <em>필수 · 1종</em></h4>${opts(REQ_SW, "rsw")}</div>
     <p class="m-req__warn">타사 게이트웨이에 ALTA 센서를 붙이거나, ALTA 게이트웨이에 타사 센서를 붙이는 것은 지원되지 않습니다.</p>
     <div class="m-req__btns"><button class="m-btn m-btn--line" type="button" data-reqclose>계속 둘러보기</button><a class="m-btn" href="/mall/cart" data-link data-reqgo>견적함 보기</a></div></div>`;
-  el.hidden = false; requestAnimationFrame(() => el.classList.add("is-on"));
+  el.hidden = false; requestAnimationFrame(() => { el.classList.add("is-on"); fx(); });
   el.onchange = (e) => { const r = e.target.closest("input[type=radio]"); if (!r) return; swapReq(r.name === "rgw" ? REQ_GW : REQ_SW, r.value); badge(); if (L().pathname === "/mall/cart") route(); };
   el.onclick = (e) => { if (e.target.closest("[data-reqclose],[data-reqgo]")) { el.classList.remove("is-on"); setTimeout(() => (el.hidden = true), 250); } };
 }
@@ -207,7 +207,7 @@ function resBand() {
   const pick = RES.filter((r) => r.hot).slice(0, 4);
   return `<section class="m-resband"><div class="m-resband__hd"><span>MONNIT KOREA RESOURCE CENTER</span><h2>현장 설계 · 제안 자료 라이브러리</h2>
       <p>모넷코리아 엔지니어가 실제 프로젝트에서 쓰는 기술 백서 · 설계 가이드 · 산업 적용 제안서 ${RES.length}종. 모든 자료는 유상 자료이며, 기업 회원과 견적 고객께는 무상으로 제공합니다.</p>
-      <div class="m-resband__stats"><b>${RES.length}<small>종</small></b><b>${RES.reduce((a, r) => a + r.pg, 0)}<small>쪽</small></b><b>${new Set(RES.map((r) => r.cat)).size}<small>개 분야</small></b></div>
+      <div class="m-resband__stats"><b><span data-count="${RES.length}">${RES.length}</span><small>종</small></b><b><span data-count="${RES.reduce((a, r) => a + r.pg, 0)}">${RES.reduce((a, r) => a + r.pg, 0)}</span><small>쪽</small></b><b><span data-count="${new Set(RES.map((r) => r.cat)).size}">${new Set(RES.map((r) => r.cat)).size}</span><small>개 분야</small></b></div>
       <a class="m-btn m-btn--accent" href="/mall/resources" data-link>자료실 전체 보기 ›</a></div>
     <div class="m-resgrid m-resgrid--band">${pick.map((r) => resCard(r, true)).join("")}</div></section>`;
 }
@@ -251,7 +251,7 @@ function resSheet(code) {
     <label class="m-resform__ok"><input type="checkbox" id="rOk"><span>자료 발송 · 상담 안내 목적의 개인정보 수집 · 이용에 동의합니다 (<a href="/privacy.html" target="_blank" rel="noopener">처리방침</a>)</span></label>
     <p class="m-resform__msg" id="rMsg">회사 도메인 메일은 즉시 발급, 개인 메일(gmail · naver 등)은 담당자 확인 후 영업일 1일 안에 보내 드립니다.</p>
     <div class="m-req__btns"><button class="m-btn m-btn--line" type="button" data-reqclose>닫기</button><button class="m-btn" id="rSend" type="submit">무상으로 받기</button></div></form>`;
-  el.hidden = false; requestAnimationFrame(() => el.classList.add("is-on"));
+  el.hidden = false; requestAnimationFrame(() => { el.classList.add("is-on"); fx(); });
   const close = () => { el.classList.remove("is-on"); setTimeout(() => (el.hidden = true), 250); };
   el.onclick = (e) => { if (e.target.closest("[data-reqclose]")) close(); };
   $("#rPh", el).addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, "").slice(0, 11); e.target.value = d.length < 4 ? d : d.length < 8 ? d.replace(/(\d{3})(\d+)/, "$1-$2") : d.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3"); });
@@ -374,7 +374,6 @@ function vHome() {
     <div class="m-in">
       ${sec("업종별 추천 구성", "우리 현장과 비슷한 업종을 고르면 필요한 구성이 한 번에 — 게이트웨이·라이선스 포함", `<div class="m-inds m-inds--snap">${INDS.map(indCard).join("")}</div>`, "/mall/industry")}
       ${resBand()}
-      ${sysHTML()}
       <div class="m-quick3"><a href="/mall/quick" data-link><b>모델명으로 빠른 견적</b><span>구매 목록을 붙여 넣으면 한 번에 담아요 ›</span></a><a href="/mall/quote" data-link><b>구성 상담 요청</b><span>무엇이 필요한지 몰라도 현장만 알려 주세요 ›</span></a><a href="${ME && ME.member ? "/mall/my" : "/account?next=/mall"}" ${ME && ME.member ? "data-link" : ""}><b>${ME && ME.member ? esc(ME.member.email) + " 님" : "기업 구매 회원"}</b><span>${ME && ME.member ? tierOf().name + " 등급 혜택 보기 ›" : "로그인하면 견적 정보가 자동으로 채워져요 ›"}</span></a></div>
     </div>
     <section class="m-hero" hidden><div class="m-in m-hero__in">
@@ -489,6 +488,7 @@ function vProduct(id) {
       <tr><th>납품 · 설치</th><td>납기는 재고와 수량에 따라 견적서에 기재합니다. 설치 · 플랫폼 교육은 견적에 포함할 수 있습니다.</td></tr>
       <tr><th>교환 · 반품</th><td>제품 이상은 납품 후 담당자에게 연락 주시면 확인 후 교환 · 수리해 드립니다. 세부 조건은 견적서 · 계약서 기준입니다.</td></tr>
       <tr><th>보증 · A/S</th><td>기본 보증 1년 · 기술지원 창구 <a href="/guides">monnit.co.kr/guides</a></td></tr></tbody></table></section>
+    ${p.c === "sensors" || p.c === "gateways" ? `<details class="m-sysfold"><summary>센서 · 게이트웨이 · 플랫폼 라이선스 구성 안내</summary>${sysHTML()}</details>` : ""}
     <section class="m-tab" id="t-qna"><h2>제품 문의</h2><form class="m-form m-form--inline" id="qnaForm" novalidate>
       <input id="qaCo" placeholder="회사 · 기관명 *"><input id="qaNm" placeholder="담당자 *"><input id="qaPh" type="tel" placeholder="연락처 *"><input id="qaEm" type="email" placeholder="이메일">
       <textarea id="qaMsg" placeholder="${esc(p.n)}에 대해 궁금한 점 (사양 · 호환 · 설치 환경 등)"></textarea>
@@ -574,6 +574,7 @@ function vCart() {
     <div class="m-cartbar"><label class="m-chk"><input type="checkbox" id="selAll" checked>전체 선택</label><button class="m-btn m-btn--sm m-btn--line" type="button" id="delSel">선택 삭제</button><span class="m-sp"></span>
       ${items.length ? `<button class="m-btn m-btn--sm m-btn--line" type="button" id="cPrint">견적 요청서 인쇄 · PDF</button><button class="m-btn m-btn--sm m-btn--line" type="button" id="cShare">결재용 링크 복사</button>` : ""}</div>
     ${reqBlock()}
+    <details class="m-sysfold"><summary>센서 · 게이트웨이 · 플랫폼 라이선스 구성 안내</summary>${sysHTML()}</details>
     ${items.length ? `<table class="m-carttbl"><thead><tr><th></th><th>품목</th><th>수량</th><th>단가</th><th>금액</th><th></th></tr></thead><tbody>
       ${items.filter((c) => !(needsReq() && isReqItem(c.p) && [...REQ_GW, ...REQ_SW].some((o) => o.n === c.p.n))).map((c) => `<tr><td><input type="checkbox" class="selOne" value="${esc(c.id)}" checked></td><td><a class="m-cartitem" href="/mall/product/${esc(c.id)}" data-link>${ico(c.p, "m-ico--sm")}<span><b>${esc(c.p.n)}</b><small>${esc(catLine(c.p))}</small></span></a></td>
         <td><div class="m-stepper m-stepper--sm"><button type="button" data-cq="${esc(c.id)}" data-d="-1">−</button><input type="number" min="1" max="9999" value="${c.qty}" data-cqi="${esc(c.id)}"><button type="button" data-cq="${esc(c.id)}" data-d="1">＋</button></div></td>
@@ -666,6 +667,7 @@ function vHelp() {
   return `<div class="m-in">${crumbs([["고객센터", ""]])}<div class="m-catbanner"><div><h1>고객센터</h1><p>구매 상담 02-2088-1454 · 평일 업무시간 · 1015@monnit.com</p></div><a class="m-btn m-btn--w" href="/mall/quote" data-link>견적 · 구성 상담 요청</a></div>
     <div class="m-helpnav"><a href="#guide">구매 가이드</a><a href="#faq">자주 묻는 질문</a><a href="#policy">서비스 정책</a><a href="#member">회원 혜택</a><a href="/guides">기술지원</a></div>
     <section class="m-sec" id="guide"><div class="m-sec__hd"><h2>구매 가이드</h2></div>${stepsHTML()}</section>
+    <section class="m-sec" id="system">${sysHTML()}</section>
     <section class="m-sec" id="faq"><div class="m-sec__hd"><h2>자주 묻는 질문</h2></div><div class="m-faq">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></section>
     <section class="m-sec" id="policy"><div class="m-sec__hd"><h2>서비스 정책</h2></div><table class="m-spec"><tbody>
       <tr><th>거래 방식</th><td>견적 요청 → 공식 견적서 → 발주 · 계약 → 납품 · 설치. 온라인 카드 결제는 제공하지 않습니다.</td></tr>
@@ -701,7 +703,7 @@ function route() {
   view.innerHTML = html;
   $("#q").value = seg[0] === "search" ? qs.get("q") || "" : "";
   $$(".m-gnb a").forEach((a) => { const h = a.getAttribute("href"); a.classList.toggle("is-on", h === path || (h.length > 6 && path.startsWith(h + "/"))); });
-  badge(); cmpBar(); bind(seg); reveal(); tabbar(path);
+  badge(); cmpBar(); bind(seg); reveal(); tabbar(path); fx();
   EV.pg++; if (seg[0] === "product") { const pv = P.find((x) => x.id === seg[1]); if (pv) evc("v", pv.n); } if (seg[0] === "search" && qs.get("q")) evc("s", qs.get("q").trim().slice(0, 30));
   if (L().hash) { const t = document.getElementById(L().hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ behavior: "smooth", block: "start" }), 30); } else window.scrollTo(0, 0);
 }
@@ -906,10 +908,45 @@ function fly(from, imgEl) {
 }
 /* 스크롤하면 카드·섹션이 차례로 떠오름 */
 let IO = null;
+/* 리소스 · 구성 안내 인터랙션 (2026-11-09) */
+function fx() {
+  /* 접는 안내 — 부드럽게 열고 닫기 */
+  $$("#view details.m-sysfold").forEach((d) => {
+    const sm = $("summary", d); if (!sm || sm.dataset.fx) return; sm.dataset.fx = 1;
+    sm.addEventListener("click", (e) => {
+      if (RM) return; e.preventDefault();
+      const body = d.querySelector(".m-sys"); if (!body) return;
+      if (d.open) { const h = body.offsetHeight; body.animate([{ height: h + "px", opacity: 1 }, { height: "0px", opacity: 0 }], { duration: 260, easing: "cubic-bezier(.2,.7,.2,1)" }).onfinish = () => (d.open = false); }
+      else { d.open = true; const h = body.offsetHeight; body.animate([{ height: "0px", opacity: 0 }, { height: h + "px", opacity: 1 }], { duration: 320, easing: "cubic-bezier(.2,.7,.2,1)" }); }
+    });
+  });
+  /* 숫자 올라가기 (자료 수 · 쪽수) */
+  $$("#view [data-count]").forEach((el) => {
+    if (el.dataset.fx) return; el.dataset.fx = 1; const to = Number(el.dataset.count); if (RM || !("IntersectionObserver" in window)) return void (el.textContent = to);
+    el.textContent = "0";
+    const io = new IntersectionObserver((es) => { if (!es[0].isIntersecting) return; io.disconnect(); const t0 = performance.now();
+      const step = (t) => { const k = Math.min(1, (t - t0) / 900), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString("ko-KR"); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); });
+    io.observe(el);
+  });
+  /* 자료 카드 — 마우스 따라 표지가 살짝 기울기 (PC만) */
+  if (!RM && matchMedia("(hover:hover) and (pointer:fine)").matches) $$("#view .m-res").forEach((c) => {
+    if (c.dataset.fx) return; c.dataset.fx = 1; const cv = $(".m-res__cv", c);
+    c.addEventListener("pointermove", (e) => { const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      c.style.setProperty("--rx", (-y * 5).toFixed(2) + "deg"); c.style.setProperty("--ry", (x * 7).toFixed(2) + "deg"); c.style.setProperty("--mx", ((x + 0.5) * 100).toFixed(1) + "%"); c.style.setProperty("--my", ((y + 0.5) * 100).toFixed(1) + "%"); if (cv) cv.classList.add("is-tilt"); });
+    c.addEventListener("pointerleave", () => { c.style.setProperty("--rx", "0deg"); c.style.setProperty("--ry", "0deg"); if (cv) cv.classList.remove("is-tilt"); });
+  });
+  /* 모바일 시트 — 손잡이를 아래로 끌면 닫기 */
+  $$(".m-req.is-on .m-req__box").forEach((b) => {
+    if (b.dataset.fx) return; b.dataset.fx = 1; let y0 = null, dy = 0;
+    b.addEventListener("touchstart", (e) => { if (b.scrollTop > 0) return; y0 = e.touches[0].clientY; dy = 0; b.style.transition = "none"; }, { passive: true });
+    b.addEventListener("touchmove", (e) => { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); if (dy > 0) b.style.transform = `translateY(${dy}px)`; }, { passive: true });
+    b.addEventListener("touchend", () => { if (y0 == null) return; b.style.transition = ""; b.style.transform = ""; y0 = null; if (dy > 90) { const x = b.parentNode.querySelector("[data-reqclose]"); x && x.click(); } });
+  });
+}
 function reveal() {
   if (RM || !("IntersectionObserver" in window)) return;
   if (!IO) IO = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); IO.unobserve(en.target); } }), { rootMargin: "0px 0px -6% 0px" });
-  const els = $$("#view .m-card, #view .m-sec, #view .m-pack, #view .m-rowitem, #view .m-sol, #view .m-step, #view .m-events a, #view .m-ind, #view .m-indrow");
+  const els = $$("#view .m-card, #view .m-sec, #view .m-pack, #view .m-rowitem, #view .m-sol, #view .m-step, #view .m-events a, #view .m-ind, #view .m-indrow, #view .m-res, #view .m-chan li, #view .m-resband, #view .m-sysfold");
   els.forEach((el, k) => { if (el.getBoundingClientRect().top < innerHeight) return; el.classList.add("rv"); el.style.setProperty("--d", (k % 4) * 60 + "ms"); IO.observe(el); });
 }
 /* 모바일 하단 탭바 */

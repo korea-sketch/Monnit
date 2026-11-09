@@ -336,7 +336,7 @@ img{max-width:100%;display:block}
 .m-box{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:14px}
 .m-box h3{margin:0 0 14px;font-size:17px;display:flex;align-items:center}
 .m-form{display:grid;gap:12px}
-.m-form--2{grid-template-columns:1fr 1fr}
+.m-form--2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .m-form label,.m-form__full{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--text2)}
 .m-form label em{color:var(--red);font-style:normal} .m-form label span{font-weight:500;color:var(--faint)}
 .m-form input,.m-form select,.m-form__full textarea{height:44px;border:1px solid var(--line);border-radius:var(--r2);padding:0 12px;font-size:15px;font-weight:500;background:#fff;color:var(--text)}
@@ -740,4 +740,60 @@ body{overflow-x:clip}
 .m-rcbar__eye{font-size:11px;letter-spacing:.16em;font-weight:800;color:var(--gold);white-space:nowrap}
 .m-rcbar b{color:var(--navy);font-weight:700;flex:1;min-width:0}
 .m-rcbar a{color:var(--navy);font-weight:800;white-space:nowrap}
-@media (max-width:700px){.m-rcbar__in{flex-wrap:wrap;gap:2px 10px;padding:9px 0}.m-rcbar__eye{width:100%;font-size:10px}.m-rcbar b{font-size:13px}.m-rcbar a{font-size:13px}}
+@media (max-width:700px){.m-rcbar__in{flex-wrap:wrap;gap:2px 10px;padding-top:9px;padding-bottom:9px}.m-rcbar__eye{width:100%;font-size:10px}.m-rcbar b{font-size:13px}.m-rcbar a{font-size:13px}}
+.m-sysfold{margin:14px 0;border:1px solid var(--line);border-radius:12px;background:#fff}
+.m-sysfold>summary{cursor:pointer;list-style:none;padding:13px 16px;font-size:14px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.m-sysfold>summary::-webkit-details-marker{display:none}
+.m-sysfold>summary::before{content:"ⓘ";color:var(--blue)}
+.m-sysfold>summary::after{content:"＋";margin-left:auto;color:var(--muted)}
+.m-sysfold[open]>summary::after{content:"－"}
+.m-sysfold .m-sys{margin:0;border:0;box-shadow:none;border-top:1px solid var(--line2);border-radius:0 0 12px 12px}
+/* 리소스 인터랙션 · 반응형 (2026-11-09) */
+.m-res{transform:perspective(900px) rotateX(var(--rx,0)) rotateY(var(--ry,0));transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+.m-res:hover{transform:perspective(900px) rotateX(var(--rx,0)) rotateY(var(--ry,0)) translateY(-4px)}
+.m-res__cv::after{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.22),transparent 60%);opacity:0;transition:opacity .25s;pointer-events:none}
+.m-res__cv.is-tilt::after{opacity:1}
+.m-res__btns .m-btn{transition:transform .15s,background .2s}.m-res__btns .m-btn:active{transform:scale(.96)}
+.m-chan li{transition:transform .2s,box-shadow .2s,border-color .2s}.m-chan li:hover{transform:translateY(-3px);border-color:#e3d3b2;box-shadow:0 10px 24px rgba(184,137,59,.14)}
+.m-chan a{color:var(--navy);text-decoration:underline}
+.m-sysfold>summary{transition:background .2s}.m-sysfold>summary:hover{background:var(--bg);border-radius:12px}
+.m-sysfold .m-sys{overflow:hidden}
+.m-chips a{transition:background .2s,color .2s,border-color .2s}
+.m-req__box::before{content:"";display:none;width:40px;height:4px;border-radius:4px;background:var(--line);margin:-6px auto 10px}
+@media (min-width:701px){.m-resgrid .m-res.rv{transition-delay:var(--d,0ms)}}
+@media (max-width:980px){.m-resband__stats b span{font-variant-numeric:tabular-nums}}
+@media (max-width:700px){
+  .m-req__box::before{display:block}
+  /* 홈 자료 밴드 — 2×2 대신 옆으로 넘기는 카드 */
+  .m-resgrid--band{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+  .m-resgrid--band::-webkit-scrollbar{display:none}
+  .m-resgrid--band .m-res{flex:0 0 62%;scroll-snap-align:start}
+  /* 자료 목록 — 표지 왼쪽 · 글 오른쪽 가로 카드 (길이 절반) */
+  .m-resgrid:not(.m-resgrid--band) .m-res{flex-direction:row}
+  .m-resgrid:not(.m-resgrid--band) .m-res__cv{flex:0 0 112px;aspect-ratio:auto;min-height:150px}
+  .m-resgrid:not(.m-resgrid--band) .m-res__body{padding:12px;gap:4px}
+  .m-resgrid:not(.m-resgrid--band) .m-res__body h3{font-size:15px}
+  .m-resgrid:not(.m-resgrid--band) .m-res__body p{font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .m-resgrid:not(.m-resgrid--band) .m-res__code{left:6px;bottom:6px;font-size:10px;padding:2px 6px}
+  .m-res__btns .m-btn{font-size:12.5px;padding-left:8px;padding-right:8px}
+  /* 필터 칩 — 줄바꿈 대신 가로 스크롤 */
+  .m-reshero~.m-in .m-chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px 10px;padding:0 16px;scrollbar-width:none}
+  .m-reshero~.m-in .m-chips::-webkit-scrollbar{display:none}
+  .m-reshero~.m-in .m-chips a{flex:none;white-space:nowrap}
+  .m-chan{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+  .m-chan::-webkit-scrollbar{display:none}
+  .m-chan li{flex:0 0 78%;scroll-snap-align:start}
+  .m-sysfold{margin:12px 0}.m-sysfold>summary{font-size:13.5px}
+}
+@media (prefers-reduced-motion:reduce){.m-res,.m-res:hover{transform:none}}
+.m-util a.m-lang{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:1px 9px;font-weight:700;letter-spacing:.04em}
+.m-util a.m-lang:hover{background:rgba(255,255,255,.12)}
+/* 긴 영문 단어가 모바일 격자를 밀어내지 않게 */
+@media (max-width:900px){.m-pd,.m-cartwrap,.m-quote{grid-template-columns:minmax(0,1fr)}.m-pd>*,.m-cartwrap>*,.m-quote>*{min-width:0}}
+html[lang=en] #view{overflow-wrap:anywhere}
+html[lang=en] .m-gnb a,html[lang=en] .m-tabbar a{white-space:nowrap}
+.m-pd__btns{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 52px}.m-pd__btns .m-btn{min-width:0;white-space:normal;line-height:1.25}
+.m-form>*,.m-form label,.m-form input,.m-form select,.m-form textarea{min-width:0;max-width:100%}
+.m-pd #pdTabs,.m-tabs{overflow-x:auto;scrollbar-width:none}
+.m-util nav a{white-space:nowrap}
+@media (max-width:700px){.m-util nav{gap:12px;overflow-x:auto;scrollbar-width:none;max-width:100%}.m-util nav::-webkit-scrollbar{display:none}html[lang=en] .m-util nav a[href^="tel"]{display:none}}
