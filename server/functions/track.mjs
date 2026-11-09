@@ -64,6 +64,7 @@ export default async (req) => {
 
     const sid = S(b.sid, 16).replace(/[^a-z0-9]/gi, '');
     if (!sid) return done();
+    const vid = S(b.vid, 20).replace(/[^a-z0-9]/gi, '');   /* 방문자 id (2026-11-09) — 재방문·문의까지의 여정 연결용 난수 */
     const dv = b.dv === 'm' ? 'm' : 'd';
     const src = S(b.src, 300);
     const internal = auth.configured() && auth.valid(auth.cookieFrom({ cookie: h.get('cookie') || '' })) ? 1 : 0;
@@ -78,6 +79,7 @@ export default async (req) => {
       const cts = Number(e.ts);
       const ts = (cts && Math.abs(cts - now) < 36e5) ? cts : now;
       const row = { ts: new Date(ts).toISOString(), sid, dv, t, p: P(e.p) || '/' };
+      if (vid) row.vid = vid;
       if (internal) row.in = 1;
       if (t === 'pv') {
         if (e.q) row.q = S(e.q, 160);

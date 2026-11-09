@@ -41,6 +41,7 @@ import * as fn_billing from '../server/functions/billing.mjs';
 import * as fn_billing_cron from '../server/functions/billing-cron.mjs';
 /* IoT몰 관제 · 이용 기록 (2026-11-04) */
 import * as fn_mall from '../server/functions/mall.mjs';
+import * as fn_journey from '../server/functions/journey.mjs';   /* 고객 여정 · 매출 연결 (2026-11-09) */
 /* 백그라운드 · 예약 */
 import * as fn_build_bg from '../server/functions/proposal-build-background.mjs';
 import * as fn_adsync from '../server/functions/adsync.mjs';
@@ -60,7 +61,7 @@ const V2 = {
   blockadmin: fn_blockadmin, blockapi: fn_blockapi, flowadmin: fn_flowadmin, lead: fn_lead,
   mailpreview: fn_mailpreview, noticeadmin: fn_noticeadmin, ops: fn_ops, 'proposal-admin': fn_proposal_admin,
   'proposal-api': fn_proposal_api, 'proposal-chat': fn_proposal_chat, 'support-chat': fn_support_chat, track: fn_track, visitadmin: fn_visitadmin,
-  alarm: fn_alarm, geo: fn_geo, billing: fn_billing, mall: fn_mall
+  alarm: fn_alarm, geo: fn_geo, billing: fn_billing, mall: fn_mall, journey: fn_journey
 };
 const BACKGROUND = { 'proposal-build-background': fn_build_bg };
 const SCHEDULED = { adsync: fn_adsync, health: fn_health, 'proposal-dispatch': fn_dispatch, 'billing-cron': fn_billing_cron };

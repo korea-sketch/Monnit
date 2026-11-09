@@ -428,7 +428,7 @@ async function insightData(url) {
 /* ── 화면 ───────────────────────────────────────────────────────── */
 /* 통합 관제 탭 — /ops · /ops/block 화면에도 같은 줄이 있다 */
 const OPS_NAV = `<nav class="opsnav" aria-label="관제 메뉴">
-<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/notices">알림함</a><a href="/ops/mall">IoT몰</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>`;
+<a href="/ops">통합 관제</a><a href="/ops/proposals" data-tab="queue">맞춤 제안서</a><a href="/ops/proposals/archive" data-tab="archive">발송 대장</a><a href="/ops/proposals/insights" data-tab="insights">고객 인사이트</a><a href="/ops/proposals/misses" data-tab="misses">규칙이 놓친 말</a><a href="/ops/notices">알림함</a><a href="/ops/mall">리소스 센터 접수</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>`;
 
 function page(ok, keyLogin, nonce = '') {
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -492,7 +492,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;background:var(--card)}tr.r{c
 .heat{display:inline-block;min-width:34px;text-align:center;border-radius:6px;padding:1px 6px;font-weight:800}
 @media(max-width:800px){.hide-m{display:none}.diff{grid-template-columns:1fr}header{top:43px}}
 </style></head><body>
-${OPS_NAV}
+${OPS_NAV}<script nonce="${nonce}" src="/js/ops-nav.js?v=1" defer></script>
 ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
 <span id="hq" style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center"><select id="month"><option value="">전체 기간</option></select><button id="tickBtn">정기 점검 실행</button><button id="healthBtn">연동 점검</button><a href="/ops/proposals/export.csv"><button>CSV</button></a></span>
 <span id="ha" hidden><select id="amonth"><option value="">전체 기간</option></select><select id="akind"><option value="">모든 자료</option><option value="proposal">제안서</option><option value="resend">재발송</option><option value="followup">후속 안내</option></select><input id="aq" placeholder="회사·이메일·과제 검색" size="18"><a href="/ops/proposals/archive.csv"><button>대장 CSV</button></a></span>

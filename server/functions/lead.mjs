@@ -111,7 +111,11 @@ export default async (req) => {
       consent_mkt: pick(p, ['마케팅 정보 수신(선택)']),
       ua: String(req.headers.get('user-agent') || '').slice(0, 180),
       /* 접속 IP — 나중에 경쟁사로 밝혀지면 /ops/block 에서 이 값으로 바로 막는다 (2026-09-16) */
-      ip: _guard.ipOf(req.headers)
+      ip: _guard.ipOf(req.headers),
+      /* 방문자 id · 탭 세션 id (2026-11-09) — js/monnit-track.js 가 남긴 쿠키. /ops/journey 가 이 값으로
+         「문의 전에 어떤 페이지를 거쳐 왔는지」와 견적·수주를 잇는다. 이름·연락처와 무관한 난수다. */
+      vid: (String(req.headers.get('cookie') || '').match(/(?:^|;\s*)mk_vid=([a-z0-9]{8,20})/i) || [])[1] || '',
+      sid: (String(req.headers.get('cookie') || '').match(/(?:^|;\s*)mk_sid=([a-z0-9]{6,16})/i) || [])[1] || ''
     };
 
     /* ── 테스트 접수 분리 (2026-09-18) ────────────────────────────────

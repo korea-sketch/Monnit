@@ -241,4 +241,6 @@ export async function refreshQs(nos) {
   for (const [k, v] of Object.entries(r.quotes || {})) patch[k] = { id: v.id, no: v.no, status: v.status, total: v.total, err: '' };
   return Object.keys(patch).length ? await patchQs(patch) : await readQs();
 }
+/** 견적시스템의 견적서 목록(상태 · 금액 · 고객 연락처) — /ops/journey 가 문의와 견적·수주를 잇는 데 쓴다 (2026-11-09) */
+export async function salesFromQs(since) { return qsFetch('/webhook/mall-quote/sales', { since }); }
 export async function testQuoteLink(link) { return qsFetch('/webhook/mall-quote/status', { nos: [] }, link); }

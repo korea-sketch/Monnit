@@ -6,7 +6,10 @@
  *    pv     페이지 보기     p=지금 경로, f=직전 경로(사이트 안) 또는 ext:외부도메인
  *    click  클릭           p=누른 페이지, l=버튼/링크 문구, to=이동할 곳, z=위치(nav/header/footer…)
  *    ev     그 밖의 신호     n=이름 (팝업 노출·클릭·닫기 등) — MonnitTrack.event(n, {...})
- *  세션 구분은 탭 단위 난수(sessionStorage)만 쓴다. 탭을 닫으면 사라진다.
+ *  세션 구분은 탭 단위 난수(sessionStorage).
+ *  방문자 구분(2026-11-09): 이름·연락처와 무관한 난수 1개(mk_vid). 방문 통계 분석에 동의하면 1년, 아니면 브라우저를 닫을 때까지.
+ *    「문의를 남기기까지의 여정」을 잇기 위한 것 — 문의를 남기면 서버가 이 값을 접수 건에 붙인다.
+ *    끄기: window.MNK_VID_OFF = true
  *
  *  전송: 모아서 4초마다 / 10건마다 / 페이지를 떠날 때 sendBeacon 한 번.
  *  SPA(app.js) 의 history.pushState 이동도 페이지 보기로 잡는다.
@@ -27,6 +30,27 @@
   /* 탭 세션 id */
   var sid = sget('mk_trk_sid');
   if (!sid) { sid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 8)).slice(-12); sset('mk_trk_sid', sid); }
+
+  /* 방문자 id (2026-11-09)
+     · 「방문 통계 분석」에 동의한 방문자: 쿠키 + localStorage 에 1년 보관 → 여러 날에 걸친 재방문까지 잇는다
+     · 동의하지 않았거나 동의 창이 없는 화면: 브라우저를 닫으면 사라지는 세션 쿠키만 → 이번 방문 안에서만 잇는다
+     · 동의를 바꾸면(monnit:consent) 바로 따라간다. 이름·연락처와 무관한 난수다. */
+  var vid = '';
+  var SEC = (loc.protocol === 'https:' ? '; Secure' : '');
+  function consentOk() { try { return !!(w.MonnitConsent && w.MonnitConsent.state && w.MonnitConsent.state.analytics); } catch (e) { return false; } }
+  function setVidCookie(persist) { try { d.cookie = 'mk_vid=' + vid + (persist ? '; Max-Age=31536000' : '') + '; Path=/; SameSite=Lax' + SEC; } catch (e) {} }
+  if (!w.MNK_VID_OFF) {
+    try { var mm = d.cookie.match(/(?:^|;\s*)mk_vid=([a-z0-9]{8,20})/); if (mm) vid = mm[1]; } catch (e) {}
+    if (!vid && consentOk()) { try { vid = (w.localStorage.getItem('mk_vid') || '').replace(/[^a-z0-9]/g, '').slice(0, 20); } catch (e) {} }
+    if (!vid) vid = ('v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9)).slice(0, 16);
+    var applyConsent = function () {
+      if (consentOk()) { try { w.localStorage.setItem('mk_vid', vid); } catch (e) {} setVidCookie(true); }
+      else { try { w.localStorage.removeItem('mk_vid'); } catch (e) {} setVidCookie(false); }
+    };
+    applyConsent();
+    try { w.addEventListener('monnit:consent', applyConsent); } catch (e) {}
+    try { d.cookie = 'mk_sid=' + sid + '; Path=/; SameSite=Lax' + SEC; } catch (e) {}
+  }
 
   /* 최초 유입 출처 — monnit-lead.js 와 같은 규칙(세션 최초 값 보존) */
   var PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'gclid', 'fbclid', 'naver_ad', 'kakao_ad', 'promo', 'from'];
@@ -52,7 +76,7 @@
     if (timer) { clearTimeout(timer); timer = null; }
     if (!Q.length) return;
     var batch = Q.splice(0, 40);
-    var body = JSON.stringify({ sid: sid, dv: dv, src: sentSrc ? '' : src, ev: batch });
+    var body = JSON.stringify({ sid: sid, vid: vid, dv: dv, src: sentSrc ? '' : src, ev: batch });
     sentSrc = true;
     try {
       if (w.navigator.sendBeacon && w.navigator.sendBeacon(API, new Blob([body], { type: 'application/json' }))) return;
@@ -163,6 +187,7 @@
       push(o);
     },
     flush: flush,
-    sid: function () { return sid; }
+    sid: function () { return sid; },
+    vid: function () { return vid; }
   };
 })(window, document);

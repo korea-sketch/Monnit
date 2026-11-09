@@ -235,6 +235,7 @@ function vResources(qs) {
 }
 function resSheet(code) {
   const r = RES.find((x) => x.code === code); if (!r) return;
+  trk("mall_res_open", "MK-" + r.code + " " + r.t);
   const F = LS.get("mnkQuoteForm", {}), T = RES_TYPES[r.k];
   let el = $("#resSheet");
   if (!el) { el = document.createElement("div"); el.id = "resSheet"; el.className = "m-req"; document.body.appendChild(el); }
@@ -283,6 +284,7 @@ function resSheet(code) {
       "접수번호": no, "접점": "/mall 자료실", "유입 페이지": "/mall/resources", "구분": "제안서 신청", "백서명": r.t, "관심분야": r.cat,
       "_mall": JSON.stringify({ items: [], memo: `자료 MK-${r.code} ${r.t} · ${issued ? "즉시 발급" : "확인 후 발송"}` }) });
     try { window.dataLayer && window.dataLayer.push({ event: "mall_resource", code: r.code, issued }); } catch (err) {}
+    trk("mall_res_send", "MK-" + r.code + " " + r.t + (issued ? "" : " (검토)"));
     const box = $(".m-req__box", el);
     if (issued) {
       const a = document.createElement("a"); a.href = (HASHMODE ? "https://monnit.co.kr" : "") + url; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
@@ -294,6 +296,7 @@ function resSheet(code) {
 }
 function toggleResQ(code) {
   RESQ = RESQ.includes(code) ? RESQ.filter((c) => c !== code) : [...RESQ, code].slice(0, 5); LS.set("mnkResQ", RESQ);
+  if (RESQ.includes(code)) { const x = RES.find((y) => y.code === code); trk("mall_resq", x ? "MK-" + x.code + " " + x.t : code); }
   toast(RESQ.includes(code) ? "견적 요청 시 이 자료를 견적서와 함께 보내 드려요" : "견적과 함께 받기를 취소했어요");
 }
 /* 진행 중인 프로모션 — 메인 홈(index.html #hpPromoBar)과 같은 4개 (2026-11-09). 바꿀 때는 두 곳을 함께 고친다 */
@@ -330,9 +333,11 @@ function promoBar() {
   PB.out = (e) => { if (open && !bar.contains(e.target)) setOpen(false); };
   PB.key = (e) => { if (open && e.key === "Escape") { setOpen(false); more.focus(); } };
   document.addEventListener("click", PB.out); document.addEventListener("keydown", PB.key);
-  bar.addEventListener("click", (e) => { const a = e.target.closest(".hpb-slide,.hpb-row"); if (a) { try { window.dataLayer && window.dataLayer.push({ event: "mall_promo_click", promo: a.dataset.promo }); } catch (err) {} } });
+  bar.addEventListener("click", (e) => { const a = e.target.closest(".hpb-slide,.hpb-row"); if (a) { trk("mall_promo", a.dataset.promo); try { window.dataLayer && window.dataLayer.push({ event: "mall_promo_click", promo: a.dataset.promo }); } catch (err) {} } });
   if (n < 2) bar.classList.add("is-single");
 }
+/* 사이트 공통 방문 기록(js/monnit-track.js)으로 몰 행동을 남긴다 — /ops/journey 가 문의·견적과 잇는다 (2026-11-09) */
+const trk = (n, l) => { try { window.MonnitTrack && window.MonnitTrack.event(n, l ? { l: String(l).slice(0, 60) } : undefined); } catch (e) {} };
 const BASE = window.__MALL_BASE || "";
 const ASSET = (u) => (window.__MALL_ASSETS && window.__MALL_ASSETS[u]) || BASE + u;
 let CUR = "";   /* 해시를 바꿀 수 없는 미리보기 창(샌드박스)에서도 화면 이동이 되게 메모리에 현재 주소를 둔다 */
@@ -356,7 +361,7 @@ function toast(t, p) {
 function add(id, qty = 1, quiet) {
   const it = CART.find((c) => c.id === id);
   if (it) it.qty = Math.min(9999, it.qty + qty); else CART.push({ id, qty: Math.max(1, Math.min(9999, qty)) });
-  { const pa = P.find((x) => x.id === id); if (pa) evc("a", pa.n, 1); }
+  { const pa = P.find((x) => x.id === id); if (pa) { evc("a", pa.n, 1); if (!quiet) trk("mall_add", pa.n); } }
   saveCart();
   const reqAdded = ensureReq();
   if (reqAdded && !quiet) setTimeout(reqSheet, 350);
@@ -793,7 +798,7 @@ function bind(seg) {
     $("#fPh").addEventListener("input", (e) => { const d = e.target.value.replace(/\D/g, "").slice(0, 11); e.target.value = d.length < 4 ? d : d.length < 8 ? d.replace(/(\d{3})(\d+)/, "$1-$2") : d.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3"); });
   }
   if (seg[0] === "quick") $("#quickAdd").onclick = quickAdd;
-  if (seg[0] === "compare") { const ca = $("#cmpAll"); if (ca) ca.onclick = () => { CMP.forEach((id) => add(id, 1, true)); toast(`${CMP.length}개 제품을 견적함에 담았어요`); }; }
+  if (seg[0] === "compare") { const ca = $("#cmpAll"); if (ca) ca.onclick = () => { trk("mall_compare", CMP.length + "종"); CMP.forEach((id) => add(id, 1, true)); toast(`${CMP.length}개 제품을 견적함에 담았어요`); }; }
 }
 
 /* ───────── 동작 ───────── */
@@ -808,6 +813,7 @@ function quickAdd() {
     if (p) { add(p.id, qty, true); hit++; } else miss.push(ln);
   }
   LS.set("mnkQuoteMiss", miss);
+  trk("mall_quick", hit + "개 담음");
   $("#quickMsg").textContent = `${hit}개 품목을 담았어요${miss.length ? ` · 못 찾은 ${miss.length}줄은 요청서 메모로 넘깁니다` : ""}`;
   if (hit || miss.length) setTimeout(() => go("/mall/cart"), 700);
 }
@@ -855,7 +861,8 @@ async function submitQuote(e) {
   try { window.dataLayer && window.dataLayer.push({ event: "mall_quote", items: items.length }); } catch (err) {}
   HIST = [{ no, date: new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), email: v.em, summary: items.length ? `${items[0].p.n}${items.length > 1 ? ` 외 ${items.length - 1}종` : ""} · ${items.reduce((a, c) => a + c.qty, 0)}개` : "구성 상담", items: items.map((c) => ({ id: c.id, qty: c.qty })) }, ...HIST].slice(0, 50);
   LS.set("mnkMallQuotes", HIST); LS.set("mnkQuoteMiss", []); RESQ = []; LS.set("mnkResQ", []);
-  EV.q = true; CART = []; saveCart(); go("/mall/done/" + no);
+  EV.q = true; trk("mall_quote", no + " · " + items.length + "종"); try { window.MonnitTrack && window.MonnitTrack.flush(); } catch (e) {}
+  CART = []; saveCart(); go("/mall/done/" + no);
 }
 async function productQna(p) {
   const g = (id) => $("#" + id).value.trim();
@@ -864,7 +871,7 @@ async function productQna(p) {
   if (!$("#qaOk").checked) return toast("개인정보 수집 · 이용에 동의해 주세요.");
   const no = reqNo().replace("MQ", "PQ");
   const ok = await postLead({ "회사명": v.co, "담당자명": v.nm, "전화번호": v.ph, ...(v.em ? { "이메일": v.em } : {}), "문의항목": "IoT몰 제품 문의", "지역": "(미기재)", "문의 사항": `[${no}] ${p.n} — ${v.msg || "(내용 없음)"}`, "접수번호": no, "접점": "/mall 제품 문의", "유입 페이지": L().pathname, "출처": "direct", "_mall": JSON.stringify({ product: p.n, items: [{ n: p.n, c: catLine(p), q: 1 }], memo: v.msg || "" }) });
-  if (ok) { $("#qnaForm").innerHTML = `<p class="m-note"><b>문의가 접수되었어요 (${no}).</b> 담당자가 영업일 1일 안에 연락드립니다.</p>`; } else toast("전송에 실패했어요. 02-2088-1454로 연락 주세요.");
+  if (ok) { trk("mall_qna", p.n); $("#qnaForm").innerHTML = `<p class="m-note"><b>문의가 접수되었어요 (${no}).</b> 담당자가 영업일 1일 안에 연락드립니다.</p>`; } else toast("전송에 실패했어요. 02-2088-1454로 연락 주세요.");
 }
 function printQuote(v) {
   const items = cartItems(), today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), x = (s) => esc(s || "") || "&nbsp;";
@@ -887,7 +894,7 @@ document.addEventListener("click", (e) => {
   const rs = e.target.closest("[data-res]"); if (rs) { e.preventDefault(); e.stopPropagation(); return resSheet(rs.dataset.res); }
   const rq = e.target.closest("[data-resq]"); if (rq) { e.preventDefault(); toggleResQ(rq.dataset.resq); rq.textContent = RESQ.includes(rq.dataset.resq) ? "✓ 견적과 함께" : "견적과 함께 받기"; return; }
   const ad = e.target.closest("[data-add]"); if (ad) { e.preventDefault(); e.stopPropagation(); fly(ad); add(ad.dataset.add, 1); const c = ad.closest(".m-card"); if (c) { ad.classList.add("is-in"); ad.textContent = "✓"; } else if (L().pathname === "/mall/cart") route(); return; }
-  const ind = e.target.closest("[data-ind]"); if (ind) { const k = INDS.find((x) => x.id === ind.dataset.ind), it = indItems(k);
+  const ind = e.target.closest("[data-ind]"); if (ind) { const k = INDS.find((x) => x.id === ind.dataset.ind); if (k) trk("mall_ind", k.name); const it0 = k, it = indItems(k);
     $$(".m-indrow .m-ph img").forEach((im, i) => setTimeout(() => fly(im, im), i * 70));
     evc("i", k.id); it.forEach((x) => add(x.p.id, x.q, true)); ind.classList.add("is-done"); ind.textContent = `✓ ${it.length}개 품목을 담았어요`;
     setTimeout(() => toast(`${k.name} 구성 ${it.length}개 품목을 견적함에 담았어요`, it[0].p), Math.min(it.length * 70, 500)); return; }
@@ -901,7 +908,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("change", (e) => { const c = e.target.closest("[data-cmp]"); if (!c) return; if (!toggleCmp(c.dataset.cmp, c.checked)) c.checked = false; });
 window.addEventListener("popstate", (e) => { if (HASHMODE) CUR = (e.state && e.state.p) || location.hash.replace(/^#/, ""); route(); });
 if (HASHMODE) window.addEventListener("hashchange", () => { const h = location.hash.replace(/^#/, ""); if (h && h !== CUR) { CUR = h; route(); } });
-$("#searchForm").onsubmit = (e) => { e.preventDefault(); const q = $("#q").value.trim(); go(q ? "/mall/search?q=" + encodeURIComponent(q) : "/mall/category/all"); };
+$("#searchForm").onsubmit = (e) => { e.preventDefault(); const q = $("#q").value.trim(); if (q) trk("mall_search", q); go(q ? "/mall/search?q=" + encodeURIComponent(q) : "/mall/category/all"); };
 $("#cmpClear").onclick = () => { CMP = []; LS.set("mnkCmp", CMP); route(); };
 /* 전체 카테고리 메가메뉴 */
 function mega() {

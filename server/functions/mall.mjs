@@ -169,7 +169,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 @media (max-width:980px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kv{grid-template-columns:86px 1fr}}
 </style></head><body>
-<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/notices">알림함</a><a href="/ops/mall" class="on">IoT몰</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav>
+<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/notices">알림함</a><a href="/ops/mall" class="on">리소스 센터 접수</a><a href="/ops/flow">유입·경로</a><a href="/ops/block">차단 관리</a></nav><script src="/js/ops-nav.js?v=1" defer></script>
 <div class="wrap">
 <header><h1>IoT몰 관제<small>견적 요청 · 처리 상태 · 많이 찾는 제품 · 검색어 · 알림 받는 사람을 한 화면에서 — /mall · /store</small></h1>
 <div class="bar"><select id="m"></select><label class="note"><input type="checkbox" id="tst"> 테스트 포함</label><input type="search" id="qq" placeholder="회사 · 담당자 · 접수번호 · 품목"><button class="btn" id="csv">CSV 내려받기</button><button class="btn" id="rf">새로고침</button><a class="btn" href="/mall" target="_blank" rel="noopener" style="text-decoration:none">몰 열기 ↗</a></div></header>
