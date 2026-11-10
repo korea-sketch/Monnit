@@ -97,6 +97,7 @@ export async function withClaudeFirst({ claude, gemini, ok = r => !!r && !r.erro
     if (ok(first)) { claudeRecovered().catch(() => {}); return done(Object.assign(first, { provider: 'anthropic' })); }
     if (first && first.error) await onClaudeError(first.error);
   }
+  console.warn('[claude-first] Claude -> Gemini:', blocked || (first && first.error ? first.error.status + ' ' + String(first.error.message || '').slice(0, 200) : 'empty'));
   if (!canFallback()) return first;
   let second = null;
   try { second = await gemini(); } catch (e) { second = { error: { status: 0, message: String(e && e.message || e).slice(0, 300) } }; }
