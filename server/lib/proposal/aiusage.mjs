@@ -125,11 +125,18 @@ export async function readUsage(now = Date.now(), { halt: pre } = {}) {
   const calls = Number(o.calls || 0);
   const halt = pre !== undefined ? pre : await readHalt(now);
   const freeCap = CFG.aiFreeOnly ? CFG.aiFreeCallsMonth : 0;
+  /* Claude 우선 운영(2026-11-10): 예산에 닿으면 Claude 만 쉬고 Gemini 로 이어 간다(claudeguard.mjs).
+     무료 상한은 Gemini 호출 수로만 센다 — Claude 호출은 예산(달러)으로 관리된다. */
+  const fallbackOn = CFG.aiProvider === 'anthropic' && !!CFG.geminiKey;
+  const freeCalls = CFG.aiProvider === 'anthropic'
+    ? Object.entries(o.byModel || {}).filter(([k]) => k.startsWith('gemini')).reduce((n, [, b]) => n + Number(b.calls || 0), 0)
+    : calls;
+  const overBudget = !!budget && usd >= budget * CFG.chatPauseAt;
   return {
     month: m, calls, in: Number(o.in || 0), out: Number(o.out || 0), usd,
-    budget, pct: budget ? usd / budget : 0,
-    /* 멈추는 조건 셋 — 정지 파일 · 달러 한도 95% · 무료 모드 월 호출 상한 */
-    paused: !!halt || (!!budget && usd >= budget * CFG.chatPauseAt) || (!!freeCap && calls >= freeCap),
+    budget, pct: budget ? usd / budget : 0, overBudget, freeCalls,
+    /* 멈추는 조건 셋 — 정지 파일 · 달러 한도 95%(Gemini 대체가 없을 때만) · 무료 모드 월 호출 상한 */
+    paused: !!halt || (overBudget && !fallbackOn) || (!!freeCap && freeCalls >= freeCap),
     halt, freeCap,
     byModel: o.byModel || {}
   };
