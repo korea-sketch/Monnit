@@ -8,6 +8,7 @@
  */
 import { CFG } from '../proposal/config.mjs';
 import { readGeminiModel } from '../proposal/chat.mjs';
+import { withClaudeFirst } from '../proposal/claudeguard.mjs';
 import { ARTICLES, SYN, CATS } from './kb.data.mjs';
 import { buildIndex, search, confidence, mood } from './engine.mjs';
 
@@ -138,7 +139,11 @@ export async function askSupportAI(q, history, docs, lang) {
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), CFG.chatTimeoutMs);
   try {
     const text = convo(q, history, docs) + (lang === 'en' ? '\n\n[답변 언어]\n고객이 영문 페이지를 보고 있습니다. reply 는 반드시 자연스러운 영어(English)로 작성합니다.' : '');
-    const r = CFG.aiProvider === 'gemini' ? await callGemini(text, ac.signal) : await callAnthropic(text, ac.signal);
+    const r = CFG.aiProvider === 'gemini' ? await callGemini(text, ac.signal) : await withClaudeFirst({   /* Claude 우선 · 실패·소진이면 Gemini (2026-11-10) */
+      claude: () => CFG.aiKey ? callAnthropic(text, ac.signal) : null,
+      gemini: () => callGemini(text, ac.signal),
+      ok: x => !!(x && x.out)
+    });
     if (r && r.out) {
       const allowed = new Set(docs.map(d => d.id));
       r.out.ids = (Array.isArray(r.out.ids) ? r.out.ids : []).filter(id => allowed.has(id)).slice(0, 3);

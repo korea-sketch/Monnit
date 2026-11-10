@@ -14,6 +14,7 @@
  */
 import { CFG } from './config.mjs';
 import * as STORE from './store.mjs';
+import { withClaudeFirst } from './claudeguard.mjs';
 import { FINDER_FAC, FINDER_CON } from './kb.mjs';
 import KO from './ko.mjs';
 import _valid from '../../../valid.js';
@@ -609,9 +610,13 @@ export async function askAI(messages, fields, lang) {
     .map(([k, v]) => `${k}=${['name', 'email', 'phone'].includes(k) ? '(확인됨)' : scrubPII(v)}`).join(' · ') || '(없음)';
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), CFG.chatTimeoutMs);
   try {
-    return CFG.aiProvider === 'gemini'
-      ? await callGeminiAuto(messages, known, lang, ac.signal)
-      : await callAnthropic(messages, known, lang, ac.signal);
+    if (CFG.aiProvider === 'gemini') return await callGeminiAuto(messages, known, lang, ac.signal);
+    /* Claude 우선 — 실패·소진이면 같은 대화를 Gemini 로 (2026-11-10 · claudeguard.mjs) */
+    return await withClaudeFirst({
+      claude: () => CFG.aiKey ? callAnthropic(messages, known, lang, ac.signal) : null,
+      gemini: () => callGeminiAuto(messages, known, lang, ac.signal),
+      ok: r => !!(r && r.out)
+    });
   } catch (e) { return { error: { status: 0, message: (e && e.name === 'AbortError' ? 'timeout ' + CFG.chatTimeoutMs + 'ms' : String(e && e.message || e)).slice(0, 300) } }; }
   finally { clearTimeout(t); }
 }

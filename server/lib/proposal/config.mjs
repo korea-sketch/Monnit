@@ -95,11 +95,13 @@ export const CFG = {
     return 'gemini';
   },
   get geminiKey() { return env('GEMINI_API_KEY', ''); },
+  /* Claude 우선 운영(AI_PROVIDER=anthropic)에서 크레딧·예산 소진 시 Gemini 로 넘기고 Claude 를 쉬게 하는 시간 (2026-11-10 · claudeguard.mjs) */
+  get claudePauseHours() { return Math.max(0.25, num('CLAUDE_PAUSE_HOURS', 6)); },
   /* 기본은 가장 싼 최신 Lite. 2.5-flash-lite 는 2026-09 부터 신규 사용자에게 404 — chat.mjs 가
      404 「모델 없음」을 받으면 아래 순서로 다음 모델을 자동으로 찾아 쓴다. */
   get geminiModel() { return env('GEMINI_MODEL', 'gemini-3.5-flash-lite'); },
   get geminiFallbacks() { return ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-flash']; },
-  get chatAiKey() { return this.aiProvider === 'gemini' ? this.geminiKey : this.aiKey; },
+  get chatAiKey() { return this.aiProvider === 'gemini' ? this.geminiKey : (this.aiKey || this.geminiKey); },
   get aiFreeOnly() { return on('AI_FREE_ONLY', true); },
   get aiFreeCallsMonth() { return num('AI_FREE_CALLS_MONTH', 1500); },   /* 무료 모드 월 호출 상한 — 조용히 과금돼도 노출을 푼돈으로 묶는다 */
   get chatModel() { return this.aiProvider === 'gemini' ? this.geminiModel : env('PROPOSAL_CHAT_MODEL', 'claude-haiku-4-5'); },

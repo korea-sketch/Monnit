@@ -146,8 +146,9 @@ export default async (req) => {
   /* ③ 두 번 되물어도 안 통했다 — 한도·설정을 보고 AI 를 부를지 정한다 */
   const usage = await readUsage(Date.now(), { halt }).catch(() => ({ paused: false }));
   /* 무료 모드 월 호출 상한에 닿았으면 — 조용히 과금되기 전에 정지 파일을 남기고 알린다 */
-  if (CFG.aiFreeOnly && usage.freeCap && usage.calls >= usage.freeCap && !usage.halt) {
-    const h = await setHalt('free-cap', { message: `이번 달 ${usage.calls}회 — 상한 ${usage.freeCap}회` });
+  const freeCalls = usage.freeCalls != null ? usage.freeCalls : usage.calls;
+  if (CFG.aiFreeOnly && usage.freeCap && freeCalls >= usage.freeCap && !usage.halt) {
+    const h = await setHalt('free-cap', { message: `이번 달 ${freeCalls}회 — 상한 ${usage.freeCap}회` });
     await alertHalt(h);
   }
   let allowAI = CFG.chatOn && !!CFG.chatAiKey && !usage.paused;

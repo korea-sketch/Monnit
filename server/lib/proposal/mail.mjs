@@ -371,4 +371,36 @@ export async function notifyAiHalt(h = {}) {
   return brevo({ to: CFG.staffTo.map(email => ({ email })), subject, html, text, tags: ['ai-halt'] });
 }
 
+/** Claude 크레딧·예산 소진 → Gemini 로 자동 전환 (2026-11-10 · claudeguard.mjs) — 정지가 시작될 때 한 번 */
+export async function notifyClaudeFallback(p = {}) {
+  const admin = CFG.site + '/ops/proposals';
+  const why = {
+    'payment-required': 'Claude API 크레딧(잔액)이 소진됐습니다.',
+    'billing-required': 'Claude API 가 결제 설정을 요구합니다.',
+    'quota-exceeded': 'Claude API 사용 한도를 넘었습니다.',
+    'key-problem': 'Claude API 키가 거부됐습니다(만료·삭제·오타).',
+    'budget': '이번 달 Claude 예산(PROPOSAL_AI_BUDGET_USD)에 닿았습니다.'
+  }[p.reason] || ('사유: ' + (p.reason || '알 수 없음'));
+  const until = p.until ? fmtKST(Date.parse(p.until)) : '';
+  const subject = '[맞춤 제안서] Claude 소진 — Gemini 로 자동 전환';
+  const html = `<div style="font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:14px;line-height:1.7;color:#111">
+<p><b>Claude 호출이 막혀서 AI 상담·제안서 문안을 Gemini 로 이어서 처리하고 있습니다.</b> 고객 화면과 접수는 그대로 동작합니다.</p>
+<table style="border-collapse:collapse">
+<tr><td style="padding:4px 12px 4px 0;color:#666">사유</td><td>${esc(why)}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#666">응답</td><td>HTTP ${esc(String(p.status || ''))} ${esc(p.message || '')}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;color:#666">Claude 재시도</td><td>${esc(until)} 이후 (그때 성공하면 자동으로 Claude 로 돌아갑니다)</td></tr>
+</table>
+<p>조치: Claude Console(platform.claude.com) → Billing 에서 잔액 확인, 또는 다음 달 크레딧 지급까지 대기. 관제 → <a href="${esc(admin)}">${esc(admin)}</a></p>
+</div>`;
+  const text = `Claude 소진 — Gemini 로 자동 전환\n사유 ${why}\nHTTP ${p.status || ''} ${p.message || ''}\nClaude 재시도 ${until} 이후\n관제 ${admin}`;
+  return brevo({ to: CFG.staffTo.map(email => ({ email })), subject, html, text, tags: ['ai-fallback'] });
+}
+
+/** Claude 정상화 — 정지 뒤 첫 성공 때 한 번 */
+export async function notifyClaudeRecovered(p = {}) {
+  const subject = '[맞춤 제안서] Claude 정상화 — Claude 로 복귀';
+  const text = 'Claude 호출이 다시 성공해 AI 상담·제안서 문안을 Claude 로 처리합니다.' + (p.reason ? `\n(직전 정지 사유: ${p.reason})` : '');
+  return brevo({ to: CFG.staffTo.map(email => ({ email })), subject, html: `<p style="font-family:sans-serif;font-size:14px">${esc(text).replace(/\n/g, '<br>')}</p>`, text, tags: ['ai-fallback'] });
+}
+
 export { esc, maskEmail };

@@ -10,6 +10,7 @@
 import { CFG } from './config.mjs';
 import { PROBLEMS, GOALS } from './kb.mjs';
 import { josa } from './josa.mjs';
+import { withClaudeFirst, geminiJSON } from './claudeguard.mjs';
 
 const clip = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1).replace(/[\s,.·]+\S*$/, '') + '…' : s; };
 const BANNED = /(보장|확실히|반드시\s*해결|100%\s*해결|무조건|최저가|원\s*\/|만\s*원|억\s*원|가격|단가|견적가|청와대|공공\s*데이터\s*활용|데키스트|dekist)/i;
@@ -143,23 +144,42 @@ function promptOf(job, instruction = '') {
 }
 
 export async function aiCopy(job, instruction = '') {
-  if (!CFG.aiKey) return null;
+  const viaClaudeFirst = CFG.aiProvider === 'anthropic' && (CFG.aiKey || CFG.geminiKey);
+  if (!CFG.aiKey && !viaClaudeFirst) return null;
+  const system = '당신은 산업용 무선 IoT 모니터링 제안서를 쓰는 기술영업 엔지니어입니다. 주어진 자료 밖의 사실을 만들지 않습니다.';
+  const user = promptOf(job, instruction);
+  const parse = raw => JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), CFG.aiTimeoutMs);
-  try {
+  const claude = async () => {
+    if (!CFG.aiKey) return null;
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST', signal: ac.signal,
       headers: { 'x-api-key': CFG.aiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model: CFG.aiModel, max_tokens: 3000, temperature: 0.3,
-        system: '당신은 산업용 무선 IoT 모니터링 제안서를 쓰는 기술영업 엔지니어입니다. 주어진 자료 밖의 사실을 만들지 않습니다.',
-        messages: [{ role: 'user', content: promptOf(job, instruction) }]
-      })
+      body: JSON.stringify({ model: CFG.aiModel, max_tokens: 3000, temperature: 0.3, system, messages: [{ role: 'user', content: user }] })
     });
-    if (!r.ok) throw new Error('anthropic ' + r.status + ' ' + (await r.text()).slice(0, 160));
+    if (!r.ok) return { error: { status: r.status, message: (await r.text().catch(() => '')).slice(0, 300) } };
     const j = await r.json();
-    const raw = (j.content || []).map(c => c.text || '').join('');
-    const json = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
-    return { json, model: j.model || CFG.aiModel, usage: j.usage || null };
+    try { return { json: parse((j.content || []).map(c => c.text || '').join('')), model: j.model || CFG.aiModel, usage: j.usage || null }; }
+    catch (e) { return { error: { status: 200, message: 'no-json' } }; }
+  };
+  try {
+    if (!viaClaudeFirst) {
+      const r = await claude();
+      if (!r || r.error) throw new Error('anthropic ' + (r && r.error ? r.error.status + ' ' + r.error.message.slice(0, 160) : 'empty'));
+      return r;
+    }
+    /* Claude 우선 · 실패·소진이면 Gemini (2026-11-10 · claudeguard.mjs) */
+    const r = await withClaudeFirst({
+      claude,
+      gemini: async () => {
+        const g = await geminiJSON({ system, user, maxTokens: 3000, temperature: 0.3, signal: ac.signal });
+        if (g.error) return g;
+        try { return { json: parse(g.raw), model: g.model, usage: g.usage }; } catch (e) { return { error: { status: 200, message: 'no-json' } }; }
+      },
+      ok: x => !!(x && x.json)
+    });
+    if (!r || r.error || !r.json) throw new Error('AI ' + (r && r.error ? r.error.status + ' ' + String(r.error.message).slice(0, 160) : 'empty'));
+    return r;
   } finally { clearTimeout(t); }
 }
 
