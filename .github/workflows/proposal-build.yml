@@ -45,5 +45,8 @@ jobs:
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           PROPOSAL_AI_MODEL: ${{ vars.PROPOSAL_AI_MODEL }}
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          PROPOSAL_AI_BUDGET_USD: ${{ vars.PROPOSAL_AI_BUDGET_USD }}
+          CLAUDE_PAUSE_HOURS: ${{ vars.CLAUDE_PAUSE_HOURS }}
+          PROPOSAL_FROM_EMAIL: ${{ vars.PROPOSAL_FROM_EMAIL }}
           PROPOSAL_MODE: ${{ vars.PROPOSAL_MODE }}
           PROPOSAL_REVIEW: ${{ vars.PROPOSAL_REVIEW }}
