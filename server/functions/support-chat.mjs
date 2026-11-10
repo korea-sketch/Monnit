@@ -94,7 +94,9 @@ export default async (req) => {
   let allowAI = CFG.chatOn && !!CFG.chatAiKey && !halt && docs.length > 0;
   if (allowAI) {
     const usage = await readUsage(Date.now(), { halt }).catch(() => ({ paused: false }));
-    if (usage.paused || (CFG.aiFreeOnly && usage.freeCap && usage.calls >= usage.freeCap)) allowAI = false;
+    /* 무료 상한은 Gemini 호출만 센다 — Claude(유료) 호출까지 세면 Claude 우선 운영에서 지원 챗봇이 일찍 꺼진다 (2026-11-10) */
+    const freeCalls = usage.freeCalls != null ? usage.freeCalls : usage.calls;
+    if (usage.paused || (CFG.aiFreeOnly && usage.freeCap && freeCalls >= usage.freeCap)) allowAI = false;
   }
   if (allowAI) {
     const ip = _guard.ipOf(req.headers);

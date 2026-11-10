@@ -211,29 +211,49 @@ export function insightBrief(ins) {
 }
 
 export async function aiInsight(ins) {
-  if (!CFG.aiKey) return { ok: false, error: 'ANTHROPIC_API_KEY 가 없습니다' };
+  const viaClaudeFirst = CFG.aiProvider === 'anthropic' && (CFG.aiKey || CFG.geminiKey);
+  if (!CFG.aiKey && !viaClaudeFirst) return { ok: false, error: 'ANTHROPIC_API_KEY 가 없습니다' };
   const brief = insightBrief(ins);
   if (!ins.funnel.applied) return { ok: false, error: '분석할 접수가 없습니다' };
+  const system = '당신은 산업용 무선 IoT 센서(모넷코리아) B2B 영업 분석가입니다. 주어진 집계 밖의 사실을 만들지 않고, 표본이 작으면 작다고 말합니다.';
+  const user = `아래 <data>는 홈페이지 맞춤 제안서 신청·발송·반응 집계입니다. 영업팀이 이번 주에 바로 쓸 수 있게 정리해 주세요.
+규칙: 숫자는 <data>에 있는 것만 쓰고, 표본이 10건 미만인 항목은 「표본 적음」이라고 붙이세요. 과장 없이 담백하게. JSON 한 개만 출력.
+{"headline":"한 문장","findings":["관찰 3~5개, 각 90자 이내"],"actions":["이번 주 할 일 3~5개, 각 90자 이내 — 우선순위회사 이름을 써도 됨"],"content":["광고·콘텐츠 제안 2~3개"],"watch":["주의할 점 1~3개"]}
+<data>${JSON.stringify(brief)}</data>`;
+  const parse = raw => JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
   const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), CFG.aiTimeoutMs);
-  try {
+  const claude = async () => {
+    if (!CFG.aiKey) return null;
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST', signal: ac.signal,
       headers: { 'x-api-key': CFG.aiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model: CFG.aiModel, max_tokens: 1800, temperature: 0.2,
-        system: '당신은 산업용 무선 IoT 센서(모넷코리아) B2B 영업 분석가입니다. 주어진 집계 밖의 사실을 만들지 않고, 표본이 작으면 작다고 말합니다.',
-        messages: [{ role: 'user', content: `아래 <data>는 홈페이지 맞춤 제안서 신청·발송·반응 집계입니다. 영업팀이 이번 주에 바로 쓸 수 있게 정리해 주세요.
-규칙: 숫자는 <data>에 있는 것만 쓰고, 표본이 10건 미만인 항목은 「표본 적음」이라고 붙이세요. 과장 없이 담백하게. JSON 한 개만 출력.
-{"headline":"한 문장","findings":["관찰 3~5개, 각 90자 이내"],"actions":["이번 주 할 일 3~5개, 각 90자 이내 — 우선순위회사 이름을 써도 됨"],"content":["광고·콘텐츠 제안 2~3개"],"watch":["주의할 점 1~3개"]}
-<data>${JSON.stringify(brief)}</data>` }]
-      })
+      body: JSON.stringify({ model: CFG.aiModel, max_tokens: 1800, temperature: 0.2, system, messages: [{ role: 'user', content: user }] })
     });
-    if (!r.ok) return { ok: false, error: 'anthropic ' + r.status };
+    if (!r.ok) return { error: { status: r.status, message: (await r.text().catch(() => '')).slice(0, 300) } };
     const j = await r.json();
-    const raw = (j.content || []).map(c => c.text || '').join('');
-    const out = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
+    try { return { out: parse((j.content || []).map(c => c.text || '').join('')), model: j.model || CFG.aiModel, usage: j.usage || null }; }
+    catch (e) { return { error: { status: 200, message: 'no-json' } }; }
+  };
+  try {
+    let r;
+    if (viaClaudeFirst) {
+      /* Claude 우선 · 실패·소진이면 Gemini (2026-11-10 · claudeguard.mjs) */
+      const G = await import('./claudeguard.mjs');
+      r = await G.withClaudeFirst({
+        claude,
+        gemini: async () => {
+          const g = await G.geminiJSON({ system, user, maxTokens: 1800, temperature: 0.2, signal: ac.signal });
+          if (g.error) return g;
+          try { return { out: parse(g.raw), model: g.model, usage: g.usage }; } catch (e) { return { error: { status: 200, message: 'no-json' } }; }
+        },
+        ok: x => !!(x && x.out),
+        meter: true
+      });
+    } else r = await claude();
+    if (!r || r.error || !r.out) return { ok: false, error: r && r.error ? `AI ${r.error.status}` : 'AI 응답 없음' };
+    const out = r.out;
     const clean = a => (Array.isArray(a) ? a : []).map(x => String(x).slice(0, 160)).slice(0, 6);
-    const res = { ok: true, at: new Date().toISOString(), model: j.model || CFG.aiModel, basis: ins.funnel,
+    const res = { ok: true, at: new Date().toISOString(), model: r.model || CFG.aiModel, by: r.provider || 'anthropic', basis: ins.funnel,
       headline: String(out.headline || '').slice(0, 160), findings: clean(out.findings), actions: clean(out.actions), content: clean(out.content), watch: clean(out.watch) };
     await S.setJSON('insights/latest.json', res);
     return res;

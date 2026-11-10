@@ -176,7 +176,8 @@ export async function aiCopy(job, instruction = '') {
         if (g.error) return g;
         try { return { json: parse(g.raw), model: g.model, usage: g.usage }; } catch (e) { return { error: { status: 200, message: 'no-json' } }; }
       },
-      ok: x => !!(x && x.json)
+      ok: x => !!(x && x.json),
+      meter: true
     });
     if (!r || r.error || !r.json) throw new Error('AI ' + (r && r.error ? r.error.status + ' ' + String(r.error.message).slice(0, 160) : 'empty'));
     return r;
