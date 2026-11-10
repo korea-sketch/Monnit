@@ -129,3 +129,6 @@ export const CFG = {
     email: 'korea@monnit.com', web: 'monnit.co.kr'
   }
 };
+
+/* Claude Console new keys (sk-ant-usr) need anthropic-workspace-id on every request (2026-11-10) - set ANTHROPIC_WORKSPACE_ID */
+if (!globalThis.__MNK_ANT_WS && typeof globalThis.fetch === 'function') { globalThis.__MNK_ANT_WS = true; const _fetch = globalThis.fetch; globalThis.fetch = function (input, init) { try { const url = typeof input === 'string' ? input : (input && input.url) || String(input); const ws = env('ANTHROPIC_WORKSPACE_ID', ''); if (ws && url.startsWith('https://api.anthropic.com/')) { const h = new Headers((init && init.headers) || (typeof input !== 'string' && input && input.headers) || {}); if (!h.has('anthropic-workspace-id')) h.set('anthropic-workspace-id', ws); init = { ...(init || {}), headers: h }; } } catch (e) { } return _fetch.call(globalThis, input, init); }; }
