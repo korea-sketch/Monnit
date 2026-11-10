@@ -38,9 +38,16 @@ export async function runHealth({ deep = false, origin = CFG.site } = {}) {
     const le = await U.readAiError();
     if (le && Date.now() - Date.parse(le.at) < 7 * 86400000)
       add('chaterror', '대화 AI 마지막 실패', false, `${le.at} · ${le.n}회 연속 · HTTP ${le.status} ${le.message} — 성공하면 저절로 지워짐`, true);
+    /* Claude 우선 운영 — Gemini 대체 준비 상태와 Claude 쉬는 중 여부 (2026-11-10) */
+    if (CFG.aiProvider === 'anthropic') {
+      add('fallback', 'Claude 소진 시 Gemini 대체', !!CFG.geminiKey, CFG.geminiKey ? `준비됨 · ${CFG.geminiModel}` : 'GEMINI_API_KEY 없음 — Claude 가 막히면 AI 없이 동작', true);
+      const G = await import('./claudeguard.mjs');
+      const cp = await G.readClaudePause().catch(() => null);
+      if (cp && !cp.expired) add('claudepause', 'Claude 쉬는 중 → Gemini 로 응답', false, `${cp.reason} · ${cp.until} 까지 · ${cp.message || ''}`, true);
+    }
     if (u.halt) add('chathalt', '대화 AI 정지(과금 신호)', false, `${u.halt.reason} · ${u.halt.at} · HTTP ${u.halt.status || '-'} — 관제 「AI 다시 시도」로 해제`);
     const pct = Math.round((u.pct || 0) * 100);
-    const capTxt = u.freeCap ? ` · 무료 상한 ${u.calls}/${u.freeCap}회` : '';
+    const capTxt = u.freeCap ? ` · 무료 상한 ${u.freeCalls != null ? u.freeCalls : u.calls}/${u.freeCap}회` : '';
     add('chatbudget', '대화 AI 이번 달 사용', !u.paused,
       u.budget ? `$${u.usd.toFixed(2)} / $${u.budget} (${pct}%) · ${u.calls}회 · ${u.month}${capTxt}` + (u.paused && !u.halt ? ' — 한도 도달로 점검 중 안내 표시' : '')
                : `$${u.usd.toFixed(2)} · ${u.calls}회 · ${u.month}${capTxt}` + (u.budget ? '' : ' · 달러 한도 없음(무료 모드는 호출 상한으로 지킴)'),

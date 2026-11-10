@@ -11,7 +11,7 @@
  */
 import * as S from './store.mjs';
 import { CFG } from './config.mjs';
-import { isBillingSignal, readUsage } from './aiusage.mjs';
+import { isBillingSignal, readUsage, addUsage } from './aiusage.mjs';
 
 const KEY = 'ai/claude-pause.json';
 const hours = () => CFG.claudePauseHours;
@@ -85,13 +85,16 @@ export async function onClaudeError(err = {}) {
  *   claude(): Promise<결과|{error}|null>   gemini(): Promise<결과|{error}|null>
  *   ok(r): 결과가 쓸 만한지 (기본: r && !r.error)
  * 돌려주는 값: 원래 결과에 { provider, fallback } 을 덧붙인다.
+ *   meter: true 면 성공한 호출의 토큰을 월 사용량(ai/usage-YYYY-MM.json)에 기록한다 — 제안서 문안·검토·인사이트용.
+ *          (대화 챗봇은 호출한 쪽이 따로 기록하므로 쓰지 않는다)
  */
-export async function withClaudeFirst({ claude, gemini, ok = r => !!r && !r.error }) {
+export async function withClaudeFirst({ claude, gemini, ok = r => !!r && !r.error, meter = false }) {
+  const done = r => { if (meter && r && r.model && r.usage) addUsage(r.model, r.usage).catch(() => {}); return r; };
   const blocked = await claudeBlocked();
   let first = null;
   if (!blocked) {
     try { first = await claude(); } catch (e) { first = { error: { status: 0, message: String(e && e.message || e).slice(0, 300) } }; }
-    if (ok(first)) { claudeRecovered().catch(() => {}); return Object.assign(first, { provider: 'anthropic' }); }
+    if (ok(first)) { claudeRecovered().catch(() => {}); return done(Object.assign(first, { provider: 'anthropic' })); }
     if (first && first.error) await onClaudeError(first.error);
   }
   if (!canFallback()) return first;
@@ -101,7 +104,7 @@ export async function withClaudeFirst({ claude, gemini, ok = r => !!r && !r.erro
     second.provider = 'gemini';
     second.fallback = blocked || (first && first.error ? `claude ${first.error.status || ''} ${String(first.error.message || '').slice(0, 80)}`.trim() : 'claude-empty');
   }
-  return second;
+  return ok(second) ? done(second) : second;
 }
 
 /** Gemini 로 JSON 한 덩어리 받기 — 제안서 문안·검토처럼 Claude 전용이던 호출의 대체용.

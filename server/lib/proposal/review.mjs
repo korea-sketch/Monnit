@@ -73,7 +73,7 @@ export async function aiReview(job, copy, checks, { instruction = '', prev = nul
     });
     if (!r.ok) return { error: { status: r.status, message: (await r.text().catch(() => '')).slice(0, 300) } };
     const j = await r.json();
-    try { return { o: parse((j.content || []).map(c => c.text || '').join('')), model: j.model || CFG.aiModel, by: 'claude' }; }
+    try { return { o: parse((j.content || []).map(c => c.text || '').join('')), model: j.model || CFG.aiModel, usage: j.usage || null, by: 'claude' }; }
     catch (e) { return { error: { status: 200, message: 'no-json' } }; }
   };
   try {
@@ -83,9 +83,10 @@ export async function aiReview(job, copy, checks, { instruction = '', prev = nul
       gemini: async () => {
         const g = await geminiJSON({ system, user, maxTokens: 900, temperature: 0, signal: ac.signal });
         if (g.error) return g;
-        try { return { o: parse(g.raw), model: g.model, by: 'gemini' }; } catch (e) { return { error: { status: 200, message: 'no-json' } }; }
+        try { return { o: parse(g.raw), model: g.model, usage: g.usage, by: 'gemini' }; } catch (e) { return { error: { status: 200, message: 'no-json' } }; }
       },
-      ok: x => !!(x && x.o)
+      ok: x => !!(x && x.o),
+      meter: true
     }) : await claude();
     if (!res || res.error || !res.o) throw new Error(res && res.error ? 'AI ' + res.error.status : 'AI 응답 없음');
     const o = res.o, j = { model: res.model };
