@@ -267,6 +267,7 @@
     if (!t.meta) return '';
     bootMeta(true);                                                /* 아직이면 지금 올린다(접수 순간은 기다리지 않음) */
     hookMeta();                                                    /* 아직 못 걸었으면 지금 건다 */
+    try { armHook(); } catch (e) {}                                /* 이번엔 늦었더라도 다음 건을 위해 다시 무장 */
     if (!w.fbq || w.MK_META_SELF === true) return '';
     if (_metaFiredTs && (Date.now() - _metaFiredTs) < META_GAP) return '';   /* 페이지가 이미 쐈다 */
     if (queueHasLead()) return '';                                 /* 로드 전에 이미 쐈다 */
@@ -283,21 +284,40 @@
     } catch (e) { return ''; }
   }
 
+  /* ── 후크 재시도 ──
+     2026-11-13 — 예전에는 이 재시도를 「로드 직후 한 번」만 돌렸다. 200ms × 40 = 8초면 끝난다.
+     그런데 옵트인 모드에서는 방문자가 배너를 누른 뒤에야 픽셀이 올라온다 — 보통 8초보다 늦다.
+     그래서 그때 올라온 픽셀에는 후크가 안 걸렸고(실측 fbq.callMethod.__mk === false),
+     랜딩이 스스로 쏜 Lead 를 우리가 못 보고 한 번 더 쏴서 한 건이 두 건으로 잡힐 수 있었다.
+     (/promo/proposal · /promo/temperature · /promo/modbus 는 페이지가 직접 fbq 를 부른다.)
+     이제 동의 이벤트에서도 다시 무장한다. 타이머가 겹치지 않게 돌고 있으면 건너뛴다. */
+  var _hookTimer = null;
+
+  function armHook() {
+    try {
+      if (hookMeta()) return;                       /* 이미 걸렸다 */
+      if (_hookTimer !== null) return;              /* 이미 기다리는 중 */
+      var _si = w.setInterval, _ci = w.clearInterval;
+      if (typeof _si !== 'function') return;        /* 타이머 없는 환경(테스트 스텁 등) */
+      var _hn = 0;
+      _hookTimer = _si(function () {
+        if (hookMeta() || ++_hn > 150) {                   /* 200ms × 150 = 30초 — 느린 망에서 fbevents.js 가 늦게 떠도 못 걸지 않게 */
+          if (typeof _ci === 'function') _ci(_hookTimer);
+          _hookTimer = null;
+        }
+      }, 200);
+    } catch (e) { _hookTimer = null; }
+  }
+
   /* 진입 시 한 번, 그리고 방문자가 배너에서 동의를 누른 뒤에 한 번 더 */
   try { bootMeta(); } catch (e) {}
-  try { w.addEventListener('monnit:consent', function () { try { bootMeta(); } catch (e) {} }); } catch (e) {}
-  /* fbevents.js 가 아직이면 잠깐 기다렸다 건다.
-     타이머가 없는 환경(테스트 스텁 등)에서도 터지지 않게 감싼다. */
   try {
-    if (!hookMeta()) {
-      var _si = w.setInterval, _ci = w.clearInterval;
-      if (typeof _si === 'function') {
-        var _hn = 0, _ht = _si(function () {
-          if (hookMeta() || ++_hn > 40) { if (typeof _ci === 'function') _ci(_ht); }
-        }, 200);
-      }
-    }
+    w.addEventListener('monnit:consent', function () {
+      try { bootMeta(); } catch (e) {}
+      try { armHook(); } catch (e) {}               /* 동의 뒤에 올라온 픽셀에도 후크를 건다 */
+    });
   } catch (e) {}
+  try { armHook(); } catch (e) {}
 
   function track(type, detail) {
     var t = TYPES[type] || TYPES.contact;

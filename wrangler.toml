@@ -57,3 +57,10 @@ SELF_HOSTS = "monnit.co.kr,www.monnit.co.kr,monnit.ai,www.monnit.ai"
 PDF_BUILDER = "github"   # 바꾸지 마세요 — Worker 에는 PDF 라이브러리가 없습니다([alias] 참고)
 GITHUB_REPO = "korea-sketch/Monnit"
 NODE_VERSION = "20"
+# 2026-11-13 — 쿠키 동의 방식. "notice" 이면 국내(cf-ipcountry=KR) 방문자에게만
+#   mk_cmode=notice 쿠키를 내려 안내형(기본 측정 켜짐 + 「거부」 제공)으로 동작합니다.
+#   국내 외 방문자는 값과 무관하게 지금처럼 사전 동의(옵트인)입니다 — 분기는 cloudflare/worker.mjs 에 있습니다.
+#   비우거나 지우면 전 지역 옵트인으로 되돌아갑니다.
+#   왜 켰나: 옵트인에서는 방문자가 배너를 누르기 전까지 메타 픽셀이 설치되지 않아,
+#   광고 클릭 대비 랜딩 조회가 15~20% 밖에 잡히지 않았습니다(2026-11-13 실측: 신규 방문 시 fbq undefined).
+CONSENT_KR_MODE = "notice"
