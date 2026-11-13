@@ -33,7 +33,7 @@ function makeEnv({ cmode = '', mobile = false, saved = null, gtmPixel = false } 
     setAttribute(k, v) { this.attrs[k] = v; if (k === 'src') this.src = v; },
     getAttribute(k) { return this.attrs[k] ?? null; },
     appendChild(c) { this.children.push(c); if (c.src) scripts.push(c.src); return c; },
-    addEventListener() {}, removeEventListener() {}, remove() {},
+    addEventListener(t, f) { (this._l ||= {}); (this._l[t] ||= []).push(f); }, removeEventListener() {}, remove() {},
     querySelector() { return null; }, querySelectorAll() { return []; },
     closest() { return null; }, insertAdjacentHTML() {}, focus() {},
     set innerHTML(v) { this._html = v; }, get innerHTML() { return this._html || ''; }
@@ -107,7 +107,16 @@ function makeEnv({ cmode = '', mobile = false, saved = null, gtmPixel = false } 
       w.MonnitConsent.state = state;
       w.dispatchEvent(new w.CustomEvent('monnit:consent', { detail: state }));
     },
-    sent: () => (w.fbq && w.fbq.sent) || []
+    sent: () => (w.fbq && w.fbq.sent) || [],
+    /* ── ChatGPT(OpenAI) 픽셀 ── 큐에 쌓인 호출을 [명령, 인자…] 로 */
+    oai: () => ((w.oaiq && w.oaiq.q) || []).map(a => [].slice.call(a)),
+    /* 화면에 떠 있는 동의 창(배너·설정)의 버튼을 누른 상황 */
+    click(pick) {
+      const el = body.children.filter(c => c.attrs && c.attrs.id === undefined && c._l && c._l.click).pop()
+              || body.children.filter(c => c._l && c._l.click).pop();
+      if (!el) throw new Error('동의 창이 없음');
+      el._l.click.forEach(f => f({ target: { closest: sel => pick(sel) } }));
+    }
   };
 }
 
@@ -196,6 +205,93 @@ console.log('\n[G] monnit-consent.js 가 없는 페이지 — 터지지 않고 �
   try { e.run(LEAD, 'monnit-lead.js'); e.drain(); } catch (err) { threw = err; }
   ok('예외 없음', !threw, threw && threw.message);
   ok('동의 정보가 없으면 픽셀 미설치', typeof e.w.fbq === 'undefined');
+}
+
+/* ══ ChatGPT(OpenAI) 광고 픽셀 (2026-11-13) ══════════════════════ */
+const OAI_ID = '9ewGG1XjnBQr6bSLcrgiHp';
+const act = name => sel => (/data-act/.test(sel) && !/mnk-cc-sw/.test(sel) ? { getAttribute: () => name } : null);
+
+console.log('\n[H] ChatGPT 픽셀 · 옵트인 · 동의 전 — 올라오면 안 된다');
+{
+  const e = makeEnv({ cmode: '', mobile: true });
+  e.run(CONSENT, 'monnit-consent.js'); e.run(LEAD, 'monnit-lead.js'); e.drain();
+  ok('oaiq 미설치', typeof e.w.oaiq === 'undefined');
+  ok('oaiq.min.js 요청 없음', !e.scripts.some(s => /openai\.com/.test(s)));
+  e.w.MonnitLead.build('contact', 'promo_consulting', '무료체험', {});
+  e.w.MonnitLead.track('contact', { page: 'promo_consulting', interest: '무료체험' });
+  ok('접수해도 전송 없음', typeof e.w.oaiq === 'undefined');
+}
+
+console.log('\n[I] ChatGPT 픽셀 · 옵트인 · 배너에서 「모든 쿠키 수락」 → 설정에서 다시 끔');
+{
+  const e = makeEnv({ cmode: '', mobile: true });
+  e.run(CONSENT, 'monnit-consent.js'); e.run(LEAD, 'monnit-lead.js'); e.drain();
+  e.click(act('all')); e.drain();
+  const q = e.oai();
+  ok('SDK 로드 요청', e.scripts.filter(s => s === 'https://bzrcdn.openai.com/sdk/oaiq.min.js').length === 1, JSON.stringify(e.scripts));
+  ok('순서: consent true → init → page_viewed', q.length === 3 && q[0][0] === 'consent' && q[0][1] === true && q[1][0] === 'init' && q[2][0] === 'measure' && q[2][1] === 'page_viewed', JSON.stringify(q));
+  ok('픽셀 ID', q[1] && q[1][1].pixelId === OAI_ID);
+  ok('debug 는 평소 꺼짐', q[1] && !('debug' in q[1][1]));
+  ok('page_viewed 자료형 contents', q[2] && q[2][2].type === 'contents');
+  /* 설정 창을 열어 광고·마케팅 스위치를 끄고 저장 */
+  e.w.MonnitConsent.open(); e.drain();
+  e.click(sel => /mnk-cc-sw/.test(sel) ? { getAttribute: k => (k === 'data-key' ? 'marketing' : 'true'), setAttribute() {} } : null);
+  e.click(act('save')); e.drain();
+  const last = e.oai().pop();
+  ok('거부하면 consent false', last[0] === 'consent' && last[1] === false, JSON.stringify(last));
+  ok('동의 상태 반영', e.w.MonnitConsent.state.marketing === false);
+  const n = e.oai().length;
+  e.w.MonnitLead.build('contact', 'x', 'y', {}); e.w.MonnitLead.track('contact', { page: 'x' });
+  ok('거부 뒤 접수는 전송 안 함', e.oai().length === n);
+  e.w.MonnitConsent.open(); e.drain(); e.click(act('all')); e.drain();
+  const q2 = e.oai();
+  ok('다시 동의하면 consent true 만(중복 init 없음)', q2[q2.length - 1][0] === 'consent' && q2[q2.length - 1][1] === true && q2.filter(a => a[0] === 'init').length === 1, JSON.stringify(q2.map(a => a[0])));
+  ok('SDK 는 한 번만 로드', e.scripts.filter(s => /oaiq\.min\.js/.test(s)).length === 1);
+}
+
+console.log('\n[J] ChatGPT 픽셀 · 안내형 첫 로드 · 저장된 동의 · 저장된 거부');
+{
+  const a = makeEnv({ cmode: 'notice', mobile: true });
+  a.run(CONSENT, 'monnit-consent.js'); a.run(LEAD, 'monnit-lead.js'); a.drain();
+  ok('안내형 — 첫 로드에 init·page_viewed', a.oai().some(x => x[0] === 'init') && a.oai().some(x => x[1] === 'page_viewed'));
+  const b = makeEnv({ cmode: '', saved: { analytics: true, marketing: true } });
+  b.run(CONSENT, 'monnit-consent.js'); b.drain();
+  ok('저장된 동의 — 재방문 시 로드', b.oai().filter(x => x[0] === 'init').length === 1 && b.oai().filter(x => x[1] === 'page_viewed').length === 1);
+  const c = makeEnv({ cmode: 'notice', saved: { analytics: true, marketing: false } });
+  c.run(CONSENT, 'monnit-consent.js'); c.drain();
+  ok('저장된 거부 — 미설치', typeof c.w.oaiq === 'undefined' && !c.scripts.some(s => /openai/.test(s)));
+}
+
+console.log('\n[K] ChatGPT 픽셀 · 접수 전환');
+{
+  const e = makeEnv({ cmode: 'notice', mobile: true });
+  e.run(CONSENT, 'monnit-consent.js'); e.run(LEAD, 'monnit-lead.js'); e.drain(3);
+  const payload = e.w.MonnitLead.build('contact', 'promo_consulting', '무료체험', {});
+  const eid = payload['메타 이벤트ID'];
+  e.w.MonnitLead.track('contact', { page: 'promo_consulting', interest: '무료체험' });
+  const leads = e.oai().filter(a => a[0] === 'measure' && a[1] === 'lead_created');
+  ok('lead_created 1건', leads.length === 1, 'count=' + leads.length);
+  ok('자료형 customer_action', leads[0] && leads[0][2].type === 'customer_action');
+  ok('event_id = 접수 ID(서버 전송과 같은 값)', leads[0] && leads[0][3] && leads[0][3].event_id === eid && !!eid);
+  e.w.MonnitLead.build('subscribe', 'newsletter', '구독', {});
+  e.w.MonnitLead.track('subscribe', { page: 'newsletter' });
+  ok('구독은 registration_completed', e.oai().filter(a => a[1] === 'registration_completed').length === 1);
+  ok('메타 Lead 도 그대로 나감', (e.w.fbq.queue || []).concat(e.sent()).some(a => a[1] === 'Lead'));
+}
+
+console.log('\n[L] ChatGPT 픽셀 · 다른 곳(GTM 등)이 이미 올린 경우 · 디버그 · 끄기');
+{
+  const e = makeEnv({ cmode: 'notice' });
+  const pre = []; e.w.oaiq = function () { pre.push([].slice.call(arguments)); };
+  e.run(CONSENT, 'monnit-consent.js'); e.drain();
+  ok('init·page_viewed 를 또 보내지 않음', !pre.some(a => a[0] === 'init' || a[0] === 'measure'), JSON.stringify(pre));
+  ok('SDK 를 또 받지 않음', !e.scripts.some(s => /oaiq/.test(s)));
+  const d = makeEnv({ cmode: 'notice' }); d.w.location.search = '?utm_source=chatgpt&oai_debug=1';
+  d.run(CONSENT, 'monnit-consent.js'); d.drain();
+  ok('?oai_debug=1 이면 debug:true', d.oai().find(a => a[0] === 'init')[1].debug === true);
+  const f = makeEnv({ cmode: 'notice' }); f.w.MONNIT_CONSENT_CONFIG.oaiPixelId = false;
+  f.run(CONSENT, 'monnit-consent.js'); f.drain();
+  ok('oaiPixelId:false 면 끔', typeof f.w.oaiq === 'undefined');
 }
 
 console.log('\n' + (fail ? '✗ ' : '✓ ') + pass + ' pass / ' + fail + ' fail\n');

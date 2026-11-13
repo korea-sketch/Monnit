@@ -520,7 +520,9 @@ export default async (req) => {
     /* 알리미 자동 응답이 켜져 있는지 · 어느 주소로 나가는지 (2026-09-08) */
     alarmMail: alarmMailConfigured(),
     /* 메타 전환 API 토큰이 들어 있는지 (2026-10-29) */
-    metaCapi: !!(globalThis.__MNK_ENV_GET && globalThis.__MNK_ENV_GET('META_CAPI_TOKEN'))
+    metaCapi: !!(globalThis.__MNK_ENV_GET && globalThis.__MNK_ENV_GET('META_CAPI_TOKEN')),
+    /* ChatGPT(OpenAI) 광고 전환 API 키가 들어 있는지 (2026-11-13) */
+    oaiCapi: !!(globalThis.__MNK_ENV_GET && globalThis.__MNK_ENV_GET('OPENAI_ADS_API_KEY'))
   });
 
   /* ── 알리미 자동 응답 발송 내역 ────────────────────────────────────

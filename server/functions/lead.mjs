@@ -14,6 +14,7 @@ import _valid from '../../valid.js';
 import _guard from './_guard.js';   /* 경쟁사 차단 (2026-09-16) */
 import _docmap from './_docmap.js';   /* siteBase — 메일 링크 주소 검증 */
 import * as _capi from './_meta_capi.mjs';   /* 메타 전환 API — 서버에서 접수 알림 (2026-10-29) */
+import * as _oai from './_oai_capi.mjs';     /* ChatGPT(OpenAI) 광고 전환 API — 서버에서 접수 알림 (2026-11-13) */
 const VALID = _valid.MonnitValid;
 
 export const config = { path: '/api/lead' };
@@ -154,6 +155,14 @@ export default async (req) => {
       }).then(r => append('ops', 'capi-' + monthKey(safeTs(body.ts)), { ts: new Date().toISOString(), id: p['메타 이벤트ID'] || '', type, point: lead.point, ...r }))
         .catch(() => {});
       if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(job); else await job;
+    }
+
+    /* ChatGPT(OpenAI) 광고 전환 API — 메타와 같은 조건·같은 이벤트 ID. 결과는 ops/oai-capi-YYYY-MM 에 남는다. (2026-11-13) */
+    if (_oai.eligible(body, lead) && !isSupportLead(lead, p)) {
+      const job2 = _oai.sendLead(req, { type, eventId: p['메타 이벤트ID'] || '', url: lead.landing || '' })
+        .then(r => append('ops', 'oai-capi-' + monthKey(safeTs(body.ts)), { ts: new Date().toISOString(), id: p['메타 이벤트ID'] || '', type, point: lead.point, ...r }))
+        .catch(() => {});
+      if (globalThis.__MNK_WAIT_UNTIL) globalThis.__MNK_WAIT_UNTIL(job2); else await job2;
     }
 
     const id = lead.ts + '|' + (lead.email || lead.phone || lead.company || '');

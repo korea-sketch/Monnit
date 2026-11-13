@@ -17,9 +17,9 @@
   var KEY = 'mk_src_v1';
 
   var TYPES = {
-    contact:     { label: '접수', event: 'lead_contact',     ga: 'generate_lead', meta: 'Lead' },
-    doc_request: { label: '자료', event: 'lead_doc_request', ga: 'generate_lead', meta: 'Lead' },
-    subscribe:   { label: '구독', event: 'lead_subscribe',   ga: 'sign_up',       meta: 'CompleteRegistration' }
+    contact:     { label: '접수', event: 'lead_contact',     ga: 'generate_lead', meta: 'Lead', oai: 'lead_created' },
+    doc_request: { label: '자료', event: 'lead_doc_request', ga: 'generate_lead', meta: 'Lead', oai: 'lead_created' },
+    subscribe:   { label: '구독', event: 'lead_subscribe',   ga: 'sign_up',       meta: 'CompleteRegistration', oai: 'registration_completed' }
   };
 
   var PARAMS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term',
@@ -284,6 +284,17 @@
     } catch (e) { return ''; }
   }
 
+  /* ══ ChatGPT(OpenAI) 광고 전환 ═══════════════════════════════ (2026-11-13)
+     픽셀은 monnit-consent.js 가 올린다(광고·마케팅 동의 뒤에만). 여기서는 접수 순간만 알린다.
+     · 동의가 없거나 픽셀이 없으면 아무것도 보내지 않는다.
+     · event_id 는 메타와 같은 접수 ID — 서버 전송(Conversions API · _oai_capi.mjs)과 한 건으로 합쳐진다. */
+  function oai(type, eid) {
+    var t = TYPES[type] || TYPES.contact;
+    if (!t.oai || !w.oaiq || !marketingOk()) return false;
+    try { w.oaiq('measure', t.oai, { type: 'customer_action' }, eid ? { event_id: String(eid) } : {}); return true; }
+    catch (e) { return false; }
+  }
+
   /* ── 후크 재시도 ──
      2026-11-13 — 예전에는 이 재시도를 「로드 직후 한 번」만 돌렸다. 200ms × 40 = 8초면 끝난다.
      그런데 옵트인 모드에서는 방문자가 배너를 누른 뒤에야 픽셀이 올라온다 — 보통 8초보다 늦다.
@@ -341,6 +352,8 @@
     /* 메타는 맨 뒤에 — 여기서 막혀도 위쪽 신호는 이미 나갔다 */
     var _eid = meta(type, detail);
     try { if (_eid && _last) _last['메타 이벤트ID'] = _eid; } catch (e) {}
+    /* ChatGPT 광고 — 같은 접수 ID 로 */
+    try { oai(type, _eid || (_last && _last['메타 이벤트ID']) || eventId()); } catch (e) {}
     /* 원장 기록.
        app.js 의 sendLead 는 submit() 으로 이미 기록했으므로 건너뛴다.
        하지만 /promo/alarm · /promo/proposal 처럼 자체 sendLead 를 가진 랜딩은

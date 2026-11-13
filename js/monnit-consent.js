@@ -5,6 +5,7 @@
  * · Google Tag Manager / GA4 는 동의모드를 지원하므로 로드는 하되,
  *   동의 전에는 쿠키 없이 익명 신호만 보냅니다.
  * · Microsoft Clarity 는 동의모드가 없으므로 동의 전에는 아예 로드하지 않습니다.
+ * · ChatGPT(OpenAI) 광고 픽셀도 「광고·마케팅」 동의 뒤에만 로드합니다. (2026-11-13)
  * · 개인정보보호법(대한민국) · GDPR(EU) 의 옵트인 원칙에 맞춘 구성입니다.
  *
  * 사용법 — <head> 안, GTM 스니펫보다 "먼저" 넣으세요.
@@ -19,6 +20,11 @@
   var GTM_ID     = CFG.gtmId     || 'GTM-T8H73VW';
   var GA4_ID     = CFG.ga4Id     || 'G-49THHRYKR4';
   var CLARITY_ID = CFG.clarityId || 'x38egtft64';
+  /* ChatGPT 광고 관리자 픽셀 ID. 끄려면 MONNIT_CONSENT_CONFIG.oaiPixelId = false */
+  var OAI_PIXEL_ID = CFG.oaiPixelId === false ? '' : (CFG.oaiPixelId || '9ewGG1XjnBQr6bSLcrgiHp');
+  /* 설치 확인용 — 주소에 ?oai_debug=1 을 붙이면 픽셀 동작이 브라우저 콘솔에 찍힌다(평소에는 꺼 둔다) */
+  var OAI_DEBUG = false;
+  try { OAI_DEBUG = CFG.oaiDebug === true || /[?&]oai_debug=1(?:&|$)/.test(w.location.search || ''); } catch (e) {}
   var STORE_KEY  = 'mnk_cookie_consent_v1';
   var VERSION    = 1;
   var PRIVACY_URL = CFG.privacyUrl || '/privacy.html';
@@ -72,7 +78,7 @@
   }
 
   /* ── 스크립트 로더 ──────────────────────────────────────────── */
-  var loaded = { gtm: false, ga4: false, clarity: false };
+  var loaded = { gtm: false, ga4: false, clarity: false, oai: false };
   /* 2026-11-03 속도 — 분석·광고 스크립트(GTM·GA4·광고·Clarity, 합계 약 700KB)를 페이지가 다 뜬 뒤(load)에 붙인다.
      예전에는 <head> 에서 바로 받아 본문 스크립트·이미지와 회선·CPU 를 다퉜다(모바일에서 0.7~0.8초 멈춤).
      · 동의 상태·이벤트(dataLayer·gtag 호출)는 그대로 쌓였다가 스크립트가 붙는 즉시 전송된다 — 누락 없음
@@ -106,6 +112,35 @@
     inject('https://www.clarity.ms/tag/' + CLARITY_ID);
   }
 
+  /* ── ChatGPT(OpenAI) 광고 측정 픽셀 (2026-11-13) ──────────────
+     · 구글 동의모드를 따르지 않는 광고 픽셀이라 「광고·마케팅」에 동의했을 때만 올린다.
+     · OpenAI 표준 스니펫과 같은 모양의 큐(oaiq.q)를 먼저 만들고, SDK 는 다른 태그처럼 페이지가 뜬 뒤에 붙인다.
+       그 사이의 호출은 큐에 쌓였다가 SDK 가 뜨면 순서대로 나간다.
+     · init 만으로는 아무것도 전송되지 않는다 — 페이지 조회(page_viewed)를 직접 보낸다.
+       접수 전환(lead_created)은 js/monnit-lead.js 의 track() 이 보낸다.
+     · 다른 곳(GTM 등)이 이미 oaiq 를 올려 두었으면 init·조회를 또 보내지 않는다(중복 집계 방지). */
+  function loadOpenAI() {
+    if (loaded.oai || !OAI_PIXEL_ID) return;
+    loaded.oai = true;
+    if (w.oaiq) return;
+    var q = function () { q.q.push(arguments); };
+    q.q = [];
+    w.oaiq = q;
+    inject('https://bzrcdn.openai.com/sdk/oaiq.min.js');
+    var opt = { pixelId: OAI_PIXEL_ID };
+    if (OAI_DEBUG) opt.debug = true;
+    w.oaiq('consent', true);            // 예전에 거부했던 방문자가 다시 동의한 경우에도 풀리도록 init 보다 먼저
+    w.oaiq('init', opt);
+    w.oaiq('measure', 'page_viewed', { type: 'contents' });
+  }
+  /* 동의했으면 올리고(이미 떠 있으면 다시 허용), 거부하면 즉시 멈춘다 — consent false 는 픽셀 쿠키(__oppref·__obref)도 지운다 */
+  function openaiConsent(ok) {
+    try {
+      if (ok) { if (loaded.oai) { if (w.oaiq) w.oaiq('consent', true); } else loadOpenAI(); }
+      else if (w.oaiq) w.oaiq('consent', false);
+    } catch (e) {}
+  }
+
   /* Clarity 는 구글 동의모드를 따르지 않는다. (2026-09-18)
      이 파일은 동의 전에 Clarity 를 올리지 않지만, GTM 컨테이너 안에 Clarity 태그가
      들어 있으면 우리 코드와 상관없이 뜬다. 그때도 쿠키를 만들지 않도록
@@ -128,6 +163,7 @@
     w.MonnitConsent.state = { analytics: !!state.analytics, marketing: !!state.marketing };
     /* 메타 픽셀이 이미 떠 있으면 동의 상태를 그대로 알린다 — 거부하면 더 이상 보내지 않는다 */
     try { if (w.fbq) w.fbq('consent', state.marketing ? 'grant' : 'revoke'); } catch (e) {}
+    openaiConsent(!!state.marketing);   // ChatGPT 광고 픽셀 — 광고·마케팅 동의일 때만
     try { w.dispatchEvent(new CustomEvent('monnit:consent', { detail: w.MonnitConsent.state })); } catch (e) {}
   }
 
@@ -235,11 +271,11 @@
   function banner() {
     var el = shell(
       '<h2>귀하의 개인정보를 소중히 여깁니다</h2>' +
-      '<p class="sm">사이트 분석과 광고 성과 측정을 위해 쿠키를 사용합니다. 수락하시면 정보가 미국(Google · Microsoft · Meta)으로 이전될 수 있으며, ' +
+      '<p class="sm">사이트 분석과 광고 성과 측정을 위해 쿠키를 사용합니다. 수락하시면 정보가 미국(Google · Microsoft · Meta · OpenAI)으로 이전될 수 있으며, ' +
       '<b>환경설정 관리</b>에서 언제든 바꿀 수 있습니다.</p>' +
       '<p class="lg">모든 쿠키 수락을 클릭하면 사이트 탐색 개선, 사이트 사용 분석, 마케팅 및 성능 향상을 위해 ' +
       '귀하의 기기에 쿠키를 저장하고 관련 데이터를 처리하는 데 동의하게 됩니다. ' +
-      '수집된 정보는 분석·광고 목적으로 미국(Google LLC · Microsoft Corporation · Meta Platforms, Inc.)으로 이전될 수 있습니다. ' +
+      '수집된 정보는 분석·광고 목적으로 미국(Google LLC · Microsoft Corporation · Meta Platforms, Inc. · OpenAI OpCo, LLC)으로 이전될 수 있습니다. ' +
       '<b>환경설정 관리</b> 버튼을 통해 언제든지 동의를 철회할 수 있습니다.</p>' +
       '<div class="lnks">' +
         '<a href="' + PRIVACY_URL + '" target="_blank" rel="noopener">쿠키 공지</a>' +
@@ -264,7 +300,7 @@
   function noticeBanner() {
     var el = shell(
       '<h2>쿠키 사용 안내</h2>' +
-      '<p>방문 분석과 광고 성과 측정을 위해 쿠키를 사용합니다. 정보는 Google · Microsoft · Meta(미국)로 전송될 수 있습니다. ' +
+      '<p>방문 분석과 광고 성과 측정을 위해 쿠키를 사용합니다. 정보는 Google · Microsoft · Meta · OpenAI(미국)로 전송될 수 있습니다. ' +
       '원하지 않으시면 <b>거부</b>를 눌러 주세요. 언제든 <b>설정</b>에서 바꿀 수 있습니다.</p>' +
       '<div class="lnks">' +
         '<a href="' + PRIVACY_URL + '" target="_blank" rel="noopener">개인정보처리방침</a>' +
@@ -309,14 +345,14 @@
 
       '<div class="mnk-cc-grp"><div class="mnk-cc-gh">광고 · 마케팅</div>' +
         row('marketing', '광고 성과 측정', '어떤 광고를 통해 방문하셨는지 측정하고, 관련성 높은 광고를 노출합니다.', cur.marketing) +
-        '<ul class="mnk-cc-tools"><li>Google Tag Manager — 태그 관리</li><li>Google Ads — 전환 측정 및 리마케팅</li><li>Meta 픽셀(페이스북·인스타그램) — 광고 전환 측정</li></ul>' +
+        '<ul class="mnk-cc-tools"><li>Google Tag Manager — 태그 관리</li><li>Google Ads — 전환 측정 및 리마케팅</li><li>Meta 픽셀(페이스북·인스타그램) — 광고 전환 측정</li><li>OpenAI 픽셀(ChatGPT 광고) — 광고 전환 측정</li></ul>' +
       '</div>' +
 
       '<div class="mnk-cc-btns">' +
         '<button class="mnk-cc-btn mnk-cc-btn-main" data-act="save">환경설정 저장</button>' +
         '<button class="mnk-cc-btn mnk-cc-btn-sub" data-act="all">모든 쿠키 수락</button>' +
       '</div>' +
-      '<p class="mnk-cc-note">국외 이전: Google LLC · Microsoft Corporation · Meta Platforms, Inc. (미국) — 쿠키·이용기록·기기정보·IP / 웹 분석 및 광고 전환 측정 / 각 사업자 정책에 따름<br>' +
+      '<p class="mnk-cc-note">국외 이전: Google LLC · Microsoft Corporation · Meta Platforms, Inc. · OpenAI OpCo, LLC (미국) — 쿠키·이용기록·기기정보·IP / 웹 분석 및 광고 전환 측정 / 각 사업자 정책에 따름<br>' +
       '자세한 내용은 <a class="lnk" href="' + PRIVACY_URL + '" target="_blank" rel="noopener">개인정보처리방침</a>을 참조하세요.</p>'
     );
     var draft = { analytics: cur.analytics, marketing: cur.marketing };
