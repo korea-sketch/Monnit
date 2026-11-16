@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070C18">
+<!-- 맞견적(MatchQuote) — 다른 곳에서 받은 견적서를 같은 조건의 모넷 구성으로 바꿔 나란히 비교 (2026-11-16)
+     4차(2026-11-16): 올리면 AI 가 읽어(/api/match/read) 바로 비교 화면을 보여 준다 · 읽은 품목은 관제에 기록
+     3차(2026-11-16): 품목 입력을 없애고 견적서 사진·PDF 만 받는다 → /api/match/upload (R2 match/f/…) · 신청은 선택(/api/match/save)
+     품목 읽기·치환(js/match-core.js)은 관제 화면(/ops/enablement)에서 담당자가 쓴다
+     접수: MonnitLead.submit → /api/lead (기존 원장·먼데이·담당자 메일 경로 그대로) · 접점 match -->
+<script>window.MONNIT_CONSENT_CONFIG={gtmId:'GTM-T8H73VW',ga4Id:'G-49THHRYKR4',clarityId:'xikw9t2skq',privacyUrl:'/privacy.html',mobileBanner:true};</script>
+<script src="/js/monnit-consent.js?v=113"></script>
+<script src="/js/monnit-lead.js?v=6"></script>
+<script src="/js/monnit-track.js?v=2" defer></script>
+<script src="/valid.js?v=2" defer></script>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<title>맞견적 — 받은 견적서를 같은 조건의 모넷 구성으로 비교 | Monnit Korea</title>
+<meta name="description" content="다른 곳에서 받은 IoT·센서 모니터링 견적서를 사진이나 PDF 로 올려 주세요. 같은 조건의 모넷 무선 센서 구성으로 바꾼 비교표를 담당자가 보내 드립니다. 배선 공사가 없는 940MHz 무선 방식.">
+<link rel="canonical" href="https://monnit.co.kr/match/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Monnit Korea">
+<meta property="og:title" content="맞견적 — 받은 견적서를 같은 조건의 모넷 구성으로 비교">
+<meta property="og:description" content="견적서 사진만 올리면 같은 조건의 모넷 구성 비교표를 보내 드립니다.">
+<meta property="og:url" content="https://monnit.co.kr/match/">
+<meta property="og:locale" content="ko_KR">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--bg:#070C18;--bg2:#0B1326;--card:#0F1A30;--card2:#14213C;--line:rgba(255,255,255,.1);--line2:rgba(255,255,255,.18);--ink:#F3F6FB;--mut:#A9B5CC;--dim:#7482A0;--acc:#6FA2FF;--acc2:#3F7BF0;--mint:#5CE0C2;--or:#F5A524;--dn:#FF8A8A;--r:16px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:16px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+a{color:inherit}.wrap{max-width:1120px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-left))}
+.nav{position:sticky;top:0;z-index:30;background:rgba(7,12,24,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
+.brand-logo{display:block;height:19px;width:auto}
+.nav a.home{font-size:14px;color:var(--mut);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:7px 14px;white-space:nowrap}
+.nav a.home:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.hero{padding:72px 0 44px;background:radial-gradient(900px 420px at 80% -10%,rgba(63,123,240,.22),transparent 60%),linear-gradient(180deg,#081022,var(--bg))}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--mint);text-transform:uppercase}
+.eyebrow i{width:26px;height:1px;background:var(--mint);display:block}
+h1{font-size:clamp(30px,5vw,50px);line-height:1.22;letter-spacing:-.03em;margin:16px 0 18px;font-weight:800;max-width:18em}
+h1 em{font-style:normal;color:var(--acc)}
+.lead{font-size:clamp(16px,1.6vw,19px);color:var(--mut);max-width:40em;margin:0}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:36px}
+.fact{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:rgba(255,255,255,.025)}
+.fact b{display:block;font-size:15.5px;margin-bottom:2px}.fact span{color:var(--mut);font-size:14px}
+section{padding:44px 0}
+.step-h{display:flex;align-items:baseline;gap:14px;margin:0 0 6px}
+.step-h .no{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--acc)}
+h2{font-size:clamp(22px,2.6vw,29px);letter-spacing:-.02em;margin:0;line-height:1.3}
+.step-p{color:var(--mut);margin:0 0 20px;max-width:46em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+textarea,input,select{font-family:inherit;font-size:15px;color:var(--ink);background:#091226;border:1px solid var(--line2);border-radius:10px;padding:11px 12px;width:100%}
+textarea{min-height:210px;line-height:1.6;resize:vertical;font-variant-numeric:tabular-nums}
+textarea:focus,input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+::placeholder{color:#5D6B88}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:13px 22px;font-family:inherit;font-size:15.5px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#04102A;text-decoration:none;min-height:48px}
+.btn:hover{filter:brightness(1.08)}.btn[disabled]{opacity:.6;cursor:default}
+.btn.ghost{background:none;border:1px solid var(--line2);color:var(--ink);font-weight:600}
+.btn.sm{padding:8px 14px;min-height:38px;font-size:14px;border-radius:10px}
+.hint{font-size:13.5px;color:var(--dim)}
+.tw{overflow-x:auto;margin:0 -6px;padding:0 6px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums}
+th{font-size:12.5px;color:var(--dim);font-weight:600;text-align:left;padding:8px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right}
+#lines input,#lines select{padding:8px 9px;font-size:14px;border-radius:8px}
+#lines td:nth-child(1){min-width:200px}#lines td:nth-child(2){min-width:150px}#lines td:nth-child(3){width:86px}#lines td:nth-child(4){width:140px}#lines td:nth-child(5){width:96px}
+#lines input.num{text-align:right}
+.x{background:none;border:0;color:var(--dim);font-size:20px;line-height:1;cursor:pointer;padding:6px 8px;border-radius:8px}.x:hover{color:var(--dn);background:rgba(255,255,255,.05)}
+.warn{font-size:12.5px;color:var(--or);margin-top:4px}
+.opts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+.opts label,.form label{display:block;font-size:13px;color:var(--mut);margin-bottom:5px}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mut);margin-top:12px}.chk input{width:18px;height:18px;flex:none;accent-color:var(--acc)}
+/* 결과 */
+.verdict{font-size:clamp(20px,2.5vw,27px);font-weight:800;letter-spacing:-.02em;line-height:1.35;margin:0 0 6px}
+.verdict .mint{color:var(--mint)}.verdict-sub{color:var(--mut);margin:0 0 22px}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.side{border:1px solid var(--line);border-radius:var(--r);padding:20px;background:var(--card2)}
+.side.ours{border-color:rgba(92,224,194,.45);background:linear-gradient(180deg,rgba(92,224,194,.08),var(--card2) 55%)}
+.side h3{margin:0 0 12px;font-size:14px;color:var(--mut);font-weight:600;letter-spacing:.02em}
+.side .tco{font-size:clamp(26px,3.6vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.15}.side .tco small{font-size:15px;font-weight:600;color:var(--mut);margin-left:4px}
+.side dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0 0;font-size:14.5px}.side dt{color:var(--mut)}.side dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.bars{margin-top:22px}
+.bar-row{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;align-items:center;margin-bottom:12px;font-size:14px}
+.bar-row .lb{color:var(--mut)}
+.pair{display:flex;flex-direction:column;gap:5px}
+.pair div{display:flex;align-items:center;gap:8px;min-width:0}
+.pair i{display:block;height:12px;border-radius:6px;min-width:2px;flex:none}
+.pair .t i{background:#56637F}.pair .o i{background:var(--mint)}
+.pair span{font-size:13px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--mut);margin-bottom:14px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#map td{vertical-align:top}#map .nt{font-size:13px;color:var(--dim);margin-top:3px;white-space:normal}
+#map td.k{color:var(--mut);white-space:nowrap}
+.tag{display:inline-block;white-space:nowrap;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:rgba(245,165,36,.16);color:var(--or)}
+.tag.p{background:rgba(92,224,194,.16);color:var(--mint)}
+.notice{font-size:13.5px;color:var(--dim);line-height:1.7;margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form .full{grid-column:1/-1}.form textarea{min-height:90px}
+.bad{border-color:var(--dn)!important}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.picks{display:flex;flex-wrap:wrap;gap:8px}
+.pick{position:relative;cursor:pointer}.pick input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.pick span{display:block;border:1px solid var(--line2);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--mut);background:#091226}
+.pick input:checked+span{border-color:var(--mint);color:var(--mint);background:rgba(92,224,194,.1)}
+.pick input:focus-visible+span{outline:2px solid var(--acc);outline-offset:2px}
+.more{margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+.more h3{font-size:15px;margin:0 0 4px}.more p{font-size:13.5px;color:var(--dim);margin:0 0 12px}
+.more .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.more label.lb,label.lb,.form label{display:block;font-size:13px;color:var(--mut);margin-bottom:5px}
+.use{font-size:13px;color:var(--dim);margin:12px 0 0;line-height:1.65}
+.pv{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:28px;align-items:center}
+.pv ol{margin:0;padding:0;list-style:none;counter-reset:s}.pv li{counter-increment:s;position:relative;padding:0 0 18px 44px}
+.pv li:before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--acc)}
+.pv li b{display:block}.pv li span{color:var(--mut);font-size:14.5px}
+.mock{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:18px}
+.mock .cap{font-size:12px;color:var(--dim);letter-spacing:.08em;margin-bottom:12px}
+.mock .mrow{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center;font-size:13px;color:var(--mut);margin-bottom:10px}
+.mock .mb{display:flex;flex-direction:column;gap:4px}.mock .mb i{display:block;height:9px;border-radius:5px}.mock .mb i.t{background:#56637F}.mock .mb i.o{background:var(--mint)}
+.mock .foot{font-size:12.5px;color:var(--dim);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.err{color:var(--dn);font-size:14px;min-height:1.4em;margin:10px 0 0}
+.done{border:1px solid rgba(92,224,194,.45);border-radius:var(--r);padding:22px;background:rgba(92,224,194,.06)}
+.done h3{margin:0 0 6px;font-size:19px}
+[hidden]{display:none!important}
+footer{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--dim);font-size:13.5px}
+footer .legal{display:flex;gap:18px;flex-wrap:wrap}footer a{color:var(--mut);text-decoration:none}footer a:hover{color:#fff}
+@media (max-width:900px){.opts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:680px){.hero{padding:48px 0 28px}.facts,.duo,.form,.pv,.more .two{grid-template-columns:minmax(0,1fr)}.opts{grid-template-columns:repeat(2,minmax(0,1fr))}section{padding:32px 0}.card{padding:16px}.bar-row{grid-template-columns:minmax(0,1fr);gap:4px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{
+  body{background:#fff;color:#111;font-size:12px}.nav,.hero,#upCard,#facts,.form-card,footer,.no-print,.btn{display:none!important}
+  section{padding:8px 0}.card,.side,.done{background:#fff!important;border:1px solid #bbb;color:#111}.side .tco,.verdict{color:#111}.verdict .mint,.side dt,.side h3,.pair span,.bar-row .lb,#map td.k,#map .nt,.notice,.verdict-sub,.step-p{color:#333!important}
+  .pair .t i{background:#999!important}.pair .o i{background:#1b8f76!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}td,th{border-color:#ccc}
+}
+.hero{padding:56px 0 20px}
+.one{max-width:760px}
+.drop{display:block;border:2px dashed var(--line2);border-radius:20px;padding:44px 20px;text-align:center;cursor:pointer;background:rgba(111,162,255,.04);transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--acc);background:rgba(111,162,255,.1)}
+.drop:focus-within{outline:2px solid var(--acc);outline-offset:3px}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.drop svg{width:44px;height:44px;color:var(--acc);margin-bottom:10px}
+.drop b{display:block;font-size:20px;letter-spacing:-.01em}.drop span{display:block;color:var(--mut);font-size:14.5px;margin-top:4px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px}
+.file{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:8px;font-size:12.5px;color:var(--mut);min-width:0}
+.file .th{height:96px;border-radius:8px;background:#0a1224 center/cover no-repeat;display:grid;place-items:center;color:var(--dim);font-weight:700;margin-bottom:6px}
+.file .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file .st{font-weight:700}.file.ok .st{color:var(--mint)}.file.err .st{color:var(--dn)}
+.got{margin-top:22px;padding-top:22px;border-top:1px solid var(--line)}
+.got h2{font-size:22px}.got>p{color:var(--mut);margin:6px 0 18px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:680px){.three{grid-template-columns:minmax(0,1fr)}.drop{padding:34px 14px}}
+.hero h1{transition:font-size .2s}
+.drop svg{transition:transform .25s}.drop:hover svg,.drop.over svg{transform:translateY(-6px)}
+.drop.over{transform:scale(1.01)}
+.drop{transition:border-color .15s,background .15s,transform .15s}
+/* 읽는 중 */
+.scan{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:22px;align-items:start}
+.shot{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line2);background:#0a1224 center/cover no-repeat;aspect-ratio:3/4;display:grid;place-items:center;color:var(--dim);font-weight:800;font-size:22px}
+.shot:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,12,24,.15),rgba(7,12,24,.55))}
+.shot .beam{position:absolute;left:0;right:0;height:38%;top:-40%;background:linear-gradient(180deg,transparent,rgba(92,224,194,.28) 80%,rgba(92,224,194,.9) 99%,transparent);animation:beam 1.8s cubic-bezier(.5,0,.5,1) infinite}
+.shot.done .beam{display:none}.shot.done:after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;font-size:54px;color:var(--mint);animation:pop .4s ease-out}
+.shot .cnt{position:absolute;right:8px;bottom:8px;font-size:12px;font-weight:700;background:rgba(7,12,24,.8);border:1px solid var(--line2);border-radius:999px;padding:3px 9px;color:var(--ink)}
+@keyframes beam{to{top:105%}}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:flex;gap:12px;align-items:center;padding:9px 0;color:var(--dim);font-size:16px;transition:color .25s}
+.steps li i{width:24px;height:24px;border-radius:50%;border:2px solid var(--line2);flex:none;display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:800}
+.steps li.on{color:var(--ink);font-weight:700}.steps li.on i{border-color:var(--acc);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps li.ok{color:var(--mut)}.steps li.ok i{border-color:var(--mint);background:var(--mint);color:#04261f}.steps li.ok i:after{content:"✓"}
+.steps li small{font-weight:500;color:var(--dim);font-size:13.5px;margin-left:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.found{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;min-height:34px}
+.found span{font-size:13px;border:1px solid var(--line2);border-radius:999px;padding:5px 11px;color:var(--mut);background:#091226;animation:chip .35s ease-out both;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.found span b{color:var(--mint);font-weight:700;margin-right:5px}
+@keyframes chip{from{transform:translateY(8px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.rise{animation:rise .5s ease-out both}
+@keyframes rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.pair i{transition:width .9s cubic-bezier(.2,.7,.2,1)}
+.again{background:none;border:0;color:var(--acc);font:inherit;font-size:14.5px;cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+.cta-bar{position:sticky;bottom:0;z-index:20;display:none;gap:10px;align-items:center;justify-content:space-between;padding:10px max(16px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom));background:rgba(7,12,24,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.cta-bar b{font-size:14px}.cta-bar .btn{min-height:42px;padding:9px 16px;font-size:14.5px}
+.wide{max-width:920px}
+@media (max-width:680px){.scan{grid-template-columns:minmax(0,1fr)}.shot{aspect-ratio:16/9}.cta-bar.show{display:flex}h1{font-size:28px}.side .tco{font-size:26px}#map th:nth-child(5),#map td:nth-child(5){display:none}#map thead{display:none}#map,#map tbody{display:block}#map tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:13px 0;border-bottom:1px solid var(--line)}#map td{border:0;padding:0;font-size:14px}#map td.k{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--acc)}#map td:nth-child(2),#map td:nth-child(3){color:var(--mut)}#map td:nth-child(4){font-weight:600}#map td.n{white-space:nowrap}.tw{overflow:visible}}
+@media (prefers-reduced-motion:reduce){.shot .beam,.steps li.on i,.found span,.rise,.shot.done:after{animation:none}.pair i{transition:none}}
+.caveat{display:flex;gap:14px;align-items:flex-start;border:1.5px solid rgba(245,165,36,.75);background:rgba(245,165,36,.12);border-radius:14px;padding:16px 18px;color:#FFE2B0}
+.caveat svg{width:28px;height:28px;flex:none;color:var(--or);margin-top:2px}
+.caveat b{display:block;font-size:17px;color:#FFD08A;letter-spacing:-.01em;margin-bottom:3px}
+.caveat p{margin:0;font-size:14.5px;line-height:1.6;color:#F6DDB6}
+.caveat p strong{color:#fff}
+.caveat.big{padding:20px 22px;border-width:2px}.caveat.big b{font-size:20px}.caveat.big p{font-size:15.5px}
+.caveat.slim{padding:12px 14px}.caveat.slim b{font-size:15px}.caveat.slim p{font-size:13.5px}
+.cv-list{margin-top:8px!important}.cv-list span{display:block;padding:2px 0}
+@media (max-width:680px){.caveat{padding:12px 13px;gap:10px;border-radius:12px}.caveat svg{width:22px;height:22px}.caveat b,.caveat.big b{font-size:16px}.caveat p,.caveat.big p{font-size:13.5px;line-height:1.55}.caveat.big{padding:14px}.chk{align-items:flex-start;font-size:13.5px}.chk input{margin-top:2px}.verdict{font-size:19px}.drop b{font-size:18px}.steps li{font-size:15px;padding:7px 0}.card{border-radius:14px}.btn{width:100%}.row .btn.sm,.cta-bar .btn{width:auto}.done{padding:16px}}
+.yr{display:flex;align-items:center;gap:12px;margin:0 0 16px;flex-wrap:wrap}.yr>span{font-size:13.5px;color:var(--mut)}
+.seg2{position:relative;display:inline-flex;background:#0a1326;border:1px solid var(--line2);border-radius:999px;padding:4px}
+.seg2 button{position:relative;z-index:1;background:none;border:0;color:var(--mut);font:inherit;font-size:14.5px;font-weight:700;padding:8px 20px;border-radius:999px;cursor:pointer;transition:color .25s}
+.seg2 button.on{color:#04102A}.seg2 .pill{position:absolute;top:4px;bottom:4px;left:4px;width:0;border-radius:999px;background:linear-gradient(180deg,var(--mint),#39c7a8);transition:transform .35s cubic-bezier(.3,1.3,.5,1),width .35s;box-shadow:0 0 18px rgba(92,224,194,.45)}
+.side,.chart-card{position:relative;overflow:hidden}
+.side:after,.chart-card:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(260px circle at var(--mx,-200px) var(--my,-200px),rgba(111,162,255,.16),transparent 70%);transition:opacity .3s;opacity:0}
+.side:hover:after,.chart-card:hover:after{opacity:1}
+.side.ours{box-shadow:0 0 0 1px rgba(92,224,194,.25),0 18px 50px -24px rgba(92,224,194,.55)}
+.chart-card{margin-top:16px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,#0c1730,#0a1326);padding:18px 18px 10px}
+.ch-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.ch-h b{font-size:15.5px}.ch-h span{font-size:13px;color:var(--dim)}
+.chart{position:relative;touch-action:pan-y}
+#chartSvg{display:block;width:100%;height:auto;overflow:visible;cursor:crosshair}
+#chartSvg text{font-family:inherit;font-size:11.5px;fill:#7482A0}
+#chartSvg .gl{stroke:rgba(255,255,255,.07)}
+#chartSvg .their{fill:none;stroke:#9FB0D6;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+#chartSvg .band{fill:url(#gBand)}#chartSvg .edge{fill:none;stroke:var(--mint);stroke-width:1.5;opacity:.85}
+#chartSvg .gap{fill:url(#gGap)}
+#chartSvg .cross{stroke:rgba(255,255,255,.35);stroke-dasharray:3 4}
+#chartSvg .dotT{fill:#0a1326;stroke:#C9D6F2;stroke-width:2.5}#chartSvg .barO{stroke:var(--mint);stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(92,224,194,.8))}
+#chartSvg .xl.on{fill:#fff;font-weight:700}
+#chartSvg .mk{transition:transform .35s cubic-bezier(.3,1.2,.5,1)}
+.tip{position:absolute;top:6px;z-index:3;pointer-events:none;min-width:190px;background:rgba(8,14,30,.96);border:1px solid var(--line2);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.6;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:left .12s ease-out}
+.tip b{display:block;font-size:12px;color:var(--dim);letter-spacing:.04em;margin-bottom:2px}.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.tip em{font-style:normal;color:var(--mint);font-weight:700}
+.bar-row{border-radius:10px;padding:6px 8px;margin:0 -8px 6px;transition:background .2s,opacity .25s;cursor:pointer;opacity:0;transform:translateX(-10px)}
+.bar-row.in{opacity:1;transform:none;transition:opacity .45s,transform .45s cubic-bezier(.2,.8,.2,1),background .2s}
+.bars.hov .bar-row.in{opacity:.38}.bars.hov .bar-row.in.act{opacity:1;background:rgba(255,255,255,.045)}
+.pair i{position:relative;overflow:hidden}
+.pair .o i:first-child:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:sheen 2.6s ease-in-out 1.2s infinite}
+@keyframes sheen{to{transform:translateX(100%)}}
+#map tr{transition:background .2s}#map tr.act td{background:rgba(92,224,194,.07)}
+.verdict .mint{background:linear-gradient(90deg,#5CE0C2,#8EF1DC,#5CE0C2);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 4s linear infinite}
+@keyframes flow{to{background-position:-200% 0}}
+#chartSvg.nar text{font-size:23px}#chartSvg.nar .their{stroke-width:5}#chartSvg.nar .edge{stroke-width:3}#chartSvg.nar .dotT{r:10;stroke-width:5}#chartSvg.nar .barO{stroke-width:13}#chartSvg.nar .cross{stroke-width:2}
+@media (max-width:680px){.seg2 button{padding:8px 16px}.chart-card{padding:14px 10px 6px}.tip{min-width:170px;font-size:12.5px}}
+@media (prefers-reduced-motion:reduce){.pair .o i:first-child:after,.verdict .mint{animation:none}.seg2 .pill,.bar-row,#chartSvg .mk{transition:none}.bar-row{opacity:1;transform:none}}
+@media print{.yr,.tip,.side:after,.chart-card:after{display:none!important}.chart-card{background:#fff!important;border:1px solid #bbb}#chartSvg text{fill:#333!important}#chartSvg .their{stroke:#555!important}.verdict .mint{color:#000!important;-webkit-text-fill-color:#000;background:none!important}.bar-row{opacity:1!important;transform:none!important}}
+.items-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin:26px 0 8px}.items-h b{font-size:16.5px}.items-h b span{color:var(--mint);margin-left:4px}.items-h>span{font-size:13px;color:var(--dim)}
+#items td{vertical-align:top}#items tr{opacity:0;transform:translateY(6px)}#items tr.in{opacity:1;transform:none;transition:opacity .35s,transform .35s,background .2s}
+#items thead tr{opacity:1;transform:none}
+#items .kd{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:rgba(111,162,255,.14);color:#A9C7FF;white-space:nowrap}
+#items .kd.sensor{background:rgba(92,224,194,.14);color:var(--mint)}#items .kd.construction{background:rgba(245,165,36,.16);color:var(--or)}#items .kd.etc{background:rgba(255,255,255,.08);color:var(--mut)}
+#items td.ou{color:var(--ink)}#items td.ou small{display:block;color:var(--or);font-size:12px}
+#items tr.act td{background:rgba(92,224,194,.07)}#items tfoot td{font-weight:700;border-top:1px solid var(--line2);border-bottom:0}
+.it-note{font-size:13px;color:var(--dim);margin:10px 0 0;line-height:1.6}.it-note.warn{color:var(--or)}
+@media (max-width:680px){#items thead{display:none}#items,#items tbody,#items tfoot{display:block}#items tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:12px 0;border-bottom:1px solid var(--line)}#items td{border:0;padding:0;font-size:14px}#items td:nth-child(1){font-weight:600}#items td:nth-child(2){text-align:right}#items td:nth-child(3){color:var(--mut);text-align:left}#items td:nth-child(3):before{content:"수량 "}#items td:nth-child(5){grid-column:1/-1;color:var(--mut)}#items td:nth-child(5):before{content:"→ ";color:var(--mint)}#items tfoot td:empty{display:none}}
+@media (prefers-reduced-motion:reduce){#items tr{opacity:1;transform:none}}
+@media print{#items tr{opacity:1!important;transform:none!important}}
+.rg{white-space:nowrap}.rg i{font-style:normal;opacity:.6;margin:0 3px;font-weight:600}
+.side.ours .tco{font-size:clamp(22px,2.9vw,31px)}
+.pair .o i.hi{background:var(--mint);opacity:.35;margin-left:-8px;border-radius:0 6px 6px 0}
+.est{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;color:#1c1300;background:var(--or);border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.chk.must{border:1.5px solid rgba(245,165,36,.6);background:rgba(245,165,36,.08);border-radius:12px;padding:12px 14px;color:#FFE2B0;align-items:flex-start;line-height:1.55}
+.chk.must input{margin-top:3px;accent-color:var(--or)}
+@media print{.caveat{border:2px solid #000!important;background:#fff!important;color:#000!important}.caveat b,.caveat p,.caveat p strong{color:#000!important}.caveat svg{color:#000!important}.est{background:#000!important;color:#fff!important}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a href="/" aria-label="Monnit Korea 홈"><picture><source srcset="/assets/brand/monnit-korea-white-480.webp" type="image/webp"><img class="brand-logo" src="/assets/brand/monnit-korea-white-480.png" alt="MONNIT KOREA" width="488" height="62"></picture></a>
+  <a class="home" href="/">홈으로</a>
+</div></header>
+
+<main>
+<div class="hero"><div class="wrap wide">
+  <span class="eyebrow"><i></i>맞견적 MatchQuote</span>
+  <h1>받은 견적서, <em>사진만 올려 주세요</em></h1>
+  <p class="lead" id="lead">올리면 바로 읽어서 같은 조건의 모넷 구성과 나란히 보여 드립니다. 배선 공사가 없는 무선 방식이라 공사비에서 차이가 납니다.</p>
+</div></div>
+
+<section style="padding-top:20px"><div class="wrap wide">
+  <div class="card" id="upCard">
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept="image/*,application/pdf" multiple>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      <b>견적서 사진 · 캡처 · PDF 올리기</b>
+      <span>눌러서 고르거나 끌어다 놓으세요. 휴대폰은 바로 촬영, PC 는 캡처 후 붙여 넣기(Ctrl+V)도 됩니다.</span>
+    </label>
+    <div class="caveat slim" id="cav0" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>화면에 나오는 금액은 예상 금액입니다</b><p>센서가 실제 <strong>사용 용도</strong>에 맞는지, 게이트웨이 <strong>수신 범위</strong>가 현장에서 나오는지 확인한 뒤에 정식 견적이 정해집니다. 정식 견적 금액은 예상 금액과 달라질 수 있습니다.</p></div></div>
+    <div class="scan" id="scan" hidden>
+      <div class="shot" id="shot"><span class="beam"></span><span class="cnt" id="shotCnt"></span></div>
+      <div>
+        <ol class="steps" id="steps" aria-live="polite">
+          <li data-s="up"><i></i><span>견적서 받는 중</span></li>
+          <li data-s="read"><i></i><span>품목과 금액 읽는 중</span></li>
+          <li data-s="sort"><i></i><span>센서 · 공사 · 플랫폼으로 나누는 중</span></li>
+          <li data-s="conv"><i></i><span>같은 조건의 모넷 구성으로 바꾸는 중</span></li>
+        </ol>
+        <div class="found" id="found"></div>
+      </div>
+    </div>
+    <div class="caveat slim" id="cav1" hidden style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>지금 계산하는 금액은 예상 금액입니다</b><p>견적서의 품목 이름만 보고 가장 가까운 센서로 바꾸며, 게이트웨이는 <strong>현장 1곳 · 수신 범위 안</strong>이라고 가정합니다. 실제 용도와 설치 위치를 확인하면 센서 종류·게이트웨이 대수와 금액이 달라질 수 있습니다.</p></div></div>
+    <p class="use" id="use">올리신 파일은 저장되어 견적 비교와 내부 가격 분석에 쓰이며, 외부에 공개하지 않습니다. 담당자 이름·연락처가 보이는 부분은 가리고 올리셔도 됩니다.</p>
+  </div>
+
+  <div id="result" hidden style="margin-top:18px">
+    <div class="caveat big" id="cav2" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>예상 구간입니다 — 정식 견적은 달라질 수 있습니다</b><p>아래 모넷 금액은 올리신 견적서를 자동으로 읽어 계산한 <strong>예상 구간이며 확정 금액이 아닙니다.</strong> 정식 견적 전에 다음을 확인하고, 그 결과에 따라 금액이 <strong>늘거나 줄 수 있습니다.</strong></p>
+      <p class="cv-list"><span>① <strong>센서 용도</strong> — 측정 대상·범위·설치 환경(방폭·방수·고온 등)에 맞는 모델인지</span><span>② <strong>게이트웨이 수신 범위</strong> — 설치 위치·거리·벽과 층 구조에 따른 게이트웨이 대수</span><span>③ <strong>수량</strong> — 자동으로 읽은 품목·수량이 원본과 같은지</span></p></div></div>
+    <div class="card">
+      <p class="verdict" id="verdict"></p>
+      <p class="verdict-sub" id="verdictSub"></p>
+      <div id="resBody">
+        <div class="yr no-print"><span>운영 기간을 바꿔 보세요</span><div class="seg2" id="yrs" role="group" aria-label="운영 기간"><span class="pill" aria-hidden="true"></span><button type="button" data-y="1">1년</button><button type="button" data-y="3">3년</button><button type="button" data-y="5">5년</button></div></div>
+        <div class="duo">
+          <div class="side rise"><h3>받으신 견적서</h3><div class="tco" id="tT"></div><dl id="tD"></dl></div>
+          <div class="side ours rise" style="animation-delay:.12s"><h3>같은 조건의 모넷 구성 <span class="est">예상</span></h3><div class="tco" id="oT"></div><dl id="oD"></dl></div>
+        </div>
+        <div class="chart-card rise" style="animation-delay:.2s"><div class="ch-h"><b>기간별 누적 비용</b><span>그래프 위에 올리거나 눌러 보세요</span></div>
+          <div class="chart" id="chart"><svg id="chartSvg" viewBox="0 0 640 290" role="img" aria-label="운영 기간에 따른 누적 비용 비교 그래프"></svg><div class="tip" id="tip" hidden></div></div></div>
+        <div class="bars" id="barsBox"><div class="legend"><span><i style="background:#56637F"></i>받으신 견적서</span><span><i style="background:var(--mint)"></i>모넷 구성</span></div><div id="bars"></div></div>
+        <div class="items-h"><b>견적서에서 읽은 품목 <span id="itN"></span></b><span id="itSum"></span></div>
+        <div class="tw"><table id="items"><thead><tr><th>읽은 품목</th><th>분류</th><th class="n">수량</th><th class="n">금액</th><th>모넷 구성에서는</th></tr></thead><tbody></tbody></table></div>
+        <p class="it-note" id="itNote"></p>
+        <div class="items-h" style="margin-top:26px"><b>종류별로 묶으면</b><span>같은 종류끼리 합친 비교입니다</span></div>
+        <div class="tw"><table id="map"><thead><tr><th>구분</th><th>받으신 견적서</th><th class="n">금액</th><th>모넷 구성</th><th class="n">수량</th><th class="n" id="mapAmtH">금액</th></tr></thead><tbody></tbody></table></div>
+        <p class="notice" id="notice"></p>
+      </div>
+      <div class="row no-print"><button class="again" id="again" type="button">다른 견적서 올리기</button><button class="btn ghost sm" id="btnPrint" type="button" hidden>품의용으로 인쇄 · PDF 저장</button></div>
+    </div>
+
+    <div class="card form-card" id="formCard" style="margin-top:14px">
+      <h2 id="formH" style="font-size:21px">정식 견적서 받기</h2>
+      <p id="formP" style="color:var(--mut);margin:6px 0 16px">화면에는 예상 구간만 보여 드립니다. 연락처를 남기시면 담당자가 원본과 대조하고 용도·수신 범위를 확인해, 품목별 단가와 확정 금액이 담긴 정식 견적서를 보내 드립니다.</p>
+      <form id="inq" novalidate>
+        <div class="three">
+          <div><label class="lb" for="f-co">회사·기관명 *</label><input id="f-co" autocomplete="organization" required></div>
+          <div><label class="lb" for="f-name">담당자명 *</label><input id="f-name" autocomplete="name" required></div>
+          <div><label class="lb" for="f-tel">연락처 *</label><input id="f-tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></div>
+        </div>
+        <label class="chk"><input type="checkbox" id="f-agree">[필수] 개인정보 수집·이용 동의 — 회사명·담당자명·연락처 / 견적 비교·안내 / 상담 종료 후 1년 <a href="/privacy.html" target="_blank" rel="noopener" style="margin-left:6px;color:var(--acc)">전문 보기</a></label>
+        <label class="chk must"><input type="checkbox" id="f-ack"><span><b>[필수] 예상 금액임을 확인했습니다.</b> 이 화면의 금액은 확정 견적이 아니며, 센서 용도와 게이트웨이 수신 범위를 확인한 뒤 발행되는 정식 견적서의 금액은 이와 달라질 수 있습니다.</span></label>
+        <p class="err" id="err" role="alert"></p>
+        <div class="row"><button class="btn" type="submit" id="submitBtn">정식 견적서 받기</button></div>
+      </form>
+    </div>
+    <div class="done" id="done" hidden tabindex="-1" style="margin-top:14px"><h3 id="doneH">접수되었습니다</h3><p id="doneMsg" style="margin:0;color:var(--mut)"></p>
+      <div class="caveat" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>정식 견적서의 금액이 기준입니다</b><p>담당자가 <strong>센서 용도</strong>와 <strong>게이트웨이 수신 범위</strong>(설치 위치·거리·구조)를 확인한 뒤 정식 견적서를 보내 드립니다. 그 과정에서 센서 종류나 게이트웨이 대수가 바뀌면 이 화면의 예상 금액과 차이가 날 수 있으며, 차이가 나는 항목은 견적서에 따로 설명드립니다.</p></div></div></div>
+  </div>
+
+  <div class="facts" id="facts" style="margin-top:18px">
+    <div class="fact"><b>배선 공사 없음</b><span>자석으로 붙이는 940MHz 무선 센서</span></div>
+    <div class="fact"><b>플랫폼 비용 상한</b><span>연 구독, 150만 원을 넘지 않습니다</span></div>
+    <div class="fact"><b>게이트웨이 1대에 센서 250개</b><span>정전 시 내장 배터리로 2~3일 작동</span></div>
+  </div>
+</div></section>
+</main>
+<div class="cta-bar no-print" id="ctaBar"><b id="ctaTxt"></b><a class="btn" href="#formCard" id="ctaBtn">정식 견적 받기</a></div>
+
+<footer><div class="wrap"><div class="legal"><span>© 주식회사 모넷코리아</span><a href="/">홈으로 가기</a><a href="/privacy.html">개인정보처리방침</a><a href="/contact">문의하기</a></div></div></footer>
+
+<script src="/js/match.js?v=8"></script>
+</body>
+</html>

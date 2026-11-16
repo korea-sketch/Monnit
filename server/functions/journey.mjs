@@ -90,8 +90,8 @@ function matchQuote(lead, idx) {
 }
 
 /* ── 방문 기록 해석 ── */
-const KEY_EV = /^(mall_|res_|chat_|proposal_chat_open|home_banner_click|promo)/;
-const KEY_PV = /^\/(mall\/(cart|quote|product|resources|industry)|contact|promo\/|whitepaper|proposal|stories)/;
+const KEY_EV = /^(mall_|res_|chat_|match_|proposal_chat_open|home_banner_click|promo)/;   /* match_ = 맞견적(/match) 2026-11-16 */
+const KEY_PV = /^\/(mall\/(cart|quote|product|resources|industry)|contact|promo\/|whitepaper|proposal|stories|match)/;
 function isKey(r) {
   if (r.t === 'ev') return KEY_EV.test(r.n || '');
   if (r.t === 'pv') return KEY_PV.test(r.p || '');
@@ -100,7 +100,7 @@ function isKey(r) {
 }
 function keyLabel(r) {
   if (r.t === 'ev') {
-    const N = { mall_add: '몰 담기', mall_quote: '몰 견적 요청', mall_res_open: '자료 신청 창', mall_res_send: '자료 신청', mall_resq: '자료 견적에 담기', mall_ind: '업종 구성 담기', mall_search: '몰 검색', mall_promo: '프로모션 클릭', mall_compare: '제품 비교', home_banner_click: '홈 배너 클릭', proposal_chat_open: '모니 열기' };
+    const N = { mall_add: '몰 담기', mall_quote: '몰 견적 요청', mall_res_open: '자료 신청 창', mall_res_send: '자료 신청', mall_resq: '자료 견적에 담기', mall_ind: '업종 구성 담기', mall_search: '몰 검색', mall_promo: '프로모션 클릭', mall_compare: '제품 비교', match_parse: '맞견적 견적서 입력', match_convert: '맞견적 비교 보기', match_save: '맞견적 정식 견적 요청', home_banner_click: '홈 배너 클릭', proposal_chat_open: '모니 열기' };
     return (N[r.n] || r.n) + (r.l ? ' · ' + r.l : '');
   }
   if (r.t === 'click') return r.to === 'tel' ? '전화 걸기' : r.to === 'mail' ? '메일 보내기' : '클릭 · ' + (r.l || r.to);
@@ -310,7 +310,7 @@ tr.tl td{white-space:normal;background:#0d1527;padding:12px 14px}
 @media (max-width:1000px){.kpi{grid-template-columns:repeat(4,minmax(0,1fr))}.mall{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){.kpi{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.mall{grid-template-columns:minmax(0,1fr)}.tlv div{grid-template-columns:92px minmax(0,1fr)}.tlv div i:nth-child(2){display:none}}
 </style></head><body>
-<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/journey" class="on">고객 여정</a><a href="/ops/flow">유입·경로</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/mall">리소스 센터 접수</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/notices">알림함</a><a href="/ops/block">차단 관리</a></nav><script src="/js/ops-nav.js?v=1" defer></script>
+<nav class="opsnav" aria-label="관제 메뉴"><a href="/ops">통합 관제</a><a href="/ops/journey" class="on">고객 여정</a><a href="/ops/flow">유입·경로</a><a href="/ops/proposals/insights">고객 인사이트</a><a href="/ops/mall">리소스 센터 접수</a><a href="/ops/proposals">맞춤 제안서</a><a href="/ops/proposals/archive">발송 대장</a><a href="/ops/notices">알림함</a><a href="/ops/block">차단 관리</a></nav><script src="/js/ops-nav.js?v=2" defer></script>
 <div class="wrap">
   <h1>고객 여정 · 매출 연결</h1>
   <p class="sub">들어온 경로 → 사이트·리소스 센터에서 한 행동 → 문의 → 견적 → 수주까지 한 줄로 이었습니다. 견적·수주는 견적시스템 견적서와 /ops 의 딜 단계 중 더 앞선 쪽을 씁니다.</p>

@@ -133,6 +133,13 @@
 /promotions/remote       /promo/remote/                   301
 /remote-monitoring       /promo/remote/                   301
 
+# 맞견적(MatchQuote) — 타사 견적서를 같은 조건의 모넷 구성으로 바꿔 비교 (2026-11-16)
+/match                   /match/index.html               200
+/match/                  /match/index.html               200
+/quote-match             /match/                          301
+/quote-compare           /match/                          301
+/compare                 /match/                          301
+
 # 프로모션 랜딩: 깔끔한 URL(/promo/fire) → 범용 정적 페이지로 rewrite (주소는 그대로 유지)
 /promo/*  /promo.html?id=:splat  200
 # 예전 소방 전용 페이지 → 범용 페이지로 통합 301

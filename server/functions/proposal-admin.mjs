@@ -492,7 +492,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;background:var(--card)}tr.r{c
 .heat{display:inline-block;min-width:34px;text-align:center;border-radius:6px;padding:1px 6px;font-weight:800}
 @media(max-width:800px){.hide-m{display:none}.diff{grid-template-columns:1fr}header{top:43px}}
 </style></head><body>
-${OPS_NAV}<script nonce="${nonce}" src="/js/ops-nav.js?v=1" defer></script>
+${OPS_NAV}<script nonce="${nonce}" src="/js/ops-nav.js?v=2" defer></script>
 ${ok ? `<header><h1 id="ttl">맞춤 제안서</h1>
 <span id="hq" style="display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center"><select id="month"><option value="">전체 기간</option></select><button id="tickBtn">정기 점검 실행</button><button id="healthBtn">연동 점검</button><a href="/ops/proposals/export.csv"><button>CSV</button></a></span>
 <span id="ha" hidden><select id="amonth"><option value="">전체 기간</option></select><select id="akind"><option value="">모든 자료</option><option value="proposal">제안서</option><option value="resend">재발송</option><option value="followup">후속 안내</option></select><input id="aq" placeholder="회사·이메일·과제 검색" size="18"><a href="/ops/proposals/archive.csv"><button>대장 CSV</button></a></span>

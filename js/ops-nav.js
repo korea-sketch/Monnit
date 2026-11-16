@@ -7,7 +7,7 @@
   var GROUPS = [
     { key: 'home', label: '대시보드', items: [['/ops', '통합 관제']] },
     { key: 'journey', label: '고객 여정', items: [['/ops/journey', '여정 · 매출 연결'], ['/ops/flow', '유입 · 경로'], ['/ops/proposals/insights', '고객 인사이트'], ['/ops/proposals/misses', '규칙이 놓친 말']] },
-    { key: 'sales', label: '접수 · 영업', items: [['/ops/mall', '리소스 센터 접수'], ['/ops/proposals', '맞춤 제안서'], ['/ops/proposals/archive', '발송 대장']] },
+    { key: 'sales', label: '접수 · 영업', items: [['/ops/mall', '리소스 센터 접수'], ['/ops/proposals', '맞춤 제안서'], ['/ops/proposals/archive', '발송 대장'], ['/ops/enablement', '맞견적 · 인에이블먼트']] },   /* 2026-11-16 맞견적 */
     { key: 'admin', label: '설정', items: [['/ops/notices', '알림함'], ['/ops/block', '차단 관리']] }
   ];
   function run() {
