@@ -35,6 +35,8 @@ const PAGES = [
   /* 2026-10-02 추가 — 긴급 경보 알리미 광고 랜딩 · 맞춤 제안서 */
   { path: '/promo/alarm/',     name: '광고 랜딩(긴급 경보 알리미)', must: ['taBuilderForm', 'monnit-send.js', 'GTM-T8H73VW'] },
   { path: '/proposal/',        name: '맞춤 제안서',          must: ['id="ppRoot"', 'id="ppCta"', 'GTM-T8H73VW'] },
+  /* 2026-11-16 — 맞견적(견적서 올리기). 올리기 칸·신청 폼·화면 스크립트 중 하나라도 빠지면 빨간불 */
+  { path: '/match/',           name: '맞견적(견적 비교)',    must: ['id="file"', 'id="inq"', '/js/match.js', 'GTM-T8H73VW'] },
   /* 2026-10-04 — 메일·제안서가 쓰는 이미지가 배포에서 빠져도 아무도 몰랐다(메일 로고 깨짐). 파일이 실제로 뜨는지 본다 */
   { path: '/assets/brand/monnit-korea-white-480.png', name: '메일 로고 이미지', must: [], binary: true },
   { path: '/email/images/case-fire.jpg',              name: '알리미 메일 이미지', must: [], binary: true },

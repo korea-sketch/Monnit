@@ -95,6 +95,7 @@ async function apiUpload(req) {
   const ym = kmonth(Date.now()), dir = 'f/' + ym + '/' + cid + '/';
   const have = (await list(STORE, dir)).length;
   if (have >= MAX_PER_CID) return j({ ok: false, error: '한 번에 ' + MAX_PER_CID + '개까지 올릴 수 있습니다' }, 200);
+  if (!(await dayCap('upload', 'MATCH_UPLOAD_DAILY', 400))) return j({ ok: false, error: '오늘 접수가 많아 잠시 멈췄습니다. 내일 다시 올려 주시거나 전화로 문의해 주세요' }, 200);
   let name = ''; try { name = str(decodeURIComponent(req.headers.get('x-name') || ''), 80); } catch (e) { /* 이름 없음 */ }
   const key = dir + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.' + ext;
   if (!(await putFile(key, buf, { name, type: TYPES[ext] }))) return j({ ok: false, error: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요' }, 200);
@@ -178,6 +179,16 @@ async function apiRead(req) {
   return j({ ...out, read: got.length, stated: Math.round(Number(o.total)) || (last && last.stated) || 0, disclaimer: cfg.disclaimer });
 }
 
+/* 하루 상한 (보강 2026-11-16) — 주소별 제한(throttled)은 Worker 인스턴스마다 따로 세어져 느슨하다.
+   저장소에 날짜별 횟수를 적어, 화면번호(cid)·주소를 바꿔 가며 보내도 하루 총량을 넘지 못하게 한다.
+   upload: MATCH_UPLOAD_DAILY(기본 400개) · save: MATCH_SAVE_DAILY(기본 300건) · read: MATCH_AI_DAILY(기본 300번, 아래) */
+async function dayCap(kind, envKey, dflt) {
+  const key = 'cap-' + kind + '-' + kday(Date.now()) + '.json', used = await readDoc(key, { n: 0 });
+  if (used.n >= envNum(envKey, dflt)) return false;
+  await writeDoc(key, { n: (Number(used.n) || 0) + 1 });
+  return true;
+}
+
 async function readAnon(fromMs, toMs = Date.now()) {
   const yms = new Set(); for (let t = fromMs; t <= toMs + DAY; t += 20 * DAY) yms.add(kmonth(t)); yms.add(kmonth(toMs));
   let out = [];
@@ -214,6 +225,8 @@ const sumOf = (r) => ({ tInit: r.theirs.init, tYearly: r.theirs.yearly, tTco: r.
    고객 API
    ══════════════════════════════════════════════════════════════ */
 async function apiConvert(req) {
+  /* 고객 화면은 이 주소를 더 이상 쓰지 않는다(사진 → /api/match/read). 품목을 임의로 넣어 구간을 떠보는 용도로 쓰이지 않게 관제 로그인 때만 연다 (보강 2026-11-16) */
+  if (!(auth.configured() && auth.valid(auth.cookieFrom({ cookie: req.headers.get('cookie') || '' })))) return j({ ok: false }, 404);
   const b = await body(req); if (!b) return j({ ok: false, error: 'bad request' }, 400);
   const lines = M.cleanLines(b.lines);
   if (!lines.length) return j({ ok: false, error: '읽을 수 있는 품목이 없습니다' }, 200);
@@ -245,6 +258,7 @@ async function apiSave(req) {
   if ((!lines.length && !request) || !who.company || !(who.phone || who.email)) return j({ ok: false, error: '회사명과 연락처를 확인해 주세요' }, 200);
   const blk = await _guard.guard(req.headers, { ...who, title: '맞견적' }, 'match');
   if (blk) return j({ ok: true, review: true });
+  if (throttled(_guard.ipOf(req.headers)) || !(await dayCap('save', 'MATCH_SAVE_DAILY', 300))) return j({ ok: false, error: '잠시 후 다시 시도해 주세요' }, 200);
   const cfg = await readCfg();
   const r = lines.length ? M.convert(lines, b.opts, cfg) : null;
   const _cid = cidOf(b.cid);

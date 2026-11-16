@@ -4942,7 +4942,7 @@ function renderFaqs(){
   const el = document.getElementById('faqList'); if (!el) return;
   el.innerHTML = FAQS.map(f => `
     <div class="faq-item">
-      <button class="faq-q">${esc(f.q)}</button>
+      <h3 class="faq-h"><button class="faq-q">${esc(f.q)}</button></h3>
       <div class="faq-a"><div class="faq-a-inner">${esc(f.a)}</div></div>
     </div>`).join('');
   wireSupportFaq();

@@ -11874,3 +11874,19 @@ html[lang="en"] .case-card .tag, html[lang="en"] .featured-card .tag { letter-sp
   .hpb-glass::before, .hpb-tag::before{ animation:none; }
   .hpb-panel, .hpb-row{ transition:opacity .15s linear; transform:none; }
 }
+
+/* 2026-11-16 검색·접근성 정비 — FAQ 질문을 제목(h3)으로 감쌌다(모양은 그대로) · 푸터 공식 채널 링크 */
+.faq-h{margin:0;padding:0;font:inherit;letter-spacing:inherit;line-height:inherit}
+.faq-h .faq-q{display:block}
+.site-footer .f-social{margin-top:12px;font-size:13px;line-height:1.9;opacity:.85}
+.site-footer .f-social a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.25)}
+.site-footer .f-social a:hover{border-bottom-color:currentColor}
+
+/* 2026-11-16 이미지 자리 미리 잡기 — 모든 <img> 에 원본 크기(width·height)를 적었다.
+   이 규칙은 그 숫자가 「표시 크기」로 쓰이지 않게 하고(비율 정보로만 쓰임), 기존 CSS 가 정한 크기는 그대로 이긴다(:where = 우선순위 0).
+   그래서 화면 모양은 전과 같고, 폭이나 높이 한쪽이 정해진 이미지는 받기 전에도 자리가 잡혀 글이 밀리지 않는다. */
+:where(img[width][height]){width:auto;height:auto}
+/* 본문 바로가기 — 키보드로 처음 Tab 을 누르면 나타난다 */
+.skip-link{position:absolute;left:12px;top:-60px;z-index:100000;background:#fff;color:#0a1022;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;transition:top .15s}
+.skip-link:focus{top:12px;outline:3px solid #6FA2FF}
+main:focus{outline:none}
