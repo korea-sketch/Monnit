@@ -20,7 +20,7 @@
 
   /* 센서 분류 — 위에서부터 먼저 맞는 것. key 는 서버 단가표(cfg.catalog)의 키와 같습니다. */
   var SENSOR_RULES = [
-    ['rope',     /로프|누수\s*케이블|리크\s*케이블|leak\s*cable|라인\s*형|필름\s*형|누액/i],
+    ['rope',     /로프|누수\s*케이블|리크\s*케이블|leak\s*cable|leak\s*rope|rope\s*sensor|\brope\b|라인\s*형|필름\s*형|누액/i],
     ['temphum',  /온\s*[·\/,]?\s*습도|temp.*humid|humidity/i],
     ['thermo',   /열전대|thermo\s*couple|k[\s-]?type/i],
     ['dp',       /차압|differential/i],
@@ -42,7 +42,7 @@
     month:        /월\s*(이용|사용|구독|관제|통신|렌탈|임대|정액|요금|비용)|\/\s*월|월\s*정|매\s*월|월\s*납|monthly|per\s*month/i,
     year:         /연\s*(간|구독|이용|사용|요금)|\/\s*년|년\s*간|yearly|annual|per\s*year|1\s*년\s*(이용|구독|사용)/i,
     comm:         /통신\s*(비|료|요금)|회선|유심|usim|\bsim\b|데이터\s*요금|LTE\s*요금/i,
-    construction: /공사|배선|배관|전선|포설|트레이|노무|인건|시공|설치\s*비|설치\s*(공사|용역)|시운전|천공|코어|덕트|함체|분전|판넬|panel|결선|제\s*경비|일반\s*관리비|이윤|간접비|출장|운반|하역|자재비|부자재|전원\s*공사/i,
+    construction: /공사|배선|배관|전선|포설|트레이|노무|인건|시공|설치\s*비|설치\s*(공사|용역)|시운전|천공|코어|덕트|함체|분전|판넬|panel|결선|제\s*경비|일반\s*관리비|이윤|간접비|출장|운반|하역|자재비|부자재|전원\s*공사|install(ation)?|wiring|cabling|construction|commissioning|labou?r|site\s*work|civil\s*work/i,
     platform:     /플랫폼|소프트웨어|software|s\/w|\bsw\b|서버|server|라이선스|라이센스|license|클라우드|cloud|대시보드|dashboard|관제\s*(시스템|프로그램|화면)|모니터링\s*(시스템|프로그램|솔루션)|프로그램|데이터베이스|\bdb\b|앱\s*개발|\bhmi\b|scada|커스터마이징|개발\s*비|구축\s*비|계정|이용권/i,
     maintenance:  /유지\s*보수|유지\s*관리|정기\s*점검|a\/s|하자\s*보수|maintenance|검\s*교정|교정\s*비/i,
     gateway:      /게이트\s*웨이|gateway|g\/w|\bgw\b|수신기|중계기|리피터|repeater|라우터|router|모뎀|modem|\bap\b|허브|\bhub\b|컨버터|converter|\brtu\b|\bddc\b|\bplc\b|로거|logger|통신\s*(모듈|장비|함)|집중기|컨트롤러|controller/i,
@@ -290,7 +290,7 @@
     var pct = function (d) { return tEx > 0 ? Math.round(d / tEx * 100) : 0; };
     /* 판정은 불리한 쪽 기준: 모넷 상단으로도 낮아야 '낮음', 모넷 하단으로도 높아야 '높음' */
     var verdict = r.verdict === 'empty' || r.verdict === 'partial' ? r.verdict : (dLo > tEx * 0.03 ? 'lower' : dHi < -tEx * 0.03 ? 'higher' : 'similar');
-    return { ok: true, banded: true, opts: r.opts, points: r.points, gateways: r.gateways, years: y, vat: r.vat, platformCap: r.platformCap,
+    return { ok: true, banded: true, opts: r.opts, points: r.points, gateways: r.gateways, years: y, vat: r.vat,
       theirs: T, oneSided: r.oneSided || 0, theirsEx: tEx,
       ours: { tco: tco, init: rng(O.init, dn, up), yearly: rng(O.yearly, dn, up), firstYearFree: O.firstYearFree ? 1 : 0, byKind: bk },
       diff: [dLo, dHi], pct: [pct(dLo), pct(dHi)], verdict: verdict, unpriced: r.unpriced, notes: r.notes,

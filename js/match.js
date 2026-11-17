@@ -41,7 +41,8 @@
       : isPdf(file) && file.size < 3.6 * 1024 * 1024 ? b64(file).then(function (s) { return { s: s, t: 'pdf' }; }) : Promise.resolve(null);
     return p.then(function (x) {
       if (!x || !x.s) return null;
-      return fetch('/api/match/read', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'text/plain', 'x-cid': CID, 'x-type': x.t }, body: x.s }).then(function (r) { return r.json(); });
+      var ac = w.AbortController ? new AbortController() : null, tm = ac && setTimeout(function () { ac.abort(); }, 55000);
+      return fetch('/api/match/read', { method: 'POST', credentials: 'same-origin', signal: ac ? ac.signal : undefined, headers: { 'content-type': 'text/plain', 'x-cid': CID, 'x-type': x.t }, body: x.s }).then(function (r) { return r.json(); }).then(function (r) { clearTimeout(tm); return r; }, function (e) { clearTimeout(tm); throw e; });
     }).catch(function () { return null; });
   }
 
@@ -80,17 +81,21 @@
     step('up', 'on');
     var ups = Promise.all(files.map(upload));
     var readable = files.filter(function (f) { return isImg(f) || isPdf(f); }).slice(0, READS);
-    var res = null;
+    var res = null, why = '';
     Promise.all([ups, wait(700)]).then(function (a) {
       var oks = a[0].filter(function (r) { return r && r.ok; }); okCount = oks.length;
       if (!okCount) { var e = (a[0][0] && a[0][0].error) || '올리지 못했습니다'; throw new Error(e); }
       step('up', 'ok', okCount + '개'); step('read', 'on');
       /* 여러 장이면 차례로 읽는다 — 서버가 같은 화면의 품목을 이어 붙여 돌려준다 */
       return readable.reduce(function (p, f, i) {
-        return p.then(function () { if (readable.length > 1) step('read', 'on', (i + 1) + ' / ' + readable.length + '장'); return read(f); }).then(function (r) { if (r && r.ok && !r.review) res = r; });
+        return p.then(function () { if (readable.length > 1) step('read', 'on', (i + 1) + ' / ' + readable.length + '장'); return read(f); }).then(function (r) {
+          /* 응답이 없거나 AI 가 잠깐 실패한 경우에만 한 번 더 읽는다 */
+          if (!r || (r.review && r.why === 'unread')) { step('read', 'on', '다시 읽는 중'); return wait(900).then(function () { return read(f); }); }
+          return r;
+        }).then(function (r) { if (r && r.ok && !r.review) res = r; else why = (r && r.why) || 'net'; });
       }, Promise.resolve());
     }).then(function () {
-      if (!res) { step('read', 'ok', '자동 판독 안 됨'); return wait(300).then(function () { review(); }); }
+      if (!res) { step('read', 'ok', '자동 판독 안 됨'); return wait(300).then(function () { review(why); }); }
       step('read', 'ok', res.items.length + '줄'); step('sort', 'on');
       return chips(res.items).then(function () { step('sort', 'ok'); step('conv', 'on'); return wait(650); }).then(function () {
         step('conv', 'ok'); $('#shot').className = 'shot done'; return wait(450);
@@ -227,22 +232,24 @@
     var nt = $('#itNote'), off = r.stated > 0 && Math.abs(r.stated - one0) / r.stated > 0.02 && Math.abs(r.stated - one0 * 1.1) / r.stated > 0.02;
     nt.className = 'it-note' + (off ? ' warn' : '');
     nt.textContent = off ? '견적서에 적힌 합계(' + won(r.stated) + '원)와 읽은 품목의 합계가 다릅니다. 빠지거나 잘못 읽은 줄이 있을 수 있어 담당자가 원본과 대조합니다.' : '자동으로 읽은 내용입니다. 품명·수량·금액이 원본과 다른 줄이 있으면 담당자가 원본과 대조해 바로잡습니다.';
-    $('#notice').textContent = '모넷 금액은 예상 구간이며 정식 견적이 아닙니다. 품목별 단가와 확정 금액은 센서 용도·게이트웨이 수신 범위·수량을 확인한 뒤 정식 견적서로 안내합니다. 견적서는 자동으로 읽은 것이라 실제와 다를 수 있습니다. ' + (r.disclaimer || '') + (r.platformCap ? ' 플랫폼 비용은 연 구독이며 ' + won(r.platformCap) + '원을 넘지 않습니다.' : '');
+    if (r.fx && r.fx.rate) nt.textContent = r.fx.cur + ' 견적서입니다. 1 ' + r.fx.cur + ' = ' + won(r.fx.rate) + '원(' + (r.fx.from === 'doc' ? '견적서에 적힌 환율' : '기준 환율') + ')으로 원화 환산해 비교했습니다. ' + nt.textContent;
+    $('#notice').textContent = '모넷 금액은 예상 구간이며 정식 견적이 아닙니다. 품목별 단가와 확정 금액은 센서 용도·게이트웨이 수신 범위·수량을 확인한 뒤 정식 견적서로 안내합니다. 견적서는 자동으로 읽은 것이라 실제와 다를 수 있습니다. ' + (r.disclaimer || '');
     $('#resBody').hidden = false; $('#btnPrint').hidden = !r.id; $('#cav2').hidden = false; $('#f-ack').closest('label').hidden = false;
     var box = $('#result'); box.hidden = false; box.className = 'rise';
     render(); drawChart();
     if (!r.id) $('#ctaBar').classList.add('show');
     try { box.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }); } catch (e) {}
   }
-  function review() {   /* 자동으로 읽지 못한 경우 — 파일은 이미 받았다 */
+  function review(why) {   /* 자동으로 읽지 못한 경우 — 파일은 이미 받았다 */
     last = null;
-    $('#verdict').textContent = '견적서는 잘 받았습니다. 자동으로 읽지 못해 담당자가 직접 확인하겠습니다.';
+    var WHY = { limit: '이 화면에서 자동으로 읽을 수 있는 횟수를 넘었습니다. 새로고침한 뒤 다시 올리시면 바로 읽습니다.', noquote: '견적 품목(품명·수량·금액)을 찾지 못했습니다. 품목 표가 보이는 쪽을 올려 주세요.', currency: '원화로 바꿀 환율을 확인하지 못한 통화입니다.', size: '파일이 커서 자동으로 읽지 못했습니다. 품목 표가 있는 쪽만 캡처해 올리시면 바로 읽습니다.', hold: '요청이 몰려 자동 판독을 잠시 멈췄습니다. 잠시 후 다시 올려 주세요.', daily: '오늘 자동 판독 한도를 넘었습니다.' };
+    $('#verdict').textContent = '견적서는 잘 받았습니다. 자동으로 읽지 못해 담당자가 직접 확인하겠습니다.' + (WHY[why] ? ' ' + WHY[why] : '');
     $('#verdictSub').textContent = '연락처를 남겨 주시면 같은 조건의 모넷 구성 비교표와 견적서를 보내 드립니다.';
     $('#resBody').hidden = true; $('#btnPrint').hidden = true; $('#cav2').hidden = true; $('#f-ack').closest('label').hidden = true;
     $('#formH').textContent = '비교표 받기'; $('#formP').textContent = '원하지 않으시면 여기서 닫으셔도 됩니다.'; $('#submitBtn').textContent = '비교표 받기';
     var box = $('#result'); box.hidden = false; box.className = 'rise';
     try { box.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }); } catch (e) {}
-    ev('match_convert', 'review');
+    ev('match_convert', 'review' + (why ? ':' + why : ''));
   }
 
   var input = $('#file'), drop = $('#drop');

@@ -56,6 +56,8 @@ export const DEFAULT_CFG = {
   disclaimer: '모넷 금액은 견적서 품목을 같은 조건으로 바꿔 본 예상 금액(VAT 별도)입니다. 정식 견적서는 담당자가 센서 용도와 게이트웨이 수신 범위, 수량을 확인한 뒤 발행하며 그 금액이 기준입니다.',
   /* 고객 화면의 모넷 금액 구간 — 계산값에서 아래로 down%, 위로 up% (7차 2026-11-16). 고객에게는 정확한 금액·단가를 내보내지 않는다 */
   range: { down: 10, up: 15 },
+  /* 외화 견적서 환산 (9차 2026-11-17) — 견적서에 환율이 적혀 있으면 그 값을 쓰고, 없으면 이 값(1 외화 = 원)을 쓴다. 관제 「환산 기준」에서 고친다 */
+  fx: { USD: 1500, EUR: 1700, JPY: 10, CNY: 205 },
   gateDetail: true
 };
 
@@ -88,6 +90,7 @@ export function cleanCfg(inp) {
     warrantyNote: str(o.warrantyNote, 120) || d.warrantyNote,
     disclaimer: str(o.disclaimer, 400) || d.disclaimer,
     range: { down: Math.min(50, num((o.range || {}).down, 50)), up: Math.min(100, num((o.range || {}).up, 100)) || d.range.up },
+    fx: Object.fromEntries(Object.keys(d.fx).map((k) => { const v = Number((o.fx || {})[k]); return [k, Number.isFinite(v) && v > 0 && v < 1e5 ? Math.round(v * 100) / 100 : d.fx[k]]; })),
     gateDetail: o.gateDetail !== false
   };
 }
