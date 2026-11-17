@@ -46,6 +46,12 @@ bucket_name = "monnit-blobs"
 [triggers]
 crons = ["17 * * * *", "*/15 * * * *", "*/10 * * * *", "23 * * * *"]
 
+# Worker 실행 위치 — 도쿄 부근에 고정 (2026-11-17)
+# 한국 방문자의 요청이 Cloudflare 홍콩(HKG) 거점에서 실행되면 Anthropic·Gemini 가 "지원하지 않는 지역"으로 거절한다
+# (맞견적 견적서 판독이 "자동 판독 안 됨"으로 끝나던 원인). 지원 지역이면서 한국에서 가장 가까운 도쿄로 고정한다.
+[placement]
+region = "aws:ap-northeast-1"
+
 [observability]
 enabled = true
 
