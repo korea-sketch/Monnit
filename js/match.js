@@ -313,3 +313,51 @@
       });
   });
 })(window, document);
+
+/* ── 첫 화면 인터랙션 (10차 · 2026-11-17) — 꾸밈 전용. 실패해도 올리기 동작에는 영향이 없다 ── */
+(function (w, d) {
+  'use strict';
+  try {
+    var calm = w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var fine = w.matchMedia && w.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var drop = d.getElementById('drop'), hero = d.getElementById('hero'), facts = [].slice.call(d.querySelectorAll('#facts .fact'));
+    if (!drop) return;
+    d.documentElement.classList.add('fx');
+    /* 숫자가 올라가며 나타난다 */
+    var count = function (el) {
+      var to = Number(el.getAttribute('data-to')) || 0; if (calm || !w.requestAnimationFrame || !to) return;
+      var t0 = null; el.textContent = '0';
+      (function f(t) { if (!t0) t0 = t; var k = Math.min(1, (t - t0) / 1100), e = 1 - Math.pow(1 - k, 3); el.textContent = String(Math.round(to * e)); if (k < 1) w.requestAnimationFrame(f); })(w.performance.now());
+    };
+    var show = function (el, i) { setTimeout(function () { el.classList.add('in'); [].forEach.call(el.querySelectorAll('[data-to]'), count); }, calm ? 0 : i * 130); };
+    if (w.IntersectionObserver && !calm) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { show(e.target, facts.indexOf(e.target)); io.unobserve(e.target); } }); }, { threshold: 0.2 });
+      facts.forEach(function (f) { io.observe(f); });
+      setTimeout(function () { facts.forEach(function (f) { f.classList.add('in'); }); }, 4000);   /* 관찰이 안 되는 환경 대비 */
+    } else facts.forEach(function (f) { f.classList.add('in'); });
+    /* 붙여 넣기 단축키를 누르면 키 모양이 눌린다 */
+    d.addEventListener('keydown', function (e) { if (e.ctrlKey || e.metaKey) drop.classList.add('kb'); });
+    d.addEventListener('keyup', function () { drop.classList.remove('kb'); });
+    w.addEventListener('blur', function () { drop.classList.remove('kb'); });
+    /* 누른 자리에서 번지는 물결 */
+    drop.addEventListener('pointerdown', function (e) {
+      if (calm) return; var r = drop.getBoundingClientRect(), s = d.createElement('i'); s.className = 'rip';
+      s.style.left = (e.clientX - r.left) + 'px'; s.style.top = (e.clientY - r.top) + 'px'; drop.appendChild(s); setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 750);
+    });
+    if (!fine || calm) return;
+    /* 마우스를 따라오는 빛 · 살짝 기울기 */
+    var raf = 0, spot = function (el, e, tilt) {
+      var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--x', (x * 100).toFixed(1) + '%'); el.style.setProperty('--y', (y * 100).toFixed(1) + '%');
+      if (tilt) { el.style.setProperty('--rx', ((0.5 - y) * 2.4).toFixed(2) + 'deg'); el.style.setProperty('--ry', ((x - 0.5) * 2.4).toFixed(2) + 'deg'); }
+    };
+    drop.addEventListener('pointermove', function (e) { if (raf) return; raf = w.requestAnimationFrame(function () { raf = 0; spot(drop, e, true); }); });
+    drop.addEventListener('pointerleave', function () { drop.style.setProperty('--rx', '0deg'); drop.style.setProperty('--ry', '0deg'); });
+    facts.forEach(function (f) { f.addEventListener('pointermove', function (e) { spot(f, e, false); }); });
+    if (hero) {
+      var hr = 0;
+      d.addEventListener('pointermove', function (e) { if (hr || w.scrollY > 500) return; hr = w.requestAnimationFrame(function () { hr = 0; var r = hero.getBoundingClientRect();
+        hero.style.setProperty('--ax', Math.max(10, Math.min(90, (e.clientX - r.left) / r.width * 100)).toFixed(1) + '%'); hero.style.setProperty('--ay', Math.max(10, Math.min(80, (e.clientY - r.top) / Math.max(1, r.height) * 60)).toFixed(1) + '%'); }); });
+    }
+  } catch (e) {}
+})(window, document);
