@@ -180,16 +180,41 @@
   function setYear(y) { if (y === Y && prev) return; Y = y; render(); pin(Y, false); }
 
   /* ── 결과 그리기 — 운영 기간(Y)에 맞는 묶음으로 ── */
+  function put2(id, t) { var el = $(id); if (el) el.textContent = t; }
   function render() {
     var r = view(), y = r.years, T = r.theirs, O = r.ours, D = r.diff, P = r.pct, vd = r.verdict;
     [].forEach.call(d.querySelectorAll('#yrs button'), function (b) { b.classList.toggle('on', +b.dataset.y === Y); b.setAttribute('aria-pressed', +b.dataset.y === Y ? 'true' : 'false'); }); pill();
     var v = $('#verdict'), vs = $('#verdictSub');
     var one = r.oneSided > 0 ? ' 받으신 견적서의 유지보수·기타 ' + won(r.oneSided) + '원은 모넷 구성에 대응 항목이 없어 차이에서 뺐습니다.' : '';
-    var base = '가정: 센서 ' + R.points + '개 · 게이트웨이 ' + R.gateways + '대(현장 ' + R.opts.sites + '곳, 수신 범위 안) · ' + y + '년 운영 · ' + R.vat + '.';
-    if (vd === 'lower') { v.innerHTML = y + '년 총비용 예상, 모넷 구성이 <span class="mint">약 ' + man(D[0]) + '~' + man(D[1]) + '원(' + P[0] + '~' + P[1] + '%) 낮은 구간</span>으로 계산됩니다. <span class="est">예상</span>'; vs.textContent = base + one; }
-    else if (vd === 'similar') { v.innerHTML = y + '년 총비용은 두 구성이 비슷한 구간으로 예상됩니다. <span class="est">예상</span>'; vs.textContent = base + ' 구성에 따라 낮아질 수도, 높아질 수도 있어 담당자 확인이 필요합니다.' + one; }
-    else if (vd === 'higher') { v.innerHTML = '읽은 조건에서는 모넷 구성이 더 높은 구간으로 예상됩니다. <span class="est">예상</span>'; vs.textContent = base + ' 품목 대응이나 수량이 실제와 다를 수 있어 담당자 확인이 필요합니다.' + one; }
-    else { v.textContent = '일부 품목은 담당자 확인이 필요해 구간을 확정하지 못했습니다.'; vs.textContent = '확인이 필요한 품목: ' + R.unpriced.join(', ') + ' — 아래 모넷 구간에는 이 품목이 빠져 있습니다. ' + base; }
+    var base = '';
+    /* 확인이 필요한 센서는 모넷 금액에 빠져 있다 → 받으신 견적서에서도 그만큼 빼고 같은 범위끼리 비교한다 (11차) */
+    var cmp = null;
+    if (vd === 'partial') {
+      var ex = 0; (R.items || []).forEach(function (l) { if (l.check && l.kind === 'sensor') ex += l.period === 'month' ? l.amount * 12 * y : l.period === 'year' ? l.amount * y : l.amount; });
+      var tb = (r.theirsEx || T.tco) - ex;
+      if (tb > 0 && O.tco[1] > 0 && O.tco[1] < tb * 0.97) cmp = { tb: tb, d: [tb - O.tco[1], tb - O.tco[0]], p: [Math.round((tb - O.tco[1]) / tb * 100), Math.round((tb - O.tco[0]) / tb * 100)] };
+    }
+    var low = vd === 'lower' ? { d: D, p: P } : cmp;
+    var hp = $('#hPct');
+    if (hp) { hp.hidden = !low; if (low) { $('#hPctN').innerHTML = low.p[0] + '~' + low.p[1] + '<small>%</small>'; put2('#hPctL', y + '년 총비용 기준, 모넷 구성이 저렴 (예상)' + (cmp ? ' · 확인 필요 품목 제외' : '')); } }
+    /* 벤토 타일 — 계산 조건 · 예상 차이 */
+    var put = put2;
+    put('#cPts', R.points + '개'); put('#cGw', R.gateways + '대'); put('#cSites', R.opts.sites + '곳'); put('#cLines', ((R.items || []).length) + '줄');
+    put('#cVat', R.vat + ' · 게이트웨이는 수신 범위 안이라고 가정');
+    var dt = $('#dfTile');
+    if (dt) {
+      var tex = Math.max(1, cmp ? cmp.tb : (r.theirsEx || T.tco)), lo = Math.min(100, O.tco[0] / tex * 100), hi = Math.min(100, O.tco[1] / tex * 100);
+      dt.className = 'bt bt-diff' + (low ? '' : ' flat');
+      put('#dfK', y + '년 총비용 예상 차이');
+      $('#dfBig').innerHTML = low ? man(low.d[0]) + '~' + man(low.d[1]) + '<small>원 낮음</small>' : vd === 'similar' ? '비슷한 구간' : vd === 'higher' ? '모넷이 높은 구간' : '확인 필요';
+      put('#dfLab', low ? '모넷 구성이 ' + low.p[0] + '~' + low.p[1] + '% 낮은 구간 (예상)' + (cmp ? ' · 확인 필요 품목 제외' : '') : vd === 'partial' ? '일부 품목이 빠져 있어 확정하지 못했습니다' : '담당자 확인 후 정식 견적으로 안내합니다');
+      setTimeout(function () { $('#dfLo').style.width = lo.toFixed(1) + '%'; $('#dfHi').style.width = Math.max(0, hi - lo).toFixed(1) + '%'; }, calm ? 0 : 350);
+    }
+    if (vd === 'lower') { v.innerHTML = y + '년 총비용 예상, 모넷 구성이 <span class="mint">약 ' + man(D[0]) + '~' + man(D[1]) + '원(' + P[0] + '~' + P[1] + '%) 낮은 구간</span>으로 계산됩니다. <span class="est">예상</span>'; vs.textContent = ('아래에서 항목별로 확인해 보세요.' + one).trim(); }
+    else if (vd === 'similar') { v.innerHTML = y + '년 총비용은 두 구성이 비슷한 구간으로 예상됩니다. <span class="est">예상</span>'; vs.textContent = '구성에 따라 낮아질 수도, 높아질 수도 있어 담당자 확인이 필요합니다.' + one; }
+    else if (vd === 'higher') { v.innerHTML = '읽은 조건에서는 모넷 구성이 더 높은 구간으로 예상됩니다. <span class="est">예상</span>'; vs.textContent = '품목 대응이나 수량이 실제와 다를 수 있어 담당자 확인이 필요합니다.' + one; }
+    else if (cmp) { v.innerHTML = '확인이 필요한 품목을 빼고 비교하면, 모넷 구성이 <span class="mint">약 ' + man(cmp.d[0]) + '~' + man(cmp.d[1]) + '원 낮은 구간</span>으로 계산됩니다. <span class="est">예상</span>'; vs.textContent = '확인이 필요한 품목(' + R.unpriced.join(', ') + ')은 양쪽 모두에서 빼고 비교했습니다. 담당자가 대응 모델을 확인해 정식 견적에 반영합니다.'; }
+    else { v.textContent = '일부 품목은 담당자 확인이 필요해 구간을 확정하지 못했습니다.'; vs.textContent = '확인이 필요한 품목: ' + R.unpriced.join(', ') + ' — 아래 모넷 구간에는 이 품목이 빠져 있습니다.'; }
     var dl = function (a) { return a.map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + x[1] + '</dd>'; }).join(''); };
     $('#tD').innerHTML = dl([['초기 비용', won(T.init) + '원'], ['매년 비용', won(T.yearly) + '원']]);
     $('#oD').innerHTML = dl([['초기 비용', span(O.init) + '원'], ['매년 비용', span(O.yearly) + '원' + (O.firstYearFree ? ' (첫 해 면제)' : '')]]);
@@ -210,7 +235,7 @@
     setTimeout(function () { rows.forEach(function (x) { var el = box.querySelector('[data-k=' + x.k + ']'), is = el.querySelectorAll('i'), sp = el.querySelectorAll('span');
       is[0].style.width = wd(x.t) + '%'; is[1].style.width = wd(x.o[0]) + '%'; is[2].style.width = Math.max(0, wd(x.o[1]) - wd(x.o[0])) + '%';
       sp[0].textContent = won(x.t) + '원'; sp[1].textContent = x.o[1] > 0 ? man(x.o[0]) + '~' + man(x.o[1]) + '원' : '0원'; }); }, calm ? 0 : 420);
-    if (!R.id) $('#ctaTxt').textContent = vd === 'lower' ? '예상 ' + man(D[0]) + '~' + man(D[1]) + '원 차이' : '예상 비교 결과';
+    if (!R.id) $('#ctaTxt').textContent = low ? '예상 ' + low.p[0] + '~' + low.p[1] + '% 저렴' : '예상 비교 결과';
   }
   function paint(r) {
     R = r; last = r; Y = r.years || 3; prev = null; $('#bars').dataset.k = '';
@@ -241,7 +266,7 @@
     try { box.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' }); } catch (e) {}
   }
   function review(why) {   /* 자동으로 읽지 못한 경우 — 파일은 이미 받았다 */
-    last = null;
+    last = null; if ($('#hPct')) $('#hPct').hidden = true;
     var WHY = { limit: '이 화면에서 자동으로 읽을 수 있는 횟수를 넘었습니다. 새로고침한 뒤 다시 올리시면 바로 읽습니다.', noquote: '견적 품목(품명·수량·금액)을 찾지 못했습니다. 품목 표가 보이는 쪽을 올려 주세요.', currency: '원화로 바꿀 환율을 확인하지 못한 통화입니다.', size: '파일이 커서 자동으로 읽지 못했습니다. 품목 표가 있는 쪽만 캡처해 올리시면 바로 읽습니다.', hold: '요청이 몰려 자동 판독을 잠시 멈췄습니다. 잠시 후 다시 올려 주세요.', daily: '오늘 자동 판독 한도를 넘었습니다.' };
     $('#verdict').textContent = '견적서는 잘 받았습니다. 자동으로 읽지 못해 담당자가 직접 확인하겠습니다.' + (WHY[why] ? ' ' + WHY[why] : '');
     $('#verdictSub').textContent = '연락처를 남겨 주시면 같은 조건의 모넷 구성 비교표와 견적서를 보내 드립니다.';
@@ -312,6 +337,7 @@
         $('#done').hidden = false;
       });
   });
+  w.addEventListener('beforeprint', function () { var f = d.getElementById('mapFold'); if (f) f.open = true; });
 })(window, document);
 
 /* ── 첫 화면 인터랙션 (10차 · 2026-11-17) — 꾸밈 전용. 실패해도 올리기 동작에는 영향이 없다 ── */

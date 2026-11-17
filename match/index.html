@@ -320,6 +320,57 @@ h1 em{background:linear-gradient(100deg,#6FA2FF 0%,#8FD0FF 28%,#5CE0C2 50%,#8FD0
 @media (hover:none){.drop .edge rect{animation-play-state:running;stroke:rgba(111,162,255,.6)}}
 @media (prefers-reduced-motion:reduce){.rv,.aura,.eyebrow i,h1 em,.drop .ico,.drop .ico:before,.drop .ico:after,.drop .edge rect,.how i,.how i u,.how s:after,#cav0,#cav0 svg,.fact.in .wv path{animation:none!important}.drop,.fact{transition:none;transform:none!important}.fx .fact{opacity:1}.drop .ico:before,.drop .ico:after{display:none}}
 @media print{.aura{display:none}}
+
+/* ── 결과 화면 벤토 배치 (11차 · 2026-11-17) ── */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;align-items:stretch}
+.bento #resBody{display:contents}
+.bt{grid-column:span 12;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;position:relative;min-width:0;animation:rise .6s cubic-bezier(.2,.7,.2,1) both;transition:border-color .25s,transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+.bt:hover{border-color:var(--line2)}
+.bt-k{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.08em;color:var(--dim);margin-bottom:10px}
+.bt-hero{grid-column:span 8;background:radial-gradient(520px 260px at 0% 0%,rgba(92,224,194,.13),transparent 65%),radial-gradient(520px 300px at 100% 100%,rgba(63,123,240,.16),transparent 65%),var(--card);display:flex;flex-direction:column;padding:26px}
+.bt-hero .verdict{font-size:clamp(21px,2.5vw,29px);margin:0 0 8px}.bt-hero .verdict-sub{margin:0;font-size:14.5px}.bt-hero .row{margin-top:auto;padding-top:18px}
+.bento:has(#resBody[hidden]) .bt-hero{grid-column:span 12}
+.bt-cond{grid-column:span 4;animation-delay:.06s}.bt-cond .yr{margin:0 0 14px;justify-content:space-between}
+.cond{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cond div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.025)}
+.cond b{display:block;font-size:21px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}.cond span{font-size:12.5px;color:var(--mut)}
+.bt-foot{font-size:12.5px;color:var(--dim);margin:10px 0 0;line-height:1.5}
+.bt-their,.bt-ours,.bt-diff{grid-column:span 4}.bt-their{animation-delay:.1s}.bt-ours{animation-delay:.16s}.bt-diff{animation-delay:.22s}
+.bt.side{border-radius:20px;padding:22px;background:var(--card)}.bt.side.ours{background:linear-gradient(180deg,rgba(92,224,194,.1),var(--card) 60%)}
+.bt-diff{display:flex;flex-direction:column}
+.df-big{font-size:clamp(24px,2.5vw,31px);font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--mint);font-variant-numeric:tabular-nums}.df-big small{font-size:.5em;font-weight:700;margin-left:2px}
+.bt-diff.flat .df-big{color:var(--ink);font-size:clamp(22px,2.6vw,28px)}
+.df-lab{font-size:14px;color:var(--mut);margin:6px 0 0}
+.df-bars{margin-top:auto;padding-top:16px;display:grid;gap:8px}
+.df-row{display:grid;grid-template-columns:78px minmax(0,1fr);align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}
+.df-tr{height:10px;border-radius:999px;background:rgba(255,255,255,.07);display:flex;overflow:hidden}
+.df-tr i{display:block;height:100%;width:0;transition:width .9s cubic-bezier(.2,.7,.2,1)}.df-tr .t{background:#56637F}.df-tr .o{background:var(--mint)}.df-tr .o.hi{background:repeating-linear-gradient(135deg,rgba(92,224,194,.75) 0 4px,rgba(92,224,194,.3) 4px 8px)}
+.bt-chart{display:flex;flex-direction:column}.bt-chart .chart{margin:auto 0}
+.bt-chart{grid-column:span 6;margin-top:0;animation-delay:.28s;border-radius:20px;padding:20px 20px 10px}
+.bt-bars{grid-column:span 6;margin-top:0;animation-delay:.34s}.bt-bars .bar-row{grid-template-columns:minmax(0,1fr);gap:4px;margin-bottom:14px}.bt-bars .bar-row .lb{font-size:13px}.bt-bars .ch-h{align-items:center}.bt-bars .legend{margin:0}.bt-bars .ch-h{margin-bottom:12px}
+.bt-wide{grid-column:span 12;animation-delay:.4s}.bt-wide .items-h{margin-top:0}
+.bt-fold{padding:0}.bt-fold summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:18px 22px}
+.bt-fold summary::-webkit-details-marker{display:none}.bt-fold summary b{font-size:16px}.bt-fold summary span{font-size:13px;color:var(--dim);margin-right:auto;margin-left:6px}
+.bt-fold summary:after{content:"";width:9px;height:9px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);transition:transform .25s;margin-right:4px}
+.bt-fold[open] summary:after{transform:rotate(-135deg)}.bt-fold .tw{margin:0;padding:0 22px 18px}
+.bento .notice{border-top:0;margin:0;padding:4px 6px 0}
+.hero-pct{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+.hero-pct b{font-size:clamp(52px,8.4vw,92px);font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;background:linear-gradient(90deg,#5CE0C2,#8EF1DC,#6FA2FF,#5CE0C2);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:flow 6s linear infinite;white-space:nowrap}
+.hero-pct b small{font-size:.5em;margin-left:2px}
+.hero-pct span{font-size:15.5px;font-weight:700;color:var(--mint)}
+.hero-pct:not([hidden])~.verdict{font-size:clamp(17px,1.7vw,20px);font-weight:700;color:var(--ink)}
+/* 숫자는 중간에서 줄바꿈하지 않는다 */
+td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:keep-all}
+.tco,#itSum,.pair span,.verdict,.df-lab,.df-big{overflow-wrap:normal;word-break:keep-all}
+.bt.side .tco{font-size:clamp(24px,2.5vw,31px)}.bt.side .tco small{display:block;margin:4px 0 0;font-size:13.5px}
+#map td.n,#items td.n{min-width:max-content}
+@media print{.hero-pct b{-webkit-text-fill-color:#000;color:#000;background:none;animation:none}.hero-pct span{color:#333}}
+@media (prefers-reduced-motion:reduce){.hero-pct b{animation:none}}
+@media (hover:hover){.bt-their:hover,.bt-ours:hover,.bt-diff:hover,.bt-cond:hover{transform:translateY(-3px);box-shadow:0 18px 40px -26px rgba(63,123,240,.9)}}
+@media (max-width:980px){.bt-hero,.bt-cond,.bt-chart,.bt-bars{grid-column:span 12}.bt-their,.bt-ours{grid-column:span 6}.bt-diff{grid-column:span 12}.cond{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:680px){.bento{gap:10px}.bt{padding:16px;border-radius:16px}.bt-hero{padding:18px}.bt-their,.bt-ours{grid-column:span 12}.cond{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-fold summary{padding:14px 16px}.bt-fold .tw{padding:0 16px 14px}.bt.side{padding:16px}.bt-chart{padding:14px 10px 6px}}
+@media (prefers-reduced-motion:reduce){.bt{animation:none;transition:none}.df-tr i{transition:none}}
+@media print{.bento{display:block}.bt{background:#fff!important;border:1px solid #bbb;color:#111;margin:0 0 8px;animation:none;break-inside:avoid}.bt-k,.cond span,.df-lab,.bt-foot,.df-row{color:#333!important}.df-big{color:#000!important}.cond div{border-color:#ccc}.bt-fold summary:after{display:none}}
 </style>
 </head>
 <body>
@@ -332,8 +383,8 @@ h1 em{background:linear-gradient(100deg,#6FA2FF 0%,#8FD0FF 28%,#5CE0C2 50%,#8FD0
 <main id="main">
 <div class="hero" id="hero"><div class="aura" aria-hidden="true"></div><div class="wrap wide">
   <span class="eyebrow rv"><i></i>맞견적 MatchQuote</span>
-  <h1 class="rv" style="--d:1">받은 견적서, <em>사진만 올려 주세요</em></h1>
-  <p class="lead rv" style="--d:2" id="lead">올리면 바로 읽어서 같은 조건의 모넷 구성과 나란히 보여 드립니다. 배선 공사가 없는 무선 방식이라 공사비에서 차이가 납니다.</p>
+  <h1 class="rv" style="--d:1">받으신 견적서, <em>사진만 올려 주세요</em></h1>
+  <p class="lead rv" style="--d:2" id="lead">올려 주시면 바로 읽어서, 같은 조건의 모넷 구성과 비교해 드릴게요.</p>
 </div></div>
 
 <section style="padding-top:20px"><div class="wrap wide">
@@ -367,26 +418,35 @@ h1 em{background:linear-gradient(100deg,#6FA2FF 0%,#8FD0FF 28%,#5CE0C2 50%,#8FD0
   <div id="result" hidden style="margin-top:18px">
     <div class="caveat big" id="cav2" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>예상 구간입니다 — 정식 견적은 달라질 수 있습니다</b><p>아래 모넷 금액은 올리신 견적서를 자동으로 읽어 계산한 <strong>예상 구간이며 확정 금액이 아닙니다.</strong> 정식 견적 전에 다음을 확인하고, 그 결과에 따라 금액이 <strong>늘거나 줄 수 있습니다.</strong></p>
       <p class="cv-list"><span>① <strong>센서 용도</strong> — 측정 대상·범위·설치 환경(방폭·방수·고온 등)에 맞는 모델인지</span><span>② <strong>게이트웨이 수신 범위</strong> — 설치 위치·거리·벽과 층 구조에 따른 게이트웨이 대수</span><span>③ <strong>수량</strong> — 자동으로 읽은 품목·수량이 원본과 같은지</span></p></div></div>
-    <div class="card">
-      <p class="verdict" id="verdict"></p>
-      <p class="verdict-sub" id="verdictSub"></p>
-      <div id="resBody">
-        <div class="yr no-print"><span>운영 기간을 바꿔 보세요</span><div class="seg2" id="yrs" role="group" aria-label="운영 기간"><span class="pill" aria-hidden="true"></span><button type="button" data-y="1">1년</button><button type="button" data-y="3">3년</button><button type="button" data-y="5">5년</button></div></div>
-        <div class="duo">
-          <div class="side rise"><h3>받으신 견적서</h3><div class="tco" id="tT"></div><dl id="tD"></dl></div>
-          <div class="side ours rise" style="animation-delay:.12s"><h3>같은 조건의 모넷 구성 <span class="est">예상</span></h3><div class="tco" id="oT"></div><dl id="oD"></dl></div>
-        </div>
-        <div class="chart-card rise" style="animation-delay:.2s"><div class="ch-h"><b>기간별 누적 비용</b><span>그래프 위에 올리거나 눌러 보세요</span></div>
-          <div class="chart" id="chart"><svg id="chartSvg" viewBox="0 0 640 290" role="img" aria-label="운영 기간에 따른 누적 비용 비교 그래프"></svg><div class="tip" id="tip" hidden></div></div></div>
-        <div class="bars" id="barsBox"><div class="legend"><span><i style="background:#56637F"></i>받으신 견적서</span><span><i style="background:var(--mint)"></i>모넷 구성</span></div><div id="bars"></div></div>
-        <div class="items-h"><b>견적서에서 읽은 품목 <span id="itN"></span></b><span id="itSum"></span></div>
-        <div class="tw"><table id="items"><thead><tr><th>읽은 품목</th><th>분류</th><th class="n">수량</th><th class="n">금액</th><th>모넷 구성에서는</th></tr></thead><tbody></tbody></table></div>
-        <p class="it-note" id="itNote"></p>
-        <div class="items-h" style="margin-top:26px"><b>종류별로 묶으면</b><span>같은 종류끼리 합친 비교입니다</span></div>
-        <div class="tw"><table id="map"><thead><tr><th>구분</th><th>받으신 견적서</th><th class="n">금액</th><th>모넷 구성</th><th class="n">수량</th><th class="n" id="mapAmtH">금액</th></tr></thead><tbody></tbody></table></div>
-        <p class="notice" id="notice"></p>
+    <div class="bento" id="bento">
+      <div class="bt bt-hero"><span class="bt-k">비교 결과</span>
+        <div class="hero-pct" id="hPct" hidden><b id="hPctN"></b><span id="hPctL"></span></div>
+        <p class="verdict" id="verdict"></p>
+        <p class="verdict-sub" id="verdictSub"></p>
+        <div class="row no-print"><button class="again" id="again" type="button">다른 견적서 올리기</button><button class="btn ghost sm" id="btnPrint" type="button" hidden>품의용으로 인쇄 · PDF 저장</button></div>
       </div>
-      <div class="row no-print"><button class="again" id="again" type="button">다른 견적서 올리기</button><button class="btn ghost sm" id="btnPrint" type="button" hidden>품의용으로 인쇄 · PDF 저장</button></div>
+      <div id="resBody">
+        <div class="bt bt-cond"><span class="bt-k">계산 조건</span>
+          <div class="yr no-print"><span>운영 기간</span><div class="seg2" id="yrs" role="group" aria-label="운영 기간"><span class="pill" aria-hidden="true"></span><button type="button" data-y="1">1년</button><button type="button" data-y="3">3년</button><button type="button" data-y="5">5년</button></div></div>
+          <div class="cond"><div><b id="cPts">-</b><span>센서</span></div><div><b id="cGw">-</b><span>게이트웨이</span></div><div><b id="cSites">-</b><span>현장</span></div><div><b id="cLines">-</b><span>읽은 품목</span></div></div>
+          <p class="bt-foot" id="cVat"></p>
+        </div>
+        <div class="bt side bt-their"><h3>받으신 견적서</h3><div class="tco" id="tT"></div><dl id="tD"></dl></div>
+        <div class="bt side ours bt-ours"><h3>같은 조건의 모넷 구성 <span class="est">예상</span></h3><div class="tco" id="oT"></div><dl id="oD"></dl></div>
+        <div class="bt bt-diff" id="dfTile"><span class="bt-k" id="dfK">예상 차이</span>
+          <div class="df-big" id="dfBig"></div><p class="df-lab" id="dfLab"></p>
+          <div class="df-bars" aria-hidden="true"><div class="df-row"><span>받으신 견적</span><div class="df-tr"><i class="t" style="width:100%"></i></div></div><div class="df-row"><span>모넷 구성</span><div class="df-tr"><i class="o" id="dfLo"></i><i class="o hi" id="dfHi"></i></div></div></div>
+        </div>
+        <div class="bt chart-card bt-chart"><div class="ch-h"><b>기간별 누적 비용</b><span>그래프 위에 올리거나 눌러 보세요</span></div>
+          <div class="chart" id="chart"><svg id="chartSvg" viewBox="0 0 640 290" role="img" aria-label="운영 기간에 따른 누적 비용 비교 그래프"></svg><div class="tip" id="tip" hidden></div></div></div>
+        <div class="bt bars bt-bars" id="barsBox"><div class="ch-h"><b>종류별 비교</b><div class="legend"><span><i style="background:#56637F"></i>받으신 견적서</span><span><i style="background:var(--mint)"></i>모넷 구성</span></div></div><div id="bars"></div></div>
+        <div class="bt bt-wide"><div class="items-h"><b>견적서에서 읽은 품목 <span id="itN"></span></b><span id="itSum"></span></div>
+          <div class="tw"><table id="items"><thead><tr><th>읽은 품목</th><th>분류</th><th class="n">수량</th><th class="n">금액</th><th>모넷 구성에서는</th></tr></thead><tbody></tbody></table></div>
+          <p class="it-note" id="itNote"></p></div>
+        <details class="bt bt-wide bt-fold" id="mapFold"><summary><b>종류별로 묶어 보기</b><span>같은 종류끼리 합친 비교입니다</span></summary>
+          <div class="tw"><table id="map"><thead><tr><th>구분</th><th>받으신 견적서</th><th class="n">금액</th><th>모넷 구성</th><th class="n">수량</th><th class="n" id="mapAmtH">금액</th></tr></thead><tbody></tbody></table></div></details>
+        <p class="notice bt-wide" id="notice"></p>
+      </div>
     </div>
 
     <div class="card form-card" id="formCard" style="margin-top:14px">
@@ -419,6 +479,6 @@ h1 em{background:linear-gradient(100deg,#6FA2FF 0%,#8FD0FF 28%,#5CE0C2 50%,#8FD0
 
 <footer><div class="wrap"><div class="legal"><span>© 주식회사 모넷코리아</span><a href="/">홈으로 가기</a><a href="/privacy.html">개인정보처리방침</a><a href="/contact">문의하기</a></div></div></footer>
 
-<script src="/js/match.js?v=10"></script>
+<script src="/js/match.js?v=11"></script>
 </body>
 </html>
