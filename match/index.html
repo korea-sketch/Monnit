@@ -389,6 +389,39 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
 .fact span{font-size:14.5px;color:#C3CDE0;align-self:start}
 @media (max-width:680px){.facts-h{margin:22px 0 10px;font-size:13px}.fact{padding:16px}.fact b{font-size:17px}.fact .fi{width:46px;height:46px}}
 @media (prefers-reduced-motion:reduce){.fact:after{display:none}}
+
+/* ── 결과 요약 카드 한 장으로 정리 (13차 · 2026-11-17) ── */
+.sum{grid-column:span 12;padding:18px 26px 22px;background:radial-gradient(620px 280px at 50% 0%,rgba(63,123,240,.14),transparent 70%),var(--card)}
+.sum-brand{display:block;text-align:center;font-size:12.5px;font-weight:800;letter-spacing:.16em;color:var(--mut);margin:2px 0 14px}
+.sum-in{border:1px solid var(--line2);border-radius:16px;padding:26px 28px;background:rgba(255,255,255,.02)}
+.sum-h{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.sum-h h2{font-size:clamp(20px,2.2vw,25px);margin:0;letter-spacing:-.02em}
+.sum .verdict{font-size:clamp(23px,3.1vw,34px);font-weight:800;letter-spacing:-.025em;text-align:center;margin:20px 0 0;line-height:1.3}
+.sum .verdict .mint{font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum .verdict .pc{display:inline-block;vertical-align:middle;margin-left:10px;font-size:.5em;font-weight:800;color:#06281f;background:var(--mint);border-radius:999px;padding:4px 11px;letter-spacing:0;white-space:nowrap}
+.sum .verdict-sub{text-align:center;margin:8px 0 0;font-size:14.5px}.sum .verdict-sub:empty{display:none}
+.sum-2{display:grid;grid-template-columns:1fr 1fr;margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)}
+.sum-2>div{padding:0 0 0 4px}.sum-2>div+div{border-left:1px solid var(--line2);padding-left:26px}
+.sum-2 span{display:block;font-size:13.5px;font-weight:700;color:var(--mut);margin-bottom:6px}
+.sum-2 b{display:block;font-size:clamp(22px,2.8vw,31px);font-weight:800;letter-spacing:-.025em;font-variant-numeric:tabular-nums;overflow-wrap:normal;word-break:keep-all}
+.sum-foot{text-align:center;font-size:13px;color:var(--dim);margin:16px 0 0}.sum-foot:empty{display:none}
+.sum-cta{display:flex;align-items:center;justify-content:center;gap:10px 22px;flex-wrap:wrap;margin-top:20px}
+.btn.mintb{background:var(--mint);border-color:var(--mint);color:#06281f;font-weight:800;min-width:210px;text-align:center;box-shadow:0 14px 34px -16px rgba(92,224,194,.9)}
+.btn.mintb:hover{filter:brightness(1.07);transform:translateY(-2px)}
+.sum-cta .lnk{color:var(--ink);font-weight:700;font-size:15px;text-underline-offset:5px}
+.sum-cta .again{margin:0;font-size:14px}
+.sum-cond{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02)}
+.sum-cond summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 20px;font-weight:700;font-size:15px}
+.sum-cond summary::-webkit-details-marker{display:none}
+.sum-cond summary:after{content:"";width:9px;height:9px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);transition:transform .25s;margin-right:4px}
+.sum-cond[open] summary:after{transform:rotate(-135deg)}
+.sum-cond .cond{grid-template-columns:repeat(4,minmax(0,1fr));padding:0 20px}
+.sum-cond .bt-foot,.sum-cond .notice{padding:0 20px;margin:12px 0 0;border-top:0;font-size:13px;color:var(--dim);line-height:1.6}.sum-cond .notice{padding-bottom:16px}
+.bento:has(#sumBody[hidden]) .sum-h,.bento:has(#sumBody[hidden]) #sumGo,.bento:has(#sumBody[hidden]) #sumItems,.bento:has(#sumBody[hidden]) .sum-cond{display:none}
+.bt-chart{animation-delay:.1s}.bt-bars{animation-delay:.16s}.bt-wide{animation-delay:.22s}
+#formCard,#itemsTile{scroll-margin-top:90px}
+@media (max-width:680px){.sum{padding:14px 12px 14px}.sum-in{padding:18px 16px}.sum-h{justify-content:center}.sum-2{grid-template-columns:1fr;gap:14px}.sum-2>div+div{border-left:0;border-top:1px solid var(--line2);padding:14px 0 0 4px}.sum-cond .cond{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 14px}.sum-cond summary{padding:13px 14px}.sum-cond .bt-foot,.sum-cond .notice{padding-left:14px;padding-right:14px}.btn.mintb{width:100%}.sum .verdict .pc{margin:6px 0 0}}
+@media print{.sum-brand{color:#333}.sum .verdict .pc{background:none;color:#000;border:1px solid #000}.sum-cond{border-color:#bbb}.sum-in{border-color:#bbb}}
 </style>
 </head>
 <body>
@@ -437,33 +470,32 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
     <div class="caveat big" id="cav2" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>예상 구간입니다. 정식 견적은 달라질 수 있습니다</b><p>아래 모넷 금액은 올리신 견적서를 자동으로 읽어 계산한 <strong>예상 구간이며 확정 금액이 아닙니다.</strong> 정식 견적 전에 다음을 확인하고, 그 결과에 따라 금액이 <strong>늘거나 줄 수 있습니다.</strong></p>
       <p class="cv-list"><span>① <strong>센서 용도</strong>: 측정 대상·범위·설치 환경(방폭·방수·고온 등)에 맞는 모델인지</span><span>② <strong>게이트웨이 수신 범위</strong>: 설치 위치·거리·벽과 층 구조에 따른 게이트웨이 대수</span><span>③ <strong>수량</strong>: 자동으로 읽은 품목·수량이 원본과 같은지</span></p></div></div>
     <div class="bento" id="bento">
-      <div class="bt bt-hero"><span class="bt-k">비교 결과</span>
-        <div class="hero-pct" id="hPct" hidden><b id="hPctN"></b><span id="hPctL"></span></div>
-        <p class="verdict" id="verdict"></p>
-        <p class="verdict-sub" id="verdictSub"></p>
-        <div class="row no-print"><button class="again" id="again" type="button">다른 견적서 올리기</button><button class="btn ghost sm" id="btnPrint" type="button" hidden>품의용으로 인쇄 · PDF 저장</button></div>
-      </div>
-      <div id="resBody">
-        <div class="bt bt-cond"><span class="bt-k">계산 조건</span>
-          <div class="yr no-print"><span>운영 기간</span><div class="seg2" id="yrs" role="group" aria-label="운영 기간"><span class="pill" aria-hidden="true"></span><button type="button" data-y="1">1년</button><button type="button" data-y="3">3년</button><button type="button" data-y="5">5년</button></div></div>
+      <div class="bt sum" id="sumCard">
+        <span class="sum-brand">MONNIT KOREA</span>
+        <div class="sum-in">
+          <div class="sum-h"><h2 id="sumT">예상 비용 비교</h2>
+            <div class="seg2 no-print" id="yrs" role="group" aria-label="운영 기간"><span class="pill" aria-hidden="true"></span><button type="button" data-y="1">1년</button><button type="button" data-y="3">3년</button><button type="button" data-y="5">5년</button></div></div>
+          <p class="verdict" id="verdict"></p>
+          <p class="verdict-sub" id="verdictSub"></p>
+          <div id="sumBody">
+            <div class="sum-2"><div><span>받은 견적 · 비교 대상</span><b id="tT"></b></div><div><span>모넷 구성 · 예상</span><b id="oT" class="mint"></b></div></div>
+            <p class="sum-foot" id="sumFoot"></p>
+          </div>
+          <div class="sum-cta no-print"><a class="btn mintb" href="#formCard" id="sumGo">정식 견적 받기</a><a class="lnk" href="#itemsTile" id="sumItems">품목별 비교 보기</a><button class="again" id="again" type="button">다른 견적서 올리기</button><button class="btn ghost sm" id="btnPrint" type="button" hidden>인쇄 · PDF 저장</button></div>
+        </div>
+        <details class="sum-cond" id="condFold"><summary>계산 조건 보기</summary>
           <div class="cond"><div><b id="cPts">-</b><span>센서</span></div><div><b id="cGw">-</b><span>게이트웨이</span></div><div><b id="cSites">-</b><span>현장</span></div><div><b id="cLines">-</b><span>읽은 품목</span></div></div>
           <p class="bt-foot" id="cVat"></p>
-        </div>
-        <div class="bt side bt-their"><h3>받으신 견적서</h3><div class="tco" id="tT"></div><dl id="tD"></dl></div>
-        <div class="bt side ours bt-ours"><h3>같은 조건의 모넷 구성 <span class="est">예상</span></h3><div class="tco" id="oT"></div><dl id="oD"></dl></div>
-        <div class="bt bt-diff" id="dfTile"><span class="bt-k" id="dfK">예상 차이</span>
-          <div class="df-big" id="dfBig"></div><p class="df-lab" id="dfLab"></p>
-          <div class="df-bars" aria-hidden="true"><div class="df-row"><span>받으신 견적</span><div class="df-tr"><i class="t" style="width:100%"></i></div></div><div class="df-row"><span>모넷 구성</span><div class="df-tr"><i class="o" id="dfLo"></i><i class="o hi" id="dfHi"></i></div></div></div>
-        </div>
+          <p class="notice" id="notice"></p>
+        </details>
+      </div>
+      <div id="resBody">
         <div class="bt chart-card bt-chart"><div class="ch-h"><b>기간별 누적 비용</b><span>그래프 위에 올리거나 눌러 보세요</span></div>
           <div class="chart" id="chart"><svg id="chartSvg" viewBox="0 0 640 290" role="img" aria-label="운영 기간에 따른 누적 비용 비교 그래프"></svg><div class="tip" id="tip" hidden></div></div></div>
         <div class="bt bars bt-bars" id="barsBox"><div class="ch-h"><b>종류별 비교</b><div class="legend"><span><i style="background:#56637F"></i>받으신 견적서</span><span><i style="background:var(--mint)"></i>모넷 구성</span></div></div><div id="bars"></div></div>
-        <div class="bt bt-wide"><div class="items-h"><b>견적서에서 읽은 품목 <span id="itN"></span></b><span id="itSum"></span></div>
+        <div class="bt bt-wide" id="itemsTile"><div class="items-h"><b>견적서에서 읽은 품목 <span id="itN"></span></b><span id="itSum"></span></div>
           <div class="tw"><table id="items"><thead><tr><th>읽은 품목</th><th>분류</th><th class="n">수량</th><th class="n">금액</th><th>모넷 구성에서는</th></tr></thead><tbody></tbody></table></div>
           <p class="it-note" id="itNote"></p></div>
-        <details class="bt bt-wide bt-fold" id="mapFold"><summary><b>종류별로 묶어 보기</b><span>같은 종류끼리 합친 비교입니다</span></summary>
-          <div class="tw"><table id="map"><thead><tr><th>구분</th><th>받으신 견적서</th><th class="n">금액</th><th>모넷 구성</th><th class="n">수량</th><th class="n" id="mapAmtH">금액</th></tr></thead><tbody></tbody></table></div></details>
-        <p class="notice bt-wide" id="notice"></p>
       </div>
     </div>
 
@@ -498,6 +530,6 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
 
 <footer><div class="wrap"><div class="legal"><span>© 주식회사 모넷코리아</span><a href="/">홈으로 가기</a><a href="/privacy.html">개인정보처리방침</a><a href="/contact">문의하기</a></div></div></footer>
 
-<script src="/js/match.js?v=11"></script>
+<script src="/js/match.js?v=12"></script>
 </body>
 </html>
