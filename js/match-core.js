@@ -211,7 +211,7 @@
       O.lines.push({ kind: 'platform', name: pf.name || '플랫폼', qty: 1, unit: pYear, amount: pYear, period: 'year', promoFreeYears: pFree });
       map.push({ kind: 'platform', their: T.byKind.platform.n ? '플랫폼·소프트웨어 ' + T.byKind.platform.n + '개 항목' : '(견적서에 없음)', theirAmt: T.byKind.platform.init, theirYearly: T.byKind.platform.yearly,
         ours: pf.name || '플랫폼', qty: 1, unit: pYear, amount: pYear, period: 'year',
-        note: (pf.note || '연 구독') + (pFree ? ' · 첫 해 프로모션 면제(' + (promo.label || '기간 한정') + ') — 2년차부터 과금' : '') });
+        note: (pf.note || '연 구독') + (pFree ? ' · 첫 해 프로모션 면제(' + (promo.label || '기간 한정') + '), 2년차부터 과금' : '') });
     }
 
     /* 공사·설치 — 무선·자석 부착식이라 배선 공사 항목이 없다. 설치 대행은 설정된 요율이 있을 때만 금액으로 */
@@ -230,7 +230,7 @@
         note: opts.install === 'assist' ? (promo.installFree ? '설치비 프로모션 면제(' + (promo.label || '기간 한정') + ')' : insKnown ? '현장 ' + opts.sites + '곳 · 센서 ' + points + '개 기준' : '현장 확인 뒤 금액을 안내합니다') : (ins.selfNote || '배선 공사가 없는 무선 방식입니다') });
     }
     if (T.byKind.maintenance.n) map.push({ kind: 'maintenance', their: '유지보수 ' + T.byKind.maintenance.n + '개 항목', theirAmt: T.byKind.maintenance.init, theirYearly: T.byKind.maintenance.yearly,
-      ours: '기본 보증', qty: 1, unit: 0, amount: 0, note: (cfg.warrantyNote || '제품 기본 보증 1년') + ' — 보증 기간 이후 유상 수리·교체는 포함하지 않았습니다' });
+      ours: '기본 보증', qty: 1, unit: 0, amount: 0, note: (cfg.warrantyNote || '제품 기본 보증 1년') + '. 보증 기간 이후 유상 수리·교체는 포함하지 않았습니다' });
     if (T.byKind.comm.n) {
       var cm = Math.max(0, Number((cfg.comm || {})[opts.net]) || 0);
       O.yearly += cm; O.byKind.comm.yearly += cm;
@@ -238,7 +238,7 @@
       map.push({ kind: 'comm', their: '통신비 ' + T.byKind.comm.n + '개 항목', theirAmt: T.byKind.comm.init, theirYearly: T.byKind.comm.yearly,
         ours: '통신', qty: 1, unit: cm, amount: cm, period: 'year', note: ((cfg.comm || {}).note || {})[opts.net] || '' });
     }
-    if (T.byKind.etc.n) { map.push({ kind: 'etc', their: '기타 ' + T.byKind.etc.n + '개 항목', theirAmt: T.byKind.etc.init, theirYearly: T.byKind.etc.yearly, ours: '해당 항목 없음', qty: 0, unit: 0, amount: 0, note: '모넷 구성에 대응 항목이 없어 0원으로 두었습니다 — 필요 여부를 담당자가 확인합니다' }); notes.push('기타로 분류된 항목은 모넷 구성에 넣지 않았습니다.'); }
+    if (T.byKind.etc.n) { map.push({ kind: 'etc', their: '기타 ' + T.byKind.etc.n + '개 항목', theirAmt: T.byKind.etc.init, theirYearly: T.byKind.etc.yearly, ours: '해당 항목 없음', qty: 0, unit: 0, amount: 0, note: '모넷 구성에 대응 항목이 없어 0원으로 두었습니다. 필요 여부를 담당자가 확인합니다' }); notes.push('기타로 분류된 항목은 모넷 구성에 넣지 않았습니다.'); }
 
     var years = opts.years, freeY = Math.min(pFree, years);
     var tTco = T.init + T.yearly * years, oTco = O.init + O.yearly * years - pYear * freeY;

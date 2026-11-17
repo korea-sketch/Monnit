@@ -19,7 +19,7 @@ import { salesFromQs, readQuoteLink } from './_mall.mjs';
 import _guard from './_guard.js';
 import { PAGE } from './_match_ui.mjs';
 import { putFile, getFile, readLedger } from './_match.mjs';
-import { list } from './_store.mjs';
+import { list, del } from './_store.mjs';
 import { CFG } from '../lib/proposal/config.mjs';
 import { addUsage } from '../lib/proposal/aiusage.mjs';
 import { M, STORE, readCfg, saveCfg, cleanCfg, DEFAULT_CFG, record, readRecords, newId, readDoc, writeDoc, kday, kmonth } from './_match.mjs';
@@ -204,7 +204,7 @@ async function apiRead(req) {
   const r = M.convert(lines, opts, cfg);
   await append(STORE, 'a-' + kmonth(Date.now()), { ts: new Date().toISOString(), cid, lines, opts: r.opts, sum: sumOf(r), vendor: str(o.vendor, 60) || (last && last.vendor) || '', stated, src: 'ai', model: res.model, ...(fx || (last && last.fx) ? { fx: fx || last.fx } : {}) });
   const out = pack(lines, opts, cfg, r);
-  return j({ ...out, read: got.length, stated: stated || (last && last.stated) || 0, fx: fx || (last && last.fx) || null, disclaimer: cfg.disclaimer });
+  return j({ ...out, read: got.length, stated: stated || (last && last.stated) || 0, fx: fx || (last && last.fx) || null, disclaimer: String(cfg.disclaimer || '').replace(/\s*[\u2014\u2013]\s*/g, ', ') });
 }
 
 /* 하루 상한 (보강 2026-11-16) — 주소별 제한(throttled)은 Worker 인스턴스마다 따로 세어져 느슨하다.
@@ -238,10 +238,14 @@ function pack(lines, opts, cfg, r) {
   const oursOf = (l) => l.kind === 'sensor' ? ((cat[l.cat] || {}).name || '대응 센서 확인')
     : l.kind === 'gateway' ? (((cfg.gateway || {})[ox.net] || {}).name || '게이트웨이') + ' (대수는 현장 수·센서 수로 계산)'
     : l.kind === 'platform' ? (((cfg.platform || {})[ox.platform] || {}).name || '플랫폼') + ' (연 구독)'
-    : l.kind === 'construction' ? (ox.install === 'assist' ? '설치 대행' : '직접 설치 — 배선 공사 없음')
+    : l.kind === 'construction' ? (ox.install === 'assist' ? '설치 대행' : '직접 설치 (배선 공사 없음)')
     : l.kind === 'maintenance' ? (cfg.warrantyNote || '제품 기본 보증 1년') : l.kind === 'comm' ? '통신' : '대응 항목 없음';
   const items = M.cleanLines(lines).slice(0, 80).map((l) => ({ name: l.name, kind: l.kind, qty: l.qty, amount: l.amount, period: l.period || '', ours: oursOf(l), check: l.kind === 'etc' || (l.kind === 'sensor' && !((cat[l.cat] || {}).price > 0)) }));
-  return { ...base, alt, curve, items };
+  /* 고객 화면 문구에는 긴 줄표(—, –)를 쓰지 않는다 — 관제에 저장된 예전 문구가 섞여 나오는 것도 여기서 거른다. 고객 견적서의 품명은 건드리지 않는다 */
+  const nd = (t) => String(t == null ? '' : t).replace(/\s*[\u2014\u2013]\s*/g, ', ');
+  for (const it of items) it.ours = nd(it.ours);
+  const map = (base.map || []).map((m) => ({ ...m, ours: nd(m.ours), note: nd(m.note) }));
+  return { ...base, map, notes: (base.notes || []).map(nd), vat: nd(base.vat), alt, curve, items };
 }
 
 /* 요약에 남길 숫자만 */
@@ -305,7 +309,7 @@ async function apiSave(req) {
   await record(rec);
   if (!r) return j({ ok: true, id, requested: true, files: files.length });
   /* 연락처를 남겨도 고객 화면에는 구간만 — 정확한 금액과 단가는 관제와 정식 견적서에만 있다 */
-  return j({ ...pack(lines, b.opts, cfg, r), id, stated: b._stated || 0, disclaimer: cfg.disclaimer, promo: cfg.promo.label ? cfg.promo : null });
+  return j({ ...pack(lines, b.opts, cfg, r), id, stated: b._stated || 0, disclaimer: String(cfg.disclaimer || '').replace(/\s*[\u2014\u2013]\s*/g, ', '), promo: cfg.promo.label ? cfg.promo : null });
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -404,13 +408,16 @@ const DEAL_RANK = { '접수': 0, '통화': 0.5, '견적': 2, '수주': 3, '실�
 
 async function build(days) {
   const now = Date.now(), from = now - days * DAY;
-  const [leadRows, dealMap, delMap, qs, recs, kitsSaved, evals, cfg] = await Promise.all([
+  const [leadRows, dealMap, delMap, qs, recs0, kitsSaved, evals, cfg] = await Promise.all([
     monthsBetween('leads', from, now), readDeals(),
     get('ops', 'deleted.json').then((t) => JSON.parse(t || '{}')).catch(() => ({})),
     quotes(from - 30 * DAY), readRecords(from, now),
     readDoc('kits.json', {}), readDoc('accounts.json', {}), readCfg(true)
   ]);
-  const anonRows = await readAnon(from, now);
+  /* 관제에서 지운 견적서(화면 번호) — 파일은 삭제됐고, 기록은 여기서 걸러 통계에도 넣지 않는다 (12차) */
+  const gone = await readDoc('gone.json', {});
+  const recs = recs0.filter((r) => !(r && r.cid && gone[r.cid]));
+  const anonRows = (await readAnon(from, now)).filter((a) => !(a && a.cid && gone[a.cid]));
   const idOf = (r) => (r.ts || '') + '|' + (r.email || r.phone || r.company || '');
   const all = leadRows.filter((r) => r && r.ts && new Date(r.ts).getTime() >= from && !/^__/.test(r.company || '') && !isTestLead(r) && !delMap[idOf(r)]);
   const pKey = (r) => String(r.email || '').trim().toLowerCase() || digits(r.phone) || coKey(r.company);
@@ -509,7 +516,7 @@ async function build(days) {
   /* ① 맞견적 접수 */
   const market = marketOf(realRecs, anonRows, cfg);
   /* 올린 견적서 — 화면(cid) 단위로 묶는다: 파일 · 신청 여부 · 담당자가 넣은 품목 */
-  const upRows = await readLedger('u-', from, now);
+  const upRows = (await readLedger('u-', from, now)).filter((u) => !gone[u.cid]);
   const G = new Map();
   for (const u of upRows) { let g = G.get(u.cid); if (!g) { g = { cid: u.cid, ts: u.ts, files: [] }; G.set(u.cid, g); } if (u.ts < g.ts) g.ts = u.ts; g.files.push({ k: u.key, ext: u.ext, size: u.size, name: u.name || '' }); }
   const recByCid = new Map(); for (const r of recs) if (r.cid) recByCid.set(r.cid, r);
@@ -579,11 +586,24 @@ const _cache = new Map();
 async function opsSave(req) {
   const b = await body(req, 60000); if (!b) return j({ ok: false, error: 'bad request' }, 400, HP);
   _cache.clear();
+  if (b.kind === 'del') {   /* 올린 견적서 지우기 — 파일은 저장소에서 삭제, 기록(품목·판독·신청)은 숨김 처리 */
+    const ids = [...new Set((Array.isArray(b.cids) ? b.cids : []).map(cidOf).filter(Boolean))].slice(0, 500);
+    if (!ids.length) return j({ ok: false, error: '지울 항목을 골라 주세요' }, 200, HP);
+    const want = new Set(ids), gone = await readDoc('gone.json', {});
+    let files = 0, failed = 0;
+    for (const u of await readLedger('u-', Date.now() - 800 * DAY)) {
+      if (!want.has(u.cid) || !u.key || !/^f\//.test(u.key)) continue;
+      if (await del(STORE, u.key).catch(() => false)) files++; else failed++;
+    }
+    const at = new Date().toISOString(); for (const c of ids) gone[c] = at;
+    if (!(await writeDoc('gone.json', gone))) return j({ ok: false, error: '저장하지 못했습니다' }, 200, HP);
+    return j({ ok: true, n: ids.length, files, failed }, 200, HP);
+  }
   if (b.kind === 'cfg') { const v = await saveCfg(b.cfg); return j(v ? { ok: true, cfg: v } : { ok: false, error: '저장하지 못했습니다' }, 200, HP); }
   if (b.kind === 'lines') {   /* 담당자가 견적서 사진을 보고 품목을 옮겨 적는다 → 시장 데이터 · 비교 계산 */
     const cid = cidOf(b.cid); if (!cid) return j({ ok: false, error: '견적서를 확인해 주세요' }, 200, HP);
     const lines = M.cleanLines(M.parse(String(b.text || '').slice(0, 20000)).lines);
-    if (!lines.length) return j({ ok: false, error: '읽을 수 있는 품목이 없습니다 — 한 줄에 품명·수량·금액이 함께 있게 붙여 넣어 주세요' }, 200, HP);
+    if (!lines.length) return j({ ok: false, error: '읽을 수 있는 품목이 없습니다. 한 줄에 품명·수량·금액이 함께 있게 붙여 넣어 주세요' }, 200, HP);
     const r = M.convert(lines, b.opts, await readCfg());
     await append(STORE, 'a-' + kmonth(Date.now()), { ts: new Date().toISOString(), cid, lines, opts: r.opts, sum: sumOf(r), vendor: str(b.vendor, 60), src: 'staff' });
     return j({ ok: true, n: lines.length, sum: sumOf(r) }, 200, HP);

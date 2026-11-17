@@ -17,22 +17,22 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<title>맞견적 — 받은 견적서를 같은 조건의 모넷 구성으로 비교 | Monnit Korea</title>
+<title>맞견적: 받은 견적서를 같은 조건의 모넷 구성으로 비교 | Monnit Korea</title>
 <meta name="description" content="다른 곳에서 받은 IoT·센서 모니터링 견적서를 사진이나 PDF 로 올려 주세요. 같은 조건의 모넷 무선 센서 구성으로 바꾼 비교표를 담당자가 보내 드립니다. 배선 공사가 없는 940MHz 무선 방식.">
 <link rel="canonical" href="https://monnit.co.kr/match/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Monnit Korea">
-<meta property="og:title" content="맞견적 — 받은 견적서를 같은 조건의 모넷 구성으로 비교">
+<meta property="og:title" content="맞견적: 받은 견적서를 같은 조건의 모넷 구성으로 비교">
 <meta property="og:description" content="견적서 사진만 올리면 같은 조건의 모넷 구성 비교표를 보내 드립니다.">
 <meta property="og:url" content="https://monnit.co.kr/match/">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:image" content="https://monnit.co.kr/images/img-41.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="맞견적 — 받은 견적서를 같은 조건의 모넷 구성으로 비교">
+<meta name="twitter:title" content="맞견적: 받은 견적서를 같은 조건의 모넷 구성으로 비교">
 <meta name="twitter:description" content="견적서 사진만 올리면 같은 조건의 모넷 무선 센서 구성과 나란히 비교해 드립니다.">
 <meta name="twitter:image" content="https://monnit.co.kr/images/img-41.jpg">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://monnit.co.kr/match/#page","url":"https://monnit.co.kr/match/","name":"맞견적 — 받은 견적서를 같은 조건의 모넷 구성으로 비교","inLanguage":"ko","isPartOf":{"@type":"WebSite","name":"Monnit Korea","url":"https://monnit.co.kr/"},"description":"다른 곳에서 받은 센서·모니터링 견적서를 사진이나 PDF 로 올리면 같은 조건의 모넷 무선 센서 구성과 예상 비용 구간을 나란히 보여 줍니다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://monnit.co.kr/"},{"@type":"ListItem","position":2,"name":"맞견적","item":"https://monnit.co.kr/match/"}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://monnit.co.kr/match/#page","url":"https://monnit.co.kr/match/","name":"맞견적: 받은 견적서를 같은 조건의 모넷 구성으로 비교","inLanguage":"ko","isPartOf":{"@type":"WebSite","name":"Monnit Korea","url":"https://monnit.co.kr/"},"description":"다른 곳에서 받은 센서·모니터링 견적서를 사진이나 PDF 로 올리면 같은 조건의 모넷 무선 센서 구성과 예상 비용 구간을 나란히 보여 줍니다."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://monnit.co.kr/"},{"@type":"ListItem","position":2,"name":"맞견적","item":"https://monnit.co.kr/match/"}]}]}</script>
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>
 :root{--bg:#070C18;--bg2:#0B1326;--card:#0F1A30;--card2:#14213C;--line:rgba(255,255,255,.1);--line2:rgba(255,255,255,.18);--ink:#F3F6FB;--mut:#A9B5CC;--dim:#7482A0;--acc:#6FA2FF;--acc2:#3F7BF0;--mint:#5CE0C2;--or:#F5A524;--dn:#FF8A8A;--r:16px}
@@ -371,6 +371,24 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
 @media (max-width:680px){.bento{gap:10px}.bt{padding:16px;border-radius:16px}.bt-hero{padding:18px}.bt-their,.bt-ours{grid-column:span 12}.cond{grid-template-columns:repeat(2,minmax(0,1fr))}.bt-fold summary{padding:14px 16px}.bt-fold .tw{padding:0 16px 14px}.bt.side{padding:16px}.bt-chart{padding:14px 10px 6px}}
 @media (prefers-reduced-motion:reduce){.bt{animation:none;transition:none}.df-tr i{transition:none}}
 @media print{.bento{display:block}.bt{background:#fff!important;border:1px solid #bbb;color:#111;margin:0 0 8px;animation:none;break-inside:avoid}.bt-k,.cond span,.df-lab,.bt-foot,.df-row{color:#333!important}.df-big{color:#000!important}.cond div{border-color:#ccc}.bt-fold summary:after{display:none}}
+
+/* ── 특장점 카드 강조 (12차 · 2026-11-17) ── */
+.facts-h{display:flex;align-items:center;gap:14px;margin:30px 0 14px;font-size:14px;font-weight:800;letter-spacing:.12em;color:var(--mint)}
+.facts-h i{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(92,224,194,.5))}.facts-h i:last-child{transform:scaleX(-1)}
+#factsH:has(+#facts[hidden]){display:none}
+.facts{gap:14px}
+.fact{padding:22px 22px 22px 20px;border-radius:18px;border:1px solid transparent;gap:4px 16px;align-items:center;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,rgba(92,224,194,.75),rgba(111,162,255,.55) 45%,rgba(255,255,255,.08) 80%) border-box;box-shadow:0 0 0 1px rgba(92,224,194,.06),0 20px 44px -30px rgba(92,224,194,.75)}
+.fact:hover{border-color:transparent;background:linear-gradient(#12203b,#12203b) padding-box,linear-gradient(135deg,#5CE0C2,#6FA2FF 60%,rgba(255,255,255,.2)) border-box;box-shadow:0 0 0 1px rgba(92,224,194,.14),0 24px 50px -26px rgba(92,224,194,.9)}
+.fact:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;pointer-events:none;background:linear-gradient(100deg,transparent,rgba(255,255,255,.09),transparent);transform:skewX(-18deg);animation:fsheen 5.5s ease-in-out infinite}
+.fact:nth-child(2):after{animation-delay:.5s}.fact:nth-child(3):after{animation-delay:1s}
+@keyframes fsheen{0%,62%{left:-60%}88%,100%{left:130%}}
+.fact .fi{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,rgba(92,224,194,.24),rgba(111,162,255,.2));color:var(--mint);box-shadow:inset 0 0 0 1px rgba(92,224,194,.3);align-self:start}
+.fact .fi svg{width:27px;height:27px}
+.fact b{font-size:18.5px;letter-spacing:-.02em;line-height:1.35;margin:0;align-self:end}
+.fact b em{font-style:normal;color:var(--mint)}
+.fact span{font-size:14.5px;color:#C3CDE0;align-self:start}
+@media (max-width:680px){.facts-h{margin:22px 0 10px;font-size:13px}.fact{padding:16px}.fact b{font-size:17px}.fact .fi{width:46px;height:46px}}
+@media (prefers-reduced-motion:reduce){.fact:after{display:none}}
 </style>
 </head>
 <body>
@@ -416,8 +434,8 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
   </div>
 
   <div id="result" hidden style="margin-top:18px">
-    <div class="caveat big" id="cav2" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>예상 구간입니다 — 정식 견적은 달라질 수 있습니다</b><p>아래 모넷 금액은 올리신 견적서를 자동으로 읽어 계산한 <strong>예상 구간이며 확정 금액이 아닙니다.</strong> 정식 견적 전에 다음을 확인하고, 그 결과에 따라 금액이 <strong>늘거나 줄 수 있습니다.</strong></p>
-      <p class="cv-list"><span>① <strong>센서 용도</strong> — 측정 대상·범위·설치 환경(방폭·방수·고온 등)에 맞는 모델인지</span><span>② <strong>게이트웨이 수신 범위</strong> — 설치 위치·거리·벽과 층 구조에 따른 게이트웨이 대수</span><span>③ <strong>수량</strong> — 자동으로 읽은 품목·수량이 원본과 같은지</span></p></div></div>
+    <div class="caveat big" id="cav2" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>예상 구간입니다. 정식 견적은 달라질 수 있습니다</b><p>아래 모넷 금액은 올리신 견적서를 자동으로 읽어 계산한 <strong>예상 구간이며 확정 금액이 아닙니다.</strong> 정식 견적 전에 다음을 확인하고, 그 결과에 따라 금액이 <strong>늘거나 줄 수 있습니다.</strong></p>
+      <p class="cv-list"><span>① <strong>센서 용도</strong>: 측정 대상·범위·설치 환경(방폭·방수·고온 등)에 맞는 모델인지</span><span>② <strong>게이트웨이 수신 범위</strong>: 설치 위치·거리·벽과 층 구조에 따른 게이트웨이 대수</span><span>③ <strong>수량</strong>: 자동으로 읽은 품목·수량이 원본과 같은지</span></p></div></div>
     <div class="bento" id="bento">
       <div class="bt bt-hero"><span class="bt-k">비교 결과</span>
         <div class="hero-pct" id="hPct" hidden><b id="hPctN"></b><span id="hPctL"></span></div>
@@ -458,7 +476,7 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
           <div><label class="lb" for="f-name">담당자명 *</label><input id="f-name" autocomplete="name" required></div>
           <div><label class="lb" for="f-tel">연락처 *</label><input id="f-tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></div>
         </div>
-        <label class="chk"><input type="checkbox" id="f-agree">[필수] 개인정보 수집·이용 동의 — 회사명·담당자명·연락처 / 견적 비교·안내 / 상담 종료 후 1년 <a href="/privacy.html" target="_blank" rel="noopener" style="margin-left:6px;color:var(--acc)">전문 보기</a></label>
+        <label class="chk"><input type="checkbox" id="f-agree">[필수] 개인정보 수집·이용 동의: 회사명·담당자명·연락처 / 견적 비교·안내 / 상담 종료 후 1년 <a href="/privacy.html" target="_blank" rel="noopener" style="margin-left:6px;color:var(--acc)">전문 보기</a></label>
         <label class="chk must"><input type="checkbox" id="f-ack"><span><b>[필수] 예상 금액임을 확인했습니다.</b> 이 화면의 금액은 확정 견적이 아니며, 센서 용도와 게이트웨이 수신 범위를 확인한 뒤 발행되는 정식 견적서의 금액은 이와 달라질 수 있습니다.</span></label>
         <p class="err" id="err" role="alert"></p>
         <div class="row"><button class="btn" type="submit" id="submitBtn">정식 견적서 받기</button></div>
@@ -468,10 +486,11 @@ td.n,th.n,.cond b,.side dd{white-space:nowrap;overflow-wrap:normal;word-break:ke
       <div class="caveat" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.5"/></svg><div><b>정식 견적서의 금액이 기준입니다</b><p>담당자가 <strong>센서 용도</strong>와 <strong>게이트웨이 수신 범위</strong>(설치 위치·거리·구조)를 확인한 뒤 정식 견적서를 보내 드립니다. 그 과정에서 센서 종류나 게이트웨이 대수가 바뀌면 이 화면의 예상 금액과 차이가 날 수 있으며, 차이가 나는 항목은 견적서에 따로 설명드립니다.</p></div></div></div>
   </div>
 
-  <div class="facts" id="facts" style="margin-top:18px">
-    <div class="fact"><i class="fi"><svg class="wv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 15a4.2 4.2 0 0 1 6 0"/><path d="M6 11.8a8.5 8.5 0 0 1 12 0"/><path d="M3.2 8.6a12.6 12.6 0 0 1 17.6 0"/><circle cx="12" cy="18.5" r="1" fill="currentColor" stroke="none"/></svg></i><b>배선 공사 없음</b><span>자석으로 붙이는 <i data-to="940" style="font-style:normal">940</i>MHz 무선 센서</span></div>
-    <div class="fact"><i class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="13" height="10" rx="1.5"/><path d="M7 18h5M9.5 14v4"/><rect x="17" y="9" width="4.5" height="9" rx="1"/></svg></i><b>서버 구축 없이 바로 사용</b><span>PC·모바일에서 실시간 확인, 이상 시 즉시 알림</span></div>
-    <div class="fact"><i class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="16" height="6" rx="1.5"/><path d="M8 16h.01M11 16h.01M12 13V9M8.5 6.5a5 5 0 0 1 7 0"/></svg></i><b>게이트웨이 1대에 센서 <i data-to="250">250</i>개</b><span>정전 시 내장 배터리로 2~3일 작동</span></div>
+  <p class="facts-h rv" style="--d:4" id="factsH"><i></i>모넷이 다른 점<i></i></p>
+  <div class="facts" id="facts" style="margin-top:0">
+    <div class="fact"><i class="fi"><svg class="wv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 15a4.2 4.2 0 0 1 6 0"/><path d="M6 11.8a8.5 8.5 0 0 1 12 0"/><path d="M3.2 8.6a12.6 12.6 0 0 1 17.6 0"/><circle cx="12" cy="18.5" r="1" fill="currentColor" stroke="none"/></svg></i><b><em>배선 공사</em> 없음</b><span>자석으로 붙이는 <i data-to="940" style="font-style:normal">940</i>MHz 무선 센서</span></div>
+    <div class="fact"><i class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="13" height="10" rx="1.5"/><path d="M7 18h5M9.5 14v4"/><rect x="17" y="9" width="4.5" height="9" rx="1"/></svg></i><b><em>서버 구축 없이</em> 바로 사용</b><span>PC·모바일에서 실시간 확인, 이상 시 즉시 알림</span></div>
+    <div class="fact"><i class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="13" width="16" height="6" rx="1.5"/><path d="M8 16h.01M11 16h.01M12 13V9M8.5 6.5a5 5 0 0 1 7 0"/></svg></i><b>게이트웨이 1대에 <em>센서 <i data-to="250">250</i>개</em></b><span>정전 시 내장 배터리로 2~3일 작동</span></div>
   </div>
 </div></section>
 </main>

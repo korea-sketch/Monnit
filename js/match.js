@@ -102,7 +102,7 @@
       }).then(function () { paint(res); ev('match_convert', res.verdict); });
     }).catch(function (e) {
       $('#scan').hidden = true; $('#drop').hidden = false; $('#facts').hidden = false; $('#cav1').hidden = true; $('#cav0').hidden = false;
-      $('#use').textContent = (e && e.message && e.message.length < 60 ? e.message : '올리지 못했습니다') + ' — 다시 시도해 주세요.'; $('#use').style.color = 'var(--dn)';
+      $('#use').textContent = (e && e.message && e.message.length < 60 ? e.message : '올리지 못했습니다') + '. 다시 시도해 주세요.'; $('#use').style.color = 'var(--dn)';
     }).then(function () { running = false; });
   }
 
@@ -214,7 +214,7 @@
     else if (vd === 'similar') { v.innerHTML = y + '년 총비용은 두 구성이 비슷한 구간으로 예상됩니다. <span class="est">예상</span>'; vs.textContent = '구성에 따라 낮아질 수도, 높아질 수도 있어 담당자 확인이 필요합니다.' + one; }
     else if (vd === 'higher') { v.innerHTML = '읽은 조건에서는 모넷 구성이 더 높은 구간으로 예상됩니다. <span class="est">예상</span>'; vs.textContent = '품목 대응이나 수량이 실제와 다를 수 있어 담당자 확인이 필요합니다.' + one; }
     else if (cmp) { v.innerHTML = '확인이 필요한 품목을 빼고 비교하면, 모넷 구성이 <span class="mint">약 ' + man(cmp.d[0]) + '~' + man(cmp.d[1]) + '원 낮은 구간</span>으로 계산됩니다. <span class="est">예상</span>'; vs.textContent = '확인이 필요한 품목(' + R.unpriced.join(', ') + ')은 양쪽 모두에서 빼고 비교했습니다. 담당자가 대응 모델을 확인해 정식 견적에 반영합니다.'; }
-    else { v.textContent = '일부 품목은 담당자 확인이 필요해 구간을 확정하지 못했습니다.'; vs.textContent = '확인이 필요한 품목: ' + R.unpriced.join(', ') + ' — 아래 모넷 구간에는 이 품목이 빠져 있습니다.'; }
+    else { v.textContent = '일부 품목은 담당자 확인이 필요해 구간을 확정하지 못했습니다.'; vs.textContent = '확인이 필요한 품목: ' + R.unpriced.join(', ') + '. 아래 모넷 구간에는 이 품목이 빠져 있습니다.'; }
     var dl = function (a) { return a.map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + x[1] + '</dd>'; }).join(''); };
     $('#tD').innerHTML = dl([['초기 비용', won(T.init) + '원'], ['매년 비용', won(T.yearly) + '원']]);
     $('#oD').innerHTML = dl([['초기 비용', span(O.init) + '원'], ['매년 비용', span(O.yearly) + '원' + (O.firstYearFree ? ' (첫 해 면제)' : '')]]);
@@ -312,15 +312,15 @@
       .then(function (r) { return r.json(); }).catch(function () { return null; })
       .then(function (r) {
         var id = (r && r.id) || '', s = r && r.theirs ? r : last;
-        var sum = s ? ' ' + s.years + '년 총비용 — 받은 견적 ' + won(s.theirs.tco) + '원 / 고객 화면에 보인 모넷 예상 구간 ' + man(s.ours.tco[0]) + '~' + man(s.ours.tco[1]) + '원' + (s.verdict === 'partial' ? ' (부분 산정)' : '') + ' — AI 판독 기준 · 원본 대조 필요, 정확한 계산값은 관제에서 확인.' : ' 자동 판독이 되지 않아 원본 확인이 필요합니다.';
+        var sum = s ? ' ' + s.years + '년 총비용: 받은 견적 ' + won(s.theirs.tco) + '원 / 고객 화면에 보인 모넷 예상 구간 ' + man(s.ours.tco[0]) + '~' + man(s.ours.tco[1]) + '원' + (s.verdict === 'partial' ? ' (부분 산정)' : '') + ' · AI 판독 기준 · 원본 대조 필요, 정확한 계산값은 관제에서 확인.' : ' 자동 판독이 되지 않아 원본 확인이 필요합니다.';
         var payload = {
           _subject: '[맞견적 비교 신청] ' + contact.company + ' / ' + contact.name,
           '관심분야': INTEREST, '회사명': contact.company, '담당자명': contact.name, '전화번호': contact.phone,
           '문의 사항': '[맞견적 ' + (id || '번호 없음') + '] 견적서 파일 ' + okCount + '개.' + sum + ' ※ 고객에게 예상 금액으로 안내됨(용도·수신 범위 확인 후 변동 가능 고지 · 고객 확인 체크).' + ' 파일과 읽은 품목은 관제(/ops/enablement) 「올린 견적서」에서 확인합니다.',
-          '예상 금액 고지 확인(필수)': '확인 — 센서 용도·게이트웨이 수신 범위 확인 후 정식 견적 금액이 달라질 수 있음', '개인정보 수집·이용 동의(필수)': '동의', '동의 일시': new Date().toLocaleString('ko-KR'), '접수 경로': '맞견적(/match)'
+          '예상 금액 고지 확인(필수)': '확인: 센서 용도·게이트웨이 수신 범위 확인 후 정식 견적 금액이 달라질 수 있음', '개인정보 수집·이용 동의(필수)': '동의', '동의 일시': new Date().toLocaleString('ko-KR'), '접수 경로': '맞견적(/match)'
         };
         var ML = w.MonnitLead;
-        try { if (ML) ML.build('contact', PAGE, '맞견적 비교 신청 — ' + contact.company, payload); else { payload['접점'] = PAGE; payload['유입 페이지'] = String(location.href).split('#')[0]; } } catch (x) {}
+        try { if (ML) ML.build('contact', PAGE, '맞견적 비교 신청: ' + contact.company, payload); else { payload['접점'] = PAGE; payload['유입 페이지'] = String(location.href).split('#')[0]; } } catch (x) {}
         return (ML && ML.submit ? Promise.resolve().then(function () { ML.setNotified(false); return ML.submit(payload); }).catch(function () { return false; }) : Promise.resolve(false))
           .then(function (served) { try { if (ML) { if (served) ML.track('contact', { page: PAGE, interest: INTEREST }); else ML.recordPending(payload); } } catch (x) {} return { r: r, id: id, served: served }; });
       })

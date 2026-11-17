@@ -44,12 +44,12 @@ export const DEFAULT_CFG = {
     scube: { name: 'iMonnit Scube 전용 플랫폼', annual: 500000, note: '연 구독 · 문자메시지 알람 · 시스템 알람' }
   },
   install: {
-    selfNote: '배선 공사가 없는 940MHz 무선 방식 — 센서는 자석으로 붙이고 게이트웨이는 전원만 연결합니다',
+    selfNote: '배선 공사가 없는 940MHz 무선 방식, 센서는 자석으로 붙이고 게이트웨이는 전원만 연결합니다',
     assistBase: 0,       /* 설치 대행 — 현장 1곳당 기본료. 0 이면 「현장 확인 뒤 안내」로 나간다 */
     assistPerPoint: 0    /* 설치 대행 — 센서 1개당 */
   },
   /* 통신비 — 비워 두면(0) 금액 없이 안내 문구만 나간다. 실제 과금 조건에 맞게 관제 화면에서 넣는다 */
-  comm: { lte: 0, lan: 0, note: { lte: 'LTE 유심 내장 게이트웨이 — 현장 인터넷 회선이 필요 없습니다', lan: '현장 유선 인터넷(랜)에 연결합니다' } },
+  comm: { lte: 0, lan: 0, note: { lte: 'LTE 유심 내장 게이트웨이, 현장 인터넷 회선이 필요 없습니다', lan: '현장 유선 인터넷(랜)에 연결합니다' } },
   promo: { platformFirstYearFree: false, installFree: false, label: '' },
   warrantyNote: '제품 기본 보증 1년',
   /* 고객 화면 맨 아래 고지 */
