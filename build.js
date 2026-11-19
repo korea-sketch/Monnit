@@ -261,7 +261,10 @@ const CATEGORIES = __src ? __src.CATEGORIES : (extract('let CATEGORIES =') || {}
 const APPS = __src ? __src.APPS : (extract('let APPS =') || []);
 const PRODUCTS = __src ? __src.PRODUCTS : (extract('var PRODUCTS =') || []);
 const CASE_DATA = __src ? __src.CASE_DATA : (extract('let CASE_DATA =') || {});
-const APP_DETAILS = __src ? __src.APP_DETAILS : (extract('let APP_DETAILS =') || {});
+/* 2026-11-19 활용 분야 콘텐츠 출처 스위치 — app.js 의 APP_CONTENT_FROM_CODE 와 같은 값으로 유지 */
+const APP_CONTENT_FROM_CODE = true;
+const APP_DETAILS = (__src && !APP_CONTENT_FROM_CODE) ? __src.APP_DETAILS : (extract('let APP_DETAILS =') || {});
+if (APP_CONTENT_FROM_CODE && __src) { const _d = {}; (extract('let APPS =') || []).forEach(a => { _d[a.id] = a.desc; }); APPS.forEach(a => { if (_d[a.id]) a.desc = _d[a.id]; }); }
 const AWARDS = __src ? __src.AWARDS : (extract('let AWARDS =') || []);
 const PARTNERS = __src ? __src.PARTNERS : (extract('let PARTNERS =') || []);
 const CUSTOMERS = __src ? __src.CUSTOMERS : (extract('let CUSTOMERS =') || []);
