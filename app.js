@@ -5503,3 +5503,51 @@ boot();
   }
   var go=gid('calcGo'); if(go){ go.addEventListener('click', calculate); calculate(); }
 })();
+
+
+/* ===== 활용 분야 상세 — 미세 인터랙션 (2026-11-19) =====
+   스크롤 진입 시 본문이 살짝 올라오며 나타난다. 오류가 나거나 지원하지 않는 환경에서는
+   .appd-fx 가 붙지 않아 모든 내용이 그대로 보인다(fail-open). 호버 효과는 style.css 담당. */
+(function(){
+  if (typeof renderAppDetail !== 'function') return;
+  var io = null;
+  function arm(){
+    var view = document.getElementById('view-app-detail');
+    if (!view) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) { view.classList.remove('appd-fx'); return; }
+    if (io) io.disconnect();
+    var groups = [
+      ['#appd-snapshot .snap', 70],
+      ['#appd-customer', 0], ['#appd-challenge > .case-lead', 0], ['#appd-challenge .pain-list li', 60],
+      ['#appd-solution', 0], ['#appd-proposal > .case-lead', 0], ['#appd-proposal .phase', 60],
+      ['#appd-roi > .case-lead', 0], ['#appd-roi .roi-card', 70], ['#appd-roi .comparison', 0]
+    ];
+    var els = [];
+    groups.forEach(function(g){
+      var list = view.querySelectorAll(g[0]);
+      for (var i = 0; i < list.length; i++) {
+        var el = list[i];
+        el.classList.add('appd-rv'); el.classList.remove('in');
+        el.style.setProperty('--appd-d', (g[1] * i) + 'ms');
+        els.push(el);
+      }
+    });
+    view.classList.add('appd-fx');
+    io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
+    els.forEach(function(el){ io.observe(el); });
+    /* 안전장치: 관찰이 누락돼도 2.5초 뒤에는 화면 안의 요소를 모두 보이게 한다 */
+    setTimeout(function(){
+      var vh = window.innerHeight || 800;
+      els.forEach(function(el){ if (el.getBoundingClientRect().top < vh) el.classList.add('in'); });
+    }, 2500);
+  }
+  var _render = renderAppDetail;
+  renderAppDetail = function(id){
+    _render(id);
+    try { (window.requestAnimationFrame || setTimeout)(arm); }
+    catch (e) { var v = document.getElementById('view-app-detail'); if (v) v.classList.remove('appd-fx'); }
+  };
+})();

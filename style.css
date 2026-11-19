@@ -11890,3 +11890,39 @@ html[lang="en"] .case-card .tag, html[lang="en"] .featured-card .tag { letter-sp
 .skip-link{position:absolute;left:12px;top:-60px;z-index:100000;background:#fff;color:#0a1022;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none;transition:top .15s}
 .skip-link:focus{top:12px;outline:3px solid #6FA2FF}
 main:focus{outline:none}
+
+
+/* ============================================================
+   활용 분야 상세 — 미세 인터랙션 (2026-11-19)
+   레이아웃·색·크기는 그대로 두고 색/투명도 전환만 더한다.
+   · 스크롤 진입 시 본문이 8px 올라오며 나타남 (1회, JS 가 .appd-fx 를 붙였을 때만)
+   · 마우스 오버: 문제점 항목 강조선, 단계 태그·ROI 카드·요약 값·제품 태그 색 전환
+   · prefers-reduced-motion 이면 전부 끔
+   ============================================================ */
+#view-app-detail.appd-fx .appd-rv{ opacity:0; transform:translateY(8px); transition:opacity .5s ease, transform .5s ease; transition-delay:var(--appd-d,0ms); }
+#view-app-detail.appd-fx .appd-rv.in{ opacity:1; transform:none; }
+
+#view-app-detail .pain-list li{ position:relative; }
+#view-app-detail .pain-list li::before{ content:''; position:absolute; left:-24px; top:0; bottom:0; width:2px; background:var(--accent-dark); transform:scaleY(0); transform-origin:top; transition:transform .28s ease; }
+#view-app-detail .pain-list li strong,
+#view-app-detail .phase-tag,
+#view-app-detail .phase-title,
+#view-app-detail .snap-value,
+#view-app-detail .roi-num{ transition:color .25s ease; }
+#view-app-detail .roi-card{ transition:background-color .25s ease; }
+#view-app-detail .sensor-tag{ transition:border-color .2s ease, color .2s ease; }
+
+@media (hover:hover){
+  #view-app-detail .pain-list li:hover::before{ transform:scaleY(1); }
+  #view-app-detail .pain-list li:hover strong{ color:var(--accent-dark); }
+  #view-app-detail .phase:hover .phase-tag{ color:var(--accent-dark); }
+  #view-app-detail .phase:hover .phase-title{ color:#fff; }
+  #view-app-detail .snap:hover .snap-value{ color:var(--accent-dark); }
+  #view-app-detail .roi-card:hover{ background-color:rgba(74,130,196,.08); }
+  #view-app-detail .roi-card:hover .roi-num{ color:var(--accent-dark); }
+  #view-app-detail .sensor-tag:hover{ border-color:var(--accent); color:var(--accent-dark); }
+}
+@media (prefers-reduced-motion: reduce){
+  #view-app-detail.appd-fx .appd-rv{ opacity:1 !important; transform:none !important; transition:none !important; }
+  #view-app-detail .pain-list li::before{ transition:none; }
+}
