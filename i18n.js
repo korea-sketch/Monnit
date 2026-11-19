@@ -708,8 +708,8 @@
     // 푸터/소개 단락 (단일 텍스트노드)
     '제조부터 에너지, 바이오, 유통, 데이터센터까지 — 70개 글로벌 기업이 12개 산업 현장에서 선택한 검증된 솔루션입니다.':
       'From manufacturing to energy, bio, retail and data centers — proven solutions chosen by 70 global enterprises across 12 industries.',
-    '온도·습도·진동·전력·누수까지 — Monnit이 검증한 산업별 어플리케이션을 한 페이지에서 탐색하고, 실제 도입 고객사 사례로 즉시 확인하세요.':
-      'From temperature, humidity and vibration to power and leak detection — explore Monnit-proven applications by industry on one page and verify them instantly with real customer cases.',
+    '온도·습도·진동·전력·누수에 이르는 Monnit 검증 어플리케이션을 산업별로 한 페이지에서 살펴보고, 실제 도입 고객사 사례로 확인하세요.':
+      'From temperature, humidity and vibration to power and leak detection, explore Monnit-proven applications by industry on one page and verify them instantly with real customer cases.',
     '64,000여 고객사, 280여 종의 다양한 산업군에 솔루션을 공급하며 현장에서 검증되었습니다.':
       'Field-proven across 64,000+ customers and 280+ industry types.',
     'Monnit Korea 대표이사': 'CEO, Monnit Korea',

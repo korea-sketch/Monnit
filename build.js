@@ -650,13 +650,13 @@ writePage('company', page({
     const items = APPS.filter(a => a.cat === key);
     if (!items.length) return;
     body += `<h2>${esc(info.name)} (${items.length})</h2><ul>`;
-    items.forEach(a => { body += `<li><a href="${SITE}/app/${esc(a.id)}"><strong>${esc(a.name)}</strong></a> — ${esc(a.desc)}${a.sensors ? ` <span class="muted">[${esc(a.sensors)}]</span>` : ''}</li>`; });
+    items.forEach(a => { body += `<li><a href="${SITE}/app/${esc(a.id)}"><strong>${esc(a.name)}</strong></a>: ${esc(a.desc)}${a.sensors ? ` <span class="muted">[${esc(a.sensors)}]</span>` : ''}</li>`; });
     body += '</ul>';
   });
   writePage('solutions', page({
-    slug: 'solutions', title: 'Monnit 활용 분야 — 산업별 IoT 모니터링 솔루션',
+    slug: 'solutions', title: 'Monnit 활용 분야 | 산업별 IoT 모니터링 솔루션',
     desc: `화재·안전, 설비 예지보전, 누수·침수, 환경·공기질, 에너지 관리, 통합관제 등 ${APPS.length}개 산업용 IoT 활용 분야.`,
-    h1: '활용 분야 — 현장의 문제를 데이터로',
+    h1: '활용 분야: 현장의 문제를 데이터로',
     bodyHtml: body
   }), 'Monnit 활용 분야');
 })();
@@ -715,7 +715,7 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
     if (d) {
       if (Array.isArray(d.snapshot) && d.snapshot.length) {
         body += `<h2>한눈에 보기</h2><ul>` + d.snapshot.map(s =>
-          `<li><strong>${esc(s.label)}</strong>: ${esc(s.value)}${s.desc ? ` <span class="muted">— ${esc(s.desc)}</span>` : ''}</li>`).join('') + `</ul>`;
+          `<li><strong>${esc(s.label)}</strong>: ${esc(s.value)}${s.desc ? ` <span class="muted">(${esc(s.desc)})</span>` : ''}</li>`).join('') + `</ul>`;
       }
       if (d.customer) {
         body += `<h2>01 · 고객 프로필</h2><p><strong>${esc(strip(d.customer.lead || ''))}</strong></p>`;
@@ -724,7 +724,7 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
       if (d.challenge) {
         body += `<h2>02 · 현재의 문제점</h2><p><strong>${esc(strip(d.challenge.lead || ''))}</strong></p>`;
         if ((d.challenge.pains || []).length) body += `<ul>` + d.challenge.pains.map(p =>
-          `<li><strong>${esc(p.title)}</strong> — ${esc(strip(p.desc || ''))}</li>`).join('') + `</ul>`;
+          `<li><strong>${esc(p.title)}</strong>: ${esc(strip(p.desc || ''))}</li>`).join('') + `</ul>`;
       }
       if (d.solution) {
         body += `<h2>03 · Monnit 솔루션</h2><p><strong>${esc(strip(d.solution.lead || ''))}</strong></p>`;
@@ -734,12 +734,12 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
       if (d.proposal) {
         body += `<h2>04 · 제안 단계</h2><p><strong>${esc(strip(d.proposal.lead || ''))}</strong></p>`;
         if ((d.proposal.phases || []).length) body += `<ul>` + d.proposal.phases.map(p =>
-          `<li><strong>${esc(p.tag || '')} ${esc(p.title || '')}</strong>${p.duration ? ` <span class="muted">(${esc(p.duration)})</span>` : ''} — ${esc(strip(p.desc || ''))}</li>`).join('') + `</ul>`;
+          `<li><strong>${esc(p.tag || '')} ${esc(p.title || '')}</strong>${p.duration ? ` <span class="muted">(${esc(p.duration)})</span>` : ''}: ${esc(strip(p.desc || ''))}</li>`).join('') + `</ul>`;
       }
       if (d.roi) {
         body += `<h2>05 · 예상 ROI</h2><p><strong>${esc(strip(d.roi.lead || ''))}</strong></p>`;
         if ((d.roi.metrics || []).length) body += `<ul>` + d.roi.metrics.map(m =>
-          `<li><strong>${esc(m.num)}</strong> — ${esc(strip(m.desc || ''))}</li>`).join('') + `</ul>`;
+          `<li><strong>${esc(m.num)}</strong>: ${esc(strip(m.desc || ''))}</li>`).join('') + `</ul>`;
         if (d.roi.before) body += `<p><strong>도입 전:</strong> ${esc(strip(d.roi.before))}</p>`;
         if (d.roi.after) body += `<p><strong>도입 후:</strong> ${esc(strip(d.roi.after))}</p>`;
       }
@@ -754,12 +754,12 @@ ${c.quote ? `<h2>고객의 말</h2><p>“${esc(strip(c.quote))}”${c.cite ? ` <
 
     writePage('app-' + a.id, page({
       slug: 'app-' + a.id,
-      title: `${strip(a.name)} — 무선 IoT 모니터링 솔루션 | Monnit Korea`,
+      title: `${strip(a.name)} 무선 IoT 모니터링 솔루션 | Monnit Korea`,
       desc: (strip(a.desc) + (a.sensors ? ' 적용 센서: ' + a.sensors + '.' : '')).slice(0, 158),
       h1: strip(a.name),
       jsonld: {
         '@context': 'https://schema.org', '@type': 'Service',
-        name: strip(a.name) + ' — 무선 IoT 모니터링', serviceType: strip(a.name),
+        name: strip(a.name) + ' 무선 IoT 모니터링', serviceType: strip(a.name),
         description: strip(a.desc), provider: ORG_LD, areaServed: 'KR',
         url: SITE + '/app/' + a.id
       },
